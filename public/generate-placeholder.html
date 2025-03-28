@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generate Placeholder Image</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: #0f0f0f;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+    
+    .canvas-container {
+      position: relative;
+      margin: 20px;
+    }
+    
+    canvas {
+      border: 1px solid #333;
+    }
+    
+    .controls {
+      margin: 20px 0;
+      padding: 20px;
+      background: #222;
+      border-radius: 8px;
+      max-width: 600px;
+      width: 100%;
+    }
+    
+    h1 {
+      color: #10b981;
+      margin-bottom: 30px;
+    }
+    
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      justify-content: center;
+    }
+    
+    button {
+      background: #0f4c39;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    button:hover {
+      background: #10b981;
+    }
+    
+    a {
+      display: inline-block;
+      text-decoration: none;
+      color: white;
+      background: #134e3c;
+      padding: 10px 15px;
+      border-radius: 4px;
+      margin-top: 20px;
+    }
+    
+    .preview {
+      margin-top: 20px;
+      text-align: center;
+    }
+    
+    .preview img {
+      max-width: 300px;
+      border: 1px solid #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>Gradient Placeholder Generator</h1>
+  
+  <div class="canvas-container">
+    <canvas id="gradientCanvas" width="800" height="600"></canvas>
+  </div>
+  
+  <div class="controls">
+    <p>Dark green to black velvet-like gradient placeholder for your fantasy kingdom.</p>
+    
+    <div class="buttons">
+      <button id="generateBtn">Generate Gradient</button>
+      <button id="downloadBtn">Download Image</button>
+    </div>
+    
+    <div class="preview">
+      <p>Preview at different sizes:</p>
+      <div id="previewContainer"></div>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const canvas = document.getElementById('gradientCanvas');
+      const ctx = canvas.getContext('2d');
+      const generateBtn = document.getElementById('generateBtn');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const previewContainer = document.getElementById('previewContainer');
+      
+      // Generate a velvet-like texture pattern
+      function generateNoisePattern(ctx, width, height, alpha) {
+        const imageData = ctx.getImageData(0, 0, width, height);
+        const data = imageData.data;
+        
+        for (let i = 0; i < data.length; i += 4) {
+          // Add subtle noise
+          const noise = Math.random() * alpha;
+          data[i] = Math.min(255, data[i] + noise);     // R
+          data[i + 1] = Math.min(255, data[i + 1] + noise); // G
+          data[i + 2] = Math.min(255, data[i + 2] + noise); // B
+        }
+        
+        ctx.putImageData(imageData, 0, 0);
+      }
+      
+      // Generate the gradient
+      function generateGradient() {
+        const width = canvas.width;
+        const height = canvas.height;
+        
+        // Create gradient - dark green to black
+        const gradient = ctx.createRadialGradient(
+          width / 2, height / 2, 0,
+          width / 2, height / 2, height
+        );
+        
+        // Dark green velvet colors
+        gradient.addColorStop(0, '#0e3a2e');   // Darker green center
+        gradient.addColorStop(0.4, '#0a2e22'); // Mid dark green
+        gradient.addColorStop(0.7, '#071b15'); // Very dark green
+        gradient.addColorStop(1, '#030a07');   // Almost black edge
+        
+        // Fill with gradient
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+        
+        // Add subtle texture for velvet-like appearance
+        generateNoisePattern(ctx, width, height, 5);
+        
+        // Add a subtle vignette effect
+        const vignetteGradient = ctx.createRadialGradient(
+          width / 2, height / 2, height * 0.4,
+          width / 2, height / 2, height
+        );
+        vignetteGradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+        vignetteGradient.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
+        
+        ctx.fillStyle = vignetteGradient;
+        ctx.fillRect(0, 0, width, height);
+        
+        // Create preview images
+        createPreviews();
+      }
+      
+      // Create previews at different sizes
+      function createPreviews() {
+        previewContainer.innerHTML = '';
+        
+        const sizes = [
+          { width: 100, height: 100, label: "Small (100x100)" },
+          { width: 200, height: 150, label: "Medium (200x150)" },
+          { width: 300, height: 200, label: "Large (300x200)" }
+        ];
+        
+        sizes.forEach(size => {
+          const previewCanvas = document.createElement('canvas');
+          previewCanvas.width = size.width;
+          previewCanvas.height = size.height;
+          const previewCtx = previewCanvas.getContext('2d');
+          
+          // Draw the main canvas content onto the preview canvas
+          previewCtx.drawImage(canvas, 0, 0, size.width, size.height);
+          
+          const previewImg = document.createElement('img');
+          previewImg.src = previewCanvas.toDataURL('image/png');
+          previewImg.alt = size.label;
+          previewImg.style.marginRight = '10px';
+          previewImg.style.marginBottom = '10px';
+          
+          const previewWrapper = document.createElement('div');
+          previewWrapper.style.display = 'inline-block';
+          previewWrapper.style.textAlign = 'center';
+          previewWrapper.style.margin = '10px';
+          
+          const previewLabel = document.createElement('div');
+          previewLabel.textContent = size.label;
+          previewLabel.style.fontSize = '12px';
+          previewLabel.style.marginTop = '5px';
+          
+          previewWrapper.appendChild(previewImg);
+          previewWrapper.appendChild(previewLabel);
+          previewContainer.appendChild(previewWrapper);
+        });
+      }
+      
+      // Download the canvas as PNG
+      function downloadImage() {
+        const link = document.createElement('a');
+        link.download = 'velvet-gradient-placeholder.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      }
+      
+      // Event listeners
+      generateBtn.addEventListener('click', generateGradient);
+      downloadBtn.addEventListener('click', downloadImage);
+      
+      // Generate initial gradient
+      generateGradient();
+    });
+  </script>
+</body>
+</html> 

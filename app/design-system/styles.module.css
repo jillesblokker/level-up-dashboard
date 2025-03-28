@@ -1,0 +1,23 @@
+.colorPreview {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.fontPreview {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  margin-top: 0.5rem;
+}
+
+.weightBadge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  margin-right: 0.5rem;
+} 

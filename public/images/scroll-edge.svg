@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="30" height="100" viewBox="0 0 30 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Base shape -->
+  <path d="M0,0 C10,0 20,0 30,0 C30,33 30,66 30,100 C20,100 10,100 0,100 C5,66 5,33 0,0" fill="#e4d4ac"/>
+  
+  <!-- Shadow -->
+  <path d="M0,0 C10,0 20,0 30,0 C30,33 30,66 30,100 C20,100 10,100 0,100 C5,66 5,33 0,0" 
+        fill="#8b7355" fill-opacity="0.2" transform="translate(2,2)"/>
+  
+  <!-- Highlight -->
+  <path d="M0,0 C10,0 20,0 30,0 C30,33 30,66 30,100 C20,100 10,100 0,100 C5,66 5,33 0,0" 
+        fill="#fff" fill-opacity="0.1" transform="translate(-1,-1)"/>
+</svg> 

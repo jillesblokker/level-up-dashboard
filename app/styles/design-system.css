@@ -1,0 +1,22 @@
+:root {
+  /* Primary Colors */
+  --primary: #f59e0b;
+  --primary-dark: #b45309;
+  
+  /* Secondary Colors */
+  --secondary: #1f2937;
+  
+  /* Accent Colors */
+  --accent: #4f46e5;
+  
+  /* Background Colors */
+  --background: #000000;
+  
+  /* Text Colors */
+  --text-primary: #ffffff;
+  --text-secondary: #9ca3af;
+  
+  /* Font Families */
+  --font-cinzel: 'Cinzel', serif;
+  --font-inter: 'Inter', sans-serif;
+} 

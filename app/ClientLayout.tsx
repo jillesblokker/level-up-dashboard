@@ -1,0 +1,101 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import type React from "react"
+import { usePathname } from "next/navigation"
+import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "@/components/ui/toaster"
+import { DevicePreview } from "@/components/device-preview"
+import { DbProvider } from "@/lib/db-context"
+import { MobileNav } from "@/components/navigation/mobile-nav"
+import { NavBar } from "@/components/nav-bar"
+import { toast } from "@/components/ui/use-toast"
+
+// Create a global state object for header images
+if (typeof window !== 'undefined') {
+  // @ts-ignore
+  window.headerImages = window.headerImages || {
+    realm: localStorage.getItem("realm-header-image") || "/images/realm-header.jpg",
+    character: localStorage.getItem("character-header-image") || "/images/character-header.jpg",
+    quests: localStorage.getItem("quests-header-image") || "/images/quests-header.jpg",
+    guildhall: localStorage.getItem("guildhall-header-image") || "/images/guildhall-header.jpg",
+  }
+}
+
+export default function ClientLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
+  const pathname = usePathname()
+  const [goldBalance, setGoldBalance] = useState(0)
+  
+  // Load gold balance from localStorage when the component mounts
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Try different gold balance keys used in the app
+      const goldKeys = ["gold-balance", "levelup-gold-balance", "goldBalance"]
+      
+      for (const key of goldKeys) {
+        const savedGold = localStorage.getItem(key)
+        if (savedGold) {
+          setGoldBalance(Number.parseInt(savedGold))
+          break
+        }
+      }
+    }
+  }, [])
+  
+  // Save map function for the realm page
+  const saveMap = () => {
+    if (pathname === "/realm") {
+      try {
+        // Dispatch a custom event that the RealmPage component listens for
+        const saveMapEvent = new Event('saveMap');
+        window.dispatchEvent(saveMapEvent);
+      } catch (error) {
+        console.error("Error triggering save map:", error)
+        toast({
+          title: "Error Saving Map",
+          description: "There was a problem saving your map.",
+          variant: "destructive",
+        })
+      }
+    }
+  }
+
+  return (
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
+      <DbProvider>
+        <div className="flex min-h-screen flex-col">
+          {/* Mobile Navigation (hidden on md and larger screens) */}
+          <div className="md:hidden">
+            <MobileNav 
+              goldBalance={goldBalance} 
+              onSaveMap={saveMap} 
+              // @ts-ignore - Use window.mobileNavProps if available
+              tabs={typeof window !== 'undefined' && window.mobileNavProps ? window.mobileNavProps.tabs : undefined}
+              // @ts-ignore
+              activeTab={typeof window !== 'undefined' && window.mobileNavProps ? window.mobileNavProps.activeTab : undefined}
+              // @ts-ignore
+              onTabChange={typeof window !== 'undefined' && window.mobileNavProps ? window.mobileNavProps.onTabChange : undefined}
+            />
+          </div>
+          
+          {/* Desktop Navigation (hidden on smaller than md screens) */}
+          <div className="hidden md:block">
+            <NavBar />
+          </div>
+          
+          {/* Main content with proper padding to account for fixed navigation */}
+          <main className="flex-1 md:pt-0">
+            {children}
+          </main>
+        </div>
+      </DbProvider>
+      <Toaster />
+      <DevicePreview />
+    </ThemeProvider>
+  )
+}
+

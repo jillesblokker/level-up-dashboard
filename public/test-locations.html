@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Location Data Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #121212;
+      color: #eee;
+    }
+    button {
+      background: #b45309;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+    button:hover {
+      background: #92400e;
+    }
+    pre {
+      background: #1e1e1e;
+      padding: 15px;
+      border-radius: 4px;
+      overflow: auto;
+      max-height: 400px;
+    }
+    .success {
+      color: #10b981;
+    }
+    .error {
+      color: #ef4444;
+    }
+    .locations-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .location-card {
+      background: #1e1e1e;
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 15px;
+    }
+    .location-card h3 {
+      margin-top: 0;
+      color: #d97706;
+    }
+    .link-btn {
+      display: block;
+      text-align: center;
+      background: #1f2937;
+      color: white;
+      text-decoration: none;
+      padding: 8px;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+    .link-btn:hover {
+      background: #374151;
+    }
+  </style>
+</head>
+<body>
+  <h1>Location Data Test</h1>
+  
+  <button id="check-data">Check localStorage Data</button>
+  <button id="reset-data">Reset Data</button>
+  
+  <h2>localStorage Status:</h2>
+  <pre id="data-output"></pre>
+  
+  <h2>Location Links:</h2>
+  <div class="locations-grid" id="locations-container">
+    <!-- Location cards will be inserted here -->
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Default location data
+      const defaultLocations = [
+        {
+          id: "tavern",
+          name: "The Dragon's Rest Tavern",
+          description: "A cozy tavern where adventurers gather to share tales and drink mead.",
+          image: "/images/locations/tavern.jpg",
+          items: [
+            { id: "beer", name: "Frothy Ale", price: 5, description: "A refreshing drink after a long day of questing" },
+            { id: "meal", name: "Hearty Stew", price: 15, description: "Fills your belly and restores energy" },
+            { id: "room", name: "Night's Stay", price: 50, description: "A comfortable room to rest for the night" }
+          ]
+        },
+        {
+          id: "stables",
+          name: "Royal Stables",
+          description: "Fine steeds and mounts for your journeys across the kingdom.",
+          image: "/images/locations/stables.jpg",
+          items: [
+            { id: "horse", name: "Sturdy Steed", price: 500, description: "A reliable mount for your travels" },
+            { id: "warhorse", name: "Battle-Trained Destrier", price: 1200, description: "A powerful warhorse fit for a knight" },
+            { id: "feed", name: "Premium Horse Feed", price: 30, description: "Keep your mount happy and healthy" }
+          ]
+        },
+        {
+          id: "market",
+          name: "Kingdom Marketplace",
+          description: "Bustling market where merchants sell goods from across the land.",
+          image: "/images/locations/market.jpg",
+          items: [
+            { id: "potion", name: "Healing Potion", price: 100, description: "Restores health in times of need" },
+            { id: "map", name: "Treasure Map", price: 250, description: "Leads to hidden riches (maybe)" },
+            { id: "torch", name: "Enchanted Torch", price: 75, description: "Never burns out, perfect for dark dungeons" }
+          ]
+        },
+        {
+          id: "blacksmith",
+          name: "Ember's Anvil",
+          description: "Master blacksmith crafting the finest weapons and armor.",
+          image: "/images/locations/blacksmith.jpg",
+          items: [
+            { id: "sword", name: "Steel Longsword", price: 350, description: "Well-balanced weapon for any warrior" },
+            { id: "shield", name: "Reinforced Shield", price: 300, description: "Sturdy protection in battle" },
+            { id: "armor", name: "Chain Mail", price: 800, description: "Reliable protection without sacrificing mobility" }
+          ]
+        }
+      ];
+
+      const checkDataBtn = document.getElementById('check-data');
+      const resetDataBtn = document.getElementById('reset-data');
+      const dataOutput = document.getElementById('data-output');
+      const locationsContainer = document.getElementById('locations-container');
+      
+      // Check localStorage data
+      checkDataBtn.addEventListener('click', function() {
+        const notableLocations = localStorage.getItem('notableLocations');
+        const goldBalance = localStorage.getItem('goldBalance');
+        const purchasedItems = localStorage.getItem('purchasedItems');
+        
+        let output = '';
+        
+        if (notableLocations) {
+          try {
+            const parsedLocations = JSON.parse(notableLocations);
+            output += `<span class="success">✓ notableLocations found with ${parsedLocations.length} locations</span>\n`;
+            output += `Location IDs: ${parsedLocations.map(l => l.id).join(', ')}\n\n`;
+          } catch (e) {
+            output += `<span class="error">✗ Error parsing notableLocations: ${e.message}</span>\n\n`;
+          }
+        } else {
+          output += `<span class="error">✗ notableLocations not found in localStorage</span>\n\n`;
+        }
+        
+        if (goldBalance) {
+          output += `<span class="success">✓ goldBalance: ${goldBalance}</span>\n\n`;
+        } else {
+          output += `<span class="error">✗ goldBalance not found in localStorage</span>\n\n`;
+        }
+        
+        if (purchasedItems) {
+          try {
+            const parsedItems = JSON.parse(purchasedItems);
+            output += `<span class="success">✓ purchasedItems: ${parsedItems.length} items</span>\n`;
+            output += `Purchased IDs: ${parsedItems.join(', ') || 'none'}\n\n`;
+          } catch (e) {
+            output += `<span class="error">✗ Error parsing purchasedItems: ${e.message}</span>\n\n`;
+          }
+        } else {
+          output += `<span class="error">✗ purchasedItems not found in localStorage</span>\n\n`;
+        }
+        
+        dataOutput.innerHTML = output;
+        renderLocationCards();
+      });
+      
+      // Reset localStorage data
+      resetDataBtn.addEventListener('click', function() {
+        localStorage.setItem('notableLocations', JSON.stringify(defaultLocations));
+        localStorage.setItem('goldBalance', '5000');
+        localStorage.setItem('purchasedItems', '[]');
+        dataOutput.innerHTML = `<span class="success">✓ Data reset successfully!</span>`;
+        renderLocationCards();
+      });
+      
+      // Render location cards and links
+      function renderLocationCards() {
+        const notableLocations = localStorage.getItem('notableLocations');
+        locationsContainer.innerHTML = '';
+        
+        if (notableLocations) {
+          try {
+            const parsedLocations = JSON.parse(notableLocations);
+            
+            parsedLocations.forEach(location => {
+              const card = document.createElement('div');
+              card.className = 'location-card';
+              
+              card.innerHTML = `
+                <h3>${location.name}</h3>
+                <p>${location.description.substring(0, 60)}...</p>
+                <a href="/locations/${location.id}" class="link-btn" target="_blank">Visit Location</a>
+              `;
+              
+              locationsContainer.appendChild(card);
+            });
+          } catch (e) {
+            locationsContainer.innerHTML = `<p class="error">Error rendering locations: ${e.message}</p>`;
+          }
+        } else {
+          locationsContainer.innerHTML = `<p class="error">No locations found. Click "Reset Data" to add default locations.</p>`;
+        }
+      }
+      
+      // Initial check
+      checkDataBtn.click();
+    });
+  </script>
+</body>
+</html> 
