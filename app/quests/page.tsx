@@ -22,6 +22,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { DailyQuests } from "@/components/daily-quests"
+import { Milestones } from "@/components/milestones"
+
+// Add this type declaration at the top of the file, after the imports
+declare global {
+  interface Window {
+    headerImages?: {
+      quests?: string;
+    };
+  }
+}
 
 // Quest types
 interface Quest {
@@ -418,15 +428,21 @@ export default function QuestsPage() {
 
   const [isHovering, setIsHovering] = useState(false)
   const [showUploadModal, setShowUploadModal] = useState(false)
-  const [coverImage, setCoverImage] = useState(() => {
-    if (typeof window !== 'undefined') {
-      // @ts-ignore
-      return window.headerImages?.quests || "/images/quests-header.jpg"
-    }
-    return "/images/quests-header.jpg"
-  })
+  const [coverImage, setCoverImage] = useState("/images/quests-header.jpg")
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Load header image from localStorage on client side only
+  useEffect(() => {
+    const savedImage = localStorage.getItem("quests-header-image")
+    if (savedImage) {
+      setCoverImage(savedImage)
+    }
+    // Also check window.headerImages if it exists
+    if (typeof window !== 'undefined' && window.headerImages?.quests) {
+      setCoverImage(window.headerImages.quests)
+    }
+  }, [])
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -472,8 +488,8 @@ export default function QuestsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
-      {/* Hero Section with Image */}
+    <div className="min-h-screen bg-black text-white">
+      {/* Header Image */}
       <div 
         className="relative h-[300px] md:h-[400px] lg:h-[600px] w-full max-w-full overflow-hidden"
         onMouseEnter={() => setIsHovering(true)}
@@ -481,7 +497,7 @@ export default function QuestsPage() {
       >
         <Image
           src={coverImage}
-          alt="Daily Quests"
+          alt="Quests"
           fill
           className="object-cover"
           priority
@@ -495,7 +511,7 @@ export default function QuestsPage() {
         {/* Edit button that appears on hover */}
         {isHovering && !showUploadModal && (
           <div className="absolute top-4 right-4 z-20">
-            <Button
+            <Button 
               onClick={() => setShowUploadModal(true)}
               className="bg-amber-700 hover:bg-amber-600 text-white rounded-full h-12 w-12 flex items-center justify-center"
               size="icon"
@@ -519,14 +535,14 @@ export default function QuestsPage() {
               
               <h3 className="text-xl text-amber-500 mb-4 font-medieval text-center">Change Quests Banner</h3>
               
-                          <Button
+              <Button 
                 onClick={triggerFileInput}
                 className="w-full mb-3 bg-amber-700 hover:bg-amber-600 text-white flex items-center justify-center gap-2"
                 disabled={isUploading}
               >
                 <Upload size={18} />
                 {isUploading ? 'Uploading...' : 'Upload Image'}
-                  </Button>
+              </Button>
               
               <p className="text-gray-400 text-sm text-center">
                 Upload a JPG, PNG or GIF image for your quests banner
@@ -540,21 +556,34 @@ export default function QuestsPage() {
                 onChange={handleImageUpload}
               />
             </div>
-            </div>
-          )}
-          
+          </div>
+        )}
+
         <div className="absolute inset-0 flex items-center justify-center z-[5]">
           <h1 className="text-4xl sm:text-5xl font-bold tracking-widest drop-shadow-lg font-medieval text-amber-500">
-            DAILY QUESTS
+            QUESTS
           </h1>
         </div>
-                </div>
+      </div>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 sm:px-6 py-8">
-        <DailyQuests />
-              </div>
-            </div>
+      {/* Content */}
+      <div className="max-w-6xl mx-auto px-4 py-8 relative">
+        <Tabs defaultValue="daily" className="space-y-8">
+          <TabsList>
+            <TabsTrigger value="daily">Daily Quests</TabsTrigger>
+            <TabsTrigger value="milestones">Milestones</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="daily" className="space-y-8">
+            <DailyQuests />
+          </TabsContent>
+
+          <TabsContent value="milestones" className="space-y-8">
+            <Milestones />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
   )
 }
 

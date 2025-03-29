@@ -30,10 +30,10 @@ export default function DesignSystemPage() {
       <div className="mb-6">
         <Link href="/kingdom">
           <Button variant="outline" size="sm" className="text-white">
-            <ArrowLeft className="mr-2 h-4 w-4" />
+                <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Kingdom
-          </Button>
-        </Link>
+              </Button>
+            </Link>
       </div>
 
       <div className="space-y-6">
@@ -51,14 +51,14 @@ export default function DesignSystemPage() {
                   {colors.map((color) => (
                     <div key={color.name} className="space-y-2">
                       <div className={`h-16 rounded-lg ${color.class}`} />
-                      <div>
+            <div>
                         <p className="font-medium text-white">{color.name}</p>
                         <p className="text-sm text-gray-400">{color.hex}</p>
-                      </div>
-                    </div>
+            </div>
+          </div>
                   ))}
-                </div>
-              </div>
+          </div>
+        </div>
 
               {/* Typography */}
               <div>
@@ -72,8 +72,8 @@ export default function DesignSystemPage() {
                       </div>
                       <Badge variant="outline" className="text-white">{type.class}</Badge>
                     </div>
-                  ))}
-                </div>
+              ))}
+            </div>
               </div>
 
               {/* Components */}
@@ -87,8 +87,8 @@ export default function DesignSystemPage() {
                       <Button variant="secondary" className="text-white">Secondary</Button>
                       <Button variant="outline" className="text-white">Outline</Button>
                       <Button variant="ghost" className="text-white">Ghost</Button>
-                    </div>
-                  </div>
+                          </div>
+                        </div>
                   <div className="p-4 rounded-lg bg-gray-900/50">
                     <p className="text-sm font-medium mb-2 text-white">Badges</p>
                     <div className="flex flex-wrap gap-2">
@@ -97,13 +97,13 @@ export default function DesignSystemPage() {
                       <Badge variant="outline" className="text-white">Outline</Badge>
                       <Badge variant="destructive" className="text-white">Destructive</Badge>
                     </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+                              </div>
+                          </div>
+                        </div>
+                      </div>
+                  </CardContent>
+                </Card>
       </div>
-    </div>
+            </div>
   )
 } 

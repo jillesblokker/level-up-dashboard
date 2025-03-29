@@ -388,7 +388,7 @@ const generateNewRows = (grid: Tile[][], startRow: number): Tile[][] => {
           type: "big-mystery" as TileType,
           connections: [],
           rotation: 0,
-          revealed: true,
+      revealed: true,
           name: "Big Mystery Tile",
           description: "A large mysterious structure",
           isMainTile: true,
@@ -434,6 +434,78 @@ const MAP_CONFIG = {
   mysteryTilesPerSection: 3, // 1-5 mystery tiles per section
   sectionSize: 5
 };
+
+// Add this component before the RealmPage component
+function CircleGame({ onGameEnd }: { onGameEnd: (playerWon: boolean) => void }) {
+  const [isAnimating, setIsAnimating] = useState(true)
+  const [scale, setScale] = useState(0.2) // Start smaller
+  const [increasing, setIncreasing] = useState(true)
+  const intervalRef = useRef<NodeJS.Timeout | undefined>(undefined)
+  
+  useEffect(() => {
+    if (isAnimating) {
+      intervalRef.current = setInterval(() => {
+        setScale(prevScale => {
+          const change = increasing ? 0.015 : -0.015 // Slightly slower animation
+          const newScale = prevScale + change
+          
+          if (newScale >= 1.5) { // Max size is 150% of green circle
+            setIncreasing(false)
+            return 1.5
+          }
+          if (newScale <= 0.2) { // Min size is 20% of green circle
+            setIncreasing(true)
+            return 0.2
+          }
+          
+          return newScale
+        })
+      }, 16) // Approximately 60fps
+    }
+    
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+  }, [isAnimating, increasing])
+  
+  const handleClick = () => {
+    setIsAnimating(false)
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+    }
+    
+    // Check if player won (blue circle is within 20% of green circle size)
+    const targetSize = 1 // Green circle size
+    const difference = Math.abs(scale - targetSize)
+    const playerWon = difference <= 0.2
+    
+    onGameEnd(playerWon)
+  }
+  
+  return (
+    <div className="relative w-64 h-64 mx-auto cursor-pointer" onClick={handleClick}>
+      {/* Green circle (target) */}
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full bg-green-500" />
+      
+      {/* Blue circle (player controlled) */}
+      <div 
+        className="absolute top-1/2 left-1/2 rounded-full bg-blue-500 transition-transform"
+        style={{
+          width: '32px',
+          height: '32px',
+          transform: `translate(-50%, -50%) scale(${scale})`
+        }}
+      />
+      
+      {/* Instructions */}
+      <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 text-center text-white text-sm w-full">
+        Click when the blue circle matches the green circle's size
+      </div>
+    </div>
+  )
+}
 
 export default function RealmPage() {
   const { toast } = useToast()
@@ -2253,10 +2325,16 @@ export default function RealmPage() {
 
       {/* Monster Modal */}
       <Dialog open={showMonsterModal} onOpenChange={setShowMonsterModal}>
-        <DialogContent className="sm:max-w-[425px] bg-transparent border-0 p-0">
-          <div className="w-full h-full">
-            <TicTacToe
-              onGameEnd={(playerWon, isTie) => {
+        <DialogContent className="sm:max-w-[425px] bg-black/95 border-amber-500/20">
+          <DialogHeader>
+            <DialogTitle>Monster Battle</DialogTitle>
+            <DialogDescription>
+              Time your click to match the circles and defeat the monster!
+            </DialogDescription>
+          </DialogHeader>
+          <div className="w-full h-full py-8">
+            <CircleGame
+              onGameEnd={(playerWon) => {
                 if (playerWon) {
                   // Player wins
                   setCharacterStats(prev => ({
@@ -2267,19 +2345,7 @@ export default function RealmPage() {
                   showScrollToast(
                     'discovery',
                     "Victory!",
-                    `King ${getCharacterName()}, your tactical brilliance has won the day! The monster's hoard of 50 gold is yours, and you've gained valuable experience.`
-                  );
-                } else if (isTie) {
-                  // Tie game
-                  setCharacterStats(prev => ({
-                    ...prev,
-                    gold: prev.gold + 10,
-                    experience: prev.experience + 10
-                  }));
-                  showScrollToast(
-                    'discovery',
-                    "A Draw!",
-                    `King ${getCharacterName()}, the battle ends in a stalemate. You've earned 10 gold and gained some experience from this encounter.`
+                    `King ${getCharacterName()}, your precise timing has won the day! The monster's hoard of 50 gold is yours, and you've gained valuable experience.`
                   );
                 } else {
                   // Player loses
@@ -2290,7 +2356,7 @@ export default function RealmPage() {
                   showScrollToast(
                     'error',
                     "Defeat",
-                    `King ${getCharacterName()}, the monster proved too cunning. Your forces retreat, and 25 gold was lost in the skirmish.`
+                    `King ${getCharacterName()}, your timing was off. Your forces retreat, and 25 gold was lost in the skirmish.`
                   );
                 }
                 setShowMonsterModal(false);

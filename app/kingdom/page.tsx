@@ -266,42 +266,29 @@ export default function KingdomPage() {
         </div>
         
         {/* Notable Locations Section */}
-        <div className="mb-8">
+        <div className="mb-12">
           <h2 className="text-2xl sm:text-3xl font-medieval text-amber-500 mb-4">Notable Locations</h2>
-          <p className="text-gray-300 mb-6">Visit these locations to trade, purchase supplies, and interact with the kingdom's citizens.</p>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
-            {notableLocations.map(location => (
-              <Link href={`/locations/${location.id}`} key={location.id}>
-                <Card className="bg-black/80 border-amber-800/50 backdrop-blur-sm h-full hover:border-amber-500 transition-all hover:shadow-amber-900/20 hover:shadow-lg cursor-pointer group overflow-hidden">
-                  <div className="relative h-32 sm:h-40 md:h-48 w-full overflow-hidden">
-                    <Image
-                      src={location.image}
-                      alt={location.name}
-                      fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-110"
-                      onError={(e) => {
-                        console.log("Location image error, using placeholder:", location.id);
-                        const target = e.target as HTMLImageElement;
-                        target.src = "/images/placeholders/location-placeholder.svg";
-                      }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent" />
-                  </div>
-                  <CardHeader>
-                    <div className="flex items-center">
-                      <MapPin className="h-5 w-5 text-amber-500 mr-2" />
-                      <CardTitle className="text-amber-500">{location.name}</CardTitle>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {notableLocations.map((location) => (
+              <Card key={location.id} className="bg-black/60 backdrop-blur-sm border-amber-800/20">
+                <CardHeader>
+                  <CardTitle className="text-xl text-amber-500">{location.name}</CardTitle>
+                  <CardDescription>{location.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-amber-500" />
+                      <span className="text-sm text-gray-400">Visit to trade and explore</span>
                     </div>
-                    <CardDescription>{location.description}</CardDescription>
-                  </CardHeader>
-                  <CardFooter>
-                    <Button variant="outline" className="w-full border-amber-800/50 text-amber-500 hover:bg-amber-900/20 hover:text-amber-400">
-                      Visit Location
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </Link>
+                    <Link href={`/locations/${location.id}`}>
+                      <Button className="bg-amber-600 hover:bg-amber-700">
+                        Visit Location
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>

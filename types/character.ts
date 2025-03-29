@@ -49,7 +49,10 @@ export const calculateLevelFromExperience = (experience: number): number => {
 // Calculate progress to next level (0-1)
 export const calculateLevelProgress = (experience: number): number => {
   const currentLevel = calculateLevelFromExperience(experience);
-  let expForCurrentLevel = 0;
+  
+  // If experience is 0, return 0 progress
+  if (experience === 0) return 0;
+  
   let expForPreviousLevels = 0;
   
   // Calculate experience needed for previous levels
@@ -58,9 +61,28 @@ export const calculateLevelProgress = (experience: number): number => {
   }
   
   // Calculate experience needed for current level
-  expForCurrentLevel = calculateExperienceForLevel(currentLevel);
+  const expForCurrentLevel = calculateExperienceForLevel(currentLevel);
   
-  // Calculate progress
+  // Calculate progress within current level
   const progressInCurrentLevel = experience - expForPreviousLevels;
-  return progressInCurrentLevel / expForCurrentLevel;
+  
+  // Return progress as a percentage (0-1)
+  return Math.max(0, Math.min(1, progressInCurrentLevel / expForCurrentLevel));
+};
+
+// Calculate experience needed for next level
+export const calculateExperienceToNextLevel = (experience: number): number => {
+  const currentLevel = calculateLevelFromExperience(experience);
+  let expForPreviousLevels = 0;
+  
+  // Calculate experience needed for previous levels
+  for (let i = 1; i < currentLevel; i++) {
+    expForPreviousLevels += calculateExperienceForLevel(i);
+  }
+  
+  // Calculate experience needed for current level
+  const expForCurrentLevel = calculateExperienceForLevel(currentLevel);
+  
+  // Return remaining experience needed
+  return expForCurrentLevel - (experience - expForPreviousLevels);
 }; 

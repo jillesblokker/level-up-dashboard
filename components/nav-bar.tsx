@@ -122,10 +122,11 @@ export function NavBar() {
         const savedStats = localStorage.getItem("character-stats")
         if (savedStats) {
           const stats = JSON.parse(savedStats) as CharacterStats
+          const currentLevel = calculateLevelFromExperience(stats.experience)
           setCharacterStats({
             ...stats,
-            level: calculateLevelFromExperience(stats.experience),
-            experienceToNextLevel: calculateExperienceForLevel(calculateLevelFromExperience(stats.experience))
+            level: currentLevel,
+            experienceToNextLevel: calculateExperienceForLevel(currentLevel)
           })
         }
       } catch (error) {
@@ -252,7 +253,7 @@ export function NavBar() {
                 <Progress value={calculateLevelProgress(characterStats.experience) * 100} className="h-2" />
               </div>
               <div className="text-xs text-muted-foreground">
-                {Math.floor(characterStats.experience)} / {characterStats.experienceToNextLevel} XP
+                {Math.max(0, characterStats.experience - (calculateExperienceForLevel(characterStats.level - 1) || 0))} / {calculateExperienceForLevel(characterStats.level)} XP
               </div>
             </div>
             <div className="text-sm">
