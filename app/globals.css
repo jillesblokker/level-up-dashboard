@@ -1,0 +1,24 @@
+.scroll-toast {
+  background-image: url('/images/scroll.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 20px 40px;
+  color: #2d1810;
+  font-family: 'MedievalSharp', cursive;
+  text-align: center;
+  font-size: 1.1em;
+  line-height: 1.4;
+  min-width: 300px;
+  max-width: 500px;
+}
+
+.scroll-toast.warning {
+  color: #8B4513;
+  font-weight: 600;
+}
+
+.scroll-toast.error {
+  color: #8B0000;
+  font-weight: 600;
+} 

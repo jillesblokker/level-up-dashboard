@@ -10,6 +10,16 @@ import { DbProvider } from "@/lib/db-context"
 import { MobileNav } from "@/components/navigation/mobile-nav"
 import { NavBar } from "@/components/nav-bar"
 import { toast } from "@/components/ui/use-toast"
+import { RealmProvider } from "@/lib/realm-context"
+
+// Define the type for headerImages
+interface HeaderImages {
+  realm: string;
+  character: string;
+  quests: string;
+  guildhall: string;
+  achievements: string;
+}
 
 // Create a global state object for header images
 if (typeof window !== 'undefined') {
@@ -19,7 +29,8 @@ if (typeof window !== 'undefined') {
     character: localStorage.getItem("character-header-image") || "/images/character-header.jpg",
     quests: localStorage.getItem("quests-header-image") || "/images/quests-header.jpg",
     guildhall: localStorage.getItem("guildhall-header-image") || "/images/guildhall-header.jpg",
-  }
+    achievements: localStorage.getItem("achievements-header-image") || "/images/achievements-header.jpg",
+  } as HeaderImages;
 }
 
 export default function ClientLayout({
@@ -67,31 +78,33 @@ export default function ClientLayout({
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
       <DbProvider>
-        <div className="flex min-h-screen flex-col">
-          {/* Mobile Navigation (hidden on md and larger screens) */}
-          <div className="md:hidden">
-            <MobileNav 
-              goldBalance={goldBalance} 
-              onSaveMap={saveMap} 
-              // @ts-ignore - Use window.mobileNavProps if available
-              tabs={typeof window !== 'undefined' && window.mobileNavProps ? window.mobileNavProps.tabs : undefined}
-              // @ts-ignore
-              activeTab={typeof window !== 'undefined' && window.mobileNavProps ? window.mobileNavProps.activeTab : undefined}
-              // @ts-ignore
-              onTabChange={typeof window !== 'undefined' && window.mobileNavProps ? window.mobileNavProps.onTabChange : undefined}
-            />
+        <RealmProvider>
+          <div className="flex min-h-screen flex-col">
+            {/* Mobile Navigation (hidden on md and larger screens) */}
+            <div className="md:hidden">
+              <MobileNav 
+                goldBalance={goldBalance} 
+                onSaveMap={saveMap} 
+                // @ts-ignore - Use window.mobileNavProps if available
+                tabs={typeof window !== 'undefined' && window.mobileNavProps ? window.mobileNavProps.tabs : undefined}
+                // @ts-ignore
+                activeTab={typeof window !== 'undefined' && window.mobileNavProps ? window.mobileNavProps.activeTab : undefined}
+                // @ts-ignore
+                onTabChange={typeof window !== 'undefined' && window.mobileNavProps ? window.mobileNavProps.onTabChange : undefined}
+              />
+            </div>
+            
+            {/* Desktop Navigation (hidden on smaller than md screens) */}
+            <div className="hidden md:block">
+              <NavBar />
+            </div>
+            
+            {/* Main content with proper padding to account for fixed navigation */}
+            <main className="flex-1 md:pt-0">
+              {children}
+            </main>
           </div>
-          
-          {/* Desktop Navigation (hidden on smaller than md screens) */}
-          <div className="hidden md:block">
-            <NavBar />
-          </div>
-          
-          {/* Main content with proper padding to account for fixed navigation */}
-          <main className="flex-1 md:pt-0">
-            {children}
-          </main>
-        </div>
+        </RealmProvider>
       </DbProvider>
       <Toaster />
       <DevicePreview />

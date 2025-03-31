@@ -8,6 +8,7 @@ import { useState, useRef, useEffect } from "react"
 import { Upload, Camera, Edit, X, MapPin, User, Backpack } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { useRealm } from "@/lib/realm-context"
 
 export default function KingdomPage() {
   const [goldBalance, setGoldBalance] = useState(5000)
@@ -16,6 +17,7 @@ export default function KingdomPage() {
   const [coverImage, setCoverImage] = useState("/images/kingdom-header.jpg")
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { grid } = useRealm()
 
   // Notable locations data
   const notableLocations = [
@@ -65,21 +67,62 @@ export default function KingdomPage() {
     }
   ]
 
+  // Calculate number of settlements (towns and cities)
+  const countSettlements = () => {
+    try {
+      let count = 0
+      if (!grid?.length) return 0
+      
+      for (let y = 0; y < grid.length; y++) {
+        for (let x = 0; x < grid[y].length; x++) {
+          if (grid[y][x]?.type === "city" || grid[y][x]?.type === "town") {
+            count++
+          }
+        }
+      }
+      return count
+    } catch (error) {
+      console.error('Error counting settlements:', error)
+      return 0
+    }
+  }
+  
+  // Calculate territory (each tile is 10 sq miles)
+  const calculateTerritory = () => {
+    try {
+      let count = 0
+      if (!grid?.length) return 0
+      
+      for (let y = 0; y < grid.length; y++) {
+        for (let x = 0; x < grid[y].length; x++) {
+          if (grid[y][x]?.type && grid[y][x].type !== "empty") {
+            count++
+          }
+        }
+      }
+      return count * 10 // Each tile is 10 sq miles
+    } catch (error) {
+      console.error('Error calculating territory:', error)
+      return 0
+    }
+  }
+
   // Save location data to localStorage for use in location pages
   useEffect(() => {
     try {
-      // Save location data to localStorage
-      localStorage.setItem("notableLocations", JSON.stringify(notableLocations))
-      console.log("Saved notableLocations to localStorage:", notableLocations.length)
-      
-      // Set default gold if not already set
-      if (!localStorage.getItem('goldBalance')) {
-        localStorage.setItem('goldBalance', '5000')
-      }
-      
-      // Initialize purchased items if not already set
-      if (!localStorage.getItem('purchasedItems')) {
-        localStorage.setItem('purchasedItems', '[]')
+      if (typeof window !== 'undefined') {
+        // Save location data to localStorage
+        localStorage.setItem("notableLocations", JSON.stringify(notableLocations))
+        
+        // Set default gold if not already set
+        if (!localStorage.getItem('goldBalance')) {
+          localStorage.setItem('goldBalance', '5000')
+        }
+        
+        // Initialize purchased items if not already set
+        if (!localStorage.getItem('purchasedItems')) {
+          localStorage.setItem('purchasedItems', '[]')
+        }
       }
     } catch (err) {
       console.error("Error saving locations to localStorage:", err)
@@ -88,9 +131,15 @@ export default function KingdomPage() {
 
   // Load saved cover image from localStorage on component mount
   useEffect(() => {
-    const savedImage = localStorage.getItem("kingdom-cover-image")
-    if (savedImage) {
-      setCoverImage(savedImage)
+    try {
+      if (typeof window !== 'undefined') {
+        const savedImage = localStorage.getItem("kingdom-cover-image")
+        if (savedImage) {
+          setCoverImage(savedImage)
+        }
+      }
+    } catch (err) {
+      console.error("Error loading cover image:", err)
     }
   }, [])
 
@@ -230,8 +279,8 @@ export default function KingdomPage() {
             <CardContent>
               <div className="space-y-2 text-gray-300">
                 <p>Population: 10,000</p>
-                <p>Gold: 5,000</p>
-                <p>Territory: 100 sq miles</p>
+                <p>Settlements: {countSettlements()}</p>
+                <p>Territory: {calculateTerritory()} sq miles</p>
               </div>
             </CardContent>
           </Card>

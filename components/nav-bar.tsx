@@ -90,6 +90,15 @@ const settingsLinks = [
   { href: "/settings/requirements", label: "Requirements", icon: List },
 ]
 
+const navigation = [
+  { name: "Kingdom", href: "/kingdom" },
+  { name: "Character", href: "/character" },
+  { name: "Inventory", href: "/inventory" },
+  { name: "Quests", href: "/quests" },
+  { name: "Achievements", href: "/achievements" },
+  { name: "Realm", href: "/realm" },
+];
+
 export function NavBar() {
   const pathname = usePathname()
   const [isClient, setIsClient] = useState(false)
@@ -243,6 +252,15 @@ export function NavBar() {
           >
             Guildhall
           </Link>
+          <Link
+            href="/achievements"
+            className={cn(
+              "transition-colors hover:text-foreground/80",
+              pathname?.startsWith("/achievements") ? "text-foreground" : "text-foreground/60"
+            )}
+          >
+            Achievements
+          </Link>
         </nav>
 
         <div className="flex items-center gap-4">
@@ -253,7 +271,19 @@ export function NavBar() {
                 <Progress value={calculateLevelProgress(characterStats.experience) * 100} className="h-2" />
               </div>
               <div className="text-xs text-muted-foreground">
-                {Math.max(0, characterStats.experience - (calculateExperienceForLevel(characterStats.level - 1) || 0))} / {calculateExperienceForLevel(characterStats.level)} XP
+                {(() => {
+                  // Calculate total XP needed for previous levels
+                  let expForPreviousLevels = 0;
+                  for (let i = 1; i < characterStats.level; i++) {
+                    expForPreviousLevels += calculateExperienceForLevel(i);
+                  }
+                  
+                  // Calculate current level XP
+                  const currentLevelXP = characterStats.experience - expForPreviousLevels;
+                  const neededForCurrentLevel = calculateExperienceForLevel(characterStats.level);
+                  
+                  return `${Math.min(currentLevelXP, neededForCurrentLevel)} / ${neededForCurrentLevel} XP`;
+                })()}
               </div>
             </div>
             <div className="text-sm">

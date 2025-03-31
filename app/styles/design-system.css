@@ -13,10 +13,10 @@
   --background: #000000;
   
   /* Text Colors */
-  --text-primary: #ffffff;
+  --text-primary: #fdfdfd;
   --text-secondary: #9ca3af;
   
   /* Font Families */
-  --font-cinzel: 'Cinzel', serif;
+  --font-cardo: 'Cardo', serif;
   --font-inter: 'Inter', sans-serif;
 } 

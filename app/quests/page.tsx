@@ -511,7 +511,7 @@ export default function QuestsPage() {
         {/* Edit button that appears on hover */}
         {isHovering && !showUploadModal && (
           <div className="absolute top-4 right-4 z-20">
-            <Button 
+            <Button
               onClick={() => setShowUploadModal(true)}
               className="bg-amber-700 hover:bg-amber-600 text-white rounded-full h-12 w-12 flex items-center justify-center"
               size="icon"
@@ -535,14 +535,14 @@ export default function QuestsPage() {
               
               <h3 className="text-xl text-amber-500 mb-4 font-medieval text-center">Change Quests Banner</h3>
               
-              <Button 
+                          <Button
                 onClick={triggerFileInput}
                 className="w-full mb-3 bg-amber-700 hover:bg-amber-600 text-white flex items-center justify-center gap-2"
                 disabled={isUploading}
               >
                 <Upload size={18} />
                 {isUploading ? 'Uploading...' : 'Upload Image'}
-              </Button>
+                  </Button>
               
               <p className="text-gray-400 text-sm text-center">
                 Upload a JPG, PNG or GIF image for your quests banner
@@ -556,15 +556,15 @@ export default function QuestsPage() {
                 onChange={handleImageUpload}
               />
             </div>
-          </div>
-        )}
-
+            </div>
+          )}
+          
         <div className="absolute inset-0 flex items-center justify-center z-[5]">
           <h1 className="text-4xl sm:text-5xl font-bold tracking-widest drop-shadow-lg font-medieval text-amber-500">
             QUESTS
           </h1>
         </div>
-      </div>
+                </div>
 
       {/* Content */}
       <div className="max-w-6xl mx-auto px-4 py-8 relative">
@@ -582,8 +582,8 @@ export default function QuestsPage() {
             <Milestones />
           </TabsContent>
         </Tabs>
-      </div>
-    </div>
+              </div>
+            </div>
   )
 }
 

@@ -33,6 +33,8 @@ import {
   X
 } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from 'next/navigation';
+import { useCreatureStore } from '@/stores/creatureStore';
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -92,6 +94,8 @@ import { MapGenerator, generateUserSeed } from "@/lib/map-generator"
 import { showScrollToast } from "@/lib/toast-utils"
 import { getCharacterName } from "@/lib/toast-utils"
 import { TicTacToe } from "@/components/tic-tac-toe"
+import { useCreatureUnlock } from "@/lib/hooks/use-creature-unlock";
+import { AchievementUnlockModal } from "@/components/achievement-unlock-modal";
 
 // Define initial tiles
 const initialTiles: InventoryTile[] = [
@@ -508,6 +512,9 @@ function CircleGame({ onGameEnd }: { onGameEnd: (playerWon: boolean) => void }) 
 }
 
 export default function RealmPage() {
+  const router = useRouter();
+  const { discoverCreature } = useCreatureStore();
+  const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
   const { toast } = useToast()
   const [isClient, setIsClient] = useState(false)
   const [goldBalance, setGoldBalance] = useState(1000)
@@ -1499,6 +1506,10 @@ export default function RealmPage() {
       return;
     }
 
+    // Get the tile being deleted
+    const tile = grid[y][x];
+    const isMountainTile = tile.type === "mountain";
+
     // Allow deletion of any tile type in building mode
     const newGrid = [...grid];
     newGrid[y][x] = {
@@ -1509,15 +1520,20 @@ export default function RealmPage() {
       revealed: true
     };
     dispatchGrid({ type: 'UPDATE_GRID', payload: newGrid });
-    
     localStorage.setItem("realm-grid", JSON.stringify(newGrid));
-    
-    showScrollToast(
-      'tilePlaced',
-      "Land Cleared",
-      `King ${getCharacterName()}, the area has been cleared as commanded, ready for your next grand vision.`
-    );
-  }, [grid, dispatchGrid, isMovementMode]);
+
+    // If it was a mountain tile, discover Flamio
+    if (isMountainTile) {
+      discoverCreature('001'); // Discover Flamio
+      setShowDiscoveryModal(true);
+    } else {
+      showScrollToast(
+        'tilePlaced',
+        "Land Cleared",
+        `King ${getCharacterName()}, the area has been cleared as commanded, ready for your next grand vision.`
+      );
+    }
+  }, [grid, dispatchGrid, isMovementMode, discoverCreature]);
 
   // Add saveMap function
   const handleSaveRealm = useCallback(() => {
@@ -2411,6 +2427,34 @@ export default function RealmPage() {
               setShowTreasureModal(false);
             }}>
               Collect Treasure
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={showDiscoveryModal} onOpenChange={setShowDiscoveryModal}>
+        <DialogContent className="bg-black border border-amber-800">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-cardo text-amber-400">Secret Achievement Unlocked!</DialogTitle>
+            <DialogDescription className="text-gray-300">
+              You've discovered Flamio, a legendary fire creature! Visit the achievements page to learn more about this mystical being.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-start">
+            <Button
+              variant="outline"
+              onClick={() => setShowDiscoveryModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-amber-600 hover:bg-amber-700"
+              onClick={() => {
+                setShowDiscoveryModal(false);
+                router.push('/achievements');
+              }}
+            >
+              Go to Achievements
             </Button>
           </DialogFooter>
         </DialogContent>

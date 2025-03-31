@@ -1,6 +1,6 @@
 import { toast } from "@/components/ui/use-toast"
 
-type MessageType = 'tilePlaced' | 'movement' | 'combat' | 'discovery' | 'levelUp' | 'achievement' | 'error' | 'questComplete';
+type MessageType = 'tilePlaced' | 'movement' | 'combat' | 'discovery' | 'levelUp' | 'achievement' | 'error' | 'warning' | 'questComplete';
 
 // Get character name from localStorage
 export function getCharacterName(): string {
@@ -46,6 +46,12 @@ const messageTemplates = {
     "Glory and honor to {name}, champion of the realm!",
     "Your name shall be remembered, noble {name}!",
   ],
+  warning: [
+    "Take heed, {name}! A warning from the sages!",
+    "Caution, noble {name}! The winds speak of danger.",
+    "The ancient runes glow with warning, {name}!",
+    "Hark! A portent of challenge approaches, {name}!",
+  ],
   error: [
     "Alas, {name}, fate conspires against us!",
     "The stars are not aligned, dear {name}.",
@@ -75,9 +81,17 @@ export function showScrollToast(
   const name = getCharacterName();
   const message = customMessage || getRandomMessage(type, name);
   
+  // Determine toast variant based on type
+  let className = "scroll-toast";
+  if (type === "error") {
+    className += " error";
+  } else if (type === "warning") {
+    className += " warning";
+  }
+  
   toast({
     title: title || "📜 " + message,
     description: customMessage ? message : undefined,
-    className: "scroll-toast",
+    className,
   });
 } 

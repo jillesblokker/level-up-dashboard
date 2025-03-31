@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Inter, Cinzel } from "next/font/google"
+import { Inter, Cardo } from "next/font/google"
 import "./styles/globals.css"
 import "./styles/design-system.css"
 import ClientLayout from "./ClientLayout"
@@ -10,10 +10,11 @@ const inter = Inter({
   variable: "--font-inter",
 })
 
-const cinzel = Cinzel({
+const cardo = Cardo({
+  weight: ['400', '700'],
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-cinzel",
+  variable: "--font-cardo",
 })
 
 export const metadata: Metadata = {
@@ -28,7 +29,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`min-h-screen bg-black text-white ${inter.variable} ${cinzel.variable}`} suppressHydrationWarning>
+      <body className={`min-h-screen bg-black text-white font-cardo ${inter.variable} ${cardo.variable}`} suppressHydrationWarning>
         <ClientLayout>
           {children}
         </ClientLayout>
