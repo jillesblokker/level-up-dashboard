@@ -12,6 +12,7 @@ interface UseCreatureUnlockReturn {
 }
 
 const creatureData = {
+  '000': { name: 'Genesis' },
   '001': { name: 'Flamio' },
   '002': { name: 'Embera' },
   '003': { name: 'Vulcana' },
@@ -21,6 +22,10 @@ const creatureData = {
   '007': { name: 'Leaf' },
   '008': { name: 'Oaky' },
   '009': { name: 'Seqoio' },
+  '012': { name: 'Sparkle' },
+  '013': { name: 'Lumina' },
+  '014': { name: 'Crysta' },
+  '015': { name: 'Aurora' },
 };
 
 export function useCreatureUnlock(): UseCreatureUnlockReturn {

@@ -8,6 +8,7 @@ import { toast } from "@/components/ui/use-toast"
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowLeft, ShoppingCart } from "lucide-react"
+import { db } from "@/lib/db"
 
 interface LocationItem {
   id: string
@@ -22,6 +23,18 @@ interface Location {
   description: string
   image: string
   items: LocationItem[]
+}
+
+interface InventoryItem {
+  name: string;
+  type: string;
+  description: string;
+  quantity: number;
+  acquired: string;
+}
+
+interface PageParams {
+  id: string
 }
 
 export default function LocationPage() {
@@ -48,7 +61,7 @@ export default function LocationPage() {
     setPurchasedItems(savedPurchasedItems)
   }, [locationId])
 
-  const handlePurchase = (item: LocationItem) => {
+  const handlePurchase = async (item: LocationItem) => {
     if (goldBalance < item.price) {
       toast({
         title: "Insufficient Gold",
@@ -58,20 +71,63 @@ export default function LocationPage() {
       return
     }
 
-    // Update gold balance
-    const newBalance = goldBalance - item.price
-    setGoldBalance(newBalance)
-    localStorage.setItem("goldBalance", newBalance.toString())
+    try {
+      // Update gold balance
+      const newBalance = goldBalance - item.price
+      setGoldBalance(newBalance)
+      localStorage.setItem("goldBalance", newBalance.toString())
 
-    // Update purchased items
-    const newPurchasedItems = [...purchasedItems, item.id]
-    setPurchasedItems(newPurchasedItems)
-    localStorage.setItem("purchasedItems", JSON.stringify(newPurchasedItems))
+      // Update purchased items in localStorage
+      const newPurchasedItems = [...purchasedItems, item.id]
+      setPurchasedItems(newPurchasedItems)
+      localStorage.setItem("purchasedItems", JSON.stringify(newPurchasedItems))
 
-    toast({
-      title: "Item Purchased!",
-      description: `You have purchased ${item.name} for ${item.price} gold.`
-    })
+      // Add item to inventory database
+      const itemType = determineItemType(item.name.toLowerCase())
+      const inventoryItem: Omit<InventoryItem, "id"> = {
+        name: item.name,
+        type: itemType,
+        description: item.description,
+        quantity: 1,
+        acquired: new Date().toISOString(),
+      }
+
+      await db.inventory.add(inventoryItem)
+
+      // Dispatch event to update inventory counts
+      window.dispatchEvent(new Event("inventory-update"))
+
+      toast({
+        title: "Item Purchased!",
+        description: `You have purchased ${item.name} for ${item.price} gold.`
+      })
+    } catch (error) {
+      console.error("Error purchasing item:", error)
+      toast({
+        title: "Error",
+        description: "Failed to purchase item. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const determineItemType = (itemName: string): string => {
+    if (itemName.includes("sword") || itemName.includes("axe") || itemName.includes("bow")) {
+      return "weapon"
+    }
+    if (itemName.includes("armor") || itemName.includes("shield") || itemName.includes("mail")) {
+      return "armor"
+    }
+    if (itemName.includes("potion") || itemName.includes("elixir")) {
+      return "potion"
+    }
+    if (itemName.includes("map") || itemName.includes("scroll")) {
+      return "scroll"
+    }
+    if (itemName.includes("gem") || itemName.includes("gold") || itemName.includes("jewel")) {
+      return "treasure"
+    }
+    return "misc"
   }
 
   if (!location) {

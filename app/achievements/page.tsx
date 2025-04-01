@@ -106,7 +106,7 @@ export default function AchievementsPage() {
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <div 
-        className="relative w-full h-48 md:h-64 group cursor-pointer"
+        className="relative h-[300px] sm:h-[400px] md:h-[500px] w-full max-w-full overflow-hidden"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -117,18 +117,18 @@ export default function AchievementsPage() {
           className="object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black opacity-60" />
         
         {/* Edit Icon */}
-        <div className={`absolute top-4 right-4 transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="bg-black/50 p-2 rounded-full">
-            <Pencil className="h-5 w-5 text-white" />
+        <div className={`absolute top-6 right-6 transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
+          <div className="bg-black/50 p-2 rounded-full hover:bg-black/70 transition-colors">
+            <Pencil className="h-6 w-6 text-white" />
           </div>
         </div>
 
         {/* Centered Title */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <h1 className="text-4xl font-bold font-cardo text-amber-400">
+          <h1 className="text-5xl md:text-6xl font-bold font-cardo text-amber-400 drop-shadow-lg">
             Achievements
           </h1>
         </div>
@@ -146,7 +146,7 @@ export default function AchievementsPage() {
         {/* Loading Overlay */}
         {isCompressing && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-            <p className="text-white">Compressing image...</p>
+            <p className="text-white font-cardo text-xl">Compressing image...</p>
           </div>
         )}
       </div>
@@ -178,166 +178,689 @@ export default function AchievementsPage() {
               value={category.id}
               className="mt-8 focus-visible:outline-none focus-visible:ring-0"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {category.id === 'collection' ? (
                   <>
-                    {/* Creature collection cards */}
-                    {creatures.map((creature) => {
-                      const discovered = isCreatureDiscovered(creature.id);
-                      const showCard = discovered || previewMode;
-                      return (
-                        <div
-                          key={creature.id}
-                          className={`achievement-card ${discovered ? 'discovered' : ''}`}
-                        >
-                          <div className="achievement-card-content">
-                            <div className="achievement-card-front">
-                              <div className="relative w-full h-full">
-                                <Image
-                                  src={showCard ? `/images/creatures/${creature.id}.png` : '/images/undiscovered.png'}
-                                  alt={showCard ? creature.name : `Undiscovered Creature #${creature.id}`}
-                                  fill
-                                  className="object-contain rounded-lg"
-                                  priority
-                                />
-                                {/* Animated overlays for discovered or preview cards */}
-                                {(discovered || previewMode) && (
-                                  <>
-                                    {/* Fire creatures (001-003) */}
-                                    {['001', '002', '003'].includes(creature.id) && (
-                                      <div className="absolute inset-0 pointer-events-none">
-                                        {[...Array(5 + Math.floor(Math.random() * 4))].map((_, i) => (
-                                          <div
-                                            key={i}
-                                            className={`spark spark-${creature.id}`}
-                                            style={{
-                                              position: 'absolute',
-                                              width: '10px',
-                                              height: '10px',
-                                              backgroundColor: '#fbbf24',
-                                              borderRadius: '9999px',
-                                              left: `${10 + Math.random() * 80}%`,
-                                              top: `${30 + Math.random() * 20}%`,
-                                              '--delay': `${Math.random() * 2}s`,
-                                              '--duration': `${1.2 + Number(creature.id) * 0.2}s`
-                                            } as any}
-                                          />
-                                        ))}
+                    {/* Row 1: Genesis card (000) */}
+                    <div className="col-span-full md:col-start-2 md:col-span-1 mb-8">
+                      {creatures
+                        .filter(creature => creature.id === '000')
+                        .map((creature) => {
+                          const discovered = isCreatureDiscovered(creature.id);
+                          const showCard = discovered || previewMode;
+                          return (
+                            <div
+                              key={creature.id}
+                              className={`achievement-card ${discovered ? 'discovered' : ''}`}
+                            >
+                              <div className="achievement-card-content">
+                                <div className="achievement-card-front">
+                                  <div className="relative w-full h-full">
+                                    <Image
+                                      src={showCard ? `/images/creatures/${creature.id}.png` : '/images/undiscovered.png'}
+                                      alt={showCard ? creature.name : `Undiscovered Creature #${creature.id}`}
+                                      fill
+                                      className="object-contain rounded-lg"
+                                      priority
+                                    />
+                                    {/* Animated overlays for discovered or preview cards */}
+                                    {(discovered || previewMode) &&
+                                      <>
+                                        {/* Genesis creature (000) */}
+                                        {creature.id === '000' && (
+                                          <div className="absolute inset-0 pointer-events-none">
+                                            {[...Array(6 + Math.floor(Math.random() * 4))].map((_, i) => (
+                                              <div
+                                                key={i}
+                                                className={`skull skull-${creature.id}`}
+                                                style={{
+                                                  position: 'absolute',
+                                                  width: '16px',
+                                                  height: '16px',
+                                                  left: `${10 + Math.random() * 80}%`,
+                                                  top: `${20 + Math.random() * 30}%`,
+                                                  '--delay': `${Math.random() * 2}s`,
+                                                  '--duration': '2.5s'
+                                                } as any}
+                                              />
+                                            ))}
+                                          </div>
+                                        )}
+                                      </>
+                                    }
+                                    <div className="absolute top-4 left-0 right-0 flex justify-center">
+                                      <div className="px-4 py-1 bg-black/20 backdrop-blur-sm border border-amber-400 rounded-lg">
+                                        <p className="text-xl font-cardo text-amber-400">#{creature.id}</p>
                                       </div>
-                                    )}
-                                    
-                                    {/* Water creatures (004-006) */}
-                                    {['004', '005', '006'].includes(creature.id) && (
-                                      <div className="absolute inset-0 pointer-events-none">
-                                        {[...Array(6 + Math.floor(Math.random() * 5))].map((_, i) => (
-                                          <div
-                                            key={i}
-                                            className={`droplet droplet-${creature.id}`}
-                                            style={{
-                                              position: 'absolute',
-                                              width: '6px',
-                                              height: '6px',
-                                              backgroundColor: 'rgba(96, 165, 250, 0.5)',
-                                              borderRadius: '9999px',
-                                              left: `${10 + Math.random() * 80}%`,
-                                              top: `${15 + Math.random() * 15}%`,
-                                              '--delay': `${Math.random() * 3}s`,
-                                              '--duration': `${1.8 + Number(creature.id) * 0.15}s`
-                                            } as any}
-                                          />
-                                        ))}
-                                      </div>
-                                    )}
-
-                                    {/* Nature creatures (007-009) */}
-                                    {['007', '008', '009'].includes(creature.id) && (
-                                      <div className="absolute inset-0 pointer-events-none">
-                                        {[...Array(4 + Math.floor(Math.random() * 4))].map((_, i) => (
-                                          <div
-                                            key={i}
-                                            className={`leaf leaf-${creature.id}`}
-                                            style={{
-                                              position: 'absolute',
-                                              width: '11px',
-                                              height: '11px',
-                                              backgroundColor: 'rgba(74, 222, 128, 0.5)',
-                                              left: `${10 + Math.random() * 80}%`,
-                                              top: `${25 + Math.random() * 20}%`,
-                                              '--delay': `${Math.random() * 4}s`,
-                                              '--duration': `${2.5 + Number(creature.id) * 0.25}s`
-                                            } as any}
-                                          />
-                                        ))}
-                                      </div>
-                                    )}
-                                  </>
-                                )}
-                                <div className="absolute top-4 left-0 right-0 flex justify-center">
-                                  <div className="px-4 py-1 bg-black/20 backdrop-blur-sm border border-amber-400 rounded-lg">
-                                    <p className="text-xl font-cardo text-amber-400">#{creature.id}</p>
+                                    </div>
                                   </div>
                                 </div>
+                                {(discovered || previewMode) && (
+                                  <div className="achievement-card-back">
+                                    <div className="relative w-full h-full">
+                                      <Image
+                                        src="/images/Back_card_stats.png"
+                                        alt={`${creature.name} Stats`}
+                                        fill
+                                        className="object-contain rounded-lg"
+                                        priority
+                                      />
+                                      <div className="absolute inset-0">
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '12%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`hp-${creature.id}`}
+                                        >{creature.stats.hp}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '25.6%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`attack-${creature.id}`}
+                                        >{creature.stats.attack}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '39.2%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`defense-${creature.id}`}
+                                        >{creature.stats.defense}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '52.8%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`speed-${creature.id}`}
+                                        >{creature.stats.speed}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '70.4%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`type-${creature.id}`}
+                                        >{creature.stats.type}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-sm text-center w-[200px]" 
+                                          style={{ 
+                                            top: '85%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`requirement-${creature.id}`}
+                                        >{creature.requirement}</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             </div>
-                            {(discovered || previewMode) && (
-                              <div className="achievement-card-back">
-                                <div className="relative w-full h-full">
-                                  <Image
-                                    src="/images/Back_card_stats.png"
-                                    alt={`${creature.name} Stats`}
-                                    fill
-                                    className="object-contain rounded-lg"
-                                    priority
-                                  />
-                                  <div className="absolute inset-0">
-                                    <div 
-                                      className="absolute text-white font-cardo text-lg text-center w-[100px]" 
-                                      style={{ 
-                                        top: '20%',
-                                        left: '52%',
-                                        transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
-                                        '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
-                                      } as any}
-                                      data-testid={`hp-${creature.id}`}
-                                    >64</div>
-                                    <div 
-                                      className="absolute text-white font-cardo text-lg text-center w-[100px]" 
-                                      style={{ 
-                                        top: '38%',
-                                        left: '52%',
-                                        transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
-                                        '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
-                                      } as any}
-                                      data-testid={`attack-${creature.id}`}
-                                    >16</div>
-                                    <div 
-                                      className="absolute text-white font-cardo text-lg text-center w-[100px]" 
-                                      style={{ 
-                                        top: '56%',
-                                        left: '52%',
-                                        transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
-                                        '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
-                                      } as any}
-                                      data-testid={`defense-${creature.id}`}
-                                    >8</div>
-                                    <div 
-                                      className="absolute text-white font-cardo text-lg text-center w-[100px]" 
-                                      style={{ 
-                                        top: '74%',
-                                        left: '52%',
-                                        transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
-                                        '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
-                                      } as any}
-                                      data-testid={`speed-${creature.id}`}
-                                    >12</div>
+                          );
+                        })}
+                    </div>
+
+                    {/* Row 2: Fire creatures (001-003) */}
+                    <div className="col-span-full grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                      {creatures
+                        .filter(creature => ['001', '002', '003'].includes(creature.id))
+                        .map((creature) => {
+                          const discovered = isCreatureDiscovered(creature.id);
+                          const showCard = discovered || previewMode;
+                          return (
+                            <div
+                              key={creature.id}
+                              className={`achievement-card ${discovered ? 'discovered' : ''}`}
+                            >
+                              <div className="achievement-card-content">
+                                <div className="achievement-card-front">
+                                  <div className="relative w-full h-full">
+                                    <Image
+                                      src={showCard ? `/images/creatures/${creature.id}.png` : '/images/undiscovered.png'}
+                                      alt={showCard ? creature.name : `Undiscovered Creature #${creature.id}`}
+                                      fill
+                                      className="object-contain rounded-lg"
+                                      priority
+                                    />
+                                    {/* Animated overlays for discovered or preview cards */}
+                                    {(discovered || previewMode) &&
+                                      <>
+                                        {/* Fire creatures (001-003) */}
+                                        {['001', '002', '003'].includes(creature.id) && (
+                                          <div className="absolute inset-0 pointer-events-none">
+                                            {[...Array(5 + Math.floor(Math.random() * 4))].map((_, i) => (
+                                              <div
+                                                key={i}
+                                                className={`spark spark-${creature.id}`}
+                                                style={{
+                                                  position: 'absolute',
+                                                  width: '10px',
+                                                  height: '10px',
+                                                  backgroundColor: '#fbbf24',
+                                                  borderRadius: '9999px',
+                                                  left: `${10 + Math.random() * 80}%`,
+                                                  top: `${30 + Math.random() * 20}%`,
+                                                  '--delay': `${Math.random() * 2}s`,
+                                                  '--duration': `${1.2 + Number(creature.id) * 0.2}s`
+                                                } as any}
+                                              />
+                                            ))}
+                                          </div>
+                                        )}
+                                      </>
+                                    }
+                                    <div className="absolute top-4 left-0 right-0 flex justify-center">
+                                      <div className="px-4 py-1 bg-black/20 backdrop-blur-sm border border-amber-400 rounded-lg">
+                                        <p className="text-xl font-cardo text-amber-400">#{creature.id}</p>
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
+                                {(discovered || previewMode) && (
+                                  <div className="achievement-card-back">
+                                    <div className="relative w-full h-full">
+                                      <Image
+                                        src="/images/Back_card_stats.png"
+                                        alt={`${creature.name} Stats`}
+                                        fill
+                                        className="object-contain rounded-lg"
+                                        priority
+                                      />
+                                      <div className="absolute inset-0">
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '12%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`hp-${creature.id}`}
+                                        >{creature.stats.hp}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '25.6%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`attack-${creature.id}`}
+                                        >{creature.stats.attack}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '39.2%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`defense-${creature.id}`}
+                                        >{creature.stats.defense}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '52.8%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`speed-${creature.id}`}
+                                        >{creature.stats.speed}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '70.4%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`type-${creature.id}`}
+                                        >{creature.stats.type}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-sm text-center w-[200px]" 
+                                          style={{ 
+                                            top: '85%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`requirement-${creature.id}`}
+                                        >{creature.requirement}</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
+                            </div>
+                          );
+                        })}
+                    </div>
+
+                    {/* Row 3: Water creatures (004-006) */}
+                    <div className="col-span-full grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                      {creatures
+                        .filter(creature => creature.id >= '004' && creature.id <= '006')
+                        .map((creature) => {
+                          const discovered = isCreatureDiscovered(creature.id);
+                          const showCard = discovered || previewMode;
+                          return (
+                            <div
+                              key={creature.id}
+                              className={`achievement-card ${discovered ? 'discovered' : ''}`}
+                            >
+                              <div className="achievement-card-content">
+                                <div className="achievement-card-front">
+                                  <div className="relative w-full h-full">
+                                    <Image
+                                      src={showCard ? `/images/creatures/${creature.id}.png` : '/images/undiscovered.png'}
+                                      alt={showCard ? creature.name : `Undiscovered Creature #${creature.id}`}
+                                      fill
+                                      className="object-contain rounded-lg"
+                                      priority
+                                    />
+                                    {/* Animated overlays for discovered or preview cards */}
+                                    {(discovered || previewMode) &&
+                                      <>
+                                        {/* Water creatures (004-006) */}
+                                        <div className="absolute inset-0 pointer-events-none">
+                                          {[...Array(6 + Math.floor(Math.random() * 5))].map((_, i) => (
+                                            <div
+                                              key={i}
+                                              className={`droplet droplet-${creature.id}`}
+                                              style={{
+                                                position: 'absolute',
+                                                width: '6px',
+                                                height: '6px',
+                                                backgroundColor: 'rgba(96, 165, 250, 0.5)',
+                                                borderRadius: '9999px',
+                                                left: `${10 + Math.random() * 80}%`,
+                                                top: `${15 + Math.random() * 15}%`,
+                                                '--delay': `${Math.random() * 3}s`,
+                                                '--duration': `${1.8 + Number(creature.id) * 0.15}s`
+                                              } as any}
+                                            />
+                                          ))}
+                                        </div>
+                                      </>
+                                    }
+                                    <div className="absolute top-4 left-0 right-0 flex justify-center">
+                                      <div className="px-4 py-1 bg-black/20 backdrop-blur-sm border border-amber-400 rounded-lg">
+                                        <p className="text-xl font-cardo text-amber-400">#{creature.id}</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                {(discovered || previewMode) && (
+                                  <div className="achievement-card-back">
+                                    <div className="relative w-full h-full">
+                                      <Image
+                                        src="/images/Back_card_stats.png"
+                                        alt={`${creature.name} Stats`}
+                                        fill
+                                        className="object-contain rounded-lg"
+                                        priority
+                                      />
+                                      <div className="absolute inset-0">
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '12%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`hp-${creature.id}`}
+                                        >{creature.stats.hp}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '25.6%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`attack-${creature.id}`}
+                                        >{creature.stats.attack}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '39.2%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`defense-${creature.id}`}
+                                        >{creature.stats.defense}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '52.8%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`speed-${creature.id}`}
+                                        >{creature.stats.speed}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '70.4%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`type-${creature.id}`}
+                                        >{creature.stats.type}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-sm text-center w-[200px]" 
+                                          style={{ 
+                                            top: '85%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`requirement-${creature.id}`}
+                                        >{creature.requirement}</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+
+                    {/* Row 4: Nature creatures (007-009) */}
+                    <div className="col-span-full grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                      {creatures
+                        .filter(creature => ['007', '008', '009'].includes(creature.id))
+                        .map((creature) => {
+                          const discovered = isCreatureDiscovered(creature.id);
+                          const showCard = discovered || previewMode;
+                          return (
+                            <div
+                              key={creature.id}
+                              className={`achievement-card ${discovered ? 'discovered' : ''}`}
+                            >
+                              <div className="achievement-card-content">
+                                <div className="achievement-card-front">
+                                  <div className="relative w-full h-full">
+                                    <Image
+                                      src={showCard ? `/images/creatures/${creature.id}.png` : '/images/undiscovered.png'}
+                                      alt={showCard ? creature.name : `Undiscovered Creature #${creature.id}`}
+                                      fill
+                                      className="object-contain rounded-lg"
+                                      priority
+                                    />
+                                    {/* Animated overlays for discovered or preview cards */}
+                                    {(discovered || previewMode) &&
+                                      <>
+                                        {/* Nature creatures (007-009) */}
+                                        {['007', '008', '009'].includes(creature.id) && (
+                                          <div className="absolute inset-0 pointer-events-none">
+                                            {[...Array(4 + Math.floor(Math.random() * 4))].map((_, i) => (
+                                              <div
+                                                key={i}
+                                                className={`leaf leaf-${creature.id}`}
+                                                style={{
+                                                  position: 'absolute',
+                                                  width: '11px',
+                                                  height: '11px',
+                                                  backgroundColor: 'rgba(74, 222, 128, 0.5)',
+                                                  left: `${10 + Math.random() * 80}%`,
+                                                  top: `${25 + Math.random() * 20}%`,
+                                                  '--delay': `${Math.random() * 4}s`,
+                                                  '--duration': `${2.5 + Number(creature.id) * 0.25}s`
+                                                } as any}
+                                              />
+                                            ))}
+                                          </div>
+                                        )}
+                                      </>
+                                    }
+                                    <div className="absolute top-4 left-0 right-0 flex justify-center">
+                                      <div className="px-4 py-1 bg-black/20 backdrop-blur-sm border border-amber-400 rounded-lg">
+                                        <p className="text-xl font-cardo text-amber-400">#{creature.id}</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                {(discovered || previewMode) && (
+                                  <div className="achievement-card-back">
+                                    <div className="relative w-full h-full">
+                                      <Image
+                                        src="/images/Back_card_stats.png"
+                                        alt={`${creature.name} Stats`}
+                                        fill
+                                        className="object-contain rounded-lg"
+                                        priority
+                                      />
+                                      <div className="absolute inset-0">
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '12%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`hp-${creature.id}`}
+                                        >{creature.stats.hp}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '25.6%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`attack-${creature.id}`}
+                                        >{creature.stats.attack}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '39.2%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`defense-${creature.id}`}
+                                        >{creature.stats.defense}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '52.8%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`speed-${creature.id}`}
+                                        >{creature.stats.speed}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '70.4%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`type-${creature.id}`}
+                                        >{creature.stats.type}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-sm text-center w-[200px]" 
+                                          style={{ 
+                                            top: '85%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`requirement-${creature.id}`}
+                                        >{creature.requirement}</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+
+                    {/* Row 5: Stone creatures (010-012) */}
+                    <div className="col-span-full grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                      {creatures
+                        .filter(creature => ['010', '011', '012'].includes(creature.id))
+                        .map((creature) => {
+                          const discovered = isCreatureDiscovered(creature.id);
+                          const showCard = discovered || previewMode;
+                          return (
+                            <div
+                              key={creature.id}
+                              className={`achievement-card ${discovered ? 'discovered' : ''}`}
+                            >
+                              <div className="achievement-card-content">
+                                <div className="achievement-card-front">
+                                  <div className="relative w-full h-full">
+                                    <Image
+                                      src={showCard ? `/images/creatures/${creature.id}.png` : '/images/undiscovered.png'}
+                                      alt={showCard ? creature.name : `Undiscovered Creature #${creature.id}`}
+                                      fill
+                                      className="object-contain rounded-lg"
+                                      priority
+                                    />
+                                    {/* Animated overlays for discovered or preview cards */}
+                                    {(discovered || previewMode) &&
+                                      <>
+                                        {/* Stone creatures (010-012) */}
+                                        {['010', '011', '012'].includes(creature.id) && (
+                                          <div className="absolute inset-0 pointer-events-none">
+                                            {[...Array(8 + Math.floor(Math.random() * 4))].map((_, i) => (
+                                              <div
+                                                key={i}
+                                                className={`pebble pebble-${creature.id}`}
+                                                style={{
+                                                  position: 'absolute',
+                                                  width: '8px',
+                                                  height: '8px',
+                                                  backgroundColor: '#8B7355',
+                                                  borderRadius: '2px',
+                                                  left: `${10 + Math.random() * 80}%`,
+                                                  top: `${20 + Math.random() * 40}%`,
+                                                  '--delay': `${Math.random() * 3}s`,
+                                                  '--duration': `${2 + Number(creature.id.slice(-1)) * 0.2}s`
+                                                } as any}
+                                              />
+                                            ))}
+                                          </div>
+                                        )}
+                                      </>
+                                    }
+                                    <div className="absolute top-4 left-0 right-0 flex justify-center">
+                                      <div className="px-4 py-1 bg-black/20 backdrop-blur-sm border border-amber-400 rounded-lg">
+                                        <p className="text-xl font-cardo text-amber-400">#{creature.id}</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                {(discovered || previewMode) && (
+                                  <div className="achievement-card-back">
+                                    <div className="relative w-full h-full">
+                                      <Image
+                                        src="/images/Back_card_stats.png"
+                                        alt={`${creature.name} Stats`}
+                                        fill
+                                        className="object-contain rounded-lg"
+                                        priority
+                                      />
+                                      <div className="absolute inset-0">
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '12%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`hp-${creature.id}`}
+                                        >{creature.stats.hp}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '25.6%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`attack-${creature.id}`}
+                                        >{creature.stats.attack}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '39.2%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`defense-${creature.id}`}
+                                        >{creature.stats.defense}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '52.8%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`speed-${creature.id}`}
+                                        >{creature.stats.speed}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-lg text-center w-[100px]" 
+                                          style={{ 
+                                            top: '70.4%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`type-${creature.id}`}
+                                        >{creature.stats.type}</div>
+                                        <div 
+                                          className="absolute text-white font-cardo text-sm text-center w-[200px]" 
+                                          style={{ 
+                                            top: '85%',
+                                            left: '52%',
+                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
+                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
+                                          } as any}
+                                          data-testid={`requirement-${creature.id}`}
+                                        >{creature.requirement}</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+
                     {/* Preview mode switch */}
                     <div className="col-span-full flex items-center justify-center gap-4 mt-8 pb-8">
                       <Switch
@@ -405,6 +928,51 @@ export default function AchievementsPage() {
         </Tabs>
       </div>
       <style jsx>{`
+        @keyframes skull-float {
+          0% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 0.8;
+          }
+          50% {
+            transform: translateY(-20px) rotate(180deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(-40px) rotate(360deg);
+            opacity: 0;
+          }
+        }
+
+        @keyframes pebble-fall {
+          0% {
+            transform: translateY(-20px) rotate(0deg);
+            opacity: 0;
+          }
+          20% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(100px) rotate(360deg);
+            opacity: 0;
+          }
+        }
+
+        .skull {
+          mask-image: url('/images/skull-icon.svg');
+          mask-size: contain;
+          mask-repeat: no-repeat;
+          background-color: rgba(255, 255, 255, 0.8);
+          animation: skull-float var(--duration) infinite;
+          animation-delay: var(--delay);
+        }
+
+        .pebble {
+          filter: blur(0.5px);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          animation: pebble-fall var(--duration) infinite;
+          animation-delay: var(--delay);
+        }
+
         @keyframes spark {
           0% {
             transform: translateY(0) scale(1);

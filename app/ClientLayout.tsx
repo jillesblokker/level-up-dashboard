@@ -3,14 +3,14 @@
 import { useState, useEffect } from "react"
 import type React from "react"
 import { usePathname } from "next/navigation"
-import { ThemeProvider } from "@/components/theme-provider"
-import { Toaster } from "@/components/ui/toaster"
-import { DevicePreview } from "@/components/device-preview"
-import { DbProvider } from "@/lib/db-context"
-import { MobileNav } from "@/components/navigation/mobile-nav"
-import { NavBar } from "@/components/nav-bar"
-import { toast } from "@/components/ui/use-toast"
-import { RealmProvider } from "@/lib/realm-context"
+import { ThemeProvider } from "../components/theme-provider"
+import { Toaster } from "../components/ui/toaster"
+import { DevicePreview } from "../components/device-preview"
+import { DbProvider } from "../lib/db-context"
+import { MobileNav } from "../components/navigation/mobile-nav"
+import { NavBar } from "../components/nav-bar"
+import { useToast } from "../components/ui/use-toast"
+import { RealmProvider } from "../lib/realm-context"
 
 // Define the type for headerImages
 interface HeaderImages {
@@ -19,6 +19,7 @@ interface HeaderImages {
   quests: string;
   guildhall: string;
   achievements: string;
+  kingdom: string;
 }
 
 // Create a global state object for header images
@@ -30,6 +31,7 @@ if (typeof window !== 'undefined') {
     quests: localStorage.getItem("quests-header-image") || "/images/quests-header.jpg",
     guildhall: localStorage.getItem("guildhall-header-image") || "/images/guildhall-header.jpg",
     achievements: localStorage.getItem("achievements-header-image") || "/images/achievements-header.jpg",
+    kingdom: localStorage.getItem("kingdom-header-image") || "/images/kingdom-header.jpg",
   } as HeaderImages;
 }
 
@@ -39,23 +41,7 @@ export default function ClientLayout({
   children: React.ReactNode
 }>) {
   const pathname = usePathname()
-  const [goldBalance, setGoldBalance] = useState(0)
-  
-  // Load gold balance from localStorage when the component mounts
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Try different gold balance keys used in the app
-      const goldKeys = ["gold-balance", "levelup-gold-balance", "goldBalance"]
-      
-      for (const key of goldKeys) {
-        const savedGold = localStorage.getItem(key)
-        if (savedGold) {
-          setGoldBalance(Number.parseInt(savedGold))
-          break
-        }
-      }
-    }
-  }, [])
+  const { toast } = useToast()
   
   // Save map function for the realm page
   const saveMap = () => {
@@ -83,8 +69,7 @@ export default function ClientLayout({
             {/* Mobile Navigation (hidden on md and larger screens) */}
             <div className="md:hidden">
               <MobileNav 
-                goldBalance={goldBalance} 
-                onSaveMap={saveMap} 
+                onSaveMap={saveMap}
                 // @ts-ignore - Use window.mobileNavProps if available
                 tabs={typeof window !== 'undefined' && window.mobileNavProps ? window.mobileNavProps.tabs : undefined}
                 // @ts-ignore

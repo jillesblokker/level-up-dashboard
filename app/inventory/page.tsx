@@ -35,7 +35,6 @@ export default function InventoryPage() {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editItem, setEditItem] = useState<InventoryItem | null>(null);
   const { toast } = useToast();
-  const [goldBalance, setGoldBalance] = useState(0);
 
   // Tabs configuration for navigation
   const tabOptions = [
@@ -54,19 +53,7 @@ export default function InventoryPage() {
 
   useEffect(() => {
     loadItems();
-    loadGold();
   }, []);
-
-  const loadGold = async () => {
-    try {
-      const characters = await db.characters.toArray();
-      if (characters.length > 0) {
-        setGoldBalance(characters[0].gold);
-      }
-    } catch (error) {
-      console.error("Error loading gold:", error);
-    }
-  };
 
   const loadItems = async () => {
     try {
@@ -261,197 +248,53 @@ export default function InventoryPage() {
     );
   };
 
+  const getTotalItems = () => {
+    return items.reduce((total, item) => total + item.quantity, 0);
+  };
+
   return (
     <>
-      <MobileNav tabs={tabOptions} activeTab={activeTab} onTabChange={setActiveTab} />
+      <MobileNav />
       <NavBar />
       
       <main className="container max-w-4xl py-6">
-        <div className="mb-6 flex justify-between items-center">
-          <Link href="/kingdom">
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Kingdom
+        {/* Mobile tabs */}
+        <div className="md:hidden mb-4">
+          <div className="flex overflow-x-auto gap-2 pb-2">
+            <Button
+              variant={activeTab === "all" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveTab("all")}
+            >
+              All Items
             </Button>
-          </Link>
-          
-          <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Item
+            {ITEM_TYPES.map(type => (
+              <Button
+                key={type.value}
+                variant={activeTab === type.value ? "default" : "outline"}
+                size="sm"
+                onClick={() => setActiveTab(type.value)}
+                className="flex items-center gap-2"
+              >
+                {type.icon}
+                {type.label}
               </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add New Item</DialogTitle>
-                <DialogDescription>
-                  Add a new item to your inventory.
-                </DialogDescription>
-              </DialogHeader>
-              
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="name">Item Name</Label>
-                  <Input
-                    id="name"
-                    value={newItem.name}
-                    onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-                    placeholder="Mighty Sword"
-                  />
-                </div>
-                
-                <div className="grid gap-2">
-                  <Label htmlFor="type">Item Type</Label>
-                  <Select
-                    value={newItem.type}
-                    onValueChange={(value) => setNewItem({ ...newItem, type: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ITEM_TYPES.map((type) => (
-                        <SelectItem key={type.value} value={type.value}>
-                          <div className="flex items-center">
-                            <span className="mr-2">{type.icon}</span>
-                            {type.label}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="grid gap-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={newItem.description}
-                    onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
-                    placeholder="A legendary sword crafted by master smiths"
-                    rows={3}
-                  />
-                </div>
-                
-                <div className="grid gap-2">
-                  <Label htmlFor="quantity">Quantity</Label>
-                  <Input
-                    id="quantity"
-                    type="number"
-                    min={1}
-                    value={newItem.quantity}
-                    onChange={(e) => setNewItem({ ...newItem, quantity: parseInt(e.target.value) || 1 })}
-                  />
-                </div>
-                
-                <div className="grid gap-2">
-                  <Label>Item Image</Label>
-                  <ImageUpload
-                    onImageUploaded={(url) => handleImageUploaded(url)}
-                    imageId="temp-new-item"
-                    initialImage={newItemImage}
-                    aspectRatio="aspect-square"
-                  />
-                </div>
-              </div>
-              
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setAddDialogOpen(false)}>Cancel</Button>
-                <Button onClick={handleAddItem}>Add Item</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          
-          <Dialog open={!!editItem} onOpenChange={(open) => !open && setEditItem(null)}>
-            {editItem && (
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Edit Item</DialogTitle>
-                  <DialogDescription>
-                    Update the details of your item.
-                  </DialogDescription>
-                </DialogHeader>
-                
-                <div className="grid gap-4 py-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="edit-name">Item Name</Label>
-                    <Input
-                      id="edit-name"
-                      value={editItem.name}
-                      onChange={(e) => setEditItem({ ...editItem, name: e.target.value })}
-                    />
-                  </div>
-                  
-                  <div className="grid gap-2">
-                    <Label htmlFor="edit-type">Item Type</Label>
-                    <Select
-                      value={editItem.type}
-                      onValueChange={(value) => setEditItem({ ...editItem, type: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {ITEM_TYPES.map((type) => (
-                          <SelectItem key={type.value} value={type.value}>
-                            <div className="flex items-center">
-                              <span className="mr-2">{type.icon}</span>
-                              {type.label}
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="grid gap-2">
-                    <Label htmlFor="edit-description">Description</Label>
-                    <Textarea
-                      id="edit-description"
-                      value={editItem.description}
-                      onChange={(e) => setEditItem({ ...editItem, description: e.target.value })}
-                      rows={3}
-                    />
-                  </div>
-                  
-                  <div className="grid gap-2">
-                    <Label htmlFor="edit-quantity">Quantity</Label>
-                    <Input
-                      id="edit-quantity"
-                      type="number"
-                      min={1}
-                      value={editItem.quantity}
-                      onChange={(e) => setEditItem({ ...editItem, quantity: parseInt(e.target.value) || 1 })}
-                    />
-                  </div>
-                  
-                  <div className="grid gap-2">
-                    <Label>Item Image</Label>
-                    <ImageUpload
-                      onImageUploaded={(url) => handleImageUploaded(url, editItem.id)}
-                      imageId={editItem.imageId || `item-${editItem.id}`}
-                      initialImage={itemImages[editItem.id as number] || ""}
-                      aspectRatio="aspect-square"
-                    />
-                  </div>
-                </div>
-                
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setEditItem(null)}>Cancel</Button>
-                  <Button onClick={handleEditItem}>Update Item</Button>
-                </DialogFooter>
-              </DialogContent>
-            )}
-          </Dialog>
+            ))}
+          </div>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Your Inventory</CardTitle>
-            <CardDescription>
-              Manage the items you've collected on your adventures
-            </CardDescription>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle>Your Inventory</CardTitle>
+                <CardDescription>You have {getTotalItems()} items in your collection</CardDescription>
+              </div>
+              <Button onClick={() => setAddDialogOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Item
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {/* Desktop tabs - only visible on MD and up */}
@@ -525,6 +368,176 @@ export default function InventoryPage() {
             </div>
           </CardContent>
         </Card>
+
+        <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Item
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New Item</DialogTitle>
+              <DialogDescription>
+                Add a new item to your inventory.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="name">Item Name</Label>
+                <Input
+                  id="name"
+                  value={newItem.name}
+                  onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                  placeholder="Mighty Sword"
+                />
+              </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="type">Item Type</Label>
+                <Select
+                  value={newItem.type}
+                  onValueChange={(value) => setNewItem({ ...newItem, type: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ITEM_TYPES.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        <div className="flex items-center">
+                          <span className="mr-2">{type.icon}</span>
+                          {type.label}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={newItem.description}
+                  onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
+                  placeholder="A legendary sword crafted by master smiths"
+                  rows={3}
+                />
+              </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="quantity">Quantity</Label>
+                <Input
+                  id="quantity"
+                  type="number"
+                  min={1}
+                  value={newItem.quantity}
+                  onChange={(e) => setNewItem({ ...newItem, quantity: parseInt(e.target.value) || 1 })}
+                />
+              </div>
+              
+              <div className="grid gap-2">
+                <Label>Item Image</Label>
+                <ImageUpload
+                  onImageUploaded={(url) => handleImageUploaded(url)}
+                  imageId="temp-new-item"
+                  initialImage={newItemImage}
+                  aspectRatio="aspect-square"
+                />
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setAddDialogOpen(false)}>Cancel</Button>
+              <Button onClick={handleAddItem}>Add Item</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        
+        <Dialog open={!!editItem} onOpenChange={(open) => !open && setEditItem(null)}>
+          {editItem && (
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Edit Item</DialogTitle>
+                <DialogDescription>
+                  Update the details of your item.
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-name">Item Name</Label>
+                  <Input
+                    id="edit-name"
+                    value={editItem.name}
+                    onChange={(e) => setEditItem({ ...editItem, name: e.target.value })}
+                  />
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-type">Item Type</Label>
+                  <Select
+                    value={editItem.type}
+                    onValueChange={(value) => setEditItem({ ...editItem, type: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ITEM_TYPES.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          <div className="flex items-center">
+                            <span className="mr-2">{type.icon}</span>
+                            {type.label}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-description">Description</Label>
+                  <Textarea
+                    id="edit-description"
+                    value={editItem.description}
+                    onChange={(e) => setEditItem({ ...editItem, description: e.target.value })}
+                    rows={3}
+                  />
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-quantity">Quantity</Label>
+                  <Input
+                    id="edit-quantity"
+                    type="number"
+                    min={1}
+                    value={editItem.quantity}
+                    onChange={(e) => setEditItem({ ...editItem, quantity: parseInt(e.target.value) || 1 })}
+                  />
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label>Item Image</Label>
+                  <ImageUpload
+                    onImageUploaded={(url) => handleImageUploaded(url, editItem.id)}
+                    imageId={editItem.imageId || `item-${editItem.id}`}
+                    initialImage={itemImages[editItem.id as number] || ""}
+                    aspectRatio="aspect-square"
+                  />
+                </div>
+              </div>
+              
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setEditItem(null)}>Cancel</Button>
+                <Button onClick={handleEditItem}>Update Item</Button>
+              </DialogFooter>
+            </DialogContent>
+          )}
+        </Dialog>
       </main>
     </>
   );

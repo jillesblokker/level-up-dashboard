@@ -13,7 +13,7 @@
     --popover: 0 0% 4%;
     --popover-foreground: 0 0% 100%;
  
-    --primary: 47 95% 50%;
+    --primary: 38 92% 50%;
     --primary-foreground: 0 0% 0%;
  
     --secondary: 0 0% 9%;
@@ -30,7 +30,7 @@
  
     --border: 0 0% 9%;
     --input: 0 0% 9%;
-    --ring: 47 95% 50%;
+    --ring: 38 92% 50%;
  
     --radius: 0.5rem;
   }
@@ -562,5 +562,53 @@ main {
 
   .rotate-y-180 {
     transform: rotateY(180deg);
+  }
+
+  /* Light ray animation for Genesis card (000) */
+  .light-ray {
+    animation: lightPulse var(--duration) infinite;
+    animation-delay: var(--delay);
+    opacity: 0;
+  }
+
+  @keyframes lightPulse {
+    0% {
+      transform: scale(1) translateY(0);
+      opacity: 0;
+    }
+    25% {
+      opacity: 0.8;
+    }
+    75% {
+      opacity: 0.6;
+    }
+    100% {
+      transform: scale(1.5) translateY(-20px);
+      opacity: 0;
+    }
+  }
+
+  /* Sparkle animation for Light cards (012-015) */
+  .sparkle {
+    animation: sparkleFloat var(--duration) infinite;
+    animation-delay: var(--delay);
+    opacity: 0;
+  }
+
+  @keyframes sparkleFloat {
+    0% {
+      transform: scale(0.8) translateY(0);
+      opacity: 0;
+    }
+    25% {
+      opacity: 1;
+    }
+    75% {
+      opacity: 0.8;
+    }
+    100% {
+      transform: scale(1.2) translateY(-15px);
+      opacity: 0;
+    }
   }
 } 

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { 
   Crown, 
   MapIcon,
@@ -25,14 +25,62 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
+import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience } from "@/types/character"
 
 interface MobileNavProps {
-  goldBalance?: number
+  onSaveMap?: () => void
+  tabs?: { value: string; label: string }[]
+  activeTab?: string
+  onTabChange?: (value: string) => void
 }
 
-export function MobileNav({ goldBalance = 0 }: MobileNavProps) {
+export function MobileNav({ onSaveMap, tabs, activeTab, onTabChange }: MobileNavProps) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+  const [characterStats, setCharacterStats] = useState<CharacterStats>({
+    level: 1,
+    experience: 0,
+    experienceToNextLevel: 100,
+    gold: 0,
+    titles: {
+      equipped: "",
+      unlocked: 0,
+      total: 10
+    },
+    perks: {
+      active: 0,
+      total: 5
+    }
+  })
+
+  useEffect(() => {
+    // Load character stats from localStorage
+    const loadCharacterStats = () => {
+      try {
+        const savedStats = localStorage.getItem("character-stats")
+        if (savedStats) {
+          const stats = JSON.parse(savedStats) as CharacterStats
+          const currentLevel = calculateLevelFromExperience(stats.experience)
+          setCharacterStats({
+            ...stats,
+            level: currentLevel,
+            experienceToNextLevel: calculateExperienceForLevel(currentLevel)
+          })
+        }
+      } catch (error) {
+        console.error("Error loading character stats:", error)
+      }
+    }
+    loadCharacterStats()
+
+    // Listen for character stats updates
+    const handleStatsUpdate = () => loadCharacterStats()
+    window.addEventListener("character-stats-update", handleStatsUpdate)
+    
+    return () => {
+      window.removeEventListener("character-stats-update", handleStatsUpdate)
+    }
+  }, [])
   
   const mainNavItems = [
     { href: "/", label: "Kingdom", icon: Crown },
@@ -64,13 +112,13 @@ export function MobileNav({ goldBalance = 0 }: MobileNavProps) {
           {/* Level */}
           <div className="flex items-center gap-1.5">
             <span className="text-sm text-gray-400">Level</span>
-            <span className="text-amber-400 font-bold">1</span>
+            <span className="text-amber-400 font-bold">{characterStats.level}</span>
           </div>
 
           {/* Gold */}
           <div className="flex items-center gap-1.5">
             <Icons.coins className="w-4 h-4 text-amber-400" />
-            <span className="text-gray-100">{goldBalance}</span>
+            <span className="text-gray-100">{characterStats.gold}</span>
           </div>
 
           {/* Menu Button */}
@@ -149,6 +197,24 @@ export function MobileNav({ goldBalance = 0 }: MobileNavProps) {
           </Sheet>
         </div>
       </div>
+
+      {/* Add tab navigation if tabs are provided */}
+      {tabs && activeTab && onTabChange && (
+        <div className="md:hidden px-4 pb-4">
+          <div className="flex overflow-x-auto gap-2">
+            {tabs.map((tab) => (
+              <Button
+                key={tab.value}
+                variant={activeTab === tab.value ? "default" : "outline"}
+                size="sm"
+                onClick={() => onTabChange(tab.value)}
+              >
+                {tab.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
     </nav>
   )
 } 

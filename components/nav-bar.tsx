@@ -4,20 +4,20 @@ import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Home, Map, User, Trophy, ShoppingBag, Settings, Menu, Coins, Castle, X, Palette, Bell, List } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Logo } from "@/components/logo"
-import { NotificationCenter } from "@/components/notification-center"
-import { cn } from "@/lib/utils"
-import { Icons } from "@/components/icons"
-import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character"
-import { Progress } from "@/components/ui/progress"
+import { Button } from "./ui/button"
+import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet"
+import { Logo } from "./logo"
+import { NotificationCenter } from "./notification-center"
+import { cn } from "../lib/utils"
+import { Icons } from "./icons"
+import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "./types/character"
+import { Progress } from "./ui/progress"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "./ui/dropdown-menu"
 
 interface NavBarProps {
   goldBalance: number
@@ -251,15 +251,6 @@ export function NavBar() {
             )}
           >
             Guildhall
-          </Link>
-          <Link
-            href="/achievements"
-            className={cn(
-              "transition-colors hover:text-foreground/80",
-              pathname?.startsWith("/achievements") ? "text-foreground" : "text-foreground/60"
-            )}
-          >
-            Achievements
           </Link>
         </nav>
 

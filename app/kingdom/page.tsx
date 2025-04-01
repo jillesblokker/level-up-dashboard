@@ -9,6 +9,7 @@ import { Upload, Camera, Edit, X, MapPin, User, Backpack } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useRealm } from "@/lib/realm-context"
+import { db } from "@/lib/db"
 
 export default function KingdomPage() {
   const [goldBalance, setGoldBalance] = useState(5000)
@@ -16,6 +17,7 @@ export default function KingdomPage() {
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [coverImage, setCoverImage] = useState("/images/kingdom-header.jpg")
   const [isUploading, setIsUploading] = useState(false)
+  const [totalItems, setTotalItems] = useState(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { grid } = useRealm()
 
@@ -67,62 +69,41 @@ export default function KingdomPage() {
     }
   ]
 
-  // Calculate number of settlements (towns and cities)
-  const countSettlements = () => {
-    try {
-      let count = 0
-      if (!grid?.length) return 0
-      
-      for (let y = 0; y < grid.length; y++) {
-        for (let x = 0; x < grid[y].length; x++) {
-          if (grid[y][x]?.type === "city" || grid[y][x]?.type === "town") {
-            count++
-          }
-        }
+  // Load inventory stats
+  useEffect(() => {
+    const loadInventoryStats = async () => {
+      try {
+        const items = await db.inventory.toArray()
+        const total = items.reduce((sum, item) => sum + item.quantity, 0)
+        setTotalItems(total)
+      } catch (error) {
+        console.error("Error loading inventory stats:", error)
       }
-      return count
-    } catch (error) {
-      console.error('Error counting settlements:', error)
-      return 0
     }
-  }
-  
-  // Calculate territory (each tile is 10 sq miles)
-  const calculateTerritory = () => {
-    try {
-      let count = 0
-      if (!grid?.length) return 0
-      
-      for (let y = 0; y < grid.length; y++) {
-        for (let x = 0; x < grid[y].length; x++) {
-          if (grid[y][x]?.type && grid[y][x].type !== "empty") {
-            count++
-          }
-        }
-      }
-      return count * 10 // Each tile is 10 sq miles
-    } catch (error) {
-      console.error('Error calculating territory:', error)
-      return 0
+    loadInventoryStats()
+
+    // Listen for inventory updates
+    window.addEventListener("inventory-update", loadInventoryStats)
+    return () => {
+      window.removeEventListener("inventory-update", loadInventoryStats)
     }
-  }
+  }, [])
 
   // Save location data to localStorage for use in location pages
   useEffect(() => {
     try {
-      if (typeof window !== 'undefined') {
-        // Save location data to localStorage
-        localStorage.setItem("notableLocations", JSON.stringify(notableLocations))
-        
-        // Set default gold if not already set
-        if (!localStorage.getItem('goldBalance')) {
-          localStorage.setItem('goldBalance', '5000')
-        }
-        
-        // Initialize purchased items if not already set
-        if (!localStorage.getItem('purchasedItems')) {
-          localStorage.setItem('purchasedItems', '[]')
-        }
+      // Save location data to localStorage
+      localStorage.setItem("notableLocations", JSON.stringify(notableLocations))
+      console.log("Saved notableLocations to localStorage:", notableLocations.length)
+      
+      // Set default gold if not already set
+      if (!localStorage.getItem('goldBalance')) {
+        localStorage.setItem('goldBalance', '5000')
+      }
+      
+      // Initialize purchased items if not already set
+      if (!localStorage.getItem('purchasedItems')) {
+        localStorage.setItem('purchasedItems', '[]')
       }
     } catch (err) {
       console.error("Error saving locations to localStorage:", err)
@@ -131,15 +112,9 @@ export default function KingdomPage() {
 
   // Load saved cover image from localStorage on component mount
   useEffect(() => {
-    try {
-      if (typeof window !== 'undefined') {
-        const savedImage = localStorage.getItem("kingdom-cover-image")
-        if (savedImage) {
-          setCoverImage(savedImage)
-        }
-      }
-    } catch (err) {
-      console.error("Error loading cover image:", err)
+    const savedImage = localStorage.getItem("kingdom-cover-image")
+    if (savedImage) {
+      setCoverImage(savedImage)
     }
   }, [])
 
@@ -184,6 +159,36 @@ export default function KingdomPage() {
     { value: "gold", label: "Gold" },
     { value: "experience", label: "Experience" }
   ]
+
+  // Calculate number of settlements (towns and cities)
+  const countSettlements = () => {
+    let count = 0
+    if (!grid || grid.length === 0) return count
+    
+    for (let y = 0; y < grid.length; y++) {
+      for (let x = 0; x < grid[y].length; x++) {
+        if (grid[y][x].type === "city" || grid[y][x].type === "town") {
+          count++
+        }
+      }
+    }
+    return count
+  }
+  
+  // Calculate territory (each tile is 10 sq miles)
+  const calculateTerritory = () => {
+    let count = 0
+    if (!grid || grid.length === 0) return count
+    
+    for (let y = 0; y < grid.length; y++) {
+      for (let x = 0; x < grid[y].length; x++) {
+        if (grid[y][x].type !== "empty") {
+          count++
+        }
+      }
+    }
+    return count * 10 // Each tile is 10 sq miles
+  }
 
   return (
     <div className="min-h-screen bg-black">
@@ -269,129 +274,85 @@ export default function KingdomPage() {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 sm:px-6 -mt-20 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
-          <Card className="bg-black/80 border-amber-800/50 backdrop-blur-sm">
+      <div className="container px-4 py-8">
+        {/* Kingdom Stats */}
+        <div className="grid gap-6 mb-8">
+          <Card>
             <CardHeader>
-              <CardTitle className="text-amber-500">Kingdom Stats</CardTitle>
-              <CardDescription>Overview of your realm</CardDescription>
+              <CardTitle>Kingdom Overview</CardTitle>
+              <CardDescription>Your realm at a glance</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2 text-gray-300">
-                <p>Population: 10,000</p>
-                <p>Settlements: {countSettlements()}</p>
-                <p>Territory: {calculateTerritory()} sq miles</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-black/80 border-amber-800/50 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-amber-500">Resources</CardTitle>
-              <CardDescription>Available resources</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2 text-gray-300">
-                <p>Wood: 1,000</p>
-                <p>Stone: 500</p>
-                <p>Food: 2,000</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-black/80 border-amber-800/50 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-amber-500">Buildings</CardTitle>
-              <CardDescription>Construction status</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2 text-gray-300">
-                <p>Houses: 200</p>
-                <p>Farms: 20</p>
-                <p>Military: 5</p>
+              <div className="grid gap-4 md:grid-cols-3">
+                <div>
+                  <h3 className="text-lg font-semibold">Territory</h3>
+                  <p className="text-2xl font-bold">{calculateTerritory()} sq miles</p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Settlements</h3>
+                  <p className="text-2xl font-bold">{countSettlements()}</p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Treasury</h3>
+                  <p className="text-2xl font-bold">{goldBalance} gold</p>
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
-        
-        {/* Notable Locations Section */}
-        <div className="mb-12">
-          <h2 className="text-2xl sm:text-3xl font-medieval text-amber-500 mb-4">Notable Locations</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        {/* Inventory Overview */}
+        <div className="mb-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Royal Treasury & Inventory</CardTitle>
+              <CardDescription>Your collected items and treasures</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-lg font-semibold">Total Items</p>
+                  <p className="text-3xl font-bold">{totalItems}</p>
+                </div>
+                <Link href="/inventory">
+                  <Button className="flex items-center gap-2">
+                    <Backpack className="h-4 w-4" />
+                    View Inventory
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Notable Locations */}
+        <div className="grid gap-6">
+          <h2 className="text-2xl font-bold">Notable Locations</h2>
+          <div className="grid gap-6 md:grid-cols-2">
             {notableLocations.map((location) => (
-              <Card key={location.id} className="bg-black/60 backdrop-blur-sm border-amber-800/20">
-                <CardHeader>
-                  <CardTitle className="text-xl text-amber-500">{location.name}</CardTitle>
-                  <CardDescription>{location.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-amber-500" />
-                      <span className="text-sm text-gray-400">Visit to trade and explore</span>
-                    </div>
-                    <Link href={`/locations/${location.id}`}>
-                      <Button className="bg-amber-600 hover:bg-amber-700">
-                        Visit Location
-                      </Button>
-                    </Link>
+              <Link key={location.id} href={`/locations/${location.id}`}>
+                <Card className="h-full hover:bg-accent transition-colors cursor-pointer">
+                  <div className="aspect-video relative overflow-hidden rounded-t-lg">
+                    <Image
+                      src={location.image}
+                      alt={location.name}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
-                </CardContent>
-              </Card>
+                  <CardHeader>
+                    <CardTitle>{location.name}</CardTitle>
+                    <CardDescription>{location.description}</CardDescription>
+                  </CardHeader>
+                  <CardFooter>
+                    <Button variant="outline" className="w-full">
+                      <MapPin className="h-4 w-4 mr-2" />
+                      Visit Location
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </Link>
             ))}
-          </div>
-        </div>
-        
-        {/* After the Notable Locations section, add a Quick Links section */}
-        <section className="mt-8">
-          <h2 className="text-2xl font-bold mb-4">Quick Links</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Link href="/profile">
-              <Card className="h-full hover:bg-accent/5 transition-colors">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center">
-                    <User className="h-5 w-5 mr-2 text-amber-500" />
-                    <CardTitle className="text-lg">Profile</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>
-                    View and update your adventurer's profile and statistics
-                  </CardDescription>
-                </CardContent>
-              </Card>
-            </Link>
-            
-            <Link href="/inventory">
-              <Card className="h-full hover:bg-accent/5 transition-colors">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center">
-                    <Backpack className="h-5 w-5 mr-2 text-amber-500" />
-                    <CardTitle className="text-lg">Inventory</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>
-                    Manage items and treasures you've collected on your adventures
-                  </CardDescription>
-                </CardContent>
-              </Card>
-            </Link>
-          </div>
-        </section>
-        
-        {/* Daily Quests Section */}
-        <DailyQuests />
-        
-        {/* Weekly Progress Graphs */}
-        <div className="mt-8 mb-12">
-          <h2 className="text-2xl sm:text-3xl font-medieval text-amber-500 mb-4">Weekly Progress</h2>
-          <p className="text-gray-300 mb-6">Track your progress over the last week.</p>
-          
-          <div className="overflow-x-auto">
-            <div className="min-w-[320px]">
-              <KingdomStatsGraph />
-            </div>
           </div>
         </div>
       </div>
