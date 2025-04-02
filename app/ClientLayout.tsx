@@ -42,7 +42,21 @@ export default function ClientLayout({
 }>) {
   const pathname = usePathname()
   const { toast } = useToast()
+  const [isFullscreen, setIsFullscreen] = useState(false)
   
+  // Check for fullscreen parameter in URL
+  useEffect(() => {
+    const checkFullscreen = () => {
+      const url = new URL(window.location.href)
+      setIsFullscreen(url.searchParams.get('fullscreen') === 'true')
+    }
+
+    // Check on mount and when URL changes
+    checkFullscreen()
+    window.addEventListener('popstate', checkFullscreen)
+    return () => window.removeEventListener('popstate', checkFullscreen)
+  }, [pathname])
+
   // Save map function for the realm page
   const saveMap = () => {
     if (pathname === "/realm") {
@@ -63,6 +77,7 @@ export default function ClientLayout({
 
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
+      {!isFullscreen && pathname === "/realm" ? null : <NavBar />}
       <DbProvider>
         <RealmProvider>
           <div className="flex min-h-screen flex-col">
@@ -77,11 +92,6 @@ export default function ClientLayout({
                 // @ts-ignore
                 onTabChange={typeof window !== 'undefined' && window.mobileNavProps ? window.mobileNavProps.onTabChange : undefined}
               />
-            </div>
-            
-            {/* Desktop Navigation (hidden on smaller than md screens) */}
-            <div className="hidden md:block">
-              <NavBar />
             </div>
             
             {/* Main content with proper padding to account for fixed navigation */}

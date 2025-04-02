@@ -13,11 +13,12 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog"
-import { db } from "@/lib/database" // We'll create this
-import { useRouter } from "next/navigation" // Add router for navigation
-import { Tile, TileType, Character, SelectedTile, TileItem } from "@/types/tiles"
+import { db } from "@/lib/database"
+import { useRouter } from "next/navigation"
+import { Tile, TileType, Character, SelectedTile } from "@/types/tiles"
 import { TileVisual } from "@/components/tile-visual"
 import { cn } from "@/lib/utils"
+import { BattleMinigame } from "@/components/battle-minigame"
 
 // Define events that can update graph data
 export const updateKingdomStats = new EventTarget();
@@ -74,6 +75,8 @@ export function MapGrid({
     imageUrl: ""
   })
   const [isInitialized, setIsInitialized] = useState(false) // Track initialization
+  const [showBattle, setShowBattle] = useState(false);
+  const [battlePosition, setBattlePosition] = useState<{ x: number; y: number } | null>(null);
   
   // Initialize the grid
   useEffect(() => {
@@ -290,149 +293,117 @@ export function MapGrid({
       onTileClick(x, y);
       return;
     }
-
+    
     // Otherwise, move the character
     onCharacterMove(x, y);
+    
+    // After moving, check if it's a mystery tile and handle it
+    if (tile.type === "mystery") {
+      handleMysteryTile(x, y);
+    }
   }, [grid, selectedTile, onTileClick, onCharacterMove]);
   
   const handleMysteryTile = (x: number, y: number) => {
     const random = Math.random();
-    let newGrid = [...grid];
+    const newGrid = [...grid];
     let discovery = "";
 
-    if (random < 0.15) {
-      // Special tile (15% chance)
+    if (random < 0.25) { // 25% chance for scroll
+      const isRareScroll = Math.random() < 0.2; // 20% chance for rare scroll
+      const scrollTexts = [
+        "Ancient texts speak of the first Necrion, a being born from the void between realms. Its poisonous nature was said to be a defense against the primal elements.",
+        "The fire creatures of Thrivehaven emerged from the great forest fires, their bodies forged in the flames of destruction. They seek to cleanse the land through fire.",
+        "Water beings like Dolphio are said to be guardians of the deep, protecting the ancient secrets buried beneath the waves of Thrivehaven.",
+        "The grass creatures are born from the life force of the forests themselves, manifesting when nature's balance is threatened.",
+        "Mountain spirits were once mere stone, until the earth's magic gave them consciousness. They remember every peak that was ever carved away.",
+      ];
+      
+      const scrollText = scrollTexts[Math.floor(Math.random() * scrollTexts.length)];
+      
       newGrid[y][x] = {
         id: `tile-${y}-${x}`,
-        type: "special",
+        type: "grass",
         connections: [],
         rotation: 0,
         revealed: true,
-        name: "Ancient Ruins"
       };
-      discovery = "special";
-      toast({
-        title: "Ancient Ruins Discovered!",
-        description: "You've uncovered ancient ruins with mysterious properties.",
-        variant: "default",
+      
+      discovery = "scroll";
+      
+      setMysteryEncounter({
+        type: "scroll",
+        title: isRareScroll ? "Rare Scroll Discovered!" : "Ancient Scroll Found!",
+        description: scrollText,
+        reward: 0,
+        imageUrl: "/images/encounters/scroll.jpg"
       });
-    } else if (random < 0.40) {
-      // Treasure (25% chance)
-      const goldAmount = Math.floor(Math.random() * 50) + 20;
+      setShowMysteryDialog(true);
+      
+    } else if (random < 0.5) { // 25% chance for nothing
       newGrid[y][x] = {
         id: `tile-${y}-${x}`,
-        type: "treasure",
+        type: "grass",
         connections: [],
         rotation: 0,
         revealed: true,
-        name: "Treasure Chest"
       };
+      
+      discovery = "nothing";
+      
+      setMysteryEncounter({
+        type: "empty",
+        title: "Empty Mystery Tile",
+        description: "This tile reveals itself to be ordinary grassland.",
+        reward: 0,
+        imageUrl: "/images/encounters/grass.jpg"
+      });
+      setShowMysteryDialog(true);
+      
+    } else if (random < 0.75) { // 25% chance for treasure
+      const goldAmount = Math.floor(Math.random() * 481) + 20; // 20-500 gold
+      const expAmount = Math.floor(Math.random() * 41) + 10; // 10-50 exp
+      
+      newGrid[y][x] = {
+        id: `tile-${y}-${x}`,
+        type: "grass",
+        connections: [],
+        rotation: 0,
+        revealed: true,
+      };
+      
       discovery = "treasure";
-      onGoldUpdate(goldAmount);
-      toast({
+      
+      setMysteryEncounter({
+        type: "treasure",
         title: "Treasure Found!",
-        description: `You found ${goldAmount} gold!`,
-        variant: "default",
+        description: `You found ${goldAmount} gold and gained ${expAmount} experience!`,
+        reward: goldAmount,
+        imageUrl: "/images/encounters/treasure.jpg"
       });
-    } else if (random < 0.60) {
-      // Monster encounter (20% chance)
-      const monsterTypes = ["goblin", "wolf", "bandit", "skeleton", "troll"];
-      const monsterType = monsterTypes[Math.floor(Math.random() * monsterTypes.length)];
-      const monsterLevel = Math.floor(Math.random() * 3) + 1;
-      
+      setShowMysteryDialog(true);
+      onGoldUpdate(goldAmount);
+
+    } else { // 25% chance for battle
       newGrid[y][x] = {
         id: `tile-${y}-${x}`,
-        type: "monster",
+        type: "grass",
         connections: [],
         rotation: 0,
         revealed: true,
-        name: `Level ${monsterLevel} ${monsterType}`
       };
-      discovery = "monster";
       
-      toast({
-        title: `Monster Encounter!`,
-        description: `You've encountered a level ${monsterLevel} ${monsterType}! Prepare for battle!`,
-        variant: "destructive",
-      });
-
-      // Store monster info and redirect to dungeon page
-      localStorage.setItem(
-        "current-monster",
-        JSON.stringify({
-          type: monsterType,
-          level: monsterLevel,
-          position: { x, y },
-        })
-      );
-
-      // Navigate to dungeon page for battle
-      window.location.href = "/dungeon";
-    } else if (random < 0.75) {
-      // Dungeon (15% chance)
-      newGrid[y][x] = {
-        id: `tile-${y}-${x}`,
-        type: "dungeon",
-        connections: [],
-        rotation: 0,
-        revealed: true,
-        name: "Mysterious Dungeon"
-      };
-      discovery = "dungeon";
-      
-      toast({
-        title: "Dungeon Discovered!",
-        description: "You've found a mysterious dungeon entrance. Brave adventurers might find treasures within.",
-        variant: "default",
-      });
-
-      // Store dungeon info and redirect to dungeon page
-      localStorage.setItem(
-        "current-dungeon",
-        JSON.stringify({
-          level: Math.floor(Math.random() * 3) + 1,
-          position: { x, y },
-        })
-      );
-
-      // Navigate to dungeon page
-      window.location.href = "/dungeon";
-    } else {
-      // Town or City (25% chance)
-      const isTown = Math.random() < 0.7; // 70% chance for town, 30% for city
-      const townNames = ["Oakvale", "Riverton", "Meadowbrook", "Pineridge", "Foxhaven"];
-      const cityNames = ["Eldoria", "Mystforge", "Ravenhold", "Dragonspire", "Stormwatch"];
-      const name = isTown 
-        ? townNames[Math.floor(Math.random() * townNames.length)]
-        : cityNames[Math.floor(Math.random() * cityNames.length)];
-      
-      newGrid[y][x] = {
-        id: `tile-${y}-${x}`,
-        type: isTown ? "town" : "city",
-        connections: [],
-        rotation: 0,
-        revealed: true,
-        cityName: name,
-        name: name
-      };
-      discovery = isTown ? "town" : "city";
-      
-      toast({
-        title: isTown ? "Town Discovered!" : "City Discovered!",
-        description: `You've found ${name}!`,
-        variant: "default",
-      });
+      discovery = "battle";
+      setShowBattle(true);
+      setBattlePosition({x, y});
     }
 
     onGridUpdate(newGrid);
-    if (onDiscovery) {
-      onDiscovery(discovery);
-    }
+    onDiscovery(discovery);
   }
   
   const handleResolveEncounter = () => {
     // Update stats based on encounter type
-    if (mysteryEncounter.type === "treasure" || mysteryEncounter.type === "traveler") {
+    if (mysteryEncounter.type === "treasure") {
       // Award gold
       updateKingdomStats.dispatchEvent(new CustomEvent('goldUpdate', { 
         detail: { amount: mysteryEncounter.reward } 
@@ -443,31 +414,16 @@ export function MapGrid({
         description: `You received ${mysteryEncounter.reward} gold coins.`,
         variant: "default",
       });
-    } else if (mysteryEncounter.type === "shrine") {
-      // Award experience
+    } else if (mysteryEncounter.type === "scroll") {
+      // Award experience for discovering lore
+      const expAmount = 25;
       updateKingdomStats.dispatchEvent(new CustomEvent('expUpdate', { 
-        detail: { amount: mysteryEncounter.reward } 
+        detail: { amount: expAmount } 
       }));
       
       toast({
-        title: "Experience Gained!",
-        description: `You gained ${mysteryEncounter.reward} experience points.`,
-        variant: "default",
-      });
-    } else if (mysteryEncounter.type === "monster") {
-      // For now, automatically win combat
-      // In a full implementation, this would launch the combat minigame
-      updateKingdomStats.dispatchEvent(new CustomEvent('goldUpdate', { 
-        detail: { amount: mysteryEncounter.reward } 
-      }));
-      
-      updateKingdomStats.dispatchEvent(new CustomEvent('expUpdate', { 
-        detail: { amount: 25 } 
-      }));
-      
-      toast({
-        title: "Victory!",
-        description: `You defeated the monster and gained ${mysteryEncounter.reward} gold and 25 experience.`,
+        title: "Knowledge Gained!",
+        description: `You gained ${expAmount} experience points from studying the ancient scroll.`,
         variant: "default",
       });
     }
@@ -752,66 +708,115 @@ export function MapGrid({
       <Dialog open={showMysteryDialog} onOpenChange={setShowMysteryDialog}>
         <DialogContent className="sm:max-w-md border border-amber-800/20 bg-gray-900">
           <DialogHeader>
-            <DialogTitle className="text-amber-500 font-medievalsharp">{mysteryEncounter.title}</DialogTitle>
-            <DialogDescription className="text-gray-300">
+            <DialogTitle className="text-2xl font-medievalsharp text-amber-500">{mysteryEncounter.title}</DialogTitle>
+            <DialogDescription className="text-gray-300 mt-2">
               {mysteryEncounter.description}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <div className="w-full h-48 bg-amber-800/20 rounded flex items-center justify-center overflow-hidden">
-              {mysteryEncounter.type === "monster" ? (
+            <div className="w-full h-48 bg-amber-800/20 rounded-lg flex items-center justify-center overflow-hidden">
+              {mysteryEncounter.type === "scroll" ? (
                 <div className="w-full h-full relative">
                   <img 
-                    src="/images/encounters/improved-dragon.jpg" 
-                    alt="Dragon" 
+                    src="/images/encounters/scroll.jpg" 
+                    alt="Ancient Scroll" 
                     className="object-cover w-full h-full"
                     onError={(e) => {
                       e.currentTarget.src = "/images/placeholders/encounter-placeholder.svg";
                     }}
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 </div>
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  {mysteryEncounter.type === "treasure" && <img src="/images/encounters/treasure.jpg" alt="Treasure" className="h-40 object-contain" />}
-                  {mysteryEncounter.type === "shrine" && <img src="/images/encounters/shrine.jpg" alt="Shrine" className="h-40 object-contain" />}
-                  {mysteryEncounter.type === "traveler" && <img src="/images/encounters/traveler.jpg" alt="Traveler" className="h-40 object-contain" />}
+              ) : mysteryEncounter.type === "empty" ? (
+                <div className="w-full h-full relative">
+                  <img 
+                    src="/images/encounters/grass.jpg" 
+                    alt="Empty Land" 
+                    className="object-cover w-full h-full"
+                    onError={(e) => {
+                      e.currentTarget.src = "/images/placeholders/encounter-placeholder.svg";
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 </div>
-              )}
+              ) : mysteryEncounter.type === "treasure" ? (
+                <div className="w-full h-full relative">
+                  <img 
+                    src="/images/encounters/treasure.jpg" 
+                    alt="Treasure" 
+                    className="object-cover w-full h-full"
+                    onError={(e) => {
+                      e.currentTarget.src = "/images/placeholders/encounter-placeholder.svg";
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                </div>
+              ) : null}
             </div>
-            {mysteryEncounter.type === "monster" && (
-              <div className="mt-3 flex justify-between items-center bg-gray-800 p-2 rounded">
-                <div className="text-red-400 flex items-center">
-                  <Swords className="h-4 w-4 mr-1" />
-                  <span>Dragon (Level 5)</span>
+            
+            {/* Event-specific content */}
+            {mysteryEncounter.type === "scroll" && (
+              <div className="mt-4 p-4 bg-gray-800/50 rounded-lg">
+                <div className="text-amber-400 text-sm mb-2">Ancient Knowledge</div>
+                <p className="text-gray-300 italic">{mysteryEncounter.description}</p>
+              </div>
+            )}
+            
+            {mysteryEncounter.type === "treasure" && (
+              <div className="mt-4 p-4 bg-gray-800/50 rounded-lg">
+                <div className="text-amber-400 text-sm mb-2">Treasure Contents</div>
+                <div className="flex items-center gap-2">
+                  <span className="text-yellow-500">{mysteryEncounter.reward} Gold</span>
                 </div>
-                <Button className="bg-red-600 hover:bg-red-500 text-white">
-                  Battle
-                </Button>
               </div>
             )}
           </div>
           <DialogFooter className="sm:justify-between">
             <DialogClose asChild>
               <Button type="button" variant="secondary">
-                Flee
+                Close
               </Button>
             </DialogClose>
             <Button 
               type="button" 
               onClick={handleResolveEncounter}
-              className={
-                mysteryEncounter.type === "monster" 
-                  ? "bg-red-600 hover:bg-red-500" 
-                  : "bg-amber-600 hover:bg-amber-500"
-              }
+              className="bg-amber-600 hover:bg-amber-500"
             >
-              {mysteryEncounter.type === "monster" ? "Fight" : 
+              {mysteryEncounter.type === "scroll" ? "Learn" : 
                mysteryEncounter.type === "treasure" ? "Collect" : 
-               mysteryEncounter.type === "shrine" ? "Pray" : "Help"}
+               mysteryEncounter.type === "empty" ? "Continue" : "Proceed"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {showBattle && battlePosition && (
+        <BattleMinigame
+          onClose={() => {
+            setShowBattle(false);
+            setBattlePosition(null);
+          }}
+          onVictory={(gold: number, exp: number) => {
+            setShowBattle(false);
+            setBattlePosition(null);
+            onGoldUpdate(gold);
+            toast({
+              title: "Victory!",
+              description: `You won the battle! Earned ${gold} gold and ${exp} experience.`,
+              variant: "default",
+            });
+          }}
+          onDefeat={() => {
+            setShowBattle(false);
+            setBattlePosition(null);
+            toast({
+              title: "Defeat!",
+              description: "You were defeated in battle. Better luck next time!",
+              variant: "destructive",
+            });
+          }}
+        />
+      )}
     </div>
   );
 } 

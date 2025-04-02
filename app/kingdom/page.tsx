@@ -9,7 +9,8 @@ import { Upload, Camera, Edit, X, MapPin, User, Backpack } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useRealm } from "@/lib/realm-context"
-import { db } from "@/lib/db"
+import { toast } from "@/components/ui/use-toast"
+import { cn } from "@/lib/utils"
 
 export default function KingdomPage() {
   const [goldBalance, setGoldBalance] = useState(5000)
@@ -17,9 +18,9 @@ export default function KingdomPage() {
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [coverImage, setCoverImage] = useState("/images/kingdom-header.jpg")
   const [isUploading, setIsUploading] = useState(false)
-  const [totalItems, setTotalItems] = useState(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { grid } = useRealm()
+  const [purchasedItems, setPurchasedItems] = useState<Array<{id: string, name: string}>>([])
 
   // Notable locations data
   const notableLocations = [
@@ -27,7 +28,7 @@ export default function KingdomPage() {
       id: "tavern",
       name: "The Dragon's Rest Tavern",
       description: "A cozy tavern where adventurers gather to share tales and drink mead.",
-      image: "/images/locations/The-dragon's-rest-tavern.png",
+      image: "/images/locations/tavern.jpg",
       items: [
         { id: "beer", name: "Frothy Ale", price: 5, description: "A refreshing drink after a long day of questing" },
         { id: "meal", name: "Hearty Stew", price: 15, description: "Fills your belly and restores energy" },
@@ -38,7 +39,7 @@ export default function KingdomPage() {
       id: "stables",
       name: "Royal Stables",
       description: "Fine steeds and mounts for your journeys across the kingdom.",
-      image: "/images/locations/royal-stables.png",
+      image: "/images/locations/stables.jpg",
       items: [
         { id: "horse", name: "Sturdy Steed", price: 500, description: "A reliable mount for your travels" },
         { id: "warhorse", name: "Battle-Trained Destrier", price: 1200, description: "A powerful warhorse fit for a knight" },
@@ -49,7 +50,7 @@ export default function KingdomPage() {
       id: "market",
       name: "Kingdom Marketplace",
       description: "Bustling market where merchants sell goods from across the land.",
-      image: "/images/locations/kingdom-marketplace.png",
+      image: "/images/locations/market.jpg",
       items: [
         { id: "potion", name: "Healing Potion", price: 100, description: "Restores health in times of need" },
         { id: "map", name: "Treasure Map", price: 250, description: "Leads to hidden riches (maybe)" },
@@ -60,7 +61,7 @@ export default function KingdomPage() {
       id: "blacksmith",
       name: "Ember's Anvil",
       description: "Master blacksmith crafting the finest weapons and armor.",
-      image: "/images/locations/ember's-anvil.png",
+      image: "/images/locations/blacksmith.jpg",
       items: [
         { id: "sword", name: "Steel Longsword", price: 350, description: "Well-balanced weapon for any warrior" },
         { id: "shield", name: "Reinforced Shield", price: 300, description: "Sturdy protection in battle" },
@@ -68,26 +69,6 @@ export default function KingdomPage() {
       ]
     }
   ]
-
-  // Load inventory stats
-  useEffect(() => {
-    const loadInventoryStats = async () => {
-      try {
-        const items = await db.inventory.toArray()
-        const total = items.reduce((sum, item) => sum + item.quantity, 0)
-        setTotalItems(total)
-      } catch (error) {
-        console.error("Error loading inventory stats:", error)
-      }
-    }
-    loadInventoryStats()
-
-    // Listen for inventory updates
-    window.addEventListener("inventory-update", loadInventoryStats)
-    return () => {
-      window.removeEventListener("inventory-update", loadInventoryStats)
-    }
-  }, [])
 
   // Save location data to localStorage for use in location pages
   useEffect(() => {
@@ -115,6 +96,20 @@ export default function KingdomPage() {
     const savedImage = localStorage.getItem("kingdom-cover-image")
     if (savedImage) {
       setCoverImage(savedImage)
+    }
+  }, [])
+
+  useEffect(() => {
+    // Load purchased items from localStorage
+    const savedItems = localStorage.getItem('purchasedItems')
+    if (savedItems) {
+      setPurchasedItems(JSON.parse(savedItems))
+    }
+    
+    // Load gold balance from localStorage
+    const savedGold = localStorage.getItem('goldBalance')
+    if (savedGold) {
+      setGoldBalance(parseInt(savedGold))
     }
   }, [])
 
@@ -188,6 +183,44 @@ export default function KingdomPage() {
       }
     }
     return count * 10 // Each tile is 10 sq miles
+  }
+
+  const handlePurchase = (item: { id: string, name: string, price: number }, locationId: string) => {
+    // Check if already purchased
+    if (purchasedItems.some(i => i.id === item.id)) {
+      return;
+    }
+    
+    // Check if enough gold
+    if (goldBalance < item.price) {
+      toast({
+        title: "Insufficient Gold",
+        description: "You don't have enough gold to purchase this item.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Update gold balance
+    const newBalance = goldBalance - item.price;
+    setGoldBalance(newBalance);
+    localStorage.setItem('goldBalance', newBalance.toString());
+    
+    // Update purchased items
+    const newPurchasedItems = [...purchasedItems, { id: item.id, name: item.name }];
+    setPurchasedItems(newPurchasedItems);
+    localStorage.setItem('purchasedItems', JSON.stringify(newPurchasedItems));
+    
+    toast({
+      title: "Item Purchased!",
+      description: `You have purchased ${item.name} for ${item.price} gold.`,
+      variant: "default",
+    });
+    
+    // Dispatch event to update kingdom stats
+    updateKingdomStats.dispatchEvent(new CustomEvent('goldUpdate', { 
+      detail: { amount: -item.price } 
+    }));
   }
 
   return (
@@ -274,85 +307,155 @@ export default function KingdomPage() {
       </div>
 
       {/* Main Content */}
-      <div className="container px-4 py-8">
-        {/* Kingdom Stats */}
-        <div className="grid gap-6 mb-8">
-          <Card>
+      <div className="container mx-auto px-4 sm:px-6 -mt-20 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
+          <Card className="bg-black/80 border-amber-800/50 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle>Kingdom Overview</CardTitle>
-              <CardDescription>Your realm at a glance</CardDescription>
+              <CardTitle className="text-amber-500">Kingdom Stats</CardTitle>
+              <CardDescription>Overview of your realm</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 md:grid-cols-3">
-                <div>
-                  <h3 className="text-lg font-semibold">Territory</h3>
-                  <p className="text-2xl font-bold">{calculateTerritory()} sq miles</p>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold">Settlements</h3>
-                  <p className="text-2xl font-bold">{countSettlements()}</p>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold">Treasury</h3>
-                  <p className="text-2xl font-bold">{goldBalance} gold</p>
-                </div>
+              <div className="space-y-2 text-gray-300">
+                <p>Population: 10,000</p>
+                <p>Settlements: {countSettlements()}</p>
+                <p>Territory: {calculateTerritory()} sq miles</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-black/80 border-amber-800/50 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-amber-500">Resources</CardTitle>
+              <CardDescription>Available resources</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 text-gray-300">
+                <p>Wood: 1,000</p>
+                <p>Stone: 500</p>
+                <p>Food: 2,000</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-black/80 border-amber-800/50 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-amber-500">Buildings</CardTitle>
+              <CardDescription>Construction status</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 text-gray-300">
+                <p>Houses: 200</p>
+                <p>Farms: 20</p>
+                <p>Military: 5</p>
               </div>
             </CardContent>
           </Card>
         </div>
-
-        {/* Inventory Overview */}
-        <div className="mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Royal Treasury & Inventory</CardTitle>
-              <CardDescription>Your collected items and treasures</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-lg font-semibold">Total Items</p>
-                  <p className="text-3xl font-bold">{totalItems}</p>
+        
+        {/* Notable Locations Section */}
+        <div className="mb-12">
+          <h2 className="text-2xl sm:text-3xl font-medieval text-amber-500 mb-4">Notable Locations</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {notableLocations.map((place) => (
+              <Card key={place.id} className="overflow-hidden">
+                <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
+                  <Image
+                    src={place.image}
+                    alt={place.name}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
-                <Link href="/inventory">
-                  <Button className="flex items-center gap-2">
-                    <Backpack className="h-4 w-4" />
-                    View Inventory
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Notable Locations */}
-        <div className="grid gap-6">
-          <h2 className="text-2xl font-bold">Notable Locations</h2>
-          <div className="grid gap-6 md:grid-cols-2">
-            {notableLocations.map((location) => (
-              <Link key={location.id} href={`/locations/${location.id}`}>
-                <Card className="h-full hover:bg-accent transition-colors cursor-pointer">
-                  <div className="aspect-video relative overflow-hidden rounded-t-lg">
-                    <Image
-                      src={location.image}
-                      alt={location.name}
-                      fill
-                      className="object-cover"
-                    />
+                <CardHeader>
+                  <CardTitle className="text-xl text-amber-500">{place.name}</CardTitle>
+                  <CardDescription>{place.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-amber-400">Available Items</h3>
+                    <div className="grid grid-cols-1 gap-3">
+                      {place.items.map((item) => {
+                        const isPurchased = purchasedItems.some(i => i.id === item.id);
+                        return (
+                          <div key={item.id} className="flex items-center justify-between p-3 bg-black/20 rounded-lg">
+                            <div>
+                              <h4 className="font-medium text-amber-100">{item.name}</h4>
+                              <p className="text-sm text-gray-400">{item.description}</p>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span className="text-amber-500">{item.price} gold</span>
+                              <Button 
+                                onClick={() => handlePurchase(item, place.id)}
+                                disabled={isPurchased || goldBalance < item.price}
+                                className={cn(
+                                  "bg-amber-600 hover:bg-amber-700",
+                                  isPurchased && "bg-gray-600 hover:bg-gray-600 cursor-not-allowed"
+                                )}
+                              >
+                                {isPurchased ? "Owned" : "Buy"}
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                  <CardHeader>
-                    <CardTitle>{location.name}</CardTitle>
-                    <CardDescription>{location.description}</CardDescription>
-                  </CardHeader>
-                  <CardFooter>
-                    <Button variant="outline" className="w-full">
-                      <MapPin className="h-4 w-4 mr-2" />
-                      Visit Location
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </Link>
+                </CardContent>
+              </Card>
             ))}
+          </div>
+        </div>
+        
+        {/* After the Notable Locations section, add a Quick Links section */}
+        <section className="mt-8">
+          <h2 className="text-2xl font-bold mb-4">Quick Links</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Link href="/profile">
+              <Card className="h-full hover:bg-accent/5 transition-colors">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center">
+                    <User className="h-5 w-5 mr-2 text-amber-500" />
+                    <CardTitle className="text-lg">Profile</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>
+                    View and update your adventurer's profile and statistics
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            </Link>
+            
+            <Link href="/inventory">
+              <Card className="h-full hover:bg-accent/5 transition-colors">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center">
+                    <Backpack className="h-5 w-5 mr-2 text-amber-500" />
+                    <CardTitle className="text-lg">Inventory</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>
+                    Manage items and treasures you've collected on your adventures
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+        </section>
+        
+        {/* Daily Quests Section */}
+        <DailyQuests />
+        
+        {/* Weekly Progress Graphs */}
+        <div className="mt-8 mb-12">
+          <h2 className="text-2xl sm:text-3xl font-medieval text-amber-500 mb-4">Weekly Progress</h2>
+          <p className="text-gray-300 mb-6">Track your progress over the last week.</p>
+          
+          <div className="overflow-x-auto">
+            <div className="min-w-[320px]">
+              <KingdomStatsGraph />
+            </div>
           </div>
         </div>
       </div>
