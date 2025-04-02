@@ -1,11 +1,10 @@
 import { toast } from "@/components/ui/use-toast"
 
-type MessageType = 'tilePlaced' | 'movement' | 'combat' | 'discovery' | 'levelUp' | 'achievement' | 'error' | 'warning' | 'questComplete';
+type MessageType = 'tilePlaced' | 'movement' | 'combat' | 'discovery' | 'levelUp' | 'achievement' | 'error' | 'questComplete';
 
 // Get character name from localStorage
 export function getCharacterName(): string {
-  const name = localStorage.getItem("character-name");
-  return name || "adventurer";
+  return localStorage.getItem("character-name") || "Adventurer"
 }
 
 // Define message templates for each type
@@ -46,12 +45,6 @@ const messageTemplates = {
     "Glory and honor to {name}, champion of the realm!",
     "Your name shall be remembered, noble {name}!",
   ],
-  warning: [
-    "Take heed, {name}! A warning from the sages!",
-    "Caution, noble {name}! The winds speak of danger.",
-    "The ancient runes glow with warning, {name}!",
-    "Hark! A portent of challenge approaches, {name}!",
-  ],
   error: [
     "Alas, {name}, fate conspires against us!",
     "The stars are not aligned, dear {name}.",
@@ -73,25 +66,11 @@ function getRandomMessage(type: MessageType, name: string): string {
 }
 
 // Show a scroll-styled toast with a medieval message
-export function showScrollToast(
-  type: MessageType,
-  title?: string,
-  customMessage?: string
-) {
-  const name = getCharacterName();
-  const message = customMessage || getRandomMessage(type, name);
-  
-  // Determine toast variant based on type
-  let className = "scroll-toast";
-  if (type === "error") {
-    className += " error";
-  } else if (type === "warning") {
-    className += " warning";
-  }
-  
+export function showScrollToast(toast: any, title: string, description: string) {
   toast({
-    title: title || "📜 " + message,
-    description: customMessage ? message : undefined,
-    className,
-  });
+    title,
+    description,
+    variant: "default",
+    className: "scroll-toast"
+  })
 } 

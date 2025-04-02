@@ -67,10 +67,12 @@
 
   html {
     font-family: var(--font-cardo), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    overflow-x: hidden;
   }
   
   body {
     font-family: var(--font-cardo), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    overflow-x: hidden;
   }
 }
  
@@ -443,35 +445,47 @@ main {
 
 /* Achievement cards */
 .achievement-card {
-  @apply relative w-full aspect-[3/4] cursor-pointer;
   perspective: 1000px;
+  width: 100%;
+  padding-top: 140%;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.3s ease;
 }
 
 .achievement-card:hover {
-  @apply transform scale-105;
+  transform: scale(1.02);
 }
 
-.achievement-card-content {
-  @apply relative w-full h-full transition-transform duration-500;
+.achievement-card.discovered .achievement-card-content {
   transform-style: preserve-3d;
+  transition: transform 0.6s;
 }
 
 .achievement-card.discovered:hover .achievement-card-content {
   transform: rotateY(180deg);
 }
 
+.achievement-card-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
 .achievement-card-front,
 .achievement-card-back {
-  @apply absolute w-full h-full rounded-lg border border-amber-800/20 bg-gray-900 overflow-hidden;
+  position: absolute;
+  width: 100%;
+  height: 100%;
   backface-visibility: hidden;
+  border-radius: 1rem;
+  overflow: hidden;
 }
 
 .achievement-card-back {
   transform: rotateY(180deg);
-}
-
-.achievement-card:not(.discovered) .achievement-card-front {
-  @apply bg-transparent border-none;
 }
 
 .achievement-card-number {
@@ -496,9 +510,98 @@ main {
   @apply absolute bottom-4 left-4 text-4xl font-bold text-white z-10;
 }
 
+/* Skull animation */
+.skull {
+  background-image: url('/images/skull-icon.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  animation: float-up var(--duration) ease-out var(--delay) infinite;
+  opacity: 0;
+}
+
+/* Spark animation */
+.spark {
+  animation: spark var(--duration) ease-out var(--delay) infinite;
+  opacity: 0;
+}
+
+/* Pebble animation */
+.pebble {
+  animation: pebble var(--duration) ease-out var(--delay) infinite;
+  opacity: 0;
+}
+
+/* Green glow animation */
+.animate-glow-green {
+  animation: glow-green 2s ease-in-out infinite alternate;
+}
+
+@keyframes float-up {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  80% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-100px);
+    opacity: 0;
+  }
+}
+
+@keyframes spark {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-50px) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes pebble {
+  0% {
+    transform: translateY(0) rotate(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-40px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes glow-green {
+  0% {
+    box-shadow: 0 0 5px rgba(72, 187, 120, 0.2),
+                0 0 10px rgba(72, 187, 120, 0.2),
+                0 0 15px rgba(72, 187, 120, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(72, 187, 120, 0.4),
+                0 0 20px rgba(72, 187, 120, 0.4),
+                0 0 30px rgba(72, 187, 120, 0.4);
+  }
+}
+
 @layer components {
   .achievement-card {
-    @apply relative w-full aspect-[3/4] cursor-pointer;
     perspective: 1000px;
   }
 

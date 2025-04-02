@@ -10,7 +10,8 @@ import { Logo } from "@/components/logo"
 import { NotificationCenter } from "@/components/notification-center"
 import { cn } from "@/lib/utils"
 import { Icons } from "@/components/icons"
-import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character"
+import type { CharacterStats } from "@/types/character"
+import { calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character"
 import { Progress } from "@/components/ui/progress"
 import {
   DropdownMenu,

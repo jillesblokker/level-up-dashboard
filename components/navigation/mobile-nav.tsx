@@ -14,7 +14,8 @@ import {
   Building,
   Compass,
   Settings,
-  Palette
+  Palette,
+  ChevronDown
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -24,6 +25,12 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience } from "@/types/character"
 
@@ -107,7 +114,7 @@ export function MobileNav({ onSaveMap, tabs, activeTab, onTabChange }: MobileNav
           <span className="text-lg font-cardo text-amber-400">Thrivehaven</span>
         </Link>
 
-        {/* Stats */}
+        {/* Stats and Controls */}
         <div className="flex items-center gap-4">
           {/* Level */}
           <div className="flex items-center gap-1.5">
@@ -120,6 +127,31 @@ export function MobileNav({ onSaveMap, tabs, activeTab, onTabChange }: MobileNav
             <Icons.coins className="w-4 h-4 text-amber-400" />
             <span className="text-gray-100">{characterStats.gold}</span>
           </div>
+
+          {/* Tabs Dropdown (if tabs are provided) */}
+          {tabs && tabs.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="gap-1">
+                  {tabs.find(tab => tab.value === activeTab)?.label || "Select"}
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {tabs.map((tab) => (
+                  <DropdownMenuItem
+                    key={tab.value}
+                    onClick={() => onTabChange?.(tab.value)}
+                    className={cn(
+                      activeTab === tab.value && "bg-accent"
+                    )}
+                  >
+                    {tab.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
 
           {/* Menu Button */}
           <Sheet open={open} onOpenChange={setOpen}>
@@ -197,24 +229,6 @@ export function MobileNav({ onSaveMap, tabs, activeTab, onTabChange }: MobileNav
           </Sheet>
         </div>
       </div>
-
-      {/* Add tab navigation if tabs are provided */}
-      {tabs && activeTab && onTabChange && (
-        <div className="md:hidden px-4 pb-4">
-          <div className="flex overflow-x-auto gap-2">
-            {tabs.map((tab) => (
-              <Button
-                key={tab.value}
-                variant={activeTab === tab.value ? "default" : "outline"}
-                size="sm"
-                onClick={() => onTabChange(tab.value)}
-              >
-                {tab.label}
-              </Button>
-            ))}
-          </div>
-        </div>
-      )}
     </nav>
   )
 } 

@@ -9,7 +9,7 @@ import { DevicePreview } from "@/components/device-preview"
 import { DbProvider } from "@/lib/db-context"
 import { MobileNav } from "@/components/navigation/mobile-nav"
 import { NavBar } from "@/components/nav-bar"
-import { toast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 import { RealmProvider } from "@/lib/realm-context"
 
 // Define the type for headerImages
@@ -42,6 +42,7 @@ export default function ClientLayout({
 }>) {
   const pathname = usePathname()
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const { toast } = useToast()
   
   // Check for fullscreen parameter in URL
   useEffect(() => {
@@ -76,7 +77,7 @@ export default function ClientLayout({
 
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
-      {!isFullscreen && pathname === "/realm" ? null : <NavBar />}
+      {!isFullscreen && <NavBar />}
       <DbProvider>
         <RealmProvider>
           <div className="flex min-h-screen flex-col">

@@ -20,6 +20,13 @@ import Link from "next/link"
 import { Tile, TileType, Character } from "@/types/tiles"
 import { Icons } from "@/components/icons"
 import { useCreatureStore } from "@/stores/creatureStore"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Settings, ChevronDown } from "lucide-react"
 
 // Types
 interface Position {
@@ -459,313 +466,295 @@ export default function RealmPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      {!isFullscreen && (
-        <>
-          <div className="relative w-full h-48 overflow-hidden">
-            <Image
-              src="/images/realm-header.jpg"
-              alt="Realm header"
-              fill
-              className="object-cover"
-              priority
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
-        </div>
-          <div className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <nav className="container flex h-14 max-w-screen-2xl items-center">
-              <Link href="/kingdom" className="mr-6">
-                <span className="text-lg font-semibold text-amber-400">Thrivehaven</span>
-              </Link>
-              <div className="flex items-center space-x-6 text-sm font-medium">
-                <Link
-                  href="/kingdom"
-                  className="transition-colors hover:text-foreground/80 text-foreground/60"
-                >
-                  Kingdom
-                </Link>
-                <Link
-                  href="/realm"
-                  className="transition-colors hover:text-foreground/80 text-foreground"
-                >
-                  Realm
-                </Link>
-                <Link
-                  href="/character"
-                  className="transition-colors hover:text-foreground/80 text-foreground/60"
-                >
-                  Character
-                </Link>
-                <Link
-                  href="/quests"
-                  className="transition-colors hover:text-foreground/80 text-foreground/60"
-                >
-                  Quests
-                </Link>
-                <Link
-                  href="/guildhall"
-                  className="transition-colors hover:text-foreground/80 text-foreground/60"
-                >
-                  Guildhall
-                </Link>
-              </div>
-            </nav>
-              </div>
-        </>
-      )}
+    <div className="relative flex min-h-screen flex-col">
+      <div className="flex-1">
+        {/* Grid container */}
+        <div className="relative">
+          {/* Controls */}
+          <div className="fixed top-16 right-4 z-10 flex flex-col gap-2">
+            {/* Mobile Controls Dropdown */}
+            <div className="md:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-1">
+                    <Settings className="h-4 w-4" />
+                    <span>Controls</span>
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => setZoomLevel(Math.max(zoomLevel - 0.5, ZOOM_LEVELS[0]))}>
+                    Zoom Out
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setZoomLevel(Math.min(zoomLevel + 0.5, ZOOM_LEVELS[ZOOM_LEVELS.length - 1]))}>
+                    Zoom In
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowMinimap(!showMinimap)}>
+                    Toggle Minimap
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setBuildMode(!buildMode)}>
+                    {buildMode ? "Play Mode" : "Build Mode"}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleFullscreenToggle(!isFullscreen)}>
+                    {isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
 
-      {/* Main content */}
-      <div className={cn(
-        "container mx-auto px-4 py-8",
-        isFullscreen && "fixed inset-0 p-0"
-      )}>
-        {/* Controls */}
-        <div className={cn(
-          "flex items-center justify-between mb-6",
-          isFullscreen && "absolute top-4 left-4 right-4 z-10 mb-0 bg-background/80 backdrop-blur rounded-lg p-4"
-        )}>
-          <div className="flex items-center gap-4">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline">Tile Inventory</Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-[300px]">
-                <ScrollArea className="h-full">
-                  <div className="grid gap-4 p-4">
-                    {Object.entries(inventory).map(([type, data]) => (
-                      <Card
-                        key={type}
-                        className={cn(
-                          "p-4 cursor-pointer transition-colors",
-                          selectedTile === type && "border-primary",
-                          !buildMode && "opacity-50 pointer-events-none"
-                        )}
-                        onClick={() => buildMode && setSelectedTile(type)}
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 relative">
-                            <Image
-                              src={data.image}
-                              alt={data.name}
-                              fill
-                              className="object-contain"
-                            />
+            {/* Desktop Controls */}
+            <div className="hidden md:flex md:flex-col md:gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setZoomLevel(Math.max(zoomLevel - 0.5, ZOOM_LEVELS[0]))}
+              >
+                Zoom Out
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setZoomLevel(Math.min(zoomLevel + 0.5, ZOOM_LEVELS[ZOOM_LEVELS.length - 1]))}
+              >
+                Zoom In
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowMinimap(!showMinimap)}
+              >
+                {showMinimap ? "Hide Minimap" : "Show Minimap"}
+              </Button>
+              <Button
+                variant={buildMode ? "default" : "outline"}
+                size="sm"
+                onClick={() => setBuildMode(!buildMode)}
+              >
+                {buildMode ? "Build Mode" : "Play Mode"}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleFullscreenToggle(!isFullscreen)}
+              >
+                {isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+              </Button>
+            </div>
           </div>
-                          <div>
-                            <h3 className="font-medium">{data.name}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              {data.count} available
-                            </p>
-                          </div>
+
+          {/* Tile Inventory */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="fixed top-16 left-4 z-10"
+              >
+                Tile Inventory
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left">
+              <ScrollArea className="h-[calc(100vh-8rem)]">
+                <div className="grid gap-4 py-4">
+                  {Object.entries(inventory).map(([type, data]) => (
+                    <Card
+                      key={type}
+                      className={cn(
+                        "p-4 cursor-pointer transition-colors",
+                        selectedTile === type && "border-primary"
+                      )}
+                      onClick={() => setSelectedTile(type)}
+                    >
+                      <div className="flex items-center gap-4">
+                        <Avatar className="h-12 w-12">
+                          <Image
+                            src={data.image}
+                            alt={data.name}
+                            width={48}
+                            height={48}
+                          />
+                        </Avatar>
+                        <div className="flex-1">
+                          <h3 className="font-semibold">{data.name}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {data.description}
+                          </p>
+                          <p className="text-sm mt-1">
+                            Available: {data.count}
+                          </p>
                         </div>
-                      </Card>
-                    ))}
+                      </div>
+                    </Card>
+                  ))}
                 </div>
               </ScrollArea>
-              </SheetContent>
-            </Sheet>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={showMinimap}
-                  onCheckedChange={setShowMinimap}
-                />
-                <span className="text-sm">Show Minimap</span>
+            </SheetContent>
+          </Sheet>
+
+          {/* Grid */}
+          <div 
+            ref={gridRef}
+            className={cn(
+              "relative w-full overflow-auto border rounded-lg bg-muted/20",
+              isFullscreen ? "h-screen" : "h-[calc(100vh-300px)]"
+            )}
+            tabIndex={0}
+          >
+            <div
+              className={cn(
+                "grid gap-px transition-transform duration-200",
+                "bg-muted-foreground/20"
+              )}
+              style={{
+                gridTemplateColumns: `repeat(${GRID_COLS}, 1fr)`,
+                transform: `scale(${zoomLevel})`,
+                transformOrigin: "top left"
+              }}
+            >
+              {grid.map((row, y) =>
+                row.map((tile, x) => (
+                  <div
+                    key={tile.id}
+                    className={cn(
+                      "aspect-square relative cursor-pointer group",
+                      "hover:bg-primary/20 transition-colors",
+                      tile.type !== "empty" && "bg-secondary"
+                    )}
+                    onClick={() => handleTileClick(x, y)}
+                  >
+                    <div className="absolute inset-0">
+                      <Image
+                        src={inventory[tile.type].image}
+                        alt={inventory[tile.type].name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    {tile.type !== "empty" && buildMode && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleDestroyTile(x, y)
+                        }}
+                        className="absolute top-1 right-1 p-1 rounded-full bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive"
+                        title="Destroy tile"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="w-4 h-4"
+                        >
+                          <path d="M3 6h18" />
+                          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                        </svg>
+                      </button>
+                    )}
+                    {x === characterPos.x && y === characterPos.y && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Image
+                          src="/character/character.png"
+                          alt="Character"
+                          width={48}
+                          height={48}
+                          className="w-1/4 h-1/4 object-contain"
+                          priority
+                        />
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={buildMode}
-                  onCheckedChange={setBuildMode}
+          </div>
+
+          {/* Explore button */}
+          <Button
+            className="mt-4 w-full"
+            onClick={addNewRow}
+          >
+            Explore New Lands
+          </Button>
+
+          {/* Minimap */}
+          {showMinimap && (
+            <div className="fixed bottom-4 right-4 w-48 h-48 border rounded-lg overflow-hidden bg-background/80 backdrop-blur">
+              <div className="relative w-full h-full">
+                <div
+                  className={cn(
+                    "grid gap-[1px] absolute inset-0",
+                    "bg-muted-foreground/20"
+                  )}
+                  style={{
+                    gridTemplateColumns: `repeat(${GRID_COLS}, 1fr)`,
+                  }}
+                >
+                  {grid.map((row, y) =>
+                    row.map((tile, x) => (
+                      <div
+                        key={`minimap-${tile.id}`}
+                        className={cn(
+                          "relative",
+                          tile.type !== "empty" && "bg-secondary"
+                        )}
+                      >
+                        {tile.type !== "empty" && (
+                          <div className="absolute inset-0">
+                            <Image
+                              src={inventory[tile.type].image}
+                              alt={inventory[tile.type].name}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        )}
+                        {x === characterPos.x && y === characterPos.y && (
+                          <div className="absolute inset-0 bg-amber-500/80" />
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+                {/* Viewport indicator */}
+                <div
+                  className="absolute border-2 border-primary pointer-events-none"
+                  style={{
+                    width: `${(100 / zoomLevel)}%`,
+                    height: `${(100 / zoomLevel)}%`,
+                    left: `${(gridRef.current?.scrollLeft || 0) / (gridRef.current?.scrollWidth || 1) * 100}%`,
+                    top: `${(gridRef.current?.scrollTop || 0) / (gridRef.current?.scrollHeight || 1) * 100}%`,
+                  }}
                 />
-                <span className="text-sm">Build Mode</span>
-            </div>
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={isFullscreen}
-                  onCheckedChange={handleFullscreenToggle}
-                />
-                <span className="text-sm">Fullscreen</span>
               </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {ZOOM_LEVELS.map(level => (
-            <Button
-                key={level}
-                variant={zoomLevel === level ? "default" : "outline"}
-                onClick={() => setZoomLevel(level)}
-                className="w-12"
-              >
-                {level}x
-              </Button>
-            ))}
-            </div>
-          </div>
-
-        {/* Grid */}
-        <div 
-          ref={gridRef}
-          className={cn(
-            "relative w-full overflow-auto border rounded-lg bg-muted/20",
-            isFullscreen ? "h-screen" : "h-[calc(100vh-300px)]"
           )}
-          tabIndex={0}
-        >
-          <div
-            className={cn(
-              "grid gap-px transition-transform duration-200",
-              "bg-muted-foreground/20"
-            )}
-            style={{
-              gridTemplateColumns: `repeat(${GRID_COLS}, 1fr)`,
-              transform: `scale(${zoomLevel})`,
-              transformOrigin: "top left"
-            }}
-          >
-            {grid.map((row, y) =>
-              row.map((tile, x) => (
-                <div
-                  key={tile.id}
-                  className={cn(
-                    "aspect-square relative cursor-pointer group",
-                    "hover:bg-primary/20 transition-colors",
-                    tile.type !== "empty" && "bg-secondary"
-                  )}
-                  onClick={() => handleTileClick(x, y)}
-                >
-                  <div className="absolute inset-0">
-                    <Image
-                      src={inventory[tile.type].image}
-                      alt={inventory[tile.type].name}
-                      fill
-                      className="object-cover"
-                    />
-                    </div>
-                  {tile.type !== "empty" && buildMode && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleDestroyTile(x, y)
-                      }}
-                      className="absolute top-1 right-1 p-1 rounded-full bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive"
-                      title="Destroy tile"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="w-4 h-4"
-                      >
-                        <path d="M3 6h18" />
-                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                      </svg>
-                    </button>
-                  )}
-                  {x === characterPos.x && y === characterPos.y && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Image
-                        src="/character/character.png"
-                        alt="Character"
-                        width={48}
-                        height={48}
-                        className="w-1/4 h-1/4 object-contain"
-                        priority
-                      />
-                  </div>
-                  )}
-                  </div>
-              ))
-            )}
-                  </div>
-                </div>
 
-        {/* Explore button */}
-        <Button
-          className="mt-4 w-full"
-          onClick={addNewRow}
-        >
-          Explore New Lands
-        </Button>
-
-        {/* Minimap */}
-        {showMinimap && (
-          <div className="fixed bottom-4 right-4 w-48 h-48 border rounded-lg overflow-hidden bg-background/80 backdrop-blur">
-            <div className="relative w-full h-full">
-              <div
-                className={cn(
-                  "grid gap-[1px] absolute inset-0",
-                  "bg-muted-foreground/20"
-                )}
-                style={{
-                  gridTemplateColumns: `repeat(${GRID_COLS}, 1fr)`,
-                }}
-              >
-                {grid.map((row, y) =>
-                  row.map((tile, x) => (
-                    <div
-                      key={`minimap-${tile.id}`}
-                      className={cn(
-                        "relative",
-                        tile.type !== "empty" && "bg-secondary"
-                      )}
-                    >
-                      {tile.type !== "empty" && (
-                        <div className="absolute inset-0">
-                          <Image
-                            src={inventory[tile.type].image}
-                            alt={inventory[tile.type].name}
-                            fill
-                            className="object-cover"
-                          />
-                    </div>
-                      )}
-                      {x === characterPos.x && y === characterPos.y && (
-                        <div className="absolute inset-0 bg-amber-500/80" />
-                      )}
-                  </div>
-                  ))
-                )}
-                    </div>
-              {/* Viewport indicator */}
-              <div
-                className="absolute border-2 border-primary pointer-events-none"
-                style={{
-                  width: `${(100 / zoomLevel)}%`,
-                  height: `${(100 / zoomLevel)}%`,
-                  left: `${(gridRef.current?.scrollLeft || 0) / (gridRef.current?.scrollWidth || 1) * 100}%`,
-                  top: `${(gridRef.current?.scrollTop || 0) / (gridRef.current?.scrollHeight || 1) * 100}%`,
-                }}
-              />
-                  </div>
-                    </div>
-        )}
-
-        {/* Location Modal */}
-        <Dialog open={showLocationModal} onOpenChange={setShowLocationModal}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{currentLocation?.name}</DialogTitle>
-              <DialogDescription>
-                {currentLocation?.description}
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter className="flex gap-2">
-              <Button variant="outline" onClick={() => setShowLocationModal(false)}>
-                Leave
-              </Button>
-              <Button onClick={handleVisitLocation}>
-                Visit
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+          {/* Location Modal */}
+          <Dialog open={showLocationModal} onOpenChange={setShowLocationModal}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{currentLocation?.name}</DialogTitle>
+                <DialogDescription>
+                  {currentLocation?.description}
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="flex gap-2">
+                <Button variant="outline" onClick={() => setShowLocationModal(false)}>
+                  Leave
+                </Button>
+                <Button onClick={handleVisitLocation}>
+                  Visit
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
     </div>
   )
 }

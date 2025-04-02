@@ -19,6 +19,7 @@ import { Tile, TileType, Character, SelectedTile } from "@/types/tiles"
 import { TileVisual } from "@/components/tile-visual"
 import { cn } from "@/lib/utils"
 import { BattleMinigame } from "@/components/battle-minigame"
+import { useCreatureStore } from "@/stores/creatureStore"
 
 // Define events that can update graph data
 export const updateKingdomStats = new EventTarget();
@@ -66,6 +67,7 @@ export function MapGrid({
   const [rowCount, setRowCount] = useState(10) // Initial number of rows
   const [showCityDialog, setShowCityDialog] = useState(false)
   const [showMysteryDialog, setShowMysteryDialog] = useState(false)
+  const [showMysteryTestModal, setShowMysteryTestModal] = useState(false)
   const [selectedCity, setSelectedCity] = useState({ name: "", type: "" })
   const [mysteryEncounter, setMysteryEncounter] = useState({
     type: "",
@@ -304,6 +306,11 @@ export function MapGrid({
   }, [grid, selectedTile, onTileClick, onCharacterMove]);
   
   const handleMysteryTile = (x: number, y: number) => {
+    // --- Test Logic Start ---
+    setShowMysteryTestModal(true); // Trigger the test modal immediately
+    // --- Test Logic End ---
+
+    // Original mystery handling logic (can remain for now)
     const random = Math.random();
     const newGrid = [...grid];
     let discovery = "";
@@ -787,6 +794,28 @@ export function MapGrid({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* --- Test Modal for Mystery Tile Trigger --- */} 
+      <Dialog open={showMysteryTestModal} onOpenChange={setShowMysteryTestModal}>
+        <DialogContent className="sm:max-w-md border border-blue-500 bg-gray-900">
+          <DialogHeader>
+            <DialogTitle className="text-blue-400">Mystery Tile Triggered!</DialogTitle>
+            <DialogDescription className="text-gray-300 mt-2">
+              The logic for entering a mystery tile was successfully triggered.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button 
+              type="button" 
+              onClick={() => setShowMysteryTestModal(false)}
+              className="bg-blue-600 hover:bg-blue-500"
+            >
+              Close Test Modal
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* --- End Test Modal --- */}
 
       {showBattle && battlePosition && (
         <BattleMinigame

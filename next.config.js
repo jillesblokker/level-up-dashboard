@@ -7,16 +7,6 @@ const nextConfig = {
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
   },
-  remotePatterns: [
-    {
-      protocol: 'http',
-      hostname: 'localhost',
-    },
-    {
-      protocol: 'http',
-      hostname: '192.168.1.60',
-    },
-  ],
   webpack: (config) => {
     config.externals.push({
       canvas: 'canvas',

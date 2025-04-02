@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { db, initializeDatabase } from '@/lib/db';
-import { toast } from '@/components/ui/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 
 type DbContextType = {
   isDbInitialized: boolean;
@@ -22,6 +22,7 @@ export function DbProvider({ children }: { children: ReactNode }) {
   const [isDbInitialized, setIsDbInitialized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     const initDb = async () => {
@@ -42,7 +43,7 @@ export function DbProvider({ children }: { children: ReactNode }) {
     };
 
     initDb();
-  }, []);
+  }, [toast]);
 
   return (
     <DbContext.Provider value={{ isDbInitialized, isLoading, error }}>

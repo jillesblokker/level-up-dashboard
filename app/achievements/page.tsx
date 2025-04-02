@@ -6,13 +6,21 @@ import { useCreatureStore } from '@/stores/creatureStore';
 import { useAchievementStore } from '@/stores/achievementStore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ImageUpload } from '@/components/image-upload';
-import { Pencil } from 'lucide-react';
+import { Pencil, ChevronDown } from 'lucide-react';
 import { compressImage } from '@/lib/image-utils';
 import { useToast } from '@/components/ui/use-toast';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { GreenParticles } from '@/components/green-particles';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const categories = [
   { id: 'collection', name: 'Collection', icon: '🏆' },
@@ -152,24 +160,56 @@ export default function AchievementsPage() {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 max-w-full overflow-hidden">
         <Tabs defaultValue="collection" className="w-full">
           <div className="relative">
-            <ScrollArea className="w-full">
-              <TabsList className="inline-flex h-10 items-center justify-start rounded-md bg-gray-900/50 p-1 text-gray-400 min-w-max">
-                {categories.map((category) => (
-                  <TabsTrigger
-                    key={category.id}
-                    value={category.id}
-                    className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-amber-500 data-[state=active]:text-black data-[state=active]:shadow-sm font-cardo"
-                    onClick={() => setActiveCategory(category.id)}
-                  >
-                    <span className="mr-2">{category.icon}</span>
-                    {category.name}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </ScrollArea>
+            {/* Mobile Dropdown */}
+            <div className="md:hidden w-full mb-4">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="w-full justify-between">
+                    {categories.find(cat => cat.id === activeCategory)?.icon}{' '}
+                    {categories.find(cat => cat.id === activeCategory)?.name}
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-[calc(100vw-2rem)] mx-4">
+                  {categories.map((category) => (
+                    <DropdownMenuItem
+                      key={category.id}
+                      onClick={() => {
+                        setActiveCategory(category.id);
+                        const trigger = document.querySelector(`[data-value="${category.id}"]`) as HTMLElement;
+                        if (trigger) trigger.click();
+                      }}
+                    >
+                      <span className="mr-2">{category.icon}</span>
+                      {category.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {/* Desktop Tabs */}
+            <div className="hidden md:block">
+              <ScrollArea className="w-full">
+                <TabsList className="inline-flex h-10 items-center justify-start rounded-md bg-gray-900/50 p-1 text-gray-400 min-w-max">
+                  {categories.map((category) => (
+                    <TabsTrigger
+                      key={category.id}
+                      value={category.id}
+                      data-value={category.id}
+                      className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-amber-500 data-[state=active]:text-black data-[state=active]:shadow-sm font-cardo"
+                      onClick={() => setActiveCategory(category.id)}
+                    >
+                      <span className="mr-2">{category.icon}</span>
+                      {category.name}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </ScrollArea>
+            </div>
           </div>
 
           {categories.map((category) => (
@@ -211,23 +251,28 @@ export default function AchievementsPage() {
                                       <>
                                         {/* Genesis creature (000) */}
                                         {creature.id === '000' && (
-                                          <div className="absolute inset-0 pointer-events-none">
-                                            {[...Array(6 + Math.floor(Math.random() * 4))].map((_, i) => (
-                                              <div
-                                                key={i}
-                                                className={`skull skull-${creature.id}`}
-                                                style={{
-                                                  position: 'absolute',
-                                                  width: '16px',
-                                                  height: '16px',
-                                                  left: `${10 + Math.random() * 80}%`,
-                                                  top: `${20 + Math.random() * 30}%`,
-                                                  '--delay': `${Math.random() * 2}s`,
-                                                  '--duration': '2.5s'
-                                                } as any}
-                                              />
-                                            ))}
-                                          </div>
+                                          <>
+                                            <div className="absolute inset-0 pointer-events-none">
+                                              <GreenParticles />
+                                            </div>
+                                            <div className="absolute inset-0 pointer-events-none">
+                                              {[...Array(6 + Math.floor(Math.random() * 4))].map((_, i) => (
+                                                <div
+                                                  key={i}
+                                                  className={`skull skull-${creature.id}`}
+                                                  style={{
+                                                    position: 'absolute',
+                                                    width: '16px',
+                                                    height: '16px',
+                                                    left: `${10 + Math.random() * 80}%`,
+                                                    top: `${20 + Math.random() * 30}%`,
+                                                    '--delay': `${Math.random() * 2}s`,
+                                                    '--duration': '2.5s'
+                                                  } as any}
+                                                />
+                                              ))}
+                                            </div>
+                                          </>
                                         )}
                                       </>
                                     }
