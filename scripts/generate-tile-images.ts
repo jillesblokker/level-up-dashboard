@@ -1,14 +1,14 @@
 import fs from 'fs';
 import path from 'path';
-import { createCanvas } from 'canvas';
+import { createCanvas, Image } from 'canvas';
 import { renderToString } from 'react-dom/server';
-import { GrassTile } from '../app/components/tile-visuals/grass-tile';
-import { ForestTile } from '../app/components/tile-visuals/forest-tile';
-import { WaterTile } from '../app/components/tile-visuals/water-tile';
-import { MountainTile } from '../app/components/tile-visuals/mountain-tile';
-import { DesertTile } from '../app/components/tile-visuals/desert-tile';
-import { TownTile } from '../app/components/tile-visuals/town-tile';
-import { CityTile } from '../app/components/tile-visuals/city-tile';
+import { GrassTile } from '../components/tile-visuals/grass-tile';
+import { ForestTile } from '../components/tile-visuals/forest-tile';
+import { WaterTile } from '../components/tile-visuals/water-tile';
+import { MountainTile } from '../components/tile-visuals/mountain-tile';
+import { DesertTile } from '../components/tile-visuals/desert-tile';
+import { TownTile } from '../components/tile-visuals/town-tile';
+import { CityTile } from '../components/tile-visuals/city-tile';
 
 const tileComponents = {
   grass: GrassTile,
@@ -18,7 +18,7 @@ const tileComponents = {
   desert: DesertTile,
   town: TownTile,
   city: CityTile,
-};
+} as const;
 
 const outputDir = path.join(process.cwd(), 'public', 'images', 'tiles');
 
@@ -29,7 +29,7 @@ if (!fs.existsSync(outputDir)) {
 
 // Generate PNG files for each tile
 Object.entries(tileComponents).forEach(([name, Component]) => {
-  const svg = renderToString(<Component />);
+  const svg = renderToString(Component({}));
   const canvas = createCanvas(64, 64);
   const ctx = canvas.getContext('2d');
   

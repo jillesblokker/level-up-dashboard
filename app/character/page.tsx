@@ -4,15 +4,15 @@ import { useState, useEffect, useRef } from "react"
 import { ArrowLeft, Award, Crown, Sword, Upload, Edit, X } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { compressImage } from "@/lib/image-utils"
-import { toast } from "@/components/ui/use-toast"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
+import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
 import { calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress, CharacterStats } from "@/types/character"
+import { Inventory } from "@/components/inventory"
 
 // Character progression types
 interface Title {
@@ -338,42 +338,39 @@ export default function CharacterPage() {
     }
   }
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
     setIsUploading(true)
     
     try {
-      // Compress the image before storing
-      const compressedImage = await compressImage(file)
-      
-      setCoverImage(compressedImage)
-      try {
-        localStorage.setItem("character-header-image", compressedImage)
-        // Update global state
-        if (typeof window !== 'undefined') {
-          // @ts-ignore
-          window.headerImages.character = compressedImage
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        try {
+          const result = event.target?.result as string
+          setCoverImage(result)
+          localStorage.setItem("character-header-image", result)
+          // Update global state
+          if (typeof window !== 'undefined') {
+            // @ts-ignore
+            window.headerImages.character = result
+          }
+          setIsUploading(false)
+          setShowUploadModal(false)
+        } catch (err) {
+          console.error("Error processing file:", err)
+          setIsUploading(false)
         }
-      } catch (storageError) {
-        console.error("Error storing image:", storageError)
-        toast({
-          title: "Error",
-          description: "Failed to save image. The image might still be too large.",
-          variant: "destructive"
-        })
       }
+      reader.onerror = () => {
+        console.error("Error reading file")
+        setIsUploading(false)
+      }
+      reader.readAsDataURL(file)
     } catch (err) {
-      console.error("Error processing image:", err)
-      toast({
-        title: "Error",
-        description: "Failed to process image. Please try a smaller image.",
-        variant: "destructive"
-      })
-    } finally {
+      console.error("Error initiating file read:", err)
       setIsUploading(false)
-      setShowUploadModal(false)
     }
   }
 
@@ -498,165 +495,153 @@ export default function CharacterPage() {
           </Card>
 
           {/* Titles and Perks */}
-          <div className="md:col-span-2 space-y-6">
-            <Tabs defaultValue="titles" className="w-full">
-              <TabsList className="w-full bg-amber-100/50 dark:bg-amber-900/20">
-                <TabsTrigger
-                  value="titles"
-                  className="flex-1 data-[state=active]:bg-amber-200/50 dark:data-[state=active]:bg-amber-800/50"
-                >
-                  <Crown className="mr-2 h-4 w-4" />
-                  Titles
-                </TabsTrigger>
-                <TabsTrigger
-                  value="perks"
-                  className="flex-1 data-[state=active]:bg-amber-200/50 dark:data-[state=active]:bg-amber-800/50"
-                >
-                  <Award className="mr-2 h-4 w-4" />
-                  Perks
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="titles" className="space-y-4 mt-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  {titles.map((title) => (
-                    <Card
-                      key={title.id}
-                      className={`medieval-card ${
-                        !title.unlocked
-                          ? "opacity-60"
-                          : title.equipped
-                            ? "border-amber-500 bg-amber-50/30 dark:bg-amber-900/20"
-                            : ""
-                      }`}
-                    >
-                      <CardHeader className="pb-2">
-                        <div className="flex justify-between">
-                          <CardTitle className="font-serif">{title.name}</CardTitle>
-                          <Badge
-                            className={
-                              title.rarity === "common"
-                                ? "bg-gray-500"
-                                : title.rarity === "uncommon"
-                                  ? "bg-green-500"
-                                  : title.rarity === "rare"
-                                    ? "bg-blue-500"
-                                    : title.rarity === "epic"
-                                      ? "bg-purple-500"
-                                      : "bg-amber-500"
-                            }
-                          >
-                            {title.rarity.charAt(0).toUpperCase() + title.rarity.slice(1)}
-                          </Badge>
-                        </div>
-                        <CardDescription>{title.description}</CardDescription>
-                      </CardHeader>
-                      <CardContent className="pb-2">
+          <Tabs defaultValue="titles" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="titles">Titles</TabsTrigger>
+              <TabsTrigger value="perks">Perks</TabsTrigger>
+              <TabsTrigger value="inventory">Inventory</TabsTrigger>
+            </TabsList>
+            <TabsContent value="titles">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {titles.map((title) => (
+                  <Card
+                    key={title.id}
+                    className={`medieval-card ${
+                      !title.unlocked
+                        ? "opacity-60"
+                        : title.equipped
+                          ? "border-amber-500 bg-amber-50/30 dark:bg-amber-900/20"
+                          : ""
+                    }`}
+                  >
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between">
+                        <CardTitle className="font-serif">{title.name}</CardTitle>
+                        <Badge
+                          className={
+                            title.rarity === "common"
+                              ? "bg-gray-500"
+                              : title.rarity === "uncommon"
+                                ? "bg-green-500"
+                                : title.rarity === "rare"
+                                  ? "bg-blue-500"
+                                  : title.rarity === "epic"
+                                    ? "bg-purple-500"
+                                    : "bg-amber-500"
+                          }
+                        >
+                          {title.rarity.charAt(0).toUpperCase() + title.rarity.slice(1)}
+                        </Badge>
+                      </div>
+                      <CardDescription>{title.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pb-2">
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Badge variant="outline" className="mr-2">
+                          {title.category}
+                        </Badge>
+                        <span>{title.requirement}</span>
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      {title.unlocked ? (
+                        <Button
+                          className={`w-full ${
+                            title.equipped
+                              ? "bg-amber-200 hover:bg-amber-300 text-amber-900"
+                              : "bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white"
+                          }`}
+                          onClick={() => equipTitle(title.id)}
+                          disabled={title.equipped}
+                        >
+                          {title.equipped ? "Currently Equipped" : "Equip Title"}
+                        </Button>
+                      ) : (
+                        <Button className="w-full" variant="outline" disabled>
+                          Locked
+                        </Button>
+                      )}
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+            <TabsContent value="perks">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {perks.map((perk) => (
+                  <Card
+                    key={perk.id}
+                    className={`medieval-card ${
+                      !perk.unlocked
+                        ? "opacity-60"
+                        : perk.equipped
+                          ? "border-purple-500 bg-purple-50/30 dark:bg-purple-900/20"
+                          : ""
+                    }`}
+                  >
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between">
+                        <CardTitle className="font-serif">{perk.name}</CardTitle>
+                        <Badge className="bg-purple-500">
+                          Level {perk.level}/{perk.maxLevel}
+                        </Badge>
+                      </div>
+                      <CardDescription>{perk.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pb-2">
+                      <div className="space-y-2">
                         <div className="flex items-center text-sm text-muted-foreground">
                           <Badge variant="outline" className="mr-2">
-                            {title.category}
+                            {perk.category}
                           </Badge>
-                          <span>{title.requirement}</span>
+                          <span>{perk.effect}</span>
                         </div>
-                      </CardContent>
-                      <CardFooter>
-                        {title.unlocked ? (
-                          <Button
-                            className={`w-full ${
-                              title.equipped
-                                ? "bg-amber-200 hover:bg-amber-300 text-amber-900"
-                                : "bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white"
-                            }`}
-                            onClick={() => equipTitle(title.id)}
-                            disabled={title.equipped}
-                          >
-                            {title.equipped ? "Currently Equipped" : "Equip Title"}
-                          </Button>
+
+                        <Progress value={(perk.level / perk.maxLevel) * 100} className="h-2" />
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      <div className="w-full flex gap-2">
+                        {perk.unlocked ? (
+                          <>
+                            <Button
+                              className={`flex-1 ${
+                                perk.equipped
+                                  ? "bg-purple-200 hover:bg-purple-300 text-purple-900"
+                                  : perk.level > 0
+                                    ? "bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white"
+                                    : "bg-gray-300 text-gray-700"
+                              }`}
+                              onClick={() => togglePerk(perk.id)}
+                              disabled={!perk.unlocked || (perk.level === 0 && !perk.equipped)}
+                            >
+                              {perk.equipped ? "Unequip" : "Equip"}
+                            </Button>
+
+                            <Button
+                              variant="outline"
+                              onClick={() => upgradePerk(perk.id)}
+                              disabled={perk.level >= perk.maxLevel}
+                              className="flex-1"
+                            >
+                              {perk.level < perk.maxLevel ? `Upgrade (${100 * (perk.level + 1)} Gold)` : "Max Level"}
+                            </Button>
+                          </>
                         ) : (
                           <Button className="w-full" variant="outline" disabled>
                             Locked
                           </Button>
                         )}
-                      </CardFooter>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="perks" className="space-y-4 mt-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  {perks.map((perk) => (
-                    <Card
-                      key={perk.id}
-                      className={`medieval-card ${
-                        !perk.unlocked
-                          ? "opacity-60"
-                          : perk.equipped
-                            ? "border-purple-500 bg-purple-50/30 dark:bg-purple-900/20"
-                            : ""
-                      }`}
-                    >
-                      <CardHeader className="pb-2">
-                        <div className="flex justify-between">
-                          <CardTitle className="font-serif">{perk.name}</CardTitle>
-                          <Badge className="bg-purple-500">
-                            Level {perk.level}/{perk.maxLevel}
-                          </Badge>
-                        </div>
-                        <CardDescription>{perk.description}</CardDescription>
-                      </CardHeader>
-                      <CardContent className="pb-2">
-                        <div className="space-y-2">
-                          <div className="flex items-center text-sm text-muted-foreground">
-                            <Badge variant="outline" className="mr-2">
-                              {perk.category}
-                            </Badge>
-                            <span>{perk.effect}</span>
-                          </div>
-
-                          <Progress value={(perk.level / perk.maxLevel) * 100} className="h-2" />
-                        </div>
-                      </CardContent>
-                      <CardFooter>
-                        <div className="w-full flex gap-2">
-                          {perk.unlocked ? (
-                            <>
-                              <Button
-                                className={`flex-1 ${
-                                  perk.equipped
-                                    ? "bg-purple-200 hover:bg-purple-300 text-purple-900"
-                                    : perk.level > 0
-                                      ? "bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white"
-                                      : "bg-gray-300 text-gray-700"
-                                }`}
-                                onClick={() => togglePerk(perk.id)}
-                                disabled={!perk.unlocked || (perk.level === 0 && !perk.equipped)}
-                              >
-                                {perk.equipped ? "Unequip" : "Equip"}
-                              </Button>
-
-                              <Button
-                                variant="outline"
-                                onClick={() => upgradePerk(perk.id)}
-                                disabled={perk.level >= perk.maxLevel}
-                                className="flex-1"
-                              >
-                                {perk.level < perk.maxLevel ? `Upgrade (${100 * (perk.level + 1)} Gold)` : "Max Level"}
-                              </Button>
-                            </>
-                          ) : (
-                            <Button className="w-full" variant="outline" disabled>
-                              Locked
-                            </Button>
-                          )}
-                        </div>
-                      </CardFooter>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
+                      </div>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+            <TabsContent value="inventory">
+              <Inventory />
+            </TabsContent>
+          </Tabs>
 
           {/* Character Preview */}
           <div className="space-y-6">

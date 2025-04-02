@@ -19,13 +19,34 @@ const nextConfig = {
     parallelServerCompiles: true,
   },
   images: {
-    domains: ['localhost'],
+    domains: ['localhost', '192.168.1.60'],
     unoptimized: process.env.NODE_ENV === 'development',
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
   },
   reactStrictMode: true,
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
+  remotePatterns: [
+    {
+      protocol: 'http',
+      hostname: 'localhost',
+    },
+    {
+      protocol: 'http',
+      hostname: '192.168.1.60',
+    },
+  ],
+  webpack: (config) => {
+    config.externals = [...(config.externals || []), { canvas: "canvas" }];
+    return config;
+  },
+  allowedDevOrigins: [
+    'http://192.168.1.60:3000',
+    'http://localhost:3000',
+    'http://0.0.0.0:3000',
+  ],
 }
 
 mergeConfig(nextConfig, userConfig)

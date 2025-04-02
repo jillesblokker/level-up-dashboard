@@ -16,17 +16,15 @@ import { showScrollToast } from "@/lib/toast-utils"
 import { getCharacterName } from "@/lib/toast-utils"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { Tile, TileType, Character } from "@/types/tiles"
+import { Icons } from "@/components/icons"
+import { useCreatureStore } from "@/stores/creatureStore"
 
 // Types
 interface Position {
   x: number
   y: number
-}
-
-interface Tile {
-  id: string
-  type: string
-  rotation: number
 }
 
 interface TileInventory {
@@ -126,9 +124,92 @@ const locationData = {
   }
 }
 
+// Define a custom tile interface extending Tile to include potential town/city names
+interface MapTile extends Tile {
+  // ... existing code ...
+}
+
 export default function RealmPage() {
   // State
-  const [grid, setGrid] = useState<Tile[][]>([])
+  const [grid, setGrid] = useState<Tile[][]>(() => {
+    // Try to load from localStorage first
+    try {
+      const savedGrid = localStorage.getItem("realm-grid");
+          if (savedGrid) {
+        const parsedGrid = JSON.parse(savedGrid) as Tile[][];
+        // Validate the loaded grid structure
+        if (Array.isArray(parsedGrid) && parsedGrid.length > 0 && Array.isArray(parsedGrid[0])) {
+          // Ensure each tile has all required properties
+          return parsedGrid.map(row => row.map(tile => ({
+            ...tile,
+            connections: tile.connections ?? [],
+            revealed: tile.revealed ?? true,
+            rotation: tile.rotation ?? 0,
+            id: tile.id ?? `tile-${Math.random()}`, // Fallback ID
+            type: tile.type ?? 'empty'
+          } as Tile)));
+        } else {
+          console.warn("Invalid grid structure found in localStorage.");
+        }
+      }
+    } catch (e) {
+      console.error("Failed to load or parse grid from localStorage", e);
+    }
+    
+    // Initialize a new grid if loading failed or no saved grid exists
+    const newGrid = Array(INITIAL_ROWS).fill(null).map((_, y) => 
+      Array(GRID_COLS).fill(null).map((_, x) => ({
+        id: `tile-${x}-${y}`,
+        type: "empty",
+        connections: [], // Add missing property
+            rotation: 0,
+        revealed: true // Add missing property
+      } as Tile))
+    );
+
+    // Foundation setup
+    const foundation = [
+      // Row 1
+      { y: 0, x: 0, type: "mountain" }, { y: 0, x: 1, type: "mountain" }, { y: 0, x: 2, type: "mountain" },
+      { y: 0, x: 3, type: "mountain" }, { y: 0, x: 4, type: "mountain" }, { y: 0, x: 5, type: "grass" },
+      { y: 0, x: 6, type: "mountain" }, { y: 0, x: 7, type: "mountain" }, { y: 0, x: 8, type: "mountain" },
+      { y: 0, x: 9, type: "mountain" }, { y: 0, x: 10, type: "mountain" }, { y: 0, x: 11, type: "mountain" },
+      // Row 2
+      { y: 1, x: 0, type: "mountain" }, { y: 1, x: 1, type: "grass" }, { y: 1, x: 2, type: "grass" },
+      { y: 1, x: 3, type: "grass" }, { y: 1, x: 4, type: "grass" }, { y: 1, x: 5, type: "town" },
+      { y: 1, x: 6, type: "grass" }, { y: 1, x: 7, type: "grass" }, { y: 1, x: 8, type: "grass" },
+      { y: 1, x: 9, type: "grass" }, { y: 1, x: 10, type: "grass" }, { y: 1, x: 11, type: "mountain" },
+      // Row 3
+      { y: 2, x: 0, type: "mountain" }, { y: 2, x: 1, type: "grass" }, { y: 2, x: 2, type: "grass" },
+      { y: 2, x: 3, type: "grass" }, { y: 2, x: 4, type: "grass" }, { y: 2, x: 5, type: "grass" },
+      { y: 2, x: 6, type: "grass" }, { y: 2, x: 7, type: "grass" }, { y: 2, x: 8, type: "grass" },
+      { y: 2, x: 9, type: "grass" }, { y: 2, x: 10, type: "grass" }, { y: 2, x: 11, type: "mountain" },
+      // Row 4
+      { y: 3, x: 0, type: "mountain" }, { y: 3, x: 1, type: "water" }, { y: 3, x: 2, type: "water" },
+      { y: 3, x: 3, type: "grass" }, { y: 3, x: 4, type: "forest" }, { y: 3, x: 5, type: "city" },
+      { y: 3, x: 6, type: "grass" }, { y: 3, x: 7, type: "grass" }, { y: 3, x: 8, type: "grass" },
+      { y: 3, x: 9, type: "forest" }, { y: 3, x: 10, type: "water" }, { y: 3, x: 11, type: "mountain" },
+      // Row 5
+      { y: 4, x: 0, type: "mountain" }, { y: 4, x: 1, type: "water" }, { y: 4, x: 2, type: "grass" },
+      { y: 4, x: 3, type: "grass" }, { y: 4, x: 4, type: "forest" }, { y: 4, x: 5, type: "grass" },
+      { y: 4, x: 6, type: "desert" }, { y: 4, x: 7, type: "mystery" }, { y: 4, x: 8, type: "grass" },
+      { y: 4, x: 9, type: "forest" }, { y: 4, x: 10, type: "water" }, { y: 4, x: 11, type: "mountain" },
+    ];
+
+    foundation.forEach(({ x, y, type }) => {
+      if (newGrid[y] && newGrid[y][x]) {
+      newGrid[y][x] = {
+          id: `tile-${x}-${y}`,
+          type: type as TileType,
+          connections: [], // Add missing property
+        rotation: 0,
+          revealed: true // Add missing property
+        };
+      }
+    });
+
+    return newGrid;
+  })
   const [rows, setRows] = useState(INITIAL_ROWS)
   const [zoomLevel, setZoomLevel] = useState(1)
   const [showMinimap, setShowMinimap] = useState(false)
@@ -168,62 +249,6 @@ export default function RealmPage() {
     localStorage.removeItem("realm-grid")
     setInventory(initialTileInventory)
   }, [])
-
-  // Initialize grid
-  useEffect(() => {
-    const savedGrid = localStorage.getItem("realm-grid")
-    if (savedGrid) {
-      setGrid(JSON.parse(savedGrid))
-    } else {
-      const newGrid = Array(rows).fill(null).map((_, y) => 
-        Array(GRID_COLS).fill(null).map((_, x) => ({
-          id: `tile-${x}-${y}`,
-          type: "empty",
-          rotation: 0
-        }))
-      )
-
-      // Foundation setup - Note: Arrays are 0-based, so we subtract 1 from the given coordinates
-      const foundation = [
-        // Row 1
-        { y: 0, x: 0, type: "mountain" }, { y: 0, x: 1, type: "mountain" }, { y: 0, x: 2, type: "mountain" },
-        { y: 0, x: 3, type: "mountain" }, { y: 0, x: 4, type: "mountain" }, { y: 0, x: 5, type: "grass" },
-        { y: 0, x: 6, type: "mountain" }, { y: 0, x: 7, type: "mountain" }, { y: 0, x: 8, type: "mountain" },
-        { y: 0, x: 9, type: "mountain" }, { y: 0, x: 10, type: "mountain" }, { y: 0, x: 11, type: "mountain" },
-        // Row 2
-        { y: 1, x: 0, type: "mountain" }, { y: 1, x: 1, type: "grass" }, { y: 1, x: 2, type: "grass" },
-        { y: 1, x: 3, type: "grass" }, { y: 1, x: 4, type: "grass" }, { y: 1, x: 5, type: "town" },
-        { y: 1, x: 6, type: "grass" }, { y: 1, x: 7, type: "grass" }, { y: 1, x: 8, type: "grass" },
-        { y: 1, x: 9, type: "grass" }, { y: 1, x: 10, type: "grass" }, { y: 1, x: 11, type: "mountain" },
-        // Row 3
-        { y: 2, x: 0, type: "mountain" }, { y: 2, x: 1, type: "grass" }, { y: 2, x: 2, type: "forest" },
-        { y: 2, x: 3, type: "forest" }, { y: 2, x: 4, type: "forest" }, { y: 2, x: 5, type: "grass" },
-        { y: 2, x: 6, type: "forest" }, { y: 2, x: 7, type: "forest" }, { y: 2, x: 8, type: "grass" },
-        { y: 2, x: 9, type: "forest" }, { y: 2, x: 10, type: "forest" }, { y: 2, x: 11, type: "mountain" },
-        // Row 4
-        { y: 3, x: 0, type: "mountain" }, { y: 3, x: 1, type: "grass" }, { y: 3, x: 2, type: "forest" },
-        { y: 3, x: 3, type: "forest" }, { y: 3, x: 4, type: "forest" }, { y: 3, x: 5, type: "water" },
-        { y: 3, x: 6, type: "water" }, { y: 3, x: 7, type: "water" }, { y: 3, x: 8, type: "water" },
-        { y: 3, x: 9, type: "water" }, { y: 3, x: 10, type: "forest" }, { y: 3, x: 11, type: "mountain" },
-        // Row 5
-        { y: 4, x: 0, type: "mountain" }, { y: 4, x: 1, type: "grass" }, { y: 4, x: 2, type: "grass" },
-        { y: 4, x: 3, type: "city" }, { y: 4, x: 4, type: "forest" }, { y: 4, x: 5, type: "water" },
-        { y: 4, x: 6, type: "water" }, { y: 4, x: 7, type: "water" }, { y: 4, x: 8, type: "water" },
-        { y: 4, x: 9, type: "water" }, { y: 4, x: 10, type: "forest" }, { y: 4, x: 11, type: "mountain" }
-      ]
-
-      // Apply foundation setup
-      foundation.forEach(({ x, y, type }) => {
-        newGrid[y][x] = {
-          id: `tile-${x}-${y}`,
-          type,
-          rotation: 0
-        }
-      })
-
-      setGrid(newGrid)
-    }
-  }, [rows])
 
   // Autosave
   useEffect(() => {
@@ -290,77 +315,131 @@ export default function RealmPage() {
 
   // Grid interaction handlers
   const handleTileClick = (x: number, y: number) => {
+    if (x < 0 || y < 0 || y >= grid.length || x >= grid[0].length) return; // Bounds check
+
+    const clickedTile = grid[y][x];
+
     if (buildMode) {
-      if (!selectedTile || inventory[selectedTile].count <= 0) return
-      
-      const newGrid = [...grid]
-      newGrid[y][x] = {
-        id: `tile-${x}-${y}`,
-        type: selectedTile,
-        rotation: 0
-      }
-      setGrid(newGrid)
-
-      setInventory({
-        ...inventory,
-        [selectedTile]: {
-          ...inventory[selectedTile],
-          count: inventory[selectedTile].count - 1
-        }
-      })
-
+      if (selectedTile && clickedTile.type === "empty") {
+        if (inventory[selectedTile] && inventory[selectedTile].count > 0) {
+          const newGrid = [...grid];
+          newGrid[y][x] = {
+            id: clickedTile.id, 
+            type: selectedTile as TileType, 
+            connections: [], // Add missing property
+            rotation: 0,
+            revealed: true // Add missing property
+          };
+          setGrid(newGrid);
+          setInventory({
+            ...inventory,
+            [selectedTile]: {
+              ...inventory[selectedTile],
+              count: inventory[selectedTile].count - 1
+            }
+          });
+          setSelectedTile(null); // Deselect tile after placing
+        } else {
       toast({
-        title: "Tile Placed",
-        description: `A ${inventory[selectedTile].name.toLowerCase()} tile has been placed in your realm, ${getCharacterName()}.`,
-        variant: "default",
-        className: "scroll-toast"
-      })
-    } else {
-      // Move mode - handle character movement on click
-      if (grid[y][x].type === "mountain" || 
-          grid[y][x].type === "water" || 
-          grid[y][x].type === "empty") return
-      moveCharacter(x, y)
+            title: "Out of Tiles",
+            description: `You don't have any ${inventory[selectedTile]?.name || selectedTile} tiles left.`, 
+            variant: "destructive"
+          });
+        }
+      } else if (clickedTile.type !== "empty") {
+        // Handle interacting with non-empty tiles in build mode (optional)
+        // For now, just select the tile type for potential placement
+        setSelectedTile(clickedTile.type);
+        toast({ title: `Selected ${inventory[clickedTile.type]?.name || clickedTile.type} tile` });
+      } else {
+        // Clicking empty space without a selected tile
+        setSelectedTile(null); // Ensure nothing is selected
+      }
+    } else { // Play Mode
+      moveCharacter(x, y);
+      // Additional logic for interacting with tiles in play mode
+      if (clickedTile.type === "city" || clickedTile.type === "town") {
+        const locationInfo = locationData[clickedTile.type as keyof typeof locationData];
+        setCurrentLocation({ 
+          type: clickedTile.type,
+          name: locationInfo.name,
+          description: locationInfo.description
+        });
+        setShowLocationModal(true);
+      }
     }
   }
 
   // Handle tile destruction
   const handleDestroyTile = (x: number, y: number) => {
-    const tileType = grid[y][x].type
+    const tileType = grid[y][x].type as TileType; // Ensure correct type
     if (tileType === "empty") return
 
     const newGrid = [...grid]
+    // Ensure the new empty tile matches the Tile interface
     newGrid[y][x] = {
       id: `tile-${x}-${y}`,
       type: "empty",
-      rotation: 0
+      connections: [], // Add missing property
+      rotation: 0,
+      revealed: true // Add missing property (assuming revealed)
     }
     setGrid(newGrid)
 
     // Add the tile back to inventory
-    setInventory({
-      ...inventory,
-      [tileType]: {
-        ...inventory[tileType],
-        count: inventory[tileType].count + 1
+    // Ensure inventory keys match TileType
+    const inventoryKey = tileType as keyof typeof inventory;
+    if (inventory[inventoryKey]) {
+      setInventory({
+        ...inventory,
+        [inventoryKey]: {
+          ...inventory[inventoryKey],
+          count: inventory[inventoryKey].count + 1
+        }
+      });
+    } else {
+      console.warn(`Attempted to add unknown tile type back to inventory: ${tileType}`);
+    }
+    
+    // Check if it was the first forest tile destroyed
+    if (tileType === 'forest') {
+      const { discoveredCreatures, discoverCreature } = useCreatureStore.getState();
+      if (!discoveredCreatures.includes('001')) {
+        discoverCreature('001');
+      toast({
+          title: "Creature Discovered!",
+          description: "Your actions have awakened something... You've discovered creature #001!",
+        });
       }
-    })
+    }
 
     // Award experience for destroying tile
-    toast({
-      title: "Tile Destroyed",
-      description: `You gained 5 experience for recycling a ${inventory[tileType].name.toLowerCase()} tile.`,
-      variant: "default",
-      className: "scroll-toast"
-    })
+    if (inventory[inventoryKey]) { // Check again to prevent error if type was unknown
+      toast({
+        title: "Tile Destroyed",
+        description: `You gained 5 experience for recycling a ${inventory[inventoryKey].name.toLowerCase()} tile.`,
+        variant: "default",
+        className: "scroll-toast"
+      });
+    } else {
+      toast({
+        title: "Tile Destroyed",
+        description: `Recycled an unknown tile type. Gained 5 experience.`,
+        variant: "default",
+        className: "scroll-toast"
+      });
+    }
   }
 
   const addNewRow = () => {
     setRows(rows + 1)
-    const newRow = Array(GRID_COLS).fill(null).map((_, x) => ({
+    // Ensure the new empty tiles match the Tile interface
+    const newRow: Tile[] = Array(GRID_COLS).fill(null).map((_, x) => ({
       id: `tile-${x}-${rows}`,
       type: "empty",
-      rotation: 0
+      connections: [], // Add missing property
+            rotation: 0,
+      revealed: true // Add missing property (assuming revealed)
     }))
     setGrid([...grid, newRow])
   }
@@ -369,7 +448,14 @@ export default function RealmPage() {
   const handleVisitLocation = () => {
     if (!currentLocation) return
     setShowLocationModal(false)
-    router.push(`/locations/${locationData[currentLocation.type as keyof typeof locationData].locationId}`)
+    
+    // Route based on location type
+    if (currentLocation.type === 'city') {
+      router.push(`/city/${encodeURIComponent(currentLocation.name)}`)
+    } else if (currentLocation.type === 'town') {
+      const townSlug = currentLocation.name.toLowerCase().replace(/\s+/g, '-')
+      router.push(`/town/${townSlug}`)
+    }
   }
 
   return (
@@ -386,12 +472,46 @@ export default function RealmPage() {
               priority
             />
             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
-          </div>
+        </div>
           <div className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <nav className="container flex h-14 max-w-screen-2xl items-center">
-              {/* Your navigation items */}
+              <Link href="/kingdom" className="mr-6">
+                <span className="text-lg font-semibold text-amber-400">Thrivehaven</span>
+              </Link>
+              <div className="flex items-center space-x-6 text-sm font-medium">
+                <Link
+                  href="/kingdom"
+                  className="transition-colors hover:text-foreground/80 text-foreground/60"
+                >
+                  Kingdom
+                </Link>
+                <Link
+                  href="/realm"
+                  className="transition-colors hover:text-foreground/80 text-foreground"
+                >
+                  Realm
+                </Link>
+                <Link
+                  href="/character"
+                  className="transition-colors hover:text-foreground/80 text-foreground/60"
+                >
+                  Character
+                </Link>
+                <Link
+                  href="/quests"
+                  className="transition-colors hover:text-foreground/80 text-foreground/60"
+                >
+                  Quests
+                </Link>
+                <Link
+                  href="/guildhall"
+                  className="transition-colors hover:text-foreground/80 text-foreground/60"
+                >
+                  Guildhall
+                </Link>
+              </div>
             </nav>
-          </div>
+              </div>
         </>
       )}
 
@@ -431,7 +551,7 @@ export default function RealmPage() {
                               fill
                               className="object-contain"
                             />
-                          </div>
+          </div>
                           <div>
                             <h3 className="font-medium">{data.name}</h3>
                             <p className="text-sm text-muted-foreground">
@@ -441,8 +561,8 @@ export default function RealmPage() {
                         </div>
                       </Card>
                     ))}
-                  </div>
-                </ScrollArea>
+                </div>
+              </ScrollArea>
               </SheetContent>
             </Sheet>
             <div className="flex items-center gap-4">
@@ -452,14 +572,14 @@ export default function RealmPage() {
                   onCheckedChange={setShowMinimap}
                 />
                 <span className="text-sm">Show Minimap</span>
-              </div>
+            </div>
               <div className="flex items-center gap-2">
                 <Switch
                   checked={buildMode}
                   onCheckedChange={setBuildMode}
                 />
                 <span className="text-sm">Build Mode</span>
-              </div>
+            </div>
               <div className="flex items-center gap-2">
                 <Switch
                   checked={isFullscreen}
@@ -471,7 +591,7 @@ export default function RealmPage() {
           </div>
           <div className="flex items-center gap-2">
             {ZOOM_LEVELS.map(level => (
-              <Button
+            <Button
                 key={level}
                 variant={zoomLevel === level ? "default" : "outline"}
                 onClick={() => setZoomLevel(level)}
@@ -480,8 +600,8 @@ export default function RealmPage() {
                 {level}x
               </Button>
             ))}
+            </div>
           </div>
-        </div>
 
         {/* Grid */}
         <div 
@@ -521,7 +641,7 @@ export default function RealmPage() {
                       fill
                       className="object-cover"
                     />
-                  </div>
+                    </div>
                   {tile.type !== "empty" && buildMode && (
                     <button
                       onClick={(e) => {
@@ -557,13 +677,13 @@ export default function RealmPage() {
                         className="w-1/4 h-1/4 object-contain"
                         priority
                       />
-                    </div>
+                  </div>
                   )}
-                </div>
+                  </div>
               ))
             )}
-          </div>
-        </div>
+                  </div>
+                </div>
 
         {/* Explore button */}
         <Button
@@ -603,15 +723,15 @@ export default function RealmPage() {
                             fill
                             className="object-cover"
                           />
-                        </div>
+                    </div>
                       )}
                       {x === characterPos.x && y === characterPos.y && (
                         <div className="absolute inset-0 bg-amber-500/80" />
                       )}
-                    </div>
+                  </div>
                   ))
                 )}
-              </div>
+                    </div>
               {/* Viewport indicator */}
               <div
                 className="absolute border-2 border-primary pointer-events-none"
@@ -622,8 +742,8 @@ export default function RealmPage() {
                   top: `${(gridRef.current?.scrollTop || 0) / (gridRef.current?.scrollHeight || 1) * 100}%`,
                 }}
               />
-            </div>
-          </div>
+                  </div>
+                    </div>
         )}
 
         {/* Location Modal */}
@@ -641,11 +761,11 @@ export default function RealmPage() {
               </Button>
               <Button onClick={handleVisitLocation}>
                 Visit
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
     </div>
   )
 }

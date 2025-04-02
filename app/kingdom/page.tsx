@@ -12,6 +12,9 @@ import { useRealm } from "@/lib/realm-context"
 import { toast } from "@/components/ui/use-toast"
 import { cn } from "@/lib/utils"
 
+// Create an EventTarget instance for kingdom stats updates
+const updateKingdomStats = new EventTarget()
+
 export default function KingdomPage() {
   const [goldBalance, setGoldBalance] = useState(5000)
   const [isHovering, setIsHovering] = useState(false)
@@ -28,7 +31,7 @@ export default function KingdomPage() {
       id: "tavern",
       name: "The Dragon's Rest Tavern",
       description: "A cozy tavern where adventurers gather to share tales and drink mead.",
-      image: "/images/locations/tavern.jpg",
+      image: "/images/locations/The-dragon's-rest-tavern.png",
       items: [
         { id: "beer", name: "Frothy Ale", price: 5, description: "A refreshing drink after a long day of questing" },
         { id: "meal", name: "Hearty Stew", price: 15, description: "Fills your belly and restores energy" },
@@ -39,7 +42,7 @@ export default function KingdomPage() {
       id: "stables",
       name: "Royal Stables",
       description: "Fine steeds and mounts for your journeys across the kingdom.",
-      image: "/images/locations/stables.jpg",
+      image: "/images/locations/royal-stables.png",
       items: [
         { id: "horse", name: "Sturdy Steed", price: 500, description: "A reliable mount for your travels" },
         { id: "warhorse", name: "Battle-Trained Destrier", price: 1200, description: "A powerful warhorse fit for a knight" },
@@ -50,7 +53,7 @@ export default function KingdomPage() {
       id: "market",
       name: "Kingdom Marketplace",
       description: "Bustling market where merchants sell goods from across the land.",
-      image: "/images/locations/market.jpg",
+      image: "/images/locations/kingdom-marketplace.png",
       items: [
         { id: "potion", name: "Healing Potion", price: 100, description: "Restores health in times of need" },
         { id: "map", name: "Treasure Map", price: 250, description: "Leads to hidden riches (maybe)" },
@@ -61,7 +64,7 @@ export default function KingdomPage() {
       id: "blacksmith",
       name: "Ember's Anvil",
       description: "Master blacksmith crafting the finest weapons and armor.",
-      image: "/images/locations/blacksmith.jpg",
+      image: "/images/locations/ember's-anvil.png",
       items: [
         { id: "sword", name: "Steel Longsword", price: 350, description: "Well-balanced weapon for any warrior" },
         { id: "shield", name: "Reinforced Shield", price: 300, description: "Sturdy protection in battle" },

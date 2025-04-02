@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist, type StateStorage } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 
 interface CreatureState {
   discoveredCreatures: string[];
@@ -7,19 +7,12 @@ interface CreatureState {
   isCreatureDiscovered: (creatureId: string) => boolean;
 }
 
-type SetState = (
-  partial: CreatureState | Partial<CreatureState> | ((state: CreatureState) => CreatureState | Partial<CreatureState>),
-  replace?: boolean | undefined
-) => void;
-
-type GetState = () => CreatureState;
-
 export const useCreatureStore = create<CreatureState>()(
   persist(
-    (set: SetState, get: GetState) => ({
+    (set, get) => ({
       discoveredCreatures: [],
       unlockCreature: (creatureId: string) => {
-        set((state: CreatureState) => ({
+        set((state) => ({
           discoveredCreatures: [...state.discoveredCreatures, creatureId]
         }));
       },

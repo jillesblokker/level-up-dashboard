@@ -1,0 +1,79 @@
+import { Metadata } from "next"
+import { LocationClient } from "./location-client"
+
+interface NotableLocation {
+  id: string
+  name: string
+  description: string
+  image: string
+  items: {
+    id: string
+    name: string
+    price: number
+    description: string
+  }[]
+}
+
+interface LocationData {
+  name: string
+  description: string
+  image: string
+  notableLocations: NotableLocation[]
+}
+
+interface LocationDetails {
+  [key: string]: LocationData
+}
+
+const locationDetails: LocationDetails = {
+  "grand-citadel": {
+    name: "Grand Citadel",
+    description: "A magnificent city with towering spires and bustling markets. The heart of commerce and culture in the realm.",
+    image: "/images/locations/The-dragon's-rest-tavern.png",
+    notableLocations: [
+      {
+        id: "tavern",
+        name: "The Dragon's Rest Tavern",
+        description: "A lively tavern where adventurers gather to share tales and refreshments.",
+        image: "/images/locations/The-dragon's-rest-tavern.png",
+        items: [
+          {
+            id: "ale",
+            name: "Dragon's Breath Ale",
+            description: "A strong ale that warms the spirit",
+            price: 5
+          },
+          {
+            id: "meal",
+            name: "Hearty Feast",
+            description: "A filling meal fit for an adventurer",
+            price: 10
+          }
+        ]
+      }
+    ]
+  }
+}
+
+type Props = {
+  params: { id: string }
+  searchParams: { [key: string]: string | string[] | undefined }
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const location = locationDetails[params.id]
+  return {
+    title: location?.name || "Location Not Found",
+    description: location?.description || "This location could not be found"
+  }
+}
+
+export default function LocationPage({ params }: Props) {
+  const location = locationDetails[params.id]
+
+  if (!location) {
+    return <div>Location not found</div>
+  }
+
+  return <LocationClient location={location} />
+} 

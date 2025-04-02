@@ -3,14 +3,14 @@
 import { useState, useEffect } from "react"
 import type React from "react"
 import { usePathname } from "next/navigation"
-import { ThemeProvider } from "../components/theme-provider"
-import { Toaster } from "../components/ui/toaster"
-import { DevicePreview } from "../components/device-preview"
-import { DbProvider } from "../lib/db-context"
-import { MobileNav } from "../components/navigation/mobile-nav"
-import { NavBar } from "../components/nav-bar"
-import { useToast } from "../components/ui/use-toast"
-import { RealmProvider } from "../lib/realm-context"
+import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "@/components/ui/toaster"
+import { DevicePreview } from "@/components/device-preview"
+import { DbProvider } from "@/lib/db-context"
+import { MobileNav } from "@/components/navigation/mobile-nav"
+import { NavBar } from "@/components/nav-bar"
+import { toast } from "@/components/ui/use-toast"
+import { RealmProvider } from "@/lib/realm-context"
 
 // Define the type for headerImages
 interface HeaderImages {
@@ -41,7 +41,6 @@ export default function ClientLayout({
   children: React.ReactNode
 }>) {
   const pathname = usePathname()
-  const { toast } = useToast()
   const [isFullscreen, setIsFullscreen] = useState(false)
   
   // Check for fullscreen parameter in URL

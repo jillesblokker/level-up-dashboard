@@ -24,15 +24,6 @@ import {
 import { DailyQuests } from "@/components/daily-quests"
 import { Milestones } from "@/components/milestones"
 
-// Add this type declaration at the top of the file, after the imports
-declare global {
-  interface Window {
-    headerImages?: {
-      quests?: string;
-    };
-  }
-}
-
 // Quest types
 interface Quest {
   id: string

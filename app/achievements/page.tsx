@@ -191,7 +191,10 @@ export default function AchievementsPage() {
                           return (
                             <div
                               key={creature.id}
-                              className={`achievement-card ${discovered ? 'discovered' : ''}`}
+                              className={cn(
+                                `achievement-card ${discovered ? 'discovered' : ''}`,
+                                (discovered || previewMode) && creature.id === '000' && 'animate-float-up animate-glow-green'
+                              )}
                             >
                               <div className="achievement-card-content">
                                 <div className="achievement-card-front">
@@ -249,7 +252,7 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '12%',
+                                            top: '21%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
@@ -259,7 +262,7 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '25.6%',
+                                            top: '33.5%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
@@ -269,7 +272,7 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '39.2%',
+                                            top: '46%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
@@ -279,7 +282,7 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '52.8%',
+                                            top: '58.5%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
@@ -289,23 +292,13 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '70.4%',
+                                            top: '71%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
                                           } as any}
                                           data-testid={`type-${creature.id}`}
                                         >{creature.stats.type}</div>
-                                        <div 
-                                          className="absolute text-white font-cardo text-sm text-center w-[200px]" 
-                                          style={{ 
-                                            top: '85%',
-                                            left: '52%',
-                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
-                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
-                                          } as any}
-                                          data-testid={`requirement-${creature.id}`}
-                                        >{creature.requirement}</div>
                                       </div>
                                     </div>
                                   </div>
@@ -386,7 +379,7 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '12%',
+                                            top: '21%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
@@ -396,7 +389,7 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '25.6%',
+                                            top: '33.5%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
@@ -406,7 +399,7 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '39.2%',
+                                            top: '46%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
@@ -416,7 +409,7 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '52.8%',
+                                            top: '58.5%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
@@ -426,23 +419,13 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '70.4%',
+                                            top: '71%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
                                           } as any}
                                           data-testid={`type-${creature.id}`}
                                         >{creature.stats.type}</div>
-                                        <div 
-                                          className="absolute text-white font-cardo text-sm text-center w-[200px]" 
-                                          style={{ 
-                                            top: '85%',
-                                            left: '52%',
-                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
-                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
-                                          } as any}
-                                          data-testid={`requirement-${creature.id}`}
-                                        >{creature.requirement}</div>
                                       </div>
                                     </div>
                                   </div>
@@ -521,7 +504,7 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '12%',
+                                            top: '21%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
@@ -531,7 +514,7 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '25.6%',
+                                            top: '33.5%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
@@ -541,7 +524,7 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '39.2%',
+                                            top: '46%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
@@ -551,7 +534,7 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '52.8%',
+                                            top: '58.5%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
@@ -561,23 +544,13 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '70.4%',
+                                            top: '71%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
                                           } as any}
                                           data-testid={`type-${creature.id}`}
                                         >{creature.stats.type}</div>
-                                        <div 
-                                          className="absolute text-white font-cardo text-sm text-center w-[200px]" 
-                                          style={{ 
-                                            top: '85%',
-                                            left: '52%',
-                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
-                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
-                                          } as any}
-                                          data-testid={`requirement-${creature.id}`}
-                                        >{creature.requirement}</div>
                                       </div>
                                     </div>
                                   </div>
@@ -657,7 +630,7 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '12%',
+                                            top: '21%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
@@ -667,7 +640,7 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '25.6%',
+                                            top: '33.5%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
@@ -677,7 +650,7 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '39.2%',
+                                            top: '46%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
@@ -687,7 +660,7 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '52.8%',
+                                            top: '58.5%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
@@ -697,23 +670,13 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '70.4%',
+                                            top: '71%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
                                           } as any}
                                           data-testid={`type-${creature.id}`}
                                         >{creature.stats.type}</div>
-                                        <div 
-                                          className="absolute text-white font-cardo text-sm text-center w-[200px]" 
-                                          style={{ 
-                                            top: '85%',
-                                            left: '52%',
-                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
-                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
-                                          } as any}
-                                          data-testid={`requirement-${creature.id}`}
-                                        >{creature.requirement}</div>
                                       </div>
                                     </div>
                                   </div>
@@ -794,7 +757,7 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '12%',
+                                            top: '21%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
@@ -804,7 +767,7 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '25.6%',
+                                            top: '33.5%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
@@ -814,7 +777,7 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '39.2%',
+                                            top: '46%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
@@ -824,7 +787,7 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '52.8%',
+                                            top: '58.5%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
@@ -834,23 +797,13 @@ export default function AchievementsPage() {
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
-                                            top: '70.4%',
+                                            top: '71%',
                                             left: '52%',
                                             transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
                                           } as any}
                                           data-testid={`type-${creature.id}`}
                                         >{creature.stats.type}</div>
-                                        <div 
-                                          className="absolute text-white font-cardo text-sm text-center w-[200px]" 
-                                          style={{ 
-                                            top: '85%',
-                                            left: '52%',
-                                            transform: 'translateX(-50%) scale(var(--stat-scale, 1))',
-                                            '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
-                                          } as any}
-                                          data-testid={`requirement-${creature.id}`}
-                                        >{creature.requirement}</div>
                                       </div>
                                     </div>
                                   </div>

@@ -1,3 +1,4 @@
+import { toast } from "@/components/ui/use-toast"
 import { showScrollToast } from "@/lib/toast-utils"
 import { calculateLevelFromExperience, calculateExperienceForLevel, CharacterStats } from "@/types/character"
 
@@ -39,18 +40,16 @@ export function gainExperience(amount: number, source: string) {
 
     // Show toast notifications
     if (newLevel > currentStats.level) {
-      showScrollToast(
-        'levelUp',
-        undefined,
-        `You've reached level ${newLevel}!`
-      )
+      toast({
+        title: "Level Up!",
+        description: `You've reached level ${newLevel}!`,
+      })
     }
 
-    showScrollToast(
-      'achievement',
-      undefined,
-      `+${amount} XP from ${source}`
-    )
+    toast({
+      title: "Experience Gained!",
+      description: `+${amount} XP from ${source}`,
+    })
 
     return newStats
   } catch (error) {

@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -29,7 +31,7 @@ export function BattleMinigame({ onClose, onVictory, onDefeat }: BattleMinigameP
 
   // Select a random creature as opponent
   const opponent = React.useMemo(() => {
-    const availableCreatures = creatures.filter(c => !c.requirements || c.requirements.length === 0)
+    const availableCreatures = creatures.filter(c => !c.requirement)
     return availableCreatures[Math.floor(Math.random() * availableCreatures.length)]
   }, [creatures])
 

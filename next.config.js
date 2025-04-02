@@ -6,26 +6,28 @@ const nextConfig = {
     unoptimized: true,
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
-    remotePatterns: [
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-      },
-      {
-        protocol: 'http',
-        hostname: '192.168.1.60',
-      },
-    ],
   },
+  remotePatterns: [
+    {
+      protocol: 'http',
+      hostname: 'localhost',
+    },
+    {
+      protocol: 'http',
+      hostname: '192.168.1.60',
+    },
+  ],
   webpack: (config) => {
-    config.externals = [...(config.externals || []), { canvas: "canvas" }];
+    config.externals.push({
+      canvas: 'canvas',
+    });
     return config;
   },
-  // Add explicit server configuration
-  server: {
-    port: 3000,
-    host: '0.0.0.0',
-  },
+  allowedDevOrigins: [
+    'http://192.168.1.60:3000',
+    'http://localhost:3000',
+    'http://0.0.0.0:3000',
+  ],
 };
 
 module.exports = nextConfig; 

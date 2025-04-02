@@ -405,9 +405,9 @@ export function MapGrid({
     // Update stats based on encounter type
     if (mysteryEncounter.type === "treasure") {
       // Award gold
-      updateKingdomStats.dispatchEvent(new CustomEvent('goldUpdate', { 
-        detail: { amount: mysteryEncounter.reward } 
-      }));
+      if (onGoldUpdate) {
+        onGoldUpdate(mysteryEncounter.reward);
+      }
       
       toast({
         title: "Gold Acquired!",
@@ -417,9 +417,7 @@ export function MapGrid({
     } else if (mysteryEncounter.type === "scroll") {
       // Award experience for discovering lore
       const expAmount = 25;
-      updateKingdomStats.dispatchEvent(new CustomEvent('expUpdate', { 
-        detail: { amount: expAmount } 
-      }));
+      // Experience update will be handled by the parent component
       
       toast({
         title: "Knowledge Gained!",
