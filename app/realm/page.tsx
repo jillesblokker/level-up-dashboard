@@ -130,6 +130,79 @@ const locationData = {
   }
 }
 
+// Function to create initial grid
+const createInitialGrid = () => {
+  return Array(INITIAL_ROWS).fill(null).map((_, y) =>
+    Array(GRID_COLS).fill(null).map((_, x) => {
+      let type: TileType = 'empty';
+      
+      // Row 1: All mountain tiles except (1,2) which is grass for character start
+      if (y === 0) {
+        if (x === 2) {
+          type = 'grass'; // Character starting position
+        } else {
+          type = 'mountain';
+        }
+      }
+      // Row 2: All grass tiles except 2,2 which is a city, sides are mountain
+      else if (y === 1) {
+        if (x === 0 || x === GRID_COLS - 1) {
+          type = 'mountain';
+        } else if (x === 2) {
+          type = 'city';
+        } else {
+          type = 'grass';
+        }
+      }
+      // Row 3: Grass at 3,2 and 3,9, rest forest, sides mountain
+      else if (y === 2) {
+        if (x === 0 || x === GRID_COLS - 1) {
+          type = 'mountain';
+        } else if (x === 2 || x === 9) {
+          type = 'grass';
+        } else {
+          type = 'forest';
+        }
+      }
+      // Row 4: Grass at 4,2, 4,3, and 4,9, rest forest, sides mountain
+      else if (y === 3) {
+        if (x === 0 || x === GRID_COLS - 1) {
+          type = 'mountain';
+        } else if (x === 2 || x === 3 || x === 9) {
+          type = 'grass';
+        } else {
+          type = 'forest';
+        }
+      }
+      // Row 5: Town at 5,3, grass at 5,4, rest forest, sides mountain
+      else if (y === 4) {
+        if (x === 0 || x === GRID_COLS - 1) {
+          type = 'mountain';
+        } else if (x === 3) {
+          type = 'town';
+        } else if (x === 4) {
+          type = 'grass';
+        } else {
+          type = 'forest';
+        }
+      }
+
+      return {
+        id: `tile-${x}-${y}`,
+        type,
+        name: type === 'city' ? locationData.city.name : 
+              type === 'town' ? locationData.town.name : '',
+        description: type === 'city' ? locationData.city.description :
+                    type === 'town' ? locationData.town.description : '',
+        connections: [],
+        rotation: 0,
+        revealed: true,
+        isVisited: false
+      } as Tile;
+    })
+  );
+};
+
 export default function RealmPage() {
   const { toast } = useToast()
   const router = useRouter()
@@ -142,95 +215,31 @@ export default function RealmPage() {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [selectedTile, setSelectedTile] = useState<string | null>(null)
   const gridRef = useRef<HTMLDivElement>(null)
-  const [grid, setGrid] = useState<Tile[][]>(() => {
-    // Initialize with predefined grid
-    const initialGrid = Array(INITIAL_ROWS).fill(null).map((_, y) =>
-      Array(GRID_COLS).fill(null).map((_, x) => {
-        let type: TileType = 'empty';
-        
-        // Row 1: All mountain tiles except (1,2) which is grass for character start
-        if (y === 0) {
-          if (x === 2) {
-            type = 'grass'; // Character starting position
-          } else {
-            type = 'mountain';
-          }
-        }
-        // Row 2: All grass tiles except 2,2 which is a city, sides are mountain
-        else if (y === 1) {
-          if (x === 0 || x === GRID_COLS - 1) {
-            type = 'mountain';
-          } else if (x === 2) {
-            type = 'city';
-          } else {
-            type = 'grass';
-          }
-        }
-        // Row 3: Grass at 3,2 and 3,9, rest forest, sides mountain
-        else if (y === 2) {
-          if (x === 0 || x === GRID_COLS - 1) {
-            type = 'mountain';
-          } else if (x === 2 || x === 9) {
-            type = 'grass';
-          } else {
-            type = 'forest';
-          }
-        }
-        // Row 4: Grass at 4,2, 4,3, and 4,9, rest forest, sides mountain
-        else if (y === 3) {
-          if (x === 0 || x === GRID_COLS - 1) {
-            type = 'mountain';
-          } else if (x === 2 || x === 3 || x === 9) {
-            type = 'grass';
-          } else {
-            type = 'forest';
-          }
-        }
-        // Row 5: Town at 5,3, grass at 5,4, rest forest, sides mountain
-        else if (y === 4) {
-          if (x === 0 || x === GRID_COLS - 1) {
-            type = 'mountain';
-          } else if (x === 3) {
-            type = 'town';
-          } else if (x === 4) {
-            type = 'grass';
-          } else {
-            type = 'forest';
-          }
-        }
-        // Rows 6-8: Similar pattern with water and forest/desert
-        else if (y >= 5 && y <= 7) {
-          if (x === 0 || x === GRID_COLS - 1) {
-            type = 'mountain';
-          } else if (x >= 1 && x <= 3) {
-            type = 'water';
-          } else if (x === 4) {
-            type = 'grass';
-          } else {
-            type = y === 7 ? 'desert' : 'forest';
-          }
-        }
-        // All rows after row 8: Empty tiles with mountain borders
-        else {
-          type = x === 0 || x === GRID_COLS - 1 ? 'mountain' : 'empty';
-        }
+  const [grid, setGrid] = useState<Tile[][]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-        return {
-          id: `tile-${x}-${y}`,
-          type,
-          name: type === 'city' ? 'Grand Citadel' : 
-                type === 'town' ? 'Riverside Haven' : '',
-          description: '',
-          isVisited: false,
-            connections: [],
-            rotation: 0,
-          revealed: true
-        } as Tile;
-      })
-    );
+  // Initialize grid on client side only
+  useEffect(() => {
+    const savedGrid = localStorage.getItem('realm-grid');
+    if (savedGrid) {
+      try {
+        setGrid(JSON.parse(savedGrid));
+      } catch (e) {
+        console.error('Error loading saved grid:', e);
+        setGrid(createInitialGrid());
+      }
+    } else {
+      setGrid(createInitialGrid());
+    }
+    setIsLoading(false);
+  }, []);
 
-    return initialGrid;
-  });
+  // Save grid changes
+  useEffect(() => {
+    if (!isLoading && grid.length > 0) {
+      localStorage.setItem('realm-grid', JSON.stringify(grid));
+    }
+  }, [grid, isLoading]);
 
   const [rows, setRows] = useState(INITIAL_ROWS)
   const [zoomLevel, setZoomLevel] = useState(1)
@@ -588,6 +597,16 @@ export default function RealmPage() {
       return 'Empty Tile'
     }
     return inventory[tile.type]?.name || 'Unknown Tile'
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-2xl font-cardo text-primary">Loading realm...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

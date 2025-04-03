@@ -21,6 +21,20 @@ This is a stable version with some known issues that are being worked on:
    - Some image loading warnings in development mode
    - Working on migrating from `images.domains` to `images.remotePatterns`
 
+4. Mobile Issues:
+   - Realm may not load correctly on mobile devices, showing only empty tiles and character
+   - City/Town loading can sometimes fail on first attempt
+   - Mystery tile events need implementation
+   - Achievement modals may not show up consistently
+
+5. Image Loading:
+   - Some images may fail to load initially, requiring a refresh
+   - Image optimization warnings in development mode
+
+6. Performance:
+   - Large maps may cause performance issues on slower devices
+   - Initial load time can be slow due to asset loading
+
 ## Getting Started
 
 ```bash
