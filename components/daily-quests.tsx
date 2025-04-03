@@ -9,7 +9,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { gainExperience } from "@/lib/experience-manager"
+import { gainExperience } from '@/lib/experience-manager'
+import { toast } from "@/components/ui/use-toast"
 
 // Quest item definitions with icons and categories
 interface QuestItem {
@@ -79,19 +80,55 @@ export function DailyQuests() {
 
   // Toggle quest completion
   const toggleQuestCompletion = (id: string) => {
-    setQuestItems(
-      questItems.map((item) => {
-        if (item.id === id) {
-          const newCompleted = !item.completed
-          if (newCompleted) {
-            // Grant experience and gold when completing the quest
-            gainExperience(item.rewards.experience, `Completing ${item.name}`)
+    const quest = questItems.find((q) => q.id === id)
+    if (!quest) return
+
+    const updatedQuests = questItems.map((q) => {
+      if (q.id === id) {
+        const newCompletionStatus = !q.completed
+        
+        if (newCompletionStatus) {
+          // Grant experience with quest category
+          gainExperience(quest.rewards.experience, quest.category || 'general')
+          
+          // Calculate gold bonus from perks
+          const perksString = localStorage.getItem('character-perks')
+          const equippedPerks = perksString ? JSON.parse(perksString).filter((p: any) => p.equipped) : []
+          
+          let goldBonus = 0
+          equippedPerks.forEach((perk: any) => {
+            if (perk.category === quest.category) {
+              goldBonus += (perk.level * 0.1) * quest.rewards.gold // 10% per level for matching category
+            } else if (perk.category === 'general') {
+              goldBonus += (perk.level * 0.05) * quest.rewards.gold // 5% per level for general perks
+            }
+          })
+
+          const totalGold = quest.rewards.gold + Math.floor(goldBonus)
+          
+          // Update character gold
+          const statsString = localStorage.getItem('character-stats')
+          if (statsString) {
+            const stats = JSON.parse(statsString)
+            stats.gold += totalGold
+            localStorage.setItem('character-stats', JSON.stringify(stats))
+            window.dispatchEvent(new CustomEvent('character-stats-update'))
           }
-          return { ...item, completed: newCompleted }
+
+          // Show toast with gold earned
+          toast({
+            title: "Quest Completed!",
+            description: `You earned ${totalGold} gold (${Math.floor(goldBonus)} from perks)`,
+          })
         }
-        return item
-      })
-    )
+
+        return { ...q, completed: newCompletionStatus }
+      }
+      return q
+    })
+
+    setQuestItems(updatedQuests)
+    localStorage.setItem('daily-quests', JSON.stringify(updatedQuests))
   }
 
   // Add new quest
@@ -118,6 +155,7 @@ export function DailyQuests() {
     setNewQuestGold(25)
     setNewQuestFrequency("")
     setIsDialogOpen(false)
+    localStorage.setItem('daily-quests', JSON.stringify([...questItems, newQuest]))
   }
 
   // Filter quests by category

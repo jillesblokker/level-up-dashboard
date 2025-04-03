@@ -85,14 +85,69 @@ export default function CharacterPage() {
       }
     };
 
+    const loadPerks = () => {
+      try {
+        const savedPerks = localStorage.getItem("character-perks");
+        if (savedPerks) {
+          setPerks(JSON.parse(savedPerks));
+        } else {
+          // Initialize perks in localStorage
+          localStorage.setItem("character-perks", JSON.stringify(perks));
+        }
+      } catch (error) {
+        console.error("Error loading perks:", error);
+      }
+    };
+
     loadCharacterStats();
+    loadPerks();
 
     // Listen for character stats updates
     const handleStatsUpdate = () => loadCharacterStats();
     window.addEventListener("character-stats-update", handleStatsUpdate);
     
+    // Listen for achievement completion to unlock perks
+    const handleAchievementComplete = (event: CustomEvent) => {
+      const { achievementId } = event.detail;
+      
+      // Map achievements to perks
+      const achievementPerkMap: { [key: string]: string } = {
+        'defeat_100_monsters': 'p1', // Strength Mastery
+        'win_50_battles': 'p1',
+        'learn_20_spells': 'p4', // Quick Learner
+        'read_30_scrolls': 'p4',
+        'visit_all_regions': 'p3', // Gold Finder
+        'discover_secret_locations': 'p3',
+        'complete_50_quests': 'p2', // Endurance Training
+        'max_reputation': 'p2',
+        'craft_legendary': 'p5', // Nutritional Expert
+        'craft_100_items': 'p5',
+        'collect_all_creatures': 'p6', // Rest Master
+        'collect_rare_items': 'p6'
+      };
+
+      const perkId = achievementPerkMap[achievementId];
+      if (perkId) {
+        setPerks(currentPerks => {
+          const updatedPerks = currentPerks.map(perk => 
+            perk.id === perkId ? { ...perk, unlocked: true } : perk
+          );
+          localStorage.setItem("character-perks", JSON.stringify(updatedPerks));
+          return updatedPerks;
+        });
+
+        toast({
+          title: "Perk Unlocked!",
+          description: `You've unlocked a new perk through your achievements!`,
+        });
+      }
+    };
+
+    window.addEventListener("achievement-complete", handleAchievementComplete as EventListener);
+    
     return () => {
       window.removeEventListener("character-stats-update", handleStatsUpdate);
+      window.removeEventListener("achievement-complete", handleAchievementComplete as EventListener);
     };
   }, []);
 
@@ -256,47 +311,55 @@ export default function CharacterPage() {
 
     if (perk.equipped) {
       // Unequipping is always allowed
-      setPerks((prev) => prev.map((p) => (p.id === perkId ? { ...p, equipped: false } : p)))
+      setPerks((prev) => {
+        const updatedPerks = prev.map((p) => (p.id === perkId ? { ...p, equipped: false } : p));
+        localStorage.setItem("character-perks", JSON.stringify(updatedPerks));
+        return updatedPerks;
+      });
 
       toast({
         title: "Perk Unequipped",
         description: `"${perk.name}" has been unequipped.`,
-      })
+      });
     } else {
       // Check if perk is unlocked and has levels
       if (perk.unlocked && perk.level > 0) {
         // Check if we have reached the maximum number of equipped perks (3)
-        const equippedPerksCount = perks.filter((p) => p.equipped).length
+        const equippedPerksCount = perks.filter((p) => p.equipped).length;
 
         if (equippedPerksCount < 3) {
-          setPerks((prev) => prev.map((p) => (p.id === perkId ? { ...p, equipped: true } : p)))
+          setPerks((prev) => {
+            const updatedPerks = prev.map((p) => (p.id === perkId ? { ...p, equipped: true } : p));
+            localStorage.setItem("character-perks", JSON.stringify(updatedPerks));
+            return updatedPerks;
+          });
 
           toast({
             title: "Perk Equipped",
             description: `"${perk.name}" has been equipped.`,
-          })
+          });
         } else {
           toast({
             title: "Maximum Perks Reached",
             description: "You can only equip 3 perks at a time. Unequip one first.",
             variant: "destructive",
-          })
+          });
         }
       } else if (!perk.unlocked) {
         toast({
           title: "Perk Locked",
-          description: "Complete more quests to unlock this perk.",
+          description: "Complete more achievements to unlock this perk.",
           variant: "destructive",
-        })
+        });
       } else {
         toast({
           title: "Perk Level Too Low",
           description: "Upgrade this perk to level 1 or higher to equip it.",
           variant: "destructive",
-        })
+        });
       }
     }
-  }
+  };
 
   // Function to upgrade a perk
   const upgradePerk = (perkId: string) => {
@@ -310,33 +373,40 @@ export default function CharacterPage() {
 
       // Check if user has enough gold
       if (characterStats.gold >= upgradeCost) {
-        // Upgrade perk and deduct gold
-        setPerks((prev) => prev.map((p) => (p.id === perkId ? { ...p, level: p.level + 1 } : p)))
+        setPerks((prev) => {
+          const updatedPerks = prev.map((p) => (p.id === perkId ? { ...p, level: p.level + 1 } : p));
+          localStorage.setItem("character-perks", JSON.stringify(updatedPerks));
+          return updatedPerks;
+        });
 
-        setCharacterStats((prev) => ({
-          ...prev,
-          gold: prev.gold - upgradeCost
-        }))
+        setCharacterStats((prev) => {
+          const newStats = {
+            ...prev,
+            gold: prev.gold - upgradeCost
+          };
+          localStorage.setItem("character-stats", JSON.stringify(newStats));
+          return newStats;
+        });
 
         toast({
           title: "Perk Upgraded",
           description: `"${perk.name}" upgraded to level ${perk.level + 1}.`,
-        })
+        });
       } else {
         toast({
           title: "Not Enough Gold",
           description: `You need ${upgradeCost} gold to upgrade this perk.`,
           variant: "destructive",
-        })
+        });
       }
     } else {
       toast({
         title: "Maximum Level Reached",
         description: "This perk is already at its maximum level.",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -459,9 +529,9 @@ export default function CharacterPage() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 sm:px-6 py-8">
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6">
           {/* Character Overview */}
-          <Card className="medieval-card md:col-span-3">
+          <Card className="medieval-card">
             <CardHeader>
               <CardTitle className="font-serif">Character Overview</CardTitle>
               <CardDescription>Your current progress and active bonuses</CardDescription>

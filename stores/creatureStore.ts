@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 interface Creature {
   id: string;
@@ -210,28 +211,46 @@ const defaultCreatures: Creature[] = [
   },
 ];
 
-export const useCreatureStore = create<CreatureStore>((set, get) => ({
-  discoveredCreatures: ['000'], // Necrion is discovered by default
-  creatures: defaultCreatures,
-  
-  discoverCreature: (id: string) => {
-    set((state) => ({
-      discoveredCreatures: [...state.discoveredCreatures, id]
-    }));
-  },
+export const useCreatureStore = create<CreatureStore>()(
+  persist(
+    (set, get) => ({
+      discoveredCreatures: ['000'], // Necrion is discovered by default
+      creatures: defaultCreatures,
+      
+      discoverCreature: (id: string) => {
+        set((state) => {
+          // Only add if not already discovered
+          if (!state.discoveredCreatures.includes(id)) {
+            console.log('Discovering creature:', id); // Debug log
+            return {
+              discoveredCreatures: [...state.discoveredCreatures, id],
+              creatures: state.creatures.map(creature => 
+                creature.id === id ? { ...creature, discovered: true } : creature
+              )
+            };
+          }
+          return state;
+        });
+      },
 
-  getCreature: (creatureId: string) => {
-    return get().creatures.find((creature) => creature.id === creatureId);
-  },
+      getCreature: (creatureId: string) => {
+        return get().creatures.find((creature) => creature.id === creatureId);
+      },
 
-  isCreatureDiscovered: (id: string) => {
-    return get().discoveredCreatures.includes(id);
-  },
+      isCreatureDiscovered: (id: string) => {
+        return get().discoveredCreatures.includes(id);
+      },
 
-  handleMountainDelete: () => {
-    const { discoverCreature, isCreatureDiscovered } = get();
-    if (!isCreatureDiscovered('010')) {
-      discoverCreature('010');
+      handleMountainDelete: () => {
+        const { discoverCreature, isCreatureDiscovered } = get();
+        if (!isCreatureDiscovered('010')) {
+          discoverCreature('010');
+        }
+      },
+    }),
+    {
+      name: 'creature-storage', // Storage key
+      version: 1, // Version number
     }
-  },
-})); 
+  )
+); 

@@ -255,23 +255,6 @@ export default function AchievementsPage() {
                                             <div className="absolute inset-0 pointer-events-none">
                                               <GreenParticles />
                                             </div>
-                                            <div className="absolute inset-0 pointer-events-none">
-                                              {[...Array(6 + Math.floor(Math.random() * 4))].map((_, i) => (
-                                                <div
-                                                  key={i}
-                                                  className={`skull skull-${creature.id}`}
-                                                  style={{
-                                                    position: 'absolute',
-                                                    width: '16px',
-                                                    height: '16px',
-                                                    left: `${10 + Math.random() * 80}%`,
-                                                    top: `${20 + Math.random() * 30}%`,
-                                                    '--delay': `${Math.random() * 2}s`,
-                                                    '--duration': '2.5s'
-                                                  } as any}
-                                                />
-                                              ))}
-                                            </div>
                                           </>
                                         )}
                                       </>
@@ -926,21 +909,6 @@ export default function AchievementsPage() {
         </Tabs>
       </div>
       <style jsx>{`
-        @keyframes skull-float {
-          0% {
-            transform: translateY(0) rotate(0deg);
-            opacity: 0.8;
-          }
-          50% {
-            transform: translateY(-20px) rotate(180deg);
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(-40px) rotate(360deg);
-            opacity: 0;
-          }
-        }
-
         @keyframes pebble-fall {
           0% {
             transform: translateY(-20px) rotate(0deg);
@@ -953,15 +921,6 @@ export default function AchievementsPage() {
             transform: translateY(100px) rotate(360deg);
             opacity: 0;
           }
-        }
-
-        .skull {
-          mask-image: url('/images/skull-icon.svg');
-          mask-size: contain;
-          mask-repeat: no-repeat;
-          background-color: rgba(255, 255, 255, 0.8);
-          animation: skull-float var(--duration) infinite;
-          animation-delay: var(--delay);
         }
 
         .pebble {
@@ -1009,40 +968,6 @@ export default function AchievementsPage() {
             opacity: 0;
           }
         }
-
-        .spark {
-          filter: blur(2.5px);
-          box-shadow: 0 0 10px #fbbf24;
-          animation: spark var(--duration) infinite;
-          animation-delay: var(--delay);
-        }
-
-        .spark-001 { --duration: 1.2s; }
-        .spark-002 { --duration: 1.4s; }
-        .spark-003 { --duration: 1.6s; }
-
-        .droplet {
-          filter: blur(1.5px);
-          box-shadow: 0 0 5px #60a5fa;
-          animation: droplet var(--duration) infinite;
-          animation-delay: var(--delay);
-        }
-
-        .droplet-004 { --duration: 2.2s; }
-        .droplet-005 { --duration: 2.35s; }
-        .droplet-006 { --duration: 2.5s; }
-
-        .leaf {
-          filter: blur(1.5px);
-          box-shadow: 0 0 5px #4ade80;
-          clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-          animation: leaf var(--duration) infinite;
-          animation-delay: var(--delay);
-        }
-
-        .leaf-007 { --duration: 2.75s; }
-        .leaf-008 { --duration: 3s; }
-        .leaf-009 { --duration: 3.25s; }
       `}</style>
     </div>
   );

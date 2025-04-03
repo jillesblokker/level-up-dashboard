@@ -1,45 +1,41 @@
 import { useState } from 'react';
-import { useCreatureStore } from '@/lib/stores/creature-store';
+import { useCreatureStore } from '@/stores/creatureStore';
 
 interface UseCreatureUnlockReturn {
   showUnlockModal: boolean;
   unlockedCreature: {
     id: string;
     name: string;
+    description: string;
+    requirement: string;
   } | null;
   handleUnlock: (creatureId: string) => void;
   handleCloseModal: () => void;
 }
 
-const creatureData = {
-  '000': { name: 'Genesis' },
-  '001': { name: 'Flamio' },
-  '002': { name: 'Embera' },
-  '003': { name: 'Vulcana' },
-  '004': { name: 'Dolphio' },
-  '005': { name: 'Divero' },
-  '006': { name: 'Flippur' },
-  '007': { name: 'Leaf' },
-  '008': { name: 'Oaky' },
-  '009': { name: 'Seqoio' },
-  '012': { name: 'Sparkle' },
-  '013': { name: 'Lumina' },
-  '014': { name: 'Crysta' },
-  '015': { name: 'Aurora' },
-};
-
 export function useCreatureUnlock(): UseCreatureUnlockReturn {
   const [showUnlockModal, setShowUnlockModal] = useState(false);
-  const [unlockedCreature, setUnlockedCreature] = useState<{ id: string; name: string } | null>(null);
-  const { unlockCreature, isCreatureDiscovered } = useCreatureStore();
+  const [unlockedCreature, setUnlockedCreature] = useState<{
+    id: string;
+    name: string;
+    description: string;
+    requirement: string;
+  } | null>(null);
+  
+  const { discoverCreature, isCreatureDiscovered, getCreature } = useCreatureStore();
 
   const handleUnlock = (creatureId: string) => {
     // Only proceed if the creature hasn't been discovered yet
     if (!isCreatureDiscovered(creatureId)) {
-      const creature = creatureData[creatureId as keyof typeof creatureData];
+      const creature = getCreature(creatureId);
       if (creature) {
-        unlockCreature(creatureId);
-        setUnlockedCreature({ id: creatureId, name: creature.name });
+        discoverCreature(creatureId);
+        setUnlockedCreature({
+          id: creatureId,
+          name: creature.name,
+          description: creature.description,
+          requirement: creature.requirement
+        });
         setShowUnlockModal(true);
       }
     }

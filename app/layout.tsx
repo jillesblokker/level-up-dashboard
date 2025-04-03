@@ -1,8 +1,7 @@
 import type { Metadata } from "next"
 import { Inter, Cardo } from "next/font/google"
-import "./styles/globals.css"
-import "./styles/design-system.css"
-import "./styles/base.css"
+import "./globals.css"
+import { ThemeProvider } from "@/components/theme-provider"
 import ClientLayout from "./ClientLayout"
 import { Toaster } from "@/components/ui/toaster"
 
@@ -31,11 +30,18 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`min-h-screen bg-black text-white font-cardo ${inter.variable} ${cardo.variable}`} suppressHydrationWarning>
-        <ClientLayout>
-          {children}
-        </ClientLayout>
-        <Toaster />
+      <body className={`${inter.variable} ${cardo.variable} min-h-screen bg-background font-sans antialiased`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ClientLayout>
+            {children}
+          </ClientLayout>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   )

@@ -2,10 +2,9 @@
 
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { NavBar } from '@/components/nav-bar'
 import { useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, Building, ShoppingBag, Swords, BookOpen, Home } from "lucide-react"
+import { ArrowLeft, Building, ShoppingBag, Swords, Home } from "lucide-react"
 
 interface TownData {
   name: string
@@ -18,6 +17,35 @@ interface TownData {
     icon: string
     image: string
   }[]
+}
+
+const defaultTownData: TownData = {
+  name: "Riverside Haven",
+  type: 'town',
+  description: "A peaceful town nestled by the river. Known for its friendly inhabitants and local crafts.",
+  locations: [
+    {
+      id: 'marketplace',
+      name: 'Marketplace',
+      description: 'Buy and sell goods at the local market.',
+      icon: 'ShoppingBag',
+      image: '/images/locations/kingdom-marketplace.png'
+    },
+    {
+      id: 'inn',
+      name: "The Dragon's Rest",
+      description: 'Rest and recover while listening to local gossip.',
+      icon: 'Home',
+      image: '/images/locations/The-dragon\'s-rest-tavern.png'
+    },
+    {
+      id: 'blacksmith',
+      name: "Ember's Anvil",
+      description: 'Purchase weapons and armor from the local smith.',
+      icon: 'Swords',
+      image: '/images/locations/ember\'s-anvil.png'
+    }
+  ]
 }
 
 interface Props {
@@ -39,40 +67,10 @@ export default function TownClient({ slug }: Props) {
       for (let y = 0; y < grid.length; y++) {
         for (let x = 0; x < grid[y].length; x++) {
           if (grid[y][x].type === 'town') {
-            const townName = grid[y][x].name || 'Riverside Haven'
-            const townSlug = townName.toLowerCase().replace(/\s+/g, '-')
-            if (townSlug === slug) {
-              setTownData({
-                name: townName,
-                type: 'town',
-                description: "A peaceful town nestled by the river. Known for its friendly inhabitants and local crafts.",
-                locations: [
-                  {
-                    id: 'marketplace',
-                    name: 'Marketplace',
-                    description: 'Buy and sell goods at the local market.',
-                    icon: 'ShoppingBag',
-                    image: '/images/locations/kingdom-marketplace.png'
-                  },
-                  {
-                    id: 'inn',
-                    name: 'The Dragon\'s Rest',
-                    description: 'Rest and recover while listening to local gossip.',
-                    icon: 'Home',
-                    image: '/images/locations/The-dragon\'s-rest-tavern.png'
-                  },
-                  {
-                    id: 'blacksmith',
-                    name: 'Ember\'s Anvil',
-                    description: 'Purchase weapons and armor from the local smith.',
-                    icon: 'Swords',
-                    image: '/images/locations/ember\'s-anvil.png'
-                  }
-                ]
-              })
-              foundTown = true
-              break
-            }
+            // Use default town data since we don't store individual town data yet
+            setTownData(defaultTownData)
+            foundTown = true
+            break
           }
         }
         if (foundTown) break
@@ -117,8 +115,6 @@ export default function TownClient({ slug }: Props) {
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
-      <NavBar />
-
       <main className="flex-1 p-4 md:p-6 space-y-6">
         <div className="flex items-center justify-between mb-6">
           <div>

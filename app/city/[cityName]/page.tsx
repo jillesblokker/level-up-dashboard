@@ -1,10 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ArrowLeft, Building, ShoppingBag, Swords, BookOpen, Home, Horseshoe } from "lucide-react"
+import { ArrowLeft, Building, ShoppingBag, Footprints, Home } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { NavBar } from "@/components/nav-bar"
 import { useToast } from "@/components/ui/use-toast"
 
@@ -19,6 +19,35 @@ interface CityData {
     icon: string
     image: string
   }[]
+}
+
+const defaultCityData: CityData = {
+  name: "Grand Citadel",
+  type: 'city',
+  description: "A magnificent city with towering spires and bustling markets. The heart of commerce and culture in the realm.",
+  locations: [
+    {
+      id: 'market-district',
+      name: 'Market District',
+      description: 'The bustling heart of commerce in the city.',
+      icon: 'ShoppingBag',
+      image: '/images/locations/market-district.png'
+    },
+    {
+      id: 'stables',
+      name: 'Royal Stables',
+      description: 'Where the finest horses in the realm are kept.',
+      icon: 'Horseshoe',
+      image: '/images/locations/royal-stables.png'
+    },
+    {
+      id: 'inn',
+      name: "The King's Rest",
+      description: 'A luxurious inn for weary travelers.',
+      icon: 'Home',
+      image: '/images/locations/kings-rest.png'
+    }
+  ]
 }
 
 export default function CityPage() {
@@ -39,60 +68,10 @@ export default function CityPage() {
       for (let y = 0; y < grid.length; y++) {
         for (let x = 0; x < grid[y].length; x++) {
           if (grid[y][x].type === 'city') {
-            const name = grid[y][x].name || 'Grand Citadel'
-            if (name === cityName) {
-              setCityData({
-                name: cityName,
-                type: 'city',
-                description: "A magnificent city with towering spires and bustling markets. The heart of commerce and culture in the realm.",
-                locations: [
-                  {
-                    id: 'marketplace',
-                    name: 'Marketplace',
-                    description: 'Buy and sell goods at the busy market square.',
-                    icon: 'ShoppingBag',
-                    image: '/images/locations/marketplace.png'
-                  },
-                  {
-                    id: 'blacksmith',
-                    name: 'Blacksmith',
-                    description: 'Purchase weapons and armor from the master smith.',
-                    icon: 'Swords',
-                    image: '/images/locations/blacksmith.png'
-                  },
-                  {
-                    id: 'library',
-                    name: 'Library',
-                    description: 'Study ancient tomes and learn new skills.',
-                    icon: 'BookOpen',
-                    image: '/images/locations/library.png'
-                  },
-                  {
-                    id: 'townhall',
-                    name: 'Town Hall',
-                    description: 'Meet with city officials and take on quests.',
-                    icon: 'Building',
-                    image: '/images/locations/townhall.png'
-                  },
-                  {
-                    id: 'inn',
-                    name: 'Inn',
-                    description: 'Rest and recover while listening to local gossip.',
-                    icon: 'Home',
-                    image: '/images/locations/inn.png'
-                  },
-                  {
-                    id: 'stables',
-                    name: 'Royal Stables',
-                    description: 'Fine steeds for your journeys.',
-                    icon: 'Horseshoe',
-                    image: '/images/locations/royal-stables.png'
-                  }
-                ]
-              })
-              foundCity = true
-              break
-            }
+            // Use default city data since we don't store individual city data yet
+            setCityData(defaultCityData)
+            foundCity = true
+            break
           }
         }
         if (foundCity) break
@@ -126,16 +105,10 @@ export default function CityPage() {
     switch (iconName) {
       case 'ShoppingBag':
         return <ShoppingBag className="h-8 w-8 text-amber-500" />
-      case 'Swords':
-        return <Swords className="h-8 w-8 text-amber-500" />
-      case 'BookOpen':
-        return <BookOpen className="h-8 w-8 text-amber-500" />
-      case 'Building':
-        return <Building className="h-8 w-8 text-amber-500" />
+      case 'Horseshoe':
+        return <Footprints className="h-8 w-8 text-amber-500" />
       case 'Home':
         return <Home className="h-8 w-8 text-amber-500" />
-      case 'Horseshoe':
-        return <Horseshoe className="h-8 w-8 text-amber-500" />
       default:
         return <Building className="h-8 w-8 text-amber-500" />
     }

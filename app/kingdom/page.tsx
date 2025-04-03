@@ -227,8 +227,10 @@ export default function KingdomPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-hidden">
-      {/* Header */}
+    <div className="min-h-screen bg-black">
+      {/* Add your NavBar here with md:block hidden class if it exists */}
+      
+      {/* Hero Section with Image */}
       <div 
         className="relative h-[300px] sm:h-[400px] md:h-[500px] w-full max-w-full overflow-hidden"
         onMouseEnter={() => setIsHovering(true)}
@@ -308,8 +310,8 @@ export default function KingdomPage() {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8 max-w-full overflow-hidden">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="container mx-auto px-4 sm:px-6 -mt-20 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
           <Card className="bg-black/80 border-amber-800/50 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="text-amber-500">Kingdom Stats</CardTitle>

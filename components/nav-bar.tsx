@@ -3,15 +3,14 @@
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Map, User, Trophy, ShoppingBag, Settings, Menu, Coins, Castle, X, Palette, Bell, List } from "lucide-react"
+import { Home, Map, User, Trophy, ShoppingBag, Settings, Menu, Coins, Castle, X, Palette, Bell, List, Monitor } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Logo } from "@/components/logo"
 import { NotificationCenter } from "@/components/notification-center"
 import { cn } from "@/lib/utils"
 import { Icons } from "@/components/icons"
-import type { CharacterStats } from "@/types/character"
-import { calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character"
+import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character"
 import { Progress } from "@/components/ui/progress"
 import {
   DropdownMenu,
@@ -265,21 +264,19 @@ export function NavBar() {
         </nav>
 
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="text-sm">
+          <div className="hidden md:flex items-center gap-4">
+            <div className="flex items-center gap-2">
               Level {characterStats.level}
               <div className="w-32">
                 <Progress value={calculateLevelProgress(characterStats.experience) * 100} className="h-2" />
               </div>
               <div className="text-xs text-muted-foreground">
                 {(() => {
-                  // Calculate total XP needed for previous levels
                   let expForPreviousLevels = 0;
                   for (let i = 1; i < characterStats.level; i++) {
                     expForPreviousLevels += calculateExperienceForLevel(i);
                   }
                   
-                  // Calculate current level XP
                   const currentLevelXP = characterStats.experience - expForPreviousLevels;
                   const neededForCurrentLevel = calculateExperienceForLevel(characterStats.level);
                   
@@ -316,6 +313,17 @@ export function NavBar() {
                   <List className="mr-2 h-4 w-4" />
                   Requirements
                 </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <button className="flex w-full items-center" onClick={() => {
+                  const devicePreviewButton = document.querySelector('[data-device-preview-trigger]') as HTMLButtonElement;
+                  if (devicePreviewButton) {
+                    devicePreviewButton.click();
+                  }
+                }}>
+                  <Monitor className="mr-2 h-4 w-4" />
+                  Device Preview
+                </button>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

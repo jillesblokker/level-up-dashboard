@@ -1,24 +1,19 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 import Image from "next/image"
 import { useLocalStorage } from "@/hooks/use-local-storage"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Switch } from "@/components/ui/switch"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar } from "@/components/ui/avatar"
-import { toast } from "@/components/ui/use-toast"
 import { useToast } from "@/components/ui/use-toast"
-import { showScrollToast } from "@/lib/toast-utils"
 import { getCharacterName } from "@/lib/toast-utils"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { Tile, TileType, Character } from "@/types/tiles"
-import { Icons } from "@/components/icons"
+import { Tile, TileType } from "@/types/tiles"
 import { useCreatureStore } from "@/stores/creatureStore"
 import {
   DropdownMenu,
@@ -27,6 +22,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Settings, ChevronDown } from "lucide-react"
+import { useCreatureUnlock } from "@/lib/hooks/use-creature-unlock"
+import { MapGrid } from '@/components/map-grid'
+import { TileInventory } from '@/components/tile-inventory'
 
 // Types
 interface Position {
@@ -34,14 +32,22 @@ interface Position {
   y: number
 }
 
+interface TileInventoryItem {
+  count: number
+  name: string
+  description: string
+  image: string
+  cost: number
+}
+
 interface TileInventory {
-  [key: string]: {
-    count: number
-    name: string
-    description: string
-    image: string
-    cost: number
-  }
+  [key: string]: TileInventoryItem
+}
+
+// Remove empty interface and extend Tile directly where needed
+type MapTile = Tile & {
+  cityName?: string
+  townName?: string
 }
 
 // Constants
@@ -52,13 +58,6 @@ const AUTOSAVE_INTERVAL = 30000 // 30 seconds
 
 // Initial state
 const initialTileInventory: TileInventory = {
-  empty: {
-    count: 0,
-    name: "Empty",
-    description: "Empty tile",
-    image: "/images/tiles/empty-tile.png",
-    cost: 0
-  },
   grass: { 
     count: 50, 
     name: "Grass", 
@@ -106,14 +105,14 @@ const initialTileInventory: TileInventory = {
     name: "City", 
     description: "Large urban settlement", 
     image: "/images/tiles/city_image.png",
-    cost: 40
+    cost: 50
   },
   town: { 
     count: 5, 
     name: "Town", 
     description: "Small settlement", 
     image: "/images/tiles/town_image.png",
-    cost: 35
+    cost: 45
   }
 }
 
@@ -131,105 +130,129 @@ const locationData = {
   }
 }
 
-// Define a custom tile interface extending Tile to include potential town/city names
-interface MapTile extends Tile {
-  // ... existing code ...
-}
-
 export default function RealmPage() {
-  // State
+  const { toast } = useToast()
+  const router = useRouter()
+  const { handleUnlock } = useCreatureUnlock()
+
+  // State declarations
+  const [inventory, setInventory] = useLocalStorage<TileInventory>("tile-inventory", initialTileInventory)
+  const [showScrollMessage, setShowScrollMessage] = useState(false)
+  const [characterPosition, setCharacterPosition] = useLocalStorage<Position>("character-position", { x: 2, y: 0 })
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [selectedTile, setSelectedTile] = useState<string | null>(null)
+  const gridRef = useRef<HTMLDivElement>(null)
   const [grid, setGrid] = useState<Tile[][]>(() => {
-    // Try to load from localStorage first
-    try {
-      const savedGrid = localStorage.getItem("realm-grid");
-          if (savedGrid) {
-        const parsedGrid = JSON.parse(savedGrid) as Tile[][];
-        // Validate the loaded grid structure
-        if (Array.isArray(parsedGrid) && parsedGrid.length > 0 && Array.isArray(parsedGrid[0])) {
-          // Ensure each tile has all required properties
-          return parsedGrid.map(row => row.map(tile => ({
-            ...tile,
-            connections: tile.connections ?? [],
-            revealed: tile.revealed ?? true,
-            rotation: tile.rotation ?? 0,
-            id: tile.id ?? `tile-${Math.random()}`, // Fallback ID
-            type: tile.type ?? 'empty'
-          } as Tile)));
-        } else {
-          console.warn("Invalid grid structure found in localStorage.");
+    // Initialize with predefined grid
+    const initialGrid = Array(INITIAL_ROWS).fill(null).map((_, y) =>
+      Array(GRID_COLS).fill(null).map((_, x) => {
+        let type: TileType = 'empty';
+        
+        // Row 1: All mountain tiles except (1,2) which is grass for character start
+        if (y === 0) {
+          if (x === 2) {
+            type = 'grass'; // Character starting position
+          } else {
+            type = 'mountain';
+          }
         }
-      }
-    } catch (e) {
-      console.error("Failed to load or parse grid from localStorage", e);
-    }
-    
-    // Initialize a new grid if loading failed or no saved grid exists
-    const newGrid = Array(INITIAL_ROWS).fill(null).map((_, y) => 
-      Array(GRID_COLS).fill(null).map((_, x) => ({
-        id: `tile-${x}-${y}`,
-        type: "empty",
-        connections: [], // Add missing property
+        // Row 2: All grass tiles except 2,2 which is a city, sides are mountain
+        else if (y === 1) {
+          if (x === 0 || x === GRID_COLS - 1) {
+            type = 'mountain';
+          } else if (x === 2) {
+            type = 'city';
+          } else {
+            type = 'grass';
+          }
+        }
+        // Row 3: Grass at 3,2 and 3,9, rest forest, sides mountain
+        else if (y === 2) {
+          if (x === 0 || x === GRID_COLS - 1) {
+            type = 'mountain';
+          } else if (x === 2 || x === 9) {
+            type = 'grass';
+          } else {
+            type = 'forest';
+          }
+        }
+        // Row 4: Grass at 4,2, 4,3, and 4,9, rest forest, sides mountain
+        else if (y === 3) {
+          if (x === 0 || x === GRID_COLS - 1) {
+            type = 'mountain';
+          } else if (x === 2 || x === 3 || x === 9) {
+            type = 'grass';
+          } else {
+            type = 'forest';
+          }
+        }
+        // Row 5: Town at 5,3, grass at 5,4, rest forest, sides mountain
+        else if (y === 4) {
+          if (x === 0 || x === GRID_COLS - 1) {
+            type = 'mountain';
+          } else if (x === 3) {
+            type = 'town';
+          } else if (x === 4) {
+            type = 'grass';
+          } else {
+            type = 'forest';
+          }
+        }
+        // Rows 6-8: Similar pattern with water and forest/desert
+        else if (y >= 5 && y <= 7) {
+          if (x === 0 || x === GRID_COLS - 1) {
+            type = 'mountain';
+          } else if (x >= 1 && x <= 3) {
+            type = 'water';
+          } else if (x === 4) {
+            type = 'grass';
+          } else {
+            type = y === 7 ? 'desert' : 'forest';
+          }
+        }
+        // All rows after row 8: Empty tiles with mountain borders
+        else {
+          type = x === 0 || x === GRID_COLS - 1 ? 'mountain' : 'empty';
+        }
+
+        return {
+          id: `tile-${x}-${y}`,
+          type,
+          name: type === 'city' ? 'Grand Citadel' : 
+                type === 'town' ? 'Riverside Haven' : '',
+          description: '',
+          isVisited: false,
+            connections: [],
             rotation: 0,
-        revealed: true // Add missing property
-      } as Tile))
+          revealed: true
+        } as Tile;
+      })
     );
 
-    // Foundation setup
-    const foundation = [
-      // Row 1
-      { y: 0, x: 0, type: "mountain" }, { y: 0, x: 1, type: "mountain" }, { y: 0, x: 2, type: "mountain" },
-      { y: 0, x: 3, type: "mountain" }, { y: 0, x: 4, type: "mountain" }, { y: 0, x: 5, type: "grass" },
-      { y: 0, x: 6, type: "mountain" }, { y: 0, x: 7, type: "mountain" }, { y: 0, x: 8, type: "mountain" },
-      { y: 0, x: 9, type: "mountain" }, { y: 0, x: 10, type: "mountain" }, { y: 0, x: 11, type: "mountain" },
-      // Row 2
-      { y: 1, x: 0, type: "mountain" }, { y: 1, x: 1, type: "grass" }, { y: 1, x: 2, type: "grass" },
-      { y: 1, x: 3, type: "grass" }, { y: 1, x: 4, type: "grass" }, { y: 1, x: 5, type: "town" },
-      { y: 1, x: 6, type: "grass" }, { y: 1, x: 7, type: "grass" }, { y: 1, x: 8, type: "grass" },
-      { y: 1, x: 9, type: "grass" }, { y: 1, x: 10, type: "grass" }, { y: 1, x: 11, type: "mountain" },
-      // Row 3
-      { y: 2, x: 0, type: "mountain" }, { y: 2, x: 1, type: "grass" }, { y: 2, x: 2, type: "grass" },
-      { y: 2, x: 3, type: "grass" }, { y: 2, x: 4, type: "grass" }, { y: 2, x: 5, type: "grass" },
-      { y: 2, x: 6, type: "grass" }, { y: 2, x: 7, type: "grass" }, { y: 2, x: 8, type: "grass" },
-      { y: 2, x: 9, type: "grass" }, { y: 2, x: 10, type: "grass" }, { y: 2, x: 11, type: "mountain" },
-      // Row 4
-      { y: 3, x: 0, type: "mountain" }, { y: 3, x: 1, type: "water" }, { y: 3, x: 2, type: "water" },
-      { y: 3, x: 3, type: "grass" }, { y: 3, x: 4, type: "forest" }, { y: 3, x: 5, type: "city" },
-      { y: 3, x: 6, type: "grass" }, { y: 3, x: 7, type: "grass" }, { y: 3, x: 8, type: "grass" },
-      { y: 3, x: 9, type: "forest" }, { y: 3, x: 10, type: "water" }, { y: 3, x: 11, type: "mountain" },
-      // Row 5
-      { y: 4, x: 0, type: "mountain" }, { y: 4, x: 1, type: "water" }, { y: 4, x: 2, type: "grass" },
-      { y: 4, x: 3, type: "grass" }, { y: 4, x: 4, type: "forest" }, { y: 4, x: 5, type: "grass" },
-      { y: 4, x: 6, type: "desert" }, { y: 4, x: 7, type: "mystery" }, { y: 4, x: 8, type: "grass" },
-      { y: 4, x: 9, type: "forest" }, { y: 4, x: 10, type: "water" }, { y: 4, x: 11, type: "mountain" },
-    ];
+    return initialGrid;
+  });
 
-    foundation.forEach(({ x, y, type }) => {
-      if (newGrid[y] && newGrid[y][x]) {
-      newGrid[y][x] = {
-          id: `tile-${x}-${y}`,
-          type: type as TileType,
-          connections: [], // Add missing property
-        rotation: 0,
-          revealed: true // Add missing property
-        };
-      }
-    });
-
-    return newGrid;
-  })
   const [rows, setRows] = useState(INITIAL_ROWS)
   const [zoomLevel, setZoomLevel] = useState(1)
   const [showMinimap, setShowMinimap] = useState(false)
   const [buildMode, setBuildMode] = useState(true)
-  const [isFullscreen, setIsFullscreen] = useState(false)
-  const [characterPos, setCharacterPos] = useLocalStorage<Position>("character-position", { x: 5, y: 0 })
-  const [inventory, setInventory] = useLocalStorage<TileInventory>("tile-inventory", initialTileInventory)
-  const [selectedTile, setSelectedTile] = useState<string | null>(null)
-  const gridRef = useRef<HTMLDivElement>(null)
-  const { toast } = useToast()
   const [showLocationModal, setShowLocationModal] = useState(false)
   const [currentLocation, setCurrentLocation] = useState<{ type: string; name: string; description: string } | null>(null)
-  const router = useRouter()
+
+  // Update tileCounts initialization
+  const [tileCounts, setTileCounts] = useLocalStorage("tile-counts", {
+    forestPlaced: 0,
+    forestDestroyed: 0,
+    waterPlaced: 0,
+    mountainDestroyed: 0
+  });
+
+  // Add state for achievement modal
+  const [showAchievementModal, setShowAchievementModal] = useState(false)
+  const [achievementDetails, setAchievementDetails] = useState<{
+    creatureName: string;
+    requirement: string;
+  } | null>(null)
 
   // Handle fullscreen toggle with URL parameter
   const handleFullscreenToggle = (checked: boolean) => {
@@ -251,12 +274,6 @@ export default function RealmPage() {
     setIsFullscreen(isFullscreen)
   }, [])
 
-  // Clear old grid data on mount
-  useEffect(() => {
-    localStorage.removeItem("realm-grid")
-    setInventory(initialTileInventory)
-  }, [])
-
   // Autosave
   useEffect(() => {
     const interval = setInterval(() => {
@@ -272,180 +289,273 @@ export default function RealmPage() {
     return () => clearInterval(interval)
   }, [grid])
 
-  // Character movement handlers
-  const moveCharacter = (newX: number, newY: number) => {
-    if (newX < 0 || newX >= GRID_COLS || newY < 0 || newY >= rows) return
-    if (grid[newY][newX].type === "mountain" || 
-        grid[newY][newX].type === "water" || 
-        grid[newY][newX].type === "empty") return
+  // Define moveCharacter before using it in useEffect
+  const moveCharacter = useCallback((newX: number, newY: number) => {
+    setCharacterPosition({ x: newX, y: newY })
+  }, [setCharacterPosition])
 
-    setCharacterPos({ x: newX, y: newY })
-
-    // Check if moved to city or town
-    const tileType = grid[newY][newX].type
-    if (tileType === "city" || tileType === "town") {
-      setCurrentLocation({
-        type: tileType,
-        ...locationData[tileType as keyof typeof locationData]
-      })
-      setShowLocationModal(true)
-    }
-  }
-
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (!gridRef.current?.contains(document.activeElement)) return
-
-    switch (e.key) {
-      case "ArrowUp":
-      case "w":
-        moveCharacter(characterPos.x, characterPos.y - 1)
-        break
-      case "ArrowDown":
-      case "s":
-        moveCharacter(characterPos.x, characterPos.y + 1)
-        break
-      case "ArrowLeft":
-      case "a":
-        moveCharacter(characterPos.x - 1, characterPos.y)
-        break
-      case "ArrowRight":
-      case "d":
-        moveCharacter(characterPos.x + 1, characterPos.y)
-        break
-    }
-  }
-
+  // Handle keyboard navigation
   useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [characterPos])
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const { x, y } = characterPosition;
+      
+      switch (e.key) {
+        case 'ArrowUp':
+          if (y > 0) moveCharacter(x, y - 1);
+          break;
+        case 'ArrowDown':
+          if (y < grid.length - 1) moveCharacter(x, y + 1);
+          break;
+        case 'ArrowLeft':
+          if (x > 0) moveCharacter(x - 1, y);
+          break;
+        case 'ArrowRight':
+          if (x < GRID_COLS - 1) moveCharacter(x + 1, y);
+          break;
+      }
+    };
 
-  // Grid interaction handlers
-  const handleTileClick = (x: number, y: number) => {
-    if (x < 0 || y < 0 || y >= grid.length || x >= grid[0].length) return; // Bounds check
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [characterPosition, grid, moveCharacter, GRID_COLS]);
 
-    const clickedTile = grid[y][x];
+  // Show scroll message
+  useEffect(() => {
+    if (showScrollMessage) {
+      toast({
+        title: "Scroll to explore more!",
+        description: "Keep scrolling down to reveal more of the map."
+      })
+    }
+  }, [showScrollMessage, toast])
 
-    if (buildMode) {
-      if (selectedTile && clickedTile.type === "empty") {
-        if (inventory[selectedTile] && inventory[selectedTile].count > 0) {
-          const newGrid = [...grid];
-          newGrid[y][x] = {
-            id: clickedTile.id, 
-            type: selectedTile as TileType, 
-            connections: [], // Add missing property
-            rotation: 0,
-            revealed: true // Add missing property
-          };
-          setGrid(newGrid);
-          setInventory({
-            ...inventory,
-            [selectedTile]: {
-              ...inventory[selectedTile],
-              count: inventory[selectedTile].count - 1
+  // Update handleAchievementUnlock to be async and handle state properly
+  const handleAchievementUnlock = async (creatureId: string, requirement: string) => {
+    try {
+      const creatureStore = useCreatureStore.getState();
+      const creature = creatureStore.creatures.find(c => c.id === creatureId);
+      
+      if (!creature) {
+        console.error('Creature not found:', creatureId);
+        return;
+      }
+
+      console.log('Unlocking achievement for:', creature.name); // Debug log
+
+      // Set achievement details and show modal
+      setAchievementDetails({
+        creatureName: creature.name,
+        requirement: requirement
+      });
+      setShowAchievementModal(true);
+    } catch (error) {
+      console.error('Error in handleAchievementUnlock:', error);
+    }
+  };
+
+  // Update the achievement checks in handleTileClick
+  const handleTileClick = async (x: number, y: number) => {
+    try {
+      if (x < 0 || y < 0 || y >= grid.length || x >= grid[0].length) return;
+
+      const clickedTile = grid[y][x];
+
+      if (buildMode) {
+        if (selectedTile && clickedTile.type === "empty") {
+          if (inventory[selectedTile] && inventory[selectedTile].count > 0) {
+            const newGrid = [...grid];
+            newGrid[y][x] = {
+              id: clickedTile.id,
+              type: selectedTile as TileType,
+              name: selectedTile === 'city' ? 'Grand Citadel' :
+                    selectedTile === 'town' ? 'Riverside Haven' : '',
+              description: '',
+              isVisited: false,
+              connections: [],
+              rotation: 0,
+              revealed: true
+            };
+            setGrid(newGrid);
+            setInventory({
+              ...inventory,
+              [selectedTile]: {
+                ...inventory[selectedTile],
+                count: inventory[selectedTile].count - 1
+              }
+            });
+
+            // Track tile placement and check for achievements
+            if (selectedTile === 'forest') {
+              const newForestCount = (tileCounts.forestPlaced || 0) + 1;
+              await setTileCounts(prev => ({ ...prev, forestPlaced: newForestCount }));
+              
+              // Check forest placement achievements
+              if (newForestCount === 1) {
+                await useCreatureStore.getState().discoverCreature('007');
+                await handleAchievementUnlock('007', 'First forest placed');
+              } else if (newForestCount === 5) {
+                await useCreatureStore.getState().discoverCreature('008');
+                await handleAchievementUnlock('008', '5 forests placed');
+              } else if (newForestCount === 10) {
+                await useCreatureStore.getState().discoverCreature('009');
+                await handleAchievementUnlock('009', '10 forests placed');
+              }
             }
-          });
-          setSelectedTile(null); // Deselect tile after placing
-        } else {
-      toast({
-            title: "Out of Tiles",
-            description: `You don't have any ${inventory[selectedTile]?.name || selectedTile} tiles left.`, 
-            variant: "destructive"
-          });
-        }
-      } else if (clickedTile.type !== "empty") {
-        // Handle interacting with non-empty tiles in build mode (optional)
-        // For now, just select the tile type for potential placement
-        setSelectedTile(clickedTile.type);
-        toast({ title: `Selected ${inventory[clickedTile.type]?.name || clickedTile.type} tile` });
+            else if (selectedTile === 'water') {
+              const newWaterCount = (tileCounts.waterPlaced || 0) + 1;
+              await setTileCounts(prev => ({ ...prev, waterPlaced: newWaterCount }));
+              
+              // Check water placement achievements
+              if (newWaterCount === 1) {
+                await useCreatureStore.getState().discoverCreature('004');
+                await handleAchievementUnlock('004', 'First water placed');
+              } else if (newWaterCount === 5) {
+                await useCreatureStore.getState().discoverCreature('005');
+                await handleAchievementUnlock('005', '5 water tiles placed');
+              } else if (newWaterCount === 10) {
+                await useCreatureStore.getState().discoverCreature('006');
+                await handleAchievementUnlock('006', '10 water tiles placed');
+              }
+            }
+
+            toast({
+              title: `Placed ${inventory[selectedTile].name}`,
+              description: `Cost: ${inventory[selectedTile].cost} gold`,
+              variant: "default"
+            });
       } else {
-        // Clicking empty space without a selected tile
-        setSelectedTile(null); // Ensure nothing is selected
-      }
-    } else { // Play Mode
-      moveCharacter(x, y);
-      // Additional logic for interacting with tiles in play mode
-      if (clickedTile.type === "city" || clickedTile.type === "town") {
-        const locationInfo = locationData[clickedTile.type as keyof typeof locationData];
-        setCurrentLocation({ 
-          type: clickedTile.type,
-          name: locationInfo.name,
-          description: locationInfo.description
-        });
-        setShowLocationModal(true);
-      }
-    }
-  }
-
-  // Handle tile destruction
-  const handleDestroyTile = (x: number, y: number) => {
-    const tileType = grid[y][x].type as TileType; // Ensure correct type
-    if (tileType === "empty") return
-
-    const newGrid = [...grid]
-    // Ensure the new empty tile matches the Tile interface
-    newGrid[y][x] = {
-      id: `tile-${x}-${y}`,
-      type: "empty",
-      connections: [], // Add missing property
-      rotation: 0,
-      revealed: true // Add missing property (assuming revealed)
-    }
-    setGrid(newGrid)
-
-    // Add the tile back to inventory
-    // Ensure inventory keys match TileType
-    const inventoryKey = tileType as keyof typeof inventory;
-    if (inventory[inventoryKey]) {
-      setInventory({
-        ...inventory,
-        [inventoryKey]: {
-          ...inventory[inventoryKey],
-          count: inventory[inventoryKey].count + 1
+            toast({
+              title: "Out of Tiles",
+              description: `You don't have any ${inventory[selectedTile]?.name || selectedTile} tiles left.`, 
+              variant: "destructive"
+            });
+          }
+        } else if (clickedTile.type !== "empty") {
+          setSelectedTile(clickedTile.type);
+          toast({ 
+            title: `Selected ${inventory[clickedTile.type]?.name || clickedTile.type} tile`,
+            variant: "default"
+          });
         }
+      } else { // Play Mode
+        moveCharacter(x, y);
+        if (clickedTile.type === "city" || clickedTile.type === "town") {
+          const locationInfo = locationData[clickedTile.type];
+          setCurrentLocation({
+            type: clickedTile.type,
+            name: locationInfo.name,
+            description: locationInfo.description
+          });
+          setShowLocationModal(true);
+        }
+      }
+    } catch (error) {
+      console.error('Error in handleTileClick:', error);
+    toast({
+        title: "Error",
+        description: "Failed to process tile placement. Please try again.",
+        variant: "destructive"
       });
-    } else {
-      console.warn(`Attempted to add unknown tile type back to inventory: ${tileType}`);
     }
-    
-    // Check if it was the first forest tile destroyed
-    if (tileType === 'forest') {
-      const { discoveredCreatures, discoverCreature } = useCreatureStore.getState();
-      if (!discoveredCreatures.includes('001')) {
-        discoverCreature('001');
+  };
+
+  // Update handleDestroyTile with proper async handling and debug logs
+  const handleDestroyTile = async (x: number, y: number) => {
+    try {
+      const tileType = grid[y][x].type as TileType;
+      if (tileType === "empty") return;
+
+      console.log('Destroying tile:', tileType); // Debug log
+
+      // Update grid first
+    const newGrid = [...grid];
+    newGrid[y][x] = {
+        id: `tile-${x}-${y}`,
+        type: "empty",
+        name: "",
+        description: "",
+        isVisited: false,
+      connections: [],
+      rotation: 0,
+      revealed: true
+    };
+      setGrid(newGrid);
+
+      // Track tile destruction and check for achievements
+      if (tileType === 'forest') {
+        console.log('Current forest destroyed count:', tileCounts.forestDestroyed); // Debug log
+        
+        // Calculate new count
+        const newForestDestroyed = (tileCounts.forestDestroyed || 0) + 1;
+        console.log('New forest destroyed count:', newForestDestroyed); // Debug log
+        
+        // Update state and localStorage first
+        const updatedCounts = { ...tileCounts, forestDestroyed: newForestDestroyed };
+        localStorage.setItem('tile-counts', JSON.stringify(updatedCounts));
+        await setTileCounts(updatedCounts);
+
+        // Now check forest destruction achievements
+        if (newForestDestroyed === 1) {
+          console.log('Attempting to unlock first forest achievement'); // Debug log
+          handleUnlock('001');
+        } else if (newForestDestroyed === 5) {
+          handleUnlock('002');
+        } else if (newForestDestroyed === 10) {
+          handleUnlock('003');
+        }
+      }
+      else if (tileType === 'mountain') {
+        const newMountainDestroyed = (tileCounts.mountainDestroyed || 0) + 1;
+        const updatedCounts = { ...tileCounts, mountainDestroyed: newMountainDestroyed };
+        localStorage.setItem('tile-counts', JSON.stringify(updatedCounts));
+        await setTileCounts(updatedCounts);
+        
+        // Check mountain destruction achievements
+        if (newMountainDestroyed === 1) {
+          handleUnlock('010');
+        } else if (newMountainDestroyed === 5) {
+          handleUnlock('011');
+        } else if (newMountainDestroyed === 10) {
+          handleUnlock('012');
+        }
+      }
+
+      // Handle inventory update and toast
+      const inventoryKey = tileType as keyof typeof inventory;
+      if (inventory[inventoryKey]) {
+        setInventory({
+          ...inventory,
+          [inventoryKey]: {
+            ...inventory[inventoryKey],
+            count: inventory[inventoryKey].count + 1
+          }
+        });
+        
       toast({
-          title: "Creature Discovered!",
-          description: "Your actions have awakened something... You've discovered creature #001!",
+          title: "Tile Recycled",
+          description: `Recycled ${inventory[inventoryKey].name} tile. Refunded ${Math.floor(inventory[inventoryKey].cost * 0.5)} gold.`,
+          variant: "default",
+          className: "scroll-toast"
         });
       }
-    }
-
-    // Award experience for destroying tile
-    if (inventory[inventoryKey]) { // Check again to prevent error if type was unknown
+    } catch (error) {
+      console.error('Error in handleDestroyTile:', error);
       toast({
-        title: "Tile Destroyed",
-        description: `You gained 5 experience for recycling a ${inventory[inventoryKey].name.toLowerCase()} tile.`,
-        variant: "default",
-        className: "scroll-toast"
-      });
-    } else {
-      toast({
-        title: "Tile Destroyed",
-        description: `Recycled an unknown tile type. Gained 5 experience.`,
-        variant: "default",
-        className: "scroll-toast"
+        title: "Error",
+        description: "Failed to process tile destruction. Please try again.",
+        variant: "destructive"
       });
     }
-  }
+  };
 
   const addNewRow = () => {
     setRows(rows + 1)
     // Ensure the new empty tiles match the Tile interface
     const newRow: Tile[] = Array(GRID_COLS).fill(null).map((_, x) => ({
       id: `tile-${x}-${rows}`,
-      type: "empty",
+      type: x === 0 || x === GRID_COLS - 1 ? "mountain" as TileType : "empty" as TileType,
       connections: [], // Add missing property
-            rotation: 0,
+        rotation: 0,
       revealed: true // Add missing property (assuming revealed)
     }))
     setGrid([...grid, newRow])
@@ -453,23 +563,38 @@ export default function RealmPage() {
 
   // Handle location visit
   const handleVisitLocation = () => {
-    if (!currentLocation) return
-    setShowLocationModal(false)
+    if (!currentLocation) return;
+    setShowLocationModal(false);
     
     // Route based on location type
     if (currentLocation.type === 'city') {
-      router.push(`/city/${encodeURIComponent(currentLocation.name)}`)
+      router.push(`/city/${encodeURIComponent(locationData.city.name)}`);
     } else if (currentLocation.type === 'town') {
-      const townSlug = currentLocation.name.toLowerCase().replace(/\s+/g, '-')
-      router.push(`/town/${townSlug}`)
+      const townSlug = locationData.town.name.toLowerCase().replace(/\s+/g, '-');
+      router.push(`/town/${townSlug}`);
     }
+  }
+
+  // Fix the image rendering for empty tiles
+  const getTileImage = (tile: Tile) => {
+    if (tile.type === 'empty') {
+      return '/images/tiles/empty-tile.png' // Default empty tile image
+    }
+    return inventory[tile.type]?.image || '/images/tiles/empty-tile.png'
+  }
+
+  const getTileName = (tile: Tile) => {
+    if (tile.type === 'empty') {
+      return 'Empty Tile'
+    }
+    return inventory[tile.type]?.name || 'Unknown Tile'
   }
 
   return (
     <div className="relative flex min-h-screen flex-col">
-      <div className="flex-1">
+      <div className="flex-1 flex flex-col">
         {/* Grid container */}
-        <div className="relative">
+        <div className="relative flex-1">
           {/* Controls */}
           <div className="fixed top-16 right-4 z-10 flex flex-col gap-2">
             {/* Mobile Controls Dropdown */}
@@ -500,32 +625,32 @@ export default function RealmPage() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </div>
+          </div>
 
             {/* Desktop Controls */}
             <div className="hidden md:flex md:flex-col md:gap-2">
-              <Button
-                variant="outline"
+            <Button 
+              variant="outline" 
                 size="sm"
                 onClick={() => setZoomLevel(Math.max(zoomLevel - 0.5, ZOOM_LEVELS[0]))}
-              >
+            >
                 Zoom Out
-              </Button>
-              <Button
-                variant="outline"
+            </Button>
+            <Button 
+              variant="outline" 
                 size="sm"
                 onClick={() => setZoomLevel(Math.min(zoomLevel + 0.5, ZOOM_LEVELS[ZOOM_LEVELS.length - 1]))}
-              >
+            >
                 Zoom In
-              </Button>
-              <Button
-                variant="outline"
+            </Button>
+            <Button 
+              variant="outline" 
                 size="sm"
                 onClick={() => setShowMinimap(!showMinimap)}
-              >
+            >
                 {showMinimap ? "Hide Minimap" : "Show Minimap"}
-              </Button>
-              <Button
+            </Button>
+                <Button 
                 variant={buildMode ? "default" : "outline"}
                 size="sm"
                 onClick={() => setBuildMode(!buildMode)}
@@ -538,20 +663,20 @@ export default function RealmPage() {
                 onClick={() => handleFullscreenToggle(!isFullscreen)}
               >
                 {isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
-              </Button>
-            </div>
+                </Button>
+                </div>
           </div>
 
           {/* Tile Inventory */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button
+                <Button
                 variant="outline"
                 size="sm"
                 className="fixed top-16 left-4 z-10"
               >
                 Tile Inventory
-              </Button>
+                </Button>
             </SheetTrigger>
             <SheetContent side="left">
               <ScrollArea className="h-[calc(100vh-8rem)]">
@@ -575,14 +700,17 @@ export default function RealmPage() {
                           />
                         </Avatar>
                         <div className="flex-1">
-                          <h3 className="font-semibold">{data.name}</h3>
+                          <div className="flex justify-between items-start">
+                            <h3 className="font-semibold">{data.name}</h3>
+                            <span className="text-sm text-muted-foreground">{data.cost} gold</span>
+              </div>
                           <p className="text-sm text-muted-foreground">
                             {data.description}
                           </p>
                           <p className="text-sm mt-1">
                             Available: {data.count}
                           </p>
-                        </div>
+              </div>
                       </div>
                     </Card>
                   ))}
@@ -595,8 +723,8 @@ export default function RealmPage() {
           <div 
             ref={gridRef}
             className={cn(
-              "relative w-full overflow-auto border rounded-lg bg-muted/20",
-              isFullscreen ? "h-screen" : "h-[calc(100vh-300px)]"
+              "relative w-full h-full overflow-auto border rounded-lg bg-muted/20",
+              isFullscreen ? "h-screen" : "h-full"
             )}
             tabIndex={0}
           >
@@ -613,9 +741,9 @@ export default function RealmPage() {
             >
               {grid.map((row, y) =>
                 row.map((tile, x) => (
-                  <div
-                    key={tile.id}
-                    className={cn(
+                      <div
+                        key={tile.id}
+                        className={cn(
                       "aspect-square relative cursor-pointer group",
                       "hover:bg-primary/20 transition-colors",
                       tile.type !== "empty" && "bg-secondary"
@@ -624,12 +752,12 @@ export default function RealmPage() {
                   >
                     <div className="absolute inset-0">
                       <Image
-                        src={inventory[tile.type].image}
-                        alt={inventory[tile.type].name}
+                        src={getTileImage(tile)}
+                        alt={getTileName(tile)}
                         fill
                         className="object-cover"
                       />
-                    </div>
+          </div>
                     {tile.type !== "empty" && buildMode && (
                       <button
                         onClick={(e) => {
@@ -655,7 +783,7 @@ export default function RealmPage() {
                         </svg>
                       </button>
                     )}
-                    {x === characterPos.x && y === characterPos.y && (
+                    {x === characterPosition.x && y === characterPosition.y && (
                       <div className="absolute inset-0 flex items-center justify-center">
                         <Image
                           src="/character/character.png"
@@ -665,13 +793,13 @@ export default function RealmPage() {
                           className="w-1/4 h-1/4 object-contain"
                           priority
                         />
-                      </div>
+                          </div>
                     )}
-                  </div>
+                        </div>
                 ))
-              )}
-            </div>
-          </div>
+          )}
+                        </div>
+                      </div>
 
           {/* Explore button */}
           <Button
@@ -679,7 +807,7 @@ export default function RealmPage() {
             onClick={addNewRow}
           >
             Explore New Lands
-          </Button>
+              </Button>
 
           {/* Minimap */}
           {showMinimap && (
@@ -711,15 +839,15 @@ export default function RealmPage() {
                               fill
                               className="object-cover"
                             />
-                          </div>
+                </div>
                         )}
-                        {x === characterPos.x && y === characterPos.y && (
+                        {x === characterPosition.x && y === characterPosition.y && (
                           <div className="absolute inset-0 bg-amber-500/80" />
                         )}
-                      </div>
+            </div>
                     ))
-                  )}
-                </div>
+          )}
+        </div>
                 {/* Viewport indicator */}
                 <div
                   className="absolute border-2 border-primary pointer-events-none"
@@ -730,30 +858,62 @@ export default function RealmPage() {
                     top: `${(gridRef.current?.scrollTop || 0) / (gridRef.current?.scrollHeight || 1) * 100}%`,
                   }}
                 />
-              </div>
-            </div>
+      </div>
+                  </div>
           )}
 
           {/* Location Modal */}
           <Dialog open={showLocationModal} onOpenChange={setShowLocationModal}>
             <DialogContent>
-              <DialogHeader>
+            <DialogHeader>
                 <DialogTitle>{currentLocation?.name}</DialogTitle>
-                <DialogDescription>
+              <DialogDescription>
                   {currentLocation?.description}
-                </DialogDescription>
-              </DialogHeader>
+              </DialogDescription>
+            </DialogHeader>
               <DialogFooter className="flex gap-2">
                 <Button variant="outline" onClick={() => setShowLocationModal(false)}>
                   Leave
-                </Button>
+              </Button>
                 <Button onClick={handleVisitLocation}>
                   Visit
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+      {/* Achievement Modal */}
+      <Dialog open={showAchievementModal} onOpenChange={setShowAchievementModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl font-bold">Achievement Unlocked! 🎉</DialogTitle>
+            <DialogDescription className="text-center">
+              <div className="mt-4 space-y-4">
+                <p className="text-lg font-semibold">{achievementDetails?.creatureName} has been discovered!</p>
+                <p className="text-sm text-muted-foreground">{achievementDetails?.requirement}</p>
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-center">
+            <Button
+              variant="default"
+              onClick={() => {
+                setShowAchievementModal(false);
+                router.push('/achievements');
+              }}
+            >
+              View in Achievements
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setShowAchievementModal(false)}
+            >
+              Continue Playing
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
       </div>
     </div>
   )

@@ -5,11 +5,11 @@ import type React from "react"
 import { usePathname } from "next/navigation"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
-import { DevicePreview } from "@/components/device-preview"
+import DevicePreview from "@/components/device-preview"
 import { DbProvider } from "@/lib/db-context"
 import { MobileNav } from "@/components/navigation/mobile-nav"
 import { NavBar } from "@/components/nav-bar"
-import { useToast } from "@/components/ui/use-toast"
+import { toast } from "@/components/ui/use-toast"
 import { RealmProvider } from "@/lib/realm-context"
 
 // Define the type for headerImages
@@ -42,7 +42,6 @@ export default function ClientLayout({
 }>) {
   const pathname = usePathname()
   const [isFullscreen, setIsFullscreen] = useState(false)
-  const { toast } = useToast()
   
   // Check for fullscreen parameter in URL
   useEffect(() => {
@@ -102,7 +101,9 @@ export default function ClientLayout({
         </RealmProvider>
       </DbProvider>
       <Toaster />
-      <DevicePreview />
+      <div className="hidden">
+        <DevicePreview />
+      </div>
     </ThemeProvider>
   )
 }
