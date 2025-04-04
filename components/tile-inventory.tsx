@@ -1,134 +1,120 @@
 "use client";
 
-import { useState, useEffect } from "react"
-import { db } from "@/lib/database"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { useToast } from "@/components/ui/use-toast"
+import { Card } from "@/components/ui/card"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils"
+import { toast } from "sonner"
+import { useGoldStore } from "@/stores/goldStore"
 import { TileType, InventoryTile, TileItem } from "@/types/tiles"
+import { useState } from "react"
 
 interface TileInventoryProps {
-  onSelectTile?: (tile: TileItem) => void;
+  tiles: TileItem[]
+  selectedTile: TileItem | null
+  onSelectTile: (tile: TileItem | null) => void
+  onUpdateTiles: (tiles: TileItem[]) => void
 }
 
-function convertToTileItem(inventoryTile: InventoryTile): TileItem {
-  return {
-    id: inventoryTile.id,
-    type: inventoryTile.type,
-    name: inventoryTile.name,
-    description: inventoryTile.description,
-    connections: inventoryTile.connections,
-    rotation: inventoryTile.rotation,
-    cost: inventoryTile.cost,
-    quantity: inventoryTile.quantity ?? 0
-  };
-}
+export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles }: TileInventoryProps) {
+  const { gold, updateGold } = useGoldStore()
+  const [buyQuantities, setBuyQuantities] = useState<{ [key: string]: number }>({})
 
-function convertToInventoryTile(tileItem: TileItem): InventoryTile {
-  return {
-    id: tileItem.id,
-    type: tileItem.type,
-    name: tileItem.name,
-    description: tileItem.description,
-    connections: tileItem.connections,
-    rotation: tileItem.rotation ?? 0,
-    cost: tileItem.cost,
-    quantity: tileItem.quantity,
-    revealed: false
-  };
-}
+  const handleBuyTile = (tile: TileItem, e: React.MouseEvent) => {
+    e.stopPropagation()
+    
+    const quantity = buyQuantities[tile.type] || 1
+    const totalCost = tile.cost * quantity
 
-export function TileInventory({ onSelectTile }: TileInventoryProps) {
-  const { toast } = useToast()
-  const [tiles, setTiles] = useState<TileItem[]>([])
-
-  // Load tiles from database
-  useEffect(() => {
-    const loadTiles = async () => {
-      try {
-        const savedTiles = await db.getTileInventory();
-        if (savedTiles && savedTiles.length > 0) {
-          setTiles(savedTiles.map(convertToTileItem));
-        }
-      } catch (error) {
-        console.error("Failed to load tile inventory:", error);
-      }
-    };
-
-    loadTiles();
-  }, []);
-
-  // Save tiles when they change
-  useEffect(() => {
-    const saveTiles = async () => {
-      if (tiles.length > 0) {
-        try {
-          await db.saveTileInventory(tiles.map(convertToInventoryTile));
-        } catch (error) {
-          console.error("Failed to save tile inventory:", error);
-        }
-      }
-    };
-
-    saveTiles();
-  }, [tiles]);
-
-  const handleSelectTile = (tile: TileItem) => {
-    if (tile.quantity <= 0) {
-      toast({
-        title: "Out of Stock",
-        description: `You don't have any ${tile.name} tiles left.`,
-        variant: "destructive",
-      });
-      return;
+    if (gold < totalCost) {
+      toast("Not enough gold", {
+        description: `You need ${totalCost} gold to buy ${quantity} ${tile.name || tile.type} tile${quantity > 1 ? 's' : ''}.`
+      })
+      return
     }
 
-    if (onSelectTile) {
-      onSelectTile(tile);
-    }
+    updateGold(-totalCost)
+    const newTiles = tiles.map(item => 
+      item.type === tile.type 
+        ? { ...item, quantity: item.quantity + quantity }
+        : item
+    )
+    onUpdateTiles(newTiles)
+    toast("Tiles purchased", {
+      description: `You bought ${quantity} ${tile.name || tile.type} tile${quantity > 1 ? 's' : ''} for ${totalCost} gold.`
+    })
 
-    // Reduce quantity
-    setTiles(prevTiles => 
-      prevTiles.map(t => 
-        t.id === tile.id 
-          ? { ...t, quantity: t.quantity - 1 } 
-          : t
-      )
-    );
+    // Reset the quantity after purchase
+    setBuyQuantities(prev => ({ ...prev, [tile.type]: 1 }))
+  }
 
-    toast({
-      title: "Tile Selected",
-      description: `${tile.name} tile selected for placement.`,
-      variant: "default",
-    });
-  };
+  const handleQuantityChange = (type: string, value: string) => {
+    const quantity = parseInt(value) || 1
+    setBuyQuantities(prev => ({ ...prev, [type]: Math.max(1, quantity) }))
+  }
 
-  // Render tile inventory
+  const getTileImage = (type: TileType) => {
+    if (type === 'city') return '/images/tiles/city_image.png'
+    if (type === 'town') return '/images/tiles/town_image.png'
+    return `/images/tiles/${type}-tile.png`
+  }
+
   return (
-    <div className="flex flex-col gap-4 p-4 bg-white rounded-lg shadow">
-      <h2 className="text-xl font-bold">Tile Inventory</h2>
-      <div className="grid grid-cols-2 gap-4">
-        {tiles.map((tile, index) => (
-          <button
-            key={index}
-            onClick={() => handleSelectTile(tile)}
-            className="flex flex-col items-center p-2 border rounded hover:bg-gray-100"
-            disabled={tile.quantity === 0}
-          >
-            <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
-              {renderTilePreview(tile.type)}
-            </div>
-            <div className="mt-2 text-sm font-medium">{tile.name || tile.type}</div>
-            <div className="text-xs text-gray-600">
-              Quantity: {tile.quantity}
-            </div>
-            <div className="text-xs text-yellow-600">
-              Cost: {tile.cost || 0} gold
-            </div>
-          </button>
-        ))}
+    <ScrollArea className="h-full w-full">
+      <div className="flex flex-col gap-4 p-4">
+        <div className="text-lg font-semibold mb-2">Tile Inventory</div>
+        <div className="grid grid-cols-2 gap-4">
+          {tiles.map((tile) => (
+            <Card
+              key={tile.type}
+              className={cn(
+                "relative overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all",
+                selectedTile?.type === tile.type && "ring-2 ring-primary"
+              )}
+              onClick={() => tile.quantity > 0 && onSelectTile(selectedTile?.type === tile.type ? null : tile)}
+            >
+              <div className="aspect-square relative">
+                <Image
+                  src={getTileImage(tile.type)}
+                  alt={tile.name}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-3 bg-background/95 backdrop-blur-sm">
+                <div className="capitalize font-semibold text-sm">{tile.name}</div>
+                <div className="text-xs text-muted-foreground mt-1 flex justify-between items-center">
+                  <span className="font-medium">Quantity: {tile.quantity}</span>
+                  <span className="text-amber-500 font-medium">{tile.cost} gold</span>
+                </div>
+                {tile.quantity === 0 && (
+                  <div className="flex gap-2 mt-2">
+                    <Input
+                      type="number"
+                      min="1"
+                      value={buyQuantities[tile.type] || 1}
+                      onChange={(e) => handleQuantityChange(tile.type, e.target.value)}
+                      className="w-20 h-8"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={(e) => handleBuyTile(tile, e)}
+                    >
+                      Buy
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </Card>
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    </ScrollArea>
+  )
 }
 
 // Function to render tile previews
@@ -188,6 +174,32 @@ function renderTilePreview(type: string) {
             <g fill="#5E35B1" opacity="0.7">
               <path d="M16,8 L24,16 L16,24 L8,16 Z" />
               <circle cx="16" cy="16" r="4" />
+            </g>
+          </svg>
+        </div>
+      );
+
+    case 'city':
+      return (
+        <div className="w-full h-full bg-amber-700">
+          <svg viewBox="0 0 32 32" className="w-full h-full">
+            <rect width="32" height="32" fill="#FFA000" />
+            <g fill="#FF6F00" opacity="0.7">
+              <rect x="8" y="12" width="16" height="20" />
+              <polygon points="16,4 24,12 8,12" />
+            </g>
+          </svg>
+        </div>
+      );
+
+    case 'town':
+      return (
+        <div className="w-full h-full bg-amber-600">
+          <svg viewBox="0 0 32 32" className="w-full h-full">
+            <rect width="32" height="32" fill="#FFB300" />
+            <g fill="#FF8F00" opacity="0.7">
+              <rect x="10" y="14" width="12" height="18" />
+              <polygon points="16,6 22,14 10,14" />
             </g>
           </svg>
         </div>

@@ -1,26 +1,16 @@
 import type { Metadata } from "next"
-import { Inter, Cardo } from "next/font/google"
+import { Inter } from "next/font/google"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
+import "./styles/design-system.css"
+import "./styles/base.css"
 import ClientLayout from "./ClientLayout"
 import { Toaster } from "@/components/ui/toaster"
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-inter",
-})
-
-const cardo = Cardo({
-  weight: ['400', '700'],
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-cardo",
-})
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Level Up Dashboard",
-  description: "A fantasy realm building game",
+  description: "A game management dashboard",
 }
 
 export default function RootLayout({
@@ -30,18 +20,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${inter.variable} ${cardo.variable} min-h-screen bg-background font-sans antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <ClientLayout>
-            {children}
-          </ClientLayout>
-          <Toaster />
-        </ThemeProvider>
+      <body className={inter.className} suppressHydrationWarning>
+        <ClientLayout>
+          {children}
+        </ClientLayout>
+        <Toaster />
       </body>
     </html>
   )

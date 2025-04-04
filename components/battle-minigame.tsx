@@ -6,26 +6,22 @@ import { Progress } from "@/components/ui/progress"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useCreatureStore } from "@/stores/creatureStore"
+import { cn } from "@/lib/utils"
 
 interface BattleMinigameProps {
   onClose: () => void
   onVictory: (gold: number, exp: number) => void
   onDefeat: () => void
+  enemyName: string
+  enemyLevel: number
 }
 
-type BattleAction = "fight" | "defend" | "duck" | "flee"
-type BattleRound = {
-  playerAction: BattleAction
-  opponentAction: BattleAction
-  damage: number
-  description: string
-}
-
-export function BattleMinigame({ onClose, onVictory, onDefeat }: BattleMinigameProps) {
+export function BattleMinigame({ onClose, onVictory, onDefeat, enemyName, enemyLevel }: BattleMinigameProps) {
   const [playerHealth, setPlayerHealth] = useState(100)
-  const [opponentHealth, setOpponentHealth] = useState(100)
-  const [currentRound, setCurrentRound] = useState(1)
-  const [battleLog, setBattleLog] = useState<BattleRound[]>([])
+  const [playerMana, setPlayerMana] = useState(100)
+  const [enemyHealth, setEnemyHealth] = useState(100)
+  const [isPlayerTurn, setIsPlayerTurn] = useState(true)
+  const [battleLog, setBattleLog] = useState<string[]>([`A level ${enemyLevel} ${enemyName} appears!`])
   const [isGameOver, setIsGameOver] = useState(false)
   const { creatures } = useCreatureStore()
 
@@ -35,116 +31,105 @@ export function BattleMinigame({ onClose, onVictory, onDefeat }: BattleMinigameP
     return availableCreatures[Math.floor(Math.random() * availableCreatures.length)]
   }, [creatures])
 
-  const getOpponentAction = (): BattleAction => {
-    const actions: BattleAction[] = ["fight", "defend", "duck", "flee"]
-    return actions[Math.floor(Math.random() * actions.length)]
+  const addToBattleLog = (message: string) => {
+    setBattleLog(prev => [...prev, message])
   }
 
-  const calculateDamage = (attacker: "player" | "opponent", playerAction: BattleAction, opponentAction: BattleAction): number => {
-    const baseDamage = Math.floor(Math.random() * 20) + 10 // 10-30 base damage
+  const handleEnemyTurn = () => {
+    const attacks = [
+      { name: 'Slash', damage: 15, chance: 0.4 },
+      { name: 'Bite', damage: 20, chance: 0.3 },
+      { name: 'Fierce Attack', damage: 25, chance: 0.3 }
+    ]
 
-    if (attacker === "player") {
-      switch (playerAction) {
-        case "fight":
-          if (opponentAction === "duck") return Math.floor(baseDamage * 0.5) // Half damage if opponent ducks
-          if (opponentAction === "defend") return Math.floor(baseDamage * 0.7) // Reduced damage if opponent defends
-          return baseDamage
-        case "defend":
-          return 0 // No damage when defending
-        case "duck":
-          return 0 // No damage when ducking
-        case "flee":
-          return 0 // No damage when fleeing
-        default:
-          return baseDamage
+    const roll = Math.random()
+    let selectedAttack = attacks[0]
+    let cumulative = 0
+
+    for (const attack of attacks) {
+      cumulative += attack.chance
+      if (roll <= cumulative) {
+        selectedAttack = attack
+        break
       }
+    }
+
+    const damage = Math.floor(selectedAttack.damage * (0.9 + Math.random() * 0.2))
+    setPlayerHealth(prev => Math.max(0, prev - damage))
+    addToBattleLog(`${enemyName} uses ${selectedAttack.name} and deals ${damage} damage!`)
+
+    if (playerHealth - damage <= 0) {
+      setIsGameOver(true)
+      addToBattleLog('You have been defeated!')
+      setTimeout(onDefeat, 1500)
     } else {
-      switch (opponentAction) {
-        case "fight":
-          if (playerAction === "duck") return Math.floor(baseDamage * 0.5) // Half damage if player ducks
-          if (playerAction === "defend") return Math.floor(baseDamage * 0.7) // Reduced damage if player defends
-          return baseDamage
-        case "defend":
-          return 0 // No damage when defending
-        case "duck":
-          return 0 // No damage when ducking
-        case "flee":
-          return 0 // No damage when fleeing
-        default:
-          return baseDamage
-      }
+      setIsPlayerTurn(true)
     }
   }
 
-  const handleAction = (action: BattleAction) => {
-    if (isGameOver) return
-
-    const opponentAction = getOpponentAction()
-    let description = ""
-
-    // Handle flee attempt
-    if (action === "flee") {
-      const fleeSuccess = Math.random() < 0.4 // 40% chance to flee successfully
-      if (fleeSuccess) {
-        setBattleLog(prev => [...prev, {
-          playerAction: action,
-          opponentAction,
-          damage: 0,
-          description: "You successfully fled from battle!"
-        }])
-        onClose()
-        return
-      } else {
-        description = "Flee attempt failed! "
-      }
-    }
-
-    // Calculate damage
-    const playerDamage = calculateDamage("player", action, opponentAction)
-    const opponentDamage = calculateDamage("opponent", opponentAction, action)
-
-    // Update health
-    const newOpponentHealth = Math.max(0, opponentHealth - playerDamage)
-    const newPlayerHealth = Math.max(0, playerHealth - opponentDamage)
-
-    setOpponentHealth(newOpponentHealth)
-    setPlayerHealth(newPlayerHealth)
-
-    // Update battle log
-    description += `You ${action}, opponent ${opponentAction}. `
-    if (playerDamage > 0) description += `You deal ${playerDamage} damage. `
-    if (opponentDamage > 0) description += `Opponent deals ${opponentDamage} damage.`
-
-    setBattleLog(prev => [...prev, {
-      playerAction: action,
-      opponentAction,
-      damage: playerDamage,
-      description
-    }])
-
-    setCurrentRound(prev => prev + 1)
-  }
-
-  // Check for game over conditions
   useEffect(() => {
-    if (playerHealth <= 0) {
-      setIsGameOver(true)
-      onDefeat()
-    } else if (opponentHealth <= 0) {
-      setIsGameOver(true)
-      const goldReward = Math.floor(Math.random() * 301) + 200 // 200-500 gold
-      const expReward = Math.floor(Math.random() * 51) + 50 // 50-100 exp
-      onVictory(goldReward, expReward)
+    if (!isPlayerTurn && !isGameOver) {
+      const timer = setTimeout(handleEnemyTurn, 1000)
+      return () => clearTimeout(timer)
     }
-  }, [playerHealth, opponentHealth, onDefeat, onVictory])
+  }, [isPlayerTurn, isGameOver])
+
+  const handlePlayerAction = (action: string) => {
+    if (!isPlayerTurn || isGameOver) return
+
+    let damage = 0
+    let manaCost = 0
+
+    switch (action) {
+      case 'attack':
+        damage = Math.floor(15 * (0.9 + Math.random() * 0.2))
+        addToBattleLog(`You attack and deal ${damage} damage!`)
+        break
+      case 'heavy':
+        damage = Math.floor(25 * (0.9 + Math.random() * 0.2))
+        manaCost = 20
+        addToBattleLog(`You use Heavy Strike and deal ${damage} damage!`)
+        break
+      case 'special':
+        damage = Math.floor(35 * (0.9 + Math.random() * 0.2))
+        manaCost = 40
+        addToBattleLog(`You use Special Attack and deal ${damage} damage!`)
+        break
+      case 'heal':
+        const healing = Math.floor(30 * (0.9 + Math.random() * 0.2))
+        manaCost = 30
+        setPlayerHealth(prev => Math.min(100, prev + healing))
+        addToBattleLog(`You heal for ${healing} health!`)
+        break
+    }
+
+    if (playerMana >= manaCost) {
+      setPlayerMana(prev => prev - manaCost)
+      setEnemyHealth(prev => Math.max(0, prev - damage))
+
+      if (enemyHealth - damage <= 0) {
+        setIsGameOver(true)
+        addToBattleLog('Victory! You defeated the enemy!')
+        setTimeout(() => {
+          const goldReward = Math.floor(Math.random() * 301) + 200 // 200-500 gold
+          const expReward = Math.floor(Math.random() * 51) + 50 // 50-100 exp
+          onVictory(goldReward, expReward)
+        }, 1500)
+      } else {
+        setIsPlayerTurn(false)
+      }
+    } else if (manaCost > 0) {
+      addToBattleLog('Not enough mana!')
+    }
+  }
 
   return (
     <Card className="fixed inset-0 z-50 m-4 md:m-8 lg:m-16 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <CardHeader>
-        <CardTitle className="text-2xl">Battle vs {opponent?.name || "Unknown Creature"}</CardTitle>
+        <CardTitle className="text-2xl">Battle vs {enemyName}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4">
+        <div className="space-y-4">
           <div className="grid gap-2">
             <div className="flex justify-between items-center">
               <span>Your Health</span>
@@ -154,49 +139,60 @@ export function BattleMinigame({ onClose, onVictory, onDefeat }: BattleMinigameP
           </div>
           <div className="grid gap-2">
             <div className="flex justify-between items-center">
-              <span>Opponent Health</span>
-              <span>{opponentHealth}/100</span>
+              <span>Your Mana</span>
+              <span>{playerMana}/100</span>
             </div>
-            <Progress value={opponentHealth} className="h-2" />
+            <Progress value={playerMana} className={cn("h-2", "bg-blue-500")} />
+          </div>
+          <div className="grid gap-2">
+            <div className="flex justify-between items-center">
+              <span>{enemyName}'s Health</span>
+              <span>{enemyHealth}/100</span>
+            </div>
+            <Progress value={enemyHealth} className={cn("h-2", "bg-red-500")} />
           </div>
 
           <ScrollArea className="h-[200px] rounded-md border p-4">
-            {battleLog.map((round, index) => (
+            {battleLog.map((log, index) => (
               <div key={index} className="mb-2">
-                <span className="font-bold">Round {index + 1}:</span> {round.description}
+                {log}
               </div>
             ))}
           </ScrollArea>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             <Button
-              onClick={() => handleAction("fight")}
-              disabled={isGameOver}
+              onClick={() => handlePlayerAction('attack')}
+              disabled={!isPlayerTurn || isGameOver}
               variant="default"
             >
-              Fight
+              Attack
             </Button>
             <Button
-              onClick={() => handleAction("defend")}
-              disabled={isGameOver}
-              variant="secondary"
+              onClick={() => handlePlayerAction('heavy')}
+              disabled={!isPlayerTurn || isGameOver || playerMana < 20}
+              variant="default"
             >
-              Defend
+              Heavy Strike (20 MP)
             </Button>
             <Button
-              onClick={() => handleAction("duck")}
-              disabled={isGameOver}
-              variant="secondary"
+              onClick={() => handlePlayerAction('special')}
+              disabled={!isPlayerTurn || isGameOver || playerMana < 40}
+              variant="default"
             >
-              Duck
+              Special Attack (40 MP)
             </Button>
             <Button
-              onClick={() => handleAction("flee")}
-              disabled={isGameOver}
-              variant="destructive"
+              onClick={() => handlePlayerAction('heal')}
+              disabled={!isPlayerTurn || isGameOver || playerMana < 30}
+              variant="default"
             >
-              Flee
+              Heal (30 MP)
             </Button>
+          </div>
+
+          <div className="text-center text-sm">
+            {isPlayerTurn ? "Your turn!" : `${enemyName}'s turn...`}
           </div>
         </div>
       </CardContent>

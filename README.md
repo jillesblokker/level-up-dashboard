@@ -1,6 +1,47 @@
 # Level Up Dashboard
 
-A fantasy realm building game with interactive maps, achievements, and quests.
+A Next.js-based game dashboard featuring:
+
+- 🎮 Interactive game requirements tracking
+- 🎨 Customizable design system
+- 🏰 Kingdom management system
+- 🌍 Realm exploration
+- 🏘️ City building mechanics
+- 👤 Character progression
+- ✨ Quest and achievement system
+- 💰 Working item purchase system
+- 🤝 Community features
+
+## Features
+
+- **Design System**: Fully customizable UI components with interactive color pickers and typography controls
+- **Requirements**: Comprehensive game requirements organized in a tabbed interface
+- **Kingdom Management**: Statistics tracking and visualization
+- **Item System**: Working purchase mechanics with gold management
+
+## Tech Stack
+
+- Next.js 14
+- TypeScript
+- Tailwind CSS
+- Shadcn/ui Components
+
+## Getting Started
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+```
+
+## License
+
+MIT
 
 ## Current Status
 
@@ -35,24 +76,6 @@ This is a stable version with some known issues that are being worked on:
    - Large maps may cause performance issues on slower devices
    - Initial load time can be slow due to asset loading
 
-## Getting Started
-
-```bash
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Start production server
-npm start
-```
-
-The application will be available at http://localhost:3001
-
 ## Development Notes
 
 - Next.js 14.1.0
@@ -63,10 +86,6 @@ The application will be available at http://localhost:3001
 ## Contributing
 
 Please read the known issues section before submitting PRs. We're actively working on resolving these issues.
-
-## License
-
-[Add your license here]
 
 ## Asset Structure
 

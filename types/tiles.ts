@@ -38,12 +38,13 @@ export interface Tile {
   isDiscovered?: boolean;
   isVisited?: boolean;
   isTown?: boolean;
+  x?: number;
+  y?: number;
 }
 
 export interface CityData {
   name: string;
-  isTown: boolean;
-  size: number;
+  type: 'city' | 'town';
 }
 
 // Define the selected tile interface
@@ -82,4 +83,24 @@ export interface TileItem {
   rotation?: number;
   cost: number;
   quantity: number;
+}
+
+export interface MapGridProps {
+  onDiscovery: (message: string) => void;
+  selectedTile: Tile | null;
+  onTilePlaced: (tile: Tile) => void;
+  grid: Tile[][];
+  character: { x: number; y: number };
+  onCharacterMove: (x: number, y: number) => void;
+  onTileClick: (x: number, y: number) => void;
+  onGridUpdate: (newGrid: Tile[][]) => void;
+  onGoldUpdate: (amount: number) => void;
+  onExperienceUpdate?: (amount: number) => void;
+  onHover?: (x: number, y: number) => void;
+  onHoverEnd?: () => void;
+  hoveredTile?: { row: number; col: number } | null;
+  onRotateTile?: (x: number, y: number) => void;
+  onDeleteTile?: (x: number, y: number) => void;
+  isMovementMode?: boolean;
+  onAddMoreRows?: () => void;
 } 
