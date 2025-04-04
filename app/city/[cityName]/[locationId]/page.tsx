@@ -5,7 +5,6 @@ import { ArrowLeft, Building, ShoppingBag, Swords, BookOpen, Home } from "lucide
 import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { NavBar } from "@/components/nav-bar"
 import { useToast } from "@/components/ui/use-toast"
 import { addItemToInventory, getInventory, InventoryItem } from "@/lib/inventory-manager"
 
@@ -151,8 +150,6 @@ export default function CityLocationPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <NavBar />
-      
       <div className="container mx-auto p-4">
         <div className="flex items-center gap-4 mb-6">
           <Button variant="outline" size="icon" onClick={() => router.push(`/city/${params.cityName}`)}>

@@ -102,8 +102,6 @@ export default function SettingsPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
-      <NavBar />
-
       <main className="flex-1 p-4 md:p-6 space-y-6">
         <div className="flex items-center justify-between mb-6">
           <div>

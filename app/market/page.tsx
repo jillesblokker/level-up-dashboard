@@ -7,7 +7,6 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { NavBar } from "@/components/nav-bar"
 import { TileCard } from "@/components/tile-card"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/use-toast"
@@ -252,8 +251,6 @@ export default function MarketPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
-      <NavBar />
-
       <main className="flex-1 p-4 md:p-6 space-y-6">
         <div className="flex items-center justify-between mb-6">
           <div>

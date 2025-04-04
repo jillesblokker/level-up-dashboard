@@ -14,29 +14,29 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
-import { Tile, Character, SelectedTile } from "@/types/tiles";
+import { Tile, Character } from "@/types/tiles";
 import { TileVisual } from "@/components/tile-visual";
 import { cn } from "@/lib/utils";
 import { BattleMinigame } from "@/components/battle-minigame";
-
-export const updateKingdomStats = new EventTarget();
+import { updateKingdomStats } from '@/lib/kingdom-stats';
 
 interface CityData {
   name: string;
   type: 'city' | 'town';
 }
 
-interface MysteryEncounter {
-  type: 'scroll' | 'empty' | 'treasure';
+interface MysteryEvent {
   title: string;
   description: string;
-  reward: number;
-  imageUrl?: string;
+  reward: {
+    type: 'gold' | 'experience';
+    amount: number;
+  };
 }
 
 interface MapGridProps {
   onDiscovery: (discovery: string) => void;
-  selectedTile: SelectedTile | null;
+  selectedTile: Tile | null;
   onTilePlaced: () => void;
   grid: Tile[][];
   character: Character;
@@ -73,17 +73,10 @@ export function MapGrid({
 }: MapGridProps) {
   const { toast } = useToast();
   const router = useRouter();
-  const [discoveredMysteries, setDiscoveredMysteries] = useState<string[]>([]);
   const [showCityDialog, setShowCityDialog] = useState(false);
   const [showMysteryDialog, setShowMysteryDialog] = useState(false);
   const [selectedCity, setSelectedCity] = useState<CityData>({ name: '', type: 'city' });
-  const [mysteryEncounter, setMysteryEncounter] = useState<MysteryEncounter>({
-    type: 'empty',
-    title: '',
-    description: '',
-    reward: 0,
-    imageUrl: ''
-  });
+  const [currentEvent, setCurrentEvent] = useState<MysteryEvent | null>(null);
   const [showBattle, setShowBattle] = useState(false);
   const [battlePosition, setBattlePosition] = useState<{ x: number; y: number } | null>(null);
 
@@ -97,6 +90,85 @@ export function MapGrid({
     const dx = Math.abs(x - character.x);
     const dy = Math.abs(y - character.y);
     return dx + dy === 1;
+  };
+
+  // Mystery events
+  const mysteryEvents: MysteryEvent[] = [
+    {
+      title: "Lucky Find!",
+      description: "You stumble upon a small pouch of gold coins!",
+      reward: {
+        type: 'gold',
+        amount: 50
+      }
+    },
+    {
+      title: "Ancient Knowledge",
+      description: "You discover an ancient scroll containing valuable wisdom.",
+      reward: {
+        type: 'experience',
+        amount: 100
+      }
+    },
+    {
+      title: "Hidden Cache",
+      description: "You find a well-hidden treasure chest!",
+      reward: {
+        type: 'gold',
+        amount: 100
+      }
+    }
+  ];
+
+  const handleCharacterMove = (x: number, y: number) => {
+    if (!isValidMovementTarget(x, y)) return;
+
+    // Update character position
+    onCharacterMove(x, y);
+
+    // Check if landed on a mystery tile
+    const tile = grid[y][x];
+    if (tile.type === "mystery" && !tile.isVisited) {
+      handleMysteryTile(x, y);
+    }
+  };
+
+  const handleMysteryTile = (x: number, y: number) => {
+    // Randomly select an event
+    const event = mysteryEvents[Math.floor(Math.random() * mysteryEvents.length)];
+    setCurrentEvent(event);
+    setShowMysteryDialog(true);
+
+    // Handle rewards
+    if (event.reward.type === 'gold') {
+      onGoldUpdate(event.reward.amount);
+      toast({
+        title: "Gold Found!",
+        description: `You found ${event.reward.amount} gold coins!`,
+        variant: "success"
+      });
+    } else {
+      // Update experience
+      const updateEvent = new CustomEvent('updateCharacterStats', {
+        detail: {
+          experience: event.reward.amount
+        }
+      });
+      updateKingdomStats.dispatchEvent(updateEvent);
+      toast({
+        title: "Experience Gained!",
+        description: `You gained ${event.reward.amount} experience points!`,
+        variant: "success"
+      });
+    }
+
+    // Mark tile as visited
+    const newGrid = [...grid];
+    newGrid[y][x] = {
+      ...newGrid[y][x],
+      isVisited: true
+    };
+    onGridUpdate(newGrid);
   };
 
   if (grid.length === 0) {
@@ -132,7 +204,14 @@ export function MapGrid({
                   style={{
                     minWidth: `calc((100vw - 16rem) / 12)`,
                   }}
-                  onClick={() => onTileClick(x, y)}
+                  onClick={() => {
+                    if (isMovementMode) {
+                      handleCharacterMove(x, y);
+                    } else if (tile.type === "mystery" && !tile.isVisited) {
+                      handleMysteryTile(x, y);
+                    }
+                    onTileClick(x, y);
+                  }}
                   onMouseEnter={() => onHover?.(x, y)}
                   onMouseLeave={() => onHoverEnd?.()}
                 >
@@ -221,52 +300,25 @@ export function MapGrid({
       <Dialog open={showMysteryDialog} onOpenChange={setShowMysteryDialog}>
         <DialogContent className="sm:max-w-md border border-amber-800/20 bg-gray-900">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-medievalsharp text-amber-500">{mysteryEncounter.title}</DialogTitle>
+            <DialogTitle className="text-2xl font-medievalsharp text-amber-500">{currentEvent?.title}</DialogTitle>
             <DialogDescription className="text-gray-300 mt-2">
-              {mysteryEncounter.description}
+              {currentEvent?.description}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <div className="w-full h-48 bg-amber-800/20 rounded-lg flex items-center justify-center overflow-hidden">
-              {mysteryEncounter.type === "scroll" ? (
-                <div className="w-full h-full relative">
-                  <img 
-                    src="/images/encounters/scroll.jpg" 
-                    alt="Ancient Scroll" 
-                    className="object-cover w-full h-full"
-                    onError={(e) => {
-                      e.currentTarget.src = "/images/placeholders/encounter-placeholder.svg";
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                </div>
-              ) : mysteryEncounter.type === "empty" ? (
-                <div className="w-full h-full relative">
-                  <img 
-                    src="/images/encounters/grass.jpg" 
-                    alt="Empty Land" 
-                    className="object-cover w-full h-full"
-                    onError={(e) => {
-                      e.currentTarget.src = "/images/placeholders/encounter-placeholder.svg";
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                </div>
-              ) : mysteryEncounter.type === "treasure" ? (
-                <div className="w-full h-full relative">
-                  <img 
-                    src="/images/encounters/treasure.jpg" 
-                    alt="Treasure" 
-                    className="object-cover w-full h-full"
-                    onError={(e) => {
-                      e.currentTarget.src = "/images/placeholders/encounter-placeholder.svg";
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                </div>
-              ) : null}
+              <img 
+                src="/images/tiles/mystery-tile.png" 
+                alt="Mystery Event" 
+                className="object-cover w-full h-full"
+              />
             </div>
           </div>
+          <DialogFooter>
+            <Button onClick={() => setShowMysteryDialog(false)}>
+              Continue
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

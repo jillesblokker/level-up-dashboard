@@ -338,8 +338,8 @@ export default function QuestsPage() {
 
       // Show completion toast
       showScrollToast(
-        'questComplete',
-        undefined,
+        toast,
+        'Quest Complete!',
         `You've completed: ${completedQuest.title}\n` +
         `+${completedQuest.rewards.xp} XP\n` +
         `+${completedQuest.rewards.gold} Gold` +
@@ -383,22 +383,27 @@ export default function QuestsPage() {
   }
 
   // Tabs configuration
-  const tabOptions = [
+  interface TabOption {
+    value: string;
+    label: string;
+  }
+  
+  const tabOptions: TabOption[] = [
     { value: "active", label: "Active Quests" },
     { value: "daily", label: "Daily" },
     { value: "weekly", label: "Weekly" },
     { value: "seasonal", label: "Seasonal" },
     { value: "completed", label: "Completed" },
-    { value: "goals", label: "My Goals" },
-  ]
+    { value: "goals", label: "My Goals" }
+  ];
   
-  const [activeTab, setActiveTab] = useState("active")
+  const [activeTab, setActiveTab] = useState("active");
   
   // Pass the tab information to ClientLayout via a custom window property
   useEffect(() => {
     // @ts-ignore - Add a custom property to window for the MobileNav component
     window.mobileNavProps = {
-      tabs: tabOptions,
+      tabs: tabOptions.map(tab => tab.value),
       activeTab: activeTab,
       onTabChange: setActiveTab
     };
@@ -479,7 +484,7 @@ export default function QuestsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="pt-16 min-h-screen bg-black text-white">
       {/* Header Image */}
       <div 
         className="relative h-[300px] md:h-[400px] lg:h-[600px] w-full max-w-full overflow-hidden"

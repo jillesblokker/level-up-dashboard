@@ -5,7 +5,6 @@ import { ArrowLeft, Building, ShoppingBag, Footprints, Home } from "lucide-react
 import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { NavBar } from "@/components/nav-bar"
 import { useToast } from "@/components/ui/use-toast"
 
 interface CityData {
@@ -85,6 +84,18 @@ export default function CityPage() {
     setIsLoading(false)
   }, [cityName, router])
 
+  useEffect(() => {
+    // Track visited cities
+    const visitedCities = JSON.parse(localStorage.getItem("visited-cities") || "[]");
+    if (!visitedCities.includes(cityName)) {
+      visitedCities.push(cityName);
+      localStorage.setItem("visited-cities", JSON.stringify(visitedCities));
+      
+      // Dispatch event to update perks
+      window.dispatchEvent(new Event("character-stats-update"));
+    }
+  }, [cityName]);
+
   const handleVisitLocation = (locationId: string) => {
     router.push(`/city/${encodeURIComponent(cityName)}/${locationId}`)
   }
@@ -116,8 +127,6 @@ export default function CityPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
-      <NavBar />
-
       <main className="flex-1 p-4 md:p-6 space-y-6">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -168,5 +177,4 @@ export default function CityPage() {
       </main>
     </div>
   )
-}
-
+} 

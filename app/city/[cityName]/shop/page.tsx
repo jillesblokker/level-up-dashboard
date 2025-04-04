@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import React from "react"
+import { useState, useEffect } from "react"
 import { ArrowLeft, ShoppingBag } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
@@ -8,21 +9,39 @@ import { useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
-import { NavBar } from "@/components/nav-bar"
 import { CityItemManager, WeaponItem } from "@/lib/city-item-manager"
 import { ItemCard } from "@/components/city/item-card"
+import { addItemToInventory } from "@/lib/inventory-manager"
+import { CharacterStats } from "@/types/character"
 
 export default function ShopPage() {
   const params = useParams() as { cityName: string }
   const cityName = params.cityName
-  const [goldBalance, setGoldBalance] = useState(() => {
-    // Get gold balance from localStorage
-    if (typeof window !== "undefined") {
-      const savedGold = localStorage.getItem("gold-balance")
-      return savedGold ? Number.parseInt(savedGold) : 1000
+  const [goldBalance, setGoldBalance] = useState(0)
+
+  // Load character stats from localStorage
+  useEffect(() => {
+    const loadStats = () => {
+      try {
+        const savedStats = localStorage.getItem("character-stats")
+        if (savedStats) {
+          const stats = JSON.parse(savedStats) as CharacterStats
+          setGoldBalance(stats.gold || 0)
+        }
+      } catch (error) {
+        console.error("Failed to load character stats:", error)
+      }
     }
-    return 1000
-  })
+    
+    loadStats()
+
+    // Listen for updates
+    window.addEventListener("character-stats-update", loadStats)
+    
+    return () => {
+      window.removeEventListener("character-stats-update", loadStats)
+    }
+  }, [])
 
   // Shop items
   const [shopItems] = useState<WeaponItem[]>(CityItemManager.getShopItems())
@@ -39,26 +58,46 @@ export default function ShopPage() {
       return
     }
 
-    // Deduct gold
-    const newGoldBalance = goldBalance - item.price
-    setGoldBalance(newGoldBalance)
-    localStorage.setItem("gold-balance", String(newGoldBalance))
+    try {
+      // Update gold in character stats
+      const savedStats = localStorage.getItem("character-stats")
+      if (!savedStats) {
+        throw new Error("No character stats found")
+      }
 
-    // Add to inventory in localStorage
-    const inventory = JSON.parse(localStorage.getItem("player-inventory") || "[]")
-    inventory.push(item)
-    localStorage.setItem("player-inventory", JSON.stringify(inventory))
+      const stats = JSON.parse(savedStats) as CharacterStats
+      const newGoldBalance = stats.gold - item.price
+      stats.gold = newGoldBalance
+      localStorage.setItem("character-stats", JSON.stringify(stats))
+      setGoldBalance(newGoldBalance)
 
-    toast({
-      title: "Item purchased",
-      description: `You purchased ${item.name} for ${item.price} gold.`,
-    })
+      // Add item to inventory
+      addItemToInventory({
+        id: item.id,
+        name: item.name,
+        type: "weapon",
+        description: item.description
+      })
+
+      // Dispatch update event
+      window.dispatchEvent(new Event("character-stats-update"))
+
+      toast({
+        title: "Item purchased",
+        description: `You purchased ${item.name} for ${item.price} gold.`,
+      })
+    } catch (error) {
+      console.error("Error purchasing item:", error)
+      toast({
+        title: "Purchase failed",
+        description: "There was an error processing your purchase.",
+        variant: "destructive"
+      })
+    }
   }
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
-      <NavBar />
-
       <main className="flex-1 p-4 md:p-6 space-y-6">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -106,5 +145,4 @@ export default function ShopPage() {
       </main>
     </div>
   )
-}
-
+} 

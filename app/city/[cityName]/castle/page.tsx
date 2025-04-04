@@ -8,7 +8,6 @@ import { useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
-import { NavBar } from "@/components/nav-bar"
 import { CityItemManager, StoreItem } from "@/lib/city-item-manager"
 import { ItemCard } from "@/components/city/item-card"
 

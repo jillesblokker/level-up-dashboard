@@ -74,11 +74,35 @@ export default function CharacterPage() {
         const savedStats = localStorage.getItem("character-stats");
         if (savedStats) {
           const stats = JSON.parse(savedStats) as CharacterStats;
+          // Initialize with default gold if not set
+          if (typeof stats.gold === 'undefined') {
+            stats.gold = 1000;
+            localStorage.setItem("character-stats", JSON.stringify(stats));
+          }
           setCharacterStats({
             ...stats,
             level: calculateLevelFromExperience(stats.experience),
             experienceToNextLevel: calculateExperienceForLevel(calculateLevelFromExperience(stats.experience))
           });
+        } else {
+          // If no stats exist, create initial stats
+          const initialStats: CharacterStats = {
+            level: 1,
+            experience: 0,
+            experienceToNextLevel: 100,
+            gold: 1000,
+            titles: {
+              equipped: "Novice Adventurer",
+              unlocked: 5,
+              total: 20
+            },
+            perks: {
+              active: 3,
+              total: 10
+            }
+          };
+          localStorage.setItem("character-stats", JSON.stringify(initialStats));
+          setCharacterStats(initialStats);
         }
       } catch (error) {
         console.error("Error loading character stats:", error);

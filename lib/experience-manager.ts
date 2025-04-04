@@ -10,33 +10,61 @@ interface Perk {
   equipped: boolean;
 }
 
+// Get equipped perks from localStorage
 function getEquippedPerks(): Perk[] {
   try {
-    const perksData = localStorage.getItem("character-perks")
-    return perksData ? JSON.parse(perksData).filter((p: Perk) => p.equipped) : []
+    const savedPerks = localStorage.getItem("character-perks");
+    if (!savedPerks) return [];
+    
+    const perks = JSON.parse(savedPerks);
+    return perks.filter((p: Perk) => p.equipped);
   } catch (error) {
-    console.error("Error loading perks:", error)
-    return []
+    console.error("Error loading perks:", error);
+    return [];
   }
 }
 
-function calculatePerkBonus(amount: number, category: string, perks: Perk[]): number {
-  let bonus = 0
-  
-  perks.forEach(perk => {
-    if (perk.equipped && perk.level > 0) {
-      // Apply category-specific bonuses
-      if (perk.category.toLowerCase() === category.toLowerCase()) {
-        bonus += amount * (0.1 * perk.level) // 10% per level for category-specific perks
-      }
-      // Apply general bonuses
-      if (perk.category.toLowerCase() === 'general') {
-        bonus += amount * (0.05 * perk.level) // 5% per level for general perks
-      }
+// Calculate bonus XP from perks based on activity category
+function calculatePerkBonus(baseAmount: number, category: string, equippedPerks: Perk[]): number {
+  let totalBonus = 0;
+
+  for (const perk of equippedPerks) {
+    let bonusPercentage = 0;
+
+    switch (perk.id) {
+      case "p1": // Strength Mastery
+        if (category === "Might") {
+          bonusPercentage = perk.level * 10;
+        }
+        break;
+      case "p2": // Endurance Training
+        if (category === "Endurance") {
+          bonusPercentage = perk.level * 10;
+        }
+        break;
+      case "p4": // Quick Learner
+        if (category === "Wisdom") {
+          bonusPercentage = perk.level * 10;
+        }
+        break;
+      case "p5": // Nutritional Expert
+        if (category === "Vitality") {
+          bonusPercentage = perk.level * 15;
+        }
+        break;
+      case "p6": // Rest Master
+        if (category === "Resilience") {
+          bonusPercentage = perk.level * 10;
+        }
+        break;
     }
-  })
-  
-  return Math.round(bonus)
+
+    if (bonusPercentage > 0) {
+      totalBonus += Math.floor(baseAmount * (bonusPercentage / 100));
+    }
+  }
+
+  return totalBonus;
 }
 
 export function gainExperience(amount: number, source: string, category: string = 'general') {

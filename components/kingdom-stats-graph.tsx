@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollText, Coins, Trophy } from "lucide-react"
-import { updateKingdomStats } from "./map-grid" // Import the event target
+import { updateKingdomStats } from "@/lib/kingdom-stats" // Updated import path
 import { db } from "@/lib/database"
 
 // Mock data for the graphs

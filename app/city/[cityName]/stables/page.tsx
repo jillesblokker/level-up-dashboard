@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ArrowLeft, Compass } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
@@ -8,21 +8,63 @@ import { useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
-import { NavBar } from "@/components/nav-bar"
 import { CityItemManager, MountItem } from "@/lib/city-item-manager"
 import { ItemCard } from "@/components/city/item-card"
+import { addItemToInventory } from "@/lib/inventory-manager"
+import { CharacterStats } from "@/types/character"
 
 export default function StablesPage() {
   const params = useParams() as { cityName: string }
   const cityName = params.cityName
-  const [goldBalance, setGoldBalance] = useState(() => {
-    // Get gold balance from localStorage
-    if (typeof window !== "undefined") {
-      const savedGold = localStorage.getItem("gold-balance")
-      return savedGold ? Number.parseInt(savedGold) : 1000
+  const [goldBalance, setGoldBalance] = useState(0)
+
+  // Load character stats from localStorage
+  useEffect(() => {
+    const loadStats = () => {
+      try {
+        const savedStats = localStorage.getItem("character-stats")
+        if (savedStats) {
+          const stats = JSON.parse(savedStats) as CharacterStats
+          // Initialize with default gold if not set
+          if (typeof stats.gold === 'undefined') {
+            stats.gold = 1000
+            localStorage.setItem("character-stats", JSON.stringify(stats))
+          }
+          setGoldBalance(stats.gold)
+        } else {
+          // If no stats exist, create initial stats
+          const initialStats: CharacterStats = {
+            level: 1,
+            experience: 0,
+            experienceToNextLevel: 100,
+            gold: 1000,
+            titles: {
+              equipped: "Novice Adventurer",
+              unlocked: 5,
+              total: 20
+            },
+            perks: {
+              active: 3,
+              total: 10
+            }
+          }
+          localStorage.setItem("character-stats", JSON.stringify(initialStats))
+          setGoldBalance(initialStats.gold)
+        }
+      } catch (error) {
+        console.error("Failed to load character stats:", error)
+      }
     }
-    return 1000
-  })
+    
+    loadStats()
+
+    // Listen for updates
+    window.addEventListener("character-stats-update", loadStats)
+    
+    return () => {
+      window.removeEventListener("character-stats-update", loadStats)
+    }
+  }, [])
 
   // Stables items
   const [stablesItems] = useState<MountItem[]>(CityItemManager.getStablesItems())
@@ -39,20 +81,42 @@ export default function StablesPage() {
       return
     }
 
-    // Deduct gold
-    const newGoldBalance = goldBalance - item.price
-    setGoldBalance(newGoldBalance)
-    localStorage.setItem("gold-balance", String(newGoldBalance))
+    try {
+      // Update gold in character stats
+      const savedStats = localStorage.getItem("character-stats")
+      if (!savedStats) {
+        throw new Error("No character stats found")
+      }
 
-    // Add to inventory in localStorage
-    const inventory = JSON.parse(localStorage.getItem("player-mounts") || "[]")
-    inventory.push(item)
-    localStorage.setItem("player-mounts", JSON.stringify(inventory))
+      const stats = JSON.parse(savedStats) as CharacterStats
+      const newGoldBalance = stats.gold - item.price
+      stats.gold = newGoldBalance
+      localStorage.setItem("character-stats", JSON.stringify(stats))
+      setGoldBalance(newGoldBalance)
 
-    toast({
-      title: "Mount purchased",
-      description: `You've purchased a ${item.name} for ${item.price} gold.`,
-    })
+      // Add mount to inventory
+      addItemToInventory({
+        id: item.id,
+        name: item.name,
+        type: "mount",
+        description: item.description
+      })
+
+      // Dispatch update event
+      window.dispatchEvent(new Event("character-stats-update"))
+
+      toast({
+        title: "Mount purchased",
+        description: `You've purchased a ${item.name} for ${item.price} gold.`,
+      })
+    } catch (error) {
+      console.error("Error purchasing mount:", error)
+      toast({
+        title: "Purchase failed",
+        description: "There was an error processing your purchase.",
+        variant: "destructive"
+      })
+    }
   }
 
   return (

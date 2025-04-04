@@ -6,6 +6,7 @@ export interface InventoryItem {
   type: string
   description: string
   quantity: number
+  emoji?: string
 }
 
 export function addItemToInventory(item: Omit<InventoryItem, "quantity">, quantity: number = 1) {
@@ -37,7 +38,7 @@ export function addItemToInventory(item: Omit<InventoryItem, "quantity">, quanti
     // Show toast notification
     showScrollToast(
       'discovery',
-      undefined,
+      'Item Added',
       `Added ${quantity}x ${item.name} to inventory`
     )
 

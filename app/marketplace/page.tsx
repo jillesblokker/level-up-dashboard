@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TileCard } from "@/components/tile-card"
 import { toast } from "@/components/ui/use-toast"
-import { NavBar } from "@/components/nav-bar"
 
 // Sample tile data - matching the worldmap tiles but excluding city
 const tiles = [
@@ -144,8 +143,6 @@ export default function MarketplacePage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
-      <NavBar />
-
       <main className="flex-1 space-y-4 p-4 md:p-6">
         <div className="flex items-center justify-between">
           <div>

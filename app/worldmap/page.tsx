@@ -2,7 +2,6 @@
 
 import '../styles/globals.css'
 import { ImagePaths } from "@/config/image-paths"
-import { NavBar } from "@/components/nav-bar"
 import { Button } from "@/components/ui/button"
 import { MapPin, Compass, Mountain, Trees, Waves, ShoppingBag } from "lucide-react"
 import Link from "next/link"
@@ -10,8 +9,6 @@ import Link from "next/link"
 export default function WorldMapPage() {
   return (
     <div className="min-h-screen bg-black">
-      <NavBar />
-      
       <main className="relative">
         <section className="section castle">
           <div className="content-container transform hover:scale-105 transition-transform duration-300">

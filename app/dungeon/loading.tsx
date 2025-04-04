@@ -1,11 +1,8 @@
-import { NavBar } from "@/components/nav-bar"
 import { Skull } from "lucide-react"
 
 export default function DungeonLoading() {
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
-      <NavBar />
-
       <main className="flex-1 p-4 md:p-6">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center mb-6">
