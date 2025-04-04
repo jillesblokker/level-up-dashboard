@@ -132,7 +132,7 @@ const locationData = {
 
 // Function to create initial grid
 const createInitialGrid = () => {
-  return Array(INITIAL_ROWS).fill(null).map((_, y) =>
+  const grid = Array(INITIAL_ROWS).fill(null).map((_, y) =>
     Array(GRID_COLS).fill(null).map((_, x) => {
       let type: TileType = 'empty';
       
@@ -198,9 +198,10 @@ const createInitialGrid = () => {
         rotation: 0,
         revealed: true,
         isVisited: false
-      } as Tile;
+      };
     })
   );
+  return grid;
 };
 
 export default function RealmPage() {
@@ -217,29 +218,49 @@ export default function RealmPage() {
   const gridRef = useRef<HTMLDivElement>(null)
   const [grid, setGrid] = useState<Tile[][]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isInitialized, setIsInitialized] = useState(false)
 
   // Initialize grid on client side only
   useEffect(() => {
-    const savedGrid = localStorage.getItem('realm-grid');
-    if (savedGrid) {
+    const initializeGrid = () => {
       try {
-        setGrid(JSON.parse(savedGrid));
-      } catch (e) {
-        console.error('Error loading saved grid:', e);
+        const savedGrid = localStorage.getItem('realm-grid');
+        if (savedGrid) {
+          const parsedGrid = JSON.parse(savedGrid);
+          // Validate grid structure
+          if (Array.isArray(parsedGrid) && parsedGrid.length > 0 && Array.isArray(parsedGrid[0])) {
+            setGrid(parsedGrid);
+          } else {
+            console.warn('Invalid grid structure in localStorage, creating new grid');
+            setGrid(createInitialGrid());
+          }
+        } else {
+          setGrid(createInitialGrid());
+        }
+      } catch (error) {
+        console.error('Error initializing grid:', error);
         setGrid(createInitialGrid());
+      } finally {
+        setIsLoading(false);
+        setIsInitialized(true);
       }
-    } else {
-      setGrid(createInitialGrid());
+    };
+
+    if (!isInitialized) {
+      initializeGrid();
     }
-    setIsLoading(false);
-  }, []);
+  }, [isInitialized]);
 
   // Save grid changes
   useEffect(() => {
-    if (!isLoading && grid.length > 0) {
-      localStorage.setItem('realm-grid', JSON.stringify(grid));
+    if (!isLoading && isInitialized && grid.length > 0) {
+      try {
+        localStorage.setItem('realm-grid', JSON.stringify(grid));
+      } catch (error) {
+        console.error('Error saving grid:', error);
+      }
     }
-  }, [grid, isLoading]);
+  }, [grid, isLoading, isInitialized]);
 
   const [rows, setRows] = useState(INITIAL_ROWS)
   const [zoomLevel, setZoomLevel] = useState(1)

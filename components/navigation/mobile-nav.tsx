@@ -115,7 +115,7 @@ export function MobileNav({ onSaveMap, tabs, activeTab, onTabChange }: MobileNav
         </Link>
 
         {/* Stats and Controls */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           {/* Level */}
           <div className="flex items-center gap-1.5">
             <span className="text-sm text-gray-400">Level</span>
@@ -137,7 +137,7 @@ export function MobileNav({ onSaveMap, tabs, activeTab, onTabChange }: MobileNav
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] mx-4">
                 {tabs.map((tab) => (
                   <DropdownMenuItem
                     key={tab.value}

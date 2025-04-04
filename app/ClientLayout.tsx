@@ -76,12 +76,15 @@ export default function ClientLayout({
 
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
-      {!isFullscreen && <NavBar />}
+      {/* Desktop Navigation (hidden on mobile) */}
+      <div className="hidden md:block">
+        {!isFullscreen && <NavBar />}
+      </div>
       <DbProvider>
         <RealmProvider>
           <div className="flex min-h-screen flex-col">
             {/* Mobile Navigation (hidden on md and larger screens) */}
-            <div className="md:hidden">
+            <div className="block md:hidden">
               <MobileNav 
                 onSaveMap={saveMap}
                 // @ts-ignore - Use window.mobileNavProps if available
@@ -94,7 +97,7 @@ export default function ClientLayout({
             </div>
             
             {/* Main content with proper padding to account for fixed navigation */}
-            <main className="flex-1 md:pt-0">
+            <main className="flex-1 pt-16 md:pt-0">
               {children}
             </main>
           </div>

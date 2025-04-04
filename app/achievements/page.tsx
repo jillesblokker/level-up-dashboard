@@ -114,7 +114,7 @@ export default function AchievementsPage() {
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <div 
-        className="relative h-[300px] sm:h-[400px] md:h-[500px] w-full max-w-full overflow-hidden"
+        className="relative h-[300px] sm:h-[400px] md:h-[500px] w-full overflow-hidden"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -160,7 +160,7 @@ export default function AchievementsPage() {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8 max-w-full overflow-hidden">
+      <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="collection" className="w-full">
           <div className="relative">
             {/* Mobile Dropdown */}

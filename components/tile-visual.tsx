@@ -18,6 +18,7 @@ import { TreasureTile } from "./tile-visuals/treasure-tile"
 import { DungeonTile } from "./tile-visuals/dungeon-tile"
 import { MonsterTile } from "./tile-visuals/monster-tile"
 import { Building2 } from "lucide-react"
+import Image from "next/image"
 
 interface TileVisualProps {
   type: string
@@ -27,9 +28,13 @@ interface TileVisualProps {
   className?: string
   ariaLabel?: string
   onClick?: () => void
+  isSelected?: boolean
+  isVisited?: boolean
 }
 
-export function TileVisual({ type, rotation = 0, isMainTile, citySize, className, ariaLabel, onClick }: TileVisualProps) {
+export function TileVisual({ type, rotation = 0, isMainTile, citySize, className, ariaLabel, onClick, isSelected = false, isVisited = false }: TileVisualProps) {
+  const imagePath = `/images/tiles/${type}-tile.png`;
+  
   // Define a wrapper that applies rotation to any tile component that doesn't handle rotation internally
   const withRotation = (Component: React.ReactNode) => (
     <div style={{ transform: `rotate(${rotation}deg)` }} className="w-full h-full">
@@ -73,15 +78,21 @@ export function TileVisual({ type, rotation = 0, isMainTile, citySize, className
     case "monster":
       return withRotation(<MonsterTile ariaLabel={ariaLabel || "Monster tile"} onClick={onClick} className={className} />);
     default:
-      return withRotation(
-        <div 
-          className={cn(
-            "w-full h-full bg-gradient-to-br from-black to-blue-950 relative",
-            className
-          )}
-          aria-label={ariaLabel || "Empty tile"}
-          onClick={onClick}
-        />
+      return (
+        <div className="relative w-full h-full">
+          <Image
+            src={imagePath}
+            alt={`${type} tile`}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className={cn(
+              "object-cover transition-all",
+              isSelected && "ring-2 ring-primary",
+              isVisited && "brightness-90",
+              rotation && `rotate-${rotation}`
+            )}
+          />
+        </div>
       );
   }
 }

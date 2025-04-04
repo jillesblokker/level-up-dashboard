@@ -46,15 +46,17 @@ export interface InventoryItem {
   acquired: string;
 }
 
-interface TileItem {
+export interface TileItem {
   id: string;
   name: string;
   description: string;
+  cost: number;
   type: string;
   connections: string[];
   rotation: number;
   quantity: number;
-  cost: number;
+  version?: number;
+  lastUpdated?: string;
 }
 
 export interface MapTile {
@@ -78,6 +80,7 @@ export interface City {
   wealth: number;
   locations: CityLocation[];
   dateDiscovered: string;
+  version?: number;
 }
 
 export interface CityLocation {
@@ -87,6 +90,8 @@ export interface CityLocation {
   description: string;
   imageId?: string;
   unlocked: boolean;
+  version?: number;
+  lastUpdated?: string;
 }
 
 export interface DailyActivity {
@@ -180,51 +185,77 @@ export async function remove<T>(table: Table<T>, id: number | string): Promise<v
 
 // Initialize database with default data if empty
 export async function initializeDatabase() {
-  const characterCount = await db.characters.count();
-  
-  if (characterCount === 0) {
-    const now = new Date().toISOString();
+  try {
+    const characterCount = await db.characters.count();
     
-    // Initialize tiles with costs
-    const initialTiles = [
-      { id: "grass", name: "Grass", description: "Basic terrain", cost: 5, type: "grass", connections: [], rotation: 0, quantity: 50 },
-      { id: "forest", name: "Forest", description: "Dense woodland", cost: 15, type: "forest", connections: [], rotation: 0, quantity: 30 },
-      { id: "water", name: "Water", description: "Water body", cost: 20, type: "water", connections: [], rotation: 0, quantity: 20 },
-      { id: "desert", name: "Desert", description: "Arid terrain", cost: 10, type: "desert", connections: [], rotation: 0, quantity: 25 },
-      { id: "road", name: "Road", description: "Straight road", cost: 8, type: "road", connections: ["left", "right"], rotation: 0, quantity: 40 },
-      { id: "corner-road", name: "Corner Road", description: "Corner road", cost: 12, type: "corner-road", connections: ["left", "up"], rotation: 0, quantity: 30 },
-      { id: "crossroad", name: "Crossroad", description: "Four-way road", cost: 25, type: "crossroad", connections: ["left", "right", "up", "down"], rotation: 0, quantity: 20 },
-    ];
+    if (characterCount === 0) {
+      const now = new Date().toISOString();
+      
+      // Initialize tiles with costs
+      const initialTiles = [
+        { id: "grass", name: "Grass", description: "Basic terrain", cost: 5, type: "grass", connections: [], rotation: 0, quantity: 50 },
+        { id: "forest", name: "Forest", description: "Dense woodland", cost: 15, type: "forest", connections: [], rotation: 0, quantity: 30 },
+        { id: "water", name: "Water", description: "Water body", cost: 20, type: "water", connections: [], rotation: 0, quantity: 20 },
+        { id: "desert", name: "Desert", description: "Arid terrain", cost: 10, type: "desert", connections: [], rotation: 0, quantity: 25 },
+        { id: "road", name: "Road", description: "Straight road", cost: 8, type: "road", connections: ["left", "right"], rotation: 0, quantity: 40 },
+        { id: "corner-road", name: "Corner Road", description: "Corner road", cost: 12, type: "corner-road", connections: ["left", "up"], rotation: 0, quantity: 30 },
+        { id: "crossroad", name: "Crossroad", description: "Four-way road", cost: 25, type: "crossroad", connections: ["left", "right", "up", "down"], rotation: 0, quantity: 20 },
+      ];
 
-    // Add tiles to inventory
-    for (const tile of initialTiles) {
-      await db.tileInventory.add({
-        ...tile,
-        type: 'tile'
+      // Clear existing data first
+      await db.tileInventory.clear();
+      await db.cities.clear();
+      await db.cityLocations.clear();
+
+      // Add tiles to inventory using put instead of add
+      for (const tile of initialTiles) {
+        await db.tileInventory.put({
+          ...tile,
+          type: 'tile',
+          version: 1,
+          lastUpdated: now
+        });
+      }
+      
+      // Add starter city using put
+      await db.cities.put({
+        id: 1,
+        name: "Starterton",
+        description: "A small town where your adventure begins.",
+        population: 100,
+        wealth: 50,
+        locations: [],
+        dateDiscovered: now,
+        version: 1
       });
+      
+      // Add starter city locations using put
+      const locationTypes = ['tavern', 'blacksmith', 'market', 'academy'];
+      const locationNames = ['The Drunken Dragon', 'Ironforge Smithy', 'Market Square', 'Wizard\'s Academy'];
+      
+      for (let i = 0; i < locationTypes.length; i++) {
+        await db.cityLocations.put({
+          id: i + 1,
+          name: locationNames[i],
+          type: locationTypes[i],
+          description: `A ${locationTypes[i]} in Starterton.`,
+          unlocked: i < 2, // Only first two locations unlocked initially
+          version: 1,
+          lastUpdated: now
+        });
+      }
     }
-    
-    // Add starter city
-    await db.cities.add({
-      name: "Starterton",
-      description: "A small town where your adventure begins.",
-      population: 100,
-      wealth: 50,
-      locations: [],
-      dateDiscovered: now
-    });
-    
-    // Add starter city locations
-    const locationTypes = ['tavern', 'blacksmith', 'market', 'academy'];
-    const locationNames = ['The Drunken Dragon', 'Ironforge Smithy', 'Market Square', 'Wizard\'s Academy'];
-    
-    for (let i = 0; i < locationTypes.length; i++) {
-      await db.cityLocations.add({
-        name: locationNames[i],
-        type: locationTypes[i],
-        description: `A ${locationTypes[i]} in Starterton.`,
-        unlocked: i < 2 // Only first two locations unlocked initially
-      });
+  } catch (error) {
+    console.error("Error initializing database:", error);
+    // If we get a constraint error, try to recover by clearing and reinitializing
+    if (error instanceof Dexie.ConstraintError) {
+      try {
+        await db.delete();
+        db = new LevelUpDatabase();
+        await initializeDatabase();
+      } catch (retryError) {
+        console.error("Failed to recover from database error:", retryError);
+      }
     }
   }
 }
