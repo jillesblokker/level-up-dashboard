@@ -148,8 +148,19 @@ export function NavBar() {
     const handleStatsUpdate = () => loadCharacterStats()
     window.addEventListener("character-stats-update", handleStatsUpdate)
     
+    // Listen for gold updates
+    const handleGoldUpdate = (event: CustomEvent) => {
+      const newGold = event.detail.gold;
+      setCharacterStats(prev => ({
+        ...prev,
+        gold: newGold
+      }));
+    }
+    window.addEventListener("gold-update", handleGoldUpdate as EventListener)
+    
     return () => {
       window.removeEventListener("character-stats-update", handleStatsUpdate)
+      window.removeEventListener("gold-update", handleGoldUpdate as EventListener)
     }
   }, [])
 

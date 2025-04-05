@@ -23,6 +23,13 @@ export default function KingdomPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { grid } = useRealm()
   const [purchasedItems, setPurchasedItems] = useState<Array<{id: string, name: string}>>([])
+  const [inventory, setInventory] = useState<Array<{
+    id: string;
+    name: string;
+    type: string;
+    content?: string;
+    category?: string;
+  }>>([])
 
   // Notable locations data
   const notableLocations = [
@@ -103,6 +110,29 @@ export default function KingdomPage() {
     const savedGold = localStorage.getItem('goldBalance')
     if (savedGold) {
       setGoldBalance(parseInt(savedGold))
+    }
+  }, [])
+
+  useEffect(() => {
+    // Load inventory from localStorage
+    const loadInventory = () => {
+      try {
+        const savedInventory = localStorage.getItem('inventory')
+        if (savedInventory) {
+          setInventory(JSON.parse(savedInventory))
+        }
+      } catch (error) {
+        console.error("Error loading inventory:", error)
+      }
+    }
+    loadInventory()
+
+    // Listen for inventory updates
+    const handleInventoryUpdate = () => loadInventory()
+    window.addEventListener('inventory-update', handleInventoryUpdate)
+    
+    return () => {
+      window.removeEventListener('inventory-update', handleInventoryUpdate)
     }
   }, [])
 
@@ -324,6 +354,39 @@ export default function KingdomPage() {
             </div>
           </div>
         </div>
+
+        {/* Inventory Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Backpack className="h-6 w-6" />
+              Inventory
+            </CardTitle>
+            <CardDescription>Your collected items and scrolls</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {inventory.map((item) => (
+                <Card key={item.id} className="p-4">
+                  <div className="flex items-start gap-4">
+                    {item.type === 'scroll' && (
+                      <div className="text-2xl">📜</div>
+                    )}
+                    <div>
+                      <h4 className="font-semibold">{item.name}</h4>
+                      {item.content && (
+                        <p className="text-sm text-muted-foreground">{item.content}</p>
+                      )}
+                      {item.category && (
+                        <p className="text-xs text-muted-foreground mt-1">Category: {item.category}</p>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

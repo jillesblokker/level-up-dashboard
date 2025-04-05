@@ -26,20 +26,16 @@ import { useCreatureUnlock } from "@/lib/hooks/use-creature-unlock"
 import { MapGrid } from '../../components/map-grid'
 import { TileInventory } from '@/components/tile-inventory'
 import { Switch } from "@/components/ui/switch"
+import { generateMysteryEventReward, getScrollById } from "@/lib/mystery-events"
+import { toast } from 'sonner'
+import { generateMysteryEvent, handleEventOutcome } from '@/lib/mystery-events'
+import { MysteryEvent } from '@/lib/mystery-events'
+import { MysteryEventType } from '@/lib/mystery-events'
 
 // Types
 interface Position {
   x: number
   y: number
-}
-
-interface MysteryEvent {
-  id: string;
-  type: string;
-  title: string;
-  description: string;
-  choices: string[];
-  imageUrl: string | null;
 }
 
 interface InventoryItem {
@@ -48,6 +44,8 @@ interface InventoryItem {
   description: string;
   image: string;
   cost: number;
+  type?: string;
+  id?: string;
 }
 
 interface Inventory {
@@ -150,7 +148,7 @@ const createInitialGrid = () => {
       if (y === 0) {
         if (x === 2) {
           type = 'grass'; // Character starting position
-        } else {
+          } else {
           type = 'mountain';
         }
       }
@@ -260,6 +258,9 @@ export default function RealmPage() {
   // Add showInventory state
   const [showInventory, setShowInventory] = useState(false);
 
+  // Add eventDialogOpen state
+  const [eventDialogOpen, setEventDialogOpen] = useState(false);
+
   // Handle fullscreen toggle
   const handleFullscreenToggle = (checked: boolean) => {
     setIsFullscreen(checked)
@@ -307,9 +308,9 @@ export default function RealmPage() {
         type: 'empty',
         name: '',
         description: '',
-        connections: [],
-        rotation: 0,
-        revealed: true,
+            connections: [],
+            rotation: 0,
+            revealed: true,
         isVisited: false,
         x,
         y
@@ -415,7 +416,7 @@ export default function RealmPage() {
         await useCreatureStore.getState().discoverCreature('000');
         await handleAchievementUnlock('000', 'First time exploring the realm');
         localStorage.setItem('has-visited-realm', 'true');
-        toast({
+      toast({
           title: "🧪 Achievement Unlocked!",
           description: "First time exploring the realm - Discovered a poisonous creature!",
           variant: "default"
@@ -427,6 +428,22 @@ export default function RealmPage() {
 
   // Handle tile click
   const handleTileClick = async (x: number, y: number) => {
+    const tile = grid[y]?.[x];
+    if (!tile) return;
+
+    if (tile.type === 'mystery' && !tile.isVisited) {
+      const mysteryEvent = generateMysteryEvent();
+      setCurrentEvent(mysteryEvent);
+      
+      // Mark tile as visited
+      const newGrid = [...grid]
+      newGrid[y][x] = {
+        ...tile,
+        isVisited: true
+      }
+      setGrid(newGrid)
+    }
+
     try {
       if (x < 0 || y < 0 || y >= grid.length || x >= grid[0].length) return
 
@@ -447,14 +464,14 @@ export default function RealmPage() {
         if (selectedTile && clickedTile.type === "empty") {
           if (inventory[selectedTile.type] && inventory[selectedTile.type].count > 0) {
             const newGrid = [...grid]
-            newGrid[y][x] = {
+        newGrid[y][x] = {
               id: clickedTile.id,
               type: selectedTile.type,
               name: selectedTile.name || selectedTile.type,
               description: selectedTile.description || `${selectedTile.type} tile`,
               isVisited: false,
-              connections: [],
-              rotation: 0,
+          connections: [],
+          rotation: 0,
               revealed: true,
               x,
               y
@@ -571,18 +588,111 @@ export default function RealmPage() {
     }
   }
 
-  // Update the achievement checks in handleTileClick
-  const handleEventChoice = (index: number) => {
-    if (currentEvent) {
-      if (index === 0) {
-        // Investigate
-        // Implement investigation logic
-      } else if (index === 1) {
-        // Leave
-        setCurrentEvent(null)
+  // Update the handleEventChoice function
+  const handleEventChoice = async (choice: string) => {
+    if (!currentEvent) return;
+
+    const choiceIndex = currentEvent.choices.indexOf(choice);
+    if (choiceIndex === -1) return;
+
+    const outcome = currentEvent.outcomes[choiceIndex];
+    if (!outcome) return;
+
+    toast({
+      title: 'Event Outcome',
+      description: outcome.message
+    });
+
+    if (outcome.rewards) {
+      const reward = outcome.rewards;
+      switch (reward.type) {
+        case 'gold':
+          const newGold = Number(localStorage.getItem('gold') || '0') + reward.amount;
+          localStorage.setItem('gold', newGold.toString());
+          break;
+        case 'experience':
+          const newExp = Number(localStorage.getItem('experience') || '0') + reward.amount;
+          localStorage.setItem('experience', newExp.toString());
+          break;
+        case 'scroll':
+          const scroll = getScrollById(reward.scrollId);
+          if (scroll) {
+            const newInventory = { ...inventory };
+            newInventory[scroll.id] = {
+              id: scroll.id,
+              type: 'scroll',
+              name: scroll.name,
+              description: scroll.content,
+              image: '/images/scroll.png',
+              cost: 100,
+              count: 1
+            };
+            setInventory(newInventory);
+            localStorage.setItem('inventory', JSON.stringify(newInventory));
+            switch (scroll.category) {
+              case 'might':
+                handleAchievementUnlock('WARRIOR_SCROLL', 'Discovered Battle Sage!');
+                break;
+              case 'knowledge':
+                handleAchievementUnlock('SCHOLAR_SCROLL', 'Discovered Scroll Keeper!');
+                break;
+              case 'exploration':
+                handleAchievementUnlock('EXPLORER_SCROLL', 'Discovered Path Finder!');
+                break;
+              case 'social':
+                handleAchievementUnlock('DIPLOMAT_SCROLL', 'Discovered Trade Master!');
+                break;
+              case 'crafting':
+                handleAchievementUnlock('ARTISAN_SCROLL', 'Discovered Master Smith!');
+                break;
+            }
+          }
+          break;
+        case 'artifact':
+          const newArtifactInventory = { ...inventory };
+          newArtifactInventory[reward.artifactId] = {
+            id: reward.artifactId,
+            type: 'artifact',
+            name: 'Ancient Artifact',
+            description: 'A mysterious artifact radiating with ancient power.',
+            image: '/images/artifact.png',
+            cost: 500,
+            count: 1
+          };
+          setInventory(newArtifactInventory);
+          localStorage.setItem('inventory', JSON.stringify(newArtifactInventory));
+          handleAchievementUnlock('RELIC_GUARDIAN', 'Discovered Relic Guardian!');
+          break;
+        case 'book':
+          const newBookInventory = { ...inventory };
+          newBookInventory[reward.bookId] = {
+            id: reward.bookId,
+            type: 'book',
+            name: 'Ancient Tome',
+            description: 'A mysterious book filled with forgotten knowledge.',
+            image: '/images/book.png',
+            cost: 300,
+            count: 1
+          };
+          setInventory(newBookInventory);
+          localStorage.setItem('inventory', JSON.stringify(newBookInventory));
+          handleAchievementUnlock('TOME_KEEPER', 'Discovered Tome Keeper!');
+          break;
       }
     }
-  }
+
+    // Mark the tile as visited
+    const newGrid = [...grid];
+    const { x, y } = characterPosition;
+    if (newGrid[y]?.[x]) {
+      newGrid[y][x] = { ...newGrid[y][x], isVisited: true };
+      setGrid(newGrid);
+      localStorage.setItem('grid', JSON.stringify(newGrid));
+    }
+
+    // Close the event dialog
+    setCurrentEvent(null);
+  };
 
   // Handle grid updates
   const handleGridUpdate = (newGrid: Tile[][]) => {
@@ -653,6 +763,17 @@ export default function RealmPage() {
           return
       }
 
+      // Check if the target tile is empty
+      const targetTile = grid[newY][newX]
+      if (targetTile.type === 'empty') {
+    toast({
+          title: "Cannot Move",
+          description: "You cannot move onto an empty tile!",
+          variant: "destructive"
+        })
+        return
+      }
+
       // Only proceed if we're actually moving
       if (newX !== x || newY !== y) {
         // First move the character
@@ -669,6 +790,17 @@ export default function RealmPage() {
               description: locationInfo.description
             })
             setShowLocationModal(true)
+          } else if (clickedTile.type === "mystery" && !clickedTile.isVisited) {
+            const mysteryEvent = generateMysteryEvent();
+            setCurrentEvent(mysteryEvent);
+            
+            // Mark tile as visited
+            const newGrid = [...grid]
+            newGrid[newY][newX] = {
+              ...clickedTile,
+              isVisited: true
+            }
+            setGrid(newGrid)
           }
         }
       }
@@ -676,7 +808,7 @@ export default function RealmPage() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [characterPosition, grid, moveCharacter, GRID_COLS, movementMode])
+  }, [characterPosition, grid, moveCharacter, GRID_COLS, movementMode, toast])
 
   // Show scroll message
   useEffect(() => {
@@ -721,7 +853,7 @@ export default function RealmPage() {
     setInventory(initialTileInventory)
     
     // Show confirmation toast
-    toast({
+      toast({
       title: "Reset Complete",
       description: "Map and counters have been reset to their initial state.",
     })
@@ -768,7 +900,7 @@ export default function RealmPage() {
   }, [toggleInventory]);
 
   if (isLoading) {
-    return (
+  return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <p className="text-2xl font-cardo text-primary">Loading realm...</p>
@@ -777,14 +909,14 @@ export default function RealmPage() {
     )
   }
 
-  return (
+    return (
     <div className="relative min-h-screen bg-background p-4">
       {/* Controls Bar */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
+            <Button 
+              variant="outline" 
               size="default"
               onClick={() => setMovementMode(!movementMode)}
             >
@@ -813,7 +945,7 @@ export default function RealmPage() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="icon">
                 <Settings className="h-5 w-5" />
-              </Button>
+            </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => handleFullscreenToggle(!isFullscreen)}>
@@ -824,15 +956,15 @@ export default function RealmPage() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          </div>
         </div>
-      </div>
 
       {/* Main Content */}
       <div className="flex gap-4">
         {/* Map Grid */}
         <div className="flex-1">
-          <MapGrid
-            grid={grid}
+                <MapGrid
+                  grid={grid}
             character={characterPosition}
             onCharacterMove={moveCharacter}
             onTileClick={handleTileClick}
@@ -851,7 +983,7 @@ export default function RealmPage() {
             onGridUpdate={handleGridUpdate}
             isMovementMode={movementMode}
             onDiscovery={(message) => {
-              toast({
+                    toast({
                 title: "Discovery",
                 description: message
               });
@@ -863,16 +995,16 @@ export default function RealmPage() {
               // Handle gold update
             }}
             onHover={handleHoverTile}
-            onHoverEnd={() => setHoveredTile(null)}
-            hoveredTile={hoveredTile}
+                  onHoverEnd={() => setHoveredTile(null)}
+                  hoveredTile={hoveredTile}
             zoomLevel={zoomLevel}
             onDeleteTile={(x, y) => {
               const tileType = grid[y][x].type;
               handleTileDelete(x, y, tileType);
             }}
           />
-        </div>
-      </div>
+                </div>
+          </div>
 
       {/* Tile Inventory Slide-over */}
       <Sheet open={showInventory} onOpenChange={setShowInventory}>
@@ -892,7 +1024,7 @@ export default function RealmPage() {
               onSelectTile={handleTileSelection}
               onUpdateTiles={handleInventoryUpdate}
             />
-          </div>
+              </div>
         </SheetContent>
       </Sheet>
 
@@ -905,14 +1037,14 @@ export default function RealmPage() {
               <DialogDescription>{currentEvent.description}</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4">
-              {currentEvent.choices.map((choice, index) => (
-                <Button
+              {currentEvent.choices.map((choice: string, index: number) => (
+            <Button
                   key={index}
                   variant={index === 0 ? "default" : "secondary"}
-                  onClick={() => handleEventChoice(index)}
+                  onClick={() => handleEventChoice(choice)}
                 >
                   {choice}
-                </Button>
+              </Button>
               ))}
             </div>
           </DialogContent>
@@ -923,15 +1055,15 @@ export default function RealmPage() {
       {showLocationModal && currentLocation && (
         <Dialog open={true} onOpenChange={() => setShowLocationModal(false)}>
           <DialogContent>
-            <DialogHeader>
+          <DialogHeader>
               <DialogTitle>{currentLocation.name}</DialogTitle>
               <DialogDescription>{currentLocation.description}</DialogDescription>
-            </DialogHeader>
+          </DialogHeader>
             <DialogFooter>
               <Button onClick={handleVisitLocation}>Visit</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       )}
     </div>
   )

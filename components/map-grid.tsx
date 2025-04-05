@@ -10,15 +10,8 @@ import { Tile } from "@/types/tiles";
 import { TileVisual } from "@/components/tile-visual";
 import { cn } from "@/lib/utils";
 import { BattleMinigame } from "@/components/battle-minigame";
-
-interface MysteryEvent {
-  id: string;
-  type: string;
-  title: string;
-  description: string;
-  choices: string[];
-  imageUrl: string | null;
-}
+import { generateMysteryEvent, handleEventOutcome, MysteryEvent } from '@/lib/mystery-events'
+import { BattleModal } from "@/components/battle-modal"
 
 interface CityData {
   name: string;
@@ -72,16 +65,15 @@ export function MapGrid({
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
   const [showBattle, setShowBattle] = useState(false);
   const [battlePosition, setBattlePosition] = useState<{ x: number; y: number } | null>(null);
+  const [showBattleModal, setShowBattleModal] = useState(false)
+  const [currentBattle, setCurrentBattle] = useState<{
+    enemyName: string;
+    enemyLevel: number;
+  } | null>(null)
 
   const handleMysteryTile = (tile: Tile) => {
-    setCurrentEvent({
-      id: 'mystery-event',
-      type: 'mystery',
-      title: 'Mysterious Location',
-      description: 'You have discovered something mysterious...',
-      choices: ['Investigate', 'Leave'],
-      imageUrl: '/images/tiles/mystery-tile.png'
-    });
+    const mysteryEvent = generateMysteryEvent();
+    setCurrentEvent(mysteryEvent);
 
     // Mark tile as visited
     const newGrid = [...grid];
@@ -94,77 +86,24 @@ export function MapGrid({
     onGridUpdate(newGrid);
   };
 
-  const handleEventChoice = (choiceIndex: number) => {
+  const handleEventChoice = (choice: string, index: number) => {
     if (!currentEvent) return;
-    setSelectedChoice(choiceIndex);
-
-    if (choiceIndex === 0) { // Investigate
-      const eventTypes = ['battle', 'treasure', 'nothing'];
-      const randomEvent = eventTypes[Math.floor(Math.random() * eventTypes.length)];
-
-      switch (randomEvent) {
-        case 'battle':
-          setShowBattle(true);
-          setCurrentEvent(null);
-          // Replace mystery tile with grass after battle
-          if (character) {
-            const newGrid = [...grid];
-            newGrid[character.y][character.x] = {
-              ...newGrid[character.y][character.x],
-              type: 'grass',
-              isVisited: true
-            };
-            onGridUpdate?.(newGrid);
-          }
-          break;
-
-        case 'treasure':
-          const goldAmount = Math.floor(Math.random() * 51) + 10; // 10-60 gold
-          if (onGoldUpdate) {
-            onGoldUpdate(goldAmount);
-          }
-          toast({
-            title: "Treasure Found!",
-            description: `You found ${goldAmount} gold!`,
-            variant: "default"
-          });
-          setCurrentEvent(null);
-          // Replace mystery tile with grass after finding treasure
-          if (character) {
-            const newGrid = [...grid];
-            newGrid[character.y][character.x] = {
-              ...newGrid[character.y][character.x],
-              type: 'grass',
-              isVisited: true
-            };
-            onGridUpdate?.(newGrid);
-          }
-          break;
-
-        case 'nothing':
-          toast({
-            title: "Nothing Here",
-            description: "You found nothing interesting.",
-            variant: "default"
-          });
-          setCurrentEvent(null);
-          // Replace mystery tile with grass after finding nothing
-          if (character) {
-            const newGrid = [...grid];
-            newGrid[character.y][character.x] = {
-              ...newGrid[character.y][character.x],
-              type: 'grass',
-              isVisited: true
-            };
-            onGridUpdate?.(newGrid);
-          }
-          break;
-      }
-    } else {
-      // Player chose to leave
+    
+    const outcome = currentEvent.outcomes[index];
+    
+    if (currentEvent.type === 'battle' && index === 0) {
+      // Start battle if choosing to fight
+      setCurrentBattle({
+        enemyName: currentEvent.enemyName || 'Monster',
+        enemyLevel: currentEvent.enemyLevel || 1
+      });
+      setShowBattleModal(true);
       setCurrentEvent(null);
+      return;
     }
-    setSelectedChoice(null);
+    
+    handleEventOutcome(outcome);
+    setCurrentEvent(null);
   };
 
   const isValidMovementTarget = (x: number, y: number) => {
@@ -287,36 +226,22 @@ export function MapGrid({
 
       {currentEvent && !showBattle && (
         <Dialog open={true} onOpenChange={() => setCurrentEvent(null)}>
-          <DialogContent className="sm:max-w-md border border-amber-800/20 bg-gray-900">
+          <DialogContent>
             <DialogHeader>
-              <DialogTitle className="text-2xl font-medievalsharp text-amber-500">
-                {currentEvent.title}
-              </DialogTitle>
-              <DialogDescription className="text-gray-300 mt-2">
-                {currentEvent.description}
-              </DialogDescription>
+              <DialogTitle>{currentEvent.title}</DialogTitle>
+              <DialogDescription>{currentEvent.description}</DialogDescription>
             </DialogHeader>
-            <div className="py-4">
-              <div className="w-full h-48 bg-amber-800/20 rounded-lg flex items-center justify-center overflow-hidden">
-                <img 
-                  src={currentEvent.imageUrl || "/images/tiles/mystery-tile.png"}
-                  alt="Mystery Event"
-                  className="object-cover w-full h-full"
-                />
-              </div>
-            </div>
-            <DialogFooter className="flex flex-col gap-2">
-              {currentEvent.choices?.map((choice: string, index: number) => (
+            <div className="grid gap-4">
+              {currentEvent.choices.map((choice, index) => (
                 <Button
                   key={index}
-                  onClick={() => handleEventChoice(index)}
-                  disabled={selectedChoice !== null}
-                  variant={selectedChoice === index ? 'default' : 'outline'}
+                  variant={index === 0 ? "default" : "secondary"}
+                  onClick={() => handleEventChoice(choice, index)}
                 >
                   {choice}
                 </Button>
               ))}
-            </DialogFooter>
+            </div>
           </DialogContent>
         </Dialog>
       )}
@@ -363,6 +288,19 @@ export function MapGrid({
             </div>
           </DialogContent>
         </Dialog>
+      )}
+
+      {showBattleModal && currentBattle && (
+        <BattleModal
+          isOpen={showBattleModal}
+          onClose={() => setShowBattleModal(false)}
+          enemyName={currentBattle.enemyName}
+          enemyLevel={currentBattle.enemyLevel}
+          onBattleEnd={(won) => {
+            setShowBattleModal(false);
+            setCurrentBattle(null);
+          }}
+        />
       )}
 
       {grid.length > 0 && grid[0].length > 0 && (

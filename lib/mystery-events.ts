@@ -1,24 +1,57 @@
 import { getRandomElement, getRandomInt } from '@/lib/utils'
 import { toast } from "@/components/ui/use-toast";
 
-export type MysteryEventType = 'treasure' | 'battle' | 'quest' | 'trade' | 'blessing' | 'curse'
+export type MysteryEventType = 'treasure' | 'battle' | 'quest' | 'trade' | 'blessing' | 'curse' | 'riddle'
 
-export interface MysteryEventReward {
-  gold?: number
-  experience?: number
-  items?: {
-    id: string
-    name: string
-    type: string
-    quantity: number
-    value: number
-  }[]
-  buffs?: {
-    type: string
-    value: number
-    duration: number
-  }[]
+export interface ScrollItem {
+  id: string;
+  name: string;
+  content: string;
+  category: 'might' | 'knowledge' | 'exploration' | 'social' | 'crafting';
 }
+
+export type GoldReward = {
+  type: 'gold';
+  amount: number;
+  message: string;
+};
+
+export type ExperienceReward = {
+  type: 'experience';
+  amount: number;
+  message: string;
+};
+
+export type ScrollReward = {
+  type: 'scroll';
+  scrollId: string;
+  message: string;
+};
+
+export type ArtifactReward = {
+  type: 'artifact';
+  artifactId: string;
+  message: string;
+};
+
+export type BookReward = {
+  type: 'book';
+  bookId: string;
+  message: string;
+};
+
+export type NothingReward = {
+  type: 'nothing';
+  message: string;
+};
+
+export type MysteryEventReward = 
+  | GoldReward 
+  | ExperienceReward 
+  | ScrollReward 
+  | ArtifactReward 
+  | BookReward 
+  | NothingReward;
 
 export interface MysteryEvent {
   id: string
@@ -41,75 +74,51 @@ const treasureEvents: MysteryEvent[] = [
     title: 'Ancient Chest',
     description: 'You stumble upon an ancient chest covered in mysterious runes.',
     choices: [
-      'Try to pick the lock carefully',
-      'Break it open with force',
+      'Open the chest carefully',
       'Leave it alone'
     ],
     outcomes: [
       {
-        message: 'You successfully pick the lock and find valuable treasures!',
+        message: 'You successfully open the chest and find valuable treasures!',
         rewards: {
-          gold: 500,
-          experience: 100,
-          items: [
-            {
-              id: 'ancient-coin',
-              name: 'Ancient Coin',
-              type: 'treasure',
-              quantity: 1,
-              value: 1000
-            }
-          ]
+          type: 'gold',
+          amount: getRandomInt(30, 50),
+          message: 'You found a pile of ancient gold coins!'
         }
       },
       {
-        message: 'The chest breaks open but some contents are damaged.',
+        message: 'You decide to leave the chest untouched.',
         rewards: {
-          gold: 200,
-          experience: 50
+          type: 'nothing',
+          message: 'Perhaps it was for the best...'
         }
-      },
-      {
-        message: 'You decide to leave the chest untouched.'
       }
     ]
   },
   {
-    id: 'buried-treasure',
-    type: 'treasure',
-    title: 'Buried Treasure',
-    description: 'Your foot hits something metallic in the ground.',
+    id: 'mysterious-shrine',
+    type: 'blessing',
+    title: 'Mysterious Shrine',
+    description: 'You discover an ancient shrine emanating a soft glow.',
     choices: [
-      'Dig carefully',
-      'Dig quickly',
-      'Mark the location and return later'
+      'Pray at the shrine',
+      'Walk away'
     ],
     outcomes: [
       {
-        message: 'Your careful digging reveals a perfectly preserved treasure!',
+        message: 'As you pray, you feel enlightened by ancient wisdom!',
         rewards: {
-          gold: 800,
-          experience: 150,
-          items: [
-            {
-              id: 'jeweled-crown',
-              name: 'Jeweled Crown',
-              type: 'treasure',
-              quantity: 1,
-              value: 2000
-            }
-          ]
+          type: 'experience',
+          amount: getRandomInt(30, 50),
+          message: 'The ancient knowledge flows through you!'
         }
       },
       {
-        message: 'In your haste, you damage some of the buried items.',
+        message: 'You decide not to disturb the shrine.',
         rewards: {
-          gold: 300,
-          experience: 75
+          type: 'nothing',
+          message: 'The shrine continues its silent vigil.'
         }
-      },
-      {
-        message: 'When you return, the treasure is gone.'
       }
     ]
   }
@@ -117,229 +126,220 @@ const treasureEvents: MysteryEvent[] = [
 
 const battleEvents: MysteryEvent[] = [
   {
-    id: 'bandit-ambush',
+    id: 'monster-encounter',
     type: 'battle',
-    title: 'Bandit Ambush',
-    description: 'A group of bandits emerges from hiding!',
-    choices: ['Fight', 'Try to negotiate', 'Attempt to flee'],
+    title: 'Fearsome Monster',
+    description: 'A dangerous creature emerges from the shadows!',
+    choices: ['Fight!', 'Try to escape'],
     outcomes: [
       {
-        message: 'You stand your ground and prepare for battle!',
+        message: 'You ready your weapons and prepare for battle!',
         rewards: {
-          gold: 300,
-          experience: 200
+          type: 'nothing',
+          message: 'The battle begins!'
         }
       },
       {
-        message: 'The bandits laugh at your attempt to negotiate and attack anyway!'
-      },
-      {
-        message: 'You manage to escape, but drop some gold in the process.',
+        message: 'You manage to escape, but drop some gold in your haste.',
         rewards: {
-          gold: -100
+          type: 'gold',
+          amount: -10,
+          message: 'You lost some gold while fleeing!'
         }
       }
     ],
-    enemyName: 'Bandit Leader',
-    enemyLevel: 5
-  },
-  {
-    id: 'wild-beast',
-    type: 'battle',
-    title: 'Wild Beast',
-    description: 'A fearsome creature blocks your path!',
-    choices: ['Stand and fight', 'Try to sneak past', 'Intimidate the beast'],
-    outcomes: [
-      {
-        message: 'You ready your weapons for battle!',
-        rewards: {
-          gold: 0,
-          experience: 300
-        }
-      },
-      {
-        message: 'The beast spots you and attacks!',
-        rewards: {
-          gold: 0,
-          experience: 150
-        }
-      },
-      {
-        message: 'Your intimidation works! The beast retreats.',
-        rewards: {
-          experience: 100
-        }
-      }
-    ],
-    enemyName: 'Dire Wolf',
-    enemyLevel: 3
+    enemyName: 'Mysterious Beast',
+    enemyLevel: getRandomInt(1, 5)
   }
 ]
 
-const questEvents: MysteryEvent[] = [
+const scrollEvents: MysteryEvent[] = [
   {
-    id: 'lost-merchant',
-    type: 'quest',
-    title: 'Lost Merchant',
-    description: 'A merchant asks for your help finding his lost cargo.',
+    id: 'ancient-library',
+    type: 'treasure',
+    title: 'Ancient Library',
+    description: 'You find a hidden collection of ancient scrolls.',
     choices: [
-      'Help search for the cargo',
-      'Offer to buy information',
-      'Decline to help'
+      'Study the scrolls',
+      'Leave them be'
     ],
     outcomes: [
       {
-        message: 'You find the cargo and the merchant rewards you generously!',
+        message: 'You carefully examine the scrolls and find valuable knowledge!',
         rewards: {
-          gold: 1000,
-          experience: 200,
-          items: [
-            {
-              id: 'merchant-favor',
-              name: "Merchant's Favor",
-              type: 'quest',
-              quantity: 1,
-              value: 500
-            }
-          ]
+          type: 'scroll',
+          scrollId: 'scroll-' + getRandomInt(1, 5),
+          message: 'You discovered an ancient scroll of wisdom! 📜'
         }
       },
       {
-        message: 'The information leads you to the cargo, but at a cost.',
+        message: 'You leave the scrolls untouched.',
         rewards: {
-          gold: 500,
-          experience: 100
-        }
-      },
-      {
-        message: 'The merchant leaves disappointed.'
-      }
-    ]
-  }
-]
-
-const tradeEvents: MysteryEvent[] = [
-  {
-    id: 'wandering-trader',
-    type: 'trade',
-    title: 'Wandering Trader',
-    description: 'A mysterious trader offers you a deal.',
-    choices: [
-      'Trade gold for a mystery item',
-      'Trade items for gold',
-      'Decline trading'
-    ],
-    outcomes: [
-      {
-        message: 'You receive a valuable item!',
-        rewards: {
-          gold: -200,
-          items: [
-            {
-              id: 'mystery-potion',
-              name: 'Mystery Potion',
-              type: 'consumable',
-              quantity: 1,
-              value: 500
-            }
-          ]
-        }
-      },
-      {
-        message: 'You make a profit on your trades!',
-        rewards: {
-          gold: 300
-        }
-      },
-      {
-        message: 'You decide not to risk trading with the stranger.'
-      }
-    ]
-  }
-]
-
-const blessingEvents: MysteryEvent[] = [
-  {
-    id: 'ancient-shrine',
-    type: 'blessing',
-    title: 'Ancient Shrine',
-    description: 'You discover an ancient shrine radiating mysterious energy.',
-    choices: [
-      'Pray at the shrine',
-      'Leave an offering',
-      'Study the shrine'
-    ],
-    outcomes: [
-      {
-        message: 'You feel invigorated by divine energy!',
-        rewards: {
-          experience: 200,
-          buffs: [
-            {
-              type: 'strength',
-              value: 10,
-              duration: 3600
-            }
-          ]
-        }
-      },
-      {
-        message: 'The shrine accepts your offering and grants a blessing.',
-        rewards: {
-          gold: -100,
-          buffs: [
-            {
-              type: 'luck',
-              value: 5,
-              duration: 7200
-            }
-          ]
-        }
-      },
-      {
-        message: 'You gain valuable knowledge about ancient magic.',
-        rewards: {
-          experience: 150
+          type: 'nothing',
+          message: 'The knowledge remains hidden.'
         }
       }
     ]
   }
 ]
 
-const curseEvents: MysteryEvent[] = [
+const artifactEvents: MysteryEvent[] = [
   {
-    id: 'cursed-artifact',
-    type: 'curse',
-    title: 'Cursed Artifact',
-    description: 'You find a beautiful but ominous artifact.',
+    id: 'mysterious-pedestal',
+    type: 'treasure',
+    title: 'Mysterious Pedestal',
+    description: 'A strange artifact sits atop an ancient pedestal.',
     choices: [
       'Take the artifact',
-      'Try to destroy it',
       'Leave it alone'
     ],
     outcomes: [
       {
-        message: 'The artifact drains your energy but grants dark power.',
+        message: 'You carefully retrieve the mysterious artifact!',
         rewards: {
-          experience: -100,
-          buffs: [
-            {
-              type: 'dark-power',
-              value: 15,
-              duration: 3600
-            }
-          ]
+          type: 'artifact',
+          artifactId: 'artifact-' + getRandomInt(1, 5),
+          message: 'You obtained a mysterious artifact! ✨'
         }
       },
       {
-        message: 'The artifact resists destruction and lashes out!',
+        message: 'You decide not to disturb the artifact.',
         rewards: {
-          gold: -200,
-          experience: 50
+          type: 'nothing',
+          message: 'The artifact remains on its pedestal.'
+        }
+      }
+    ]
+  }
+]
+
+const riddleEvents: MysteryEvent[] = [
+  {
+    id: 'ancient-riddle-1',
+    type: 'riddle',
+    title: 'Ancient Riddle',
+    description: 'A mysterious voice echoes: "I have cities, but no houses. I have mountains, but no trees. I have water, but no fish. I have roads, but no cars. What am I?"',
+    choices: [
+      'A Map',
+      'A Globe',
+      'A Painting',
+      'A Book'
+    ],
+    outcomes: [
+      {
+        message: 'Correct! The answer is "A Map".',
+        rewards: {
+          type: 'gold',
+          amount: getRandomInt(30, 50),
+          message: 'Your wisdom has earned you gold!'
         }
       },
       {
-        message: 'You wisely decide to leave the cursed object untouched.'
+        message: 'That is incorrect. The answer was "A Map".',
+        rewards: {
+          type: 'nothing',
+          message: 'Better luck next time...'
+        }
+      },
+      {
+        message: 'That is incorrect. The answer was "A Map".',
+        rewards: {
+          type: 'nothing',
+          message: 'Better luck next time...'
+        }
+      },
+      {
+        message: 'That is incorrect. The answer was "A Map".',
+        rewards: {
+          type: 'nothing',
+          message: 'Better luck next time...'
+        }
+      }
+    ]
+  },
+  {
+    id: 'ancient-riddle-2',
+    type: 'riddle',
+    title: 'Ancient Riddle',
+    description: 'The ancient stone whispers: "What has keys, but no locks; space, but no room; and you can enter, but not go in?"',
+    choices: [
+      'A Piano',
+      'A Keyboard',
+      'A Computer',
+      'A Phone'
+    ],
+    outcomes: [
+      {
+        message: 'That is incorrect. The answer was "A Keyboard".',
+        rewards: {
+          type: 'nothing',
+          message: 'Better luck next time...'
+        }
+      },
+      {
+        message: 'Correct! The answer is "A Keyboard".',
+        rewards: {
+          type: 'gold',
+          amount: getRandomInt(30, 50),
+          message: 'Your wisdom has earned you gold!'
+        }
+      },
+      {
+        message: 'That is incorrect. The answer was "A Keyboard".',
+        rewards: {
+          type: 'nothing',
+          message: 'Better luck next time...'
+        }
+      },
+      {
+        message: 'That is incorrect. The answer was "A Keyboard".',
+        rewards: {
+          type: 'nothing',
+          message: 'Better luck next time...'
+        }
+      }
+    ]
+  },
+  {
+    id: 'ancient-riddle-3',
+    type: 'riddle',
+    title: 'Ancient Riddle',
+    description: 'A mystical inscription reads: "I am taken from a mine and shut up in a wooden case, from which I am never released, and yet I am used by everyone. What am I?"',
+    choices: [
+      'Gold',
+      'Diamond',
+      'A Pencil Lead',
+      'Coal'
+    ],
+    outcomes: [
+      {
+        message: 'That is incorrect. The answer was "A Pencil Lead".',
+        rewards: {
+          type: 'nothing',
+          message: 'Better luck next time...'
+        }
+      },
+      {
+        message: 'That is incorrect. The answer was "A Pencil Lead".',
+        rewards: {
+          type: 'nothing',
+          message: 'Better luck next time...'
+        }
+      },
+      {
+        message: 'Correct! The answer is "A Pencil Lead".',
+        rewards: {
+          type: 'gold',
+          amount: getRandomInt(30, 50),
+          message: 'Your wisdom has earned you gold!'
+        }
+      },
+      {
+        message: 'That is incorrect. The answer was "A Pencil Lead".',
+        rewards: {
+          type: 'nothing',
+          message: 'Better luck next time...'
+        }
       }
     ]
   }
@@ -348,34 +348,101 @@ const curseEvents: MysteryEvent[] = [
 const allEvents = [
   ...treasureEvents,
   ...battleEvents,
-  ...questEvents,
-  ...tradeEvents,
-  ...blessingEvents,
-  ...curseEvents
+  ...scrollEvents,
+  ...artifactEvents,
+  ...riddleEvents
 ]
 
 export function generateMysteryEvent(): MysteryEvent {
   return getRandomElement(allEvents)
 }
 
-export function handleEventOutcome(
-  event: MysteryEvent,
-  choiceIndex: number
-): {
-  message: string
-  gold?: number
-  experience?: number
-  items?: any[]
-  buffs?: any[]
-} {
-  const outcome = event.outcomes[choiceIndex]
-  if (!outcome) return { message: 'Invalid choice' }
+export function handleEventOutcome(outcome: { message: string; rewards?: MysteryEventReward }) {
+  if (!outcome.rewards) return;
 
-  return {
-    message: outcome.message,
-    gold: outcome.rewards?.gold,
-    experience: outcome.rewards?.experience,
-    items: outcome.rewards?.items,
-    buffs: outcome.rewards?.buffs
+  const { type, message } = outcome.rewards;
+  
+  toast({
+    title: "Event Outcome",
+    description: message
+  });
+
+  switch (type) {
+    case 'gold': {
+      const goldAmount = (outcome.rewards as GoldReward).amount;
+      const currentGold = parseInt(localStorage.getItem('goldBalance') || '0');
+      const newGold = currentGold + goldAmount;
+      localStorage.setItem('goldBalance', newGold.toString());
+      window.dispatchEvent(new CustomEvent('gold-update', { detail: { gold: newGold } }));
+      break;
+    }
+    case 'experience': {
+      const expAmount = (outcome.rewards as ExperienceReward).amount;
+      const characterStats = JSON.parse(localStorage.getItem('character-stats') || '{"experience": 0}');
+      characterStats.experience += expAmount;
+      localStorage.setItem('character-stats', JSON.stringify(characterStats));
+      window.dispatchEvent(new Event('character-stats-update'));
+      break;
+    }
+    case 'scroll': {
+      const scrollId = (outcome.rewards as ScrollReward).scrollId;
+      const scroll = getScrollById(scrollId);
+      if (scroll) {
+        const inventory = JSON.parse(localStorage.getItem('inventory') || '[]');
+        inventory.push({
+          id: scroll.id,
+          name: scroll.name,
+          type: 'scroll',
+          content: scroll.content,
+          category: scroll.category
+        });
+        localStorage.setItem('inventory', JSON.stringify(inventory));
+        window.dispatchEvent(new CustomEvent('inventory-update'));
+      }
+      break;
+    }
   }
-} 
+
+  return outcome.rewards;
+}
+
+export const getScrollById = (id: string): ScrollItem | undefined => {
+  return scrolls.find(scroll => scroll.id === id);
+};
+
+export const getAllScrolls = (): ScrollItem[] => {
+  return [...scrolls];
+};
+
+const scrolls: ScrollItem[] = [
+  {
+    id: 'scroll-1',
+    name: 'Battle Techniques',
+    content: 'Ancient combat maneuvers and strategies.',
+    category: 'might'
+  },
+  {
+    id: 'scroll-2',
+    name: 'Mystical Knowledge',
+    content: 'Forgotten magical theories and practices.',
+    category: 'knowledge'
+  },
+  {
+    id: 'scroll-3',
+    name: 'Explorer\'s Guide',
+    content: 'Maps and notes from an ancient explorer.',
+    category: 'exploration'
+  },
+  {
+    id: 'scroll-4',
+    name: 'Trade Secrets',
+    content: 'Valuable trading techniques and routes.',
+    category: 'social'
+  },
+  {
+    id: 'scroll-5',
+    name: 'Crafting Mastery',
+    content: 'Advanced crafting methods and recipes.',
+    category: 'crafting'
+  }
+]; 
