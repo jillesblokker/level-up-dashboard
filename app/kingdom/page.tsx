@@ -16,15 +16,18 @@ import { MapGrid } from "@/components/map-grid"
 import { Tile } from "@/types/tiles"
 import { useToast } from "@/components/ui/use-toast"
 
-const createInitialTile = (x: number, y: number): Tile => ({
-  id: `tile-${x}-${y}`,
-  type: "grass",
-  connections: [],
-  rotation: 0,
-  revealed: true,
-  x,
-  y,
-})
+function createInitialTile(x: number, y: number): Tile {
+  return {
+    id: `tile-${x}-${y}`,
+    type: 'grass',
+    connections: [],
+    rotation: 0,
+    revealed: false,
+    isDiscovered: false,
+    x,
+    y
+  }
+}
 
 export default function KingdomPage() {
   const [goldBalance, setGoldBalance] = useState(5000)

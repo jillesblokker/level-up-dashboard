@@ -1,5 +1,19 @@
 // Event target for kingdom stats updates
-export const updateKingdomStats = new EventTarget(); 
+class KingdomStatsUpdater extends EventTarget {
+  emitQuestComplete() {
+    this.dispatchEvent(new Event('questComplete'))
+  }
+
+  emitGoldUpdate(amount: number) {
+    this.dispatchEvent(new CustomEvent('goldUpdate', { detail: { amount } }))
+  }
+
+  emitExpUpdate(amount: number) {
+    this.dispatchEvent(new CustomEvent('expUpdate', { detail: { amount } }))
+  }
+}
+
+export const updateKingdomStats = new KingdomStatsUpdater()
 
 export interface KingdomStats {
   gold: number
