@@ -1,7 +1,17 @@
 import { PrismaClient } from '@prisma/client'
+import { PrismaSqliteAdapter } from '@prisma/adapter-sqlite'
+import { createClient } from '@libsql/client'
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient }
+declare global {
+  var prisma: PrismaClient | undefined
+}
 
-export const prisma = globalForPrisma.prisma || new PrismaClient()
+const libsql = createClient({
+  url: `file:${process.cwd()}/prisma/dev.db`,
+})
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma 
+export const prisma = globalThis.prisma || new PrismaClient({
+  adapter: new PrismaSqliteAdapter({ client: libsql }),
+})
+
+if (process.env.NODE_ENV !== 'production') globalThis.prisma = prisma 
