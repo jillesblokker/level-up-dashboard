@@ -102,10 +102,20 @@ const navigation = [
 export function NavBar() {
   const pathname = usePathname()
   const [isClient, setIsClient] = useState(false)
-  const [characterStats, setCharacterStats] = useState({
-    gold: 1000,
+  const [characterStats, setCharacterStats] = useState<CharacterStats>({
     level: 1,
-    experience: 0
+    experience: 0,
+    experienceToNextLevel: 100,
+    gold: 1000,
+    titles: {
+      equipped: "",
+      unlocked: 0,
+      total: 10
+    },
+    perks: {
+      active: 0,
+      total: 5
+    }
   })
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>([])
@@ -115,31 +125,31 @@ export function NavBar() {
 
   useEffect(() => {
     setIsClient(true)
-    // Initialize gold from localStorage
-    const storedGold = localStorage.getItem('character-gold')
-    if (!storedGold) {
-      localStorage.setItem('character-gold', '1000')
-    } else {
-      setCharacterStats(prev => ({
-        ...prev,
-        gold: parseInt(storedGold)
-      }))
+    // Load character stats from localStorage
+    const loadCharacterStats = () => {
+      try {
+        const savedStats = localStorage.getItem("character-stats")
+        if (savedStats) {
+          const stats = JSON.parse(savedStats) as CharacterStats
+          const currentLevel = calculateLevelFromExperience(stats.experience)
+          setCharacterStats({
+            ...stats,
+            level: currentLevel,
+            experienceToNextLevel: calculateExperienceForLevel(currentLevel)
+          })
+        }
+      } catch (error) {
+        console.error("Error loading character stats:", error)
+      }
     }
+    loadCharacterStats()
 
-    // Listen for gold updates
-    const handleGoldUpdate = (event: CustomEvent) => {
-      const newGold = event.detail.gold;
-      console.log('Gold update event received:', newGold);
-      setCharacterStats(prev => ({
-        ...prev,
-        gold: newGold
-      }));
-    }
-
-    window.addEventListener("character-gold-update", handleGoldUpdate as EventListener)
+    // Listen for character stats updates
+    const handleStatsUpdate = () => loadCharacterStats()
+    window.addEventListener("character-stats-update", handleStatsUpdate)
     
     return () => {
-      window.removeEventListener("character-gold-update", handleGoldUpdate as EventListener)
+      window.removeEventListener("character-stats-update", handleStatsUpdate)
     }
   }, [])
 
@@ -190,8 +200,8 @@ export function NavBar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
+    <nav className="fixed top-0 left-0 right-0 z-50 h-16 bg-black/80 backdrop-blur-md border-b border-amber-900/20">
+      <div className="container mx-auto px-4 h-full flex items-center justify-between">
         <Link href="/kingdom" className="mr-6">
           <span className="text-lg font-semibold text-amber-400">Thrivehaven</span>
         </Link>
@@ -319,7 +329,7 @@ export function NavBar() {
           </DropdownMenu>
         </div>
       </div>
-    </header>
+    </nav>
   )
 }
 

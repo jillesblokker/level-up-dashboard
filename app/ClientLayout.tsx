@@ -82,9 +82,11 @@ export default function ClientLayout({
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
       <RealmProvider>
-        <div className="min-h-screen pt-[env(safe-area-inset-top)] pb-[calc(4rem+env(safe-area-inset-bottom))] bg-black">
-          {children}
+        <div className="min-h-screen bg-black">
           <NavBar />
+          <div className="pt-[calc(4rem+env(safe-area-inset-top))] pb-[env(safe-area-inset-bottom)]">
+            {children}
+          </div>
         </div>
         <Toaster />
         <div className="hidden">
