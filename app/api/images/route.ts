@@ -1,44 +1,21 @@
 import { NextResponse } from 'next/server';
-import { readdir } from 'fs/promises';
-import path from 'path';
+import type { NextRequest } from 'next/server';
 
-export async function GET(request: Request) {
+export const dynamic = 'force-dynamic';
+
+export async function GET(request: NextRequest) {
   try {
-    // Get the images folder path (default to public/images)
-    const url = new URL(request.url);
-    const folderPath = url.searchParams.get('folder') || 'images';
-    
-    // Get absolute path to the images directory
-    const dirPath = path.resolve(process.cwd(), 'public', folderPath);
-    
-    // Read directory contents
-    const files = await readdir(dirPath);
-    
-    // Filter image files (common image extensions)
-    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
-    const imageFiles = files.filter(file => {
-      const ext = path.extname(file).toLowerCase();
-      return imageExtensions.includes(ext);
-    });
-    
-    // Map files to ImageItem objects
-    const images = imageFiles.map(file => {
-      const name = path.basename(file, path.extname(file));
-      const url = `/${folderPath}/${file}`;
-      
-      return {
-        name,
-        url,
-        description: ''
-      };
-    });
-    
-    return NextResponse.json({ images });
+    const { searchParams } = new URL(request.url);
+    const path = searchParams.get('path');
+
+    if (!path) {
+      return NextResponse.json({ error: 'No path provided' }, { status: 400 });
+    }
+
+    // Return the path directly
+    return NextResponse.json({ path });
   } catch (error) {
-    console.error('Error loading images:', error);
-    return NextResponse.json(
-      { error: 'Failed to load images', details: (error as Error).message },
-      { status: 500 }
-    );
+    console.error('Error in images API:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 
