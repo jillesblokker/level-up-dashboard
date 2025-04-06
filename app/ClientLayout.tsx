@@ -38,9 +38,9 @@ if (typeof window !== 'undefined') {
 
 export default function ClientLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   const pathname = usePathname()
   const [isFullscreen, setIsFullscreen] = useState(false)
   
@@ -80,34 +80,11 @@ export default function ClientLayout({
   }, []);
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
-      {/* Desktop Navigation (hidden on mobile) */}
-      <div className="hidden md:block">
-        {!isFullscreen && <NavBar />}
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+      <div className="min-h-screen pt-[env(safe-area-inset-top)] pb-[calc(4rem+env(safe-area-inset-bottom))] bg-black">
+        {children}
+        <NavBar />
       </div>
-      <DbProvider>
-        <RealmProvider>
-          <div className="flex min-h-screen flex-col">
-            {/* Mobile Navigation (hidden on md and larger screens) */}
-            <div className="block md:hidden">
-              <MobileNav 
-                onSaveMap={saveMap}
-                // @ts-ignore - Use window.mobileNavProps if available
-                tabs={typeof window !== 'undefined' && window.mobileNavProps ? window.mobileNavProps.tabs : undefined}
-                // @ts-ignore
-                activeTab={typeof window !== 'undefined' && window.mobileNavProps ? window.mobileNavProps.activeTab : undefined}
-                // @ts-ignore
-                onTabChange={typeof window !== 'undefined' && window.mobileNavProps ? window.mobileNavProps.onTabChange : undefined}
-              />
-            </div>
-            
-            {/* Main content with proper padding to account for fixed navigation */}
-            <main className="flex-1 pt-16 md:pt-0">
-              {children}
-            </main>
-          </div>
-        </RealmProvider>
-      </DbProvider>
       <Toaster />
       <div className="hidden">
         <DevicePreview />

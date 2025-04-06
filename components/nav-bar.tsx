@@ -102,20 +102,10 @@ const navigation = [
 export function NavBar() {
   const pathname = usePathname()
   const [isClient, setIsClient] = useState(false)
-  const [characterStats, setCharacterStats] = useState<CharacterStats>({
-    level: 1,
-    experience: 0,
-    experienceToNextLevel: 100,
+  const [characterStats, setCharacterStats] = useState({
     gold: 1000,
-    titles: {
-      equipped: "",
-      unlocked: 0,
-      total: 10
-    },
-    perks: {
-      active: 0,
-      total: 5
-    }
+    level: 1,
+    experience: 0
   })
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>([])
@@ -125,7 +115,6 @@ export function NavBar() {
 
   useEffect(() => {
     setIsClient(true)
-    
     // Initialize gold from localStorage
     const storedGold = localStorage.getItem('character-gold')
     if (!storedGold) {
@@ -140,7 +129,7 @@ export function NavBar() {
     // Listen for gold updates
     const handleGoldUpdate = (event: CustomEvent) => {
       const newGold = event.detail.gold;
-      console.log('Gold update event received:', newGold); // Debug log
+      console.log('Gold update event received:', newGold);
       setCharacterStats(prev => ({
         ...prev,
         gold: newGold
@@ -151,35 +140,6 @@ export function NavBar() {
     
     return () => {
       window.removeEventListener("character-gold-update", handleGoldUpdate as EventListener)
-    }
-  }, [])
-
-  useEffect(() => {
-    // Load character stats from localStorage
-    const loadCharacterStats = () => {
-      try {
-        const savedStats = localStorage.getItem("character-stats")
-        if (savedStats) {
-          const stats = JSON.parse(savedStats) as CharacterStats
-          const currentLevel = calculateLevelFromExperience(stats.experience)
-          setCharacterStats({
-            ...stats,
-            level: currentLevel,
-            experienceToNextLevel: calculateExperienceForLevel(currentLevel)
-          })
-        }
-      } catch (error) {
-        console.error("Error loading character stats:", error)
-      }
-    }
-    loadCharacterStats()
-
-    // Listen for character stats updates
-    const handleStatsUpdate = () => loadCharacterStats()
-    window.addEventListener("character-stats-update", handleStatsUpdate)
-    
-    return () => {
-      window.removeEventListener("character-stats-update", handleStatsUpdate)
     }
   }, [])
 
@@ -317,10 +277,6 @@ export function NavBar() {
             <div className="text-sm">
               Gold: {characterStats.gold}
             </div>
-          </div>
-          <div className="flex items-center gap-1 text-sm">
-            <Coins className="h-4 w-4 text-amber-500" />
-            <span className="font-medium">{characterStats.gold}</span>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
