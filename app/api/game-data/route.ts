@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { initialGrid } from '@/lib/hooks/use-realm-map'
 
 export const dynamic = 'force-dynamic'
 
@@ -47,6 +48,22 @@ export async function GET() {
       prisma.kingdom.findFirst(),
     ])
 
+    if (!realmMap?.grid) {
+      // Create initial realm map if it doesn't exist
+      const initialRealmMap = await prisma.realmMap.create({
+        data: {
+          grid: initialGrid
+        }
+      })
+      return NextResponse.json({
+        character,
+        realmMap: initialRealmMap,
+        quests,
+        achievements,
+        kingdom,
+      })
+    }
+
     return NextResponse.json({
       character,
       realmMap,
@@ -79,13 +96,18 @@ export async function POST(req: Request) {
       )
     }
 
-    // Update realm map
-    if (realmMap) {
+    // Update realm map with validation
+    if (realmMap?.grid) {
+      // Validate grid structure
+      if (!Array.isArray(realmMap.grid) || !Array.isArray(realmMap.grid[0])) {
+        throw new Error('Invalid grid structure')
+      }
+
       updates.push(
         prisma.realmMap.upsert({
           where: { id: realmMap.id || 1 },
-          update: realmMap,
-          create: { ...realmMap, id: 1 },
+          update: { grid: realmMap.grid },
+          create: { grid: realmMap.grid, id: 1 },
         })
       )
     }
@@ -133,6 +155,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: 'Game data updated successfully' })
   } catch (error) {
     console.error('Error updating game data:', error)
-    return NextResponse.json({ error: 'Failed to update game data' }, { status: 500 })
+    return NextResponse.json({ 
+      error: 'Failed to update game data',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 })
   }
 } 

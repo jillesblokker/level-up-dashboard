@@ -16,7 +16,7 @@ function createInitialTile(x: number, y: number): Tile {
   }
 }
 
-const initialGrid = [
+export const initialGrid = [
   [createInitialTile(0, 0), createInitialTile(1, 0), createInitialTile(2, 0)],
   [createInitialTile(0, 1), createInitialTile(1, 1), createInitialTile(2, 1)],
   [createInitialTile(0, 2), createInitialTile(1, 2), createInitialTile(2, 2)]
@@ -28,31 +28,41 @@ export function useRealmMap() {
 
   // Load grid from database on mount
   useEffect(() => {
+    let isMounted = true
+
     async function loadGrid() {
       try {
         const response = await fetch('/api/game-data')
+        if (!response.ok) {
+          throw new Error('Failed to fetch realm map')
+        }
         const data = await response.json()
         
-        if (data.realmMap?.grid) {
+        if (isMounted && data.realmMap?.grid) {
           setGrid(data.realmMap.grid)
         }
       } catch (error) {
         console.error('Error loading realm map:', error)
       } finally {
-        setIsLoading(false)
+        if (isMounted) {
+          setIsLoading(false)
+        }
       }
     }
 
     loadGrid()
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   // Save grid to database whenever it changes
   useEffect(() => {
     if (isLoading) return // Don't save while initial loading
 
-    async function saveGrid() {
+    const saveTimeout = setTimeout(async () => {
       try {
-        await fetch('/api/game-data', {
+        const response = await fetch('/api/game-data', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -63,12 +73,18 @@ export function useRealmMap() {
             }
           })
         })
+
+        if (!response.ok) {
+          throw new Error('Failed to save realm map')
+        }
       } catch (error) {
         console.error('Error saving realm map:', error)
       }
-    }
+    }, 500) // Debounce saves to prevent too many requests
 
-    saveGrid()
+    return () => {
+      clearTimeout(saveTimeout)
+    }
   }, [grid, isLoading])
 
   return {
