@@ -10,7 +10,6 @@ import Link from "next/link"
 import { toast } from "@/components/ui/use-toast"
 import { cn } from "@/lib/utils"
 import { getInventory, InventoryItem } from "@/lib/inventory-manager"
-import { PageTitle } from "@/components/ui/page-title"
 import { MapGrid } from "@/components/map-grid"
 import { Tile } from "@/types/tiles"
 import { useToast } from "@/components/ui/use-toast"
@@ -157,8 +156,7 @@ export default function KingdomPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <PageTitle>KINGDOM</PageTitle>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div>
           <Suspense fallback={<div>Loading map...</div>}>
             <MapGrid 
