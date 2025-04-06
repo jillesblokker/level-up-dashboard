@@ -6,9 +6,10 @@ interface CityTileProps {
   ariaLabel?: string
   onClick?: () => void
   rotation?: number
+  isSelected?: boolean
 }
 
-export function CityTile({ className, ariaLabel, onClick, rotation = 0 }: CityTileProps) {
+export function CityTile({ className, ariaLabel, onClick, rotation = 0, isSelected }: CityTileProps) {
   return (
     <div
       className={cn(
@@ -20,10 +21,13 @@ export function CityTile({ className, ariaLabel, onClick, rotation = 0 }: CityTi
       onClick={onClick}
     >
       <Image
+        alt="City Tile"
         src="/images/tiles/city-tile.png"
-        alt="City tile"
         fill
-        className="object-cover"
+        className={cn(
+          "object-cover transition-transform duration-200",
+          isSelected && "scale-110"
+        )}
       />
     </div>
   )

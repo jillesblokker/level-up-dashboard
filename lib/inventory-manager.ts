@@ -6,10 +6,11 @@ export interface InventoryItem {
   type: string
   description: string
   quantity: number
-  emoji?: string
+  category?: string
+  content?: string
 }
 
-export function addItemToInventory(item: Omit<InventoryItem, "quantity">, quantity: number = 1) {
+export function addItemToInventory(item: Partial<InventoryItem>) {
   try {
     // Get current inventory
     const savedInventory = localStorage.getItem("character-inventory")
@@ -17,15 +18,20 @@ export function addItemToInventory(item: Omit<InventoryItem, "quantity">, quanti
 
     // Check if item already exists
     const existingItemIndex = currentInventory.findIndex(i => i.id === item.id)
-    
+
     if (existingItemIndex >= 0) {
-      // Update quantity if item exists
-      currentInventory[existingItemIndex].quantity += quantity
+      // Update quantity
+      currentInventory[existingItemIndex].quantity = (currentInventory[existingItemIndex].quantity || 1) + 1
     } else {
-      // Add new item if it doesn't exist
+      // Add new item
       currentInventory.push({
-        ...item,
-        quantity
+        id: item.id || `item-${Date.now()}`,
+        name: item.name || "Unknown Item",
+        type: item.type || "misc",
+        description: item.description || "",
+        quantity: item.quantity || 1,
+        category: item.category,
+        content: item.content
       })
     }
 
@@ -38,8 +44,8 @@ export function addItemToInventory(item: Omit<InventoryItem, "quantity">, quanti
     // Show toast notification
     showScrollToast(
       'discovery',
-      'Item Added',
-      `Added ${quantity}x ${item.name} to inventory`
+      'Item Added to Inventory',
+      `Added ${item.quantity}x ${item.name} to inventory`
     )
 
     return currentInventory
@@ -88,6 +94,36 @@ export function getInventory(): InventoryItem[] {
   } catch (error) {
     console.error("Error getting inventory:", error)
     return []
+  }
+}
+
+export function getInventoryByType(type: string): InventoryItem[] {
+  try {
+    const inventory = getInventory()
+    return inventory.filter(item => item.type === type)
+  } catch (error) {
+    console.error("Error getting inventory by type:", error)
+    return []
+  }
+}
+
+export function getInventoryByCategory(category: string): InventoryItem[] {
+  try {
+    const inventory = getInventory()
+    return inventory.filter(item => item.category === category)
+  } catch (error) {
+    console.error("Error getting inventory by category:", error)
+    return []
+  }
+}
+
+export function getInventoryItem(id: string): InventoryItem | null {
+  try {
+    const inventory = getInventory()
+    return inventory.find(item => item.id === id) || null
+  } catch (error) {
+    console.error("Error getting inventory item:", error)
+    return null
   }
 }
 

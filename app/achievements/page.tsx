@@ -286,7 +286,7 @@ export default function AchievementsPage() {
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
                                           } as any}
                                           data-testid={`hp-${creature.id}`}
-                                        >{creature.stats.hp}</div>
+                                        >{creature?.stats?.hp ?? 0}</div>
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
@@ -296,7 +296,7 @@ export default function AchievementsPage() {
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
                                           } as any}
                                           data-testid={`attack-${creature.id}`}
-                                        >{creature.stats.attack}</div>
+                                        >{creature?.stats?.attack ?? 0}</div>
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
@@ -306,7 +306,7 @@ export default function AchievementsPage() {
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
                                           } as any}
                                           data-testid={`defense-${creature.id}`}
-                                        >{creature.stats.defense}</div>
+                                        >{creature?.stats?.defense ?? 0}</div>
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
@@ -316,7 +316,7 @@ export default function AchievementsPage() {
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
                                           } as any}
                                           data-testid={`speed-${creature.id}`}
-                                        >{creature.stats.speed}</div>
+                                        >{creature?.stats?.speed ?? 0}</div>
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
@@ -326,7 +326,7 @@ export default function AchievementsPage() {
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
                                           } as any}
                                           data-testid={`type-${creature.id}`}
-                                        >{creature.stats.type}</div>
+                                        >{creature?.stats?.type ?? 'Unknown'}</div>
                                       </div>
                                     </div>
                                   </div>
@@ -413,7 +413,7 @@ export default function AchievementsPage() {
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
                                           } as any}
                                           data-testid={`hp-${creature.id}`}
-                                        >{creature.stats.hp}</div>
+                                        >{creature?.stats?.hp ?? 0}</div>
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
@@ -423,7 +423,7 @@ export default function AchievementsPage() {
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
                                           } as any}
                                           data-testid={`attack-${creature.id}`}
-                                        >{creature.stats.attack}</div>
+                                        >{creature?.stats?.attack ?? 0}</div>
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
@@ -433,7 +433,7 @@ export default function AchievementsPage() {
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
                                           } as any}
                                           data-testid={`defense-${creature.id}`}
-                                        >{creature.stats.defense}</div>
+                                        >{creature?.stats?.defense ?? 0}</div>
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
@@ -443,7 +443,7 @@ export default function AchievementsPage() {
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
                                           } as any}
                                           data-testid={`speed-${creature.id}`}
-                                        >{creature.stats.speed}</div>
+                                        >{creature?.stats?.speed ?? 0}</div>
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
@@ -453,7 +453,7 @@ export default function AchievementsPage() {
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
                                           } as any}
                                           data-testid={`type-${creature.id}`}
-                                        >{creature.stats.type}</div>
+                                        >{creature?.stats?.type ?? 'Unknown'}</div>
                                       </div>
                                     </div>
                                   </div>
@@ -538,7 +538,7 @@ export default function AchievementsPage() {
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
                                           } as any}
                                           data-testid={`hp-${creature.id}`}
-                                        >{creature.stats.hp}</div>
+                                        >{creature?.stats?.hp ?? 0}</div>
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
@@ -548,7 +548,7 @@ export default function AchievementsPage() {
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
                                           } as any}
                                           data-testid={`attack-${creature.id}`}
-                                        >{creature.stats.attack}</div>
+                                        >{creature?.stats?.attack ?? 0}</div>
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
@@ -558,7 +558,7 @@ export default function AchievementsPage() {
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
                                           } as any}
                                           data-testid={`defense-${creature.id}`}
-                                        >{creature.stats.defense}</div>
+                                        >{creature?.stats?.defense ?? 0}</div>
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
@@ -568,7 +568,7 @@ export default function AchievementsPage() {
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
                                           } as any}
                                           data-testid={`speed-${creature.id}`}
-                                        >{creature.stats.speed}</div>
+                                        >{creature?.stats?.speed ?? 0}</div>
                                         <div 
                                           className="absolute text-white font-cardo text-lg text-center w-[100px]" 
                                           style={{ 
@@ -578,7 +578,7 @@ export default function AchievementsPage() {
                                             '--stat-scale': 'clamp(0.85, 0.85 + 0.15 * (100vw - 320px) / 680, 1)'
                                           } as any}
                                           data-testid={`type-${creature.id}`}
-                                        >{creature.stats.type}</div>
+                                        >{creature?.stats?.type ?? 'Unknown'}</div>
                                       </div>
                                     </div>
                                   </div>

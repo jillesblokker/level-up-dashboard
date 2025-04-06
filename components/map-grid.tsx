@@ -72,26 +72,28 @@ export function MapGrid({
   } | null>(null)
 
   const handleMysteryTile = (tile: Tile) => {
-    const mysteryEvent = generateMysteryEvent();
-    setCurrentEvent(mysteryEvent);
-
-    // Mark tile as visited
+    const event = generateMysteryEvent();
+    setCurrentEvent(event);
+    
+    // Update tile type to grass after event is triggered
     const newGrid = [...grid];
-    const y = tile.y || 0;
-    const x = tile.x || 0;
-    newGrid[y][x] = {
-      ...tile,
-      isVisited: true
-    };
-    onGridUpdate(newGrid);
+    const tileIndex = grid.findIndex(row => row.includes(tile));
+    const rowIndex = grid[tileIndex].findIndex(t => t === tile);
+    
+    if (tileIndex !== -1 && rowIndex !== -1) {
+      newGrid[tileIndex][rowIndex] = {
+        ...tile,
+        type: 'grass',
+        isVisited: true
+      };
+      onGridUpdate(newGrid);
+    }
   };
 
   const handleEventChoice = (choice: string, index: number) => {
     if (!currentEvent) return;
     
-    const outcome = currentEvent.outcomes[index];
-    
-    if (currentEvent.type === 'battle' && index === 0) {
+    if (currentEvent.type === 'battle' && choice === 'Fight!') {
       // Start battle if choosing to fight
       setCurrentBattle({
         enemyName: currentEvent.enemyName || 'Monster',
@@ -102,7 +104,7 @@ export function MapGrid({
       return;
     }
     
-    handleEventOutcome(outcome);
+    handleEventOutcome(currentEvent, choice);
     setCurrentEvent(null);
   };
 

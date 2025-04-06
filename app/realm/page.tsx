@@ -31,6 +31,7 @@ import { toast } from 'sonner'
 import { generateMysteryEvent, handleEventOutcome } from '@/lib/mystery-events'
 import { MysteryEvent } from '@/lib/mystery-events'
 import { MysteryEventType } from '@/lib/mystery-events'
+import { addItemToInventory } from "@/lib/inventory-manager"
 
 // Types
 interface Position {
@@ -617,18 +618,16 @@ export default function RealmPage() {
         case 'scroll':
           const scroll = getScrollById(reward.scrollId);
           if (scroll) {
-            const newInventory = { ...inventory };
-            newInventory[scroll.id] = {
+            // Add scroll to inventory using inventory manager
+            addItemToInventory({
               id: scroll.id,
               type: 'scroll',
               name: scroll.name,
               description: scroll.content,
-              image: '/images/scroll.png',
-              cost: 100,
-              count: 1
-            };
-            setInventory(newInventory);
-            localStorage.setItem('inventory', JSON.stringify(newInventory));
+              quantity: 1,
+              category: scroll.category
+            });
+
             switch (scroll.category) {
               case 'might':
                 handleAchievementUnlock('WARRIOR_SCROLL', 'Discovered Battle Sage!');
@@ -649,33 +648,25 @@ export default function RealmPage() {
           }
           break;
         case 'artifact':
-          const newArtifactInventory = { ...inventory };
-          newArtifactInventory[reward.artifactId] = {
+          // Add artifact to inventory using inventory manager
+          addItemToInventory({
             id: reward.artifactId,
             type: 'artifact',
             name: 'Ancient Artifact',
             description: 'A mysterious artifact radiating with ancient power.',
-            image: '/images/artifact.png',
-            cost: 500,
-            count: 1
-          };
-          setInventory(newArtifactInventory);
-          localStorage.setItem('inventory', JSON.stringify(newArtifactInventory));
+            quantity: 1
+          });
           handleAchievementUnlock('RELIC_GUARDIAN', 'Discovered Relic Guardian!');
           break;
         case 'book':
-          const newBookInventory = { ...inventory };
-          newBookInventory[reward.bookId] = {
+          // Add book to inventory using inventory manager
+          addItemToInventory({
             id: reward.bookId,
             type: 'book',
             name: 'Ancient Tome',
             description: 'A mysterious book filled with forgotten knowledge.',
-            image: '/images/book.png',
-            cost: 300,
-            count: 1
-          };
-          setInventory(newBookInventory);
-          localStorage.setItem('inventory', JSON.stringify(newBookInventory));
+            quantity: 1
+          });
           handleAchievementUnlock('TOME_KEEPER', 'Discovered Tome Keeper!');
           break;
       }

@@ -1,5 +1,6 @@
 import { getRandomElement, getRandomInt } from '@/lib/utils'
 import { toast } from "@/components/ui/use-toast";
+import { getInventory, addItemToInventory } from "@/lib/inventory-manager"
 
 export type MysteryEventType = 'treasure' | 'battle' | 'quest' | 'trade' | 'blessing' | 'curse' | 'riddle'
 
@@ -45,26 +46,43 @@ export type NothingReward = {
   message: string;
 };
 
-export type MysteryEventReward = 
-  | GoldReward 
-  | ExperienceReward 
-  | ScrollReward 
-  | ArtifactReward 
-  | BookReward 
-  | NothingReward;
+export interface MysteryEventReward {
+  type: 'gold' | 'experience' | 'scroll' | 'artifact' | 'book' | 'nothing' | 'item';
+  amount?: number;
+  message?: string;
+  scroll?: {
+    id: string;
+    name: string;
+    content: string;
+    category: string;
+  };
+  item?: {
+    id: string;
+    name: string;
+    description: string;
+    quantity: number;
+    category: string;
+    type: string;
+  };
+}
+
+export interface MysteryEventOutcome {
+  message: string;
+  reward: MysteryEventReward;
+}
 
 export interface MysteryEvent {
-  id: string
-  type: MysteryEventType
-  title: string
-  description: string
-  choices: string[]
+  id: string;
+  type: string;
+  title: string;
+  description: string;
+  choices: string[];
   outcomes: {
-    message: string
-    rewards?: MysteryEventReward
-  }[]
-  enemyName?: string
-  enemyLevel?: number
+    [key: string]: MysteryEventOutcome;
+  };
+  enemyName?: string;
+  enemyLevel?: number;
+  requiredItems?: string[];
 }
 
 const treasureEvents: MysteryEvent[] = [
@@ -77,23 +95,23 @@ const treasureEvents: MysteryEvent[] = [
       'Open the chest carefully',
       'Leave it alone'
     ],
-    outcomes: [
-      {
+    outcomes: {
+      'Open the chest carefully': {
         message: 'You successfully open the chest and find valuable treasures!',
-        rewards: {
+        reward: {
           type: 'gold',
           amount: getRandomInt(30, 50),
           message: 'You found a pile of ancient gold coins!'
         }
       },
-      {
+      'Leave it alone': {
         message: 'You decide to leave the chest untouched.',
-        rewards: {
+        reward: {
           type: 'nothing',
           message: 'Perhaps it was for the best...'
         }
       }
-    ]
+    }
   },
   {
     id: 'mysterious-shrine',
@@ -104,23 +122,53 @@ const treasureEvents: MysteryEvent[] = [
       'Pray at the shrine',
       'Walk away'
     ],
-    outcomes: [
-      {
+    outcomes: {
+      'Pray at the shrine': {
         message: 'As you pray, you feel enlightened by ancient wisdom!',
-        rewards: {
+        reward: {
           type: 'experience',
           amount: getRandomInt(30, 50),
           message: 'The ancient knowledge flows through you!'
         }
       },
-      {
+      'Walk away': {
         message: 'You decide not to disturb the shrine.',
-        rewards: {
+        reward: {
           type: 'nothing',
           message: 'The shrine continues its silent vigil.'
         }
       }
-    ]
+    }
+  },
+  {
+    id: 'ancient-ruins',
+    type: 'ruins',
+    title: 'Ancient Ruins',
+    description: 'You stumble upon ancient ruins...',
+    choices: ['Explore the ruins', 'Leave'],
+    outcomes: {
+      'Explore the ruins': {
+        message: 'You find an ancient artifact!',
+        reward: {
+          type: 'item',
+          item: {
+            id: 'ancient-artifact',
+            name: 'Ancient Artifact',
+            description: 'A mysterious artifact from the ruins.',
+            quantity: 1,
+            category: 'artifact',
+            type: 'artifact'
+          }
+        }
+      },
+      'Leave': {
+        message: 'You decide to leave the ruins untouched.',
+        reward: {
+          type: 'nothing',
+          message: 'Sometimes discretion is the better part of valor.'
+        }
+      }
+    }
   }
 ]
 
@@ -131,23 +179,23 @@ const battleEvents: MysteryEvent[] = [
     title: 'Fearsome Monster',
     description: 'A dangerous creature emerges from the shadows!',
     choices: ['Fight!', 'Try to escape'],
-    outcomes: [
-      {
+    outcomes: {
+      'Fight!': {
         message: 'You ready your weapons and prepare for battle!',
-        rewards: {
+        reward: {
           type: 'nothing',
           message: 'The battle begins!'
         }
       },
-      {
+      'Try to escape': {
         message: 'You manage to escape, but drop some gold in your haste.',
-        rewards: {
+        reward: {
           type: 'gold',
           amount: -10,
           message: 'You lost some gold while fleeing!'
         }
       }
-    ],
+    },
     enemyName: 'Mysterious Beast',
     enemyLevel: getRandomInt(1, 5)
   }
@@ -163,23 +211,28 @@ const scrollEvents: MysteryEvent[] = [
       'Study the scrolls',
       'Leave them be'
     ],
-    outcomes: [
-      {
+    outcomes: {
+      'Study the scrolls': {
         message: 'You carefully examine the scrolls and find valuable knowledge!',
-        rewards: {
+        reward: {
           type: 'scroll',
-          scrollId: 'scroll-' + getRandomInt(1, 5),
-          message: 'You discovered an ancient scroll of wisdom! 📜'
+          message: 'You discovered an ancient scroll of wisdom! 📜',
+          scroll: {
+            id: 'scroll-' + getRandomInt(1, 5),
+            name: 'Ancient Scroll',
+            content: 'This scroll contains ancient wisdom...',
+            category: 'knowledge'
+          }
         }
       },
-      {
+      'Leave them be': {
         message: 'You leave the scrolls untouched.',
-        rewards: {
+        reward: {
           type: 'nothing',
           message: 'The knowledge remains hidden.'
         }
       }
-    ]
+    }
   }
 ]
 
@@ -188,28 +241,34 @@ const artifactEvents: MysteryEvent[] = [
     id: 'mysterious-pedestal',
     type: 'treasure',
     title: 'Mysterious Pedestal',
-    description: 'A strange artifact sits atop an ancient pedestal.',
+    description: 'You find a mysterious artifact on a pedestal...',
     choices: [
       'Take the artifact',
       'Leave it alone'
     ],
-    outcomes: [
-      {
+    outcomes: {
+      'Take the artifact': {
         message: 'You carefully retrieve the mysterious artifact!',
-        rewards: {
-          type: 'artifact',
-          artifactId: 'artifact-' + getRandomInt(1, 5),
-          message: 'You obtained a mysterious artifact! ✨'
+        reward: {
+          type: 'item',
+          item: {
+            id: `artifact-${getRandomInt(1, 5)}`,
+            name: 'Mysterious Artifact',
+            description: 'An ancient artifact of unknown origin.',
+            quantity: 1,
+            category: 'artifact',
+            type: 'artifact'
+          }
         }
       },
-      {
+      'Leave it alone': {
         message: 'You decide not to disturb the artifact.',
-        rewards: {
+        reward: {
           type: 'nothing',
           message: 'The artifact remains on its pedestal.'
         }
       }
-    ]
+    }
   }
 ]
 
@@ -225,37 +284,37 @@ const riddleEvents: MysteryEvent[] = [
       'A Painting',
       'A Book'
     ],
-    outcomes: [
-      {
+    outcomes: {
+      'A Map': {
         message: 'Correct! The answer is "A Map".',
-        rewards: {
+        reward: {
           type: 'gold',
           amount: getRandomInt(30, 50),
           message: 'Your wisdom has earned you gold!'
         }
       },
-      {
+      'A Globe': {
         message: 'That is incorrect. The answer was "A Map".',
-        rewards: {
+        reward: {
           type: 'nothing',
           message: 'Better luck next time...'
         }
       },
-      {
+      'A Painting': {
         message: 'That is incorrect. The answer was "A Map".',
-        rewards: {
+        reward: {
           type: 'nothing',
           message: 'Better luck next time...'
         }
       },
-      {
+      'A Book': {
         message: 'That is incorrect. The answer was "A Map".',
-        rewards: {
+        reward: {
           type: 'nothing',
           message: 'Better luck next time...'
         }
       }
-    ]
+    }
   },
   {
     id: 'ancient-riddle-2',
@@ -268,37 +327,37 @@ const riddleEvents: MysteryEvent[] = [
       'A Computer',
       'A Phone'
     ],
-    outcomes: [
-      {
+    outcomes: {
+      'A Piano': {
         message: 'That is incorrect. The answer was "A Keyboard".',
-        rewards: {
+        reward: {
           type: 'nothing',
           message: 'Better luck next time...'
         }
       },
-      {
+      'A Keyboard': {
         message: 'Correct! The answer is "A Keyboard".',
-        rewards: {
+        reward: {
           type: 'gold',
           amount: getRandomInt(30, 50),
           message: 'Your wisdom has earned you gold!'
         }
       },
-      {
+      'A Computer': {
         message: 'That is incorrect. The answer was "A Keyboard".',
-        rewards: {
+        reward: {
           type: 'nothing',
           message: 'Better luck next time...'
         }
       },
-      {
+      'A Phone': {
         message: 'That is incorrect. The answer was "A Keyboard".',
-        rewards: {
+        reward: {
           type: 'nothing',
           message: 'Better luck next time...'
         }
       }
-    ]
+    }
   },
   {
     id: 'ancient-riddle-3',
@@ -311,37 +370,37 @@ const riddleEvents: MysteryEvent[] = [
       'A Pencil Lead',
       'Coal'
     ],
-    outcomes: [
-      {
+    outcomes: {
+      'Gold': {
         message: 'That is incorrect. The answer was "A Pencil Lead".',
-        rewards: {
+        reward: {
           type: 'nothing',
           message: 'Better luck next time...'
         }
       },
-      {
+      'Diamond': {
         message: 'That is incorrect. The answer was "A Pencil Lead".',
-        rewards: {
+        reward: {
           type: 'nothing',
           message: 'Better luck next time...'
         }
       },
-      {
+      'A Pencil Lead': {
         message: 'Correct! The answer is "A Pencil Lead".',
-        rewards: {
+        reward: {
           type: 'gold',
           amount: getRandomInt(30, 50),
           message: 'Your wisdom has earned you gold!'
         }
       },
-      {
+      'Coal': {
         message: 'That is incorrect. The answer was "A Pencil Lead".',
-        rewards: {
+        reward: {
           type: 'nothing',
           message: 'Better luck next time...'
         }
       }
-    ]
+    }
   }
 ]
 
@@ -357,54 +416,57 @@ export function generateMysteryEvent(): MysteryEvent {
   return getRandomElement(allEvents)
 }
 
-export function handleEventOutcome(outcome: { message: string; rewards?: MysteryEventReward }) {
-  if (!outcome.rewards) return;
+export const handleEventOutcome = (event: MysteryEvent, choice: string) => {
+  const outcome = event.outcomes[choice];
+  if (!outcome) return;
 
-  const { type, message } = outcome.rewards;
-  
-  toast({
-    title: "Event Outcome",
-    description: message
-  });
+  const reward = outcome.reward;
+  if (!reward) return;
 
-  switch (type) {
-    case 'gold': {
-      const goldAmount = (outcome.rewards as GoldReward).amount;
-      const currentGold = parseInt(localStorage.getItem('goldBalance') || '0');
-      const newGold = currentGold + goldAmount;
-      localStorage.setItem('goldBalance', newGold.toString());
-      window.dispatchEvent(new CustomEvent('gold-update', { detail: { gold: newGold } }));
-      break;
-    }
-    case 'experience': {
-      const expAmount = (outcome.rewards as ExperienceReward).amount;
-      const characterStats = JSON.parse(localStorage.getItem('character-stats') || '{"experience": 0}');
-      characterStats.experience += expAmount;
-      localStorage.setItem('character-stats', JSON.stringify(characterStats));
-      window.dispatchEvent(new Event('character-stats-update'));
-      break;
-    }
-    case 'scroll': {
-      const scrollId = (outcome.rewards as ScrollReward).scrollId;
-      const scroll = getScrollById(scrollId);
-      if (scroll) {
-        const inventory = JSON.parse(localStorage.getItem('inventory') || '[]');
-        inventory.push({
-          id: scroll.id,
-          name: scroll.name,
-          type: 'scroll',
-          content: scroll.content,
-          category: scroll.category
-        });
-        localStorage.setItem('inventory', JSON.stringify(inventory));
-        window.dispatchEvent(new CustomEvent('inventory-update'));
-      }
-      break;
-    }
+  if (reward.type === 'gold' && reward.amount) {
+    const currentGold = parseInt(localStorage.getItem('character-gold') || '0');
+    const newGold = currentGold + reward.amount;
+    localStorage.setItem('character-gold', newGold.toString());
+    
+    // Dispatch event to update UI
+    const goldUpdateEvent = new CustomEvent('character-gold-update', {
+      detail: { gold: newGold }
+    });
+    window.dispatchEvent(goldUpdateEvent);
+    
+    // Show toast with gold gained
+    toast({
+      title: "Gold Gained!",
+      description: `You gained ${reward.amount} gold pieces.`,
+      duration: 3000
+    });
   }
-
-  return outcome.rewards;
-}
+  
+  // Handle other reward types...
+  if (reward.type === 'item' && reward.item) {
+    addItemToInventory(reward.item);
+    toast({
+      title: "Item Found!",
+      description: `You found ${reward.item.name}`,
+      duration: 3000
+    });
+  }
+  
+  if (reward.type === 'scroll' && reward.scroll) {
+    addItemToInventory({
+      type: 'scroll',
+      name: reward.scroll.name,
+      description: reward.scroll.content,
+      category: reward.scroll.category,
+      quantity: 1
+    });
+    toast({
+      title: "Scroll Found!",
+      description: `You found a scroll: ${reward.scroll.name}`,
+      duration: 3000
+    });
+  }
+};
 
 export const getScrollById = (id: string): ScrollItem | undefined => {
   return scrolls.find(scroll => scroll.id === id);
@@ -445,4 +507,31 @@ const scrolls: ScrollItem[] = [
     content: 'Advanced crafting methods and recipes.',
     category: 'crafting'
   }
-]; 
+];
+
+// Check if player has required items
+const checkRequiredItems = (event: MysteryEvent) => {
+  if (!event.requiredItems || event.requiredItems.length === 0) return true
+  const inventory = getInventory()
+  return event.requiredItems.every(item => inventory.some(i => i.id === item))
+}
+
+// Update the artifact reward
+const artifactReward: MysteryEventReward = {
+  type: 'item',
+  item: {
+    id: 'mysterious-artifact',
+    name: 'Mysterious Artifact',
+    description: 'An ancient artifact of unknown origin.',
+    quantity: 1,
+    category: 'artifact',
+    type: 'artifact'
+  },
+  message: 'You found a mysterious artifact!'
+};
+
+// Helper function to check required items
+export const hasRequiredItems = (event: MysteryEvent, inventory: { id: string }[]): boolean => {
+  if (!event.requiredItems) return true;
+  return event.requiredItems.every(itemId => inventory.some(item => item.id === itemId));
+}; 

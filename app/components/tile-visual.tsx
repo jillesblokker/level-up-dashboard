@@ -28,12 +28,14 @@ interface TileVisualProps {
 
 // Map of tile types to their image paths
 const tileImages = {
-  forest: "/assets/tiles/forest-tile.png?v=1",
-  water: "/assets/tiles/water-tile.png?v=1",
-  mountain: "/assets/tiles/mountain-tile.png?v=1",
-  desert: "/assets/tiles/desert-tile.png?v=1",
-  town: "/assets/tiles/town-tile.png?v=1",
-  city: "/assets/tiles/city-tile.png?v=1",
+  empty: "/images/tiles/empty-tile.png",
+  forest: "/images/tiles/forest-tile.png",
+  mountain: "/images/tiles/mountain-tile.png",
+  water: "/images/tiles/water-tile.png",
+  mystery: "/images/tiles/mystery-tile.png",
+  desert: "/images/tiles/desert-tile.png",
+  town: "/images/tiles/town-tile.png",
+  city: "/images/tiles/city-tile.png",
 } as const;
 
 export function TileVisual({ type, rotation = 0, isMainTile, citySize, className, ariaLabel, onClick }: TileVisualProps) {

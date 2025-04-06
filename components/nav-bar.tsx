@@ -125,6 +125,36 @@ export function NavBar() {
 
   useEffect(() => {
     setIsClient(true)
+    
+    // Initialize gold from localStorage
+    const storedGold = localStorage.getItem('character-gold')
+    if (!storedGold) {
+      localStorage.setItem('character-gold', '1000')
+    } else {
+      setCharacterStats(prev => ({
+        ...prev,
+        gold: parseInt(storedGold)
+      }))
+    }
+
+    // Listen for gold updates
+    const handleGoldUpdate = (event: CustomEvent) => {
+      const newGold = event.detail.gold;
+      console.log('Gold update event received:', newGold); // Debug log
+      setCharacterStats(prev => ({
+        ...prev,
+        gold: newGold
+      }));
+    }
+
+    window.addEventListener("character-gold-update", handleGoldUpdate as EventListener)
+    
+    return () => {
+      window.removeEventListener("character-gold-update", handleGoldUpdate as EventListener)
+    }
+  }, [])
+
+  useEffect(() => {
     // Load character stats from localStorage
     const loadCharacterStats = () => {
       try {
@@ -148,19 +178,8 @@ export function NavBar() {
     const handleStatsUpdate = () => loadCharacterStats()
     window.addEventListener("character-stats-update", handleStatsUpdate)
     
-    // Listen for gold updates
-    const handleGoldUpdate = (event: CustomEvent) => {
-      const newGold = event.detail.gold;
-      setCharacterStats(prev => ({
-        ...prev,
-        gold: newGold
-      }));
-    }
-    window.addEventListener("gold-update", handleGoldUpdate as EventListener)
-    
     return () => {
       window.removeEventListener("character-stats-update", handleStatsUpdate)
-      window.removeEventListener("gold-update", handleGoldUpdate as EventListener)
     }
   }, [])
 
@@ -298,6 +317,10 @@ export function NavBar() {
             <div className="text-sm">
               Gold: {characterStats.gold}
             </div>
+          </div>
+          <div className="flex items-center gap-1 text-sm">
+            <Coins className="h-4 w-4 text-amber-500" />
+            <span className="font-medium">{characterStats.gold}</span>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

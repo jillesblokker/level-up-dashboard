@@ -27,22 +27,33 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     
     const quantity = buyQuantities[tile.type] || 1
     const totalCost = tile.cost * quantity
+    const currentGold = parseInt(localStorage.getItem('character-gold') || '1000')
 
-    if (gold < totalCost) {
-      toast("Not enough gold", {
+    if (currentGold < totalCost) {
+      toast({
+        title: "Not enough gold",
         description: `You need ${totalCost} gold to buy ${quantity} ${tile.name || tile.type} tile${quantity > 1 ? 's' : ''}.`
       })
       return
     }
 
-    updateGold(-totalCost)
+    // Update gold in localStorage and dispatch event
+    const newGold = currentGold - totalCost
+    localStorage.setItem('character-gold', newGold.toString())
+    window.dispatchEvent(new CustomEvent('character-gold-update', {
+      detail: { gold: newGold }
+    }))
+
+    // Update tiles
     const newTiles = tiles.map(item => 
       item.type === tile.type 
         ? { ...item, quantity: item.quantity + quantity }
         : item
     )
     onUpdateTiles(newTiles)
-    toast("Tiles purchased", {
+    
+    toast({
+      title: "Tiles purchased",
       description: `You bought ${quantity} ${tile.name || tile.type} tile${quantity > 1 ? 's' : ''} for ${totalCost} gold.`
     })
 
@@ -56,9 +67,14 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
   }
 
   const getTileImage = (type: TileType) => {
-    if (type === 'city') return '/images/tiles/city_image.png'
-    if (type === 'town') return '/images/tiles/town_image.png'
-    return `/images/tiles/${type}-tile.png`
+    switch (type) {
+      case 'city':
+        return '/images/tiles/city-tile.png'
+      case 'town':
+        return '/images/tiles/town-tile.png'
+      default:
+        return `/images/tiles/${type}-tile.png`
+    }
   }
 
   return (
