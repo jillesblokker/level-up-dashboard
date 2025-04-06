@@ -11,6 +11,7 @@ import { MobileNav } from "@/components/navigation/mobile-nav"
 import { NavBar } from "@/components/nav-bar"
 import { toast } from "@/components/ui/use-toast"
 import { RealmProvider } from "@/lib/realm-context"
+import { registerServiceWorker } from "./utils/registerSW"
 
 // Define the type for headerImages
 interface HeaderImages {
@@ -73,6 +74,10 @@ export default function ClientLayout({
       }
     }
   }
+
+  useEffect(() => {
+    registerServiceWorker();
+  }, []);
 
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
