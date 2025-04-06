@@ -3,6 +3,7 @@
   "short_name": "Kingdom",
   "description": "Build and manage your kingdom in this strategic tile-based game",
   "start_url": "/",
+  "id": "/",
   "display": "fullscreen",
   "orientation": "portrait",
   "background_color": "#000000",
@@ -18,6 +19,11 @@
   "prefer_related_applications": false,
   "related_applications": [],
   "scope": "/",
+  "categories": ["games", "entertainment"],
+  "launch_handler": {
+    "client_mode": ["focus-existing", "auto"]
+  },
+  "display_override": ["fullscreen", "standalone"],
   "shortcuts": [
     {
       "name": "View Realm",
