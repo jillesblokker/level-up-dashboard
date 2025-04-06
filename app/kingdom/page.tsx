@@ -123,8 +123,8 @@ export default function KingdomPage() {
 
   return (
     <RealmProvider>
-      <div className="container mx-auto p-4">
-        <PageTitle>Kingdom</PageTitle>
+      <div className="flex flex-col gap-4 p-4">
+        <PageTitle>KINGDOM</PageTitle>
         <div className="min-h-screen bg-black">
           {/* Hero Section with Image */}
           <div 

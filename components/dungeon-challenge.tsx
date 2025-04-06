@@ -13,8 +13,9 @@ import {
   Gem,
   Crown,
   Scroll,
-  Flask,
+  PillBottleIcon as Potion,
   BellRingIcon as Ring,
+  Beaker,
 } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 
@@ -226,7 +227,7 @@ export function DungeonChallenge({ difficulty, onComplete }: DungeonChallengePro
       case "scroll":
         return <Scroll className="h-10 w-10 text-amber-200" />
       case "potion":
-        return <Flask className="h-10 w-10 text-purple-400" />
+        return <Potion className="h-10 w-10 text-purple-400" />
       case "ring":
         return <Ring className="h-10 w-10 text-amber-400" />
       case "sword":
