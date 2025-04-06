@@ -33,10 +33,9 @@ export default function KingdomPage() {
   const [coverImage, setCoverImage] = useState("/images/kingdom-header.jpg")
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { grid } = useRealm()
   const [purchasedItems, setPurchasedItems] = useState<Array<{id: string, name: string}>>([])
   const [inventory, setInventory] = useState<InventoryItem[]>([])
-  const [gridState, setGridState] = useState<Tile[][]>([
+  const [grid, setGrid] = useState<Tile[][]>([
     [createInitialTile(0, 0), createInitialTile(1, 0), createInitialTile(2, 0)],
     [createInitialTile(0, 1), createInitialTile(1, 1), createInitialTile(2, 1)],
     [createInitialTile(0, 2), createInitialTile(1, 2), createInitialTile(2, 2)]
@@ -146,7 +145,7 @@ export default function KingdomPage() {
   }, [])
 
   const handleGridUpdate = useCallback((newGrid: Tile[][]) => {
-    setGridState(newGrid)
+    setGrid(newGrid)
   }, [])
 
   const handleGoldUpdate = useCallback((amount: number) => {
@@ -163,7 +162,7 @@ export default function KingdomPage() {
               onDiscovery={handleDiscovery}
               selectedTile={null}
               onTilePlaced={handleTilePlaced}
-              grid={gridState}
+              grid={grid}
               character={character}
               onCharacterMove={handleCharacterMove}
               onTileClick={handleTileClick}
