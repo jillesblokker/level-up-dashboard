@@ -15,6 +15,7 @@ import { PageTitle } from "@/components/ui/page-title"
 import { MapGrid } from "@/components/map-grid"
 import { Tile } from "@/types/tiles"
 import { useToast } from "@/components/ui/use-toast"
+import { useRealmMap } from "@/lib/hooks/use-realm-map"
 
 function createInitialTile(x: number, y: number): Tile {
   return {
@@ -30,6 +31,7 @@ function createInitialTile(x: number, y: number): Tile {
 }
 
 export default function KingdomPage() {
+  const { grid, setGrid, isLoading } = useRealmMap()
   const [goldBalance, setGoldBalance] = useState(5000)
   const [isHovering, setIsHovering] = useState(false)
   const [showUploadModal, setShowUploadModal] = useState(false)
@@ -38,11 +40,6 @@ export default function KingdomPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [purchasedItems, setPurchasedItems] = useState<Array<{id: string, name: string}>>([])
   const [inventory, setInventory] = useState<InventoryItem[]>([])
-  const [grid, setGrid] = useState<Tile[][]>([
-    [createInitialTile(0, 0), createInitialTile(1, 0), createInitialTile(2, 0)],
-    [createInitialTile(0, 1), createInitialTile(1, 1), createInitialTile(2, 1)],
-    [createInitialTile(0, 2), createInitialTile(1, 2), createInitialTile(2, 2)]
-  ])
   const [character, setCharacter] = useState({ x: 0, y: 0 })
   const { toast } = useToast()
 
@@ -149,11 +146,15 @@ export default function KingdomPage() {
 
   const handleGridUpdate = useCallback((newGrid: Tile[][]) => {
     setGrid(newGrid)
-  }, [])
+  }, [setGrid])
 
   const handleGoldUpdate = useCallback((amount: number) => {
     // Handle gold update logic here
   }, [])
+
+  if (isLoading) {
+    return <div>Loading realm map...</div>
+  }
 
   return (
     <div className="container mx-auto p-4">
