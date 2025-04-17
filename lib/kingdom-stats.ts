@@ -1,3 +1,5 @@
+import { MapGrid } from "@/types/tiles"
+
 // Event target for kingdom stats updates
 class KingdomStatsUpdater extends EventTarget {
   emitQuestComplete() {
@@ -236,4 +238,20 @@ export function getAvailablePerks(stats: KingdomStats): string[] {
   if (stats.military.cavalry >= 50) perks.push('Cavalry Commander')
 
   return perks
-} 
+}
+
+class KingdomStats extends EventTarget {
+  calculateStats(grid: MapGrid) {
+    // Calculate kingdom statistics based on the grid
+    const stats = {
+      gold: 0,
+      experience: 0,
+      quests: 0,
+    }
+
+    // Add your calculation logic here
+    return stats
+  }
+}
+
+export const calculateKingdomStats = new KingdomStats() 

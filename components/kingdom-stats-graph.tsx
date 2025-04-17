@@ -4,8 +4,9 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollText, Coins, Trophy } from "lucide-react"
-import { updateKingdomStats } from "@/lib/kingdom-stats"
+import { calculateKingdomStats } from "@/lib/kingdom-stats"
 import { db } from "@/lib/database"
+import { MapGrid } from "@/types/tiles"
 
 // Mock data for the graphs
 const mockQuestData = [
@@ -149,15 +150,15 @@ export function KingdomStatsGraph() {
     }
 
     // Add event listeners
-    updateKingdomStats.addEventListener('questComplete', handleQuestComplete)
-    updateKingdomStats.addEventListener('goldUpdate', handleGoldUpdate as EventListener)
-    updateKingdomStats.addEventListener('expUpdate', handleExpUpdate as EventListener)
+    calculateKingdomStats.addEventListener('questComplete', handleQuestComplete)
+    calculateKingdomStats.addEventListener('goldUpdate', handleGoldUpdate as EventListener)
+    calculateKingdomStats.addEventListener('expUpdate', handleExpUpdate as EventListener)
 
     // Cleanup
     return () => {
-      updateKingdomStats.removeEventListener('questComplete', handleQuestComplete)
-      updateKingdomStats.removeEventListener('goldUpdate', handleGoldUpdate as EventListener)
-      updateKingdomStats.removeEventListener('expUpdate', handleExpUpdate as EventListener)
+      calculateKingdomStats.removeEventListener('questComplete', handleQuestComplete)
+      calculateKingdomStats.removeEventListener('goldUpdate', handleGoldUpdate as EventListener)
+      calculateKingdomStats.removeEventListener('expUpdate', handleExpUpdate as EventListener)
     }
   }, [today])
 

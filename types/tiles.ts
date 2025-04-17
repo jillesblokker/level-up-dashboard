@@ -16,7 +16,9 @@ export type TileType =
   | "big-mystery" 
   | "treasure" 
   | "monster" 
-  | "dungeon";
+  | "dungeon"
+  | "farm"
+  | "mine";
 
 // Define the tile interface
 export interface Tile {
@@ -38,13 +40,14 @@ export interface Tile {
   isDiscovered?: boolean;
   isVisited?: boolean;
   isTown?: boolean;
-  x?: number;
-  y?: number;
+  x: number;
+  y: number;
 }
 
 export interface CityData {
   name: string;
-  type: 'city' | 'town';
+  isTown: boolean;
+  size: number;
 }
 
 // Define the selected tile interface
@@ -83,24 +86,23 @@ export interface TileItem {
   rotation?: number;
   cost: number;
   quantity: number;
+  x: number;
+  y: number;
 }
 
-export interface MapGridProps {
-  onDiscovery: (message: string) => void;
-  selectedTile: Tile | null;
-  onTilePlaced: (tile: Tile) => void;
-  grid: Tile[][];
-  character: { x: number; y: number };
-  onCharacterMove: (x: number, y: number) => void;
-  onTileClick: (x: number, y: number) => void;
-  onGridUpdate: (newGrid: Tile[][]) => void;
-  onGoldUpdate: (amount: number) => void;
-  onExperienceUpdate?: (amount: number) => void;
-  onHover?: (x: number, y: number) => void;
-  onHoverEnd?: () => void;
-  hoveredTile?: { row: number; col: number } | null;
-  onRotateTile?: (x: number, y: number) => void;
-  onDeleteTile?: (x: number, y: number) => void;
-  isMovementMode?: boolean;
-  onAddMoreRows?: () => void;
+export type MapGrid = TileItem[][]
+
+export interface KingdomStats {
+  gold: number;
+  experience: number;
+  quests: number;
+  population?: number;
+  buildings?: number;
+  happiness?: number;
+  military?: {
+    strength: number;
+    defense: number;
+    morale: number;
+    training: number;
+  }
 } 

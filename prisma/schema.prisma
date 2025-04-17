@@ -16,16 +16,16 @@ datasource db {
 model Account {
   id                String  @id @default(cuid())
   userId            String
-  type             String
-  provider         String
+  type              String
+  provider          String
   providerAccountId String
-  refresh_token    String? @db.Text
-  access_token     String? @db.Text
-  expires_at       Int?
-  token_type       String?
-  scope            String?
-  id_token         String? @db.Text
-  session_state    String?
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -41,11 +41,13 @@ model Session {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
 }
 
 model VerificationToken {
@@ -57,34 +59,34 @@ model VerificationToken {
 }
 
 model Character {
-  id        Int      @id @default(autoincrement())
-  gold      Int      @default(1000)
-  level     Int      @default(1)
-  experience Int     @default(0)
-  inventory Json?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  name        String
+  level       Int      @default(1)
+  experience  Int      @default(0)
+  gold        Int      @default(0)
+  inventory   Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model RealmMap {
-  id        Int      @id @default(autoincrement())
-  grid      Json     // Store the grid data as JSON
+  id        String   @id @default(cuid())
+  grid      Json
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Quest {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(cuid())
   title       String
   description String
-  reward      Int
   completed   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
 model Achievement {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(cuid())
   title       String
   description String
   unlocked    Boolean  @default(false)
@@ -93,10 +95,10 @@ model Achievement {
 }
 
 model Kingdom {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(cuid())
   name      String
-  resources Json     // Store kingdom resources as JSON
-  buildings Json     // Store building data as JSON
+  resources Json
+  buildings Json
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
