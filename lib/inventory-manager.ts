@@ -1,100 +1,70 @@
 import { showScrollToast } from "@/lib/toast-utils"
 
 export interface InventoryItem {
-  id: string
   name: string
-  type: string
-  description: string
   quantity: number
+  type: 'resource' | 'item' | 'creature' | 'scroll'
+  id: string
   category?: string
-  content?: string
+  description?: string
 }
 
-export function addItemToInventory(item: Partial<InventoryItem>) {
-  try {
-    // Get current inventory
-    const savedInventory = localStorage.getItem("character-inventory")
-    const currentInventory: InventoryItem[] = savedInventory ? JSON.parse(savedInventory) : []
-
-    // Check if item already exists
-    const existingItemIndex = currentInventory.findIndex(i => i.id === item.id)
-
-    if (existingItemIndex >= 0) {
-      // Update quantity
-      currentInventory[existingItemIndex].quantity = (currentInventory[existingItemIndex].quantity || 1) + 1
-    } else {
-      // Add new item
-      currentInventory.push({
-        id: item.id || `item-${Date.now()}`,
-        name: item.name || "Unknown Item",
-        type: item.type || "misc",
-        description: item.description || "",
-        quantity: item.quantity || 1,
-        category: item.category,
-        content: item.content
-      })
-    }
-
-    // Save updated inventory
-    localStorage.setItem("character-inventory", JSON.stringify(currentInventory))
-
-    // Dispatch event to notify components
-    window.dispatchEvent(new Event("character-inventory-update"))
-
-    // Show toast notification
-    showScrollToast(
-      'discovery',
-      'Item Added to Inventory',
-      `Added ${item.quantity}x ${item.name} to inventory`
-    )
-
-    return currentInventory
-  } catch (error) {
-    console.error("Error managing inventory:", error)
-    return null
-  }
-}
-
-export function removeItemFromInventory(itemId: string, quantity: number = 1) {
-  try {
-    // Get current inventory
-    const savedInventory = localStorage.getItem("character-inventory")
-    if (!savedInventory) return null
-
-    const currentInventory: InventoryItem[] = JSON.parse(savedInventory)
-    const itemIndex = currentInventory.findIndex(i => i.id === itemId)
-
-    if (itemIndex < 0) return null
-
-    // Update quantity
-    currentInventory[itemIndex].quantity -= quantity
-
-    // Remove item if quantity is 0 or less
-    if (currentInventory[itemIndex].quantity <= 0) {
-      currentInventory.splice(itemIndex, 1)
-    }
-
-    // Save updated inventory
-    localStorage.setItem("character-inventory", JSON.stringify(currentInventory))
-
-    // Dispatch event to notify components
-    window.dispatchEvent(new Event("character-inventory-update"))
-
-    return currentInventory
-  } catch (error) {
-    console.error("Error managing inventory:", error)
-    return null
-  }
-}
+const INVENTORY_KEY = 'character-inventory'
 
 export function getInventory(): InventoryItem[] {
+  if (typeof window === 'undefined') return []
+  
+  const savedInventory = localStorage.getItem(INVENTORY_KEY)
+  if (!savedInventory) return []
+  
   try {
-    const savedInventory = localStorage.getItem("character-inventory")
-    return savedInventory ? JSON.parse(savedInventory) : []
-  } catch (error) {
-    console.error("Error getting inventory:", error)
+    return JSON.parse(savedInventory)
+  } catch (err) {
+    console.error('Error parsing inventory:', err)
     return []
   }
+}
+
+export function addToInventory(item: InventoryItem) {
+  if (typeof window === 'undefined') return
+  
+  const currentInventory = getInventory()
+  const existingItem = currentInventory.find(i => i.id === item.id)
+  
+  if (existingItem) {
+    existingItem.quantity += item.quantity
+  } else {
+    currentInventory.push(item)
+  }
+  
+  localStorage.setItem(INVENTORY_KEY, JSON.stringify(currentInventory))
+  window.dispatchEvent(new Event('character-inventory-update'))
+}
+
+export function removeFromInventory(itemId: string, quantity: number = 1) {
+  if (typeof window === 'undefined') return
+  
+  const currentInventory = getInventory()
+  const itemIndex = currentInventory.findIndex(i => i.id === itemId)
+  
+  if (itemIndex === -1) return
+  
+  const item = currentInventory[itemIndex]
+  item.quantity -= quantity
+  
+  if (item.quantity <= 0) {
+    currentInventory.splice(itemIndex, 1)
+  }
+  
+  localStorage.setItem(INVENTORY_KEY, JSON.stringify(currentInventory))
+  window.dispatchEvent(new Event('character-inventory-update'))
+}
+
+export function clearInventory() {
+  if (typeof window === 'undefined') return
+  
+  localStorage.removeItem(INVENTORY_KEY)
+  window.dispatchEvent(new Event('character-inventory-update'))
 }
 
 export function getInventoryByType(type: string): InventoryItem[] {

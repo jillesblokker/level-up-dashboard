@@ -39,7 +39,7 @@ export default function Error({
           </Button>
           
           <Button 
-            onClick={() => window.location.href = '/kingdom'}
+            onClick={() => window.location.href = '/'}
             variant="outline"
             className="w-full border-amber-800/20 text-amber-500 hover:bg-amber-900/30"
           >

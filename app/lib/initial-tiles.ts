@@ -1,4 +1,4 @@
-import { InventoryTile } from "./types";
+import { InventoryTile, TileType } from "@/types/tiles";
 
 export const initialTiles: InventoryTile[] = [
   {
@@ -33,6 +33,13 @@ export const initialTiles: InventoryTile[] = [
     id: "desert-1",
     type: "desert",
     name: "Desert Tile",
+    count: 10,
+    cost: 100
+  },
+  {
+    id: "ice-1",
+    type: "ice",
+    name: "Ice Tile",
     count: 10,
     cost: 100
   },

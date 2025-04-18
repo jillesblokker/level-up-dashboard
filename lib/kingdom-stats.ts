@@ -1,23 +1,196 @@
-import { MapGrid } from "@/types/tiles"
+import { EventEmitter } from 'events';
 
-// Event target for kingdom stats updates
-class KingdomStatsUpdater extends EventTarget {
-  emitQuestComplete() {
-    this.dispatchEvent(new Event('questComplete'))
+export interface TileItem {
+  type: string;
+  // Add other tile properties as needed
+}
+
+export type MapGrid = TileItem[];
+
+export interface BuildingsData {
+  houses: number;
+  farms: number;
+  markets: number;
+  mines: number;
+  barracks: number;
+  walls: number;
+  towers: number;
+  temples: number;
+  castles: number;
+  total: number;
+}
+
+export interface MilitaryData {
+  soldiers: number;
+  archers: number;
+  cavalry: number;
+  siege: number;
+  total: number;
+}
+
+export interface KingdomStatsData {
+  questsCompleted: number;
+  goldEarned: number;
+  expEarned: number;
+  population: number;
+  happiness: number;
+  buildings: BuildingsData;
+  military: MilitaryData;
+  gold: number;
+}
+
+export interface KingdomStatsInterface {
+  population: number;
+  happiness: number;
+  buildings: BuildingsData;
+  military: MilitaryData;
+  gold: number;
+}
+
+export class KingdomStats extends EventEmitter implements KingdomStatsInterface {
+  private questsCompleted: number = 0;
+  private goldEarned: number = 0;
+  private expEarned: number = 0;
+  public population: number = 0;
+  public happiness: number = 50;
+  public buildings: BuildingsData = {
+    houses: 0,
+    farms: 0,
+    markets: 0,
+    mines: 0,
+    barracks: 0,
+    walls: 0,
+    towers: 0,
+    temples: 0,
+    castles: 0,
+    total: 0
+  };
+  public military: MilitaryData = {
+    soldiers: 0,
+    archers: 0,
+    cavalry: 0,
+    siege: 0,
+    total: 0
+  };
+  public gold: number = 0;
+
+  constructor() {
+    super();
   }
 
-  emitGoldUpdate(amount: number) {
-    this.dispatchEvent(new CustomEvent('goldUpdate', { detail: { amount } }))
+  updateStats(type: 'quest' | 'gold' | 'exp', amount: number = 1) {
+    switch (type) {
+      case 'quest':
+        this.questsCompleted += amount;
+        this.emit('questComplete');
+        break;
+      case 'gold':
+        this.goldEarned += amount;
+        this.gold += amount;
+        this.emit('goldUpdate', { amount });
+        break;
+      case 'exp':
+        this.expEarned += amount;
+        this.emit('expUpdate', { amount });
+        break;
+    }
   }
 
-  emitExpUpdate(amount: number) {
-    this.dispatchEvent(new CustomEvent('expUpdate', { detail: { amount } }))
+  getStats(): KingdomStatsData {
+    return {
+      questsCompleted: this.questsCompleted,
+      goldEarned: this.goldEarned,
+      expEarned: this.expEarned,
+      population: this.population,
+      happiness: this.happiness,
+      buildings: { ...this.buildings },
+      military: { ...this.military },
+      gold: this.gold
+    };
+  }
+
+  resetStats() {
+    this.questsCompleted = 0;
+    this.goldEarned = 0;
+    this.expEarned = 0;
+    this.population = 0;
+    this.happiness = 50;
+    this.buildings = {
+      houses: 0,
+      farms: 0,
+      markets: 0,
+      mines: 0,
+      barracks: 0,
+      walls: 0,
+      towers: 0,
+      temples: 0,
+      castles: 0,
+      total: 0
+    };
+    this.military = {
+      soldiers: 0,
+      archers: 0,
+      cavalry: 0,
+      siege: 0,
+      total: 0
+    };
+    this.gold = 0;
+  }
+
+  calculateStats(grid: MapGrid) {
+    // Calculate buildings
+    this.buildings.houses = grid.filter(tile => tile.type === 'house').length;
+    this.buildings.farms = grid.filter(tile => tile.type === 'farm').length;
+    this.buildings.markets = grid.filter(tile => tile.type === 'market').length;
+    this.buildings.mines = grid.filter(tile => tile.type === 'mine').length;
+    this.buildings.barracks = grid.filter(tile => tile.type === 'barracks').length;
+    this.buildings.walls = grid.filter(tile => tile.type === 'wall').length;
+    this.buildings.towers = grid.filter(tile => tile.type === 'tower').length;
+    this.buildings.temples = grid.filter(tile => tile.type === 'temple').length;
+    this.buildings.castles = grid.filter(tile => tile.type === 'castle').length;
+    
+    this.buildings.total = 
+      this.buildings.houses + 
+      this.buildings.farms + 
+      this.buildings.markets +
+      this.buildings.mines +
+      this.buildings.barracks +
+      this.buildings.walls +
+      this.buildings.towers +
+      this.buildings.temples +
+      this.buildings.castles;
+
+    // Calculate population based on houses and castles
+    this.population = (this.buildings.houses * 5) + (this.buildings.castles * 20);
+
+    // Calculate happiness based on amenities
+    this.happiness = Math.min(100, 50 + 
+      (this.buildings.markets * 5) + 
+      (this.buildings.farms * 2) +
+      (this.buildings.temples * 10) +
+      (this.buildings.castles * 15));
+
+    // Calculate military based on barracks and training grounds
+    this.military.soldiers = this.buildings.barracks * 10;
+    this.military.archers = this.buildings.towers * 5;
+    this.military.cavalry = Math.floor((this.buildings.barracks + this.buildings.castles) * 2);
+    this.military.siege = this.buildings.castles * 1;
+    this.military.total = 
+      this.military.soldiers + 
+      this.military.archers + 
+      this.military.cavalry +
+      this.military.siege;
+
+    this.emit('statsCalculated', this.getStats());
   }
 }
 
-export const updateKingdomStats = new KingdomStatsUpdater()
+export const kingdomStats = new KingdomStats();
 
 export interface KingdomStats {
+  questsCompleted: number
+  goldEarned: number
+  expEarned: number
   gold: number
   experience: number
   level: number
@@ -28,24 +201,10 @@ export interface KingdomStats {
     stone: number
     food: number
     iron: number
+    total: number
   }
-  buildings: {
-    houses: number
-    farms: number
-    mines: number
-    barracks: number
-    walls: number
-    towers: number
-    markets: number
-    temples: number
-    castles: number
-  }
-  military: {
-    soldiers: number
-    archers: number
-    cavalry: number
-    siege: number
-  }
+  buildings: BuildingsData
+  military: MilitaryData
   titles: string[]
   perks: string[]
   inventory: {
@@ -58,6 +217,9 @@ export interface KingdomStats {
 }
 
 export const defaultKingdomStats: KingdomStats = {
+  questsCompleted: 0,
+  goldEarned: 0,
+  expEarned: 0,
   gold: 1000,
   experience: 0,
   level: 1,
@@ -67,7 +229,8 @@ export const defaultKingdomStats: KingdomStats = {
     wood: 200,
     stone: 100,
     food: 300,
-    iron: 50
+    iron: 50,
+    total: 650
   },
   buildings: {
     houses: 10,
@@ -78,32 +241,19 @@ export const defaultKingdomStats: KingdomStats = {
     towers: 0,
     markets: 1,
     temples: 1,
-    castles: 0
+    castles: 0,
+    total: 21
   },
   military: {
-    soldiers: 20,
-    archers: 10,
-    cavalry: 5,
-    siege: 0
+    soldiers: 10,
+    archers: 0,
+    cavalry: 2,
+    siege: 0,
+    total: 12
   },
-  titles: ['Novice Ruler'],
-  perks: ['Basic Administration'],
-  inventory: [
-    {
-      id: 'starter-sword',
-      name: 'Rusty Sword',
-      type: 'weapon',
-      quantity: 1,
-      value: 50
-    },
-    {
-      id: 'starter-shield',
-      name: 'Wooden Shield',
-      type: 'armor',
-      quantity: 1,
-      value: 30
-    }
-  ]
+  titles: [],
+  perks: [],
+  inventory: []
 }
 
 export function calculateIncome(stats: KingdomStats): number {
@@ -238,20 +388,4 @@ export function getAvailablePerks(stats: KingdomStats): string[] {
   if (stats.military.cavalry >= 50) perks.push('Cavalry Commander')
 
   return perks
-}
-
-class KingdomStats extends EventTarget {
-  calculateStats(grid: MapGrid) {
-    // Calculate kingdom statistics based on the grid
-    const stats = {
-      gold: 0,
-      experience: 0,
-      quests: 0,
-    }
-
-    // Add your calculation logic here
-    return stats
-  }
-}
-
-export const calculateKingdomStats = new KingdomStats() 
+} 

@@ -17,6 +17,7 @@ export type TileType =
   | "treasure" 
   | "monster" 
   | "dungeon"
+  | "ice"
   | "farm"
   | "mine";
 
@@ -37,7 +38,6 @@ export interface Tile {
   bigMysteryX?: number;
   bigMysteryY?: number;
   tileSize?: number;
-  isDiscovered?: boolean;
   isVisited?: boolean;
   isTown?: boolean;
   x: number;
@@ -64,11 +64,15 @@ export interface SelectedTile {
 }
 
 // Define the inventory tile interface
-export interface InventoryTile extends Tile {
+export interface InventoryTile {
+  id: string;
+  type: TileType;
   name: string;
-  quantity?: number;
+  count: number;
   cost: number;
-  description: string;
+  description?: string;
+  connections?: string[];
+  rotation?: number;
 }
 
 // Define the character interface
@@ -86,23 +90,4 @@ export interface TileItem {
   rotation?: number;
   cost: number;
   quantity: number;
-  x: number;
-  y: number;
-}
-
-export type MapGrid = TileItem[][]
-
-export interface KingdomStats {
-  gold: number;
-  experience: number;
-  quests: number;
-  population?: number;
-  buildings?: number;
-  happiness?: number;
-  military?: {
-    strength: number;
-    defense: number;
-    morale: number;
-    training: number;
-  }
 } 

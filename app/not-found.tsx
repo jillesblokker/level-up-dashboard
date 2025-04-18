@@ -31,7 +31,7 @@ export default function NotFound() {
         
         <div className="space-y-3">
           <Button 
-            onClick={() => router.push('/kingdom')}
+            onClick={() => router.push('/')}
             className="w-full bg-amber-700 hover:bg-amber-600"
           >
             Return to Kingdom

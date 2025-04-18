@@ -6,7 +6,7 @@ import { ArrowLeft, Building, ShoppingBag, Swords, BookOpen, Home } from 'lucide
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
-import { addItemToInventory, getInventory, InventoryItem } from "@/lib/inventory-manager"
+import { addToInventory, getInventory, InventoryItem } from "@/lib/inventory-manager"
 
 interface LocationItem {
   id: string
@@ -118,12 +118,13 @@ export default function LocationClient({ slug, locationId }: Props) {
     setGold(newGold)
 
     // Add item to inventory
-    addItemToInventory({
+    addToInventory({
       id: item.id,
       name: item.name,
-      type: item.type,
+      type: item.type as 'resource' | 'item' | 'creature' | 'scroll',
+      quantity: 1,
       description: item.description,
-      emoji: item.emoji
+      category: item.type
     })
 
     // Dispatch update event

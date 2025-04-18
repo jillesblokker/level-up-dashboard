@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
-import { addItemToInventory, getInventory, InventoryItem } from "@/lib/inventory-manager"
+import { addToInventory, getInventory, InventoryItem } from "@/lib/inventory-manager"
 
 interface LocationItem {
   id: string
@@ -132,11 +132,12 @@ export default function CityLocationPage() {
     setGold(newGold)
 
     // Add item to inventory
-    addItemToInventory({
+    addToInventory({
       id: item.id,
       name: item.name,
       type: item.type,
-      description: item.description
+      description: item.description,
+      quantity: 1
     })
 
     // Dispatch update event

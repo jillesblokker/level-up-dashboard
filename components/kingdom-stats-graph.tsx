@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollText, Coins, Trophy } from "lucide-react"
-import { calculateKingdomStats } from "@/lib/kingdom-stats"
 import { db } from "@/lib/database"
 import { MapGrid } from "@/types/tiles"
 
@@ -149,18 +148,18 @@ export function KingdomStatsGraph() {
       })
     }
 
-    // Add event listeners
-    calculateKingdomStats.addEventListener('questComplete', handleQuestComplete)
-    calculateKingdomStats.addEventListener('goldUpdate', handleGoldUpdate as EventListener)
-    calculateKingdomStats.addEventListener('expUpdate', handleExpUpdate as EventListener)
+    // Add event listeners to window
+    window.addEventListener('questComplete', handleQuestComplete)
+    window.addEventListener('goldUpdate', handleGoldUpdate as EventListener)
+    window.addEventListener('expUpdate', handleExpUpdate as EventListener)
 
-    // Cleanup
+    // Cleanup function
     return () => {
-      calculateKingdomStats.removeEventListener('questComplete', handleQuestComplete)
-      calculateKingdomStats.removeEventListener('goldUpdate', handleGoldUpdate as EventListener)
-      calculateKingdomStats.removeEventListener('expUpdate', handleExpUpdate as EventListener)
+      window.removeEventListener('questComplete', handleQuestComplete)
+      window.removeEventListener('goldUpdate', handleGoldUpdate as EventListener)
+      window.removeEventListener('expUpdate', handleExpUpdate as EventListener)
     }
-  }, [today])
+  }, []) // Empty dependency array means this effect runs once on mount
 
   const getHighestValue = (data: {day: string, value: number}[]) => {
     return Math.max(...data.map(item => item.value), 10)

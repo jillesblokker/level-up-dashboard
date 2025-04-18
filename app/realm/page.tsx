@@ -26,17 +26,24 @@ import { useCreatureUnlock } from "@/lib/hooks/use-creature-unlock"
 import { MapGrid } from '../../components/map-grid'
 import { TileInventory } from '@/components/tile-inventory'
 import { Switch } from "@/components/ui/switch"
-import { generateMysteryEventReward, getScrollById } from "@/lib/mystery-events"
+import { generateMysteryEvent, handleEventOutcome, getScrollById } from "@/lib/mystery-events"
 import { toast } from 'sonner'
-import { generateMysteryEvent, handleEventOutcome } from '@/lib/mystery-events'
 import { MysteryEvent } from '@/lib/mystery-events'
 import { MysteryEventType } from '@/lib/mystery-events'
-import { addItemToInventory } from "@/lib/inventory-manager"
+import { addToInventory } from "@/lib/inventory-manager"
 
 // Types
 interface Position {
   x: number
   y: number
+}
+
+interface TileCounts {
+  forestPlaced: number;
+  forestDestroyed: number;
+  waterPlaced: number;
+  mountainDestroyed: number;
+  icePlaced: number;
 }
 
 interface InventoryItem {
@@ -101,6 +108,13 @@ const initialTileInventory: Inventory = {
     description: "Desert tile", 
     image: "/images/tiles/desert-tile.png",
     cost: 25
+  },
+  ice: { 
+    count: 10, 
+    name: "Ice", 
+    description: "Frozen ice tile", 
+    image: "/images/tiles/ice-tile.png",
+    cost: 35
   },
   mystery: { 
     count: 5, 
@@ -230,7 +244,7 @@ export default function RealmPage() {
   const [characterPosition, setCharacterPosition] = useLocalStorage<Position>("character-position", { x: 2, y: 0 })
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [selectedTile, setSelectedTile] = useState<TileItem | null>(null)
-  const [grid, setGrid] = useState<Tile[][]>([])
+  const [grid, setGrid] = useLocalStorage<Tile[][]>("realm-grid", createInitialGrid())
   const [isLoading, setIsLoading] = useState(true)
   const [isInitialized, setIsInitialized] = useState(false)
   const [currentEvent, setCurrentEvent] = useState<MysteryEvent | null>(null)
@@ -242,11 +256,12 @@ export default function RealmPage() {
   const [hoveredTile, setHoveredTile] = useState<{ row: number; col: number } | null>(null)
 
   // Add tileCounts state
-  const [tileCounts, setTileCounts] = useLocalStorage("tile-counts", {
+  const [tileCounts, setTileCounts] = useLocalStorage<TileCounts>("tile-counts", {
     forestPlaced: 0,
     forestDestroyed: 0,
     waterPlaced: 0,
-    mountainDestroyed: 0
+    mountainDestroyed: 0,
+    icePlaced: 0
   })
 
   // Add missing state declarations
@@ -277,17 +292,14 @@ export default function RealmPage() {
   // Initialize grid on client side only
   useEffect(() => {
     if (!isInitialized) {
-      const initialGrid = createInitialGrid()
-      setGrid(initialGrid)
       setIsLoading(false)
       setIsInitialized(true)
     }
   }, [isInitialized])
 
-  // Autosave
+  // Keep autosave notification
   useEffect(() => {
     const interval = setInterval(() => {
-      localStorage.setItem("realm-grid", JSON.stringify(grid))
       toast({
         title: "Realm Saved",
         description: `Your realm has been preserved in the archives, ${getCharacterName()}.`,
@@ -297,7 +309,7 @@ export default function RealmPage() {
     }, AUTOSAVE_INTERVAL)
 
     return () => clearInterval(interval)
-  }, [grid])
+  }, [])
 
   // Handle tile deletion
   const handleTileDelete = async (x: number, y: number, tileType: TileType) => {
@@ -465,15 +477,15 @@ export default function RealmPage() {
         if (selectedTile && clickedTile.type === "empty") {
           if (inventory[selectedTile.type] && inventory[selectedTile.type].count > 0) {
             const newGrid = [...grid]
-        newGrid[y][x] = {
+      newGrid[y][x] = {
               id: clickedTile.id,
               type: selectedTile.type,
               name: selectedTile.name || selectedTile.type,
               description: selectedTile.description || `${selectedTile.type} tile`,
               isVisited: false,
-          connections: [],
-          rotation: 0,
-              revealed: true,
+        connections: [],
+        rotation: 0,
+        revealed: true,
               x,
               y
             }
@@ -519,13 +531,29 @@ export default function RealmPage() {
                 await handleAchievementUnlock('006', '10 water tiles placed')
               }
             }
+            else if (selectedTile.type === 'ice') {
+              const newIceCount = (tileCounts.icePlaced || 0) + 1
+              await setTileCounts(prev => ({ ...prev, icePlaced: newIceCount }))
+              
+              // Check ice placement achievements
+              if (newIceCount === 1) {
+                await useCreatureStore.getState().discoverCreature('013')
+                await handleAchievementUnlock('013', 'First ice tile placed')
+              } else if (newIceCount === 5) {
+                await useCreatureStore.getState().discoverCreature('014')
+                await handleAchievementUnlock('014', '5 ice tiles placed')
+              } else if (newIceCount === 10) {
+                await useCreatureStore.getState().discoverCreature('015')
+                await handleAchievementUnlock('015', '10 ice tiles placed')
+              }
+            }
 
             toast({
               title: `Placed ${inventory[selectedTile.type].name}`,
               description: `Cost: ${inventory[selectedTile.type].cost} gold`,
               variant: "default"
             })
-          } else {
+      } else {
             toast({
               title: "Out of Tiles",
               description: `You don't have any ${inventory[selectedTile.type]?.name || selectedTile.type} tiles left.`, 
@@ -541,9 +569,11 @@ export default function RealmPage() {
             description: tileInfo?.description || `${clickedTile.type} tile`,
             connections: [],
             cost: tileInfo?.cost || 0,
-            quantity: 1
+            quantity: 1,
+            x: clickedTile.x,
+            y: clickedTile.y
           })
-          toast({ 
+        toast({
             title: `Selected ${tileInfo?.name || clickedTile.type} tile`,
             description: "Click the delete icon to remove this tile",
             variant: "default"
@@ -596,7 +626,7 @@ export default function RealmPage() {
     const choiceIndex = currentEvent.choices.indexOf(choice);
     if (choiceIndex === -1) return;
 
-    const outcome = currentEvent.outcomes[choiceIndex];
+    const outcome = currentEvent.outcomes[choice];
     if (!outcome) return;
 
     toast({
@@ -604,31 +634,31 @@ export default function RealmPage() {
       description: outcome.message
     });
 
-    if (outcome.rewards) {
-      const reward = outcome.rewards;
+    if (outcome.reward) {
+      const reward = outcome.reward;
       switch (reward.type) {
         case 'gold':
-          const newGold = Number(localStorage.getItem('gold') || '0') + reward.amount;
-          localStorage.setItem('gold', newGold.toString());
+          if (reward.amount) {
+            handleGoldUpdate(reward.amount);
+          }
           break;
         case 'experience':
-          const newExp = Number(localStorage.getItem('experience') || '0') + reward.amount;
-          localStorage.setItem('experience', newExp.toString());
+          if (reward.amount) {
+            handleExperienceUpdate(reward.amount);
+          }
           break;
         case 'scroll':
-          const scroll = getScrollById(reward.scrollId);
-          if (scroll) {
-            // Add scroll to inventory using inventory manager
-            addItemToInventory({
-              id: scroll.id,
+          if (reward.scroll) {
+            addToInventory({
+              id: reward.scroll.id,
               type: 'scroll',
-              name: scroll.name,
-              description: scroll.content,
+              name: reward.scroll.name,
+              description: reward.scroll.content,
               quantity: 1,
-              category: scroll.category
+              category: reward.scroll.category
             });
 
-            switch (scroll.category) {
+            switch (reward.scroll.category) {
               case 'might':
                 handleAchievementUnlock('WARRIOR_SCROLL', 'Discovered Battle Sage!');
                 break;
@@ -647,27 +677,23 @@ export default function RealmPage() {
             }
           }
           break;
-        case 'artifact':
-          // Add artifact to inventory using inventory manager
-          addItemToInventory({
-            id: reward.artifactId,
-            type: 'artifact',
-            name: 'Ancient Artifact',
-            description: 'A mysterious artifact radiating with ancient power.',
-            quantity: 1
-          });
-          handleAchievementUnlock('RELIC_GUARDIAN', 'Discovered Relic Guardian!');
-          break;
-        case 'book':
-          // Add book to inventory using inventory manager
-          addItemToInventory({
-            id: reward.bookId,
-            type: 'book',
-            name: 'Ancient Tome',
-            description: 'A mysterious book filled with forgotten knowledge.',
-            quantity: 1
-          });
-          handleAchievementUnlock('TOME_KEEPER', 'Discovered Tome Keeper!');
+        case 'item':
+          if (reward.item) {
+            addToInventory({
+              id: reward.item.id,
+              type: reward.item.type,
+              name: reward.item.name,
+              description: reward.item.description,
+              quantity: reward.item.quantity,
+              category: reward.item.category
+            });
+
+            if (reward.item.category === 'artifact') {
+              handleAchievementUnlock('RELIC_GUARDIAN', 'Discovered Relic Guardian!');
+            } else if (reward.item.type === 'scroll') {
+              handleAchievementUnlock('TOME_KEEPER', 'Discovered Tome Keeper!');
+            }
+          }
           break;
       }
     }
@@ -687,7 +713,8 @@ export default function RealmPage() {
 
   // Handle grid updates
   const handleGridUpdate = (newGrid: Tile[][]) => {
-    setGrid(newGrid)
+    setGrid(newGrid);
+    // Grid will be automatically saved to localStorage due to the useEffect above
   }
 
   // Handle inventory updates
@@ -837,7 +864,8 @@ export default function RealmPage() {
       forestPlaced: 0,
       forestDestroyed: 0,
       waterPlaced: 0,
-      mountainDestroyed: 0
+      mountainDestroyed: 0,
+      icePlaced: 0
     })
     
     // Reset inventory to initial state
@@ -889,6 +917,17 @@ export default function RealmPage() {
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [toggleInventory]);
+
+  // Add these function declarations near the top of the RealmPage component
+  const handleGoldUpdate = (amount: number) => {
+    // TODO: Implement gold update logic
+    console.log('Gold updated by:', amount);
+  };
+
+  const handleExperienceUpdate = (amount: number) => {
+    // TODO: Implement experience update logic
+    console.log('Experience updated by:', amount);
+  };
 
   if (isLoading) {
   return (
@@ -1009,7 +1048,9 @@ export default function RealmPage() {
                 description: item.description || `${type} tile`,
                 connections: [],
                 cost: item.cost,
-                quantity: item.count
+                quantity: item.count,
+                x: -1,
+                y: -1
               }))}
               selectedTile={selectedTile}
               onSelectTile={handleTileSelection}

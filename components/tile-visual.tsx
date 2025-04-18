@@ -38,6 +38,8 @@ export function TileVisual({
         return '/images/tiles/mountain-tile.png'
       case 'desert':
         return '/images/tiles/desert-tile.png'
+      case 'ice':
+        return '/images/tiles/ice-tile.png'
       case 'city':
         return '/images/tiles/city-tile.png'
       case 'town':

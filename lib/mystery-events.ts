@@ -1,6 +1,6 @@
 import { getRandomElement, getRandomInt } from '@/lib/utils'
 import { toast } from "@/components/ui/use-toast";
-import { getInventory, addItemToInventory } from "@/lib/inventory-manager"
+import { addToInventory, getInventory } from "@/lib/inventory-manager"
 
 export type MysteryEventType = 'treasure' | 'battle' | 'quest' | 'trade' | 'blessing' | 'curse' | 'riddle'
 
@@ -62,7 +62,7 @@ export interface MysteryEventReward {
     description: string;
     quantity: number;
     category: string;
-    type: string;
+    type: 'resource' | 'item' | 'creature' | 'scroll';
   };
 }
 
@@ -257,7 +257,7 @@ const artifactEvents: MysteryEvent[] = [
             description: 'An ancient artifact of unknown origin.',
             quantity: 1,
             category: 'artifact',
-            type: 'artifact'
+            type: 'item'
           }
         }
       },
@@ -418,10 +418,27 @@ export function generateMysteryEvent(): MysteryEvent {
 
 export const handleEventOutcome = (event: MysteryEvent, choice: string) => {
   const outcome = event.outcomes[choice];
-  if (!outcome) return;
+  if (!outcome) {
+    toast({
+      title: "Incorrect",
+      description: "That wasn't the right answer. Try again!",
+      variant: "destructive",
+      duration: 3000
+    });
+    return;
+  }
 
   const reward = outcome.reward;
   if (!reward) return;
+
+  // Show outcome message if present
+  if (outcome.message) {
+    toast({
+      title: "Outcome",
+      description: outcome.message,
+      duration: 3000
+    });
+  }
 
   if (reward.type === 'gold' && reward.amount) {
     const currentGold = parseInt(localStorage.getItem('character-gold') || '0');
@@ -442,9 +459,8 @@ export const handleEventOutcome = (event: MysteryEvent, choice: string) => {
     });
   }
   
-  // Handle other reward types...
   if (reward.type === 'item' && reward.item) {
-    addItemToInventory(reward.item);
+    addToInventory(reward.item);
     toast({
       title: "Item Found!",
       description: `You found ${reward.item.name}`,
@@ -453,16 +469,31 @@ export const handleEventOutcome = (event: MysteryEvent, choice: string) => {
   }
   
   if (reward.type === 'scroll' && reward.scroll) {
-    addItemToInventory({
+    addToInventory({
       type: 'scroll',
       name: reward.scroll.name,
       description: reward.scroll.content,
-      category: reward.scroll.category,
-      quantity: 1
+      id: reward.scroll.id,
+      quantity: 1,
+      category: reward.scroll.category
     });
+    
     toast({
-      title: "Scroll Found!",
-      description: `You found a scroll: ${reward.scroll.name}`,
+      title: "Scroll Discovered!",
+      description: `You found ${reward.scroll.name}!`,
+      duration: 3000
+    });
+  }
+
+  if (reward.type === 'experience' && reward.amount) {
+    const expUpdateEvent = new CustomEvent('character-exp-update', {
+      detail: { experience: reward.amount }
+    });
+    window.dispatchEvent(expUpdateEvent);
+    
+    toast({
+      title: "Experience Gained!",
+      description: `You gained ${reward.amount} experience points!`,
       duration: 3000
     });
   }
@@ -525,7 +556,7 @@ const artifactReward: MysteryEventReward = {
     description: 'An ancient artifact of unknown origin.',
     quantity: 1,
     category: 'artifact',
-    type: 'artifact'
+    type: 'item'
   },
   message: 'You found a mysterious artifact!'
 };

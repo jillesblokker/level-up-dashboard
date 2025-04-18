@@ -106,6 +106,17 @@ export function MapGrid({
     
     handleEventOutcome(currentEvent, choice);
     setCurrentEvent(null);
+
+    // Convert mystery tile to grass after event completion
+    if (battlePosition) {
+      const newGrid = [...grid];
+      newGrid[battlePosition.y][battlePosition.x] = {
+        ...newGrid[battlePosition.y][battlePosition.x],
+        type: 'grass',
+        isVisited: true
+      };
+      onGridUpdate(newGrid);
+    }
   };
 
   const isValidMovementTarget = (x: number, y: number) => {
@@ -229,10 +240,10 @@ export function MapGrid({
       {currentEvent && !showBattle && (
         <Dialog open={true} onOpenChange={() => setCurrentEvent(null)}>
           <DialogContent>
-            <DialogHeader>
+          <DialogHeader>
               <DialogTitle>{currentEvent.title}</DialogTitle>
               <DialogDescription>{currentEvent.description}</DialogDescription>
-            </DialogHeader>
+          </DialogHeader>
             <div className="grid gap-4">
               {currentEvent.choices.map((choice, index) => (
                 <Button
@@ -244,8 +255,8 @@ export function MapGrid({
                 </Button>
               ))}
             </div>
-          </DialogContent>
-        </Dialog>
+        </DialogContent>
+      </Dialog>
       )}
 
       {showBattle && (
@@ -258,8 +269,8 @@ export function MapGrid({
                 </DialogTitle>
                 <DialogDescription className="text-gray-300 mt-2">
                   A wild creature appears!
-                </DialogDescription>
-              </DialogHeader>
+            </DialogDescription>
+          </DialogHeader>
               <div className="flex-1 p-6 overflow-y-auto">
                 <BattleMinigame
                   onVictory={() => {
@@ -285,8 +296,8 @@ export function MapGrid({
                   onClose={() => setShowBattle(false)}
                   enemyName="Mysterious Creature"
                   enemyLevel={Math.floor(Math.random() * 3) + 1}
-                />
-              </div>
+                  />
+                </div>
             </div>
           </DialogContent>
         </Dialog>
@@ -308,8 +319,8 @@ export function MapGrid({
       {grid.length > 0 && grid[0].length > 0 && (
         <div className="fixed bottom-4 right-4">
           <Button onClick={onAddMoreRows}>Add More Rows</Button>
-        </div>
-      )}
+              </div>
+            )}
     </div>
   );
-}
+} 

@@ -142,4 +142,186 @@
   .font-cardo {
     font-family: var(--font-cardo), serif;
   }
+
+  /* Desert creature animations */
+  .sand-particle {
+    animation: sandFloat 3s ease-in-out infinite;
+    transform-origin: center;
+    will-change: transform, opacity;
+  }
+
+  @keyframes sandFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.8; }
+    50% { transform: translateY(-5px) rotate(1deg); opacity: 1; }
+  }
+
+  /* Ice creature animations */
+  .ice-crystal {
+    animation: iceShimmer 4s ease-in-out infinite;
+    transform-origin: center;
+    will-change: transform, opacity, box-shadow;
+  }
+
+  @keyframes iceShimmer {
+    0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+    50% { transform: scale(1.05) rotate(1deg); opacity: 1; }
+  }
+
+  /* Legendary creature animations */
+  .legendary-particle {
+    animation: legendaryGlow 3s ease-in-out infinite;
+    transform-origin: center;
+    will-change: transform, opacity, box-shadow;
+  }
+
+  @keyframes legendaryGlow {
+    0%, 100% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(1.1); filter: brightness(1.2); }
+  }
+
+  /* Add specific animations for each legendary creature */
+  .legendary-particle-101 {
+    background-color: #ef4444; /* Red for Phoenix */
+    color: #ef4444;
+  }
+
+  .legendary-particle-102 {
+    background-color: #0ea5e9; /* Blue for Kraken */
+    color: #0ea5e9;
+  }
+
+  .legendary-particle-103 {
+    background-color: #22c55e; /* Green for Gaia */
+    color: #22c55e;
+  }
+
+  /* Add hover effects for all creature cards */
+  .achievement-card:hover .sand-particle {
+    --duration: 1.5s;
+  }
+
+  .achievement-card:hover .ice-crystal {
+    --duration: 1.5s;
+  }
+
+  .achievement-card:hover .legendary-particle {
+    --duration: 1.5s;
+  }
+
+  /* Add random delays for particles */
+  .sand-particle:nth-child(2n) { --delay: 0.5s; }
+  .sand-particle:nth-child(3n) { --delay: 1s; }
+  .sand-particle:nth-child(4n) { --delay: 1.5s; }
+
+  .ice-crystal:nth-child(2n) { --delay: 0.7s; }
+  .ice-crystal:nth-child(3n) { --delay: 1.2s; }
+  .ice-crystal:nth-child(4n) { --delay: 1.7s; }
+
+  .legendary-particle:nth-child(2n) { --delay: 0.3s; }
+  .legendary-particle:nth-child(3n) { --delay: 0.8s; }
+  .legendary-particle:nth-child(4n) { --delay: 1.3s; }
+}
+
+/* Card 3D Transform Utilities */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* Creature Card Particle Effects */
+.fire-particle {
+  @apply before:absolute before:inset-0 before:bg-gradient-to-t before:from-orange-600/20 before:to-transparent;
+  animation: fireFloat 2s ease-in-out infinite;
+}
+
+.water-particle {
+  @apply before:absolute before:inset-0 before:bg-gradient-to-t before:from-blue-600/20 before:to-transparent;
+  animation: waterRipple 3s ease-in-out infinite;
+}
+
+.grass-particle {
+  @apply before:absolute before:inset-0 before:bg-gradient-to-t before:from-green-600/20 before:to-transparent;
+  animation: grassSway 4s ease-in-out infinite;
+}
+
+.rock-particle {
+  @apply before:absolute before:inset-0 before:bg-gradient-to-t before:from-stone-600/20 before:to-transparent;
+  animation: rockPulse 3s ease-in-out infinite;
+}
+
+.sand-particle {
+  @apply before:absolute before:inset-0 before:bg-gradient-to-t before:from-amber-600/20 before:to-transparent;
+  animation: sandFloat 3s ease-in-out infinite;
+}
+
+.ice-crystal {
+  @apply before:absolute before:inset-0 before:bg-gradient-to-t before:from-cyan-600/20 before:to-transparent;
+  animation: iceShimmer 4s ease-in-out infinite;
+}
+
+.legendary-particle {
+  @apply before:absolute before:inset-0 before:bg-gradient-to-t before:from-yellow-600/20 before:to-transparent;
+  animation: legendaryGlow 3s ease-in-out infinite;
+}
+
+.legendary-phoenix {
+  @apply before:from-red-600/30;
+}
+
+.legendary-kraken {
+  @apply before:from-blue-600/30;
+}
+
+.legendary-gaia {
+  @apply before:from-green-600/30;
+}
+
+/* Animations */
+@keyframes fireFloat {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.8; }
+  50% { transform: translateY(-10px) scale(1.05); opacity: 1; }
+}
+
+@keyframes waterRipple {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
+@keyframes grassSway {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(2deg); }
+  75% { transform: rotate(-2deg); }
+}
+
+@keyframes rockPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+@keyframes sandFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.8; }
+  50% { transform: translateY(-5px) rotate(1deg); opacity: 1; }
+}
+
+@keyframes iceShimmer {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+  50% { transform: scale(1.05) rotate(1deg); opacity: 1; }
+}
+
+@keyframes legendaryGlow {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.1); filter: brightness(1.2); }
 } 
