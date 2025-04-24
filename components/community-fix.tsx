@@ -554,7 +554,7 @@ export function CommunityComponent() {
                 <Bell className="mr-2 h-4 w-4" />
                 Requests
                 {(friendRequests.length > 0 || rivals.filter((r) => r.status === "pending").length > 0) && (
-                  <Badge variant="destructive" className="ml-2 px-1.5 py-0.5 h-5">
+                  <Badge className="ml-2 px-1.5 py-0.5 h-5 bg-red-500/20 text-red-300 border-red-800/20">
                     {friendRequests.length + rivals.filter((r) => r.status === "pending").length}
                   </Badge>
                 )}
@@ -584,7 +584,7 @@ export function CommunityComponent() {
                                   </CardDescription>
                                 </div>
                               </div>
-                              <Badge variant="outline">
+                              <Badge className="text-amber-300 border-amber-800/20">
                                 {friend.online ? "Online" : `Last active: ${friend.lastActive}`}
                               </Badge>
                             </div>
@@ -605,7 +605,7 @@ export function CommunityComponent() {
                                 <div className="text-sm font-medium">Top Categories</div>
                                 <div className="flex gap-2">
                                   {friend.topCategories.map((category) => (
-                                    <Badge key={category} variant="secondary">
+                                    <Badge key={category} className="text-amber-300 border-amber-800/20">
                                       {category}
                                     </Badge>
                                   ))}
@@ -758,7 +758,7 @@ export function CommunityComponent() {
                         </div>
 
                         <div className="flex items-center justify-between text-sm text-muted-foreground">
-                          <Badge variant="outline">{challenge.category}</Badge>
+                          <Badge className="text-amber-300 border-amber-800/20">{challenge.category}</Badge>
                           <div className="flex items-center">
                             <Clock className="h-4 w-4 mr-1" />
                             <span>Ends: {new Date(challenge.endDate).toLocaleDateString()}</span>
@@ -835,7 +835,7 @@ export function CommunityComponent() {
                       <CardHeader>
                         <div className="flex justify-between items-start">
                           <CardTitle className="font-serif">{challenge.title}</CardTitle>
-                          <Badge className={challenge.status === "won" ? "bg-green-500" : "bg-red-500"}>
+                          <Badge className="ml-2 px-1.5 py-0.5 h-5 bg-red-500/20 text-red-300 border-red-800/20">
                             {challenge.status === "won" ? "Won" : "Lost"}
                           </Badge>
                         </div>
@@ -877,7 +877,7 @@ export function CommunityComponent() {
                         </div>
 
                         <div className="flex items-center justify-between text-sm text-muted-foreground">
-                          <Badge variant="outline">{challenge.category}</Badge>
+                          <Badge className="text-amber-300 border-amber-800/20">{challenge.category}</Badge>
                           <div className="flex items-center">
                             <Clock className="h-4 w-4 mr-1" />
                             <span>Ended: {new Date(challenge.endDate).toLocaleDateString()}</span>
@@ -996,7 +996,7 @@ export function CommunityComponent() {
                     <Users className="mr-2 h-4 w-4" />
                     Friend Requests
                     {friendRequests.length > 0 && (
-                      <Badge variant="destructive" className="ml-2 px-1.5 py-0.5 h-5">
+                      <Badge className="ml-2 px-1.5 py-0.5 h-5 bg-red-500/20 text-red-300 border-red-800/20">
                         {friendRequests.length}
                       </Badge>
                     )}
@@ -1005,7 +1005,7 @@ export function CommunityComponent() {
                     <Sword className="mr-2 h-4 w-4" />
                     Rival Requests
                     {rivals.filter((r) => r.status === "pending").length > 0 && (
-                      <Badge variant="destructive" className="ml-2 px-1.5 py-0.5 h-5">
+                      <Badge className="ml-2 px-1.5 py-0.5 h-5 bg-red-500/20 text-red-300 border-red-800/20">
                         {rivals.filter((r) => r.status === "pending").length}
                       </Badge>
                     )}
@@ -1029,7 +1029,7 @@ export function CommunityComponent() {
                                   <CardDescription>Level {request.level}</CardDescription>
                                 </div>
                               </div>
-                              <Badge variant="outline">
+                              <Badge className="text-amber-300 border-amber-800/20">
                                 {request.mutualFriends} mutual {request.mutualFriends === 1 ? "friend" : "friends"}
                               </Badge>
                             </div>

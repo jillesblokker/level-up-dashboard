@@ -84,6 +84,7 @@ export function GreenParticles() {
       ref={canvasRef}
       className="absolute inset-0 pointer-events-none"
       style={{ mixBlendMode: 'screen' }}
+      aria-label="green-particles-animation"
     />
   );
 } 

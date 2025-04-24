@@ -1,6 +1,6 @@
 "use client"
 
-import '../styles/globals.css'
+import '../globals.css'
 import { ImagePaths } from "@/config/image-paths"
 import { Button } from "@/components/ui/button"
 import { MapPin, Compass, Mountain, Trees, Waves, ShoppingBag } from "lucide-react"

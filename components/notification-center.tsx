@@ -1,156 +1,183 @@
 "use client"
 
-import { useState } from "react"
-import { Bell, Check, X } from "lucide-react"
+import { useEffect, useState } from "react"
+import { Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { cn } from "@/lib/utils"
+import { NotificationData, notificationService } from "@/lib/notification-service"
+import { useRouter } from "next/navigation"
 
-interface Notification {
-  id: string
-  title: string
-  message: string
-  type: "achievement" | "quest" | "friend" | "system" | "success" | "warning" | "danger" | "info" | "discovery"
-  read: boolean
-  timestamp: string
-  action?: {
-    label: string
-    href: string
+export function NotificationCenter() {
+  const [notifications, setNotifications] = useState<NotificationData[]>([])
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [open, setOpen] = useState(false)
+  const router = useRouter()
+
+  useEffect(() => {
+    // Initial load
+    setNotifications(notificationService.getNotifications())
+    setUnreadCount(notificationService.getUnreadCount())
+
+    // Listen for new notifications
+    const handleNewNotification = (event: CustomEvent<NotificationData>) => {
+      setNotifications(notificationService.getNotifications())
+      setUnreadCount(notificationService.getUnreadCount())
+    }
+
+    window.addEventListener("newNotification", handleNewNotification as EventListener)
+
+    return () => {
+      window.removeEventListener("newNotification", handleNewNotification as EventListener)
+    }
+  }, [])
+
+  const handleMarkAsRead = (id: string) => {
+    notificationService.markAsRead(id)
+    setNotifications(notificationService.getNotifications())
+    setUnreadCount(notificationService.getUnreadCount())
   }
-}
 
-interface NotificationCenterProps {
-  notifications: Notification[]
-  onMarkAsRead: (id: string) => void
-  onDeleteNotification: (id: string) => void
-  onMarkAllAsRead: () => void
-}
+  const handleMarkAllAsRead = () => {
+    notificationService.markAllAsRead()
+    setNotifications(notificationService.getNotifications())
+    setUnreadCount(notificationService.getUnreadCount())
+  }
 
-export function NotificationCenter({
-  notifications,
-  onMarkAsRead,
-  onDeleteNotification,
-  onMarkAllAsRead,
-}: NotificationCenterProps) {
-  const [showNotifications, setShowNotifications] = useState(false)
-  const unreadCount = notifications.filter((n) => !n.read).length
+  const handleDelete = (id: string) => {
+    notificationService.deleteNotification(id)
+    setNotifications(notificationService.getNotifications())
+    setUnreadCount(notificationService.getUnreadCount())
+  }
 
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case "success":
-        return "bg-green-500"
-      case "warning":
-        return "bg-amber-500"
-      case "danger":
-        return "bg-red-500"
-      case "info":
-        return "bg-blue-500"
-      case "achievement":
-        return "bg-purple-500"
-      case "quest":
-        return "bg-amber-500"
-      case "discovery":
-        return "bg-cyan-500"
-      default:
-        return "bg-gray-500"
+  const handleAction = (notification: NotificationData) => {
+    if (notification.action) {
+      handleMarkAsRead(notification.id)
+      setOpen(false)
+      router.push(notification.action.href)
     }
   }
 
-  const formatTime = (timestamp: string) => {
-    const date = new Date(timestamp)
-    const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
-    const diffMins = Math.round(diffMs / 60000)
-
-    if (diffMins < 1) return "Just now"
-    if (diffMins < 60) return `${diffMins}m ago`
-
-    const diffHours = Math.floor(diffMins / 60)
-    if (diffHours < 24) return `${diffHours}h ago`
-
-    const diffDays = Math.floor(diffHours / 24)
-    if (diffDays < 7) return `${diffDays}d ago`
-
-    return date.toLocaleDateString()
+  const getNotificationIcon = (type: NotificationData["type"]) => {
+    switch (type) {
+      case "achievement":
+        return "🏆"
+      case "quest":
+        return "⚔️"
+      case "friend":
+        return "👥"
+      case "discovery":
+        return "🔍"
+      case "success":
+        return "✅"
+      case "warning":
+        return "⚠️"
+      case "danger":
+        return "❌"
+      case "info":
+        return "ℹ️"
+      default:
+        return "📢"
+    }
   }
 
   return (
-    <div className="relative">
-      <Button 
-        variant="ghost" 
-        size="icon" 
-        onClick={() => setShowNotifications(!showNotifications)} 
-        className="relative"
-      >
-        <Bell className="h-5 w-5" />
-        {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-            {unreadCount}
-          </span>
-        )}
-        <span className="sr-only">Notifications</span>
-      </Button>
-
-      {showNotifications && (
-        <Card className="absolute right-0 mt-2 w-80 max-h-[80vh] overflow-auto z-50 bg-black border-amber-800/20">
-          <div className="p-4 border-b border-amber-800/20 flex items-center justify-between">
-            <h3 className="font-medium">Notifications</h3>
-            <div className="flex gap-2">
-              {unreadCount > 0 && (
-                <Button variant="ghost" size="sm" onClick={onMarkAllAsRead} className="h-8 px-2 text-xs">
-                  <Check className="h-3 w-3 mr-1" />
-                  Mark all read
-                </Button>
-              )}
-              <Button variant="ghost" size="icon" onClick={() => setShowNotifications(false)} className="h-6 w-6">
-                <X className="h-4 w-4" />
-                <span className="sr-only">Close</span>
-              </Button>
-            </div>
-          </div>
-
-          <div className="divide-y divide-amber-800/10">
-            {notifications.length === 0 ? (
-              <div className="p-4 text-center text-muted-foreground">No notifications</div>
-            ) : (
-              notifications.map((notification) => (
-                <div key={notification.id} className={`p-3 relative ${notification.read ? "opacity-70" : ""}`}>
-                  <div className="flex items-start gap-3">
-                    <div className={`w-2 h-2 mt-1.5 rounded-full ${getTypeColor(notification.type)}`} />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-medium text-sm">{notification.title}</h4>
-                        <span className="text-xs text-muted-foreground">{formatTime(notification.timestamp)}</span>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost" className="relative" size="icon">
+          <Bell className="h-[1.2rem] w-[1.2rem]" />
+          {unreadCount > 0 && (
+            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
+              {unreadCount}
+            </span>
+          )}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Notifications</DialogTitle>
+          <DialogDescription>
+            {notifications.length === 0
+              ? "No notifications yet"
+              : `You have ${unreadCount} unread notification${unreadCount !== 1 ? "s" : ""}`}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4">
+          {notifications.length > 0 && (
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={handleMarkAllAsRead}
+              disabled={unreadCount === 0}
+            >
+              Mark all as read
+            </Button>
+          )}
+          <ScrollArea className="h-[300px] w-full rounded-md border p-4">
+            <div className="grid gap-4">
+              {notifications.map((notification) => (
+                <div
+                  key={notification.id}
+                  className={cn(
+                    "grid gap-1 rounded-lg border p-4 transition-colors",
+                    !notification.read && "bg-muted/50"
+                  )}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="grid gap-1">
+                      <div className="flex items-center gap-2">
+                        <span>{getNotificationIcon(notification.type)}</span>
+                        <h4 className="font-semibold">{notification.title}</h4>
                       </div>
-                      <p className="text-sm text-muted-foreground mt-1">{notification.message}</p>
+                      <p className="text-sm text-muted-foreground whitespace-pre-line">
+                        {notification.message}
+                      </p>
+                      {notification.action && (
+                        <Button
+                          variant="link"
+                          className="px-0 text-sm"
+                          onClick={() => handleAction(notification)}
+                        >
+                          {notification.action.label}
+                        </Button>
+                      )}
                     </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={() => handleDelete(notification.id)}
+                    >
+                      ✕
+                    </Button>
                   </div>
-                  <div className="mt-2 flex justify-end gap-2">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>{new Date(notification.timestamp).toLocaleString()}</span>
                     {!notification.read && (
                       <Button
                         variant="ghost"
-                        size="sm"
-                        onClick={() => onMarkAsRead(notification.id)}
-                        className="h-7 px-2 text-xs"
+                        className="h-auto px-2 py-1 text-xs"
+                        onClick={() => handleMarkAsRead(notification.id)}
                       >
                         Mark as read
                       </Button>
                     )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onDeleteNotification(notification.id)}
-                      className="h-7 px-2 text-xs text-red-500 hover:text-red-600"
-                    >
-                      Delete
-                    </Button>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
-        </Card>
-      )}
-    </div>
+              ))}
+            </div>
+          </ScrollArea>
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 

@@ -23,17 +23,27 @@ interface HeaderImages {
   kingdom: string;
 }
 
-// Create a global state object for header images
+// Initialize header images with default values
+const defaultHeaderImages: HeaderImages = {
+  realm: "/images/realm-header.jpg",
+  character: "/images/character-header.jpg",
+  quests: "/images/quests-header.jpg",
+  guildhall: "/images/guildhall-header.jpg",
+  achievements: "/images/achievements-header.jpg",
+  kingdom: "/images/kingdom-header.jpg",
+}
+
+// Initialize global state for header images
 if (typeof window !== 'undefined') {
-  // @ts-ignore
-  window.headerImages = window.headerImages || {
-    realm: localStorage.getItem("realm-header-image") || "/images/realm-header.jpg",
-    character: localStorage.getItem("character-header-image") || "/images/character-header.jpg",
-    quests: localStorage.getItem("quests-header-image") || "/images/quests-header.jpg",
-    guildhall: localStorage.getItem("guildhall-header-image") || "/images/guildhall-header.jpg",
-    achievements: localStorage.getItem("achievements-header-image") || "/images/achievements-header.jpg",
-    kingdom: localStorage.getItem("kingdom-header-image") || "/images/kingdom-header.jpg",
-  } as HeaderImages;
+  const storedHeaderImages: HeaderImages = {
+    realm: localStorage.getItem("realm-header-image") || defaultHeaderImages.realm,
+    character: localStorage.getItem("character-header-image") || defaultHeaderImages.character,
+    quests: localStorage.getItem("quests-header-image") || defaultHeaderImages.quests,
+    guildhall: localStorage.getItem("guildhall-header-image") || defaultHeaderImages.guildhall,
+    achievements: localStorage.getItem("achievements-header-image") || defaultHeaderImages.achievements,
+    kingdom: localStorage.getItem("kingdom-header-image") || defaultHeaderImages.kingdom,
+  };
+  window.headerImages = storedHeaderImages;
 }
 
 export default function ClientLayout({

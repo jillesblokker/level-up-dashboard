@@ -78,7 +78,7 @@ export function TileVisual({
             fill
             className="object-cover"
             priority={true}
-            sizes="8.33vw"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
           {tile.isMainTile && (
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center text-xs font-bold text-black z-10">

@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "@/components/ui/use-toast"
 import { CityItemManager, WeaponItem } from "@/lib/city-item-manager"
 import { ItemCard } from "@/components/city/item-card"
-import { addItemToInventory } from "@/lib/inventory-manager"
+import { addToInventory } from "@/lib/inventory-manager"
 import { CharacterStats } from "@/types/character"
 
 export default function ShopPage() {
@@ -72,11 +72,12 @@ export default function ShopPage() {
       setGoldBalance(newGoldBalance)
 
       // Add item to inventory
-      addItemToInventory({
+      addToInventory({
         id: item.id,
         name: item.name,
-        type: "weapon",
-        description: item.description
+        type: "item",
+        description: item.description,
+        quantity: 1
       })
 
       // Dispatch update event

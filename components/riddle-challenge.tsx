@@ -177,10 +177,10 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
             <Brain className="mr-2 h-5 w-5" /> Riddle Challenge
           </CardTitle>
           <div className="flex space-x-2">
-            <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+            <Badge className="text-amber-300 border-amber-800/20">
               <Award className="mr-1 h-3 w-3" /> {stats.correct} Correct
             </Badge>
-            <Badge variant="outline" className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+            <Badge className="text-amber-300 border-amber-800/20">
               <Coins className="mr-1 h-3 w-3" /> {stats.goldSpent} Gold Spent
             </Badge>
           </div>

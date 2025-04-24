@@ -105,7 +105,7 @@ export default function GuildhallPage() {
     <div className="min-h-screen bg-black">
       {/* Hero Section with Image */}
       <div 
-        className="relative h-[300px] md:h-[400px] lg:h-[600px] w-full max-w-full overflow-hidden"
+        className="relative h-[300px] md:h-[400px] lg:h-[500px] w-full max-w-full overflow-hidden"
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
       >
@@ -116,11 +116,12 @@ export default function GuildhallPage() {
           className="object-cover"
           priority
           quality={100}
+          sizes="100vw"
           onError={() => {
             setCoverImage("/images/default-guildhall-header.jpg")
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/50 to-black/90" />
         
         {/* Edit button that appears on hover */}
         {isHovering && !showUploadModal && (
@@ -129,6 +130,7 @@ export default function GuildhallPage() {
               onClick={() => setShowUploadModal(true)}
               className="bg-amber-700 hover:bg-amber-600 text-white rounded-full h-12 w-12 flex items-center justify-center"
               size="icon"
+              aria-label="Edit banner image"
             >
               <Edit size={20} />
             </Button>
@@ -173,103 +175,92 @@ export default function GuildhallPage() {
           </div>
         )}
         
-        <div className="absolute inset-0 flex items-center justify-center z-[5]">
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-widest drop-shadow-lg font-medieval text-amber-500">
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-[5] space-y-4">
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-widest drop-shadow-lg font-medieval text-amber-500">
             GUILDHALL
           </h1>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 sm:px-6 py-8">
-        <main className="flex-1 p-4 md:p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-4">
-              <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
-                <CardHeader>
-                  <CardTitle className="font-serif text-white">Quick Links</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <Link href="/friends">
-                    <Button variant="ghost" className="w-full justify-start text-white hover:bg-amber-900/20">
-                      <Users className="mr-2 h-4 w-4" />
-                      Friends Page
-                    </Button>
-                  </Link>
-                  <Link href="/rivals">
-                    <Button variant="ghost" className="w-full justify-start text-white hover:bg-amber-900/20">
-                      <Sword className="mr-2 h-4 w-4" />
-                      Rivals & Challenges
-                    </Button>
-                  </Link>
-                  <Link href="/messaging">
-                    <Button variant="ghost" className="w-full justify-start text-white hover:bg-amber-900/20">
-                      <MessageCircle className="mr-2 h-4 w-4" />
-                      Messaging
-                    </Button>
-                  </Link>
-                  <Link href="/notifications">
-                    <Button variant="ghost" className="w-full justify-start text-white hover:bg-amber-900/20">
-                      <Bell className="mr-2 h-4 w-4" />
-                      Notifications
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+      <div className="container mx-auto px-4 sm:px-6 -mt-10 relative z-10">
+        <main className="space-y-8">
+          {/* Stats Overview */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4" aria-label="guild-stats-overview">
+            <Card className="border-amber-800/20 backdrop-blur-sm">
+              <CardContent className="p-4">
+                <div className="text-center">
+                  <p className="text-amber-500 text-sm font-medium">Guild Rank</p>
+                  <p className="text-2xl font-bold text-white mt-1">{guildStats.rank}</p>
+                  <p className="text-amber-300/80 text-xs mt-1">{guildStats.rankTitle}</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-amber-800/20 backdrop-blur-sm">
+              <CardContent className="p-4">
+                <div className="text-center">
+                  <p className="text-amber-500 text-sm font-medium">Contributions</p>
+                  <p className="text-2xl font-bold text-white mt-1">{guildStats.contributions}</p>
+                  <p className="text-amber-300/80 text-xs mt-1">This Week</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-amber-800/20 backdrop-blur-sm">
+              <CardContent className="p-4">
+                <div className="text-center">
+                  <p className="text-amber-500 text-sm font-medium">Gold Balance</p>
+                  <p className="text-2xl font-bold text-white mt-1">{goldBalance}</p>
+                  <p className="text-amber-300/80 text-xs mt-1">Available</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-amber-800/20 backdrop-blur-sm">
+              <CardContent className="p-4">
+                <div className="text-center">
+                  <p className="text-amber-500 text-sm font-medium">Status</p>
+                  <p className="text-2xl font-bold text-white mt-1">Active</p>
+                  <p className="text-amber-300/80 text-xs mt-1">Good Standing</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-              <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
+          {/* Main Grid - Updated for desktop layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Profile Card - 3 columns */}
+            <div className="lg:col-span-3 space-y-6">
+              <Card className="border-amber-800/20 backdrop-blur-sm" aria-label="guild-profile-card">
                 <CardHeader>
-                  <CardTitle className="font-serif text-white">Your Profile</CardTitle>
-                  <CardDescription className="text-gray-300">Manage your character and achievements</CardDescription>
+                  <CardTitle className="text-amber-500">Your Profile</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <Avatar className="h-16 w-16 border-2 border-amber-500">
-                      <AvatarImage src="/placeholder.svg?height=80&width=80" alt="Your avatar" />
+                <CardContent className="space-y-6">
+                  <div className="flex flex-col items-center text-center">
+                    <Avatar className="h-24 w-24 border-2 border-amber-500 mb-4">
+                      <AvatarImage src="/placeholder.svg?height=96&width=96" alt="Your avatar" />
                       <AvatarFallback>YA</AvatarFallback>
                     </Avatar>
-                    <div>
-                      <h3 className="font-medium text-white">Adventurer</h3>
-                      <p className="text-sm text-gray-300">Level 10</p>
-                      <Badge className="mt-1 bg-amber-500 text-white">Guild Master</Badge>
-                    </div>
+                    <h3 className="text-xl font-medium text-white">Adventurer</h3>
+                    <p className="text-amber-300/80">Level 10</p>
+                    <Badge className="mt-2 bg-amber-500/20 text-amber-300 border-amber-500/50">Guild Master</Badge>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-3 pt-4 border-t border-amber-800/20">
                     <div className="flex justify-between text-sm">
-                      <span className="text-white">Friends</span>
+                      <span className="text-amber-300/80">Friends</span>
                       <span className="text-white">4</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-white">Rivals</span>
+                      <span className="text-amber-300/80">Rivals</span>
                       <span className="text-white">3</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-white">Unread Messages</span>
+                      <span className="text-amber-300/80">Messages</span>
                       <span className="text-white">3</span>
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-medium text-white">Guild Rank</h3>
-                    <p className="text-sm text-gray-300">
-                      Level {guildStats.rank} - {guildStats.rankTitle}
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-medium text-white">Guild Contributions</h3>
-                    <p className="text-sm text-gray-300">
-                      {guildStats.contributions} points earned this week
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-medium text-white">Guild Status</h3>
-                    <p className="text-sm text-gray-300">
-                      {guildStats.status}
-                    </p>
                   </div>
                 </CardContent>
                 <CardFooter>
                   <Link href="/character" className="w-full">
-                    <Button variant="outline" className="w-full text-white border-amber-800/20 hover:bg-amber-900/20">
+                    <Button variant="outline" className="w-full text-amber-300 border-amber-800/20 hover:bg-amber-900/20">
                       View Full Profile
                     </Button>
                   </Link>
@@ -277,142 +268,197 @@ export default function GuildhallPage() {
               </Card>
             </div>
 
-            <div className="md:col-span-2">
-              <Tabs defaultValue="friends" className="space-y-4">
-                <TabsList className="bg-gray-900 border-amber-800/20">
-                  <TabsTrigger value="friends" className="text-white data-[state=active]:bg-amber-900/20">
-                    <Users className="h-4 w-4 mr-2" />
-                    Friends
-                  </TabsTrigger>
-                  <TabsTrigger value="rivals" className="text-white data-[state=active]:bg-amber-900/20">
-                    <Sword className="h-4 w-4 mr-2" />
-                    Rivals
-                  </TabsTrigger>
-                  <TabsTrigger value="messages" className="text-white data-[state=active]:bg-amber-900/20">
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    Messages
-                    <Badge className="ml-2 bg-amber-500 text-white">3</Badge>
-                  </TabsTrigger>
-                </TabsList>
+            {/* Social Section - 6 columns */}
+            <div className="lg:col-span-6">
+              <Card className="border-amber-800/20 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="text-amber-500">Social</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <Tabs defaultValue="friends" className="space-y-6">
+                    <TabsList className="bg-black/40 border border-amber-800/20 p-1">
+                      <TabsTrigger 
+                        value="friends" 
+                        className="text-amber-300 data-[state=active]:bg-amber-900/40 data-[state=active]:text-amber-200"
+                      >
+                        <Users className="h-4 w-4 mr-2" />
+                        Friends
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="rivals" 
+                        className="text-amber-300 data-[state=active]:bg-amber-900/40 data-[state=active]:text-amber-200"
+                      >
+                        <Sword className="h-4 w-4 mr-2" />
+                        Rivals
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="messages" 
+                        className="text-amber-300 data-[state=active]:bg-amber-900/40 data-[state=active]:text-amber-200"
+                      >
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        Messages
+                        <Badge className="ml-2 bg-amber-500/20 text-amber-300 border-amber-500/50">3</Badge>
+                      </TabsTrigger>
+                    </TabsList>
 
-                <div className="relative mb-4">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Search..."
-                    className="pl-8 bg-gray-900 border-amber-800/20 text-white placeholder:text-gray-400"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
+                    {/* Full width search bar */}
+                    <div className="relative w-full">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-500" />
+                      <Input
+                        placeholder="Search..."
+                        className="pl-9 w-full bg-black/40 border-amber-800/20 text-amber-300 placeholder:text-amber-500/50 focus:ring-amber-500/30"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                    </div>
 
-                <TabsContent value="friends" className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
-                      <CardHeader className="pb-2">
-                        <div className="flex justify-between">
-                          <div className="flex items-center gap-2">
-                            <Avatar className="h-10 w-10 border-2 border-amber-800/20">
-                              <AvatarImage src="/placeholder.svg?height=80&width=80" alt="Friend's avatar" />
-                              <AvatarFallback>F</AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <CardTitle className="text-base text-white">Friend Name</CardTitle>
-                              <CardDescription className="text-gray-300">Level 15</CardDescription>
+                    <TabsContent value="friends" className="space-y-4 mt-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Card className="border-amber-800/20" aria-label="friend-card">
+                          <CardHeader className="pb-2">
+                            <div className="flex justify-between">
+                              <div className="flex items-center gap-2">
+                                <Avatar className="h-10 w-10 border-2 border-amber-800/20">
+                                  <AvatarImage src="/placeholder.svg?height=80&width=80" alt="Friend's avatar" />
+                                  <AvatarFallback>F</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <CardTitle className="text-base text-white">Friend Name</CardTitle>
+                                  <CardDescription className="text-gray-300">Level 15</CardDescription>
+                                </div>
+                              </div>
+                              <div>
+                                <Badge className="text-amber-300 border-amber-800/20">Online</Badge>
+                              </div>
                             </div>
-                          </div>
-                          <Badge variant="outline" className="text-white border-amber-800/20">Online</Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2">
-                          <div>
-                            <div className="text-sm font-medium text-white">Recent Activity</div>
-                            <p className="text-sm text-gray-300">Completed a workout challenge</p>
-                          </div>
-                          <div>
-                            <div className="text-sm font-medium text-white">Top Categories</div>
-                            <div className="flex gap-2 mt-1">
-                              <Badge className="text-white bg-amber-900/20">Strength</Badge>
-                              <Badge className="text-white bg-amber-900/20">Endurance</Badge>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-2">
+                              <div>
+                                <div className="text-sm font-medium text-white">Recent Activity</div>
+                                <p className="text-sm text-gray-300">Completed a workout challenge</p>
+                              </div>
+                              <div>
+                                <div className="text-sm font-medium text-white">Top Categories</div>
+                                <div className="flex gap-2 mt-1">
+                                  <Badge className="text-amber-300 bg-amber-900/20">Strength</Badge>
+                                  <Badge className="text-amber-300 bg-amber-900/20">Endurance</Badge>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                      <CardFooter className="pt-2">
-                        <div className="flex gap-2 w-full">
-                          <Button variant="outline" className="w-full text-white border-amber-800/20 hover:bg-amber-900/20">
-                            <MessageCircle className="mr-2 h-4 w-4" />
-                            Message
-                          </Button>
-                          <Button variant="outline" className="w-full text-white border-amber-800/20 hover:bg-amber-900/20">
-                            <User className="mr-2 h-4 w-4" />
-                            View Profile
-                          </Button>
-                        </div>
-                      </CardFooter>
-                    </Card>
-                  </div>
-                </TabsContent>
+                          </CardContent>
+                          <CardFooter className="pt-2">
+                            <div className="flex gap-2 w-full">
+                              <Button variant="outline" className="w-full text-white border-amber-800/20 hover:bg-amber-900/20">
+                                <MessageCircle className="mr-2 h-4 w-4" />
+                                Message
+                              </Button>
+                              <Button variant="outline" className="w-full text-white border-amber-800/20 hover:bg-amber-900/20">
+                                <User className="mr-2 h-4 w-4" />
+                                View Profile
+                              </Button>
+                            </div>
+                          </CardFooter>
+                        </Card>
+                      </div>
+                    </TabsContent>
 
-                <TabsContent value="rivals" className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <RivalCard
-                      name="Sarah Johnson"
-                      avatar="/placeholder.svg?height=80&width=80"
-                      level={15}
-                      winRate="2/3"
-                      activeChallenge={1}
-                    />
-                    <RivalCard
-                      name="Michael Chen"
-                      avatar="/placeholder.svg?height=80&width=80"
-                      level={18}
-                      winRate="1/2"
-                      activeChallenge={0}
-                    />
-                    <RivalCard
-                      name="Emma Thompson"
-                      avatar="/placeholder.svg?height=80&width=80"
-                      level={14}
-                      winRate="3/5"
-                      activeChallenge={2}
-                    />
-                  </div>
-                </TabsContent>
+                    <TabsContent value="rivals" className="space-y-4 mt-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <RivalCard
+                          name="Sarah Johnson"
+                          avatar="/placeholder.svg?height=80&width=80"
+                          level={15}
+                          winRate="2/3"
+                          activeChallenge={1}
+                        />
+                        <RivalCard
+                          name="Michael Chen"
+                          avatar="/placeholder.svg?height=80&width=80"
+                          level={18}
+                          winRate="1/2"
+                          activeChallenge={0}
+                        />
+                        <RivalCard
+                          name="Emma Thompson"
+                          avatar="/placeholder.svg?height=80&width=80"
+                          level={14}
+                          winRate="3/5"
+                          activeChallenge={2}
+                        />
+                      </div>
+                    </TabsContent>
 
-                <TabsContent value="messages" className="space-y-4">
-                  <div className="space-y-2">
-                    <MessagePreview
-                      name="Sarah Johnson"
-                      avatar="/placeholder.svg?height=80&width=80"
-                      message="Great job on your workout yesterday!"
-                      time="10:30 AM"
-                      unread={true}
-                    />
-                    <MessagePreview
-                      name="Michael Chen"
-                      avatar="/placeholder.svg?height=80&width=80"
-                      message="Are you joining the challenge?"
-                      time="Yesterday"
-                      unread={true}
-                    />
-                    <MessagePreview
-                      name="Jessica Patel"
-                      avatar="/placeholder.svg?height=80&width=80"
-                      message="Thanks for the tips!"
-                      time="2 days ago"
-                      unread={true}
-                    />
-                    <MessagePreview
-                      name="David Wilson"
-                      avatar="/placeholder.svg?height=80&width=80"
-                      message="Let's schedule that workout session"
-                      time="3 days ago"
-                      unread={false}
-                    />
-                  </div>
-                </TabsContent>
-              </Tabs>
+                    <TabsContent value="messages" className="space-y-4 mt-4">
+                      <div className="space-y-2">
+                        <MessagePreview
+                          name="Sarah Johnson"
+                          avatar="/placeholder.svg?height=80&width=80"
+                          message="Great job on your workout yesterday!"
+                          time="10:30 AM"
+                          unread={true}
+                        />
+                        <MessagePreview
+                          name="Michael Chen"
+                          avatar="/placeholder.svg?height=80&width=80"
+                          message="Are you joining the challenge?"
+                          time="Yesterday"
+                          unread={true}
+                        />
+                        <MessagePreview
+                          name="Jessica Patel"
+                          avatar="/placeholder.svg?height=80&width=80"
+                          message="Thanks for the tips!"
+                          time="2 days ago"
+                          unread={true}
+                        />
+                        <MessagePreview
+                          name="David Wilson"
+                          avatar="/placeholder.svg?height=80&width=80"
+                          message="Let's schedule that workout session"
+                          time="3 days ago"
+                          unread={false}
+                        />
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Fast Travel Section - 3 columns */}
+            <div className="lg:col-span-3">
+              <Card className="border-amber-800/20 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="text-amber-500">Fast Travel</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <Link href="/friends">
+                    <Button variant="ghost" className="w-full justify-start text-amber-300 hover:bg-amber-900/20 hover:text-amber-200">
+                      <Users className="mr-2 h-4 w-4" />
+                      Friends Page
+                    </Button>
+                  </Link>
+                  <Link href="/rivals">
+                    <Button variant="ghost" className="w-full justify-start text-amber-300 hover:bg-amber-900/20 hover:text-amber-200">
+                      <Sword className="mr-2 h-4 w-4" />
+                      Rivals & Challenges
+                    </Button>
+                  </Link>
+                  <Link href="/messaging">
+                    <Button variant="ghost" className="w-full justify-start text-amber-300 hover:bg-amber-900/20 hover:text-amber-200">
+                      <MessageCircle className="mr-2 h-4 w-4" />
+                      Messaging
+                    </Button>
+                  </Link>
+                  <Link href="/notifications">
+                    <Button variant="ghost" className="w-full justify-start text-amber-300 hover:bg-amber-900/20 hover:text-amber-200">
+                      <Bell className="mr-2 h-4 w-4" />
+                      Notifications
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </main>
@@ -440,11 +486,11 @@ function FriendCard({
   recentActivity: string
 }) {
   return (
-    <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
+    <Card className="border-amber-800/20">
       <CardHeader className="pb-2">
         <div className="flex justify-between">
           <div className="flex items-center gap-2">
-            <Avatar className="h-10 w-10 border-2 border-muted">
+            <Avatar className="h-10 w-10 border-2 border-amber-800/20">
               <AvatarImage src={avatar} alt={name} />
               <AvatarFallback>{name.charAt(0)}</AvatarFallback>
             </Avatar>
@@ -456,7 +502,7 @@ function FriendCard({
               </CardDescription>
             </div>
           </div>
-          <Badge variant="outline" className="text-white">{online ? "Online" : `Last active: ${lastActive}`}</Badge>
+          <Badge className="text-amber-300 border-amber-800/20">{online ? "Online" : `Last active: ${lastActive}`}</Badge>
         </div>
       </CardHeader>
       <CardContent className="pb-2">
@@ -465,7 +511,7 @@ function FriendCard({
             <div className="text-sm font-medium text-white">Top Categories</div>
             <div className="flex gap-2">
               {categories.map((category) => (
-                <Badge key={category} variant="secondary" className="text-white">
+                <Badge key={category} className="text-white bg-amber-900/20">
                   {category}
                 </Badge>
               ))}
@@ -513,7 +559,7 @@ function RivalCard({
   activeChallenge: number
 }) {
   return (
-    <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
+    <Card className="border-amber-800/20">
       <CardHeader>
         <div className="flex items-center gap-4">
           <Avatar className="h-16 h-16 rounded-full border-2 border-amber-500">

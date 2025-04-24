@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react"
 import { ArrowLeft, Save, User, Shield } from "lucide-react"
 import Link from "next/link"
+import { useSession, signIn, signOut } from "next-auth/react"
+import { Switch } from "@/components/ui/switch"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,6 +16,7 @@ import { toast } from "@/components/ui/use-toast"
 import { CharacterStats } from "@/types/character"
 
 export default function SettingsPage() {
+  const { data: session } = useSession()
   const [characterStats, setCharacterStats] = useState<CharacterStats>({
     level: 1,
     experience: 0,
@@ -28,9 +31,10 @@ export default function SettingsPage() {
       active: 0,
       total: 5
     }
-  });
+  })
   const [userName, setUserName] = useState("")
   const [email, setEmail] = useState("")
+  const [isGithubConnected, setIsGithubConnected] = useState(false)
 
   // Load user data
   useEffect(() => {
@@ -52,10 +56,13 @@ export default function SettingsPage() {
       if (savedEmail) {
         setEmail(savedEmail)
       }
+
+      // Check if user is connected to GitHub
+      setIsGithubConnected(!!session?.user)
     } catch (error) {
       console.error("Error loading user data:", error)
     }
-  }, [])
+  }, [session])
 
   const handleSaveProfile = () => {
     try {
@@ -97,6 +104,16 @@ export default function SettingsPage() {
         description: "Failed to reset onboarding guides.",
         variant: "destructive",
       })
+    }
+  }
+
+  const handleGithubToggle = async (checked: boolean) => {
+    if (checked) {
+      // Connect to GitHub
+      await signIn("github", { callbackUrl: "/settings" })
+    } else {
+      // Disconnect from GitHub
+      await signOut({ callbackUrl: "/settings" })
     }
   }
 
@@ -195,6 +212,32 @@ export default function SettingsPage() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <Card className="p-6 mt-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold">GitHub Connection</h2>
+              <p className="text-gray-500">
+                {isGithubConnected 
+                  ? "Your account is connected to GitHub" 
+                  : "Connect your account to GitHub to sync your data"}
+              </p>
+            </div>
+            
+            <Switch
+              checked={isGithubConnected}
+              onCheckedChange={handleGithubToggle}
+              className="ml-4"
+            />
+          </div>
+
+          {isGithubConnected && (
+            <div className="mt-4 p-4 bg-gray-100 rounded-lg">
+              <p className="font-medium">Connected as: {session?.user?.name}</p>
+              <p className="text-sm text-gray-600">{session?.user?.email}</p>
+            </div>
+          )}
+        </Card>
       </main>
     </div>
   )

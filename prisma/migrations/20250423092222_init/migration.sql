@@ -32,7 +32,6 @@ CREATE TABLE "User" (
     "name" TEXT,
     "email" TEXT,
     "emailVerified" TIMESTAMP(3),
-    "password" TEXT,
     "image" TEXT,
     "isAdmin" BOOLEAN NOT NULL DEFAULT false,
 
@@ -47,63 +46,42 @@ CREATE TABLE "VerificationToken" (
 );
 
 -- CreateTable
-CREATE TABLE "Character" (
-    "id" SERIAL NOT NULL,
-    "gold" INTEGER NOT NULL DEFAULT 1000,
-    "level" INTEGER NOT NULL DEFAULT 1,
-    "experience" INTEGER NOT NULL DEFAULT 0,
-    "inventory" JSONB,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Character_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "RealmMap" (
-    "id" SERIAL NOT NULL,
-    "grid" JSONB NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "RealmMap_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Quest" (
-    "id" SERIAL NOT NULL,
-    "title" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "reward" INTEGER NOT NULL,
-    "completed" BOOLEAN NOT NULL DEFAULT false,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Quest_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Achievement" (
-    "id" SERIAL NOT NULL,
-    "title" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "unlocked" BOOLEAN NOT NULL DEFAULT false,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Achievement_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Kingdom" (
-    "id" SERIAL NOT NULL,
+CREATE TABLE "Item" (
+    "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "resources" JSONB NOT NULL,
-    "buildings" JSONB NOT NULL,
+    "quantity" INTEGER NOT NULL DEFAULT 1,
+    "userId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Kingdom_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Item_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TilePlacement" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "tileType" TEXT NOT NULL,
+    "posX" INTEGER NOT NULL,
+    "posY" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "TilePlacement_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "QuestCompletion" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "category" TEXT NOT NULL,
+    "questName" TEXT NOT NULL,
+    "completed" BOOLEAN NOT NULL DEFAULT true,
+    "date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "QuestCompletion_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -121,8 +99,23 @@ CREATE UNIQUE INDEX "VerificationToken_token_key" ON "VerificationToken"("token"
 -- CreateIndex
 CREATE UNIQUE INDEX "VerificationToken_identifier_token_key" ON "VerificationToken"("identifier", "token");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "TilePlacement_userId_posX_posY_key" ON "TilePlacement"("userId", "posX", "posY");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "QuestCompletion_userId_category_questName_date_key" ON "QuestCompletion"("userId", "category", "questName", "date");
+
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Item" ADD CONSTRAINT "Item_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TilePlacement" ADD CONSTRAINT "TilePlacement_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "QuestCompletion" ADD CONSTRAINT "QuestCompletion_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

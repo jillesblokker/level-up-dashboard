@@ -13,7 +13,7 @@ interface LocationItem {
   name: string
   description: string
   price: number
-  type: string
+  type: "item" | "resource" | "creature" | "scroll"
 }
 
 interface LocationData {
@@ -29,9 +29,9 @@ const locationData: Record<string, LocationData> = {
     description: "A bustling marketplace where merchants sell their wares.",
     icon: ShoppingBag,
     items: [
-      { id: "health-potion", name: "Health Potion", description: "Restores 50 HP", price: 50, type: "consumable" },
-      { id: "mana-potion", name: "Mana Potion", description: "Restores 50 MP", price: 50, type: "consumable" },
-      { id: "antidote", name: "Antidote", description: "Cures poison", price: 75, type: "consumable" }
+      { id: "health-potion", name: "Health Potion", description: "Restores 50 HP", price: 50, type: "item" },
+      { id: "mana-potion", name: "Mana Potion", description: "Restores 50 MP", price: 50, type: "item" },
+      { id: "antidote", name: "Antidote", description: "Cures poison", price: 75, type: "item" }
     ]
   },
   blacksmith: {
@@ -39,9 +39,9 @@ const locationData: Record<string, LocationData> = {
     description: "A forge where weapons and armor are crafted.",
     icon: Swords,
     items: [
-      { id: "iron-sword", name: "Iron Sword", description: "A basic sword", price: 100, type: "weapon" },
-      { id: "steel-armor", name: "Steel Armor", description: "Sturdy armor", price: 200, type: "armor" },
-      { id: "iron-shield", name: "Iron Shield", description: "A basic shield", price: 150, type: "shield" }
+      { id: "iron-sword", name: "Iron Sword", description: "A basic sword", price: 100, type: "item" },
+      { id: "steel-armor", name: "Steel Armor", description: "Sturdy armor", price: 200, type: "item" },
+      { id: "iron-shield", name: "Iron Shield", description: "A basic shield", price: 150, type: "item" }
     ]
   },
   library: {
@@ -49,7 +49,7 @@ const locationData: Record<string, LocationData> = {
     description: "A place of knowledge and learning.",
     icon: BookOpen,
     items: [
-      { id: "spell-book", name: "Spell Book", description: "Contains basic spells", price: 300, type: "book" },
+      { id: "spell-book", name: "Spell Book", description: "Contains basic spells", price: 300, type: "item" },
       { id: "skill-scroll", name: "Skill Scroll", description: "Teaches a new skill", price: 500, type: "scroll" }
     ]
   },
@@ -58,8 +58,8 @@ const locationData: Record<string, LocationData> = {
     description: "The center of city administration.",
     icon: Building,
     items: [
-      { id: "city-pass", name: "City Pass", description: "Grants access to restricted areas", price: 1000, type: "key" },
-      { id: "trade-license", name: "Trade License", description: "Allows trading in the city", price: 750, type: "document" }
+      { id: "city-pass", name: "City Pass", description: "Grants access to restricted areas", price: 1000, type: "item" },
+      { id: "trade-license", name: "Trade License", description: "Allows trading in the city", price: 750, type: "item" }
     ]
   },
   inn: {
@@ -67,8 +67,8 @@ const locationData: Record<string, LocationData> = {
     description: "A cozy place to rest and gather information.",
     icon: Home,
     items: [
-      { id: "room-key", name: "Room Key", description: "Access to a private room", price: 50, type: "key" },
-      { id: "meal-token", name: "Meal Token", description: "Good for one meal", price: 25, type: "consumable" }
+      { id: "room-key", name: "Room Key", description: "Access to a private room", price: 50, type: "item" },
+      { id: "meal-token", name: "Meal Token", description: "Good for one meal", price: 25, type: "item" }
     ]
   }
 }

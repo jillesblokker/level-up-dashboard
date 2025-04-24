@@ -1,7 +1,9 @@
 "use client"
 
-import { cn } from "@/lib/utils";
-import Image from "next/image";
+import React from 'react'
+import Image from 'next/image'
+import { cn } from "@/lib/utils"
+import { Tile } from '@/types/tiles'
 import { RoadTile } from "./tile-visuals/road-tile";
 import { CornerRoadTile } from "./tile-visuals/corner-road-tile";
 import { CrossroadTile } from "./tile-visuals/crossroad-tile";
@@ -17,13 +19,14 @@ import { MonsterTile } from "./tile-visuals/monster-tile";
 import { GrassTile } from "./tile-visuals/grass-tile";
 
 interface TileVisualProps {
-  type: string;
-  rotation?: number;
-  isMainTile?: boolean;
-  citySize?: number;
-  className?: string;
-  ariaLabel?: string;
-  onClick?: () => void;
+  tile: Tile
+  isSelected?: boolean
+  isHovered?: boolean
+  isCharacterPresent?: boolean
+  onClick?: () => void
+  onHover?: () => void
+  onHoverEnd?: () => void
+  className?: string
 }
 
 // Map of tile types to their image paths
@@ -38,76 +41,129 @@ const tileImages = {
   city: "/images/tiles/city-tile.png",
 } as const;
 
-export function TileVisual({ type, rotation = 0, isMainTile, citySize, className, ariaLabel, onClick }: TileVisualProps) {
+export function TileVisual({ 
+  tile, 
+  isSelected, 
+  isHovered, 
+  isCharacterPresent,
+  onClick, 
+  onHover,
+  onHoverEnd,
+  className 
+}: TileVisualProps) {
+  const [imageError, setImageError] = React.useState(false)
+
   // For grass tile, use the GrassTile component
-  if (type === 'grass') {
-    return <GrassTile rotation={rotation} className={className} ariaLabel={ariaLabel} onClick={onClick} />;
+  if (tile.type === 'grass') {
+    return <GrassTile rotation={tile.rotation} className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
   }
 
   // For tiles that use images
-  if (type in tileImages) {
+  if (tile.type in tileImages && !imageError) {
     return (
       <div 
         className={cn(
           "w-full h-full relative",
-          isMainTile && citySize === 2 && "scale-150",
+          isSelected && "ring-2 ring-yellow-500",
+          isHovered && "brightness-110",
           className
         )}
-        style={{ transform: `rotate(${rotation}deg)` }}
+        style={{ transform: `rotate(${tile.rotation || 0}deg)` }}
         onClick={onClick}
+        onMouseEnter={onHover}
+        onMouseLeave={onHoverEnd}
         role="img"
-        aria-label={ariaLabel || `${type} tile`}
+        aria-label={`${tile.type} tile`}
       >
-        <Image
-          src={tileImages[type as keyof typeof tileImages]}
-          alt={`${type} tile`}
-          fill
-          className="object-cover"
-          priority={true}
-          unoptimized={true}
-          loading="eager"
-        />
+        <div className="relative w-full h-full">
+          <Image
+            src={tileImages[tile.type as keyof typeof tileImages]}
+            alt={`${tile.type} tile`}
+            fill
+            sizes="(max-width: 768px) 33vw, (max-width: 1200px) 25vw, 20vw"
+            className={cn(
+              "object-cover transition-all duration-200",
+              isCharacterPresent && "brightness-75"
+            )}
+            priority={true}
+            onError={() => setImageError(true)}
+          />
+          {isCharacterPresent && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-3/4 h-3/4 relative">
+                <Image
+                  src="/images/character/character-token.png"
+                  alt="Character"
+                  fill
+                  sizes="(max-width: 768px) 25vw, (max-width: 1200px) 20vw, 15vw"
+                  className="object-contain"
+                  priority={true}
+                />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     );
   }
 
   // For other tile types that use components
-  switch (type) {
+  switch (tile.type) {
     case "road":
-      return <RoadTile rotation={rotation} className={className} ariaLabel={ariaLabel} onClick={onClick} />;
+      return <RoadTile rotation={tile.rotation} className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
     case "corner":
-      return <CornerRoadTile rotation={rotation} className={className} ariaLabel={ariaLabel} onClick={onClick} />;
+      return <CornerRoadTile rotation={tile.rotation} className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
     case "crossroad":
-      return <CrossroadTile rotation={rotation} className={className} ariaLabel={ariaLabel} onClick={onClick} />;
+      return <CrossroadTile rotation={tile.rotation} className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
     case "intersection":
-      return <IntersectionTile className={className} ariaLabel={ariaLabel} onClick={onClick} />;
+      return <IntersectionTile className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
     case "t-junction":
-      return <TJunctionTile rotation={rotation} className={className} ariaLabel={ariaLabel} onClick={onClick} />;
+      return <TJunctionTile rotation={tile.rotation} className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
     case "dead-end":
-      return <DeadEndTile rotation={rotation} className={className} ariaLabel={ariaLabel} onClick={onClick} />;
+      return <DeadEndTile rotation={tile.rotation} className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
     case "special":
-      return <SpecialTile className={className} ariaLabel={ariaLabel} onClick={onClick} />;
+      return <SpecialTile className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
     case "snow":
-      return <SnowTile className={className} ariaLabel={ariaLabel} onClick={onClick} />;
+      return <SnowTile className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
     case "mystery":
-      return <MysteryTile className={className} ariaLabel={ariaLabel} onClick={onClick} />;
+      return <MysteryTile className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
     case "treasure":
-      return <TreasureTile className={className} ariaLabel={ariaLabel} onClick={onClick} />;
+      return <TreasureTile className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
     case "dungeon":
-      return <DungeonTile className={className} ariaLabel={ariaLabel} onClick={onClick} />;
+      return <DungeonTile className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
     case "monster":
-      return <MonsterTile className={className} ariaLabel={ariaLabel} onClick={onClick} />;
+      return <MonsterTile className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
     default:
       return (
-        <div
+        <div 
           className={cn(
-            "w-full h-full bg-gray-200",
+            "w-full h-full bg-green-800",
+            isSelected && "ring-2 ring-yellow-500",
+            isHovered && "brightness-110",
             className
           )}
-          style={{ transform: `rotate(${rotation}deg)` }}
-          aria-label={ariaLabel || "Empty tile"}
+          style={{ transform: `rotate(${tile.rotation || 0}deg)` }}
           onClick={onClick}
-        />
+          onMouseEnter={onHover}
+          onMouseLeave={onHoverEnd}
+          role="img"
+          aria-label={`${tile.type} tile`}
+        >
+          {isCharacterPresent && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-3/4 h-3/4 relative">
+                <Image
+                  src="/images/character/character-token.png"
+                  alt="Character"
+                  fill
+                  sizes="(max-width: 768px) 25vw, (max-width: 1200px) 20vw, 15vw"
+                  className="object-contain"
+                  priority={true}
+                />
+              </div>
+            </div>
+          )}
+        </div>
       );
   }
 } 

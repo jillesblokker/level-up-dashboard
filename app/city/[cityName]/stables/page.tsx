@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "@/components/ui/use-toast"
 import { CityItemManager, MountItem } from "@/lib/city-item-manager"
 import { ItemCard } from "@/components/city/item-card"
-import { addItemToInventory } from "@/lib/inventory-manager"
+import { addToInventory } from "@/lib/inventory-manager"
 import { CharacterStats } from "@/types/character"
 
 export default function StablesPage() {
@@ -95,11 +95,12 @@ export default function StablesPage() {
       setGoldBalance(newGoldBalance)
 
       // Add mount to inventory
-      addItemToInventory({
+      addToInventory({
         id: item.id,
         name: item.name,
-        type: "mount",
-        description: item.description
+        type: "creature",
+        description: item.description,
+        quantity: 1
       })
 
       // Dispatch update event

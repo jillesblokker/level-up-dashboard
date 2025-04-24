@@ -29,6 +29,7 @@ export function CreatureCard({ creature, discovered, showCard, previewMode, hide
           fill
           className="object-contain"
           priority
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
       </div>
     );
@@ -36,9 +37,12 @@ export function CreatureCard({ creature, discovered, showCard, previewMode, hide
 
   return (
     <div
-      className="relative aspect-[3/4] w-full cursor-pointer"
+      className="relative aspect-[3/4] w-full cursor-pointer overflow-hidden rounded-lg"
       onClick={() => setShowStats(!showStats)}
     >
+      {/* Card Background */}
+      <div className="absolute inset-0 rounded-lg" />
+
       {/* Creature Image */}
       <div className="relative w-full h-full">
         {!imageError ? (
@@ -48,6 +52,7 @@ export function CreatureCard({ creature, discovered, showCard, previewMode, hide
             fill
             className="object-contain"
             priority
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             onError={() => setImageError(true)}
           />
         ) : (
@@ -55,9 +60,16 @@ export function CreatureCard({ creature, discovered, showCard, previewMode, hide
         )}
       </div>
 
+      {/* Particles Layer */}
+      {isEffectivelyDiscovered && (
+        <div className="absolute inset-0 z-20 pointer-events-none">
+          <ElementParticles type={creature.stats.type.toLowerCase()} />
+        </div>
+      )}
+
       {/* Stats Overlay */}
       {showStats && isEffectivelyDiscovered && (
-        <div className="absolute inset-0 bg-[#0a192f]/90 p-10 flex flex-col">
+        <div className="absolute inset-0 bg-[#0a192f]/90 p-10 flex flex-col z-30">
           <h3 className="text-xl font-bold text-amber-500 mb-4">{creature.name}</h3>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
@@ -87,9 +99,6 @@ export function CreatureCard({ creature, discovered, showCard, previewMode, hide
           </div>
         </div>
       )}
-
-      {/* Particles based on creature type */}
-      {isEffectivelyDiscovered && <ElementParticles type={creature.stats.type.toLowerCase()} />}
     </div>
   );
 } 

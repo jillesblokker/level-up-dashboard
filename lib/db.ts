@@ -131,11 +131,15 @@ class LevelUpDatabase extends Dexie {
 }
 
 // Create and export a single instance of the database
-// Wrap the database creation in a try-catch to prevent critical errors
 let db: LevelUpDatabase;
 
 try {
   db = new LevelUpDatabase();
+  // Verify the database is accessible
+  db.open().catch((error) => {
+    console.error("Failed to open database:", error);
+    throw error;
+  });
 } catch (error) {
   console.error("Failed to initialize database:", error);
   // Create a fallback database instance that won't crash the app
@@ -160,37 +164,66 @@ export { db };
 
 // Get all items from a table
 export async function getAll<T>(table: Table<T>): Promise<T[]> {
-  return await table.toArray();
+  try {
+    return await table.toArray();
+  } catch (error) {
+    console.error(`Failed to get all items from table:`, error);
+    return [];
+  }
 }
 
 // Get an item by id
 export async function getById<T>(table: Table<T>, id: number | string): Promise<T | undefined> {
-  return await table.get(id);
+  try {
+    return await table.get(id);
+  } catch (error) {
+    console.error(`Failed to get item by id ${id}:`, error);
+    return undefined;
+  }
 }
 
 // Add an item to a table
 export async function add<T>(table: Table<T>, item: T): Promise<number | string> {
-  return await table.add(item);
+  try {
+    return await table.add(item);
+  } catch (error) {
+    console.error(`Failed to add item:`, error);
+    throw error;
+  }
 }
 
 // Update an item in a table
-export async function update<T>(table: Table<T>, id: number | string, changes: Partial<T>): Promise<number> {
-  return await table.update(id, changes as any);
+export async function update<T>(
+  table: Table<T>,
+  id: number | string,
+  changes: Partial<T>
+): Promise<number> {
+  try {
+    return await table.update(id, changes as any);
+  } catch (error) {
+    console.error(`Failed to update item ${id}:`, error);
+    throw error;
+  }
 }
 
 // Delete an item from a table
 export async function remove<T>(table: Table<T>, id: number | string): Promise<void> {
-  await table.delete(id);
+  try {
+    await table.delete(id);
+  } catch (error) {
+    console.error(`Failed to delete item ${id}:`, error);
+    throw error;
+  }
 }
 
 // Initialize database with default data if empty
 export async function initializeDatabase() {
   try {
-    const characterCount = await db.characters.count();
+  const characterCount = await db.characters.count();
+  
+  if (characterCount === 0) {
+    const now = new Date().toISOString();
     
-    if (characterCount === 0) {
-      const now = new Date().toISOString();
-      
       // Initialize tiles with costs
       const initialTiles = [
         { id: "grass", name: "Grass", description: "Basic terrain", cost: 5, type: "grass", connections: [], rotation: 0, quantity: 50 },
@@ -220,25 +253,25 @@ export async function initializeDatabase() {
       // Add starter city using put
       await db.cities.put({
         id: 1,
-        name: "Starterton",
-        description: "A small town where your adventure begins.",
-        population: 100,
-        wealth: 50,
-        locations: [],
+      name: "Starterton",
+      description: "A small town where your adventure begins.",
+      population: 100,
+      wealth: 50,
+      locations: [],
         dateDiscovered: now,
         version: 1
-      });
-      
+    });
+    
       // Add starter city locations using put
-      const locationTypes = ['tavern', 'blacksmith', 'market', 'academy'];
-      const locationNames = ['The Drunken Dragon', 'Ironforge Smithy', 'Market Square', 'Wizard\'s Academy'];
-      
-      for (let i = 0; i < locationTypes.length; i++) {
+    const locationTypes = ['tavern', 'blacksmith', 'market', 'academy'];
+    const locationNames = ['The Drunken Dragon', 'Ironforge Smithy', 'Market Square', 'Wizard\'s Academy'];
+    
+    for (let i = 0; i < locationTypes.length; i++) {
         await db.cityLocations.put({
           id: i + 1,
-          name: locationNames[i],
-          type: locationTypes[i],
-          description: `A ${locationTypes[i]} in Starterton.`,
+        name: locationNames[i],
+        type: locationTypes[i],
+        description: `A ${locationTypes[i]} in Starterton.`,
           unlocked: i < 2, // Only first two locations unlocked initially
           version: 1,
           lastUpdated: now

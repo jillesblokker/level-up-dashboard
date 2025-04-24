@@ -1,15 +1,15 @@
-"use client"
+import { KingdomClient } from "./kingdom/kingdom-client"
+import { auth } from "@/auth"
+import { redirect } from "next/navigation"
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+export default async function HomePage() {
+  const session = await auth()
 
-export default function HomePage() {
-  const router = useRouter()
-  
-  useEffect(() => {
-    router.push("/kingdom")
-  }, [router])
-  
-  return null
+  // Redirect to sign in if no session
+  if (!session) {
+    redirect("/auth/signin")
+  }
+
+  return <KingdomClient session={session} />
 }
 

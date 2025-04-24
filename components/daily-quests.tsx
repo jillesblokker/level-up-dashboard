@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { gainExperience } from '@/lib/experience-manager'
 import { toast } from "@/components/ui/use-toast"
+import { cn } from "@/lib/utils"
 
 // Quest item definitions with icons and categories
 interface QuestItem {
@@ -184,27 +185,51 @@ export function DailyQuests() {
       </Card>
 
       {/* Might Category */}
-      <Card className="border border-amber-800/20 bg-black">
+      <Card className="border border-red-800/20 bg-black">
         <CardHeader className="pb-2">
           <div className="flex items-center space-x-2">
-            <Sword className="h-5 w-5 text-amber-500" />
+            <Sword className="h-5 w-5 text-red-500" />
             <h3 className="text-xl font-medievalsharp text-white">Might</h3>
           </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
             {mightQuests.map((quest) => (
-              <div key={quest.id} className="flex items-center space-x-2 p-2 rounded hover:bg-gray-900/50">
+              <Card 
+                key={quest.id}
+                className={cn(
+                  "relative overflow-hidden border-amber-800/20 transition-all duration-200 flex items-center justify-between p-3 hover:bg-amber-950/20 cursor-pointer",
+                  quest.completed && "bg-amber-500/10"
+                )}
+                onClick={() => toggleQuestCompletion(quest.id)}
+                onKeyDown={(e: React.KeyboardEvent) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleQuestCompletion(quest.id);
+                  }
+                }}
+                tabIndex={0}
+                role="button"
+                aria-pressed={quest.completed}
+                aria-label={`Toggle ${quest.name} quest completion`}
+              >
+                <div className="flex items-center space-x-3">
+                  <span className="text-xl" role="img" aria-label={quest.name}>
+                    {quest.icon}
+                  </span>
+                  <span className="text-sm font-medium text-white">{quest.name}</span>
+                </div>
                 <Checkbox 
                   id={quest.id} 
-                  checked={quest.completed} 
-                  onCheckedChange={() => toggleQuestCompletion(quest.id)}
+                  checked={quest.completed}
+                  onCheckedChange={(checked) => {
+                    toggleQuestCompletion(quest.id);
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="h-5 w-5 border-2 border-red-500 data-[state=checked]:bg-red-500 data-[state=checked]:text-white"
+                  aria-label={`Mark ${quest.name} as ${quest.completed ? 'incomplete' : 'complete'}`}
                 />
-                <Label htmlFor={quest.id} className="flex items-center cursor-pointer">
-                  <span className="mr-2">{quest.icon}</span>
-                  <span className={quest.completed ? "line-through text-gray-500" : ""}>{quest.name}</span>
-                </Label>
-              </div>
+              </Card>
             ))}
             <Dialog open={isDialogOpen && newQuestCategory === "might"} onOpenChange={(open) => {
               setIsDialogOpen(open);
@@ -284,27 +309,51 @@ export function DailyQuests() {
       </Card>
 
       {/* Knowledge Category */}
-      <Card className="border border-amber-800/20 bg-black">
+      <Card className="border border-blue-800/20 bg-black">
         <CardHeader className="pb-2">
           <div className="flex items-center space-x-2">
-            <Brain className="h-5 w-5 text-amber-500" />
+            <Brain className="h-5 w-5 text-blue-500" />
             <h3 className="text-xl font-medievalsharp text-white">Knowledge</h3>
           </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
             {knowledgeQuests.map((quest) => (
-              <div key={quest.id} className="flex items-center space-x-2 p-2 rounded hover:bg-gray-900/50">
+              <Card 
+                key={quest.id}
+                className={cn(
+                  "relative overflow-hidden border-amber-800/20 transition-all duration-200 flex items-center justify-between p-3 hover:bg-amber-950/20 cursor-pointer",
+                  quest.completed && "bg-amber-500/10"
+                )}
+                onClick={() => toggleQuestCompletion(quest.id)}
+                onKeyDown={(e: React.KeyboardEvent) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleQuestCompletion(quest.id);
+                  }
+                }}
+                tabIndex={0}
+                role="button"
+                aria-pressed={quest.completed}
+                aria-label={`Toggle ${quest.name} quest completion`}
+              >
+                <div className="flex items-center space-x-3">
+                  <span className="text-xl" role="img" aria-label={quest.name}>
+                    {quest.icon}
+                  </span>
+                  <span className="text-sm font-medium text-white">{quest.name}</span>
+                </div>
                 <Checkbox 
                   id={quest.id} 
-                  checked={quest.completed} 
-                  onCheckedChange={() => toggleQuestCompletion(quest.id)}
+                  checked={quest.completed}
+                  onCheckedChange={(checked) => {
+                    toggleQuestCompletion(quest.id);
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="h-5 w-5 border-2 border-blue-500 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white"
+                  aria-label={`Mark ${quest.name} as ${quest.completed ? 'incomplete' : 'complete'}`}
                 />
-                <Label htmlFor={quest.id} className="flex items-center cursor-pointer">
-                  <span className="mr-2">{quest.icon}</span>
-                  <span className={quest.completed ? "line-through text-gray-500" : ""}>{quest.name}</span>
-                </Label>
-              </div>
+              </Card>
             ))}
             <Dialog open={isDialogOpen && newQuestCategory === "knowledge"} onOpenChange={(open) => {
               setIsDialogOpen(open);
@@ -384,27 +433,51 @@ export function DailyQuests() {
       </Card>
 
       {/* Honor Category */}
-      <Card className="border border-amber-800/20 bg-black">
+      <Card className="border border-purple-800/20 bg-black">
         <CardHeader className="pb-2">
           <div className="flex items-center space-x-2">
-            <Shield className="h-5 w-5 text-amber-500" />
+            <Shield className="h-5 w-5 text-purple-500" />
             <h3 className="text-xl font-medievalsharp text-white">Honor</h3>
           </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
             {honorQuests.map((quest) => (
-              <div key={quest.id} className="flex items-center space-x-2 p-2 rounded hover:bg-gray-900/50">
+              <Card 
+                key={quest.id}
+                className={cn(
+                  "relative overflow-hidden border-amber-800/20 transition-all duration-200 flex items-center justify-between p-3 hover:bg-amber-950/20 cursor-pointer",
+                  quest.completed && "bg-amber-500/10"
+                )}
+                onClick={() => toggleQuestCompletion(quest.id)}
+                onKeyDown={(e: React.KeyboardEvent) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleQuestCompletion(quest.id);
+                  }
+                }}
+                tabIndex={0}
+                role="button"
+                aria-pressed={quest.completed}
+                aria-label={`Toggle ${quest.name} quest completion`}
+              >
+                <div className="flex items-center space-x-3">
+                  <span className="text-xl" role="img" aria-label={quest.name}>
+                    {quest.icon}
+                  </span>
+                  <span className="text-sm font-medium text-white">{quest.name}</span>
+                </div>
                 <Checkbox 
                   id={quest.id} 
-                  checked={quest.completed} 
-                  onCheckedChange={() => toggleQuestCompletion(quest.id)}
+                  checked={quest.completed}
+                  onCheckedChange={(checked) => {
+                    toggleQuestCompletion(quest.id);
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="h-5 w-5 border-2 border-purple-500 data-[state=checked]:bg-purple-500 data-[state=checked]:text-white"
+                  aria-label={`Mark ${quest.name} as ${quest.completed ? 'incomplete' : 'complete'}`}
                 />
-                <Label htmlFor={quest.id} className="flex items-center cursor-pointer">
-                  <span className="mr-2">{quest.icon}</span>
-                  <span className={quest.completed ? "line-through text-gray-500" : ""}>{quest.name}</span>
-                </Label>
-              </div>
+              </Card>
             ))}
             <Dialog open={isDialogOpen && newQuestCategory === "honor"} onOpenChange={(open) => {
               setIsDialogOpen(open);
@@ -484,27 +557,51 @@ export function DailyQuests() {
       </Card>
 
       {/* Castle Category */}
-      <Card className="border border-amber-800/20 bg-black">
+      <Card className="border border-emerald-800/20 bg-black">
         <CardHeader className="pb-2">
           <div className="flex items-center space-x-2">
-            <Castle className="h-5 w-5 text-amber-500" />
+            <Castle className="h-5 w-5 text-emerald-500" />
             <h3 className="text-xl font-medievalsharp text-white">Castle</h3>
           </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
             {castleQuests.map((quest) => (
-              <div key={quest.id} className="flex items-center space-x-2 p-2 rounded hover:bg-gray-900/50">
+              <Card 
+                key={quest.id}
+                className={cn(
+                  "relative overflow-hidden border-amber-800/20 transition-all duration-200 flex items-center justify-between p-3 hover:bg-amber-950/20 cursor-pointer",
+                  quest.completed && "bg-amber-500/10"
+                )}
+                onClick={() => toggleQuestCompletion(quest.id)}
+                onKeyDown={(e: React.KeyboardEvent) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleQuestCompletion(quest.id);
+                  }
+                }}
+                tabIndex={0}
+                role="button"
+                aria-pressed={quest.completed}
+                aria-label={`Toggle ${quest.name} quest completion`}
+              >
+                <div className="flex items-center space-x-3">
+                  <span className="text-xl" role="img" aria-label={quest.name}>
+                    {quest.icon}
+                  </span>
+                  <span className="text-sm font-medium text-white">{quest.name}</span>
+                </div>
                 <Checkbox 
                   id={quest.id} 
-                  checked={quest.completed} 
-                  onCheckedChange={() => toggleQuestCompletion(quest.id)}
+                  checked={quest.completed}
+                  onCheckedChange={(checked) => {
+                    toggleQuestCompletion(quest.id);
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="h-5 w-5 border-2 border-emerald-500 data-[state=checked]:bg-emerald-500 data-[state=checked]:text-white"
+                  aria-label={`Mark ${quest.name} as ${quest.completed ? 'incomplete' : 'complete'}`}
                 />
-                <Label htmlFor={quest.id} className="flex items-center cursor-pointer">
-                  <span className="mr-2">{quest.icon}</span>
-                  <span className={quest.completed ? "line-through text-gray-500" : ""}>{quest.name}</span>
-                </Label>
-              </div>
+              </Card>
             ))}
             <Dialog open={isDialogOpen && newQuestCategory === "castle"} onOpenChange={(open) => {
               setIsDialogOpen(open);
@@ -584,27 +681,51 @@ export function DailyQuests() {
       </Card>
 
       {/* Craft Category */}
-      <Card className="border border-amber-800/20 bg-black">
+      <Card className="border border-yellow-800/20 bg-black">
         <CardHeader className="pb-2">
           <div className="flex items-center space-x-2">
-            <Brush className="h-5 w-5 text-amber-500" />
+            <Brush className="h-5 w-5 text-yellow-500" />
             <h3 className="text-xl font-medievalsharp text-white">Craft</h3>
           </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
             {craftQuests.map((quest) => (
-              <div key={quest.id} className="flex items-center space-x-2 p-2 rounded hover:bg-gray-900/50">
+              <Card 
+                key={quest.id}
+                className={cn(
+                  "relative overflow-hidden border-amber-800/20 transition-all duration-200 flex items-center justify-between p-3 hover:bg-amber-950/20 cursor-pointer",
+                  quest.completed && "bg-amber-500/10"
+                )}
+                onClick={() => toggleQuestCompletion(quest.id)}
+                onKeyDown={(e: React.KeyboardEvent) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleQuestCompletion(quest.id);
+                  }
+                }}
+                tabIndex={0}
+                role="button"
+                aria-pressed={quest.completed}
+                aria-label={`Toggle ${quest.name} quest completion`}
+              >
+                <div className="flex items-center space-x-3">
+                  <span className="text-xl" role="img" aria-label={quest.name}>
+                    {quest.icon}
+                  </span>
+                  <span className="text-sm font-medium text-white">{quest.name}</span>
+                </div>
                 <Checkbox 
                   id={quest.id} 
-                  checked={quest.completed} 
-                  onCheckedChange={() => toggleQuestCompletion(quest.id)}
+                  checked={quest.completed}
+                  onCheckedChange={(checked) => {
+                    toggleQuestCompletion(quest.id);
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="h-5 w-5 border-2 border-yellow-500 data-[state=checked]:bg-yellow-500 data-[state=checked]:text-white"
+                  aria-label={`Mark ${quest.name} as ${quest.completed ? 'incomplete' : 'complete'}`}
                 />
-                <Label htmlFor={quest.id} className="flex items-center cursor-pointer">
-                  <span className="mr-2">{quest.icon}</span>
-                  <span className={quest.completed ? "line-through text-gray-500" : ""}>{quest.name}</span>
-                </Label>
-              </div>
+              </Card>
             ))}
             <Dialog open={isDialogOpen && newQuestCategory === "craft"} onOpenChange={(open) => {
               setIsDialogOpen(open);
@@ -684,27 +805,51 @@ export function DailyQuests() {
       </Card>
 
       {/* Vitality Category */}
-      <Card className="border border-amber-800/20 bg-black">
+      <Card className="border border-pink-800/20 bg-black">
         <CardHeader className="pb-2">
           <div className="flex items-center space-x-2">
-            <Leaf className="h-5 w-5 text-amber-500" />
+            <Leaf className="h-5 w-5 text-pink-500" />
             <h3 className="text-xl font-medievalsharp text-white">Vitality</h3>
           </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
             {vitalityQuests.map((quest) => (
-              <div key={quest.id} className="flex items-center space-x-2 p-2 rounded hover:bg-gray-900/50">
+              <Card 
+                key={quest.id}
+                className={cn(
+                  "relative overflow-hidden border-amber-800/20 transition-all duration-200 flex items-center justify-between p-3 hover:bg-amber-950/20 cursor-pointer",
+                  quest.completed && "bg-amber-500/10"
+                )}
+                onClick={() => toggleQuestCompletion(quest.id)}
+                onKeyDown={(e: React.KeyboardEvent) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleQuestCompletion(quest.id);
+                  }
+                }}
+                tabIndex={0}
+                role="button"
+                aria-pressed={quest.completed}
+                aria-label={`Toggle ${quest.name} quest completion`}
+              >
+                <div className="flex items-center space-x-3">
+                  <span className="text-xl" role="img" aria-label={quest.name}>
+                    {quest.icon}
+                  </span>
+                  <span className="text-sm font-medium text-white">{quest.name}</span>
+                </div>
                 <Checkbox 
                   id={quest.id} 
-                  checked={quest.completed} 
-                  onCheckedChange={() => toggleQuestCompletion(quest.id)}
+                  checked={quest.completed}
+                  onCheckedChange={(checked) => {
+                    toggleQuestCompletion(quest.id);
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="h-5 w-5 border-2 border-pink-500 data-[state=checked]:bg-pink-500 data-[state=checked]:text-white"
+                  aria-label={`Mark ${quest.name} as ${quest.completed ? 'incomplete' : 'complete'}`}
                 />
-                <Label htmlFor={quest.id} className="flex items-center cursor-pointer">
-                  <span className="mr-2">{quest.icon}</span>
-                  <span className={quest.completed ? "line-through text-gray-500" : ""}>{quest.name}</span>
-                </Label>
-              </div>
+              </Card>
             ))}
             <Dialog open={isDialogOpen && newQuestCategory === "vitality"} onOpenChange={(open) => {
               setIsDialogOpen(open);

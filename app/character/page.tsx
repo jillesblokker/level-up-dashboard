@@ -689,9 +689,7 @@ export default function CharacterPage() {
                     <CardHeader className="pb-2">
                       <div className="flex justify-between">
                         <CardTitle className="font-serif">{perk.name}</CardTitle>
-                        <Badge className="bg-purple-500">
-                          Level {perk.level}/{perk.maxLevel}
-                        </Badge>
+                        <Badge className="bg-purple-500 hover:bg-purple-600">Level {perk.level}</Badge>
                       </div>
                       <CardDescription>{perk.description}</CardDescription>
                     </CardHeader>
@@ -754,32 +752,50 @@ export default function CharacterPage() {
           <Card className="medieval-card mt-6">
             <CardHeader>
               <CardTitle className="font-serif">Active Bonuses</CardTitle>
+              <CardDescription>Your currently active perks and their effects</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {perks
                   .filter((p) => p.equipped && p.level > 0)
                   .map((perk) => (
-                    <div key={perk.id} className="flex items-center gap-2">
-                      <Award className="h-5 w-5 text-purple-500 shrink-0" />
-                      <div>
-                        <p className="font-medium">
-                          {perk.name} (Level {perk.level})
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {perk.effect.replace("per level", `(${perk.level * 10}% total)`)}
-                        </p>
-                      </div>
-                    </div>
+                    <Card 
+                      key={perk.id} 
+                      className="bg-black/50 border-amber-800/30"
+                      aria-label={`active-bonus-${perk.id}`}
+                    >
+                      <CardHeader className="pb-2">
+                        <div className="flex items-center gap-2">
+                          <Award className="h-5 w-5 text-purple-500 shrink-0" />
+                          <CardTitle className="text-base font-medium">{perk.name}</CardTitle>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          <Badge className="bg-purple-500 hover:bg-purple-600">Level {perk.level}</Badge>
+                          <p className="text-sm text-muted-foreground">
+                            {perk.effect.replace("per level", `(${perk.level * 10}% total)`)}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
                   ))}
 
                 {perks.filter((p) => p.equipped && p.level > 0).length === 0 && (
-                  <p className="text-sm text-muted-foreground">No active perks. Equip perks to gain bonuses.</p>
+                  <Card className="col-span-full bg-black/50 border-amber-800/30">
+                    <CardContent className="pt-6">
+                      <p className="text-center text-muted-foreground">No active perks. Equip perks to gain bonuses.</p>
+                    </CardContent>
+                  </Card>
                 )}
               </div>
             </CardContent>
             <CardFooter>
-              <Button className="w-full" asChild>
+              <Button 
+                className="w-full" 
+                variant="default"
+                asChild
+              >
                 <Link href="/quests">
                   <Sword className="mr-2 h-4 w-4" />
                   Complete Quests to Earn More

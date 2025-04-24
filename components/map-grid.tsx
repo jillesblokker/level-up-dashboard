@@ -119,53 +119,167 @@ export function MapGrid({
     }
   };
 
+  const isPathClear = (startX: number, startY: number, endX: number, endY: number) => {
+    // Get all tiles in the path
+    const path: { x: number; y: number }[] = [];
+    const dx = endX - startX;
+    const dy = endY - startY;
+    
+    // Determine the primary direction of movement
+    if (Math.abs(dx) > Math.abs(dy)) {
+      // Moving primarily horizontally
+      const step = dx > 0 ? 1 : -1;
+      for (let x = startX; x !== endX + step; x += step) {
+        path.push({ x, y: startY });
+      }
+    } else {
+      // Moving primarily vertically
+      const step = dy > 0 ? 1 : -1;
+      for (let y = startY; y !== endY + step; y += step) {
+        path.push({ x: startX, y });
+      }
+    }
+    
+    // Check if all tiles in the path are valid for movement
+    return path.every(pos => {
+      if (pos.x < 0 || pos.y < 0 || pos.y >= grid.length || pos.x >= grid[0].length) return false;
+      const tile = grid[pos.y][pos.x];
+      return tile && tile.type && !['mountain', 'water', 'empty', undefined, null].includes(tile.type);
+    });
+  };
+
   const isValidMovementTarget = (x: number, y: number) => {
-    if (!hoveredTile) return false;
-    const dx = Math.abs(x - character.x);
-    const dy = Math.abs(y - character.y);
+    // First check if coordinates are within grid bounds
+    if (x < 0 || y < 0 || y >= grid.length || x >= grid[0].length) {
+      console.log('Invalid: Out of bounds', { x, y, gridSize: { rows: grid.length, cols: grid[0].length } });
+      return false;
+    }
+    
+    // Check if we have a valid hover state
+    if (!hoveredTile) {
+      console.log('Invalid: No hover state');
+      return false;
+    }
+    
+    // Get the target tile
     const targetTile = grid[y][x];
-    return dx + dy === 1 && targetTile.type !== 'mountain' && targetTile.type !== 'water';
+    
+    // Check if tile exists and has a valid type
+    if (!targetTile || !targetTile.type) {
+      console.log('Invalid: No tile or type', { targetTile });
+      return false;
+    }
+    
+    // Check if tile type is valid for movement
+    const isValidTileType = !['mountain', 'water', 'empty', undefined, null].includes(targetTile.type);
+    
+    if (!isValidTileType) {
+      console.log('Invalid: Invalid tile type', { tileType: targetTile.type });
+      return false;
+    }
+
+    // Check if there's a clear path to the target
+    if (!isPathClear(character.x, character.y, x, y)) {
+      console.log('Invalid: Path is blocked');
+      return false;
+    }
+    
+    console.log('Valid movement target', { x, y, tileType: targetTile.type });
+    return true;
   };
 
   const handleCharacterMove = (x: number, y: number) => {
-    if (x < 0 || y < 0 || y >= grid.length || x >= grid[0].length) return;
+    console.log('Attempting to move character to:', { x, y });
+    
+    // First validate the movement target
+    const isValid = isValidMovementTarget(x, y);
+    console.log('Movement validation result:', isValid);
+    
+    if (!isValid) {
+      // Determine the specific reason for invalid movement
+      if (x < 0 || y < 0 || y >= grid.length || x >= grid[0].length) {
+        toast({
+          title: 'Invalid Move',
+          description: 'That position is outside the map boundaries',
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      const targetTile = grid[y][x];
+      
+      if (!targetTile || !targetTile.type || targetTile.type === 'empty') {
+        toast({
+          title: 'Invalid Move',
+          description: 'You cannot move onto empty tiles',
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      if (targetTile.type === 'mountain' || targetTile.type === 'water') {
+        toast({
+          title: 'Invalid Move',
+          description: `You cannot move onto ${targetTile.type} tiles`,
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      if (!isPathClear(character.x, character.y, x, y)) {
+        toast({
+          title: 'Invalid Move',
+          description: 'The path to that tile is blocked',
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      return;
+    }
 
     const targetTile = grid[y][x];
-    const isAdjacent = (Math.abs(x - character.x) === 1 && y === character.y) ||
-      (Math.abs(y - character.y) === 1 && x === character.x);
-
-    if (!isAdjacent) {
-      toast({
-        title: 'Invalid Move',
-        description: 'You can only move to adjacent tiles',
-        variant: 'destructive'
-      });
-      return;
-    }
-
-    if (targetTile.type === 'mountain' || targetTile.type === 'water') {
-      toast({
-        title: 'Invalid Move',
-        description: `You cannot move onto ${targetTile.type} tiles`,
-        variant: 'destructive'
-      });
-      return;
-    }
+    console.log('Moving character to tile:', { targetTile });
 
     // Update character position
     onCharacterMove(x, y);
 
-    // Handle tile effects
+    // Handle tile effects and mark tiles as visited along the path
+    const path = [];
+    const dx = x - character.x;
+    const dy = y - character.y;
+    
+    if (Math.abs(dx) > Math.abs(dy)) {
+      // Moving primarily horizontally
+      const step = dx > 0 ? 1 : -1;
+      for (let currX = character.x; currX !== x + step; currX += step) {
+        path.push({ x: currX, y: character.y });
+      }
+    } else {
+      // Moving primarily vertically
+      const step = dy > 0 ? 1 : -1;
+      for (let currY = character.y; currY !== y + step; currY += step) {
+        path.push({ x: character.x, y: currY });
+      }
+    }
+
+    // Mark all tiles in the path as visited
+    const newGrid = [...grid];
+    path.forEach(pos => {
+      const tile = newGrid[pos.y][pos.x];
+      if (tile && !tile.isVisited) {
+        newGrid[pos.y][pos.x] = {
+          ...tile,
+          isVisited: true
+        };
+      }
+    });
+
+    // Handle mystery tile at the destination
     if (targetTile.type === 'mystery' && !targetTile.isVisited) {
       handleMysteryTile(targetTile);
     }
 
-    // Mark tile as visited
-    const newGrid = [...grid];
-    newGrid[y][x] = {
-      ...targetTile,
-      isVisited: true
-    };
     onGridUpdate(newGrid);
   };
 
@@ -180,6 +294,7 @@ export function MapGrid({
           <React.Fragment key={y}>
             {row.map((tile, x) => {
               const isSelected = hoveredTile?.row === y && hoveredTile?.col === x;
+              const isValidMove = isMovementMode && isValidMovementTarget(x, y);
               const isVisited = tile.revealed || false;
 
               return (
@@ -187,18 +302,28 @@ export function MapGrid({
                   key={`${y}-${x}`}
                   className={cn(
                     "relative aspect-square group",
-                    isMovementMode && isValidMovementTarget(x, y) && isSelected && "shadow-[0_0_15px_rgba(34,197,94,0.2)]",
+                    isMovementMode && isValidMove && isSelected && "shadow-[0_0_15px_rgba(34,197,94,0.2)]",
                     "transition-all duration-200",
                     "cursor-pointer"
                   )}
-                  onClick={() => {
+                  onClick={(e) => {
+                    console.log('Tile clicked:', { x, y, isMovementMode, isValidMove });
+                    e.stopPropagation();
+                    
                     if (isMovementMode) {
                       handleCharacterMove(x, y);
+                    } else {
+                      onTileClick(x, y);
                     }
-                    onTileClick(x, y);
                   }}
-                  onMouseEnter={() => onHover?.(x, y)}
-                  onMouseLeave={() => onHoverEnd?.()}
+                  onMouseEnter={() => {
+                    console.log('Mouse entered tile:', { x, y });
+                    onHover?.(x, y);
+                  }}
+                  onMouseLeave={() => {
+                    console.log('Mouse left tile');
+                    onHoverEnd?.();
+                  }}
                 >
                   <div className="absolute inset-0">
                     <TileVisual

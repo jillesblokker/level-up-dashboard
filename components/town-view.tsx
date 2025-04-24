@@ -99,6 +99,7 @@ export function TownView({ name, isTown, onReturn }: TownViewProps) {
                       alt="Blacksmith"
                       fill
                       className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   </div>
                   <p className="font-medium">Blacksmith</p>
@@ -113,6 +114,7 @@ export function TownView({ name, isTown, onReturn }: TownViewProps) {
                       alt="Royal Castle"
                       fill
                       className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   </div>
                   <p className="font-medium">Royal Castle</p>
@@ -124,6 +126,7 @@ export function TownView({ name, isTown, onReturn }: TownViewProps) {
                       alt="Grand Cathedral"
                       fill
                       className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   </div>
                   <p className="font-medium">Grand Cathedral</p>
@@ -135,6 +138,7 @@ export function TownView({ name, isTown, onReturn }: TownViewProps) {
                       alt="Market District"
                       fill
                       className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   </div>
                   <p className="font-medium">Market District</p>

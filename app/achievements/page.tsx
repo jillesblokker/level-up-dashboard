@@ -12,7 +12,7 @@ export default function AchievementsPage() {
   const isCreatureDiscovered = (id: string) => creatures.find(c => c.id === id)?.discovered || false
 
   return (
-    <main className="min-h-screen bg-gray-900 text-white">
+    <main className="min-h-screen">
       <div className="w-full">
         {/* Header section */}
         <div className="relative h-[300px] md:h-[400px] lg:h-[600px] w-full max-w-full overflow-hidden">

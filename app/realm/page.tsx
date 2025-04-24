@@ -31,6 +31,8 @@ import { toast } from 'sonner'
 import { MysteryEvent } from '@/lib/mystery-events'
 import { MysteryEventType } from '@/lib/mystery-events'
 import { addToInventory } from "@/lib/inventory-manager"
+import { TileEditor } from '@/components/tile-editor'
+import { createTilePlacement } from '@/lib/api'
 
 // Types
 interface Position {
@@ -58,6 +60,12 @@ interface InventoryItem {
 
 interface Inventory {
   [key: string]: InventoryItem;
+}
+
+// Create an extended interface for TileItem with x and y coordinates
+interface ExtendedTileItem extends TileItem {
+  x?: number;
+  y?: number;
 }
 
 // Remove empty interface and extend Tile directly where needed
@@ -173,7 +181,7 @@ const createInitialGrid = () => {
           type = 'mountain';
         } else if (x === 2) {
           type = 'city';
-        } else {
+  } else {
           type = 'grass';
         }
       }
@@ -243,7 +251,7 @@ export default function RealmPage() {
   const [showScrollMessage, setShowScrollMessage] = useState(false)
   const [characterPosition, setCharacterPosition] = useLocalStorage<Position>("character-position", { x: 2, y: 0 })
   const [isFullscreen, setIsFullscreen] = useState(false)
-  const [selectedTile, setSelectedTile] = useState<TileItem | null>(null)
+  const [selectedTile, setSelectedTile] = useState<ExtendedTileItem | null>(null)
   const [grid, setGrid] = useLocalStorage<Tile[][]>("realm-grid", createInitialGrid())
   const [isLoading, setIsLoading] = useState(true)
   const [isInitialized, setIsInitialized] = useState(false)
@@ -277,13 +285,16 @@ export default function RealmPage() {
   // Add eventDialogOpen state
   const [eventDialogOpen, setEventDialogOpen] = useState(false);
 
+  // Add showTileEditor state
+  const [showTileEditor, setShowTileEditor] = useState(false)
+
   // Handle fullscreen toggle
   const handleFullscreenToggle = (checked: boolean) => {
     setIsFullscreen(checked)
     const url = new URL(window.location.href)
     if (checked) {
       url.searchParams.set('fullscreen', 'true')
-    } else {
+          } else {
       url.searchParams.delete('fullscreen')
     }
     window.history.replaceState({}, '', url.toString())
@@ -292,7 +303,7 @@ export default function RealmPage() {
   // Initialize grid on client side only
   useEffect(() => {
     if (!isInitialized) {
-      setIsLoading(false)
+        setIsLoading(false)
       setIsInitialized(true)
     }
   }, [isInitialized])
@@ -458,93 +469,123 @@ export default function RealmPage() {
     }
 
     try {
-      if (x < 0 || y < 0 || y >= grid.length || x >= grid[0].length) return
+      if (x < 0 || y < 0 || y >= grid.length || x >= grid[0].length) return;
 
-      const clickedTile = grid[y][x]
+      const clickedTile = grid[y][x];
 
       if (movementMode) {
-        moveCharacter(x, y)
+        moveCharacter(x, y);
         if (clickedTile.type === "city" || clickedTile.type === "town") {
-          const locationInfo = locationData[clickedTile.type]
+          const locationInfo = locationData[clickedTile.type];
           setCurrentLocation({
             type: clickedTile.type,
             name: locationInfo.name,
             description: locationInfo.description
-          })
-          setShowLocationModal(true)
+          });
+          setShowLocationModal(true);
         }
       } else {
-        if (selectedTile && clickedTile.type === "empty") {
-          if (inventory[selectedTile.type] && inventory[selectedTile.type].count > 0) {
-            const newGrid = [...grid]
-      newGrid[y][x] = {
-              id: clickedTile.id,
+        // Check if we have a selected tile and are trying to place it
+        if (selectedTile) {
+          console.log('Attempting to place tile:', { selectedTile, clickedTile });
+          
+          // Verify we have the tile in inventory
+          if (!inventory[selectedTile.type] || inventory[selectedTile.type].count <= 0) {
+            toast({
+              title: "Out of Tiles",
+              description: `You don't have any ${inventory[selectedTile.type]?.name || selectedTile.type} tiles left.`,
+              variant: "destructive"
+            });
+            return;
+          }
+
+          // Verify the target location is empty
+          if (clickedTile.type !== 'empty') {
+            toast({
+              title: "Invalid Location",
+              description: "You can only place tiles on empty spaces.",
+              variant: "destructive"
+            });
+            return;
+          }
+
+          try {
+            // Create tile placement in database
+            const placement = await createTilePlacement(selectedTile.type, x, y);
+            console.log('Tile placement successful:', placement);
+
+            // Update the grid with the new tile
+            const newGrid = [...grid];
+            newGrid[y][x] = {
+              id: placement.id,
               type: selectedTile.type,
               name: selectedTile.name || selectedTile.type,
               description: selectedTile.description || `${selectedTile.type} tile`,
               isVisited: false,
-        connections: [],
-        rotation: 0,
-        revealed: true,
+              connections: [],
+              rotation: 0,
+              revealed: true,
               x,
               y
-            }
-            setGrid(newGrid)
+            };
+            setGrid(newGrid);
+
+            // Update inventory
             setInventory({
               ...inventory,
               [selectedTile.type]: {
                 ...inventory[selectedTile.type],
                 count: inventory[selectedTile.type].count - 1
               }
-            })
+            });
 
             // Track tile placement and check for achievements
             if (selectedTile.type === 'forest') {
-              const newForestCount = (tileCounts.forestPlaced || 0) + 1
-              await setTileCounts(prev => ({ ...prev, forestPlaced: newForestCount }))
+              const newForestCount = (tileCounts.forestPlaced || 0) + 1;
+              await setTileCounts(prev => ({ ...prev, forestPlaced: newForestCount }));
               
               // Check forest placement achievements
               if (newForestCount === 1) {
-                await useCreatureStore.getState().discoverCreature('007')
-                await handleAchievementUnlock('007', 'First forest placed')
+                await useCreatureStore.getState().discoverCreature('007');
+                await handleAchievementUnlock('007', 'First forest placed');
               } else if (newForestCount === 5) {
-                await useCreatureStore.getState().discoverCreature('008')
-                await handleAchievementUnlock('008', '5 forests placed')
+                await useCreatureStore.getState().discoverCreature('008');
+                await handleAchievementUnlock('008', '5 forests placed');
               } else if (newForestCount === 10) {
-                await useCreatureStore.getState().discoverCreature('009')
-                await handleAchievementUnlock('009', '10 forests placed')
+                await useCreatureStore.getState().discoverCreature('009');
+                await handleAchievementUnlock('009', '10 forests placed');
               }
             }
             else if (selectedTile.type === 'water') {
-              const newWaterCount = (tileCounts.waterPlaced || 0) + 1
-              await setTileCounts(prev => ({ ...prev, waterPlaced: newWaterCount }))
+              const newWaterCount = (tileCounts.waterPlaced || 0) + 1;
+              await setTileCounts(prev => ({ ...prev, waterPlaced: newWaterCount }));
               
               // Check water placement achievements
               if (newWaterCount === 1) {
-                await useCreatureStore.getState().discoverCreature('004')
-                await handleAchievementUnlock('004', 'First water placed')
+                await useCreatureStore.getState().discoverCreature('004');
+                await handleAchievementUnlock('004', 'First water placed');
               } else if (newWaterCount === 5) {
-                await useCreatureStore.getState().discoverCreature('005')
-                await handleAchievementUnlock('005', '5 water tiles placed')
+                await useCreatureStore.getState().discoverCreature('005');
+                await handleAchievementUnlock('005', '5 water tiles placed');
               } else if (newWaterCount === 10) {
-                await useCreatureStore.getState().discoverCreature('006')
-                await handleAchievementUnlock('006', '10 water tiles placed')
+                await useCreatureStore.getState().discoverCreature('006');
+                await handleAchievementUnlock('006', '10 water tiles placed');
               }
             }
             else if (selectedTile.type === 'ice') {
-              const newIceCount = (tileCounts.icePlaced || 0) + 1
-              await setTileCounts(prev => ({ ...prev, icePlaced: newIceCount }))
+              const newIceCount = (tileCounts.icePlaced || 0) + 1;
+              await setTileCounts(prev => ({ ...prev, icePlaced: newIceCount }));
               
               // Check ice placement achievements
               if (newIceCount === 1) {
-                await useCreatureStore.getState().discoverCreature('013')
-                await handleAchievementUnlock('013', 'First ice tile placed')
+                await useCreatureStore.getState().discoverCreature('013');
+                await handleAchievementUnlock('013', 'First ice tile placed');
               } else if (newIceCount === 5) {
-                await useCreatureStore.getState().discoverCreature('014')
-                await handleAchievementUnlock('014', '5 ice tiles placed')
+                await useCreatureStore.getState().discoverCreature('014');
+                await handleAchievementUnlock('014', '5 ice tiles placed');
               } else if (newIceCount === 10) {
-                await useCreatureStore.getState().discoverCreature('015')
-                await handleAchievementUnlock('015', '10 ice tiles placed')
+                await useCreatureStore.getState().discoverCreature('015');
+                await handleAchievementUnlock('015', '10 ice tiles placed');
               }
             }
 
@@ -552,16 +593,18 @@ export default function RealmPage() {
               title: `Placed ${inventory[selectedTile.type].name}`,
               description: `Cost: ${inventory[selectedTile.type].cost} gold`,
               variant: "default"
-            })
-      } else {
+            });
+          } catch (error) {
+            console.error('Failed to create tile placement:', error);
             toast({
-              title: "Out of Tiles",
-              description: `You don't have any ${inventory[selectedTile.type]?.name || selectedTile.type} tiles left.`, 
+              title: "Error",
+              description: "Failed to save tile placement. Please try again.",
               variant: "destructive"
-            })
+            });
           }
-        } else if (clickedTile.type !== "empty") {
-          const tileInfo = inventory[clickedTile.type]
+        } else {
+          // If no tile is selected, select the clicked tile
+          const tileInfo = inventory[clickedTile.type];
           setSelectedTile({
             id: clickedTile.id,
             type: clickedTile.type,
@@ -572,23 +615,23 @@ export default function RealmPage() {
             quantity: 1,
             x: clickedTile.x,
             y: clickedTile.y
-          })
-        toast({
+          });
+          toast({
             title: `Selected ${tileInfo?.name || clickedTile.type} tile`,
             description: "Click the delete icon to remove this tile",
             variant: "default"
-          })
+          });
         }
       }
     } catch (error) {
-      console.error('Error in handleTileClick:', error)
+      console.error('Error in handleTileClick:', error);
       toast({
         title: "Error",
         description: "Failed to process tile action. Please try again.",
         variant: "destructive"
-      })
+      });
     }
-  }
+  };
 
   // Handle character movement
   const moveCharacter = useCallback((newX: number, newY: number) => {
@@ -618,98 +661,6 @@ export default function RealmPage() {
       console.error('Error in handleAchievementUnlock:', error)
     }
   }
-
-  // Update the handleEventChoice function
-  const handleEventChoice = async (choice: string) => {
-    if (!currentEvent) return;
-
-    const choiceIndex = currentEvent.choices.indexOf(choice);
-    if (choiceIndex === -1) return;
-
-    const outcome = currentEvent.outcomes[choice];
-    if (!outcome) return;
-
-    toast({
-      title: 'Event Outcome',
-      description: outcome.message
-    });
-
-    if (outcome.reward) {
-      const reward = outcome.reward;
-      switch (reward.type) {
-        case 'gold':
-          if (reward.amount) {
-            handleGoldUpdate(reward.amount);
-          }
-          break;
-        case 'experience':
-          if (reward.amount) {
-            handleExperienceUpdate(reward.amount);
-          }
-          break;
-        case 'scroll':
-          if (reward.scroll) {
-            addToInventory({
-              id: reward.scroll.id,
-              type: 'scroll',
-              name: reward.scroll.name,
-              description: reward.scroll.content,
-              quantity: 1,
-              category: reward.scroll.category
-            });
-
-            switch (reward.scroll.category) {
-              case 'might':
-                handleAchievementUnlock('WARRIOR_SCROLL', 'Discovered Battle Sage!');
-                break;
-              case 'knowledge':
-                handleAchievementUnlock('SCHOLAR_SCROLL', 'Discovered Scroll Keeper!');
-                break;
-              case 'exploration':
-                handleAchievementUnlock('EXPLORER_SCROLL', 'Discovered Path Finder!');
-                break;
-              case 'social':
-                handleAchievementUnlock('DIPLOMAT_SCROLL', 'Discovered Trade Master!');
-                break;
-              case 'crafting':
-                handleAchievementUnlock('ARTISAN_SCROLL', 'Discovered Master Smith!');
-                break;
-            }
-          }
-          break;
-        case 'item':
-          if (reward.item) {
-            addToInventory({
-              id: reward.item.id,
-              type: reward.item.type,
-              name: reward.item.name,
-              description: reward.item.description,
-              quantity: reward.item.quantity,
-              category: reward.item.category
-            });
-
-            if (reward.item.category === 'artifact') {
-              handleAchievementUnlock('RELIC_GUARDIAN', 'Discovered Relic Guardian!');
-            } else if (reward.item.type === 'scroll') {
-              handleAchievementUnlock('TOME_KEEPER', 'Discovered Tome Keeper!');
-            }
-          }
-          break;
-      }
-    }
-
-    // Mark the tile as visited
-    const newGrid = [...grid];
-    const { x, y } = characterPosition;
-    if (newGrid[y]?.[x]) {
-      newGrid[y][x] = { ...newGrid[y][x], isVisited: true };
-      setGrid(newGrid);
-      localStorage.setItem('grid', JSON.stringify(newGrid));
-    }
-
-    // Close the event dialog
-    setCurrentEvent(null);
-  };
 
   // Handle grid updates
   const handleGridUpdate = (newGrid: Tile[][]) => {
@@ -882,14 +833,24 @@ export default function RealmPage() {
     setHoveredTile({ row: y, col: x });
   };
 
-  const handleTileSelection = (tile: TileItem | null) => {
+  const handleTileSelection = (tile: ExtendedTileItem | null) => {
     if (!tile) {
-      setSelectedTile(null);
-      return;
+      setSelectedTile(null)
+      return
     }
     
-    setSelectedTile(tile);
-  };
+    setSelectedTile({
+      id: tile.id,
+      type: tile.type,
+      name: tile.name,
+      description: tile.description,
+      connections: tile.connections,
+      cost: tile.cost,
+      quantity: tile.quantity,
+      x: tile.x || 0,
+      y: tile.y || 0
+    })
+  }
 
   // Handle inventory toggle
   const toggleInventory = useCallback(() => {
@@ -929,6 +890,137 @@ export default function RealmPage() {
     console.log('Experience updated by:', amount);
   };
 
+  // Convert inventory to TileItems for the editor
+  const inventoryToTileItems = (): ExtendedTileItem[] => {
+    return Object.entries(inventory).map(([type, item]) => ({
+      id: `${type}-${Date.now()}`,
+      type: type as TileType,
+      name: item.name,
+      description: item.description,
+      cost: item.cost,
+      quantity: item.count,
+      connections: [],
+      x: 0,
+      y: 0
+    }))
+  }
+
+  // Update inventory from TileItems
+  const updateInventoryFromTileItems = (tileItems: ExtendedTileItem[]) => {
+    const newInventory = { ...inventory }
+    
+    tileItems.forEach(item => {
+      if (newInventory[item.type]) {
+        newInventory[item.type] = {
+          ...newInventory[item.type],
+          count: item.quantity,
+          name: item.name,
+          description: item.description,
+          cost: item.cost
+        }
+      }
+    })
+    
+    setInventory(newInventory)
+    toast({
+      title: "Inventory Updated",
+      description: "Your tile inventory has been updated.",
+      variant: "default"
+    })
+  }
+
+  // Update the handleEventChoice function
+  const handleEventChoice = async (choice: string) => {
+    if (!currentEvent) return;
+
+    const choiceIndex = currentEvent.choices.indexOf(choice);
+    if (choiceIndex === -1) return;
+
+    const outcome = currentEvent.outcomes[choice];
+    if (!outcome) return;
+
+    toast({
+      title: 'Event Outcome',
+      description: outcome.message
+    });
+
+    if (outcome.reward) {
+      const reward = outcome.reward;
+      switch (reward.type) {
+        case 'gold':
+          if (reward.amount) {
+            handleGoldUpdate(reward.amount);
+          }
+          break;
+        case 'experience':
+          if (reward.amount) {
+            handleExperienceUpdate(reward.amount);
+          }
+          break;
+        case 'scroll':
+          if (reward.scroll) {
+            addToInventory({
+              id: reward.scroll.id,
+              type: 'scroll',
+              name: reward.scroll.name,
+              description: reward.scroll.content,
+              quantity: 1,
+              category: reward.scroll.category
+            });
+
+            switch (reward.scroll.category) {
+              case 'might':
+                handleAchievementUnlock('WARRIOR_SCROLL', 'Discovered Battle Sage!');
+                break;
+              case 'knowledge':
+                handleAchievementUnlock('SCHOLAR_SCROLL', 'Discovered Scroll Keeper!');
+                break;
+              case 'exploration':
+                handleAchievementUnlock('EXPLORER_SCROLL', 'Discovered Path Finder!');
+                break;
+              case 'social':
+                handleAchievementUnlock('DIPLOMAT_SCROLL', 'Discovered Trade Master!');
+                break;
+              case 'crafting':
+                handleAchievementUnlock('ARTISAN_SCROLL', 'Discovered Master Smith!');
+                break;
+            }
+          }
+          break;
+        case 'item':
+          if (reward.item) {
+            addToInventory({
+              id: reward.item.id,
+              type: reward.item.type,
+              name: reward.item.name,
+              description: reward.item.description,
+              quantity: reward.item.quantity,
+              category: reward.item.category
+            });
+
+            if (reward.item.category === 'artifact') {
+              handleAchievementUnlock('RELIC_GUARDIAN', 'Discovered Relic Guardian!');
+            } else if (reward.item.type === 'scroll') {
+              handleAchievementUnlock('TOME_KEEPER', 'Discovered Tome Keeper!');
+            }
+          }
+          break;
+      }
+    }
+
+    // Mark the tile as visited
+    const newGrid = [...grid];
+    const { x, y } = characterPosition;
+    if (newGrid[y]?.[x]) {
+      newGrid[y][x] = { ...newGrid[y][x], isVisited: true };
+      setGrid(newGrid);
+      localStorage.setItem('grid', JSON.stringify(newGrid));
+    }
+
+    // Close the event dialog
+    setCurrentEvent(null);
+  };
+
   if (isLoading) {
   return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -946,8 +1038,7 @@ export default function RealmPage() {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <Button 
-              variant="outline" 
-              size="default"
+              className="w-full bg-[#24292e] hover:bg-[#1c2127] text-white"
               onClick={() => setMovementMode(!movementMode)}
             >
               {movementMode ? "Switch to Build Mode" : "Switch to Movement Mode"}
@@ -973,9 +1064,9 @@ export default function RealmPage() {
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button className="h-10 w-10 p-0 border border-input hover:bg-accent hover:text-accent-foreground">
                 <Settings className="h-5 w-5" />
-            </Button>
+              </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => handleFullscreenToggle(!isFullscreen)}>
@@ -1007,8 +1098,8 @@ export default function RealmPage() {
               rotation: 0,
               revealed: true,
               isVisited: false,
-              x: 0,
-              y: 0
+              x: selectedTile.x !== undefined ? selectedTile.x : 0,
+              y: selectedTile.y !== undefined ? selectedTile.y : 0
             } : null}
             onGridUpdate={handleGridUpdate}
             isMovementMode={movementMode}
@@ -1038,7 +1129,7 @@ export default function RealmPage() {
 
       {/* Tile Inventory Slide-over */}
       <Sheet open={showInventory} onOpenChange={setShowInventory}>
-        <SheetContent side="right" className="w-[400px] sm:w-[540px] p-0">
+        <SheetContent className="w-[400px] sm:w-[540px] p-0">
           <div className="h-full bg-background">
             <TileInventory
               tiles={Object.entries(inventory).map(([type, item]) => ({
@@ -1072,8 +1163,8 @@ export default function RealmPage() {
               {currentEvent.choices.map((choice: string, index: number) => (
             <Button
                   key={index}
-                  variant={index === 0 ? "default" : "secondary"}
                   onClick={() => handleEventChoice(choice)}
+                  className={index === 0 ? "" : "bg-secondary"}
                 >
                   {choice}
               </Button>
@@ -1096,6 +1187,33 @@ export default function RealmPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      )}
+
+      <div className="fixed bottom-4 right-4 z-40 flex flex-col gap-2">
+        <Button
+          onClick={() => setShowTileEditor(!showTileEditor)}
+          className="bg-background border border-input hover:bg-accent hover:text-accent-foreground"
+        >
+          {showTileEditor ? "Hide Tile Editor" : "Show Tile Editor"}
+        </Button>
+      </div>
+      
+      {showTileEditor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="max-h-[90vh] w-full max-w-5xl overflow-auto">
+            <TileEditor
+              tiles={inventoryToTileItems()}
+              onUpdateTiles={updateInventoryFromTileItems}
+              onSelectTile={handleTileSelection}
+            />
+            <Button
+              className="absolute top-4 right-4 border border-input hover:bg-accent hover:text-accent-foreground"
+              onClick={() => setShowTileEditor(false)}
+            >
+              Close
+            </Button>
+          </div>
+        </div>
       )}
     </div>
   )

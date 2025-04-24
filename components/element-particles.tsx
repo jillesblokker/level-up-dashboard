@@ -1,8 +1,9 @@
+"use client"
+
 import { useCallback } from 'react';
-import type { Engine } from "tsparticles-engine";
-import Particles from "react-tsparticles";
 import { loadFull } from "tsparticles";
-import type { OutMode, MoveDirection } from "tsparticles-engine";
+import Particles from "react-tsparticles";
+import type { Engine, ISourceOptions, MoveDirection } from "tsparticles-engine";
 
 interface ElementParticlesProps {
   type: string;
@@ -13,191 +14,389 @@ export function ElementParticles({ type }: ElementParticlesProps) {
     await loadFull(engine);
   }, []);
 
-  const getParticleConfig = (type: string) => {
-    const baseConfig = {
-      fpsLimit: 120,
+  const getParticleConfig = (type: string): ISourceOptions => {
+    const baseConfig: ISourceOptions = {
+      fullScreen: {
+        enable: false,
+        zIndex: 1
+      },
+      fpsLimit: 60,
       particles: {
         number: {
-          value: 80,
+          value: 20,
           density: {
             enable: true,
-            value_area: 800
-          }
+            value_area: 800,
+          },
         },
         color: {
-          value: "#ffffff"
-        },
-        shape: {
-          type: "circle"
+          value: "#ffffff",
         },
         opacity: {
-          value: 0.5,
+          value: 0.7,
           random: false,
-          anim: {
-            enable: false,
-            speed: 1,
-            opacity_min: 0.1,
-            sync: false
-          }
         },
         size: {
-          value: 3,
-          random: false,
-          anim: {
-            enable: false,
-            speed: 40,
-            size_min: 0.1,
-            sync: false
-          }
+          value: 4,
+          random: true,
+          animation: {
+            enable: true,
+            speed: 2,
+            minimumValue: 2,
+            sync: false,
+          },
         },
         move: {
           enable: true,
           speed: 2,
           direction: "none" as MoveDirection,
-          random: false,
+          random: true,
           straight: false,
           outModes: {
-            default: "out" as OutMode
+            default: "bounce"
           },
-          attract: {
-            enable: false,
-            rotateX: 600,
-            rotateY: 1200
-          }
-        }
+        },
+      },
+      interactivity: {
+        detectsOn: "canvas",
+        events: {
+          onHover: {
+            enable: false
+          },
+          resize: true,
+        },
       },
       detectRetina: true,
-      fullScreen: {
-        enable: false,
-        zIndex: 1
-      },
-      style: {
-        position: "absolute"
+      background: {
+        color: "transparent"
       }
-    }
+    };
 
-    switch (type.toLowerCase()) {
-      case "fire":
-        return {
-          ...baseConfig,
-          particles: {
-            ...baseConfig.particles,
-            color: { value: "#ff4400" },
-            move: {
-              ...baseConfig.particles.move,
-              direction: "top" as MoveDirection,
-              speed: 3
+    const typeConfigs: Record<string, Partial<ISourceOptions>> = {
+      "": {
+        particles: {
+          number: { value: 20 },
+          color: { value: "#00ff44" },
+          opacity: { value: 0.6 },
+          size: { 
+            value: 3,
+            random: true,
+            animation: {
+              enable: true,
+              speed: 1,
+              minimumValue: 2,
+              sync: false
+            }
+          },
+          move: { 
+            enable: true,
+            speed: 2,
+            direction: "none" as MoveDirection,
+            random: true,
+            straight: false,
+            outModes: {
+              default: "bounce"
             }
           }
         }
-      case "water":
-        return {
-          ...baseConfig,
-          particles: {
-            ...baseConfig.particles,
-            color: { value: "#00aaff" },
-            move: {
-              ...baseConfig.particles.move,
-              direction: "none" as MoveDirection,
-              speed: 1
-            }
-          }
-        }
-      case "grass":
-        return {
-          ...baseConfig,
-          particles: {
-            ...baseConfig.particles,
-            color: { value: "#00ff44" },
-            move: {
-              ...baseConfig.particles.move,
-              direction: "none" as MoveDirection,
-              speed: 1.5
-            }
-          }
-        }
-      case "rock":
-        return {
-          ...baseConfig,
-          particles: {
-            ...baseConfig.particles,
-            color: { value: "#aa8866" },
-            size: { value: 4 },
-            move: {
-              ...baseConfig.particles.move,
-              speed: 1
-            }
-          }
-        }
-      case "ice":
-        return {
-          ...baseConfig,
-          particles: {
-            ...baseConfig.particles,
-            color: { value: "#aaddff" },
-            size: { value: 2 },
-            move: {
-              ...baseConfig.particles.move,
-              direction: "bottom" as MoveDirection,
-              speed: 2
-            }
-          }
-        }
-      case "electric":
-        return {
-          ...baseConfig,
-          particles: {
-            ...baseConfig.particles,
-            color: { value: "#ffff00" },
-            size: { value: 2 },
-            move: {
-              ...baseConfig.particles.move,
-              direction: "none" as MoveDirection,
-              speed: 3,
-              straight: true
-            }
-          }
-        }
-      case "dragon":
-        return {
-          ...baseConfig,
-          particles: {
-            ...baseConfig.particles,
-            color: { value: "#ff0000" },
-            size: { value: 3 },
-            move: {
-              ...baseConfig.particles.move,
-              direction: "none" as MoveDirection,
-              speed: 2.5,
-              straight: false
-            }
-          }
-        }
-      case "poisonous":
-        return {
-          ...baseConfig,
-          particles: {
-            ...baseConfig.particles,
-            color: { value: "#aa00ff" },
-            size: { value: 2 },
-            move: {
-              ...baseConfig.particles.move,
-              direction: "none" as MoveDirection,
+      },
+      fire: {
+        particles: {
+          number: { value: 20 },
+          color: { value: "#ff4400" },
+          opacity: { value: 0.8 },
+          size: { 
+            value: 4,
+            random: true,
+            animation: {
+              enable: true,
               speed: 2,
-              straight: false
+              minimumValue: 2,
+              sync: false
+            }
+          },
+          move: { 
+            enable: true,
+            speed: 3,
+            direction: "none" as MoveDirection,
+            random: true,
+            straight: false,
+            outModes: {
+              default: "bounce"
+            }
+          }
+        },
+        emitters: [
+          {
+            direction: "top" as MoveDirection,
+            rate: {
+              quantity: 1,
+              delay: 0.2
+            },
+            position: {
+              x: 50,
+              y: 100
+            },
+            size: {
+              width: 100,
+              height: 0
+            }
+          }
+        ]
+      },
+      water: {
+        particles: {
+          number: { value: 20 },
+          color: { value: "#00ffff" },
+          opacity: { value: 0.6 },
+          size: { 
+            value: 3,
+            random: true,
+            animation: {
+              enable: true,
+              speed: 2,
+              minimumValue: 1,
+              sync: false
+            }
+          },
+          move: { 
+            enable: true,
+            speed: 2,
+            direction: "none" as MoveDirection,
+            random: true,
+            straight: false,
+            outModes: {
+              default: "bounce"
+            }
+          }
+        },
+        emitters: [
+          {
+            direction: "bottom" as MoveDirection,
+            rate: {
+              quantity: 1,
+              delay: 0.2
+            },
+            position: {
+              x: 50,
+              y: 0
+            },
+            size: {
+              width: 100,
+              height: 0
+            }
+          }
+        ]
+      },
+      grass: {
+        particles: {
+          number: { value: 20 },
+          color: { value: "#00ff44" },
+          opacity: { value: 0.6 },
+          size: { 
+            value: 3,
+            random: true,
+            animation: {
+              enable: true,
+              speed: 1,
+              minimumValue: 2,
+              sync: false
+            }
+          },
+          move: { 
+            enable: true,
+            speed: 2,
+            direction: "none" as MoveDirection,
+            random: true,
+            straight: false,
+            outModes: {
+              default: "bounce"
+            }
+          }
+        },
+        emitters: [
+          {
+            direction: "right" as MoveDirection,
+            rate: {
+              quantity: 1,
+              delay: 0.2
+            },
+            position: {
+              x: 0,
+              y: 50
+            },
+            size: {
+              width: 0,
+              height: 100
+            }
+          }
+        ]
+      },
+      rock: {
+        particles: {
+          number: { value: 20 },
+          color: { value: "#964B00" },
+          opacity: { value: 0.8 },
+          size: { 
+            value: 6,
+            random: true,
+            animation: {
+              enable: true,
+              speed: 1,
+              minimumValue: 4,
+              sync: false
+            }
+          },
+          move: { 
+            enable: true,
+            speed: 3,
+            direction: "none" as MoveDirection,
+            random: true,
+            straight: false,
+            outModes: {
+              default: "bounce"
+            }
+          }
+        },
+        emitters: [
+          {
+            direction: "bottom" as MoveDirection,
+            rate: {
+              quantity: 1,
+              delay: 0.2
+            },
+            position: {
+              x: 50,
+              y: 0
+            },
+            size: {
+              width: 100,
+              height: 0
+            }
+          }
+        ]
+      },
+      ice: {
+        particles: {
+          number: { value: 20 },
+          color: { value: "#A5F2F3" },
+          opacity: { value: 0.6 },
+          size: { 
+            value: 4,
+            random: true,
+            animation: {
+              enable: true,
+              speed: 1,
+              minimumValue: 2,
+              sync: false
+            }
+          },
+          move: { 
+            enable: true,
+            speed: 2,
+            direction: "none" as MoveDirection,
+            random: true,
+            straight: false,
+            outModes: {
+              default: "bounce"
+            }
+          }
+        },
+        emitters: [
+          {
+            direction: "bottom-right" as MoveDirection,
+            rate: {
+              quantity: 1,
+              delay: 0.2
+            },
+            position: {
+              x: 0,
+              y: 0
+            },
+            size: {
+              width: 0,
+              height: 100
+            }
+          }
+        ]
+      },
+      electric: {
+        particles: {
+          number: { value: 20 },
+          color: { value: "#ffff00" },
+          opacity: { value: 0.8 },
+          size: { 
+            value: 3,
+            random: true,
+            animation: {
+              enable: true,
+              speed: 2,
+              minimumValue: 1,
+              sync: false
+            }
+          },
+          move: { 
+            enable: true,
+            speed: 3,
+            direction: "none" as MoveDirection,
+            random: true,
+            straight: false,
+            outModes: {
+              default: "bounce"
             }
           }
         }
-      default:
-        return baseConfig
-    }
-  }
+      },
+      dragon: {
+        particles: {
+          number: { value: 20 },
+          color: { value: "#7038F8" },
+          opacity: { value: 0.7 },
+          size: { 
+            value: 4,
+            random: true,
+            animation: {
+              enable: true,
+              speed: 2,
+              minimumValue: 2,
+              sync: false
+            }
+          },
+          move: { 
+            enable: true,
+            speed: 3,
+            direction: "none" as MoveDirection,
+            random: true,
+            straight: false,
+            outModes: {
+              default: "bounce"
+            }
+          }
+        }
+      }
+    };
+
+    const effectiveType = type || "";
+    const typeConfig = typeConfigs[effectiveType] || typeConfigs[""];
+    
+    return {
+      ...baseConfig,
+      ...typeConfig,
+      particles: {
+        ...baseConfig.particles,
+        ...(typeConfig.particles || {})
+      }
+    };
+  };
 
   return (
-    <Particles
-      className="absolute inset-0 pointer-events-none"
-      init={particleInit}
-      options={getParticleConfig(type)}
-    />
+    <div className="absolute inset-0">
+      <Particles
+        id={`tsparticles-${Math.random()}`}
+        init={particleInit}
+        options={getParticleConfig(type)}
+        className="absolute inset-0"
+      />
+    </div>
   );
 }

@@ -9,9 +9,13 @@ export type TileType =
   | "town" 
   | "desert" 
   | "road" 
-  | "corner-road" 
+  | "corner" 
   | "crossroad" 
+  | "intersection"
+  | "t-junction"
+  | "dead-end"
   | "special" 
+  | "snow"
   | "mystery" 
   | "big-mystery" 
   | "treasure" 
@@ -21,12 +25,15 @@ export type TileType =
   | "farm"
   | "mine";
 
+// Connection types
+export type ConnectionDirection = "top" | "right" | "bottom" | "left";
+
 // Define the tile interface
 export interface Tile {
   id: string;
   type: TileType;
-  connections: string[];
-  rotation: number;
+  connections: ConnectionDirection[];
+  rotation: 0 | 90 | 180 | 270;
   revealed: boolean;
   name?: string;
   description?: string;
@@ -34,20 +41,21 @@ export interface Tile {
   cityName?: string;
   cityX?: number;
   cityY?: number;
-  citySize?: number;
+  citySize?: 1 | 2 | 3;
   bigMysteryX?: number;
   bigMysteryY?: number;
-  tileSize?: number;
+  tileSize?: 1 | 2;
   isVisited?: boolean;
   isTown?: boolean;
   x: number;
   y: number;
+  ariaLabel?: string;
 }
 
 export interface CityData {
   name: string;
   isTown: boolean;
-  size: number;
+  size: 1 | 2 | 3;
 }
 
 // Define the selected tile interface
@@ -56,8 +64,8 @@ export interface SelectedTile {
   type: TileType;
   name: string;
   description: string;
-  connections: string[];
-  rotation: number;
+  connections: ConnectionDirection[];
+  rotation: 0 | 90 | 180 | 270;
   cost: number;
   quantity: number;
   isSelected?: boolean;
@@ -71,8 +79,8 @@ export interface InventoryTile {
   count: number;
   cost: number;
   description?: string;
-  connections?: string[];
-  rotation?: number;
+  connections?: ConnectionDirection[];
+  rotation?: 0 | 90 | 180 | 270;
 }
 
 // Define the character interface
@@ -86,8 +94,8 @@ export interface TileItem {
   type: TileType;
   name: string;
   description: string;
-  connections: any[];
-  rotation?: number;
+  connections: ConnectionDirection[];
+  rotation?: 0 | 90 | 180 | 270;
   cost: number;
   quantity: number;
 } 

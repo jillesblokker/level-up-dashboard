@@ -1,56 +1,42 @@
-import type { Metadata, Viewport } from "next"
-import { Inter, Cardo } from "next/font/google"
-import "./styles/globals.css"
-import "./styles/design-system.css"
-import "./styles/base.css"
-import ClientLayout from "./ClientLayout"
+import "./globals.css"
+import { Inter as FontSans } from "next/font/google"
+import { Providers } from "@/components/providers"
+import { NavBar } from "@/components/nav-bar"
 import { Toaster } from "@/components/ui/toaster"
+import { cn } from "@/lib/utils"
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import { Toaster as SonnerToaster } from "sonner"
+import { GradientProvider } from './providers/gradient-provider'
 
-const inter = Inter({
+const fontSans = FontSans({
   subsets: ["latin"],
+  variable: "--font-sans",
   display: "swap",
-  variable: "--font-inter",
+  preload: true,
 })
 
-const cardo = Cardo({
-  weight: ['400', '700'],
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-cardo",
-})
-
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  viewportFit: 'cover',
-  themeColor: '#000000'
-}
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Level Up Kingdom",
-  description: "Build and manage your kingdom in this strategic tile-based game",
+  title: "Thrivehaven",
+  description: "Your personal growth and achievement tracking dashboard",
   manifest: "/manifest.json",
   icons: {
-    icon: '/icons/thrivehaven_fav.png',
-    apple: '/icons/thrivehaven_fav.png',
+    icon: "/icons/thrivehaven_fav.png",
+    apple: "/icons/thrivehaven_fav.png",
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
-    title: "Level Up Kingdom",
-    startupImage: [
-      {
-        url: "/icons/thrivehaven_fav.png",
-        media: "(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)",
-      }
-    ],
+    statusBarStyle: "black-translucent",
+    title: "Thrivehaven",
   },
-  applicationName: "Level Up Kingdom",
-  formatDetection: {
-    telephone: false,
-  }
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 }
 
 export default function RootLayout({
@@ -59,22 +45,36 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <link rel="apple-touch-icon" href="/icons/thrivehaven_fav.png" />
-        <link rel="icon" type="image/png" href="/icons/thrivehaven_fav.png" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-touch-fullscreen" content="yes" />
-        <meta name="apple-mobile-web-app-title" content="Level Up Kingdom" />
-        <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       </head>
-      <body className={`min-h-screen bg-black text-white font-cardo ${inter.variable} ${cardo.variable}`} suppressHydrationWarning>
-        <ClientLayout>
-          {children}
-        </ClientLayout>
-        <Toaster />
+      <body className={cn(
+        "min-h-screen bg-background font-sans antialiased",
+        fontSans.variable
+      )}>
+        <GradientProvider>
+          <Providers>
+            <NavBar />
+            <main className="flex-1">{children}</main>
+            <Toaster />
+            <SonnerToaster 
+              position="top-center"
+              toastOptions={{
+                style: {
+                  background: 'rgba(0, 0, 0, 0.9)',
+                  color: '#fbbf24',
+                  border: '1px solid rgba(146, 64, 14, 0.5)',
+                  backdropFilter: 'blur(8px)',
+                },
+                className: 'border border-amber-900/50 bg-black/80 text-amber-400',
+              }}
+            />
+          </Providers>
+        </GradientProvider>
       </body>
     </html>
   )

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Map, User, Trophy, ShoppingBag, Settings, Menu, Coins, Castle, X, Palette, Bell, List, Monitor } from "lucide-react"
+import { Home, Map, User, Trophy, ShoppingBag, Settings, Menu, Coins, Castle, X, Palette, Bell, List, Monitor, LogIn } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Logo } from "@/components/logo"
@@ -12,12 +12,19 @@ import { cn } from "@/lib/utils"
 import { Icons } from "@/components/icons"
 import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character"
 import { Progress } from "@/components/ui/progress"
+import { useSession, signOut, signIn } from "next-auth/react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { MainNav } from "@/components/main-nav"
+import { Search } from "@/components/search"
+import { UserNav } from "@/components/user-nav"
 
 interface NavBarProps {
   goldBalance: number
@@ -99,6 +106,14 @@ const navigation = [
   { name: "Realm", href: "/realm" },
 ];
 
+interface NotificationCenterProps {
+  notifications: Notification[]
+  onMarkAsRead: (id: string) => void
+  onDelete: (id: string) => void
+  onMarkAllAsRead: () => void
+  unreadCount: number
+}
+
 export function NavBar() {
   const pathname = usePathname()
   const [isClient, setIsClient] = useState(false)
@@ -122,9 +137,14 @@ export function NavBar() {
   const [isSettingsMenuOpen, setIsSettingsMenuOpen] = useState(false)
   const settingsMenuRef = useRef<HTMLDivElement>(null)
   const settingsButtonRef = useRef<HTMLButtonElement>(null)
+  const { data: session, status } = useSession()
+  const isAuthenticated = status === "authenticated"
 
   useEffect(() => {
     setIsClient(true)
+  }, [])
+
+  useEffect(() => {
     // Load character stats from localStorage
     const loadCharacterStats = () => {
       try {
@@ -177,6 +197,10 @@ export function NavBar() {
     };
   }, []);
 
+  if (!isClient) {
+    return null; // Return null on server-side to prevent hydration mismatch
+  }
+
   const toggleSettingsMenu = () => {
     setIsSettingsMenuOpen(!isSettingsMenuOpen);
   };
@@ -199,137 +223,29 @@ export function NavBar() {
     setNotifications((prev) => [notification, ...prev])
   }
 
+  const unreadCount = notifications.filter((notification) => !notification.read).length;
+
+  const levelProgress = calculateLevelProgress(characterStats.experience)
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 h-16 bg-black/80 backdrop-blur-md border-b border-amber-900/20">
-      <div className="container mx-auto px-4 h-full flex items-center justify-between">
-        <Link href="/kingdom" className="mr-6">
-          <span className="text-lg font-semibold text-amber-400">Thrivehaven</span>
-        </Link>
-
-        <nav className="flex items-center space-x-6 text-sm font-medium flex-1">
-          <Link
-            href="/kingdom"
-            className={cn(
-              "transition-colors hover:text-foreground/80",
-              pathname === "/kingdom" ? "text-foreground" : "text-foreground/60"
-            )}
-          >
-            Kingdom
-          </Link>
-          <Link
-            href="/realm"
-            className={cn(
-              "transition-colors hover:text-foreground/80",
-              pathname?.startsWith("/realm") ? "text-foreground" : "text-foreground/60"
-            )}
-          >
-            Realm
-          </Link>
-          <Link
-            href="/character"
-            className={cn(
-              "transition-colors hover:text-foreground/80",
-              pathname?.startsWith("/character") ? "text-foreground" : "text-foreground/60"
-            )}
-          >
-            Character
-          </Link>
-          <Link
-            href="/quests"
-            className={cn(
-              "transition-colors hover:text-foreground/80",
-              pathname?.startsWith("/quests") ? "text-foreground" : "text-foreground/60"
-            )}
-          >
-            Quests
-          </Link>
-          <Link
-            href="/achievements"
-            className={cn(
-              "transition-colors hover:text-foreground/80",
-              pathname?.startsWith("/achievements") ? "text-foreground" : "text-foreground/60"
-            )}
-          >
-            Achievements
-          </Link>
-          <Link
-            href="/guildhall"
-            className={cn(
-              "transition-colors hover:text-foreground/80",
-              pathname?.startsWith("/guildhall") ? "text-foreground" : "text-foreground/60"
-            )}
-          >
-            Guildhall
-          </Link>
-        </nav>
-
-        <div className="flex items-center gap-4">
-          <div className="hidden md:flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              Level {characterStats.level}
-              <div className="w-32">
-                <Progress value={calculateLevelProgress(characterStats.experience) * 100} className="h-2" />
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {(() => {
-                  let expForPreviousLevels = 0;
-                  for (let i = 1; i < characterStats.level; i++) {
-                    expForPreviousLevels += calculateExperienceForLevel(i);
-                  }
-                  
-                  const currentLevelXP = characterStats.experience - expForPreviousLevels;
-                  const neededForCurrentLevel = calculateExperienceForLevel(characterStats.level);
-                  
-                  return `${Math.min(currentLevelXP, neededForCurrentLevel)} / ${neededForCurrentLevel} XP`;
-                })()}
-              </div>
-            </div>
-            <div className="text-sm">
-              Gold: {characterStats.gold}
+    <div className="border-b">
+      <div className="flex h-16 items-center px-4">
+        <Castle className="h-6 w-6 mr-4" />
+        <MainNav />
+        <div className="ml-auto flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-2">
+            <div className="text-sm font-medium">Level {characterStats.level}</div>
+            <Progress value={levelProgress} className="w-32 h-2" />
+            <div className="flex items-center space-x-1">
+              <Coins className="h-4 w-4" />
+              <span className="text-sm font-medium">{characterStats.gold}</span>
             </div>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-9 w-9">
-                <User className="h-5 w-5" />
-                <span className="sr-only">Account menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <Link href="/profile" className="flex items-center">
-                  <User className="mr-2 h-4 w-4" />
-                  Profile
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/design-system" className="flex items-center">
-                  <Palette className="mr-2 h-4 w-4" />
-                  Design System
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/settings/requirements" className="flex items-center">
-                  <List className="mr-2 h-4 w-4" />
-                  Requirements
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <button className="flex w-full items-center" onClick={() => {
-                  const devicePreviewButton = document.querySelector('[data-device-preview-trigger]') as HTMLButtonElement;
-                  if (devicePreviewButton) {
-                    devicePreviewButton.click();
-                  }
-                }}>
-                  <Monitor className="mr-2 h-4 w-4" />
-                  Device Preview
-                </button>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <NotificationCenter />
+          <UserNav />
         </div>
       </div>
-    </nav>
+    </div>
   )
 }
 

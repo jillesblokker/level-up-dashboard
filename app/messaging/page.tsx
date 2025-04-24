@@ -42,8 +42,8 @@ interface Message {
 }
 
 export default function MessagingPage() {
-  const searchParams = useSearchParams() as URLSearchParams
-  const friendId = searchParams.get("id") || "1"
+  const searchParams = useSearchParams()
+  const friendId = searchParams?.get("id") || "1"
   const [friends, setFriends] = useState<Friend[]>([])
   const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null)
   const [messages, setMessages] = useState<Message[]>([])

@@ -46,8 +46,8 @@ interface FriendData {
 }
 
 export default function FriendStatsPage() {
-  const searchParams = useSearchParams() as URLSearchParams
-  const friendId = searchParams.get("id") || "1"
+  const searchParams = useSearchParams()
+  const friendId = searchParams?.get("id") || "1"
   const [friend, setFriend] = useState<FriendData | null>(null)
   const [goldBalance, setGoldBalance] = useState(1000)
   const [loading, setLoading] = useState(true)

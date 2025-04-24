@@ -13,6 +13,7 @@ import { ChevronDown } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState } from "react"
+import { useGradient } from '@/app/providers/gradient-provider'
 
 type ColorItem = {
   name: string
@@ -49,6 +50,7 @@ type TypographyItem = {
 
 export default function DesignSystemPage() {
   const { toast } = useToast()
+  const { startColor, endColor, updateGradient } = useGradient()
 
   const [colors, setColors] = useState<ColorItem[]>([
     { name: "Primary", class: "bg-amber-500", description: "Main accent color", value: "#f59e0b" },
@@ -63,10 +65,10 @@ export default function DesignSystemPage() {
   const [gradients, setGradients] = useState<GradientItem[]>([
     { 
       name: "Card Gradient", 
-      class: "bg-gradient-to-b from-black to-gray-900", 
+      class: "bg-gradient-to-b", 
       description: "Used for card backgrounds",
-      startColor: "#000000",
-      endColor: "#111827",
+      startColor: startColor,
+      endColor: endColor,
       direction: "to-b"
     },
     { 
@@ -141,6 +143,16 @@ export default function DesignSystemPage() {
     const newGradients = [...gradients]
     newGradients[index][type] = newValue
     setGradients(newGradients)
+
+    // Update global gradient if changing the Card Gradient
+    if (index === 0) {
+      if (type === 'startColor' || type === 'endColor') {
+        updateGradient(
+          type === 'startColor' ? newValue : gradients[0].startColor,
+          type === 'endColor' ? newValue : gradients[0].endColor
+        )
+      }
+    }
   }
 
   const handleFontChange = (index: number, newValue: string) => {

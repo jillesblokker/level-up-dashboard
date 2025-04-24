@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dialog"
 import { DailyQuests } from "@/components/daily-quests"
 import { Milestones } from "@/components/milestones"
+import { Checkbox } from "@/components/ui/checkbox"
 
 // Quest types
 interface Quest {
@@ -603,31 +604,50 @@ function QuestCard({ quest, onProgressUpdate }: { quest: Quest; onProgressUpdate
   }
 
   return (
-    <Card className={`bg-gradient-to-b from-black to-gray-900 border-amber-800/20 ${quest.isNew ? "border-amber-500" : ""} ${quest.completed ? "bg-amber-50/30 dark:bg-amber-900/10" : ""}`}>
+    <Card 
+      className={`relative bg-gradient-to-b from-black to-gray-900 border-amber-800/20 ${quest.isNew ? "border-amber-500" : ""} ${quest.completed ? "bg-amber-50/30 dark:bg-amber-900/10" : ""}`}
+      role="button"
+      tabIndex={0}
+      aria-label={`${quest.title} quest card`}
+      onClick={() => !quest.completed && handleProgressChange(100)}
+      onKeyDown={(e) => e.key === 'Enter' && !quest.completed && handleProgressChange(100)}
+    >
+      {/* Checkbox positioned absolutely in the top right */}
+      <div className="absolute top-4 right-4 z-10">
+        <Checkbox
+          checked={quest.completed}
+          onCheckedChange={() => handleProgressChange(quest.completed ? 0 : 100)}
+          aria-label={`Mark ${quest.title} as ${quest.completed ? 'incomplete' : 'complete'}`}
+          className="h-6 w-6 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white"
+        />
+      </div>
+
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
-          <div className="space-y-1">
+          <div className="space-y-1 pr-8">
             <CardTitle className="font-serif text-white">{quest.title}</CardTitle>
             <CardDescription className="text-gray-300">{quest.description}</CardDescription>
           </div>
-          {quest.isNew && <Badge className="bg-amber-500">New</Badge>}
-          {quest.isAI && <Badge className="bg-purple-500">AI</Badge>}
+          <div className="flex gap-2">
+            {quest.isNew && <Badge className="bg-amber-500 text-white">New</Badge>}
+            {quest.isAI && <Badge className="bg-purple-500 text-white">AI</Badge>}
+          </div>
         </div>
         <div className="flex flex-wrap gap-2 mt-2">
           <Badge
             className={
               quest.difficulty === "easy"
-                ? "bg-green-500"
+                ? "bg-green-500 text-white"
                 : quest.difficulty === "medium"
-                  ? "bg-blue-500"
+                  ? "bg-blue-500 text-white"
                   : quest.difficulty === "hard"
-                    ? "bg-amber-500"
-                    : "bg-red-500"
+                    ? "bg-amber-500 text-white"
+                    : "bg-red-500 text-white"
             }
           >
             {quest.difficulty.charAt(0).toUpperCase() + quest.difficulty.slice(1)}
           </Badge>
-          <Badge>{quest.category}</Badge>
+          <Badge className="text-amber-300 border-amber-800/20">{quest.category}</Badge>
         </div>
       </CardHeader>
       <CardContent className="pb-2">
@@ -637,7 +657,7 @@ function QuestCard({ quest, onProgressUpdate }: { quest: Quest; onProgressUpdate
               <span>Progress</span>
               <span>{progress}%</span>
             </div>
-            <Progress value={progress} className="h-2" />
+            <Progress value={progress} className="h-2" aria-label={`Quest progress: ${progress}%`} />
           </div>
 
           <div className="flex flex-wrap gap-4 text-white">
@@ -672,7 +692,7 @@ function QuestCard({ quest, onProgressUpdate }: { quest: Quest; onProgressUpdate
       </CardContent>
       <CardFooter>
         {quest.completed ? (
-          <Button className="w-full text-white" variant="outline" disabled>
+          <Button className="w-full text-white" variant="outline" disabled aria-label="Quest completed">
             <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
             Completed
           </Button>
@@ -680,11 +700,23 @@ function QuestCard({ quest, onProgressUpdate }: { quest: Quest; onProgressUpdate
           <div className="w-full flex gap-2">
             <Button
               className="flex-1 bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white"
-              onClick={() => handleProgressChange(Math.min(100, progress + 25))}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleProgressChange(Math.min(100, progress + 25));
+              }}
+              aria-label="Update quest progress"
             >
               Update Progress
             </Button>
-            <Button variant="outline" onClick={() => handleProgressChange(100)} className="text-white">
+            <Button 
+              variant="outline" 
+              onClick={(e) => {
+                e.stopPropagation();
+                handleProgressChange(100);
+              }} 
+              className="text-white"
+              aria-label="Mark quest as complete"
+            >
               <CheckCircle className="mr-2 h-4 w-4" />
               Mark Complete
             </Button>

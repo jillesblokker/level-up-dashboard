@@ -2,6 +2,7 @@ import { ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
+import { cn } from "@/lib/utils"
 
 interface CategoryCardProps {
   name: string
@@ -17,6 +18,8 @@ interface CategoryCardProps {
     completed: boolean
     category: string
   }>
+  isSelected?: boolean
+  className?: string
 }
 
 export function CategoryCard({
@@ -27,13 +30,22 @@ export function CategoryCard({
   icon,
   color,
   tasks = [], // Provide a default empty array to prevent mapping errors
+  isSelected = false,
+  className,
 }: CategoryCardProps) {
   // Calculate completed tasks
   const completedTasks = tasks ? tasks.filter((task) => task.completed).length : 0
   const totalTasks = tasks ? tasks.length : 0
 
   return (
-    <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20 overflow-hidden">
+    <Card 
+      className={cn(
+        "relative overflow-hidden border-amber-800/20 transition-all duration-200",
+        isSelected && "ring-2 ring-amber-500",
+        className
+      )}
+      aria-label={`${name}-category-card`}
+    >
       <div className={`h-1 w-full bg-gradient-to-r ${color}`}></div>
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-2">
