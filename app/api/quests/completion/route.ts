@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { auth } from '@/app/lib/auth';
 import prisma from '@/lib/prisma';
 
 // Create a new quest completion

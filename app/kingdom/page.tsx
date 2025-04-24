@@ -1,13 +1,9 @@
 import { KingdomClient } from "./kingdom-client"
-import { auth } from "../../auth"
+import { auth } from "@/app/lib/auth"
 
 export default async function KingdomPage() {
   // Make auth optional
-  let session = null
-  try {
-    session = await auth()
-  } catch (error) {
-    console.error("Auth error:", error)
-  }
+  const session = await auth()
+
   return <KingdomClient session={session} />
 } 

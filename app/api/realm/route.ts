@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { auth } from '@/auth';
+import { auth } from '@/app/lib/auth';
 import prisma from '@/lib/prisma';
-import { GridCell, Grid } from '@/types/grid';
+import { GridCell } from '@/types/grid';
+import type { RealmMap } from '@prisma/client';
 
 // Validation schemas
 const gridCellSchema = z.object({

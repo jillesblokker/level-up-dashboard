@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3005 -H 0.0.0.0",
+    "dev": "next dev -p 3005",
     "clean-start": "rm -rf .next node_modules/.cache && next dev -p 3005",
     "dev:custom": "node server.js",
     "build": "prisma generate && prisma db push && next build",
