@@ -1,11 +1,8 @@
-import NextAuth from 'next-auth'
-import { authOptions } from '@/app/lib/auth'
+import NextAuth from "next-auth"
+import { authOptions } from "@/auth"
 
-// Force dynamic to prevent caching
-export const dynamic = 'force-dynamic'
-
-// Export the handler for both GET and POST
 const handler = NextAuth(authOptions)
+
 export { handler as GET, handler as POST }
 
 // Export all HTTP methods that NextAuth might need
@@ -25,3 +22,6 @@ export async function OPTIONS() {
     },
   })
 }
+
+// Force dynamic runtime to prevent caching
+export const dynamic = "force-dynamic"
