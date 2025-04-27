@@ -12,6 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { signIn } from "next-auth/react"
 import { defaultInventoryItems, InventoryItem } from "@/app/lib/default-inventory"
 import { Badge } from "@/components/ui/badge"
+import { HeaderSection } from "@/components/HeaderSection"
 
 export function KingdomClient({ session }: { session: any }) {
   const [isHovering, setIsHovering] = useState(false)
@@ -104,82 +105,29 @@ export function KingdomClient({ session }: { session: any }) {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      {/* Header Section */}
-      <div 
-        className="relative h-[300px] md:h-[400px] lg:h-[600px] w-full max-w-full overflow-hidden"
-        aria-label="kingdom-header-section"
-      >
-        <Image
-          src={coverImage}
-          alt="Kingdom Header"
-          fill
-          className="object-cover"
-          priority
-        />
-        <div 
-          className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/80"
-          aria-label="header-gradient-overlay"
-        />
-        
-        <div 
-          className="absolute inset-0 flex flex-col items-center justify-center z-[5] gap-6"
-          aria-label="kingdom-title-container"
-        >
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-widest drop-shadow-lg font-medieval text-amber-500">
-            KINGDOM
-          </h1>
-        </div>
-        
-        {session && (
-          <div 
-            className={cn(
-              "absolute inset-0 bg-black/50 opacity-0 transition-opacity flex items-center justify-center",
-              { "opacity-100": isHovering || showUploadModal }
-            )}
-            onMouseEnter={() => setIsHovering(true)}
-            onMouseLeave={() => setIsHovering(false)}
-          >
-            <Button
-              className="text-white border-white hover:bg-white/20"
-              onClick={() => setShowUploadModal(true)}
-            >
-              <Camera className="w-4 h-4 mr-2" />
-              Change Banner
-            </Button>
-          </div>
-        )}
-
-        {showUploadModal && (
-          <div className="absolute inset-0 bg-black/80 flex items-center justify-center">
-            <div className="bg-black p-6 rounded-lg border-2 border-amber-800/50 max-w-md w-full">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-amber-500">Upload New Banner</h3>
-                <Button
-                  onClick={() => setShowUploadModal(false)}
-                  className="text-gray-400 hover:text-white h-8 w-8 p-0"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                ref={fileInputRef}
-                className="hidden"
-              />
-              <Button
-                className="w-full text-amber-500 border-amber-800/50 hover:bg-amber-950/30"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading}
-              >
-                <Upload className="w-4 h-4 mr-2" />
-                {isUploading ? "Uploading..." : "Select Image"}
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
+      <HeaderSection
+        title="KINGDOM"
+        imageSrc={coverImage}
+        canEdit={!!session}
+        onImageUpload={(file) => {
+          // handleImageUpload logic here
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const result = event.target?.result as string;
+            setCoverImage(result);
+            localStorage.setItem("kingdom-header-image", result);
+            if (typeof window !== 'undefined') {
+              (window as any).headerImages = (window as any).headerImages || {};
+              (window as any).headerImages.kingdom = result;
+            }
+            toast({
+              title: "Banner Updated",
+              description: "Your kingdom banner has been updated successfully.",
+            });
+          };
+          reader.readAsDataURL(file);
+        }}
+      />
 
       {/* Main Content */}
       <div 
@@ -231,13 +179,17 @@ export function KingdomClient({ session }: { session: any }) {
                           aria-label={`item-header-${item.id}`}
                         >
                           <div className="flex items-center space-x-2">
-                            <span className="text-2xl">{item.emoji}</span>
+                            {['stelony', 'twig', 'reflecto'].includes(item.id) ? (
+                              <Image src={`/images/items/${item.id.charAt(0).toUpperCase() + item.id.slice(1)}.png`} alt={item.name} width={40} height={40} className="rounded" />
+                            ) : (
+                              <span className="text-2xl">{item.emoji}</span>
+                            )}
                             <div>
                               <h4 className="text-amber-500 font-semibold">{item.name}</h4>
                               <p className="text-xs text-gray-400">{item.type}</p>
                             </div>
                           </div>
-                          {Object.entries(item.stats).map(([stat, value]) => (
+                          {Object.entries(item.stats ?? {}).map(([stat, value]) => (
                             <Badge key={stat} className="bg-amber-950/30 text-amber-500 border-amber-800/30">
                               {stat} +{value}
                             </Badge>

@@ -6,14 +6,16 @@ import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
-import { addToInventory, getInventory, InventoryItem } from "@/lib/inventory-manager"
+import { addToInventory, getInventory, addToKingdomInventory, InventoryItem } from "@/lib/inventory-manager"
+import { HeaderSection } from "@/components/HeaderSection"
 
 interface LocationItem {
   id: string
   name: string
   description: string
   price: number
-  type: "item" | "resource" | "creature" | "scroll"
+  type: "item" | "resource" | "creature" | "scroll" | "equipment" | "artifact" | "book"
+  emoji?: string
 }
 
 interface LocationData {
@@ -23,7 +25,7 @@ interface LocationData {
   items: LocationItem[]
 }
 
-const locationData: Record<string, LocationData> = {
+const locationData: Record<string, any> = {
   marketplace: {
     name: "Marketplace",
     description: "A bustling marketplace where merchants sell their wares.",
@@ -69,6 +71,36 @@ const locationData: Record<string, LocationData> = {
     items: [
       { id: "room-key", name: "Room Key", description: "Access to a private room", price: 50, type: "item" },
       { id: "meal-token", name: "Meal Token", description: "Good for one meal", price: 25, type: "item" }
+    ]
+  },
+  "embers-anvil": {
+    name: "Ember's Anvil",
+    description: "Buy equipment: sword, shield, and armor set.",
+    icon: Swords,
+    items: [
+      { id: "sword", name: "Sword", description: "A sharp blade for battle.", price: 120, type: "equipment", emoji: "⚔️" },
+      { id: "shield", name: "Shield", description: "Protects you from attacks.", price: 100, type: "equipment", emoji: "🛡️" },
+      { id: "armor-set", name: "Armor Set", description: "Full body protection.", price: 250, type: "equipment", emoji: "🥋" }
+    ]
+  },
+  "kingdom-marketplace": {
+    name: "Kingdom Marketplace",
+    description: "Trade/sell your artifacts for gold and buy artifacts, scrolls, or books.",
+    icon: ShoppingBag,
+    items: [
+      { id: "ancient-artifact", name: "Ancient Artifact", description: "A mysterious artifact.", price: 300, type: "artifact", emoji: "🏺" },
+      { id: "magic-scroll", name: "Magic Scroll", description: "A scroll containing a spell.", price: 200, type: "scroll", emoji: "📜" },
+      { id: "tome-of-knowledge", name: "Tome of Knowledge", description: "A book of wisdom.", price: 400, type: "book", emoji: "📚" }
+    ]
+  },
+  "royal-stables": {
+    name: "Royal Stables",
+    description: "Buy horses with unique movement stats.",
+    icon: Home,
+    horses: [
+      { id: "swift-horse", name: "Sally Swift Horse", description: "Fast and agile.", price: 500, movement: 6, emoji: "🐎", type: "creature" },
+      { id: "endurance-horse", name: "Buster Endurance Horse", description: "Can travel long distances.", price: 600, movement: 8, emoji: "🐴", type: "creature" },
+      { id: "war-horse", name: "Shadow War Horse", description: "Strong and brave.", price: 800, movement: 10, emoji: "🦄", type: "creature" }
     ]
   }
 }
@@ -135,7 +167,14 @@ export default function CityLocationPage() {
     addToInventory({
       id: item.id,
       name: item.name,
-      type: item.type,
+      type: item.type as any,
+      description: item.description,
+      quantity: 1
+    })
+    addToKingdomInventory({
+      id: item.id,
+      name: item.name,
+      type: item.type as any,
       description: item.description,
       quantity: 1
     })
@@ -149,6 +188,10 @@ export default function CityLocationPage() {
     })
   }
 
+  const locationImage = params.locationId === "royal-stables"
+    ? "/images/locations/royal-stables.png"
+    : `/images/locations/${location.name.toLowerCase().replace(/\s+/g, '-')}.png`;
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4">
@@ -159,6 +202,12 @@ export default function CityLocationPage() {
           <h1 className="text-2xl font-bold">{location.name}</h1>
         </div>
 
+        <HeaderSection
+          title={location.name}
+          imageSrc={locationImage}
+          canEdit={false}
+        />
+
         <Card className="mb-6">
           <CardHeader>
             <div className="flex items-center gap-2">
@@ -168,29 +217,58 @@ export default function CityLocationPage() {
             <CardDescription>{location.description}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {location.items.map((item) => (
-                <Card key={item.id} className="flex flex-col">
-                  <CardHeader>
-                    <CardTitle className="text-lg">{item.name}</CardTitle>
-                    <CardDescription>{item.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex-1">
-                    <p className="text-sm text-muted-foreground">Price: {item.price} gold</p>
-                    <p className="text-sm text-muted-foreground">Type: {item.type}</p>
-                  </CardContent>
-                  <CardContent className="pt-0">
-                    <Button
-                      className="w-full"
-                      onClick={() => handlePurchase(item)}
-                      disabled={gold < item.price}
-                    >
-                      Purchase
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            {params.locationId === "royal-stables" ? (
+              <>
+                <h2 className="text-xl font-bold mb-4">Horses for Sale</h2>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {location.horses.map((horse: LocationItem & { movement: number }) => (
+                    <Card key={horse.id} className="flex flex-col">
+                      <CardHeader>
+                        <CardTitle className="text-lg">{horse.name}</CardTitle>
+                        <CardDescription>{horse.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="flex-1">
+                        <p className="text-sm text-muted-foreground">Price: {horse.price} gold</p>
+                        <p className="text-sm text-muted-foreground">Movement: +{horse.movement}</p>
+                      </CardContent>
+                      <CardContent className="pt-0">
+                        <Button
+                          className="w-full"
+                          onClick={() => handlePurchase(horse as LocationItem)}
+                          disabled={gold < horse.price}
+                        >
+                          Purchase
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {location.items.map((item: LocationItem) => (
+                  <Card key={item.id} className="flex flex-col">
+                    <CardHeader>
+                      <CardTitle className="text-lg">{item.name}</CardTitle>
+                      <CardDescription>{item.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex-1">
+                      <p className="text-sm text-muted-foreground">Price: {item.price} gold</p>
+                      <p className="text-sm text-muted-foreground">Type: {item.type}</p>
+                    </CardContent>
+                    <CardContent className="pt-0">
+                      <Button
+                        className="w-full"
+                        onClick={() => handlePurchase(item)}
+                        disabled={gold < item.price}
+                      >
+                        Purchase
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

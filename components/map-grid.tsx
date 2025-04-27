@@ -35,8 +35,6 @@ interface MapGridProps {
   onRotateTile?: (x: number, y: number) => void;
   onDeleteTile?: (x: number, y: number) => void;
   isMovementMode?: boolean;
-  onAddMoreRows?: () => void;
-  zoomLevel?: number;
 }
 
 export function MapGrid({ 
@@ -55,9 +53,7 @@ export function MapGrid({
   hoveredTile,
   onRotateTile,
   onDeleteTile,
-  isMovementMode = false,
-  onAddMoreRows,
-  zoomLevel = 1
+  isMovementMode = false
 }: MapGridProps) {
   const { toast } = useToast();
   const router = useRouter();
@@ -78,6 +74,7 @@ export function MapGrid({
     // Update tile type to grass after event is triggered
     const newGrid = [...grid];
     const tileIndex = grid.findIndex(row => row.includes(tile));
+    if (tileIndex === -1 || !grid[tileIndex]) return;
     const rowIndex = grid[tileIndex].findIndex(t => t === tile);
     
     if (tileIndex !== -1 && rowIndex !== -1) {
@@ -440,12 +437,6 @@ export function MapGrid({
           }}
         />
       )}
-
-      {grid.length > 0 && grid[0].length > 0 && (
-        <div className="fixed bottom-4 right-4">
-          <Button onClick={onAddMoreRows}>Add More Rows</Button>
-              </div>
-            )}
     </div>
   );
 } 

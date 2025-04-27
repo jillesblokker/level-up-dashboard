@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "@/components/ui/use-toast"
 import { CityItemManager, WeaponItem } from "@/lib/city-item-manager"
 import { ItemCard } from "@/components/city/item-card"
-import { addToInventory } from "@/lib/inventory-manager"
+import { addToInventory, addToKingdomInventory } from "@/lib/inventory-manager"
 import { CharacterStats } from "@/types/character"
 
 export default function ShopPage() {
@@ -73,6 +73,13 @@ export default function ShopPage() {
 
       // Add item to inventory
       addToInventory({
+        id: item.id,
+        name: item.name,
+        type: "item",
+        description: item.description,
+        quantity: 1
+      })
+      addToKingdomInventory({
         id: item.id,
         name: item.name,
         type: "item",

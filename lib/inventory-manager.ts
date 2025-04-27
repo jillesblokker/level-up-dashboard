@@ -3,7 +3,7 @@ import { showScrollToast } from "@/lib/toast-utils"
 export interface InventoryItem {
   name: string
   quantity: number
-  type: 'resource' | 'item' | 'creature' | 'scroll'
+  type: 'resource' | 'item' | 'creature' | 'scroll' | 'equipment' | 'artifact' | 'book'
   id: string
   category?: string
   description?: string
@@ -107,4 +107,18 @@ export function getItemQuantity(itemId: string): number {
   const inventory = getInventory()
   const item = inventory.find(i => i.id === itemId)
   return item?.quantity || 0
+} 
+
+export function addToKingdomInventory(item: InventoryItem) {
+  if (typeof window === 'undefined') return;
+  const key = 'kingdom-inventory';
+  const currentInventory = JSON.parse(localStorage.getItem(key) || '[]');
+  const existingItem = currentInventory.find((i: any) => i.id === item.id);
+  if (existingItem) {
+    existingItem.quantity += item.quantity;
+  } else {
+    currentInventory.push(item);
+  }
+  localStorage.setItem(key, JSON.stringify(currentInventory));
+  window.dispatchEvent(new Event('character-inventory-update'));
 } 

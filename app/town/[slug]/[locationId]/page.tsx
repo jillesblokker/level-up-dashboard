@@ -9,5 +9,9 @@ interface Props {
 
 export default function TownLocationPage({ params }: Props) {
   const { slug, locationId } = params
-  return <LocationClient slug={slug} locationId={locationId} />
+  return (
+    <div className="min-h-screen bg-background">
+      <LocationClient slug={slug} locationId={locationId} />
+    </div>
+  )
 } 

@@ -12,7 +12,6 @@ import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
 import { calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress, CharacterStats } from "@/types/character"
-import { Inventory } from "@/components/inventory"
 
 // Character progression types
 interface Title {
@@ -606,7 +605,6 @@ export default function CharacterPage() {
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="titles">Titles</TabsTrigger>
               <TabsTrigger value="perks">Perks</TabsTrigger>
-              <TabsTrigger value="inventory">Inventory</TabsTrigger>
             </TabsList>
             <TabsContent value="titles">
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -742,9 +740,6 @@ export default function CharacterPage() {
                   </Card>
                 ))}
               </div>
-            </TabsContent>
-            <TabsContent value="inventory">
-              <Inventory />
             </TabsContent>
           </Tabs>
 

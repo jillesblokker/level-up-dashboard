@@ -50,6 +50,7 @@ export interface Tile {
   x: number;
   y: number;
   ariaLabel?: string;
+  image?: string;
 }
 
 export interface CityData {

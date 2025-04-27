@@ -19,130 +19,105 @@ export default function RequirementsPage() {
   const requirements: Record<string, RequirementItem[]> = {
     overview: [
       {
-        title: "Fantasy Realm-Building Game",
-        description: "A medieval fantasy game where players develop their kingdom through strategic decisions, resource management, and character progression."
+        title: "Realm Overview",
+        description: "Explore a procedurally generated fantasy world, expand your kingdom, and unlock new features by completing quests and achievements."
       },
       {
-        title: "Quest and Achievement System",
-        description: "Players progress through various quests and achievements that unlock new features, rewards, and story elements."
+        title: "Tile Placement & Destruction",
+        description: "Place and remove tiles (forest, water, mountain, ice, etc.) to shape your realm and unlock new creatures. Some creatures are discovered by placing or destroying specific tile types."
       },
       {
-        title: "Resource Management",
-        description: "Strategic management of kingdom resources including gold, materials, and population."
+        title: "Creature Collection",
+        description: "Unlock mythical creatures by meeting specific requirements. See the Hints section for a full unlock guide."
+      },
+      {
+        title: "City & Town Features",
+        description: "Visit cities and towns on the map to access shops, special locations, and unique events."
       }
     ],
     events: [
       {
         title: "Mystery Events",
-        description: "Random encounters on mystery tiles offering various challenges and rewards. Includes treasure hunts, battles, riddles, and special quests."
+        description: "Trigger random encounters by visiting mystery tiles. Events may include treasure hunts, battles, riddles, or special quests."
       },
       {
         title: "Battle System",
-        description: "Strategic combat system with unique creatures, each having their own abilities and stats. Victory rewards include experience, gold, and special items."
-      },
-      {
-        title: "Reward Types",
-        description: "Various reward categories including gold, experience, scrolls, artifacts, and special items that contribute to kingdom development."
+        description: "Engage in strategic battles with unique creatures. Victory may reward you with experience, gold, or special items."
       },
       {
         title: "Event Conditions",
-        description: "Special events triggered by weather conditions, time of day, or kingdom development status, offering unique opportunities and challenges."
+        description: "Some events are triggered by weather, time of day, or kingdom progress."
       },
       {
         title: "Quest Chains",
-        description: "Connected series of events forming larger storylines and quest chains, leading to major discoveries and rewards."
+        description: "Complete connected series of events to unlock major discoveries and rewards."
       }
     ],
-    hints: [
-      {
-        title: "Creature #000 - Necrion",
-        description: "The first creature you'll encounter, a mysterious poisonous being that appears when exploring the realm. Unlocked by navigating to the realm map."
-      },
-      {
-        title: "Fire Creatures (#001-#003)",
-        description: "Flamio, Embera, and Vulcana - powerful fire creatures that appear when destroying forest tiles. Unlock them by destroying 1, 5, and 10 forest tiles respectively."
-      },
-      {
-        title: "Water Creatures (#004-#006)",
-        description: "Dolphio, Divero, and Flippur - aquatic creatures that emerge when expanding water territories. Place 1, 5, and 10 water tiles to discover them."
-      },
-      {
-        title: "Grass Creatures (#007-#009)",
-        description: "Leaf, Oaky, and Seqoio - forest guardians that appear when planting new forests. Place 1, 5, and 10 forest tiles to encounter these woodland spirits."
-      },
-      {
-        title: "Special Creatures",
-        description: "Additional creatures including Rock, Ice, Electric, and Dragon types can be discovered through special actions and achievements in your kingdom."
-      }
-    ],
+    hints: [],
     kingdom: [
       {
-        title: "Kingdom Management",
-        description: "Central dashboard for managing all aspects of your kingdom including resources, buildings, and population."
+        title: "Kingdom Page",
+        description: "Manage your kingdom's appearance, view your collection, and access kingdom-wide features."
       },
       {
-        title: "Building System",
-        description: "Construct and upgrade various buildings to improve your kingdom's capabilities and efficiency."
+        title: "Building & Upgrades",
+        description: "Unlock new buildings and upgrades by progressing through quests and achievements."
       }
     ],
     realm: [
       {
         title: "Map Exploration",
-        description: "Explore a vast realm filled with mysteries, resources, and opportunities for expansion."
+        description: "Move your character around the map, discover new tiles, and reveal hidden locations."
       },
       {
-        title: "Territory Management",
-        description: "Strategically expand your territory by purchasing and developing new tiles."
+        title: "Territory Expansion",
+        description: "Expand your territory by placing new tiles and unlocking new map areas."
       }
     ],
     cities: [
       {
-        title: "City Development",
-        description: "Build and manage cities with various buildings including taverns, temples, and markets."
+        title: "City Features",
+        description: "Cities offer unique shops, events, and opportunities for your character."
       },
       {
-        title: "Town Management",
-        description: "Establish and grow smaller towns with essential services and facilities."
+        title: "Town Features",
+        description: "Towns provide access to local shops and special events."
       }
     ],
     character: [
       {
         title: "Character Progression",
-        description: "Level up your character through experience gained from quests and achievements."
+        description: "Level up your character by completing quests and achievements."
       },
       {
-        title: "Skills and Abilities",
-        description: "Develop various skills and unlock new abilities as you progress."
+        title: "Skills & Abilities",
+        description: "Unlock new skills and abilities as you progress through the game."
       }
     ],
     quests: [
       {
-        title: "Daily Quests",
-        description: "Complete daily tasks to earn rewards and track your habits."
+        title: "Quests",
+        description: "Complete quests to earn rewards, unlock new features, and progress the story."
       },
       {
         title: "Special Missions",
-        description: "Undertake unique quests that advance your kingdom's story and development."
+        description: "Undertake unique missions for rare rewards and achievements."
       }
     ],
     achievements: [
       {
-        title: "Achievement System",
-        description: "Track your progress and earn rewards through various achievements."
+        title: "Achievements",
+        description: "Track your progress and earn rewards by reaching important milestones."
       },
       {
         title: "Milestone Rewards",
-        description: "Unlock special rewards and recognition for reaching important milestones."
+        description: "Unlock special rewards for completing major achievements."
       }
     ],
     market: [
       {
-        title: "Trading System",
-        description: "Buy and sell resources, items, and equipment through various markets."
-      },
-      {
-        title: "Economy Management",
-        description: "Manage your kingdom's economy through strategic trading and resource allocation."
+        title: "Market Features",
+        description: "Buy and sell items and equipment in city and town markets."
       }
     ]
   }
@@ -195,17 +170,19 @@ export default function RequirementsPage() {
                     )}
                   </h2>
                   <div className="space-y-4">
-                    {requirements[category.id].map((item, index) => (
-                      <div key={index} className="flex gap-4">
-                        <div className="flex-none w-8 h-8 rounded-full bg-amber-900/20 border border-amber-800/20 flex items-center justify-center text-amber-500">
-                          {index + 1}
+                    {category.id === "hints" ? null : (
+                      requirements[category.id].map((item, index) => (
+                        <div key={index} className="flex gap-4">
+                          <div className="flex-none w-8 h-8 rounded-full bg-amber-900/20 border border-amber-800/20 flex items-center justify-center text-amber-500">
+                            {index + 1}
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-white font-medium mb-1">{item.title}</h3>
+                            <p className="text-gray-400">{item.description}</p>
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <h3 className="text-white font-medium mb-1">{item.title}</h3>
-                          <p className="text-gray-400">{item.description}</p>
-                        </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </div>
               ))}

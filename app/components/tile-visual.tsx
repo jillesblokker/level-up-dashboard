@@ -53,6 +53,24 @@ export function TileVisual({
 }: TileVisualProps) {
   const [imageError, setImageError] = React.useState(false)
 
+  // Common props for interactive tiles
+  const commonTileProps = {
+    onClick,
+    onMouseEnter: onHover,
+    onMouseLeave: onHoverEnd,
+    role: "button",
+    "aria-label": `${tile.ariaLabel || `${tile.type} tile`}${isSelected ? ' - selected' : ''}${isCharacterPresent ? ' - character present' : ''}`,
+    tabIndex: 0,
+    onKeyDown: (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onClick?.();
+      }
+    },
+    "aria-pressed": isSelected,
+    "aria-describedby": tile.description ? `tile-description-${tile.id}` : undefined
+  };
+
   // For grass tile, use the GrassTile component
   if (tile.type === 'grass') {
     return <GrassTile rotation={tile.rotation} className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
@@ -62,42 +80,52 @@ export function TileVisual({
   if (tile.type in tileImages && !imageError) {
     return (
       <div 
+        {...commonTileProps}
         className={cn(
-          "w-full h-full relative",
-          isSelected && "ring-2 ring-yellow-500",
+          "w-full h-full relative tile-container",
+          isSelected && "ring-2 ring-amber-500",
           isHovered && "brightness-110",
+          tile.type === 'empty' && "bg-amber-900/20 empty-tile-container",
           className
         )}
         style={{ transform: `rotate(${tile.rotation || 0}deg)` }}
-        onClick={onClick}
-        onMouseEnter={onHover}
-        onMouseLeave={onHoverEnd}
-        role="img"
-        aria-label={`${tile.type} tile`}
+        aria-live={isCharacterPresent ? "polite" : "off"}
       >
-        <div className="relative w-full h-full">
+        {tile.description && (
+          <div id={`tile-description-${tile.id}`} className="sr-only">
+            {tile.description}
+          </div>
+        )}
+        <div className="relative w-full h-full tile-image-container">
           <Image
             src={tileImages[tile.type as keyof typeof tileImages]}
-            alt={`${tile.type} tile`}
+            alt={`${tile.name || tile.type} tile visual`}
             fill
             sizes="(max-width: 768px) 33vw, (max-width: 1200px) 25vw, 20vw"
             className={cn(
               "object-cover transition-all duration-200",
-              isCharacterPresent && "brightness-75"
+              isCharacterPresent && "brightness-75",
+              tile.type === 'empty' && "opacity-75"
             )}
             priority={true}
             onError={() => setImageError(true)}
+            aria-hidden="true"
           />
           {isCharacterPresent && (
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div 
+              className="absolute inset-0 flex items-center justify-center character-container"
+              aria-label="Character location indicator"
+              role="status"
+            >
               <div className="w-3/4 h-3/4 relative">
                 <Image
                   src="/images/character/character-token.png"
-                  alt="Character"
+                  alt="Character token"
                   fill
                   sizes="(max-width: 768px) 25vw, (max-width: 1200px) 20vw, 15vw"
                   className="object-contain"
                   priority={true}
+                  aria-hidden="true"
                 />
               </div>
             </div>
@@ -137,8 +165,8 @@ export function TileVisual({
       return (
         <div 
           className={cn(
-            "w-full h-full bg-green-800",
-            isSelected && "ring-2 ring-yellow-500",
+            "w-full h-full bg-amber-900/10",
+            isSelected && "ring-2 ring-amber-500",
             isHovered && "brightness-110",
             className
           )}
@@ -146,11 +174,21 @@ export function TileVisual({
           onClick={onClick}
           onMouseEnter={onHover}
           onMouseLeave={onHoverEnd}
-          role="img"
-          aria-label={`${tile.type} tile`}
+          role="button"
+          aria-label={`${tile.type} tile${isSelected ? ' - selected' : ''}${isCharacterPresent ? ' - character present' : ''}`}
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onClick?.();
+            }
+          }}
         >
           {isCharacterPresent && (
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div 
+              className="absolute inset-0 flex items-center justify-center"
+              aria-label="Character location"
+            >
               <div className="w-3/4 h-3/4 relative">
                 <Image
                   src="/images/character/character-token.png"

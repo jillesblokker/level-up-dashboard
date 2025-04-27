@@ -1,11 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ArrowLeft, Building, ShoppingBag, Footprints, Home } from "lucide-react"
+import { ArrowLeft, Building, ShoppingBag, Footprints, Home, Swords } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
+import { HeaderSection } from "@/components/HeaderSection"
+import Image from "next/image"
 
 interface CityData {
   name: string
@@ -26,25 +28,25 @@ const defaultCityData: CityData = {
   description: "A magnificent city with towering spires and bustling markets. The heart of commerce and culture in the realm.",
   locations: [
     {
-      id: 'market-district',
-      name: 'Market District',
-      description: 'The bustling heart of commerce in the city.',
-      icon: 'ShoppingBag',
-      image: '/images/locations/market-district.png'
+      id: "embers-anvil",
+      name: "Ember's Anvil",
+      description: 'A forge where weapons and armor are crafted.',
+      icon: 'Swords',
+      image: "/images/locations/ember's-anvil.png"
     },
     {
-      id: 'stables',
+      id: 'kingdom-marketplace',
+      name: 'Kingdom Marketplace',
+      description: 'A bustling marketplace for trading and buying artifacts, scrolls, and books.',
+      icon: 'ShoppingBag',
+      image: '/images/locations/kingdom-marketplace.png'
+    },
+    {
+      id: 'royal-stables',
       name: 'Royal Stables',
       description: 'Where the finest horses in the realm are kept.',
-      icon: 'Horseshoe',
+      icon: 'Footprints',
       image: '/images/locations/royal-stables.png'
-    },
-    {
-      id: 'inn',
-      name: "The King's Rest",
-      description: 'A luxurious inn for weary travelers.',
-      icon: 'Home',
-      image: '/images/locations/kings-rest.png'
     }
   ]
 }
@@ -116,44 +118,26 @@ export default function CityPage() {
     switch (iconName) {
       case 'ShoppingBag':
         return <ShoppingBag className="h-8 w-8 text-amber-500" />
-      case 'Horseshoe':
+      case 'Footprints':
         return <Footprints className="h-8 w-8 text-amber-500" />
-      case 'Home':
-        return <Home className="h-8 w-8 text-amber-500" />
+      case 'Swords':
+        return <Swords className="h-8 w-8 text-amber-500" />
       default:
         return <Building className="h-8 w-8 text-amber-500" />
     }
   }
 
+  // Determine city image path
+  const cityImage = `/images/locations/${cityData.name.toLowerCase().replace(/\s+/g, '-')}.png`;
+
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
+      <HeaderSection
+        title={cityData?.name || "City"}
+        imageSrc="/images/locations/city.png"
+        canEdit={false}
+      />
       <main className="flex-1 p-4 md:p-6 space-y-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight font-serif text-white">{cityData.name}</h1>
-            <p className="text-gray-300">{cityData.description}</p>
-          </div>
-          <Button 
-            onClick={() => router.push('/realm')}
-            variant="outline"
-            className="border-amber-800/20 text-amber-500"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Return to Realm
-          </Button>
-        </div>
-
-        <div className="relative w-full h-[300px] rounded-lg overflow-hidden border-2 border-amber-800/20 mb-8">
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-900/30 to-black/70">
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-              <h2 className="text-3xl font-bold mb-2 font-serif">Welcome to {cityData.name}</h2>
-              <p className="text-lg text-gray-300">A grand city with various services and opportunities.</p>
-            </div>
-          </div>
-        </div>
-
-        <h2 className="text-2xl font-medievalsharp text-amber-500 mb-4">City Locations</h2>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {cityData.locations.map((location) => (
             <div 
@@ -161,6 +145,9 @@ export default function CityPage() {
               className="bg-black border border-amber-800/20 rounded-lg p-4 cursor-pointer hover:bg-amber-900/10 transition-colors"
               onClick={() => handleVisitLocation(location.id)}
             >
+              <div className="relative w-full h-40 mb-3 rounded-lg overflow-hidden">
+                <Image src={location.image} alt={location.name} fill className="object-cover" />
+              </div>
               <div className="flex items-start mb-3">
                 <div className="mr-3">{getIcon(location.icon)}</div>
                 <div>

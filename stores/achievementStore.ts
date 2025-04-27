@@ -159,11 +159,14 @@ export const useAchievementStore = create<AchievementStore>((set, get) => ({
   achievements: defaultAchievements,
   updateProgress: (achievementId: string, progress: number) => {
     set((state) => ({
-      achievements: state.achievements.map((achievement) =>
-        achievement.id === achievementId
-          ? { ...achievement, progress: Math.min(progress, achievement.target) }
-          : achievement
-      ),
+      achievements: state.achievements.map((achievement) => {
+        if (achievement.id === achievementId) {
+          const newProgress = Math.min(progress, achievement.target);
+          const completed = newProgress >= achievement.target;
+          return { ...achievement, progress: newProgress, completed };
+        }
+        return achievement;
+      }),
     }));
   },
   completeAchievement: (achievementId: string) => {

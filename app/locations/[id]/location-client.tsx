@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
 import { ShoppingCart } from "lucide-react"
+import { HeaderSection } from "@/components/HeaderSection"
 
 interface ShopItem {
   id: string
@@ -77,11 +78,13 @@ export function LocationClient({ location }: LocationClientProps) {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Location Header */}
-      <div className="mb-8 text-center">
-        <h1 className="text-4xl font-bold mb-2">{location.name}</h1>
-        <p className="text-muted-foreground">{location.description}</p>
-      </div>
+      <HeaderSection
+        title={location.name}
+        subtitle={location.description}
+        imageSrc={location.image}
+        canEdit={false}
+        defaultBgColor="bg-green-900"
+      />
 
       {/* Notable Locations Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
