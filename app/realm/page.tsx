@@ -37,6 +37,8 @@ import { nanoid } from 'nanoid'
 import { Minimap } from "@/components/Minimap"
 import { MinimapEntity, MinimapRotationMode } from "@/types/minimap"
 import { useAchievementStore } from '@/stores/achievementStore'
+import { loadInitialGrid, createTileFromNumeric, numericToTileType } from "@/lib/grid-loader"
+import { getCurrentUser, getLatestGrid, uploadGridData, updateGridData, subscribeToGridChanges } from '@/lib/supabase-client'
 
 // Types
 interface Position {
@@ -168,191 +170,33 @@ const locationData = {
 }
 
 // Function to create initial grid
-const createInitialGrid = () => {
-  // First create all rows as empty tiles
-  const grid = Array(8).fill(null).map((_, y) =>
-    Array(GRID_COLS).fill(null).map((_, x) => ({
-      id: `tile-${x}-${y}`,
-      type: 'empty' as TileType,
-      name: 'Empty Tile',
-      description: 'An empty space ready for a new tile',
-      connections: [],
-      rotation: 0 as 0 | 90 | 180 | 270,
-      revealed: true,
-      isVisited: false,
-      x,
-      y,
-      ariaLabel: `Empty tile at position ${x},${y}`,
-      image: '/images/tiles/empty-tile.png'
-    }))
-  );
-
-  // Row 0: Mountains with grass at (2,0)
-  for (let x = 0; x < GRID_COLS; x++) {
-    const type = x === 2 ? 'grass' : 'mountain';
-    grid[0][x] = {
-      id: `tile-${x}-0`,
-      type: type as TileType,
-      name: type === 'grass' ? 'Grass Tile' : 'Mountain Tile',
-      description: type === 'grass' ? 'A grassy plain' : 'A towering mountain',
-      connections: [],
-      rotation: 0 as 0 | 90 | 180 | 270,
-      revealed: true,
-      isVisited: false,
-      x,
-      y: 0,
-      ariaLabel: `${type === 'grass' ? 'Grass' : 'Mountain'} tile at position ${x},0`,
-      image: `/images/tiles/${type}-tile.png`
-    };
+const createInitialGrid = async (): Promise<Tile[][]> => {
+  try {
+    const { grid: numericGrid } = await loadInitialGrid()
+    return numericGrid.map((row, y) =>
+      row.map((numeric, x) => createTileFromNumeric(numeric, x, y))
+    )
+  } catch (error) {
+    console.error('Error creating initial grid:', error)
+    // Fallback to empty grid if loading fails
+    return Array(8).fill(null).map((_, y) =>
+      Array(GRID_COLS).fill(null).map((_, x) => ({
+        id: `tile-${x}-${y}`,
+        type: 'empty' as TileType,
+        name: 'Empty Tile',
+        description: 'An empty space ready for a new tile',
+        connections: [],
+        rotation: 0 as 0 | 90 | 180 | 270,
+        revealed: true,
+        isVisited: false,
+        x,
+        y,
+        ariaLabel: `Empty tile at position ${x},${y}`,
+        image: '/images/tiles/empty-tile.png'
+      }))
+    )
   }
-
-  // Row 1: Mountains at edges, City at (1,3), Grass elsewhere
-  for (let x = 0; x < GRID_COLS; x++) {
-    const type = x === 0 || x === GRID_COLS - 1 ? 'mountain' :
-                x === 3 ? 'city' : 'grass';
-    grid[1][x] = {
-      id: `tile-${x}-1`,
-      type: type as TileType,
-      name: type === 'city' ? locationData.city.name : `${type.charAt(0).toUpperCase() + type.slice(1)} Tile`,
-      description: type === 'city' ? locationData.city.description : `A ${type} tile`,
-      connections: [],
-      rotation: 0 as 0 | 90 | 180 | 270,
-      revealed: true,
-      isVisited: false,
-      x,
-      y: 1,
-      ariaLabel: `${type} tile at position ${x},1`,
-      image: `/images/tiles/${type}-tile.png`
-    };
-  }
-
-  // Row 2: Mountains at edges, Forest from 2-10, Grass elsewhere
-  for (let x = 0; x < GRID_COLS; x++) {
-    const type = x === 0 || x === GRID_COLS - 1 ? 'mountain' :
-                x >= 2 && x <= 10 ? 'forest' : 'grass';
-    grid[2][x] = {
-      id: `tile-${x}-2`,
-      type: type as TileType,
-      name: `${type.charAt(0).toUpperCase() + type.slice(1)} Tile`,
-      description: `A ${type} tile`,
-      connections: [],
-      rotation: 0 as 0 | 90 | 180 | 270,
-      revealed: true,
-      isVisited: false,
-      x,
-      y: 2,
-      ariaLabel: `${type} tile at position ${x},2`,
-      image: `/images/tiles/${type}-tile.png`
-    };
-  }
-
-  // Row 3: Mountains at edges, Forest from 5-9, Grass elsewhere, but (10,3) is mystery
-  for (let x = 0; x < GRID_COLS; x++) {
-    let type = x === 0 || x === GRID_COLS - 1 ? 'mountain' :
-              x >= 5 && x <= 9 ? 'forest' : 'grass';
-    if (x === 10) type = 'mystery';
-    grid[3][x] = {
-      id: `tile-${x}-3`,
-      type: type as TileType,
-      name: `${type.charAt(0).toUpperCase() + type.slice(1)} Tile`,
-      description: `A ${type} tile`,
-      connections: [],
-      rotation: 0 as 0 | 90 | 180 | 270,
-      revealed: true,
-      isVisited: false,
-      x,
-      y: 3,
-      ariaLabel: `${type} tile at position ${x},3`,
-      image: `/images/tiles/${type}-tile.png`
-    };
-  }
-
-  // Row 4: Mountains at edges, Forest from 5-9, Grass elsewhere
-  for (let x = 0; x < GRID_COLS; x++) {
-    const type = x === 0 || x === GRID_COLS - 1 ? 'mountain' :
-                x >= 5 && x <= 9 ? 'forest' : 'grass';
-    grid[4][x] = {
-      id: `tile-${x}-4`,
-      type: type as TileType,
-      name: `${type.charAt(0).toUpperCase() + type.slice(1)} Tile`,
-      description: `A ${type} tile`,
-      connections: [],
-      rotation: 0 as 0 | 90 | 180 | 270,
-      revealed: true,
-      isVisited: false,
-      x,
-      y: 4,
-      ariaLabel: `${type} tile at position ${x},4`,
-      image: `/images/tiles/${type}-tile.png`
-    };
-  }
-
-  // Row 5: Mountains at edges, Forest from 5-9 except town at 7, Grass elsewhere, but (4,5) and (5,5) are water
-  for (let x = 0; x < GRID_COLS; x++) {
-    let type = x === 0 || x === GRID_COLS - 1 ? 'mountain' :
-              x === 7 ? 'town' :
-              x >= 5 && x <= 9 ? 'forest' : 'grass';
-    if (x === 4 || x === 5) type = 'water';
-    grid[5][x] = {
-      id: `tile-${x}-5`,
-      type: type as TileType,
-      name: type === 'town' ? locationData.town.name : `${type.charAt(0).toUpperCase() + type.slice(1)} Tile`,
-      description: type === 'town' ? locationData.town.description : `A ${type} tile`,
-      connections: [],
-      rotation: 0 as 0 | 90 | 180 | 270,
-      revealed: true,
-      isVisited: false,
-      x,
-      y: 5,
-      ariaLabel: `${type} tile at position ${x},5`,
-      image: `/images/tiles/${type}-tile.png`
-    };
-  }
-
-  // Row 6: Mountains at edges, Forest 5-9 except grass at 7, Mystery at 2, Grass elsewhere, but (4,6) and (5,6) are water
-  for (let x = 0; x < GRID_COLS; x++) {
-    let type = x === 0 || x === GRID_COLS - 1 ? 'mountain' :
-              x === 2 ? 'mystery' :
-              x === 7 ? 'grass' :
-              x >= 5 && x <= 9 ? 'forest' : 'grass';
-    if (x === 4 || x === 5) type = 'water';
-    grid[6][x] = {
-      id: `tile-${x}-6`,
-      type: type as TileType,
-      name: `${type.charAt(0).toUpperCase() + type.slice(1)} Tile`,
-      description: `A ${type} tile`,
-      connections: [],
-      rotation: 0 as 0 | 90 | 180 | 270,
-      revealed: true,
-      isVisited: false,
-      x,
-      y: 6,
-      ariaLabel: `${type} tile at position ${x},6`,
-      image: `/images/tiles/${type}-tile.png`
-    };
-  }
-
-  // Row 7: Only first and last tile are mountain, rest are empty
-  for (let x = 0; x < GRID_COLS; x++) {
-    let type = (x === 0 || x === GRID_COLS - 1) ? 'mountain' : 'empty';
-    grid[7][x] = {
-      id: `tile-${x}-7`,
-      type: type as TileType,
-      name: type === 'mountain' ? 'Mountain Tile' : 'Empty Tile',
-      description: type === 'mountain' ? 'A towering mountain' : 'An empty space ready for a new tile',
-      connections: [],
-      rotation: 0 as 0 | 90 | 180 | 270,
-      revealed: true,
-      isVisited: false,
-      x,
-      y: 7,
-      ariaLabel: `${type === 'mountain' ? 'Mountain' : 'Empty'} tile at position ${x},7`,
-      image: `/images/tiles/${type}-tile.png`
-    };
-  }
-
-  return grid;
-};
+}
 
 export default function RealmPage() {
   const { toast } = useToast()
@@ -368,7 +212,7 @@ export default function RealmPage() {
   const [characterPosition, setCharacterPosition] = useLocalStorage<Position>("character-position", { x: 2, y: 0 })
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [selectedTile, setSelectedTile] = useState<ExtendedTileItem | null>(null)
-  const [grid, setGrid] = useLocalStorage<Tile[][]>("realm-grid", createInitialGrid())
+  const [grid, setGrid] = useState<Tile[][]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isInitialized, setIsInitialized] = useState(false)
   const [currentEvent, setCurrentEvent] = useState<MysteryEvent | null>(null)
@@ -420,6 +264,12 @@ export default function RealmPage() {
   // In state declarations, add questCompletedCount
   const [questCompletedCount, setQuestCompletedCount] = useLocalStorage<number>("quest-completed-count", 0);
 
+  // Add Supabase sync state
+  const [syncError, setSyncError] = useState<string | null>(null)
+  const [isSyncing, setIsSyncing] = useState(false)
+  const [gridId, setGridId] = useState<string | null>(null)
+  const subscriptionRef = useRef<{ unsubscribe: () => void } | null>(null)
+
   // Handle fullscreen toggle
   const handleFullscreenToggle = (checked: boolean) => {
     setIsFullscreen(checked)
@@ -432,13 +282,116 @@ export default function RealmPage() {
     window.history.replaceState({}, '', url.toString())
   }
 
-  // Initialize grid on client side only
+  // Initialize grid and Supabase sync
   useEffect(() => {
-    if (!isInitialized) {
-        setIsLoading(false)
-      setIsInitialized(true)
+    const initializeGrid = async () => {
+      if (!isInitialized) {
+        setIsLoading(true)
+        try {
+          // Get current user
+          const user = await getCurrentUser()
+          if (!user) {
+            console.warn('No user found, using local storage only')
+            const initialGrid = await createInitialGrid()
+            setGrid(initialGrid)
+            setIsInitialized(true)
+            return
+          }
+
+          // Try to get existing grid from Supabase
+          const savedGrid = await getLatestGrid(user.id)
+          
+          if (savedGrid) {
+            setGridId(savedGrid.id)
+            // Convert numeric grid to tile grid
+            const tileGrid = savedGrid.grid.map((row, y) =>
+              row.map((numeric, x) => createTileFromNumeric(numeric, x, y))
+            )
+            setGrid(tileGrid)
+          } else {
+            // Create new grid and save to Supabase
+            const initialGrid = await createInitialGrid()
+            setGrid(initialGrid)
+            
+            // Convert tile grid to numeric grid for storage
+            const numericGrid = initialGrid.map(row =>
+              row.map(tile => {
+                const tileType = tile.type
+                const numericType = Number(Object.entries(numericToTileType).find(([_, value]) => 
+                  value === tileType
+                )?.[0] || 0)
+                return numericType
+              })
+            )
+            
+            const savedData = await uploadGridData(numericGrid, user.id)
+            setGridId(savedData.id)
+          }
+
+          // Set up real-time subscription
+          const subscription = subscribeToGridChanges(user.id, (payload) => {
+            if (payload.eventType === 'UPDATE' && payload.new) {
+              const { grid: newNumericGrid } = payload.new
+              const newTileGrid = newNumericGrid.map((row: number[], y: number) =>
+                row.map((numeric: number, x: number) => createTileFromNumeric(numeric, x, y))
+              )
+              setGrid(newTileGrid)
+            }
+          })
+
+          subscriptionRef.current = subscription
+        } catch (error) {
+          console.error('Error initializing grid:', error)
+          setSyncError(error instanceof Error ? error.message : 'Failed to initialize grid')
+          // Fallback to local grid
+          const initialGrid = await createInitialGrid()
+          setGrid(initialGrid)
+        } finally {
+          setIsLoading(false)
+          setIsInitialized(true)
+        }
+      }
+    }
+
+    initializeGrid()
+
+    // Cleanup subscription
+    return () => {
+      if (subscriptionRef.current) {
+        subscriptionRef.current.unsubscribe()
+      }
     }
   }, [isInitialized])
+
+  // Modify handleGridUpdate to sync with Supabase
+  const handleGridUpdate = async (newGrid: Tile[][]) => {
+    setGrid(newGrid)
+
+    // Sync with Supabase if we have a user and gridId
+    try {
+      setIsSyncing(true)
+      const user = await getCurrentUser()
+      if (user && gridId) {
+        // Convert tile grid to numeric grid for storage
+        const numericGrid = newGrid.map(row =>
+          row.map(tile => {
+            const tileType = tile.type
+            const numericType = Number(Object.entries(numericToTileType).find(([_, value]) => 
+              value === tileType
+            )?.[0] || 0)
+            return numericType
+          })
+        )
+        
+        await updateGridData(gridId, numericGrid, user.id)
+      }
+    } catch (error) {
+      console.error('Error syncing grid:', error)
+      setSyncError(error instanceof Error ? error.message : 'Failed to sync grid')
+    } finally {
+      setIsSyncing(false)
+    }
+  }
 
   // Keep autosave notification
   useEffect(() => {
@@ -738,12 +691,6 @@ export default function RealmPage() {
     }
   }
 
-  // Handle grid updates
-  const handleGridUpdate = (newGrid: Tile[][]) => {
-    setGrid(newGrid);
-    // Grid will be automatically saved to localStorage due to the useEffect above
-  }
-
   // Handle inventory updates
   const handleInventoryUpdate = (updatedTiles: any[]) => {
     const newInventory = { ...inventory }
@@ -808,27 +755,36 @@ export default function RealmPage() {
   }, [currentEvent])
 
   // Add the full reset handler
-  const handleReset = () => {
-    const newGrid = createInitialGrid();
-    setGrid(newGrid);
-    setCharacterPosition({ x: 2, y: 0 });
-    setTileCounts({
-      forestPlaced: 0,
-      forestDestroyed: 0,
-      waterPlaced: 0,
-      mountainDestroyed: 0,
-      icePlaced: 0,
-      waterDestroyed: 0
-    });
-    setInventory(initialTileInventory);
-    localStorage.removeItem('character-position');
-    localStorage.removeItem('tile-counts');
-    localStorage.removeItem('tile-inventory');
-    console.log('Grid after reset:', newGrid);
-    toast({
-      title: "Reset Complete",
-      description: "Map and counters have been reset to their initial state.",
-    });
+  const handleReset = async () => {
+    try {
+      const newGrid = await createInitialGrid();
+      setGrid(newGrid);
+      setCharacterPosition({ x: 2, y: 0 });
+      setTileCounts({
+        forestPlaced: 0,
+        forestDestroyed: 0,
+        waterPlaced: 0,
+        mountainDestroyed: 0,
+        icePlaced: 0,
+        waterDestroyed: 0
+      });
+      setInventory(initialTileInventory);
+      localStorage.removeItem('character-position');
+      localStorage.removeItem('tile-counts');
+      localStorage.removeItem('tile-inventory');
+      console.log('Grid after reset:', newGrid);
+      toast({
+        title: "Reset Complete",
+        description: "Map and counters have been reset to their initial state.",
+      });
+    } catch (error) {
+      console.error('Error resetting grid:', error);
+      toast({
+        title: "Reset Failed",
+        description: "There was an error resetting the map. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleHoverTile = (x: number, y: number) => {
@@ -963,7 +919,7 @@ export default function RealmPage() {
           if (reward.scroll) {
             const scrollItem = {
               id: reward.scroll.id,
-              type: 'scroll',
+              type: 'scroll' as const,
               name: reward.scroll.name,
               description: reward.scroll.content,
               quantity: 1,
@@ -995,7 +951,7 @@ export default function RealmPage() {
           if (reward.item) {
             const itemObj = {
               id: reward.item.id,
-              type: 'item',
+              type: 'item' as const,
               name: reward.item.name,
               description: reward.item.description,
               quantity: reward.item.quantity,
@@ -1098,6 +1054,21 @@ export default function RealmPage() {
 
     return (
     <div className="relative min-h-screen bg-background p-4">
+      {/* Add sync status indicator */}
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        {isSyncing && (
+          <div className="text-amber-500 text-sm flex items-center gap-1">
+            <div className="animate-spin h-4 w-4 border-2 border-amber-500 rounded-full border-t-transparent"></div>
+            Syncing...
+          </div>
+        )}
+        {syncError && (
+          <div className="text-red-500 text-sm flex items-center gap-1">
+            ⚠️ {syncError}
+          </div>
+        )}
+      </div>
+
       {/* Controls Bar */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -1187,7 +1158,16 @@ export default function RealmPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={handleReset}>
+              <DropdownMenuItem onClick={() => {
+                handleReset().catch(error => {
+                  console.error('Error in reset:', error);
+                  toast({
+                    title: "Reset Failed",
+                    description: "There was an error resetting the map. Please try again.",
+                    variant: "destructive"
+                  });
+                });
+              }}>
                 Reset Map
               </DropdownMenuItem>
             </DropdownMenuContent>
