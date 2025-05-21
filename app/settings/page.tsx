@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { ArrowLeft, Save, User, Shield } from "lucide-react"
 import Link from "next/link"
-import { useSession, signIn, signOut } from "next-auth/react"
+// import { useSession, signIn, signOut } from "next-auth/react"
 import { Switch } from "@/components/ui/switch"
 
 import { Button } from "@/components/ui/button"
@@ -15,8 +15,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "@/components/ui/use-toast"
 import { CharacterStats } from "@/types/character"
 
-export default function SettingsPage() {
-  const { data: session } = useSession()
+export default function SettingsPage({ session }: { session: any }) {
+  // const { data: session } = useSession()
   const [characterStats, setCharacterStats] = useState<CharacterStats>({
     level: 1,
     experience: 0,
@@ -110,10 +110,10 @@ export default function SettingsPage() {
   const handleGithubToggle = async (checked: boolean) => {
     if (checked) {
       // Connect to GitHub
-      await signIn("github", { callbackUrl: "/settings" })
+      // await signIn("github", { callbackUrl: "/settings" })
     } else {
       // Disconnect from GitHub
-      await signOut({ callbackUrl: "/settings" })
+      // await signOut({ callbackUrl: "/settings" })
     }
   }
 
@@ -233,7 +233,7 @@ export default function SettingsPage() {
 
           {isGithubConnected && (
             <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-              <p className="font-medium">Connected as: {session?.user?.name}</p>
+              <p className="font-medium">Connected as: {session?.user?.user_metadata?.full_name || session?.user?.email}</p>
               <p className="text-sm text-gray-600">{session?.user?.email}</p>
             </div>
           )}

@@ -1,101 +1,119 @@
 "use client"
 
-import { useState } from "react"
-import { ArrowLeft, ShoppingBag } from "lucide-react"
+import { useEffect, useState } from "react"
+import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { ChevronLeft } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { toast } from "@/components/ui/use-toast"
-import { CityItemManager, FoodItem } from "@/lib/city-item-manager"
-import { ItemCard } from "@/components/city/item-card"
 
 export default function TavernPage() {
-  const params = useParams() as { cityName: string }
-  const cityName = params.cityName
-  const [goldBalance, setGoldBalance] = useState(() => {
-    // Get gold balance from localStorage
-    if (typeof window !== "undefined") {
-      const savedGold = localStorage.getItem("gold-balance")
-      return savedGold ? Number.parseInt(savedGold) : 1000
-    }
-    return 1000
-  })
-
-  // Tavern items
-  const [tavernItems] = useState<FoodItem[]>(CityItemManager.getTavernItems())
-
-  // Purchase an item
-  const purchaseItem = (item: FoodItem) => {
-    // Check if player has enough gold
-    if (goldBalance < item.price) {
-      toast({
-        title: "Not enough gold",
-        description: `You need ${item.price} gold to purchase this item.`,
-        variant: "destructive",
-      })
-      return
-    }
-
-    // Deduct gold
-    const newGoldBalance = goldBalance - item.price
-    setGoldBalance(newGoldBalance)
-    localStorage.setItem("gold-balance", String(newGoldBalance))
-
-    toast({
-      title: "Item purchased",
-      description: `You enjoyed a ${item.name}. ${item.effect}.`,
-    })
+  const params = useParams()
+  if (!params) {
+    return (
+      <div className="container py-10" role="main" aria-label="tavern-error-section">
+        <Card aria-label="tavern-error-card">
+          <CardHeader>
+            <CardTitle>Error</CardTitle>
+            <CardDescription>
+              Unable to load tavern information.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    )
   }
 
+  const cityName = params['cityName'] as string
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Simulate data loading
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [])
+
   return (
-    <div className="flex min-h-screen flex-col bg-black text-white">
-      <main className="flex-1 p-4 md:p-6 space-y-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight font-serif">The Dragon's Rest Tavern</h1>
-            <p className="text-muted-foreground">City of {cityName}</p>
-          </div>
-          <Link href={`/city/${encodeURIComponent(cityName)}`}>
-            <Button variant="outline" className="border-amber-800/20 hover:bg-amber-900/20">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to City
-            </Button>
-          </Link>
+    <div className="container py-10" role="main" aria-label="tavern-content-section">
+      <div className="mb-6">
+        <Link href={`/city/${cityName}`}>
+          <Button variant="outline" size="sm" aria-label="Back to City">
+            <ChevronLeft className="mr-2 h-4 w-4" aria-hidden="true" />
+            Back to City
+          </Button>
+        </Link>
+      </div>
+      
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold tracking-tight">The Dragon's Rest</h1>
+        <p className="text-muted-foreground mt-2">A cozy tavern where adventurers gather to rest and share stories.</p>
+      </div>
+      
+      {isLoading ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="tavern-items-loading-grid">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="overflow-hidden" aria-label={`loading-card-${i}`}>
+              <div className="h-48 bg-muted animate-pulse" aria-hidden="true" />
+              <CardHeader>
+                <div className="h-6 w-2/3 bg-muted animate-pulse rounded" aria-hidden="true" />
+                <div className="h-4 w-full bg-muted animate-pulse rounded mt-2" aria-hidden="true" />
+              </CardHeader>
+              <CardContent>
+                <div className="h-4 w-full bg-muted animate-pulse rounded" aria-hidden="true" />
+                <div className="h-4 w-2/3 bg-muted animate-pulse rounded mt-2" aria-hidden="true" />
+              </CardContent>
+            </Card>
+          ))}
         </div>
-
-        {/* Tavern Image Banner */}
-        <div className="relative w-full h-[250px] rounded-lg overflow-hidden border-2 border-amber-800/20 mb-8">
-          <div className="absolute inset-0 bg-gradient-to-b from-amber-900/30 to-black/70">
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-              <h2 className="text-3xl font-bold mb-2 font-serif">The Dragon's Rest</h2>
-              <p className="text-lg">A warm hearth and cold ale await</p>
-            </div>
-          </div>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="tavern-items-grid">
+          {[
+            {
+              id: "health-potion",
+              name: "Health Potion",
+              description: "Restores 50 health points",
+              price: "10 gold",
+              image: "/images/items/health-potion.png"
+            },
+            {
+              id: "mana-potion",
+              name: "Mana Potion",
+              description: "Restores 50 mana points",
+              price: "15 gold",
+              image: "/images/items/mana-potion.png"
+            },
+            {
+              id: "stamina-potion",
+              name: "Stamina Potion",
+              description: "Restores 50 stamina points",
+              price: "12 gold",
+              image: "/images/items/stamina-potion.png"
+            }
+          ].map((item) => (
+            <Card key={item.id} className="overflow-hidden" aria-label={`${item.name}-card`}>
+              <div 
+                className="h-48 bg-cover bg-center" 
+                style={{ backgroundImage: `url(${item.image})` }}
+                aria-label={`${item.name}-image`}
+              />
+              <CardHeader>
+                <CardTitle>{item.name}</CardTitle>
+                <CardDescription>{item.price}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm">{item.description}</p>
+                <Button className="w-full mt-4" aria-label={`Buy ${item.name}`}>
+                  Buy
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-
-        <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
-          <CardHeader>
-            <CardTitle className="font-serif flex items-center">
-              <ShoppingBag className="mr-2 h-5 w-5" />
-              Available Items
-            </CardTitle>
-            <CardDescription>Food and drink to restore your energy</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {tavernItems.map((item) => (
-                <ItemCard 
-                  key={item.id}
-                  item={item}
-                  onPurchase={purchaseItem}
-                />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </main>
+      )}
     </div>
   )
 }

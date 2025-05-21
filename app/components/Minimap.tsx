@@ -134,10 +134,9 @@ export function Minimap({ gridSize, tileSize = 16, characterPosition, onPan }: M
 
           {/* Character marker */}
           <div
-            role="status"
-            aria-live="polite"
+            role="presentation"
             aria-label={`Character position: ${characterPosition.x}, ${characterPosition.y}`}
-            className="absolute w-3 h-3 bg-amber-400 rounded-full shadow-md ring-2 ring-amber-200 animate-pulse"
+            className="absolute w-3 h-3 bg-amber-400 rounded-full shadow-md ring-2 ring-amber-200 animate-pulse character-marker"
             style={{
               left: `${characterPosition.x * (gridSize / 12)}px`,
               top: `${characterPosition.y * (gridSize / 12)}px`,

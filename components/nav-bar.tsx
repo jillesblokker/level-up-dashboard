@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils"
 import { Icons } from "@/components/icons"
 import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character"
 import { Progress } from "@/components/ui/progress"
-import { useSession, signOut, signIn } from "next-auth/react"
+// import { useSession, signOut, signIn } from "next-auth/react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +28,7 @@ import { UserNav } from "@/components/user-nav"
 
 interface NavBarProps {
   goldBalance: number
+  session: any // Add session prop here
 }
 
 interface Notification {
@@ -114,7 +115,10 @@ interface NotificationCenterProps {
   unreadCount: number
 }
 
-export function NavBar() {
+export function NavBar({
+  goldBalance
+  , session
+}: NavBarProps) {
   const pathname = usePathname()
   const [isClient, setIsClient] = useState(false)
   const [characterStats, setCharacterStats] = useState<CharacterStats>({
@@ -137,8 +141,8 @@ export function NavBar() {
   const [isSettingsMenuOpen, setIsSettingsMenuOpen] = useState(false)
   const settingsMenuRef = useRef<HTMLDivElement>(null)
   const settingsButtonRef = useRef<HTMLButtonElement>(null)
-  const { data: session, status } = useSession()
-  const isAuthenticated = status === "authenticated"
+  // const { data: session, status } = useSession()
+  const isAuthenticated = !!session // Check for session existence
 
   useEffect(() => {
     setIsClient(true)

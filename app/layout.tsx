@@ -1,13 +1,15 @@
 import "./globals.css"
+import "@/styles/medieval-theme.css"
 import { Inter as FontSans } from "next/font/google"
 import { Providers } from "@/components/providers"
-import { NavBar } from "@/components/nav-bar"
 import { Toaster } from "@/components/ui/toaster"
 import { cn } from "@/lib/utils"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import { Toaster as SonnerToaster } from "sonner"
 import { GradientProvider } from './providers/gradient-provider'
+import { NavBar } from '@/components/nav-bar'
+import { AuthContent } from '@/components/auth-content'
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -18,24 +20,25 @@ const fontSans = FontSans({
 
 const inter = Inter({ subsets: ["latin"] })
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+}
+
 export const metadata: Metadata = {
   title: "Thrivehaven",
-  description: "Your personal growth and achievement tracking dashboard",
+  description: "Your personal growth and development companion",
   manifest: "/manifest.json",
   icons: {
-    icon: "/icons/thrivehaven_fav.png",
+    icon: "/icons/thrivehaven_fav_optimized.png",
     apple: "/icons/thrivehaven_fav.png",
   },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "Thrivehaven",
-  },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
   },
 }
 
@@ -50,7 +53,6 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <link rel="apple-touch-icon" href="/icons/thrivehaven_fav.png" />
       </head>
       <body className={cn(
         "min-h-screen bg-background font-sans antialiased",
@@ -58,8 +60,9 @@ export default function RootLayout({
       )}>
         <GradientProvider>
           <Providers>
-            <NavBar />
-            <main className="flex-1">{children}</main>
+            <AuthContent>
+              {children}
+            </AuthContent>
             <Toaster />
             <SonnerToaster 
               position="top-center"

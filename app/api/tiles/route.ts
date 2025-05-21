@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { auth } from '@/auth';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 
@@ -11,11 +12,35 @@ export async function POST(request: Request) {
   try {
     console.log('Starting tile placement request...'); // Debug log
     
-    const session = await auth();
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value;
+          },
+        },
+      }
+    );
+    const { data: { session } } = await supabase.auth.getSession();
+
     if (!session?.user?.id) {
       console.log('No session found');
       return NextResponse.json({ error: 'Unauthorized - No valid session' }, { status: 401 });
     }
+
+    // Ensure user exists in database
+    const user = await prisma.user.upsert({
+      where: { id: session.user.id },
+      update: {},
+      create: {
+        id: session.user.id,
+        email: session.user.email || '',
+        name: session.user.user_metadata?.['full_name'] || session.user.email?.split('@')[0] || 'User'
+      }
+    });
 
     const data = await request.json();
     console.log('Received tile placement data:', data);
@@ -99,7 +124,20 @@ export async function POST(request: Request) {
 // Get tile placements for the current user
 export async function GET(request: Request) {
   try {
-    const session = await auth();
+    const cookieStore = cookies();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value;
+          },
+        },
+      }
+    );
+    const { data: { session } } = await supabase.auth.getSession();
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

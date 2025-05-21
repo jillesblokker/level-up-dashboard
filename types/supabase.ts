@@ -12,30 +12,61 @@ export interface Database {
       realm_grids: {
         Row: {
           id: string
+          user_id: string
+          grid: number[][]
+          version: number
           created_at: string
           updated_at: string
-          grid: number[][]
-          user_id: string
-          version: number
         }
         Insert: {
           id?: string
+          user_id: string
+          grid: number[][]
+          version?: number
           created_at?: string
           updated_at?: string
-          grid: number[][]
-          user_id: string
-          version: number
         }
         Update: {
           id?: string
+          user_id?: string
+          grid?: number[][]
+          version?: number
           created_at?: string
           updated_at?: string
-          grid?: number[][]
-          user_id?: string
-          version?: number
         }
       }
-      // Add other tables as needed
+      quest_completions: {
+        Row: {
+          id: string
+          user_id: string
+          category: string
+          quest_name: string
+          completed: boolean
+          date: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          category: string
+          quest_name: string
+          completed?: boolean
+          date: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          category?: string
+          quest_name?: string
+          completed?: boolean
+          date?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

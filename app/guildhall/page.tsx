@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { useAuth } from "@/components/providers"
 
 interface GuildStats {
   rank: number
@@ -22,6 +23,8 @@ interface GuildStats {
 }
 
 export default function GuildhallPage() {
+  const { session, isLoading: isAuthLoading } = useAuth();
+
   const [goldBalance, setGoldBalance] = useState(1000)
   const [searchQuery, setSearchQuery] = useState("")
   const [guildStats] = useState<GuildStats>({
@@ -164,12 +167,13 @@ export default function GuildhallPage() {
                 Upload a JPG, PNG or GIF image for your guildhall banner
               </p>
               
-              <input 
-                type="file" 
+              <input
+                type="file"
                 ref={fileInputRef}
                 className="hidden"
-                accept="image/jpeg,image/png,image/gif" 
+                accept="image/jpeg,image/png,image/gif"
                 onChange={handleImageUpload}
+                aria-label="Select image for guildhall banner"
               />
             </div>
           </div>
@@ -205,11 +209,11 @@ export default function GuildhallPage() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="border-amber-800/20 backdrop-blur-sm">
+            <Card className="border-amber-800/20 backdrop-blur-sm" aria-label="guild-stats-gold-card">
               <CardContent className="p-4">
                 <div className="text-center">
                   <p className="text-amber-500 text-sm font-medium">Gold Balance</p>
-                  <p className="text-2xl font-bold text-white mt-1">{goldBalance}</p>
+                  <p className="text-2xl font-bold text-white mt-1">{isAuthLoading ? 'Loading...' : session?.user ? goldBalance : localStorage.getItem("gold-balance") || 1000}</p>
                   <p className="text-amber-300/80 text-xs mt-1">Available</p>
                 </div>
               </CardContent>
@@ -234,37 +238,52 @@ export default function GuildhallPage() {
                   <CardTitle className="text-amber-500">Your Profile</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="flex flex-col items-center text-center">
-                    <Avatar className="h-24 w-24 border-2 border-amber-500 mb-4">
-                      <AvatarImage src="/placeholder.svg?height=96&width=96" alt="Your avatar" />
-                      <AvatarFallback>YA</AvatarFallback>
-                    </Avatar>
-                    <h3 className="text-xl font-medium text-white">Adventurer</h3>
-                    <p className="text-amber-300/80">Level 10</p>
-                    <Badge className="mt-2 bg-amber-500/20 text-amber-300 border-amber-500/50">Guild Master</Badge>
-                  </div>
-                  <div className="space-y-3 pt-4 border-t border-amber-800/20">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-amber-300/80">Friends</span>
-                      <span className="text-white">4</span>
+                  {isAuthLoading ? (
+                    <div className="text-center text-amber-400">Loading profile...</div>
+                  ) : session?.user ? (
+                    <div className="flex flex-col items-center text-center">
+                      <Avatar 
+                        className="h-24 w-24 border-2 border-amber-500 mb-4"
+                        style={{ backgroundColor: session.user.user_metadata?.avatar_bg_color || "#1f2937" }}
+                      >
+                        <AvatarImage 
+                          src={session.user.user_metadata?.avatar_url || ""} 
+                          alt={session.user.user_metadata?.user_name || session.user.email || ""} 
+                        />
+                        <AvatarFallback 
+                          style={{ color: session.user.user_metadata?.avatar_text_color || "#ffffff" }}
+                        >
+                          {session.user.user_metadata?.user_name?.[0]?.toUpperCase() || session.user.email?.[0]?.toUpperCase() || "?"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <h3 className="text-xl font-medium text-white">
+                        {session.user.user_metadata?.user_name || session.user.email || "Adventurer"}
+                      </h3>
+                      <p className="text-amber-300/80">Level 10</p>
+                      {guildStats.status && (
+                        <Badge className="mt-2 bg-amber-500/20 text-amber-300 border-amber-500/50">
+                          {guildStats.status}
+                        </Badge>
+                      )}
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-amber-300/80">Rivals</span>
-                      <span className="text-white">3</span>
+                  ) : (
+                    <div className="text-center text-amber-400">
+                      <p>Please sign in to view your profile</p>
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-amber-300/80">Messages</span>
-                      <span className="text-white">3</span>
+                  )}
+                  {session?.user && (
+                    <div className="space-y-3 pt-4 border-t border-amber-800/20">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-amber-300/80">Friends</span>
+                        <span className="text-white">4</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-amber-300/80">Recent Activity</span>
+                        <span className="text-white">Completed "Fetch Quest"</span>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </CardContent>
-                <CardFooter>
-                  <Link href="/character" className="w-full">
-                    <Button variant="outline" className="w-full text-amber-300 border-amber-800/20 hover:bg-amber-900/20">
-                      View Full Profile
-                    </Button>
-                  </Link>
-                </CardFooter>
               </Card>
             </div>
 

@@ -27,7 +27,6 @@ import { MapGrid } from '../../components/map-grid'
 import { TileInventory } from '@/components/tile-inventory'
 import { Switch } from "@/components/ui/switch"
 import { generateMysteryEvent, handleEventOutcome, getScrollById } from "@/lib/mystery-events"
-import { toast } from 'sonner'
 import { MysteryEvent } from '@/lib/mystery-events'
 import { MysteryEventType } from '@/lib/mystery-events'
 import { addToInventory, addToKingdomInventory } from "@/lib/inventory-manager"
@@ -38,7 +37,8 @@ import { Minimap } from "@/components/Minimap"
 import { MinimapEntity, MinimapRotationMode } from "@/types/minimap"
 import { useAchievementStore } from '@/stores/achievementStore'
 import { loadInitialGrid, createTileFromNumeric, numericToTileType } from "@/lib/grid-loader"
-import { getCurrentUser, getLatestGrid, uploadGridData, updateGridData, subscribeToGridChanges } from '@/lib/supabase-client'
+import { getLatestGrid, uploadGridData, updateGridData, subscribeToGridChanges, createQuestCompletion, getQuestCompletions } from '@/lib/api'
+import { useAuth } from "@/components/providers"
 
 // Types
 interface Position {
@@ -172,14 +172,24 @@ const locationData = {
 // Function to create initial grid
 const createInitialGrid = async (): Promise<Tile[][]> => {
   try {
+    console.log('Loading initial grid...')
     const { grid: numericGrid } = await loadInitialGrid()
-    return numericGrid.map((row, y) =>
-      row.map((numeric, x) => createTileFromNumeric(numeric, x, y))
+    console.log('Numeric grid loaded:', numericGrid)
+    
+    const tileGrid = numericGrid.map((row, y) =>
+      row.map((numeric, x) => {
+        const tile = createTileFromNumeric(numeric, x, y)
+        console.log(`Created tile at (${x},${y}):`, tile)
+        return tile
+      })
     )
+    console.log('Final tile grid created:', tileGrid)
+    return tileGrid
   } catch (error) {
     console.error('Error creating initial grid:', error)
     // Fallback to empty grid if loading fails
-    return Array(8).fill(null).map((_, y) =>
+    console.log('Creating fallback empty grid...')
+    const fallbackGrid = Array(8).fill(null).map((_, y) =>
       Array(GRID_COLS).fill(null).map((_, x) => ({
         id: `tile-${x}-${y}`,
         type: 'empty' as TileType,
@@ -195,6 +205,8 @@ const createInitialGrid = async (): Promise<Tile[][]> => {
         image: '/images/tiles/empty-tile.png'
       }))
     )
+    console.log('Fallback grid created:', fallbackGrid)
+    return fallbackGrid
   }
 }
 
@@ -205,6 +217,9 @@ export default function RealmPage() {
   const gridRef = useRef<HTMLDivElement>(null)
   const { updateProgress } = useAchievementStore()
   const creatureStore = useCreatureStore()
+
+  // Use session and supabase from useAuth
+  const { session, isLoading: isAuthLoading, supabase } = useAuth()
 
   // State declarations
   const [inventory, setInventory] = useLocalStorage<Inventory>("tile-inventory", initialTileInventory)
@@ -221,6 +236,7 @@ export default function RealmPage() {
   const [zoomLevel, setZoomLevel] = useState(1)
   const [movementMode, setMovementMode] = useState(true)
   const [hoveredTile, setHoveredTile] = useState<{ row: number; col: number } | null>(null)
+  const [gridId, setGridId] = useState<string | null>(null); // State for grid ID
 
   // Add tileCounts state
   const [tileCounts, setTileCounts] = useLocalStorage<TileCounts>("tile-counts", {
@@ -267,8 +283,211 @@ export default function RealmPage() {
   // Add Supabase sync state
   const [syncError, setSyncError] = useState<string | null>(null)
   const [isSyncing, setIsSyncing] = useState(false)
-  const [gridId, setGridId] = useState<string | null>(null)
   const subscriptionRef = useRef<{ unsubscribe: () => void } | null>(null)
+
+  // Effect to initialize grid based on authentication status
+  useEffect(() => {
+    const initializeGrid = async () => {
+      setIsLoading(true);
+      let loadedGrid: Tile[][] = [];
+      let loadedGridId: string | null = null;
+
+      // Check for the skip-auth cookie
+      const skipAuthCookie = typeof document !== 'undefined' ? document.cookie.split(';').find(c => c.trim().startsWith('skip-auth=')) : null;
+      const isSkippingAuth = skipAuthCookie ? skipAuthCookie.split('=')[1] === 'true' : false;
+
+      if (isSkippingAuth) {
+        console.log('Skipping authentication, creating initial grid...');
+        loadedGrid = await createInitialGrid();
+      } else if (session?.user?.id && supabase) {
+        // Attempt to load grid from Supabase for authenticated users
+        console.log('Attempting to load grid from Supabase for user:', session.user.id);
+        try {
+          // Verify session is still valid
+          const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+          
+          if (sessionError) {
+            console.error('Session verification failed:', sessionError);
+            throw new Error('Failed to verify session');
+          }
+
+          if (!currentSession) {
+            console.error('No active session found');
+            throw new Error('Session expired or invalid');
+          }
+
+          const savedGridData = await getLatestGrid(supabase, session.user.id);
+
+          if (savedGridData && savedGridData.grid) {
+            console.log('Successfully loaded grid from Supabase.');
+            // Convert numeric grid to tile grid using the grid-loader function
+            loadedGrid = savedGridData.grid.map((row, y) =>
+              row.map((numeric, x) => createTileFromNumeric(numeric, x, y))
+            );
+            loadedGridId = savedGridData.id;
+          } else {
+            console.log('No saved grid found, creating initial grid...');
+            loadedGrid = await createInitialGrid();
+            // Upload the initial grid
+            const numericGrid = loadedGrid.map(row => 
+              row.map(tile => {
+                const numericValue = Object.entries(numericToTileType).find(
+                  ([_, value]) => value === tile.type
+                )?.[0];
+                return numericValue ? parseInt(numericValue, 10) : 0;
+              })
+            );
+            const uploadResult = await uploadGridData(supabase, numericGrid, session.user.id);
+            if (uploadResult) {
+              loadedGridId = uploadResult.id;
+            }
+          }
+        } catch (error) {
+          console.error('Error loading or creating grid:', error);
+          toast({
+            title: "Error",
+            description: error instanceof Error ? error.message : "Failed to load your realm. Creating a new one...",
+            variant: "destructive"
+          });
+          loadedGrid = await createInitialGrid();
+        }
+      } else {
+        // For non-authenticated users, create a new grid
+        console.log('No authenticated user, creating initial grid...');
+        loadedGrid = await createInitialGrid();
+      }
+
+      setGrid(loadedGrid);
+      setGridId(loadedGridId);
+      setIsLoading(false);
+    };
+
+    initializeGrid();
+  }, [session?.user?.id, supabase, toast]);
+
+  // Effect to save grid to database for authenticated users or local storage for anonymous users
+  useEffect(() => {
+    // Wait until initialized to save
+    if (!isInitialized) return;
+
+    // Check for the skip-auth cookie directly in this effect for anonymous saving
+    const skipAuthCookie = typeof document !== 'undefined' ? document.cookie.split(';').find(c => c.trim().startsWith('skip-auth=')) : null;
+    const isSkippingAuth = skipAuthCookie ? skipAuthCookie.split('=')[1] === 'true' : false;
+
+    if (isSkippingAuth) {
+       // Save to local storage if skipping auth (anonymous)
+      console.log('Saving grid to local storage (anonymous mode)...');
+      localStorage.setItem('grid', JSON.stringify(grid));
+    } else if (session?.user?.id && gridId && supabase) { // Ensure supabase is available
+      // Save to Supabase if authenticated and gridId exists
+      console.log('Saving grid to Supabase for user:', session.user.id, 'gridId:', gridId);
+      const saveGameData = async () => {
+        try {
+           // Convert tile grid to numeric grid for storage if necessary (updateGridData expects number[][])
+           const numericGrid = grid.map(row =>
+             row.map(tile => {
+               const tileType = tile.type;
+               const numericType = Number(Object.entries(numericToTileType).find(([_, value]) =>
+                 value === tileType
+               )?.[0] || 0);
+               return numericType;
+             })
+           );
+          // Pass the supabase client to updateGridData
+          await updateGridData(supabase, gridId, numericGrid, session.user.id);
+           console.log('Grid saved successfully to Supabase.');
+        } catch (error) {
+          console.error('Error saving grid to Supabase:', error);
+          toast({ title: "Error", description: "Failed to save game progress.", variant: "destructive" });
+        }
+      };
+
+      // Implement autosave or save on specific actions (e.g., button click, tile placement)
+      // For now, saving on every grid change after initialization if authenticated
+       // A better approach might involve debouncing or a dedicated save button/interval
+      saveGameData();
+    } else if (isInitialized && session?.user?.id && !gridId && supabase) { // Handle case where authenticated user has no grid yet and needs initial upload
+       console.log('User authenticated but no gridId, attempting initial upload...');
+        const uploadInitialGrid = async () => {
+          try {
+             const numericGrid = grid.map(row =>
+               row.map(tile => {
+                 const tileType = tile.type;
+                 const numericType = Number(Object.entries(numericToTileType).find(([_, value]) =>
+                   value === tileType
+                 )?.[0] || 0);
+                 return numericType;
+               })
+             );
+             const newGridData = await uploadGridData(supabase, numericGrid, session.user.id);
+              setGridId(newGridData?.id || null);
+             console.log('Initial grid uploaded and gridId set:', newGridData?.id);
+          } catch (error) {
+             console.error('Error uploading initial grid on save effect:', error);
+             toast({ title: "Error", description: "Failed to upload initial game progress on save attempt.", variant: "destructive" });
+          }
+        };
+        uploadInitialGrid();
+    }
+  }, [grid, session, isInitialized, gridId, supabase]); // Depend on grid, session, initialization status, gridId, and supabase
+
+  // Effect for real-time subscription (re-add and adjust)
+   useEffect(() => {
+      // Check for the skip-auth cookie
+       const skipAuthCookie = typeof document !== 'undefined' ? document.cookie.split(';').find(c => c.trim().startsWith('skip-auth=')) : null;
+       const isSkippingAuth = skipAuthCookie ? skipAuthCookie.split('=')[1] === 'true' : false;
+
+       // Only set up subscription if authenticated and not skipping auth, and gridId and supabase exist
+       if (session?.user?.id && gridId && !isSkippingAuth && supabase) {
+           console.log('Subscribing to Supabase grid changes for grid:', gridId);
+           // Ensure subscribeToGridChanges is implemented to handle real-time updates
+            // and that it filters by gridId if possible, or user_id if not
+           // Pass the supabase client to subscribeToGridChanges
+           const subscription = subscribeToGridChanges(supabase, session.user.id, (payload) => {
+               console.log('Supabase real-time update received:', payload);
+               // Handle real-time updates, e.g., update the grid state
+               // Make sure the payload structure is correct for updating the grid
+               if (payload.new && payload.new.grid && payload.new.id === gridId) { // Also check gridId in payload
+                    const updatedGrid = payload.new.grid.map((row: number[], y: number) =>
+                      row.map((numeric: number, x: number) => createTileFromNumeric(numeric, x, y))
+                    );
+                    setGrid(updatedGrid);
+                    console.log('Grid updated from real-time subscription.');
+               } else if (payload.eventType === 'DELETE' && payload.old?.id === gridId) {
+                 // Handle case where the grid is deleted remotely (e.g., reset)
+                  console.log('Remote grid deleted. Resetting local grid.');
+                  // Optionally create a new initial grid or clear the current one
+                   createInitialGrid().then(newGrid => setGrid(newGrid));
+                    setGridId(null); // Clear gridId as the grid no longer exists
+               }
+           });
+
+           subscriptionRef.current = subscription;
+
+           return () => {
+               console.log('Unsubscribing from Supabase grid changes.');
+               supabase.removeChannel(subscription);
+               subscriptionRef.current = null;
+           };
+       } else if (subscriptionRef.current) {
+           // Unsubscribe if switching to anonymous mode or logging out, or gridId or supabase is gone
+           console.log('Unsubscribing due to state change or supabase absence.');
+           subscriptionRef.current.unsubscribe();
+           subscriptionRef.current = null;
+       }
+
+   }, [session, gridId, isAuthLoading, supabase]); // Depend on session, gridId, auth loading status, and supabase
+
+  // Keep existing useEffect for autosave notification (optional, can remove if saving on change is preferred)
+  // useEffect(() => {
+  // // ... existing autosave notification logic ...
+  // }, []);
+
+  // Ensure this function correctly updates the local state, which triggers the save effect
+  const handleGridUpdate = useCallback(async (newGrid: Tile[][]) => {
+    setGrid(newGrid);
+    // Saving to Supabase/local storage is handled by the useEffect
+  }, [setGrid]); // Add setGrid as a dependency if it could change, though unlikely for useState setter
 
   // Handle fullscreen toggle
   const handleFullscreenToggle = (checked: boolean) => {
@@ -282,134 +501,9 @@ export default function RealmPage() {
     window.history.replaceState({}, '', url.toString())
   }
 
-  // Initialize grid and Supabase sync
-  useEffect(() => {
-    const initializeGrid = async () => {
-      if (!isInitialized) {
-        setIsLoading(true)
-        try {
-          // Get current user
-          const user = await getCurrentUser()
-          if (!user) {
-            console.warn('No user found, using local storage only')
-            const initialGrid = await createInitialGrid()
-            setGrid(initialGrid)
-            setIsInitialized(true)
-            return
-          }
-
-          // Try to get existing grid from Supabase
-          const savedGrid = await getLatestGrid(user.id)
-          
-          if (savedGrid) {
-            setGridId(savedGrid.id)
-            // Convert numeric grid to tile grid
-            const tileGrid = savedGrid.grid.map((row, y) =>
-              row.map((numeric, x) => createTileFromNumeric(numeric, x, y))
-            )
-            setGrid(tileGrid)
-          } else {
-            // Create new grid and save to Supabase
-            const initialGrid = await createInitialGrid()
-            setGrid(initialGrid)
-            
-            // Convert tile grid to numeric grid for storage
-            const numericGrid = initialGrid.map(row =>
-              row.map(tile => {
-                const tileType = tile.type
-                const numericType = Number(Object.entries(numericToTileType).find(([_, value]) => 
-                  value === tileType
-                )?.[0] || 0)
-                return numericType
-              })
-            )
-            
-            const savedData = await uploadGridData(numericGrid, user.id)
-            setGridId(savedData.id)
-          }
-
-          // Set up real-time subscription
-          const subscription = subscribeToGridChanges(user.id, (payload) => {
-            if (payload.eventType === 'UPDATE' && payload.new) {
-              const { grid: newNumericGrid } = payload.new
-              const newTileGrid = newNumericGrid.map((row: number[], y: number) =>
-                row.map((numeric: number, x: number) => createTileFromNumeric(numeric, x, y))
-              )
-              setGrid(newTileGrid)
-            }
-          })
-
-          subscriptionRef.current = subscription
-        } catch (error) {
-          console.error('Error initializing grid:', error)
-          setSyncError(error instanceof Error ? error.message : 'Failed to initialize grid')
-          // Fallback to local grid
-          const initialGrid = await createInitialGrid()
-          setGrid(initialGrid)
-        } finally {
-          setIsLoading(false)
-          setIsInitialized(true)
-        }
-      }
-    }
-
-    initializeGrid()
-
-    // Cleanup subscription
-    return () => {
-      if (subscriptionRef.current) {
-        subscriptionRef.current.unsubscribe()
-      }
-    }
-  }, [isInitialized])
-
-  // Modify handleGridUpdate to sync with Supabase
-  const handleGridUpdate = async (newGrid: Tile[][]) => {
-    setGrid(newGrid)
-
-    // Sync with Supabase if we have a user and gridId
-    try {
-      setIsSyncing(true)
-      const user = await getCurrentUser()
-      if (user && gridId) {
-        // Convert tile grid to numeric grid for storage
-        const numericGrid = newGrid.map(row =>
-          row.map(tile => {
-            const tileType = tile.type
-            const numericType = Number(Object.entries(numericToTileType).find(([_, value]) => 
-              value === tileType
-            )?.[0] || 0)
-            return numericType
-          })
-        )
-        
-        await updateGridData(gridId, numericGrid, user.id)
-      }
-    } catch (error) {
-      console.error('Error syncing grid:', error)
-      setSyncError(error instanceof Error ? error.message : 'Failed to sync grid')
-    } finally {
-      setIsSyncing(false)
-    }
-  }
-
-  // Keep autosave notification
-  useEffect(() => {
-    const interval = setInterval(() => {
-      toast({
-        title: "Realm Saved",
-        description: `Your realm has been preserved in the archives, ${getCharacterName()}.`,
-        variant: "default",
-        className: "bg-gray-900 text-white"
-      })
-    }, AUTOSAVE_INTERVAL)
-
-    return () => clearInterval(interval)
-  }, [])
-
   // Handle tile deletion
   const handleTileDelete = (x: number, y: number) => {
-    const tileToDelete = grid[y][x];
+    const tileToDelete = grid[y]?.[x];
     if (!tileToDelete) return;
 
     // Create an empty tile with proper accessibility attributes
@@ -429,8 +523,10 @@ export default function RealmPage() {
 
     // Update the grid with the empty tile
     const newGrid = [...grid];
-    newGrid[y][x] = emptyTile;
-    setGrid(newGrid);
+    if (newGrid[y]) {
+      newGrid[y][x] = emptyTile;
+      setGrid(newGrid);
+    }
 
     // Update inventory and tile counts
     const updatedInventory = { ...inventory };
@@ -467,10 +563,9 @@ export default function RealmPage() {
       if (updatedTileCounts.forestDestroyed >= 10) {
         useCreatureStore.getState().discoverCreature('003'); // Vulcana
         toast({
-          title: "Achievement Unlocked!",
+          title: 'Achievement Unlocked!',
           description: "Forest Destroyer: You've destroyed 10 forest tiles!",
-          duration: 5000,
-          variant: "default"
+          duration: 5000
         });
       }
     } else if (tileType === "mountain") {
@@ -485,10 +580,9 @@ export default function RealmPage() {
       if (updatedTileCounts.mountainDestroyed >= 10) {
         useCreatureStore.getState().discoverCreature('012'); // Montano
         toast({
-          title: "Achievement Unlocked!",
+          title: 'Achievement Unlocked!',
           description: "Mountain Breaker: You've destroyed 5 mountain tiles!",
-          duration: 5000,
-          variant: "default"
+          duration: 5000
         });
       }
     } else if (tileType === "water") {
@@ -503,10 +597,9 @@ export default function RealmPage() {
 
     // Show toast notification
     toast({
-      title: "Tile Removed",
+      title: 'Tile Removed',
       description: `The ${tileToDelete.name} has been removed and added to your inventory.`,
-      duration: 3000,
-      variant: "default"
+      duration: 3000
     });
   };
 
@@ -518,10 +611,9 @@ export default function RealmPage() {
         await useCreatureStore.getState().discoverCreature('000');
         await handleAchievementUnlock('000', 'First time exploring the realm');
         localStorage.setItem('has-visited-realm', 'true');
-      toast({
-          title: "🧪 Achievement Unlocked!",
-          description: "First time exploring the realm - Discovered a poisonous creature!",
-          variant: "default"
+        toast({
+          title: '🧪 Achievement Unlocked!',
+          description: "First time exploring the realm - Discovered a poisonous creature!"
         });
       }
     };
@@ -531,13 +623,12 @@ export default function RealmPage() {
   // Handle tile placement (for grass, water, forest, ice)
   const handleTileClick = async (x: number, y: number) => {
     if (!selectedTile) return;
-    const existingTile = grid[y][x];
+    const existingTile = grid[y]?.[x];
     if (existingTile && existingTile.type !== 'empty') {
       toast({
         title: 'Invalid placement',
-        description: 'You can only place tiles on empty spaces',
+        description: 'You can only place tiles on empty or compatible tiles.',
         variant: 'destructive',
-        className: 'bg-red-900 text-white',
       });
       return;
     }
@@ -556,8 +647,10 @@ export default function RealmPage() {
       image: selectedTile.image || '/images/tiles/empty-tile.png'
     };
     const newGrid = grid.map(row => row.map(tile => ({ ...tile })));
-    newGrid[y][x] = newTile;
-    setGrid(newGrid);
+    if (newGrid[y]) {
+      newGrid[y][x] = newTile;
+      setGrid(newGrid);
+    }
     setInventory(prev => {
       const newInventory = { ...prev };
       if (newInventory[selectedTile.type]) {
@@ -591,11 +684,16 @@ export default function RealmPage() {
     }
 
     try {
+      // createTilePlacement calls the API route, which handles server-side auth
       await createTilePlacement(newTile.type, x, y);
     } catch (error) {
+      let errorMessage = 'Failed to save tile placement, but it was placed locally.';
+      if (error instanceof Error && (error as any).status === 409) {
+        errorMessage = 'A tile already exists at this position.';
+      }
       toast({
         title: 'Warning',
-        description: 'Failed to save tile placement, but it was placed locally.',
+        description: errorMessage,
         variant: 'default',
         className: 'bg-yellow-900 text-white',
       });
@@ -639,8 +737,8 @@ export default function RealmPage() {
         default:
           return;
       }
-      const targetTile = grid[newY][newX];
-      if (targetTile.type === 'empty') {
+      const targetTile = grid[newY]?.[newX];
+      if (!targetTile || targetTile.type === 'empty') {
         toast({
           title: "Cannot Move",
           description: "You cannot move onto an empty tile!",
@@ -650,16 +748,18 @@ export default function RealmPage() {
       }
       if (newX !== x || newY !== y) {
         handleCharacterMove(newX, newY);
-        const clickedTile = grid[newY][newX];
-        if (movementMode && clickedTile.type === "mystery" && !clickedTile.isVisited) {
+        const clickedTile = grid[newY]?.[newX];
+        if (movementMode && clickedTile?.type === "mystery" && !clickedTile.isVisited) {
           const mysteryEvent = generateMysteryEvent();
           setCurrentEvent(mysteryEvent);
           const newGrid = [...grid];
-          newGrid[newY][newX] = {
-            ...clickedTile,
-            isVisited: true
-          };
-          setGrid(newGrid);
+          if (newGrid[newY]) {
+            newGrid[newY][newX] = {
+              ...clickedTile,
+              isVisited: true
+            };
+            setGrid(newGrid);
+          }
         }
       }
     };
@@ -700,21 +800,47 @@ export default function RealmPage() {
       }
     })
     setInventory(newInventory)
+    toast({
+      title: "Inventory Updated",
+      description: "Your tile inventory has been updated.",
+      variant: "default"
+    })
   }
 
   // Handle location visit
   const handleVisitLocation = () => {
-    if (!currentLocation) return
-    setShowLocationModal(false)
-    
-    // Route based on location type
-    if (currentLocation.type === 'city') {
-      router.push(`/city/${encodeURIComponent(locationData.city.name)}`)
-    } else if (currentLocation.type === 'town') {
-      const townSlug = locationData.town.name.toLowerCase().replace(/\s+/g, '-')
-      router.push(`/town/${townSlug}`)
+    console.log('handleVisitLocation called'); // Debug log
+    if (!currentLocation) {
+      console.log('No currentLocation, returning'); // Debug log
+      return;
     }
-  }
+    console.log('Current location:', currentLocation); // Debug log
+    
+    setShowLocationModal(false);
+    
+    // Ensure router is available
+    if (!router) {
+      console.error('Router is not available');
+      return;
+    }
+
+    // Route based on location type
+    let targetPath = '';
+    if (currentLocation.type === 'city') {
+      const citySlug = locationData.city.name.toLowerCase().replace(/\s+/g, '-');
+      targetPath = `/city/${citySlug}`;
+    } else if (currentLocation.type === 'town') {
+      const townSlug = locationData.town.name.toLowerCase().replace(/\s+/g, '-');
+      targetPath = `/town/${townSlug}`;
+    }
+
+    if (targetPath) {
+      console.log('Navigating to:', targetPath); // Debug log
+      router.push(targetPath);
+    } else {
+      console.error('No target path generated for navigation'); // Debug log
+    }
+  };
 
   // Fix the image rendering for empty tiles
   const getTileImage = (tile: Tile) => {
@@ -780,9 +906,9 @@ export default function RealmPage() {
     } catch (error) {
       console.error('Error resetting grid:', error);
       toast({
-        title: "Reset Failed",
-        description: "There was an error resetting the map. Please try again.",
-        variant: "destructive"
+        title: 'Reset Failed',
+        description: 'There was an error resetting the map. Please try again.',
+        variant: 'destructive',
       });
     }
   };
@@ -1031,28 +1157,38 @@ export default function RealmPage() {
   };
 
   // Add a function to handle quest completion and unlock dragon creatures
-  const handleQuestCompletion = () => {
+  const handleQuestCompletion = async () => {
+    if (!session?.user?.id || !supabase) return; // Ensure user and supabase are available
     const newCount = questCompletedCount + 1;
     if (newCount >= 100) useCreatureStore.getState().discoverCreature('101'); // Drakon
     if (newCount >= 500) useCreatureStore.getState().discoverCreature('102'); // Fireon
     if (newCount >= 1000) useCreatureStore.getState().discoverCreature('103'); // Valerion
     setQuestCompletedCount(newCount);
+    try {
+      // Pass the supabase client to createQuestCompletion
+      await createQuestCompletion(supabase, 'completion', 'Quest Completed'); // Example values
+      console.log('Quest completion recorded in Supabase.');
+    } catch (error) {
+      console.error('Failed to record quest completion:', error);
+      toast({ title: "Error", description: "Failed to save quest progress.", variant: "destructive" });
+    }
   };
 
-  if (isLoading) {
-  return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+  if (isLoading || isAuthLoading || !supabase) { // Also wait for supabase client
+    return (
+      <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <p className="text-2xl font-cardo text-primary">Loading realm...</p>
+          <h2 className="text-2xl font-bold mb-4">Loading your realm...</h2>
+          <p className="text-gray-500">Please wait while we prepare your kingdom.</p>
         </div>
       </div>
     )
   }
 
-    // Add debug log before returning JSX
-    console.log('Current grid state:', grid);
+  // Add debug log before returning JSX
+  console.log('Current grid state:', grid);
 
-    return (
+  return (
     <div className="relative min-h-screen bg-background p-4">
       {/* Add sync status indicator */}
       <div className="absolute top-4 right-4 flex items-center gap-2">
@@ -1062,7 +1198,8 @@ export default function RealmPage() {
             Syncing...
           </div>
         )}
-        {syncError && (
+        {/* Conditionally hide syncError if SKIP_AUTH is true */}
+        {syncError && process.env.NEXT_PUBLIC_SKIP_AUTH !== 'true' && (
           <div className="text-red-500 text-sm flex items-center gap-1">
             ⚠️ {syncError}
           </div>
@@ -1158,7 +1295,7 @@ export default function RealmPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => {
+              <DropdownMenuItem onClick={() => { 
                 handleReset().catch(error => {
                   console.error('Error in reset:', error);
                   toast({

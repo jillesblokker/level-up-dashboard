@@ -1,106 +1,121 @@
 "use client"
 
-import { useState } from "react"
-import { ArrowLeft, Crown } from "lucide-react"
-import Link from "next/link"
+import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
+import Link from "next/link"
+import { ChevronLeft } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { toast } from "@/components/ui/use-toast"
-import { CityItemManager, StoreItem } from "@/lib/city-item-manager"
-import { ItemCard } from "@/components/city/item-card"
 
 export default function CastlePage() {
-  const params = useParams() as { cityName: string }
-  const cityName = params.cityName
-  const [goldBalance, setGoldBalance] = useState(() => {
-    // Get gold balance from localStorage
-    if (typeof window !== "undefined") {
-      const savedGold = localStorage.getItem("gold-balance")
-      return savedGold ? Number.parseInt(savedGold) : 1000
-    }
-    return 1000
-  })
-
-  // Castle items
-  const [castleItems] = useState<StoreItem[]>(CityItemManager.getCastleItems())
-
-  // Purchase an item
-  const purchaseItem = (item: StoreItem) => {
-    // Check if player has enough gold
-    if (goldBalance < item.price) {
-      toast({
-        title: "Not enough gold",
-        description: `You need ${item.price} gold to purchase this item.`,
-        variant: "destructive",
-      })
-      return
-    }
-
-    // Deduct gold
-    const newGoldBalance = goldBalance - item.price
-    setGoldBalance(newGoldBalance)
-    localStorage.setItem("gold-balance", String(newGoldBalance))
-
-    // Add to inventory in localStorage
-    const inventory = JSON.parse(localStorage.getItem("player-royal-items") || "[]")
-    inventory.push(item)
-    localStorage.setItem("player-royal-items", JSON.stringify(inventory))
-
-    toast({
-      title: "Item acquired",
-      description: `You obtained ${item.name} for ${item.price} gold.`,
-    })
+  const params = useParams()
+  if (!params) {
+    return (
+      <div className="container py-10" role="main" aria-label="castle-error-section">
+        <Card aria-label="castle-error-card">
+          <CardHeader>
+            <CardTitle>Error</CardTitle>
+            <CardDescription>
+              Unable to load castle information.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    )
   }
 
+  const cityName = params['cityName'] as string
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Simulate data loading
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [])
+
   return (
-    <div className="flex min-h-screen flex-col bg-black text-white">
-      <main className="flex-1 p-4 md:p-6 space-y-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight font-serif">Royal Castle</h1>
-            <p className="text-muted-foreground">City of {cityName}</p>
-          </div>
-          <Link href={`/city/${encodeURIComponent(cityName)}`}>
-            <Button variant="outline" className="border-amber-800/20 hover:bg-amber-900/20">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to City
-            </Button>
-          </Link>
+    <div className="container py-10" role="main" aria-label="castle-content-section">
+      <div className="mb-6">
+        <Link href={`/city/${cityName}`}>
+          <Button variant="outline" size="sm" aria-label="Back to City">
+            <ChevronLeft className="mr-2 h-4 w-4" aria-hidden="true" />
+            Back to City
+          </Button>
+        </Link>
+      </div>
+      
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold tracking-tight">Royal Castle</h1>
+        <p className="text-muted-foreground mt-2">Explore the grand halls and chambers.</p>
+      </div>
+      
+      {isLoading ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="castle-rooms-loading-grid">
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i} className="overflow-hidden" aria-label={`loading-card-${i}`}>
+              <div className="h-48 bg-muted animate-pulse" aria-hidden="true" />
+              <CardHeader>
+                <div className="h-6 w-2/3 bg-muted animate-pulse rounded" aria-hidden="true" />
+                <div className="h-4 w-full bg-muted animate-pulse rounded mt-2" aria-hidden="true" />
+              </CardHeader>
+              <CardContent>
+                <div className="h-4 w-full bg-muted animate-pulse rounded" aria-hidden="true" />
+                <div className="h-4 w-2/3 bg-muted animate-pulse rounded mt-2" aria-hidden="true" />
+              </CardContent>
+            </Card>
+          ))}
         </div>
-
-        {/* Castle Image Banner */}
-        <div className="relative w-full h-[250px] rounded-lg overflow-hidden border-2 border-amber-800/20 mb-8">
-          <div className="absolute inset-0 bg-gradient-to-b from-amber-900/30 to-black/70">
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-              <h2 className="text-3xl font-bold mb-2 font-serif">Royal Court</h2>
-              <p className="text-lg">Symbols of power and nobility</p>
-            </div>
-          </div>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="castle-rooms-grid">
+          {[
+            {
+              id: "throne-room",
+              name: "Throne Room",
+              description: "The grand hall where the king holds court",
+              image: "/images/castle/throne-room.png"
+            },
+            {
+              id: "royal-chambers",
+              name: "Royal Chambers",
+              description: "Private quarters of the royal family",
+              image: "/images/castle/royal-chambers.png"
+            },
+            {
+              id: "great-hall",
+              name: "Great Hall",
+              description: "Where feasts and celebrations are held",
+              image: "/images/castle/great-hall.png"
+            },
+            {
+              id: "royal-garden",
+              name: "Royal Garden",
+              description: "A beautiful garden with rare plants and fountains",
+              image: "/images/castle/royal-garden.png"
+            }
+          ].map((room) => (
+            <Card key={room.id} className="overflow-hidden" aria-label={`${room.name}-card`}>
+              <div 
+                className="h-48 bg-cover bg-center" 
+                style={{ backgroundImage: `url(${room.image})` }}
+                aria-label={`${room.name}-image`}
+              />
+              <CardHeader>
+                <CardTitle>{room.name}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm mb-4">{room.description}</p>
+                <Button className="w-full" aria-label={`Enter ${room.name}`}>
+                  Enter Room
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-
-          <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
-            <CardHeader>
-              <CardTitle className="font-serif flex items-center">
-                <Crown className="mr-2 h-5 w-5" />
-              Royal Artifacts
-              </CardTitle>
-            <CardDescription>Items of prestige and authority</CardDescription>
-            </CardHeader>
-            <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {castleItems.map((item) => (
-                <ItemCard 
-                  key={item.id}
-                  item={item}
-                  onPurchase={purchaseItem}
-                />
-                    ))}
-                  </div>
-            </CardContent>
-          </Card>
-      </main>
+      )}
     </div>
   )
 }

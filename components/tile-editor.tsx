@@ -117,53 +117,56 @@ export function TileEditor({ tiles, onUpdateTiles, onSelectTile }: TileEditorPro
   }
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="w-full max-w-4xl mx-auto" aria-label="tile-editor-card">
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           <span>Realm Tile Editor</span>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[400px]">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="visual">Visual Editor</TabsTrigger>
-              <TabsTrigger value="markdown">Markdown Editor</TabsTrigger>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[400px]" aria-label="editor-tabs">
+            <TabsList className="grid w-full grid-cols-2" aria-label="editor-tabs-list">
+              <TabsTrigger value="visual" aria-label="Visual Editor Tab">Visual Editor</TabsTrigger>
+              <TabsTrigger value="markdown" aria-label="Markdown Editor Tab">Markdown Editor</TabsTrigger>
             </TabsList>
           </Tabs>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <TabsContent value="visual" className="mt-0">
-          <ScrollArea className="h-[500px] pr-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <ScrollArea className="h-[500px] pr-4" aria-label="tile-editor-scroll-area">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" aria-label="tile-grid">
               {parsedTiles.map((tile, index) => (
-                <Card key={`${tile.type}-${index}`} className="overflow-hidden">
+                <Card key={`${tile.type}-${index}`} className="overflow-hidden" aria-label={`${tile.type}-tile-card`}>
                   <div className="relative h-32 w-full">
                     <Image
                       src={getTileImage(tile.type)}
-                      alt={tile.name}
+                      alt={`${tile.name} tile image`}
                       fill
                       className="object-cover"
                     />
-                    <Badge className="absolute top-2 right-2 bg-black/70">{tile.type}</Badge>
+                    <Badge className="absolute top-2 right-2 bg-black/70" aria-label={`${tile.type} tile type`}>{tile.type}</Badge>
                   </div>
                   <div className="p-4">
                     <h3 className="font-semibold">{tile.name}</h3>
                     <p className="text-sm text-muted-foreground mb-2">{tile.description}</p>
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm">Quantity:</span>
+                        <label htmlFor={`quantity-${index}`} className="text-sm">Quantity:</label>
                         <Input
+                          id={`quantity-${index}`}
                           type="number"
                           value={tile.quantity}
                           onChange={(e) => handleQuantityChange(index, e.target.value)}
                           className="w-20 h-8"
                           min="0"
+                          aria-label={`Set quantity for ${tile.name}`}
                         />
                       </div>
-                      <span className="text-amber-500 font-medium">{tile.cost} gold</span>
+                      <span className="text-amber-500 font-medium" aria-label={`${tile.cost} gold cost`}>{tile.cost} gold</span>
                     </div>
                     <Button 
                       className="w-full mt-2"
                       onClick={() => onSelectTile(tile)}
                       variant="outline"
+                      aria-label={`Select ${tile.name} tile`}
                     >
                       Select Tile
                     </Button>
@@ -172,7 +175,11 @@ export function TileEditor({ tiles, onUpdateTiles, onSelectTile }: TileEditorPro
               ))}
             </div>
             
-            <Button onClick={() => onUpdateTiles(parsedTiles)} className="mt-4 w-full">
+            <Button 
+              onClick={() => onUpdateTiles(parsedTiles)} 
+              className="mt-4 w-full"
+              aria-label="Save all tile changes"
+            >
               Save Changes
             </Button>
           </ScrollArea>
@@ -187,8 +194,15 @@ export function TileEditor({ tiles, onUpdateTiles, onSelectTile }: TileEditorPro
               value={markdownContent}
               onChange={handleMarkdownChange}
               className="w-full h-[500px] border rounded-md p-2 font-mono text-sm"
+              aria-label="Markdown editor for tile data"
+              aria-description="Edit tile data using Markdown table format. Each row represents one tile type."
             />
-            <Button onClick={applyChanges}>Apply Changes</Button>
+            <Button 
+              onClick={applyChanges}
+              aria-label="Apply markdown changes to tiles"
+            >
+              Apply Changes
+            </Button>
           </div>
         </TabsContent>
       </CardContent>

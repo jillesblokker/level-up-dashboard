@@ -4,11 +4,12 @@ import { HeaderSection } from "@/components/HeaderSection";
 import Image from "next/image"
 import { Home, ShoppingBag, Footprints } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { use } from 'react'
 
 interface Props {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 const townLocations = [
@@ -37,15 +38,17 @@ const townLocations = [
 
 export default function TownPage({ params }: Props) {
   const router = useRouter();
+  const resolvedParams = use(params);
+  const title = resolvedParams.slug.charAt(0).toUpperCase() + resolvedParams.slug.slice(1);
 
   const getIcon = (iconName: string) => {
     switch (iconName) {
       case 'Home':
-        return <Home className="h-8 w-8 text-amber-500" />
+        return <Home className="h-8 w-8 text-amber-500" aria-hidden="true" />
       case 'ShoppingBag':
-        return <ShoppingBag className="h-8 w-8 text-amber-500" />
+        return <ShoppingBag className="h-8 w-8 text-amber-500" aria-hidden="true" />
       case 'Footprints':
-        return <Footprints className="h-8 w-8 text-amber-500" />
+        return <Footprints className="h-8 w-8 text-amber-500" aria-hidden="true" />
       default:
         return null;
     }
@@ -54,22 +57,30 @@ export default function TownPage({ params }: Props) {
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
       <HeaderSection
-        title={params.slug.charAt(0).toUpperCase() + params.slug.slice(1)}
+        title={title}
         imageSrc="/images/locations/town.png"
         canEdit={false}
       />
-      <main className="flex-1 p-4 md:p-6 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <main className="flex-1 p-4 md:p-6 space-y-6" aria-label="town-locations-section">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" aria-label="town-locations-grid">
           {townLocations.map((location) => (
             <div
               key={location.id}
               className="bg-black border border-amber-800/20 rounded-lg p-4 cursor-pointer hover:bg-amber-900/10 transition-colors"
+              role="article"
+              aria-label={`${location.name}-card`}
             >
               <div className="relative w-full h-40 mb-3 rounded-lg overflow-hidden">
-                <Image src={location.image} alt={location.name} fill className="object-cover" />
+                <Image 
+                  src={location.image} 
+                  alt={`${location.name} location image`} 
+                  fill 
+                  className="object-cover"
+                  aria-label={`${location.name}-image`}
+                />
               </div>
               <div className="flex items-start mb-3">
-                <div className="mr-3">{getIcon(location.icon)}</div>
+                <div className="mr-3" aria-hidden="true">{getIcon(location.icon)}</div>
                 <div>
                   <h3 className="text-xl font-medievalsharp text-white">{location.name}</h3>
                   <p className="text-gray-400">{location.description}</p>
@@ -77,7 +88,7 @@ export default function TownPage({ params }: Props) {
               </div>
               <button
                 className="w-full bg-amber-700 hover:bg-amber-600 text-white py-2 rounded mt-auto"
-                onClick={() => router.push(`/town/${params.slug}/${location.id}`)}
+                onClick={() => router.push(`/town/${resolvedParams.slug}/${location.id}`)}
                 aria-label={`Visit ${location.name}`}
               >
                 Visit Location

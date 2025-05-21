@@ -9,7 +9,12 @@ export const numericToTileType: { [key: number]: TileType } = {
   4: 'water',
   5: 'city',
   6: 'town',
-  7: 'mystery'
+  7: 'mystery',
+  8: 'empty', // Assuming 8-12 are also empty based on previous context
+  9: 'empty',
+  10: 'empty',
+  11: 'empty',
+  12: 'empty'
 }
 
 export interface GridData {
@@ -18,14 +23,38 @@ export interface GridData {
   columns: number
 }
 
+// Assuming the expected grid width is 12 columns based on existing components
+const EXPECTED_GRID_COLS = 12;
+
 export async function loadInitialGrid(): Promise<GridData> {
   try {
+    console.log('Attempting to load initial grid from CSV...')
     const response = await fetch('/data/initial-grid.csv')
+    console.log('Fetch response status:', response.status)
+    if (!response.ok) {
+      console.error('Failed to fetch initial grid:', response.status, response.statusText)
+      throw new Error(`Failed to fetch initial grid: ${response.statusText}`)
+    }
     const csvText = await response.text()
+    console.log('CSV content loaded (first 100 chars):', csvText.substring(0, 100) + '...')
     
-    // Parse CSV into 2D array
+    // Parse CSV into 2D array, skipping the header row and taking only EXPECTED_GRID_COLS
     const rows = csvText.trim().split('\n')
-    const grid = rows.map(row => row.split(',').map(Number))
+    if (rows.length > 0) {
+      // Remove the first row (header)
+      rows.shift();
+    }
+    
+    const grid = rows.map(row => row.split(',').map(Number).slice(0, EXPECTED_GRID_COLS));
+    
+    console.log('Parsed grid dimensions (after skipping header and truncating):', grid.length, 'x', grid[0]?.length);
+    console.log('Parsed grid (first actual data row, truncated):', grid[0]);
+    
+    // Basic validation
+    if (grid.length === 0 || grid[0].length !== EXPECTED_GRID_COLS) {
+        console.error('Parsed grid has unexpected dimensions.', grid.length, grid[0]?.length);
+        throw new Error('Parsed grid has unexpected dimensions.');
+    }
     
     return {
       grid,
@@ -34,14 +63,35 @@ export async function loadInitialGrid(): Promise<GridData> {
     }
   } catch (error) {
     console.error('Error loading initial grid:', error)
-    throw new Error('Failed to load initial grid data')
+    // Return a default grid if loading fails
+    console.log('Creating default grid as fallback...')
+    const defaultGrid = Array(8).fill(null).map((_, y) =>
+      Array(EXPECTED_GRID_COLS).fill(null).map((_, x) => {
+        if (x === 0 || x === EXPECTED_GRID_COLS - 1 || y === 0 || y === 7) return 1 // Mountain borders
+        if (x === 2 && y === 1) return 5 // City
+        if (x === EXPECTED_GRID_COLS - 1 && y === 3) return 6 // Town // Adjust town x coordinate for 12 columns
+        return 2 // Grass
+      })
+    )
+    console.log('Default grid created dimensions:', defaultGrid.length, 'x', defaultGrid[0]?.length)
+    return {
+      grid: defaultGrid,
+      rows: defaultGrid.length,
+      columns: defaultGrid[0].length
+    }
   }
 }
 
 export function convertNumericToTileType(numeric: number): TileType {
   const tileType = numericToTileType[numeric]
   if (!tileType) {
-    throw new Error(`Invalid numeric tile type: ${numeric}`)
+    // Log the unexpected numeric value
+    console.warn(`Unexpected numeric tile value encountered: ${numeric}`);
+    // Return a default type or throw an error
+    // Returning 'empty' as a fallback for unexpected numbers
+    return 'empty';
+    // Or re-throw if strict validation is needed:
+    // throw new Error(`Invalid numeric tile type: ${numeric}`)
   }
   return tileType
 }

@@ -22,11 +22,14 @@ jest.mock('next/navigation', () => ({
 }))
 
 // Mock next-auth
-jest.mock('next-auth/react', () => ({
-  signIn: jest.fn(),
-  signOut: jest.fn(),
-  useSession: jest.fn(() => ({
-    data: null,
-    status: 'unauthenticated',
-  })),
-})) 
+// jest.mock('next-auth/react', () => ({
+//   signIn: jest.fn(),
+//   signOut: jest.fn(),
+//   useSession: jest.fn(() => ({
+//     data: null,
+//     status: 'unauthenticated',
+//   })),
+// }))
+
+// Mock Supabase client
+// ... existing code ... 

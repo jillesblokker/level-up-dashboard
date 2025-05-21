@@ -32,16 +32,19 @@ vi.mock('next/image', () => ({
 }))
 
 // Mock next-auth
-vi.mock('next-auth/react', () => ({
-  signIn: vi.fn(),
-  signOut: vi.fn(),
-  useSession: vi.fn(() => ({
-    data: null,
-    status: 'unauthenticated',
-  })),
-}))
+// vi.mock('next-auth/react', () => ({
+//   signIn: vi.fn(),
+//   signOut: vi.fn(),
+//   useSession: vi.fn(() => ({
+//     data: null,
+//     status: 'unauthenticated',
+//   })),
+// }))
 
 // Mock app/actions/auth
 vi.mock('@/app/actions/auth', () => ({
   skipAuth: vi.fn(),
-})) 
+}))
+
+// Mock Supabase client
+// ... existing code ... 

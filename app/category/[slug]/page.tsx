@@ -13,11 +13,24 @@ import { CategoryProgressChart } from "@/components/category-progress-chart"
 import { getCategoryData } from "@/lib/category-data"
 
 export default function CategoryPage() {
-  const params = useParams() as { slug: string }
-  const slug = params.slug
-
-  // Map slug to category data
-  const categoryData = getCategoryData(slug as string)
+  const params = useParams()
+  if (!params) {
+    return (
+      <div className="container py-10" role="main" aria-label="category-error-section">
+        <Card aria-label="category-error-card">
+          <CardHeader>
+            <CardTitle>Error</CardTitle>
+            <CardDescription>
+              Unable to load category information.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    )
+  }
+  
+  const slug = params['slug'] as string
+  const categoryData = getCategoryData(slug)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -31,17 +44,17 @@ export default function CategoryPage() {
 
   if (!categoryData) {
     return (
-      <div className="container py-10">
+      <div className="container py-10" role="main" aria-label="category-not-found-section">
         <div className="mb-6">
           <Link href="/categories">
-            <Button variant="outline" size="sm">
-              <ChevronLeft className="mr-2 h-4 w-4" />
+            <Button variant="outline" size="sm" aria-label="Back to Categories">
+              <ChevronLeft className="mr-2 h-4 w-4" aria-hidden="true" />
               Back to Categories
             </Button>
           </Link>
         </div>
         
-        <Card>
+        <Card aria-label="category-not-found-card">
           <CardHeader>
             <CardTitle>Category Not Found</CardTitle>
             <CardDescription>
@@ -57,11 +70,11 @@ export default function CategoryPage() {
   }
 
   return (
-    <div className="container py-10">
+    <div className="container py-10" role="main" aria-label="category-content-section">
       <div className="mb-6">
         <Link href="/categories">
-          <Button variant="outline" size="sm">
-            <ChevronLeft className="mr-2 h-4 w-4" />
+          <Button variant="outline" size="sm" aria-label="Back to Categories">
+            <ChevronLeft className="mr-2 h-4 w-4" aria-hidden="true" />
             Back to Categories
           </Button>
         </Link>
@@ -73,28 +86,29 @@ export default function CategoryPage() {
       </div>
       
       {isLoading ? (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="category-items-loading-grid">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Card key={i} className="overflow-hidden">
-              <div className="h-48 bg-muted animate-pulse" />
+            <Card key={i} className="overflow-hidden" aria-label={`loading-card-${i}`}>
+              <div className="h-48 bg-muted animate-pulse" aria-hidden="true" />
               <CardHeader>
-                <div className="h-6 w-2/3 bg-muted animate-pulse rounded" />
-                <div className="h-4 w-full bg-muted animate-pulse rounded mt-2" />
+                <div className="h-6 w-2/3 bg-muted animate-pulse rounded" aria-hidden="true" />
+                <div className="h-4 w-full bg-muted animate-pulse rounded mt-2" aria-hidden="true" />
               </CardHeader>
               <CardContent>
-                <div className="h-4 w-full bg-muted animate-pulse rounded" />
-                <div className="h-4 w-2/3 bg-muted animate-pulse rounded mt-2" />
+                <div className="h-4 w-full bg-muted animate-pulse rounded" aria-hidden="true" />
+                <div className="h-4 w-2/3 bg-muted animate-pulse rounded mt-2" aria-hidden="true" />
               </CardContent>
             </Card>
           ))}
         </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="category-items-grid">
           {categoryData.items.map((item) => (
-            <Card key={item.id} className="overflow-hidden">
+            <Card key={item.id} className="overflow-hidden" aria-label={`${item.name}-card`}>
               <div 
                 className="h-48 bg-cover bg-center" 
                 style={{ backgroundImage: `url(${item.image})` }}
+                aria-label={`${item.name}-image`}
               />
               <CardHeader>
                 <CardTitle>{item.name}</CardTitle>

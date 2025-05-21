@@ -1,164 +1,124 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ArrowLeft, Building, ShoppingBag, Footprints, Home, Swords } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
+import Link from "next/link"
+import { Activity, Award, Book, Brain, ChevronLeft, Coffee, Dumbbell, Moon, Trophy } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { useToast } from "@/components/ui/use-toast"
-import { HeaderSection } from "@/components/HeaderSection"
-import Image from "next/image"
-
-interface CityData {
-  name: string
-  description: string
-  type: 'city'
-  locations: {
-    id: string
-    name: string
-    description: string
-    icon: string
-    image: string
-  }[]
-}
-
-const defaultCityData: CityData = {
-  name: "Grand Citadel",
-  type: 'city',
-  description: "A magnificent city with towering spires and bustling markets. The heart of commerce and culture in the realm.",
-  locations: [
-    {
-      id: "embers-anvil",
-      name: "Ember's Anvil",
-      description: 'A forge where weapons and armor are crafted.',
-      icon: 'Swords',
-      image: "/images/locations/ember's-anvil.png"
-    },
-    {
-      id: 'kingdom-marketplace',
-      name: 'Kingdom Marketplace',
-      description: 'A bustling marketplace for trading and buying artifacts, scrolls, and books.',
-      icon: 'ShoppingBag',
-      image: '/images/locations/kingdom-marketplace.png'
-    },
-    {
-      id: 'royal-stables',
-      name: 'Royal Stables',
-      description: 'Where the finest horses in the realm are kept.',
-      icon: 'Footprints',
-      image: '/images/locations/royal-stables.png'
-    }
-  ]
-}
+import { Progress } from "@/components/ui/progress"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { CategoryProgressChart } from "@/components/category-progress-chart"
+import { getCityData, type CityData, type CityLocation } from "@/lib/city-data"
 
 export default function CityPage() {
-  const params = useParams() as { cityName: string }
-  const router = useRouter()
-  const { toast } = useToast()
-  const cityName = decodeURIComponent(params.cityName)
-  const [cityData, setCityData] = useState<CityData | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    // Get city data from localStorage
-    const savedGrid = localStorage.getItem("realm-grid")
-    if (savedGrid) {
-      const grid = JSON.parse(savedGrid)
-      // Find the city in the grid
-      let foundCity = false
-      for (let y = 0; y < grid.length; y++) {
-        for (let x = 0; x < grid[y].length; x++) {
-          if (grid[y][x].type === 'city') {
-            // Use default city data since we don't store individual city data yet
-            setCityData(defaultCityData)
-            foundCity = true
-            break
-          }
-        }
-        if (foundCity) break
-      }
-      if (!foundCity) {
-        router.push('/realm')
-      }
-    } else {
-      router.push('/realm')
-    }
-    setIsLoading(false)
-  }, [cityName, router])
-
-  useEffect(() => {
-    // Track visited cities
-    const visitedCities = JSON.parse(localStorage.getItem("visited-cities") || "[]");
-    if (!visitedCities.includes(cityName)) {
-      visitedCities.push(cityName);
-      localStorage.setItem("visited-cities", JSON.stringify(visitedCities));
-      
-      // Dispatch event to update perks
-      window.dispatchEvent(new Event("character-stats-update"));
-    }
-  }, [cityName]);
-
-  const handleVisitLocation = (locationId: string) => {
-    router.push(`/city/${encodeURIComponent(cityName)}/${locationId}`)
-  }
-
-  if (isLoading) {
+  const params = useParams()
+  if (!params) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black text-white">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-amber-500"></div>
+      <div className="container py-10" role="main" aria-label="city-error-section">
+        <Card aria-label="city-error-card">
+          <CardHeader>
+            <CardTitle>Error</CardTitle>
+            <CardDescription>
+              Unable to load city information.
+            </CardDescription>
+          </CardHeader>
+        </Card>
       </div>
     )
   }
 
+  const cityName = params['cityName'] as string
+  const cityData = getCityData(cityName)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Simulate data loading
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [])
+
   if (!cityData) {
-    return null
+    return (
+      <div className="container py-10" role="main" aria-label="city-not-found-section">
+        <div className="mb-6">
+          <Link href="/realm">
+            <Button variant="outline" size="sm" aria-label="Back to Realm">
+              <ChevronLeft className="mr-2 h-4 w-4" aria-hidden="true" />
+              Back to Realm
+            </Button>
+          </Link>
+        </div>
+        
+        <Card aria-label="city-not-found-card">
+          <CardHeader>
+            <CardTitle>City Not Found</CardTitle>
+            <CardDescription>
+              We couldn't find the city you're looking for.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p>The city "{cityName}" does not exist or has been removed.</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
-
-  const getIcon = (iconName: string) => {
-    switch (iconName) {
-      case 'ShoppingBag':
-        return <ShoppingBag className="h-8 w-8 text-amber-500" />
-      case 'Footprints':
-        return <Footprints className="h-8 w-8 text-amber-500" />
-      case 'Swords':
-        return <Swords className="h-8 w-8 text-amber-500" />
-      default:
-        return <Building className="h-8 w-8 text-amber-500" />
-    }
-  }
-
-  // Determine city image path
-  const cityImage = `/images/locations/${cityData.name.toLowerCase().replace(/\s+/g, '-')}.png`;
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
-      <HeaderSection
-        title={cityData?.name || "City"}
-        imageSrc="/images/locations/city.png"
-        canEdit={false}
-      />
+      <div className="relative w-full h-[300px] rounded-lg overflow-hidden border-2 border-amber-800/20 mb-8">
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${cityData.coverImage})` }}
+          aria-label="city-cover-image"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-amber-900/30 to-black/70">
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+            <h2 className="text-3xl font-bold mb-2 font-serif">Welcome to {cityData.name}</h2>
+            <p className="text-lg text-gray-300">{cityData.description}</p>
+          </div>
+        </div>
+      </div>
+
       <main className="flex-1 p-4 md:p-6 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {cityData.locations.map((location) => (
-            <div 
-              key={location.id}
-              className="bg-black border border-amber-800/20 rounded-lg p-4 cursor-pointer hover:bg-amber-900/10 transition-colors"
-              onClick={() => handleVisitLocation(location.id)}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight font-serif text-white">{cityData.name}</h1>
+            <p className="text-gray-300">{cityData.description}</p>
+          </div>
+          <Link href="/realm">
+            <Button 
+              variant="outline" 
+              className="border-amber-800/20 text-amber-500"
+              aria-label="Back to Realm"
             >
-              <div className="relative w-full h-40 mb-3 rounded-lg overflow-hidden">
-                <Image src={location.image} alt={location.name} fill className="object-cover" />
-              </div>
-              <div className="flex items-start mb-3">
-                <div className="mr-3">{getIcon(location.icon)}</div>
-                <div>
-                  <h3 className="text-xl font-medievalsharp text-white">{location.name}</h3>
-                  <p className="text-gray-400">{location.description}</p>
-                </div>
-              </div>
-              <Button className="w-full bg-amber-700 hover:bg-amber-600">
-                Visit Location
-              </Button>
-            </div>
+              <ChevronLeft className="mr-2 h-4 w-4" aria-hidden="true" />
+              Back to Realm
+            </Button>
+          </Link>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="city-locations-grid">
+          {cityData.locations.map((location: CityLocation) => (
+            <Card key={location.id} className="overflow-hidden bg-black border border-amber-800/20" aria-label={`${location.name}-card`}>
+              <div 
+                className="h-48 bg-cover bg-center" 
+                style={{ backgroundImage: `url(${location.image})` }}
+                aria-label={`${location.name}-image`}
+              />
+              <CardHeader>
+                <CardTitle className="text-white">{location.name}</CardTitle>
+                <CardDescription className="text-gray-400">{location.subtitle}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-300">{location.description}</p>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </main>

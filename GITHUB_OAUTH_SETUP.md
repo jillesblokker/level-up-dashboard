@@ -28,8 +28,8 @@ After registering your application, you'll be taken to your new OAuth App's page
 2. Replace the placeholder values with your actual GitHub OAuth credentials:
 
 ```
-GITHUB_ID=your_client_id_here
-GITHUB_SECRET=your_client_secret_here
+GITHUB_ID=Ov23lipcWdUJ1KRV4mgi
+GITHUB_SECRET=1986685472e1cda06e6cf2c33a9c9995f6c0a809
 ```
 
 ## Step 4: Restart Your Development Server

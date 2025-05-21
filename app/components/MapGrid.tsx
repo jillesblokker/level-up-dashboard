@@ -41,7 +41,7 @@ const MapGrid: React.FC<MapGridProps> = ({
   const gridRef = useRef<HTMLDivElement>(null);
   const [viewportOffset, setViewportOffset] = useState({ x: 0, y: 0 });
 
-  const handlePan = (position: Position) => {
+  const handlePan = (dx: number, dy: number) => {
     if (!gridRef.current) return;
 
     const tileSize = 64 * zoomLevel;
@@ -49,8 +49,8 @@ const MapGrid: React.FC<MapGridProps> = ({
     const containerHeight = gridRef.current.clientHeight;
 
     // Calculate the new scroll position
-    const newX = position.x * tileSize - containerWidth / 2;
-    const newY = position.y * tileSize - containerHeight / 2;
+    const newX = (character.x * tileSize - containerWidth / 2) + dx;
+    const newY = (character.y * tileSize - containerHeight / 2) + dy;
 
     // Update viewport offset
     setViewportOffset({ x: newX, y: newY });
@@ -66,7 +66,7 @@ const MapGrid: React.FC<MapGridProps> = ({
   // Keep character in view when moving
   useEffect(() => {
     if (isMovementMode && gridRef.current) {
-      handlePan({ x: character.x, y: character.y });
+      handlePan(0, 0);
     }
   }, [character.x, character.y, isMovementMode]);
 
@@ -74,19 +74,19 @@ const MapGrid: React.FC<MapGridProps> = ({
     <div className="relative w-full h-[calc(100vh-8rem)] overflow-hidden rounded-lg border border-amber-800/20" aria-label="map-container">
       <div
         ref={gridRef}
-        className="absolute inset-0 overflow-auto"
+        className="absolute inset-0 overflow-auto map-grid-scroll"
         style={{
           transform: `scale(${zoomLevel})`,
           transformOrigin: '0 0',
         }}
         aria-label="map-grid-scroll-area"
       >
-        <div className="relative" style={{ width: grid[0].length * 64, height: grid.length * 64 }}>
+        <div className="relative map-grid-container" style={{ width: grid[0].length * 64, height: grid.length * 64 }}>
           {grid.map((row, y) =>
             row.map((tile, x) => (
               <div
                 key={`tile-${x}-${y}`}
-                className={`absolute border border-amber-800/20 ${
+                className={`absolute border border-amber-800/20 map-tile ${
                   hoveredTile?.x === x && hoveredTile?.y === y ? 'ring-2 ring-amber-500' : ''
                 } ${tile.type === 'empty' && selectedTile ? 'cursor-cell hover:bg-amber-500/10' : ''}`}
                 style={{
@@ -100,14 +100,21 @@ const MapGrid: React.FC<MapGridProps> = ({
                 onMouseEnter={() => onHover(tile)}
                 onMouseLeave={onHoverEnd}
                 aria-label={`map-tile-${x}-${y}`}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    onTileClick(x, y);
+                  }
+                }}
               >
                 {/* Tile content */}
                 {tile.type !== 'empty' && (
-                  <div className="w-full h-full bg-amber-500/10" />
+                  <div className="w-full h-full bg-amber-500/10" aria-hidden="true" />
                 )}
                 {character.x === x && character.y === y && (
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-4 h-4 bg-red-500 rounded-full animate-pulse" aria-label="character-marker" />
+                    <div className="w-4 h-4 bg-red-500 rounded-full animate-pulse" aria-label="character-marker" role="img" />
                   </div>
                 )}
               </div>
@@ -119,7 +126,7 @@ const MapGrid: React.FC<MapGridProps> = ({
         <Minimap
           gridSize={grid.length}
           characterPosition={character}
-          onPan={handlePan}
+          onPan={(dx, dy) => handlePan(dx, dy)}
           tileSize={8}
         />
       )}

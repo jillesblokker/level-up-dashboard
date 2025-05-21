@@ -108,8 +108,14 @@ async function main() {
     for (const quest of defaultQuests) {
       await prisma.quest.upsert({
         where: { name: quest.name },
-        update: quest,
-        create: quest,
+        update: {
+          ...quest,
+          rewards: JSON.stringify(quest.rewards),
+        },
+        create: {
+          ...quest,
+          rewards: JSON.stringify(quest.rewards),
+        },
       })
     }
 
@@ -123,10 +129,14 @@ async function main() {
           name: defaultCharacter.name,
         },
       },
-      update: defaultCharacter,
+      update: {
+        ...defaultCharacter,
+        stats: JSON.stringify(defaultCharacter.stats),
+      },
       create: {
         ...defaultCharacter,
         userId: defaultUser.id,
+        stats: JSON.stringify(defaultCharacter.stats),
       },
     })
 

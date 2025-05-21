@@ -58,7 +58,7 @@ export const locationDetails: LocationDetails = {
       {
         name: "Ember's Forge",
         description: "Master blacksmith crafting weapons and armor.",
-        image: "/images/locations/ember's-anvil.png",
+        image: "/images/locations/embers-anvil.png",
         items: [
           {
             name: "Iron Sword",

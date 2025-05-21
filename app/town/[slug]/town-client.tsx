@@ -43,7 +43,7 @@ const defaultTownData: TownData = {
       name: "Ember's Anvil",
       description: 'Purchase weapons and armor from the local smith.',
       icon: 'Swords',
-      image: '/images/locations/ember\'s-anvil.png'
+      image: '/images/locations/embers-anvil.png'
     }
   ]
 }
@@ -115,6 +115,15 @@ export default function TownClient({ slug }: Props) {
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
+      <div className="relative w-full h-[300px] rounded-lg overflow-hidden border-2 border-amber-800/20 mb-8">
+        <div className="absolute inset-0 bg-gradient-to-b from-amber-900/30 to-black/70">
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+            <h2 className="text-3xl font-bold mb-2 font-serif">Welcome to {townData.name}</h2>
+            <p className="text-lg text-gray-300">{townData.description}</p>
+          </div>
+        </div>
+      </div>
+
       <main className="flex-1 p-4 md:p-6 space-y-6">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -125,29 +134,21 @@ export default function TownClient({ slug }: Props) {
             onClick={() => router.push('/realm')}
             variant="outline"
             className="border-amber-800/20 text-amber-500"
+            aria-label="Back to Realm"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Return to Realm
+            <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
+            Back to Realm
           </Button>
         </div>
 
-        <div className="relative w-full h-[300px] rounded-lg overflow-hidden border-2 border-amber-800/20 mb-8">
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-900/30 to-black/70">
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-              <h2 className="text-3xl font-bold mb-2 font-serif">Welcome to {townData.name}</h2>
-              <p className="text-lg text-gray-300">A peaceful town with various services.</p>
-            </div>
-          </div>
-        </div>
-
-        <h2 className="text-2xl font-medievalsharp text-amber-500 mb-4">Town Locations</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" aria-label="town-locations-grid">
           {townData.locations.map((location) => (
             <div 
               key={location.id}
               className="bg-black border border-amber-800/20 rounded-lg p-4 cursor-pointer hover:bg-amber-900/10 transition-colors"
               onClick={() => handleVisitLocation(location.id)}
+              role="article"
+              aria-label={`${location.name}-card`}
             >
               <div className="flex items-start mb-3">
                 <div className="mr-3">{getIcon(location.icon)}</div>

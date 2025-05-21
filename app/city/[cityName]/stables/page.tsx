@@ -1,172 +1,148 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { ArrowLeft, Compass } from "lucide-react"
-import Link from "next/link"
+import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
+import Link from "next/link"
+import { ChevronLeft } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { toast } from "@/components/ui/use-toast"
-import { CityItemManager, MountItem } from "@/lib/city-item-manager"
-import { ItemCard } from "@/components/city/item-card"
-import { addToInventory } from "@/lib/inventory-manager"
-import { CharacterStats } from "@/types/character"
 
 export default function StablesPage() {
-  const params = useParams() as { cityName: string }
-  const cityName = params.cityName
-  const [goldBalance, setGoldBalance] = useState(0)
-
-  // Load character stats from localStorage
-  useEffect(() => {
-    const loadStats = () => {
-      try {
-        const savedStats = localStorage.getItem("character-stats")
-        if (savedStats) {
-          const stats = JSON.parse(savedStats) as CharacterStats
-          // Initialize with default gold if not set
-          if (typeof stats.gold === 'undefined') {
-            stats.gold = 1000
-            localStorage.setItem("character-stats", JSON.stringify(stats))
-          }
-          setGoldBalance(stats.gold)
-        } else {
-          // If no stats exist, create initial stats
-          const initialStats: CharacterStats = {
-            level: 1,
-            experience: 0,
-            experienceToNextLevel: 100,
-            gold: 1000,
-            titles: {
-              equipped: "Novice Adventurer",
-              unlocked: 5,
-              total: 20
-            },
-            perks: {
-              active: 3,
-              total: 10
-            }
-          }
-          localStorage.setItem("character-stats", JSON.stringify(initialStats))
-          setGoldBalance(initialStats.gold)
-        }
-      } catch (error) {
-        console.error("Failed to load character stats:", error)
-      }
-    }
-    
-    loadStats()
-
-    // Listen for updates
-    window.addEventListener("character-stats-update", loadStats)
-    
-    return () => {
-      window.removeEventListener("character-stats-update", loadStats)
-    }
-  }, [])
-
-  // Stables items
-  const [stablesItems] = useState<MountItem[]>(CityItemManager.getStablesItems())
-
-  // Purchase an item
-  const purchaseItem = (item: MountItem) => {
-    // Check if player has enough gold
-    if (goldBalance < item.price) {
-      toast({
-        title: "Not enough gold",
-        description: `You need ${item.price} gold to purchase this mount.`,
-        variant: "destructive",
-      })
-      return
-    }
-
-    try {
-      // Update gold in character stats
-      const savedStats = localStorage.getItem("character-stats")
-      if (!savedStats) {
-        throw new Error("No character stats found")
-      }
-
-      const stats = JSON.parse(savedStats) as CharacterStats
-      const newGoldBalance = stats.gold - item.price
-      stats.gold = newGoldBalance
-      localStorage.setItem("character-stats", JSON.stringify(stats))
-      setGoldBalance(newGoldBalance)
-
-      // Add mount to inventory
-      addToInventory({
-        id: item.id,
-        name: item.name,
-        type: "creature",
-        description: item.description,
-        quantity: 1
-      })
-
-      // Dispatch update event
-      window.dispatchEvent(new Event("character-stats-update"))
-
-      toast({
-        title: "Mount purchased",
-        description: `You've purchased a ${item.name} for ${item.price} gold.`,
-      })
-    } catch (error) {
-      console.error("Error purchasing mount:", error)
-      toast({
-        title: "Purchase failed",
-        description: "There was an error processing your purchase.",
-        variant: "destructive"
-      })
-    }
+  const params = useParams()
+  if (!params) {
+    return (
+      <div className="container py-10" role="main" aria-label="stables-error-section">
+        <Card aria-label="stables-error-card">
+          <CardHeader>
+            <CardTitle>Error</CardTitle>
+            <CardDescription>
+              Unable to load stables information.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    )
   }
 
+  const cityName = params['cityName'] as string
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Simulate data loading
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [])
+
   return (
-    <div className="flex min-h-screen flex-col bg-black text-white">
-      <main className="flex-1 p-4 md:p-6 space-y-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight font-serif">Royal Stables</h1>
-            <p className="text-muted-foreground">City of {cityName}</p>
-          </div>
-          <Link href={`/city/${encodeURIComponent(cityName)}`}>
-            <Button variant="outline" className="border-amber-800/20 hover:bg-amber-900/20">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to City
-            </Button>
-          </Link>
+    <div className="container py-10" role="main" aria-label="stables-content-section">
+      <div className="mb-6">
+        <Link href={`/city/${cityName}`}>
+          <Button variant="outline" size="sm" aria-label="Back to City">
+            <ChevronLeft className="mr-2 h-4 w-4" aria-hidden="true" />
+            Back to City
+          </Button>
+        </Link>
+      </div>
+      
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold tracking-tight">Royal Stables</h1>
+        <p className="text-muted-foreground mt-2">Find your perfect steed.</p>
+      </div>
+      
+      {isLoading ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="stables-horses-loading-grid">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="overflow-hidden" aria-label={`loading-card-${i}`}>
+              <div className="h-48 bg-muted animate-pulse" aria-hidden="true" />
+              <CardHeader>
+                <div className="h-6 w-2/3 bg-muted animate-pulse rounded" aria-hidden="true" />
+                <div className="h-4 w-full bg-muted animate-pulse rounded mt-2" aria-hidden="true" />
+              </CardHeader>
+              <CardContent>
+                <div className="h-4 w-full bg-muted animate-pulse rounded" aria-hidden="true" />
+                <div className="h-4 w-2/3 bg-muted animate-pulse rounded mt-2" aria-hidden="true" />
+              </CardContent>
+            </Card>
+          ))}
         </div>
-
-        {/* Stables Image Banner */}
-        <div className="relative w-full h-[250px] rounded-lg overflow-hidden border-2 border-amber-800/20 mb-8">
-          <div className="absolute inset-0 bg-gradient-to-b from-amber-900/30 to-black/70">
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-              <h2 className="text-3xl font-bold mb-2 font-serif">Royal Stables</h2>
-              <p className="text-lg">The finest steeds in the realm</p>
-            </div>
-          </div>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="stables-horses-grid">
+          {[
+            {
+              id: "warhorse",
+              name: "Warhorse",
+              description: "A powerful steed bred for battle",
+              stats: {
+                speed: 8,
+                stamina: 7,
+                strength: 9
+              },
+              price: "500 gold",
+              image: "/images/horses/warhorse.png"
+            },
+            {
+              id: "traveler",
+              name: "Traveler's Horse",
+              description: "A reliable companion for long journeys",
+              stats: {
+                speed: 7,
+                stamina: 9,
+                strength: 6
+              },
+              price: "300 gold",
+              image: "/images/horses/traveler.png"
+            },
+            {
+              id: "royal",
+              name: "Royal Steed",
+              description: "An elegant horse fit for nobility",
+              stats: {
+                speed: 9,
+                stamina: 8,
+                strength: 7
+              },
+              price: "800 gold",
+              image: "/images/horses/royal.png"
+            }
+          ].map((horse) => (
+            <Card key={horse.id} className="overflow-hidden" aria-label={`${horse.name}-card`}>
+              <div 
+                className="h-48 bg-cover bg-center" 
+                style={{ backgroundImage: `url(${horse.image})` }}
+                aria-label={`${horse.name}-image`}
+              />
+              <CardHeader>
+                <CardTitle>{horse.name}</CardTitle>
+                <CardDescription>{horse.price}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm mb-4">{horse.description}</p>
+                <div className="grid grid-cols-3 gap-2 mb-4" aria-label={`${horse.name}-stats`}>
+                  <div className="text-center">
+                    <p className="text-sm font-medium">Speed</p>
+                    <p className="text-lg">{horse.stats.speed}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-medium">Stamina</p>
+                    <p className="text-lg">{horse.stats.stamina}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-medium">Strength</p>
+                    <p className="text-lg">{horse.stats.strength}</p>
+                  </div>
+                </div>
+                <Button className="w-full" aria-label={`Purchase ${horse.name}`}>
+                  Purchase Horse
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-
-        <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
-          <CardHeader>
-            <CardTitle className="font-serif flex items-center">
-              <Compass className="mr-2 h-5 w-5" />
-              Available Mounts
-            </CardTitle>
-            <CardDescription>Steeds for your journey across the kingdom</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {stablesItems.map((item) => (
-                <ItemCard 
-                  key={item.id}
-                  item={item}
-                  onPurchase={purchaseItem}
-                />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </main>
+      )}
     </div>
   )
 }

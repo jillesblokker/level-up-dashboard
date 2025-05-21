@@ -1,17 +1,16 @@
 {
   "name": "Thrivehaven",
   "short_name": "Thrivehaven",
-  "description": "Your personal growth and achievement tracking dashboard",
+  "description": "Your personal growth and development companion",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#ffffff",
+  "theme_color": "#f59e0b",
   "icons": [
     {
-      "src": "/icons/thrivehaven_fav.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "src": "/icons/thrivehaven_fav_optimized.png",
+      "sizes": "32x32",
+      "type": "image/png"
     }
   ]
 } 

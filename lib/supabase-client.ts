@@ -1,81 +1,27 @@
-import { createClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
 import { TileType } from '@/types/tiles'
+import { Database } from '@/types/supabase'
 
-// For now, let's define a minimal Database type here until we fix the module issue
-interface Database {
-  public: {
-    Tables: {
-      realm_grids: {
-        Row: {
-          id: string
-          created_at: string
-          updated_at: string
-          grid: number[][]
-          user_id: string
-          version: number
-        }
-        Insert: {
-          id?: string
-          created_at?: string
-          updated_at?: string
-          grid: number[][]
-          user_id: string
-          version: number
-        }
-        Update: {
-          id?: string
-          created_at?: string
-          updated_at?: string
-          grid?: number[][]
-          user_id?: string
-          version?: number
-        }
-      }
-    }
-    Views: Record<string, never>
-    Functions: Record<string, never>
-    Enums: Record<string, never>
-  }
-}
-
-// Debug logging for environment variables
-console.log('Environment variables check:')
-console.log('NEXT_PUBLIC_SUPABASE_URL exists:', !!process.env.NEXT_PUBLIC_SUPABASE_URL)
-console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY exists:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
-console.log('NEXT_PUBLIC_SUPABASE_URL value:', process.env.NEXT_PUBLIC_SUPABASE_URL)
-
-// Initialize Supabase client with validation
+// Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-if (!supabaseUrl || !supabaseKey) {
-  console.error('Missing Supabase environment variables!')
-  console.error('Please ensure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set in your .env file')
+if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables')
 }
 
-// Validate URL format
-try {
-  const url = new URL(supabaseUrl)
-  console.log('Valid Supabase URL:', url.toString())
-} catch (error) {
-  console.error('Invalid Supabase URL format:', supabaseUrl)
-  console.error('URL should be in the format: https://your-project-id.supabase.co')
-  console.error('Error details:', error)
-  throw new Error('Invalid Supabase URL format')
-}
-
-// Create a single instance of the Supabase client to be used throughout the app
-export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true
-  },
-  db: {
-    schema: 'public'
+// Create a single instance of the Supabase client
+export const supabase = createBrowserClient<Database>(
+  supabaseUrl,
+  supabaseAnonKey,
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
   }
-})
+)
 
 // Types
 export interface GridData {

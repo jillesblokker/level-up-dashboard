@@ -2,7 +2,7 @@
 
 import React from "react"
 import { useState, useEffect } from "react"
-import { ArrowLeft, ShoppingBag } from "lucide-react"
+import { ArrowLeft, ShoppingBag, ChevronLeft } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 
@@ -15,142 +15,132 @@ import { addToInventory, addToKingdomInventory } from "@/lib/inventory-manager"
 import { CharacterStats } from "@/types/character"
 
 export default function ShopPage() {
-  const params = useParams() as { cityName: string }
-  const cityName = params.cityName
-  const [goldBalance, setGoldBalance] = useState(0)
-
-  // Load character stats from localStorage
-  useEffect(() => {
-    const loadStats = () => {
-      try {
-        const savedStats = localStorage.getItem("character-stats")
-        if (savedStats) {
-          const stats = JSON.parse(savedStats) as CharacterStats
-          setGoldBalance(stats.gold || 0)
-        }
-      } catch (error) {
-        console.error("Failed to load character stats:", error)
-      }
-    }
-    
-    loadStats()
-
-    // Listen for updates
-    window.addEventListener("character-stats-update", loadStats)
-    
-    return () => {
-      window.removeEventListener("character-stats-update", loadStats)
-    }
-  }, [])
-
-  // Shop items
-  const [shopItems] = useState<WeaponItem[]>(CityItemManager.getShopItems())
-
-  // Purchase an item
-  const purchaseItem = (item: WeaponItem) => {
-    // Check if player has enough gold
-    if (goldBalance < item.price) {
-      toast({
-        title: "Not enough gold",
-        description: `You need ${item.price} gold to purchase this item.`,
-        variant: "destructive",
-      })
-      return
-    }
-
-    try {
-      // Update gold in character stats
-      const savedStats = localStorage.getItem("character-stats")
-      if (!savedStats) {
-        throw new Error("No character stats found")
-      }
-
-      const stats = JSON.parse(savedStats) as CharacterStats
-      const newGoldBalance = stats.gold - item.price
-      stats.gold = newGoldBalance
-      localStorage.setItem("character-stats", JSON.stringify(stats))
-      setGoldBalance(newGoldBalance)
-
-      // Add item to inventory
-      addToInventory({
-        id: item.id,
-        name: item.name,
-        type: "item",
-        description: item.description,
-        quantity: 1
-      })
-      addToKingdomInventory({
-        id: item.id,
-        name: item.name,
-        type: "item",
-        description: item.description,
-        quantity: 1
-      })
-
-      // Dispatch update event
-      window.dispatchEvent(new Event("character-stats-update"))
-
-      toast({
-        title: "Item purchased",
-        description: `You purchased ${item.name} for ${item.price} gold.`,
-      })
-    } catch (error) {
-      console.error("Error purchasing item:", error)
-      toast({
-        title: "Purchase failed",
-        description: "There was an error processing your purchase.",
-        variant: "destructive"
-      })
-    }
+  const params = useParams()
+  if (!params) {
+    return (
+      <div className="container py-10" role="main" aria-label="shop-error-section">
+        <Card aria-label="shop-error-card">
+          <CardHeader>
+            <CardTitle>Error</CardTitle>
+            <CardDescription>
+              Unable to load shop information.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    )
   }
 
+  const cityName = params['cityName'] as string
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Simulate data loading
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [])
+
   return (
-    <div className="flex min-h-screen flex-col bg-black text-white">
-      <main className="flex-1 p-4 md:p-6 space-y-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight font-serif">Blacksmith & General Store</h1>
-            <p className="text-muted-foreground">City of {cityName}</p>
-          </div>
-          <Link href={`/city/${encodeURIComponent(cityName)}`}>
-            <Button variant="outline" className="border-amber-800/20 hover:bg-amber-900/20">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to City
-            </Button>
-          </Link>
+    <div className="container py-10" role="main" aria-label="shop-content-section">
+      <div className="mb-6">
+        <Link href={`/city/${cityName}`}>
+          <Button variant="outline" size="sm" aria-label="Back to City">
+            <ChevronLeft className="mr-2 h-4 w-4" aria-hidden="true" />
+            Back to City
+          </Button>
+        </Link>
+      </div>
+      
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold tracking-tight">City Market</h1>
+        <p className="text-muted-foreground mt-2">Browse wares from local merchants.</p>
+      </div>
+      
+      {isLoading ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="shop-items-loading-grid">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <Card key={i} className="overflow-hidden" aria-label={`loading-card-${i}`}>
+              <div className="h-48 bg-muted animate-pulse" aria-hidden="true" />
+              <CardHeader>
+                <div className="h-6 w-2/3 bg-muted animate-pulse rounded" aria-hidden="true" />
+                <div className="h-4 w-full bg-muted animate-pulse rounded mt-2" aria-hidden="true" />
+              </CardHeader>
+              <CardContent>
+                <div className="h-4 w-full bg-muted animate-pulse rounded" aria-hidden="true" />
+                <div className="h-4 w-2/3 bg-muted animate-pulse rounded mt-2" aria-hidden="true" />
+              </CardContent>
+            </Card>
+          ))}
         </div>
-
-        {/* Shop Image Banner */}
-        <div className="relative w-full h-[250px] rounded-lg overflow-hidden border-2 border-amber-800/20 mb-8">
-          <div className="absolute inset-0 bg-gradient-to-b from-amber-900/30 to-black/70">
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-              <h2 className="text-3xl font-bold mb-2 font-serif">The Forge & Emporium</h2>
-              <p className="text-lg">Quality goods for adventurers</p>
-            </div>
-          </div>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="shop-items-grid">
+          {[
+            {
+              id: "health-potion",
+              name: "Health Potion",
+              description: "Restores 50 health points",
+              price: "25 gold",
+              image: "/images/items/health-potion.png"
+            },
+            {
+              id: "mana-potion",
+              name: "Mana Potion",
+              description: "Restores 50 mana points",
+              price: "30 gold",
+              image: "/images/items/mana-potion.png"
+            },
+            {
+              id: "strength-potion",
+              name: "Strength Potion",
+              description: "Increases strength by 5 for 1 hour",
+              price: "45 gold",
+              image: "/images/items/strength-potion.png"
+            },
+            {
+              id: "leather-armor",
+              name: "Leather Armor",
+              description: "Basic protection against physical damage",
+              price: "100 gold",
+              image: "/images/items/leather-armor.png"
+            },
+            {
+              id: "iron-sword",
+              name: "Iron Sword",
+              description: "A reliable weapon for combat",
+              price: "150 gold",
+              image: "/images/items/iron-sword.png"
+            },
+            {
+              id: "magic-scroll",
+              name: "Magic Scroll",
+              description: "Teaches a random spell",
+              price: "200 gold",
+              image: "/images/items/magic-scroll.png"
+            }
+          ].map((item) => (
+            <Card key={item.id} className="overflow-hidden" aria-label={`${item.name}-card`}>
+              <div 
+                className="h-48 bg-cover bg-center" 
+                style={{ backgroundImage: `url(${item.image})` }}
+                aria-label={`${item.name}-image`}
+              />
+              <CardHeader>
+                <CardTitle>{item.name}</CardTitle>
+                <CardDescription>{item.price}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm mb-2">{item.description}</p>
+                <Button className="w-full" aria-label={`Purchase ${item.name}`}>
+                  Purchase
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-
-        <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
-          <CardHeader>
-            <CardTitle className="font-serif flex items-center">
-              <ShoppingBag className="mr-2 h-5 w-5" />
-              Available Items
-            </CardTitle>
-            <CardDescription>Equipment and supplies for your journey</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {shopItems.map((item) => (
-                <ItemCard 
-                  key={item.id} 
-                  item={item} 
-                  onPurchase={purchaseItem} 
-                />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </main>
+      )}
     </div>
   )
 } 
