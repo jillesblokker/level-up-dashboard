@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "@/components/ui/use-toast"
 import { CharacterStats } from "@/types/character"
 
-export default function SettingsPage({ session }: { session: any }) {
+export default function SettingsPage() {
   // const { data: session } = useSession()
   const [characterStats, setCharacterStats] = useState<CharacterStats>({
     level: 1,
@@ -57,12 +57,12 @@ export default function SettingsPage({ session }: { session: any }) {
         setEmail(savedEmail)
       }
 
-      // Check if user is connected to GitHub
-      setIsGithubConnected(!!session?.user)
+      // Check if user is connected to GitHub (placeholder for now)
+      setIsGithubConnected(false)
     } catch (error) {
       console.error("Error loading user data:", error)
     }
-  }, [session])
+  }, [])
 
   const handleSaveProfile = () => {
     try {
@@ -233,8 +233,8 @@ export default function SettingsPage({ session }: { session: any }) {
 
           {isGithubConnected && (
             <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-              <p className="font-medium">Connected as: {session?.user?.user_metadata?.full_name || session?.user?.email}</p>
-              <p className="text-sm text-gray-600">{session?.user?.email}</p>
+              <p className="font-medium">Connected as: GitHub User</p>
+              <p className="text-sm text-gray-600">user@example.com</p>
             </div>
           )}
         </Card>

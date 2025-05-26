@@ -72,6 +72,14 @@ export default function RequirementsPage() {
       {
         title: "Territory Expansion",
         description: "Expand your territory by placing new tiles and unlocking new map areas."
+      },
+      {
+        title: "Initial Grid Layout",
+        description: "The realm starts with a 7x13 grid (7 rows, 13 columns). Row 0: [1,1,2,1,1,1,1,1,1,1,1,1,1] (mountain border with one grass tile). Row 1: [1,2,2,5,2,2,2,2,2,2,2,2,1] (city at position 3). Rows 2-5 contain forests, water, towns, and mystery tiles. Row 6: [1,0,0,0,0,0,0,0,0,0,0,0,1] (mountain borders with empty tiles for vertical expansion). Character starts at position (2,0) on the grass tile."
+      },
+      {
+        title: "Supabase Grid Storage",
+        description: "Supabase stores modified grids as flattened arrays or non-matrix format due to matrix storage limitations. The system always loads the CSV initial grid first, then applies Supabase modifications only if the stored data contains actual content (non-empty tiles). Empty or invalid Supabase grids are ignored in favor of the CSV baseline."
       }
     ],
     cities: [

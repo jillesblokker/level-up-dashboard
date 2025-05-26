@@ -1,23 +1,26 @@
-import { Position } from "@/types/game";
-import { Tile, TileItem } from "@/types/tiles";
 import { useEffect, useRef, useState } from "react";
 import { Minimap } from "./Minimap";
+import Image from "next/image";
+import { Tile } from "@/types/tiles";
 
 export interface MapGridProps {
   grid: Tile[][];
-  character: Position;
-  onCharacterMove: (newX: number, newY: number) => void;
-  onTileClick: (x: number, y: number) => Promise<void>;
-  selectedTile: TileItem | null;
-  onGridUpdate: (newGrid: Tile[][]) => void;
+  character: { x: number; y: number };
+  onCharacterMove: (x: number, y: number) => void;
+  onTileClick: (x: number, y: number) => void;
+  selectedTile: any;
+  onGridUpdate: (grid: Tile[][]) => void;
   isMovementMode: boolean;
   onDiscovery: (message: string) => void;
-  onTilePlaced: (tile: TileItem) => void;
-  onHover: (tile: Tile | null) => void;
+  onTilePlaced: (x: number, y: number) => void;
+  onGoldUpdate: (amount: number) => void;
+  onHover: (tile: { row: number; col: number }) => void;
   onHoverEnd: () => void;
-  hoveredTile: Tile | null;
-  zoomLevel: number;
+  hoveredTile: { row: number; col: number } | null;
   onDeleteTile: (x: number, y: number) => void;
+  gridRotation: number;
+  setHoveredTile: (tile: { row: number; col: number } | null) => void;
+  zoomLevel: number;
   showMinimap: boolean;
 }
 
@@ -31,11 +34,14 @@ const MapGrid: React.FC<MapGridProps> = ({
   isMovementMode,
   onDiscovery,
   onTilePlaced,
+  onGoldUpdate,
   onHover,
   onHoverEnd,
   hoveredTile,
-  zoomLevel,
   onDeleteTile,
+  gridRotation,
+  setHoveredTile,
+  zoomLevel,
   showMinimap
 }) => {
   const gridRef = useRef<HTMLDivElement>(null);
@@ -81,45 +87,63 @@ const MapGrid: React.FC<MapGridProps> = ({
         }}
         aria-label="map-grid-scroll-area"
       >
-        <div className="relative map-grid-container" style={{ width: grid[0].length * 64, height: grid.length * 64 }}>
-          {grid.map((row, y) =>
-            row.map((tile, x) => (
-              <div
-                key={`tile-${x}-${y}`}
-                className={`absolute border border-amber-800/20 map-tile ${
-                  hoveredTile?.x === x && hoveredTile?.y === y ? 'ring-2 ring-amber-500' : ''
-                } ${tile.type === 'empty' && selectedTile ? 'cursor-cell hover:bg-amber-500/10' : ''}`}
-                style={{
-                  width: 64,
-                  height: 64,
-                  left: x * 64,
-                  top: y * 64,
-                  cursor: isMovementMode ? 'pointer' : selectedTile ? 'cell' : 'default'
-                }}
-                onClick={() => onTileClick(x, y)}
-                onMouseEnter={() => onHover(tile)}
-                onMouseLeave={onHoverEnd}
-                aria-label={`map-tile-${x}-${y}`}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    onTileClick(x, y);
-                  }
-                }}
-              >
-                {/* Tile content */}
-                {tile.type !== 'empty' && (
-                  <div className="w-full h-full bg-amber-500/10" aria-hidden="true" />
-                )}
-                {character.x === x && character.y === y && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-4 h-4 bg-red-500 rounded-full animate-pulse" aria-label="character-marker" role="img" />
-                  </div>
-                )}
-              </div>
-            ))
-          )}
+        <div 
+          className="relative map-grid-container" 
+          style={{ 
+            width: grid[0] ? `${grid[0].length * 64}px` : '0px',
+            height: `${grid.length * 64}px`,
+            display: 'grid',
+            gridTemplateColumns: grid[0] ? `repeat(${grid[0].length}, 64px)` : 'none',
+            gridTemplateRows: `repeat(${grid.length}, 64px)`,
+            gap: '0px'
+          }}
+          aria-label="map-grid-container"
+          role="grid"
+        >
+          {grid.map((row, y) => (
+            <div key={`row-${y}`} role="row" aria-label={`map-row-${y}`} style={{ display: 'contents' }}>
+              {row.map((tile, x) => (
+                <div
+                  key={tile.id}
+                  className={`relative tile ${tile.type} ${tile.isVisited ? 'visited' : ''} ${tile.isMainTile ? 'main-tile' : ''}`}
+                  style={{
+                    transform: `rotate(${tile.rotation}deg)`,
+                    cursor: isMovementMode ? 'pointer' : 'default',
+                    width: '64px',
+                    height: '64px',
+                    gridColumn: x + 1,
+                    gridRow: y + 1
+                  }}
+                  onClick={() => onTileClick(x, y)}
+                  onMouseEnter={() => onHover({ row: y, col: x })}
+                  onMouseLeave={onHoverEnd}
+                  role="gridcell"
+                  aria-label={`${tile.type} tile at position ${x},${y}`}
+                >
+                  <Image
+                    src={tile.image}
+                    alt={tile.name}
+                    width={64}
+                    height={64}
+                    className="tile-image"
+                    priority
+                  />
+                  {character.x === x && character.y === y && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Image
+                        src="/images/character.png"
+                        alt="Character"
+                        width={32}
+                        height={32}
+                        className="character-image"
+                        priority
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
       </div>
       {showMinimap && (

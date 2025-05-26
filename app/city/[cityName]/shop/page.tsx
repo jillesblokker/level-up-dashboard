@@ -13,9 +13,11 @@ import { CityItemManager, WeaponItem } from "@/lib/city-item-manager"
 import { ItemCard } from "@/components/city/item-card"
 import { addToInventory, addToKingdomInventory } from "@/lib/inventory-manager"
 import { CharacterStats } from "@/types/character"
+import { useGoldStore } from '@/stores/goldStore'
 
 export default function ShopPage() {
   const params = useParams()
+  const { gold, updateGold } = useGoldStore()
   if (!params) {
     return (
       <div className="container py-10" role="main" aria-label="shop-error-section">
@@ -42,6 +44,58 @@ export default function ShopPage() {
 
     return () => clearTimeout(timer)
   }, [])
+
+  // Define shop items with cost between 40 and 100 gold
+  const shopItems = [
+    {
+      id: "health-potion",
+      name: "Health Potion",
+      description: "Restores 50 health points",
+      price: 40,
+      image: "",
+      emoji: "🧪"
+    },
+    {
+      id: "mana-potion",
+      name: "Mana Potion",
+      description: "Restores 50 mana points",
+      price: 45,
+      image: "",
+      emoji: "🔮"
+    },
+    {
+      id: "strength-potion",
+      name: "Strength Potion",
+      description: "Increases strength by 5 for 1 hour",
+      price: 60,
+      image: "",
+      emoji: "💪"
+    },
+    {
+      id: "leather-armor",
+      name: "Leather Armor",
+      description: "Basic protection against physical damage",
+      price: 100,
+      image: "",
+      emoji: "🥋"
+    },
+    {
+      id: "iron-sword",
+      name: "Iron Sword",
+      description: "A reliable weapon for combat",
+      price: 90,
+      image: "",
+      emoji: "⚔️"
+    },
+    {
+      id: "magic-scroll",
+      name: "Magic Scroll",
+      description: "Teaches a random spell",
+      price: 80,
+      image: "",
+      emoji: "📜"
+    }
+  ]
 
   return (
     <div className="container py-10" role="main" aria-label="shop-content-section">
@@ -77,63 +131,53 @@ export default function ShopPage() {
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="shop-items-grid">
-          {[
-            {
-              id: "health-potion",
-              name: "Health Potion",
-              description: "Restores 50 health points",
-              price: "25 gold",
-              image: "/images/items/health-potion.png"
-            },
-            {
-              id: "mana-potion",
-              name: "Mana Potion",
-              description: "Restores 50 mana points",
-              price: "30 gold",
-              image: "/images/items/mana-potion.png"
-            },
-            {
-              id: "strength-potion",
-              name: "Strength Potion",
-              description: "Increases strength by 5 for 1 hour",
-              price: "45 gold",
-              image: "/images/items/strength-potion.png"
-            },
-            {
-              id: "leather-armor",
-              name: "Leather Armor",
-              description: "Basic protection against physical damage",
-              price: "100 gold",
-              image: "/images/items/leather-armor.png"
-            },
-            {
-              id: "iron-sword",
-              name: "Iron Sword",
-              description: "A reliable weapon for combat",
-              price: "150 gold",
-              image: "/images/items/iron-sword.png"
-            },
-            {
-              id: "magic-scroll",
-              name: "Magic Scroll",
-              description: "Teaches a random spell",
-              price: "200 gold",
-              image: "/images/items/magic-scroll.png"
-            }
-          ].map((item) => (
+          {shopItems.map((item) => (
             <Card key={item.id} className="overflow-hidden" aria-label={`${item.name}-card`}>
-              <div 
-                className="h-48 bg-cover bg-center" 
-                style={{ backgroundImage: `url(${item.image})` }}
-                aria-label={`${item.name}-image`}
-              />
+              {item.image ? (
+                <div
+                  className="h-48 bg-cover bg-center"
+                  style={{ backgroundImage: `url(${item.image})` }}
+                  aria-label={`${item.name}-image`}
+                />
+              ) : (
+                <div
+                  className="h-48 flex flex-col items-center justify-center bg-blue-500 text-white"
+                  aria-label={`${item.name}-fallback-image`}
+                >
+                  <span className="text-4xl mb-2">{item.emoji}</span>
+                  <span className="text-lg font-bold">{item.name}</span>
+                  <span className="text-md mt-2">{item.price} gold</span>
+                </div>
+              )}
               <CardHeader>
                 <CardTitle>{item.name}</CardTitle>
-                <CardDescription>{item.price}</CardDescription>
+                <CardDescription>{item.price} gold</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm mb-2">{item.description}</p>
-                <Button className="w-full" aria-label={`Purchase ${item.name}`}>
+                <Button
+                  className="w-full"
+                  aria-label={`Purchase ${item.name}`}
+                  onClick={() => {
+                    if (gold < item.price) {
+                      toast({
+                        title: "Not enough gold",
+                        description: `You need ${item.price} gold to purchase ${item.name}.
+Current gold: ${gold}`,
+                        variant: "destructive"
+                      })
+                      return
+                    }
+                    updateGold(-item.price)
+                    // Add to kingdom inventory (add 'type' property as required by InventoryItem)
+                    addToKingdomInventory({ ...item, quantity: 1, type: 'item' })
+                    toast({
+                      title: "Purchase successful",
+                      description: `You purchased ${item.name} for ${item.price} gold.`,
+                      variant: "default"
+                    })
+                  }}
+                >
                   Purchase
                 </Button>
               </CardContent>

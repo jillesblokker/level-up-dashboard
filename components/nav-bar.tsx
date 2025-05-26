@@ -25,10 +25,11 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { MainNav } from "@/components/main-nav"
 import { Search } from "@/components/search"
 import { UserNav } from "@/components/user-nav"
+import { MobileNav } from "@/components/navigation/mobile-nav"
 
 interface NavBarProps {
   goldBalance: number
-  session: any // Add session prop here
+  session?: any
 }
 
 interface Notification {
@@ -115,10 +116,7 @@ interface NotificationCenterProps {
   unreadCount: number
 }
 
-export function NavBar({
-  goldBalance
-  , session
-}: NavBarProps) {
+export function NavBar({ goldBalance, session }: NavBarProps) {
   const pathname = usePathname()
   const [isClient, setIsClient] = useState(false)
   const [characterStats, setCharacterStats] = useState<CharacterStats>({
@@ -235,7 +233,14 @@ export function NavBar({
     <div className="border-b">
       <div className="flex h-16 items-center px-4">
         <Castle className="h-6 w-6 mr-4" />
-        <MainNav />
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex">
+          <MainNav />
+        </div>
+        {/* Mobile Navigation */}
+        <div className="flex md:hidden flex-1">
+          <MobileNav />
+        </div>
         <div className="ml-auto flex items-center space-x-4">
           <div className="hidden md:flex items-center space-x-2">
             <div className="text-sm font-medium">Level {characterStats.level}</div>

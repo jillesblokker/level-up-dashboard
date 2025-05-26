@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
-import { GridCell, Grid } from '@/types/grid';
+import { GridCell } from '@/types/grid';
 
 // Validation schemas
 const gridCellSchema = z.object({
@@ -76,7 +76,7 @@ export async function PUT(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST() {
   try {
     const session = await auth();
     if (!session?.user?.id) {

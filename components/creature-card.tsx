@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Creature } from '@/stores/creatureStore';
-import { ElementParticles } from './element-particles';
 
 interface CreatureCardProps {
   creature: Creature;
@@ -59,13 +58,6 @@ export function CreatureCard({ creature, discovered, showCard, previewMode, hide
           <div className="text-amber-500">Image not found</div>
         )}
       </div>
-
-      {/* Particles Layer */}
-      {isEffectivelyDiscovered && (
-        <div className="absolute inset-0 z-20 pointer-events-none">
-          <ElementParticles type={creature.stats.type.toLowerCase()} />
-        </div>
-      )}
 
       {/* Stats Overlay */}
       {showStats && isEffectivelyDiscovered && (

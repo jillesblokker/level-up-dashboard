@@ -93,7 +93,7 @@ export default function ClientLayout({
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
       <RealmProvider>
         <div className="min-h-screen bg-black">
-          <NavBar />
+          <NavBar goldBalance={1000} session={undefined} />
           <div className="pt-[calc(4rem+env(safe-area-inset-top))] pb-[env(safe-area-inset-bottom)]">
             {children}
           </div>

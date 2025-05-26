@@ -22,7 +22,7 @@ export async function logout() {
   
   // Clear both types of auth cookies
   cookieStore.delete('skip-auth')
-  cookieStore.delete('sb-' + process.env.NEXT_PUBLIC_SUPABASE_URL!.replace(/[^a-zA-Z0-9]/g, '') + '-auth-token')
+  cookieStore.delete('sb-' + process.env['NEXT_PUBLIC_SUPABASE_URL']!.replace(/[^a-zA-Z0-9]/g, '') + '-auth-token')
   // cookieStore.delete('next-auth.session-token')
   // cookieStore.delete('next-auth.state') // Also clear the state cookie
   

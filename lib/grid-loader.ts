@@ -23,8 +23,8 @@ export interface GridData {
   columns: number
 }
 
-// Assuming the expected grid width is 12 columns based on existing components
-const EXPECTED_GRID_COLS = 12;
+// Assuming the expected grid width is 13 columns based on existing components
+const EXPECTED_GRID_COLS = 13;
 
 export async function loadInitialGrid(): Promise<GridData> {
   try {
@@ -47,11 +47,11 @@ export async function loadInitialGrid(): Promise<GridData> {
     
     const grid = rows.map(row => row.split(',').map(Number).slice(0, EXPECTED_GRID_COLS));
     
-    console.log('Parsed grid dimensions (after skipping header and truncating):', grid.length, 'x', grid[0]?.length);
-    console.log('Parsed grid (first actual data row, truncated):', grid[0]);
+    console.log('Parsed grid dimensions:', grid.length, 'x', grid[0]?.length);
+    console.log('Parsed grid (first row):', grid[0]);
     
     // Basic validation
-    if (grid.length === 0 || grid[0].length !== EXPECTED_GRID_COLS) {
+    if (grid.length === 0 || !grid[0] || grid[0].length === 0) {
         console.error('Parsed grid has unexpected dimensions.', grid.length, grid[0]?.length);
         throw new Error('Parsed grid has unexpected dimensions.');
     }
@@ -65,11 +65,11 @@ export async function loadInitialGrid(): Promise<GridData> {
     console.error('Error loading initial grid:', error)
     // Return a default grid if loading fails
     console.log('Creating default grid as fallback...')
-    const defaultGrid = Array(8).fill(null).map((_, y) =>
+    const defaultGrid = Array(7).fill(null).map((_, y) =>
       Array(EXPECTED_GRID_COLS).fill(null).map((_, x) => {
-        if (x === 0 || x === EXPECTED_GRID_COLS - 1 || y === 0 || y === 7) return 1 // Mountain borders
-        if (x === 2 && y === 1) return 5 // City
-        if (x === EXPECTED_GRID_COLS - 1 && y === 3) return 6 // Town // Adjust town x coordinate for 12 columns
+        if (x === 0 || x === EXPECTED_GRID_COLS - 1 || y === 0 || y === 6) return 1 // Mountain borders
+        if (x === 3 && y === 1) return 5 // City
+        if (x === 7 && y === 4) return 6 // Town
         return 2 // Grass
       })
     )
@@ -77,7 +77,7 @@ export async function loadInitialGrid(): Promise<GridData> {
     return {
       grid: defaultGrid,
       rows: defaultGrid.length,
-      columns: defaultGrid[0].length
+      columns: defaultGrid[0]?.length ?? EXPECTED_GRID_COLS
     }
   }
 }

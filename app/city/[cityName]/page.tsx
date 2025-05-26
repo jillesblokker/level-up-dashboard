@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams } from "next/navigation"
 import Link from "next/link"
 import { Activity, Award, Book, Brain, ChevronLeft, Coffee, Dumbbell, Moon, Trophy } from "lucide-react"
 
@@ -79,8 +79,8 @@ export default function CityPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-amber-900/30 to-black/70">
           <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-            <h2 className="text-3xl font-bold mb-2 font-serif">Welcome to {cityData.name}</h2>
-            <p className="text-lg text-gray-300">{cityData.description}</p>
+            <h2 className="text-4xl font-bold mb-2 font-serif text-amber-500 drop-shadow-lg">{cityData.name}</h2>
+            <p className="text-lg text-gray-300 max-w-2xl text-center">{cityData.description}</p>
           </div>
         </div>
       </div>
@@ -105,20 +105,22 @@ export default function CityPage() {
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="city-locations-grid">
           {cityData.locations.map((location: CityLocation) => (
-            <Card key={location.id} className="overflow-hidden bg-black border border-amber-800/20" aria-label={`${location.name}-card`}>
-              <div 
-                className="h-48 bg-cover bg-center" 
-                style={{ backgroundImage: `url(${location.image})` }}
-                aria-label={`${location.name}-image`}
-              />
-              <CardHeader>
-                <CardTitle className="text-white">{location.name}</CardTitle>
-                <CardDescription className="text-gray-400">{location.subtitle}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-300">{location.description}</p>
-              </CardContent>
-            </Card>
+            <Link key={location.id} href={`/city/${cityName}/${location.id}`} aria-label={`Enter ${location.name}`} className="block">
+              <Card className="overflow-hidden bg-black border border-amber-800/20 hover:border-amber-500 transition-colors cursor-pointer" aria-label={`${location.name}-card`}>
+                <div 
+                  className="h-48 bg-cover bg-center" 
+                  style={{ backgroundImage: `url(${location.image})` }}
+                  aria-label={`${location.name}-image`}
+                />
+                <CardHeader>
+                  <CardTitle className="text-white">{location.name}</CardTitle>
+                  <CardDescription className="text-gray-400">{location.subtitle}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-300">{location.description}</p>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       </main>

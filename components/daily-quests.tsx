@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Plus, Sword, Brain, Shield, Castle, Brush, Leaf } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { gainExperience } from '@/lib/experience-manager'
 import { toast } from "@/components/ui/use-toast"
 import { cn } from "@/lib/utils"
+import { supabase } from '@/lib/supabase/client'
+import { emitQuestCompletedWithRewards } from "@/lib/kingdom-events"
 
 // Quest item definitions with icons and categories
 interface QuestItem {
@@ -24,12 +26,32 @@ interface QuestItem {
     experience: number
     gold: number
   }
-  frequency?: string
+  frequency?: string | undefined
 }
 
 export function DailyQuests() {
+  // Function to get current CET date
+  const getCurrentCETDate = (): string => {
+    const now = new Date()
+    const cetDate = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Amsterdam" }))
+    return cetDate.toISOString().split('T')[0]
+  }
+
   // State for quest items
-  const [questItems, setQuestItems] = useState<QuestItem[]>([
+  const [questItems, setQuestItems] = useState<QuestItem[]>([])
+  const [isLoaded, setIsLoaded] = useState(false)
+
+  // State for new quest dialog
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [newQuestName, setNewQuestName] = useState("")
+  const [newQuestIcon, setNewQuestIcon] = useState("")
+  const [newQuestCategory, setNewQuestCategory] = useState<'might' | 'knowledge' | 'honor' | 'castle' | 'craft' | 'vitality'>('might')
+  const [newQuestExperience, setNewQuestExperience] = useState<number>(50)
+  const [newQuestGold, setNewQuestGold] = useState<number>(25)
+  const [newQuestFrequency, setNewQuestFrequency] = useState<string>("")
+
+  // Default quest data
+  const defaultQuestItems: QuestItem[] = [
     // Might category
     { id: "pushups", name: "300x Pushups", icon: "🏋️", category: "might", completed: false, rewards: { experience: 50, gold: 25 } },
     { id: "plank", name: "Plank 3:00", icon: "🧎", category: "might", completed: false, rewards: { experience: 50, gold: 25 } },
@@ -68,68 +90,97 @@ export function DailyQuests() {
     // Vitality category
     { id: "battubby", name: "Battubby", icon: "🛁", category: "vitality", completed: false, rewards: { experience: 50, gold: 25 } },
     { id: "mango", name: "Mango Food Fill", icon: "🥭", category: "vitality", completed: false, rewards: { experience: 50, gold: 25 } },
-  ])
+  ]
 
-  // State for new quest dialog
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [newQuestName, setNewQuestName] = useState("")
-  const [newQuestIcon, setNewQuestIcon] = useState("")
-  const [newQuestCategory, setNewQuestCategory] = useState<'might' | 'knowledge' | 'honor' | 'castle' | 'craft' | 'vitality'>('might')
-  const [newQuestExperience, setNewQuestExperience] = useState<number>(50)
-  const [newQuestGold, setNewQuestGold] = useState<number>(25)
-  const [newQuestFrequency, setNewQuestFrequency] = useState<string>("")
-
-  // Toggle quest completion
-  const toggleQuestCompletion = (id: string) => {
-    const quest = questItems.find((q) => q.id === id)
-    if (!quest) return
-
-    const updatedQuests = questItems.map((q) => {
-      if (q.id === id) {
-        const newCompletionStatus = !q.completed
-        
-        if (newCompletionStatus) {
-          // Grant experience with quest category
-          gainExperience(quest.rewards.experience, quest.category || 'general')
-          
-          // Calculate gold bonus from perks
-          const perksString = localStorage.getItem('character-perks')
-          const equippedPerks = perksString ? JSON.parse(perksString).filter((p: any) => p.equipped) : []
-          
-          let goldBonus = 0
-          equippedPerks.forEach((perk: any) => {
-            if (perk.category === quest.category) {
-              goldBonus += (perk.level * 0.1) * quest.rewards.gold // 10% per level for matching category
-            } else if (perk.category === 'general') {
-              goldBonus += (perk.level * 0.05) * quest.rewards.gold // 5% per level for general perks
-            }
-          })
-
-          const totalGold = quest.rewards.gold + Math.floor(goldBonus)
-          
-          // Update character gold
-          const statsString = localStorage.getItem('character-stats')
-          if (statsString) {
-            const stats = JSON.parse(statsString)
-            stats.gold += totalGold
-            localStorage.setItem('character-stats', JSON.stringify(stats))
-            window.dispatchEvent(new CustomEvent('character-stats-update'))
-          }
-
-          // Show toast with gold earned
-          toast({
-            title: "Quest Completed!",
-            description: `You earned ${totalGold} gold (${Math.floor(goldBonus)} from perks)`,
-          })
-        }
-
-        return { ...q, completed: newCompletionStatus }
-      }
-      return q
-    })
-
+  // Function to reset quests
+  const resetQuests = () => {
+    const updatedQuests = questItems.map(quest => ({
+      ...quest,
+      completed: false
+    }))
     setQuestItems(updatedQuests)
     localStorage.setItem('daily-quests', JSON.stringify(updatedQuests))
+    localStorage.setItem('last-quest-reset', getCurrentCETDate())
+    toast({
+      title: "Daily Reset",
+      description: "All quests have been reset for the new day.",
+      variant: "default"
+    })
+  }
+
+  // Check for daily reset
+  useEffect(() => {
+    const checkForReset = () => {
+      const currentDate = getCurrentCETDate()
+      const savedResetDate = localStorage.getItem('last-quest-reset')
+      if (!savedResetDate || savedResetDate !== currentDate) {
+        resetQuests()
+      }
+    }
+
+    checkForReset()
+    const interval = setInterval(checkForReset, 60000)
+    return () => clearInterval(interval)
+  }, [questItems])
+
+  // Load daily quests from localStorage on component mount
+  useEffect(() => {
+    const loadDailyQuests = () => {
+      try {
+        const savedQuests = localStorage.getItem('daily-quests')
+        if (savedQuests) {
+          const parsedQuests = JSON.parse(savedQuests)
+          if (Array.isArray(parsedQuests) && parsedQuests.length > 0) {
+            setQuestItems(parsedQuests)
+            console.log('Loaded daily quests from localStorage:', parsedQuests.length)
+          } else {
+            setQuestItems(defaultQuestItems)
+            console.log('Using default daily quests - invalid saved data')
+          }
+        } else {
+          setQuestItems(defaultQuestItems)
+          console.log('Using default daily quests - no saved data')
+        }
+      } catch (error) {
+        console.error('Error loading daily quests:', error)
+        setQuestItems(defaultQuestItems)
+      } finally {
+        setIsLoaded(true)
+      }
+    }
+    loadDailyQuests()
+  }, [])
+
+  // Toggle quest completion with immediate save
+  const toggleQuest = (questId: string) => {
+    const updatedQuests = questItems.map(quest =>
+      quest.id === questId
+        ? { ...quest, completed: !quest.completed }
+        : quest
+    )
+    
+    setQuestItems(updatedQuests)
+    
+    // IMMEDIATE SAVE: Save daily quests to localStorage
+    try {
+      localStorage.setItem('daily-quests', JSON.stringify(updatedQuests))
+      console.log('=== DAILY QUEST SAVE SUCCESSFUL ===', { questId, timestamp: new Date() })
+    } catch (error) {
+      console.error('=== DAILY QUEST SAVE FAILED ===', error)
+    }
+    
+    // Check if quest was completed and show notification
+    const toggledQuest = updatedQuests.find(q => q.id === questId)
+    if (toggledQuest?.completed) {
+      // Quest was just completed, could add toast notification here if needed
+      console.log(`Daily quest completed: ${toggledQuest.name}`)
+      emitQuestCompletedWithRewards(
+        toggledQuest.name, 
+        toggledQuest.rewards.gold, 
+        toggledQuest.rewards.experience, 
+        'daily-quests'
+      )
+    }
   }
 
   // Add new quest
@@ -201,11 +252,11 @@ export function DailyQuests() {
                   "relative overflow-hidden border-amber-800/20 transition-all duration-200 flex items-center justify-between p-3 hover:bg-amber-950/20 cursor-pointer",
                   quest.completed && "bg-amber-500/10"
                 )}
-                onClick={() => toggleQuestCompletion(quest.id)}
+                onClick={() => toggleQuest(quest.id)}
                 onKeyDown={(e: React.KeyboardEvent) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    toggleQuestCompletion(quest.id);
+                    toggleQuest(quest.id);
                   }
                 }}
                 tabIndex={0}
@@ -223,10 +274,10 @@ export function DailyQuests() {
                   id={quest.id} 
                   checked={quest.completed}
                   onCheckedChange={(checked) => {
-                    toggleQuestCompletion(quest.id);
+                    toggleQuest(quest.id);
                   }}
                   onClick={(e) => e.stopPropagation()}
-                  className="h-5 w-5 border-2 border-red-500 data-[state=checked]:bg-red-500 data-[state=checked]:text-white"
+                  className="h-5 w-5 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white data-[state=checked]:border-amber-500"
                   aria-label={`Mark ${quest.name} as ${quest.completed ? 'incomplete' : 'complete'}`}
                 />
               </Card>
@@ -325,11 +376,11 @@ export function DailyQuests() {
                   "relative overflow-hidden border-amber-800/20 transition-all duration-200 flex items-center justify-between p-3 hover:bg-amber-950/20 cursor-pointer",
                   quest.completed && "bg-amber-500/10"
                 )}
-                onClick={() => toggleQuestCompletion(quest.id)}
+                onClick={() => toggleQuest(quest.id)}
                 onKeyDown={(e: React.KeyboardEvent) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    toggleQuestCompletion(quest.id);
+                    toggleQuest(quest.id);
                   }
                 }}
                 tabIndex={0}
@@ -347,10 +398,10 @@ export function DailyQuests() {
                   id={quest.id} 
                   checked={quest.completed}
                   onCheckedChange={(checked) => {
-                    toggleQuestCompletion(quest.id);
+                    toggleQuest(quest.id);
                   }}
                   onClick={(e) => e.stopPropagation()}
-                  className="h-5 w-5 border-2 border-blue-500 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white"
+                  className="h-5 w-5 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white data-[state=checked]:border-amber-500"
                   aria-label={`Mark ${quest.name} as ${quest.completed ? 'incomplete' : 'complete'}`}
                 />
               </Card>
@@ -449,11 +500,11 @@ export function DailyQuests() {
                   "relative overflow-hidden border-amber-800/20 transition-all duration-200 flex items-center justify-between p-3 hover:bg-amber-950/20 cursor-pointer",
                   quest.completed && "bg-amber-500/10"
                 )}
-                onClick={() => toggleQuestCompletion(quest.id)}
+                onClick={() => toggleQuest(quest.id)}
                 onKeyDown={(e: React.KeyboardEvent) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    toggleQuestCompletion(quest.id);
+                    toggleQuest(quest.id);
                   }
                 }}
                 tabIndex={0}
@@ -471,10 +522,10 @@ export function DailyQuests() {
                   id={quest.id} 
                   checked={quest.completed}
                   onCheckedChange={(checked) => {
-                    toggleQuestCompletion(quest.id);
+                    toggleQuest(quest.id);
                   }}
                   onClick={(e) => e.stopPropagation()}
-                  className="h-5 w-5 border-2 border-purple-500 data-[state=checked]:bg-purple-500 data-[state=checked]:text-white"
+                  className="h-5 w-5 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white data-[state=checked]:border-amber-500"
                   aria-label={`Mark ${quest.name} as ${quest.completed ? 'incomplete' : 'complete'}`}
                 />
               </Card>
@@ -573,11 +624,11 @@ export function DailyQuests() {
                   "relative overflow-hidden border-amber-800/20 transition-all duration-200 flex items-center justify-between p-3 hover:bg-amber-950/20 cursor-pointer",
                   quest.completed && "bg-amber-500/10"
                 )}
-                onClick={() => toggleQuestCompletion(quest.id)}
+                onClick={() => toggleQuest(quest.id)}
                 onKeyDown={(e: React.KeyboardEvent) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    toggleQuestCompletion(quest.id);
+                    toggleQuest(quest.id);
                   }
                 }}
                 tabIndex={0}
@@ -595,10 +646,10 @@ export function DailyQuests() {
                   id={quest.id} 
                   checked={quest.completed}
                   onCheckedChange={(checked) => {
-                    toggleQuestCompletion(quest.id);
+                    toggleQuest(quest.id);
                   }}
                   onClick={(e) => e.stopPropagation()}
-                  className="h-5 w-5 border-2 border-emerald-500 data-[state=checked]:bg-emerald-500 data-[state=checked]:text-white"
+                  className="h-5 w-5 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white data-[state=checked]:border-amber-500"
                   aria-label={`Mark ${quest.name} as ${quest.completed ? 'incomplete' : 'complete'}`}
                 />
               </Card>
@@ -697,11 +748,11 @@ export function DailyQuests() {
                   "relative overflow-hidden border-amber-800/20 transition-all duration-200 flex items-center justify-between p-3 hover:bg-amber-950/20 cursor-pointer",
                   quest.completed && "bg-amber-500/10"
                 )}
-                onClick={() => toggleQuestCompletion(quest.id)}
+                onClick={() => toggleQuest(quest.id)}
                 onKeyDown={(e: React.KeyboardEvent) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    toggleQuestCompletion(quest.id);
+                    toggleQuest(quest.id);
                   }
                 }}
                 tabIndex={0}
@@ -719,10 +770,10 @@ export function DailyQuests() {
                   id={quest.id} 
                   checked={quest.completed}
                   onCheckedChange={(checked) => {
-                    toggleQuestCompletion(quest.id);
+                    toggleQuest(quest.id);
                   }}
                   onClick={(e) => e.stopPropagation()}
-                  className="h-5 w-5 border-2 border-yellow-500 data-[state=checked]:bg-yellow-500 data-[state=checked]:text-white"
+                  className="h-5 w-5 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white data-[state=checked]:border-amber-500"
                   aria-label={`Mark ${quest.name} as ${quest.completed ? 'incomplete' : 'complete'}`}
                 />
               </Card>
@@ -821,11 +872,11 @@ export function DailyQuests() {
                   "relative overflow-hidden border-amber-800/20 transition-all duration-200 flex items-center justify-between p-3 hover:bg-amber-950/20 cursor-pointer",
                   quest.completed && "bg-amber-500/10"
                 )}
-                onClick={() => toggleQuestCompletion(quest.id)}
+                onClick={() => toggleQuest(quest.id)}
                 onKeyDown={(e: React.KeyboardEvent) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    toggleQuestCompletion(quest.id);
+                    toggleQuest(quest.id);
                   }
                 }}
                 tabIndex={0}
@@ -843,10 +894,10 @@ export function DailyQuests() {
                   id={quest.id} 
                   checked={quest.completed}
                   onCheckedChange={(checked) => {
-                    toggleQuestCompletion(quest.id);
+                    toggleQuest(quest.id);
                   }}
                   onClick={(e) => e.stopPropagation()}
-                  className="h-5 w-5 border-2 border-pink-500 data-[state=checked]:bg-pink-500 data-[state=checked]:text-white"
+                  className="h-5 w-5 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white data-[state=checked]:border-amber-500"
                   aria-label={`Mark ${quest.name} as ${quest.completed ? 'incomplete' : 'complete'}`}
                 />
               </Card>

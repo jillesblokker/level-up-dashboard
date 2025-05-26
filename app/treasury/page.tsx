@@ -21,7 +21,7 @@ export default function TreasuryPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <NavBar />
+      <NavBar goldBalance={1000} session={undefined} />
 
       <main className="flex-1 p-4 md:p-6">
         <div className="flex items-center mb-6">

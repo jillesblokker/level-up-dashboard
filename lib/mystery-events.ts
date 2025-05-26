@@ -1,8 +1,9 @@
 import { getRandomElement, getRandomInt } from '@/lib/utils'
 import { toast } from "@/components/ui/use-toast";
-import { addToInventory, getInventory } from "@/lib/inventory-manager"
+import { addToInventory, getInventory, InventoryItem } from "@/lib/inventory-manager"
+import { emitGoldGained, emitExperienceGained } from "./kingdom-events"
 
-export type MysteryEventType = 'treasure' | 'battle' | 'quest' | 'trade' | 'blessing' | 'curse' | 'riddle'
+export type MysteryEventType = 'treasure' | 'quest' | 'trade' | 'blessing' | 'curse' | 'riddle'
 
 export interface ScrollItem {
   id: string;
@@ -56,30 +57,21 @@ export interface MysteryEventReward {
     content: string;
     category: string;
   };
-  item?: {
-    id: string;
-    name: string;
-    description: string;
-    quantity: number;
-    category: string;
-    type: 'resource' | 'item' | 'creature' | 'scroll';
-  };
+  item?: InventoryItem[];
 }
 
 export interface MysteryEventOutcome {
   message: string;
-  reward: MysteryEventReward;
+  reward?: MysteryEventReward;
 }
 
 export interface MysteryEvent {
   id: string;
-  type: string;
+  type: MysteryEventType;
   title: string;
   description: string;
   choices: string[];
-  outcomes: {
-    [key: string]: MysteryEventOutcome;
-  };
+  outcomes: Record<string, MysteryEventOutcome>;
   enemyName?: string;
   enemyLevel?: number;
   requiredItems?: string[];
@@ -142,7 +134,7 @@ const treasureEvents: MysteryEvent[] = [
   },
   {
     id: 'ancient-ruins',
-    type: 'ruins',
+    type: 'treasure',
     title: 'Ancient Ruins',
     description: 'You stumble upon ancient ruins...',
     choices: ['Explore the ruins', 'Leave'],
@@ -151,14 +143,14 @@ const treasureEvents: MysteryEvent[] = [
         message: 'You find an ancient artifact!',
         reward: {
           type: 'item',
-          item: {
+          item: [{
             id: 'ancient-artifact',
             name: 'Ancient Artifact',
             description: 'A mysterious artifact from the ruins.',
             quantity: 1,
-            category: 'artifact',
-            type: 'artifact'
-          }
+            type: 'artifact',
+            category: 'artifact'
+          }]
         }
       },
       'Leave': {
@@ -169,35 +161,6 @@ const treasureEvents: MysteryEvent[] = [
         }
       }
     }
-  }
-]
-
-const battleEvents: MysteryEvent[] = [
-  {
-    id: 'monster-encounter',
-    type: 'battle',
-    title: 'Fearsome Monster',
-    description: 'A dangerous creature emerges from the shadows!',
-    choices: ['Fight!', 'Try to escape'],
-    outcomes: {
-      'Fight!': {
-        message: 'You ready your weapons and prepare for battle!',
-        reward: {
-          type: 'nothing',
-          message: 'The battle begins!'
-        }
-      },
-      'Try to escape': {
-        message: 'You manage to escape, but drop some gold in your haste.',
-        reward: {
-          type: 'gold',
-          amount: -10,
-          message: 'You lost some gold while fleeing!'
-        }
-      }
-    },
-    enemyName: 'Mysterious Beast',
-    enemyLevel: getRandomInt(1, 5)
   }
 ]
 
@@ -251,14 +214,14 @@ const artifactEvents: MysteryEvent[] = [
         message: 'You carefully retrieve the mysterious artifact!',
         reward: {
           type: 'item',
-          item: {
+          item: [{
             id: `artifact-${getRandomInt(1, 5)}`,
             name: 'Mysterious Artifact',
             description: 'An ancient artifact of unknown origin.',
             quantity: 1,
-            category: 'artifact',
-            type: 'item'
-          }
+            type: 'artifact',
+            category: 'artifact'
+          }]
         }
       },
       'Leave it alone': {
@@ -406,14 +369,19 @@ const riddleEvents: MysteryEvent[] = [
 
 const allEvents = [
   ...treasureEvents,
-  ...battleEvents,
   ...scrollEvents,
   ...artifactEvents,
   ...riddleEvents
 ]
 
 export function generateMysteryEvent(): MysteryEvent {
-  return getRandomElement(allEvents)
+  const possibleEvents: MysteryEvent[] = [
+    ...treasureEvents,
+    ...scrollEvents,
+    ...artifactEvents,
+    ...riddleEvents
+  ];
+  return getRandomElement(possibleEvents);
 }
 
 export const handleEventOutcome = (event: MysteryEvent, choice: string) => {
@@ -457,15 +425,20 @@ export const handleEventOutcome = (event: MysteryEvent, choice: string) => {
       description: `You gained ${reward.amount} gold pieces.`,
       duration: 3000
     });
+
+    emitGoldGained(reward.amount, 'mystery-events');
   }
   
-  if (reward.type === 'item' && reward.item) {
-    addToInventory(reward.item);
-    toast({
-      title: "Item Found!",
-      description: `You found ${reward.item.name}`,
-      duration: 3000
-    });
+  if (reward.type === 'item' && reward.item && reward.item.length > 0) {
+    reward.item.forEach(item => addToInventory(item));
+    const firstItem = reward.item[0];
+    if (firstItem) {
+      toast({
+        title: "Item Found!",
+        description: `You found ${firstItem.name}`,
+        duration: 3000
+      });
+    }
   }
   
   if (reward.type === 'scroll' && reward.scroll) {
@@ -496,6 +469,8 @@ export const handleEventOutcome = (event: MysteryEvent, choice: string) => {
       description: `You gained ${reward.amount} experience points!`,
       duration: 3000
     });
+
+    emitExperienceGained(reward.amount, 'mystery-events');
   }
 };
 
@@ -550,14 +525,14 @@ const checkRequiredItems = (event: MysteryEvent) => {
 // Update the artifact reward
 const artifactReward: MysteryEventReward = {
   type: 'item',
-  item: {
+  item: [{
     id: 'mysterious-artifact',
     name: 'Mysterious Artifact',
     description: 'An ancient artifact of unknown origin.',
     quantity: 1,
-    category: 'artifact',
-    type: 'item'
-  },
+    type: 'artifact',
+    category: 'artifact'
+  }],
   message: 'You found a mysterious artifact!'
 };
 

@@ -17,7 +17,7 @@ export default function AuthError({
   }
 
   const error = searchParams.error || 'default'
-  const errorMessage = errorMessages[error] || errorMessages.default
+  const errorMessage = errorMessages[error] || errorMessages['default']
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">

@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { z } from 'zod';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
@@ -14,8 +13,8 @@ export async function POST(request: Request) {
     
     const cookieStore = await cookies();
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      process.env['NEXT_PUBLIC_SUPABASE_URL']!,
+      process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']!,
       {
         cookies: {
           get(name: string) {
@@ -32,7 +31,7 @@ export async function POST(request: Request) {
     }
 
     // Ensure user exists in database
-    const user = await prisma.user.upsert({
+    await prisma.user.upsert({
       where: { id: session.user.id },
       update: {},
       create: {
@@ -122,12 +121,12 @@ export async function POST(request: Request) {
 }
 
 // Get tile placements for the current user
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const cookieStore = cookies();
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      process.env['NEXT_PUBLIC_SUPABASE_URL']!,
+      process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']!,
       {
         cookies: {
           get(name: string) {

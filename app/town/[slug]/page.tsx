@@ -4,12 +4,13 @@ import { HeaderSection } from "@/components/HeaderSection";
 import Image from "next/image"
 import { Home, ShoppingBag, Footprints } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { use } from 'react'
+import Link from "next/link"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface Props {
-  params: Promise<{
+  params: {
     slug: string
-  }>
+  }
 }
 
 const townLocations = [
@@ -38,8 +39,8 @@ const townLocations = [
 
 export default function TownPage({ params }: Props) {
   const router = useRouter();
-  const resolvedParams = use(params);
-  const title = resolvedParams.slug.charAt(0).toUpperCase() + resolvedParams.slug.slice(1);
+  const { slug } = params;
+  const title = slug.charAt(0).toUpperCase() + slug.slice(1);
 
   const getIcon = (iconName: string) => {
     switch (iconName) {
@@ -64,36 +65,31 @@ export default function TownPage({ params }: Props) {
       <main className="flex-1 p-4 md:p-6 space-y-6" aria-label="town-locations-section">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" aria-label="town-locations-grid">
           {townLocations.map((location) => (
-            <div
+            <Link
               key={location.id}
-              className="bg-black border border-amber-800/20 rounded-lg p-4 cursor-pointer hover:bg-amber-900/10 transition-colors"
-              role="article"
-              aria-label={`${location.name}-card`}
+              href={`/town/${slug}/${location.id}`}
+              aria-label={`Enter ${location.name}`}
+              className="block"
             >
-              <div className="relative w-full h-40 mb-3 rounded-lg overflow-hidden">
-                <Image 
-                  src={location.image} 
-                  alt={`${location.name} location image`} 
-                  fill 
-                  className="object-cover"
-                  aria-label={`${location.name}-image`}
-                />
-              </div>
-              <div className="flex items-start mb-3">
-                <div className="mr-3" aria-hidden="true">{getIcon(location.icon)}</div>
-                <div>
-                  <h3 className="text-xl font-medievalsharp text-white">{location.name}</h3>
-                  <p className="text-gray-400">{location.description}</p>
+              <Card className="overflow-hidden bg-black border border-amber-800/20 hover:border-amber-500 transition-colors cursor-pointer rounded-lg" aria-label={`${location.name}-card`}>
+                <div className="relative w-full h-40 mb-3 rounded-lg overflow-hidden">
+                  <Image
+                    src={location.image}
+                    alt={`${location.name} location image`}
+                    fill
+                    className="object-cover"
+                    aria-label={`${location.name}-image`}
+                  />
                 </div>
-              </div>
-              <button
-                className="w-full bg-amber-700 hover:bg-amber-600 text-white py-2 rounded mt-auto"
-                onClick={() => router.push(`/town/${resolvedParams.slug}/${location.id}`)}
-                aria-label={`Visit ${location.name}`}
-              >
-                Visit Location
-              </button>
-            </div>
+                <CardHeader className="pb-2 flex-row items-start gap-3">
+                  <div className="mr-3" aria-hidden="true">{getIcon(location.icon)}</div>
+                  <div>
+                    <CardTitle className="text-xl font-medievalsharp text-white mb-1">{location.name}</CardTitle>
+                    <CardDescription className="text-gray-400">{location.description}</CardDescription>
+                  </div>
+                </CardHeader>
+              </Card>
+            </Link>
           ))}
         </div>
       </main>

@@ -3,13 +3,10 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { Activity, Award, Book, Brain, ChevronLeft, Coffee, Dumbbell, Moon, Trophy } from "lucide-react"
+import { ChevronLeft } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CategoryProgressChart } from "@/components/category-progress-chart"
 import { getCategoryData } from "@/lib/category-data"
 
 export default function CategoryPage() {

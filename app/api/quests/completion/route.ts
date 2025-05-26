@@ -38,7 +38,7 @@ export async function POST(request: Request) {
 }
 
 // Get quest completions for the current user
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const session = await auth();
     if (!session?.user?.email) {

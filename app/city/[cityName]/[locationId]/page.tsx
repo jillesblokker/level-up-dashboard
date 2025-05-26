@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
-import { addToInventory, getInventory, addToKingdomInventory, InventoryItem } from "@/lib/inventory-manager"
+import { addToInventory, getInventory, addToKingdomInventory } from "@/lib/inventory-manager"
 import { HeaderSection } from "@/components/HeaderSection"
 
 interface LocationItem {
@@ -16,13 +16,6 @@ interface LocationItem {
   price: number
   type: "item" | "resource" | "creature" | "scroll" | "equipment" | "artifact" | "book"
   emoji?: string
-}
-
-interface LocationData {
-  name: string
-  description: string
-  icon: any
-  items: LocationItem[]
 }
 
 const locationData: Record<string, any> = {
@@ -110,7 +103,6 @@ export default function CityLocationPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [gold, setGold] = useState(0)
-  const [inventory, setInventory] = useState<InventoryItem[]>([])
 
   useEffect(() => {
     // Load character stats from localStorage
@@ -122,7 +114,8 @@ export default function CityLocationPage() {
           setGold(stats.gold || 0)
         }
 
-        setInventory(getInventory())
+        // Load inventory but don't store in state since it's not used
+        getInventory()
       } catch (error) {
         console.error("Failed to load character stats:", error)
       }

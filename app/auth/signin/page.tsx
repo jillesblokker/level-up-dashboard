@@ -3,10 +3,9 @@
 import '@/app/globals.css'
 import { Button } from "@/components/ui/button"
 import { useSearchParams, useRouter } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Image from 'next/image'
-import { skipAuth } from '@/app/actions/auth'
-import { Scroll, Shield, AlertTriangle, Mail } from 'lucide-react'
+import { Scroll, Shield, Mail } from 'lucide-react'
 import { toast } from "sonner"
 import { createBrowserClient } from '@supabase/ssr'
 import { EmailSignInForm } from '@/components/auth/email-signin-form'
@@ -21,23 +20,31 @@ export default function SignIn() {
   const redirectedFrom = searchParams?.get('redirectedFrom') || '/kingdom'
 
   const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
+    process.env['NEXT_PUBLIC_SUPABASE_URL'] ?? '',
+    process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'] ?? ''
   )
 
   const handleSignIn = async () => {
     try {
       setIsLoading(true)
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'github',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          scopes: 'read:user user:email'
-        },
-      })
-
+      const { data: { user }, error } = await supabase.auth.getUser()
+      
       if (error) {
         throw error
+      }
+
+      if (!user) {
+        const { error: signInError } = await supabase.auth.signInWithOAuth({
+          provider: 'github',
+          options: {
+            redirectTo: `${window.location.origin}/auth/callback`,
+            scopes: 'read:user user:email'
+          },
+        })
+
+        if (signInError) {
+          throw signInError
+        }
       }
     } catch (error: any) {
       console.error('Sign in error:', error)

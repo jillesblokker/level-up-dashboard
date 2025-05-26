@@ -1,107 +1,263 @@
 "use client"
 
-import { useState } from 'react'
-import Image from 'next/image'
-import { useCreatureStore } from '@/stores/creatureStore'
-import { CreatureCard } from '@/components/creature-card'
-import { Switch } from '@/components/ui/switch'
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
+import { ReplayabilityManager, Achievement } from "@/lib/replayability"
+import { Trophy, Star, Calendar, Target } from "lucide-react"
+import { useRouter } from 'next/navigation'
 
-export default function AchievementsPage() {
-  const { creatures } = useCreatureStore()
-  const [previewMode, setPreviewMode] = useState(false)
-  const isCreatureDiscovered = (id: string) => creatures.find(c => c.id === id)?.discovered || false
+export default function AchievementsRedirect() {
+  const router = useRouter();
+  useEffect(() => {
+    router.replace('/game-center?tab=achievements');
+  }, [router]);
+  return <div className="p-8 text-center">Achievements have moved to the <b>Game Center</b>. Redirecting...</div>;
+}
+
+export function AchievementsPage() {
+  const [achievements, setAchievements] = useState<Achievement[]>([])
+  const [activeTab, setActiveTab] = useState("all")
+
+  useEffect(() => {
+    // Load initial data
+    const loadAchievements = () => {
+      const items = ReplayabilityManager.getInstance().getAchievements()
+      setAchievements(items)
+    }
+
+    loadAchievements()
+
+    // Listen for achievement updates
+    const handleAchievementUpdate = () => loadAchievements()
+    window.addEventListener("achievement-update", handleAchievementUpdate)
+
+    return () => {
+      window.removeEventListener("achievement-update", handleAchievementUpdate)
+    }
+  }, [])
+
+  const filteredAchievements = achievements.filter(achievement => {
+    if (activeTab === "all") return true
+    if (activeTab === "unlocked") return achievement.isUnlocked
+    if (activeTab === "locked") return !achievement.isUnlocked
+    return achievement.category === activeTab
+  })
+
+  const calculateProgress = (achievement: Achievement) => {
+    if (!achievement.requirements || achievement.requirements.length === 0) return 100
+    const total = achievement.requirements.length
+    const completed = achievement.requirements.filter(req => req.current >= req.count).length
+    return Math.round((completed / total) * 100)
+  }
 
   return (
-    <main className="min-h-screen">
-      <div className="w-full">
-        {/* Header section */}
-        <div className="relative h-[300px] md:h-[400px] lg:h-[600px] w-full max-w-full overflow-hidden">
-          <Image
-            src="/images/achievements-header.jpg"
-            alt="Achievements Header"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/80" />
-          
-          <div className="absolute inset-0 flex items-center justify-center z-[5]">
-            <h1 className="text-4xl sm:text-5xl font-bold tracking-widest drop-shadow-lg font-medieval text-amber-500">
-              CREATURE COLLECTION
-            </h1>
-          </div>
-        </div>
+    <main className="container mx-auto p-6" aria-label="achievements-section">
+      <h1 className="text-3xl font-bold mb-6">Achievements</h1>
+      
+      <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-4" aria-label="achievements-tabs">
+          <TabsTrigger value="all">All Achievements</TabsTrigger>
+          <TabsTrigger value="unlocked">Unlocked</TabsTrigger>
+          <TabsTrigger value="locked">Locked</TabsTrigger>
+          <TabsTrigger value="categories">Categories</TabsTrigger>
+        </TabsList>
 
-        {/* Preview Mode Toggle - Floating */}
-        <div className="sticky top-4 z-10 flex items-center justify-end gap-2 px-4 py-2 mt-4 mr-4 bg-gray-900/80 backdrop-blur-sm rounded-lg border border-amber-900/20 w-fit ml-auto">
-          <span className="text-gray-400">Preview Mode</span>
-          <Switch
-            checked={previewMode}
-            onCheckedChange={setPreviewMode}
-            className="bg-amber-900/20"
-          />
-        </div>
-
-        {/* Content section */}
-        <div className="container mx-auto">
-          {/* First Creature - Centered */}
-          <div className="flex justify-center mb-8">
-            {creatures
-              .filter(creature => creature.id === '000')
-              .map(creature => {
-                const discovered = isCreatureDiscovered(creature.id)
-                const showCard = discovered || previewMode
-                return (
-                  <div key={creature.id} className="w-[500px]">
-                    <CreatureCard
-                      creature={creature}
-                      discovered={discovered}
-                      showCard={showCard}
-                      previewMode={previewMode}
-                      hideNameWhenUndiscovered
-                    />
-                  </div>
-                )
-              })}
-          </div>
-
-          {/* Category sections */}
-          <div className="space-y-8">
-            {[
-              { ids: ['001', '002', '003'], title: 'Fire Creatures', type: 'Fire' },
-              { ids: ['004', '005', '006'], title: 'Water Creatures', type: 'Water' },
-              { ids: ['007', '008', '009'], title: 'Grass Creatures', type: 'Grass' },
-              { ids: ['010', '011', '012'], title: 'Rock Creatures', type: 'Rock' },
-              { ids: ['013', '014', '015'], title: 'Ice Creatures', type: 'Ice' },
-              { ids: ['016', '017', '018'], title: 'Electric Creatures', type: 'Electric' },
-              { ids: ['101', '102', '103'], title: 'Dragon Creatures', type: 'Dragon' }
-            ].map((category) => (
-              <div key={category.title}>
-                <h2 className="text-3xl font-bold text-amber-500 mb-2">{category.title}</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0">
-                  {creatures
-                    .filter(creature => category.ids.includes(creature.id))
-                    .map(creature => {
-                      const discovered = isCreatureDiscovered(creature.id)
-                      const showCard = discovered || previewMode
-                      return (
-                        <div key={creature.id} className="w-full">
-                          <CreatureCard
-                            creature={creature}
-                            discovered={discovered}
-                            showCard={showCard}
-                            previewMode={previewMode}
-                            hideNameWhenUndiscovered
-                          />
+        <TabsContent value="all" className="mt-6">
+          <ScrollArea className="h-[600px] rounded-md border p-4" aria-label="achievements-scroll-area">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredAchievements.map((achievement) => (
+                <Card key={achievement.id} aria-label={`achievement-${achievement.id}-card`}>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>{achievement.title}</CardTitle>
+                      <Badge 
+                        variant={achievement.isUnlocked ? "default" : "secondary"}
+                        aria-label={`achievement-${achievement.id}-status`}
+                      >
+                        {achievement.isUnlocked ? "Unlocked" : "Locked"}
+                      </Badge>
+                    </div>
+                    <CardDescription>{achievement.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center space-x-1">
+                            <Trophy className="h-4 w-4" />
+                            <span>{achievement.points} points</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Star className="h-4 w-4" />
+                            <span>{achievement.category}</span>
+                          </div>
+                          {achievement.isUnlocked && achievement.unlockDate && (
+                            <div className="flex items-center space-x-1">
+                              <Calendar className="h-4 w-4" />
+                              <span>{new Date(achievement.unlockDate).toLocaleDateString()}</span>
+                            </div>
+                          )}
                         </div>
-                      )
-                    })}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+                      </div>
+                      {!achievement.isUnlocked && achievement.requirements && achievement.requirements.length > 0 && (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span>Progress</span>
+                            <span>{calculateProgress(achievement)}%</span>
+                          </div>
+                          <Progress value={calculateProgress(achievement)} className="h-2" />
+                          <div className="text-sm text-muted-foreground">
+                            {achievement.requirements.map((req) => (
+                              <div key={req.type} className="flex items-center space-x-1">
+                                <Target className="h-3 w-3" />
+                                <span>{req.type}: {req.current}/{req.count}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </ScrollArea>
+        </TabsContent>
+
+        <TabsContent value="unlocked" className="mt-6">
+          <ScrollArea className="h-[600px] rounded-md border p-4" aria-label="unlocked-achievements-scroll-area">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredAchievements.map((achievement) => (
+                <Card key={achievement.id} aria-label={`unlocked-${achievement.id}-card`}>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>{achievement.title}</CardTitle>
+                      <Badge variant="default" aria-label={`unlocked-${achievement.id}-status`}>
+                        Unlocked
+                      </Badge>
+                    </div>
+                    <CardDescription>{achievement.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-1">
+                          <Trophy className="h-4 w-4" />
+                          <span>{achievement.points} points</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Star className="h-4 w-4" />
+                          <span>{achievement.category}</span>
+                        </div>
+                        {achievement.unlockDate && (
+                          <div className="flex items-center space-x-1">
+                            <Calendar className="h-4 w-4" />
+                            <span>{new Date(achievement.unlockDate).toLocaleDateString()}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </ScrollArea>
+        </TabsContent>
+
+        <TabsContent value="locked" className="mt-6">
+          <ScrollArea className="h-[600px] rounded-md border p-4" aria-label="locked-achievements-scroll-area">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredAchievements.map((achievement) => (
+                <Card key={achievement.id} aria-label={`locked-${achievement.id}-card`}>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>{achievement.title}</CardTitle>
+                      <Badge variant="secondary" aria-label={`locked-${achievement.id}-status`}>
+                        Locked
+                      </Badge>
+                    </div>
+                    <CardDescription>{achievement.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center space-x-1">
+                            <Trophy className="h-4 w-4" />
+                            <span>{achievement.points} points</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Star className="h-4 w-4" />
+                            <span>{achievement.category}</span>
+                          </div>
+                        </div>
+                      </div>
+                      {achievement.requirements && achievement.requirements.length > 0 && (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span>Progress</span>
+                            <span>{calculateProgress(achievement)}%</span>
+                          </div>
+                          <Progress value={calculateProgress(achievement)} className="h-2" />
+                          <div className="text-sm text-muted-foreground">
+                            {achievement.requirements.map((req) => (
+                              <div key={req.type} className="flex items-center space-x-1">
+                                <Target className="h-3 w-3" />
+                                <span>{req.type}: {req.current}/{req.count}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </ScrollArea>
+        </TabsContent>
+
+        <TabsContent value="categories" className="mt-6">
+          <ScrollArea className="h-[600px] rounded-md border p-4" aria-label="categories-scroll-area">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from(new Set(achievements.map(a => a.category))).map((category) => (
+                <Card key={category} aria-label={`category-${category}-card`}>
+                  <CardHeader>
+                    <CardTitle>{category}</CardTitle>
+                    <CardDescription>
+                      {achievements.filter(a => a.category === category).length} achievements
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-1">
+                          <Trophy className="h-4 w-4" />
+                          <span>
+                            {achievements.filter(a => a.category === category && a.isUnlocked).length} unlocked
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Star className="h-4 w-4" />
+                          <span>
+                            {achievements
+                              .filter(a => a.category === category && a.isUnlocked)
+                              .reduce((sum, a) => sum + a.points, 0)} points
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </ScrollArea>
+        </TabsContent>
+      </Tabs>
     </main>
   )
 }

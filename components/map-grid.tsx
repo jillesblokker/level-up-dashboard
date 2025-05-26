@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { User, Building, RotateCw, Trash } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -10,31 +10,52 @@ import { Tile } from "@/types/tiles";
 import { TileVisual } from "@/components/tile-visual";
 import { cn } from "@/lib/utils";
 import { BattleMinigame } from "@/components/battle-minigame";
-import { generateMysteryEvent, handleEventOutcome, MysteryEvent } from '@/lib/mystery-events'
+import { generateMysteryEvent, handleEventOutcome, MysteryEvent, MysteryEventOutcome, MysteryEventReward, MysteryEventType } from '@/lib/mystery-events'
 import { BattleModal } from "@/components/battle-modal"
+import { Battle } from "@/types/battle";
+import { MapGridProps as BaseMapGridProps, SelectedInventoryItem } from '@/types/tiles';
 
 interface CityData {
   name: string;
   type: string;
 }
 
-interface MapGridProps {
-  onDiscovery: (message: string) => void;
-  selectedTile: Tile | null;
-  onTilePlaced: (x: number, y: number) => void;
-  grid: Tile[][];
-  character: { x: number; y: number };
-  onCharacterMove: (x: number, y: number) => void;
-  onTileClick: (x: number, y: number) => void;
-  onGridUpdate: (grid: Tile[][]) => void;
-  onGoldUpdate: (amount: number) => void;
+interface Event {
+  type: 'mystery' | 'battle';
+  title: string;
+  description: string;
+  choices: string[];
+  enemyName?: string;
+  enemyLevel?: number;
+}
+
+interface BattleEvent extends Event {
+  type: 'battle';
+  enemyName: string;
+  enemyLevel: number;
+}
+
+interface MapGridProps extends BaseMapGridProps {
   onExperienceUpdate?: (amount: number) => void;
-  onHover?: (x: number, y: number) => void;
-  onHoverEnd?: () => void;
-  hoveredTile?: { row: number; col: number } | null;
   onRotateTile?: (x: number, y: number) => void;
-  onDeleteTile?: (x: number, y: number) => void;
-  isMovementMode?: boolean;
+  setHoveredTile: (tile: { row: number; col: number } | null) => void;
+}
+
+interface HoveredTile {
+  tile: Tile;
+  x: number;
+  y: number;
+}
+
+interface GameEvent {
+  type: 'mystery' | 'battle';
+  title: string;
+  description: string;
+  choices: string[];
+  enemyName?: string;
+  enemyLevel?: number;
+  outcomes?: Record<string, MysteryEventOutcome>;
+  requiredItems?: string[];
 }
 
 export function MapGrid({ 
@@ -50,234 +71,190 @@ export function MapGrid({
   onExperienceUpdate,
   onHover,
   onHoverEnd,
-  hoveredTile,
   onRotateTile,
   onDeleteTile,
-  isMovementMode = false
+  isMovementMode = false,
+  gridRotation,
+  hoveredTile,
+  setHoveredTile
 }: MapGridProps) {
   const { toast } = useToast();
   const router = useRouter();
-  const [currentEvent, setCurrentEvent] = useState<MysteryEvent | null>(null);
-  const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
-  const [showBattle, setShowBattle] = useState(false);
+  const [currentEvent, setCurrentEvent] = useState<GameEvent | null>(null);
+  const [currentBattle, setCurrentBattle] = useState<Battle | null>(null);
+  const [showBattleModal, setShowBattleModal] = useState(false);
   const [battlePosition, setBattlePosition] = useState<{ x: number; y: number } | null>(null);
-  const [showBattleModal, setShowBattleModal] = useState(false)
-  const [currentBattle, setCurrentBattle] = useState<{
-    enemyName: string;
-    enemyLevel: number;
-  } | null>(null)
 
   const handleMysteryTile = (tile: Tile) => {
     const event = generateMysteryEvent();
-    setCurrentEvent(event);
-    
-    // Update tile type to grass after event is triggered
-    const newGrid = [...grid];
-    const tileIndex = grid.findIndex(row => row.includes(tile));
-    if (tileIndex === -1 || !grid[tileIndex]) return;
-    const rowIndex = grid[tileIndex].findIndex(t => t === tile);
-    
-    if (tileIndex !== -1 && rowIndex !== -1) {
-      newGrid[tileIndex][rowIndex] = {
-        ...tile,
-        type: 'grass',
-        isVisited: true
-      };
-      onGridUpdate(newGrid);
-    }
+    setCurrentEvent({
+      type: 'mystery',
+      title: event.title,
+      description: event.description,
+      choices: event.choices,
+      outcomes: event.outcomes
+    });
   };
 
   const handleEventChoice = (choice: string, index: number) => {
     if (!currentEvent) return;
-    
-    if (currentEvent.type === 'battle' && choice === 'Fight!') {
-      // Start battle if choosing to fight
-      setCurrentBattle({
-        enemyName: currentEvent.enemyName || 'Monster',
-        enemyLevel: currentEvent.enemyLevel || 1
-      });
-      setShowBattleModal(true);
-      setCurrentEvent(null);
-      return;
-    }
-    
-    handleEventOutcome(currentEvent, choice);
-    setCurrentEvent(null);
 
-    // Convert mystery tile to grass after event completion
-    if (battlePosition) {
-      const newGrid = [...grid];
-      newGrid[battlePosition.y][battlePosition.x] = {
-        ...newGrid[battlePosition.y][battlePosition.x],
-        type: 'grass',
-        isVisited: true
-      };
-      onGridUpdate(newGrid);
+    if (currentEvent.type === 'mystery') {
+      console.log(`Chose: ${choice}. Outcome:`, currentEvent.outcomes?.[choice]);
+      const outcome = currentEvent.outcomes?.[choice];
+      if (outcome && outcome.reward) {
+        console.log('Handling mystery event reward:', outcome.reward);
+      }
+    }
+
+    setCurrentEvent(null);
+  };
+
+  const translateCoordinates = (x: number, y: number, currentGrid: Tile[][], rotation: number) => {
+    const rows = currentGrid.length;
+    const cols = currentGrid[0]?.length || 0;
+
+    switch (rotation) {
+      case 0: return { x, y };
+      case 90: return { x: y, y: cols - 1 - x };
+      case 180: return { x: cols - 1 - x, y: rows - 1 - y };
+      case 270: return { x: rows - 1 - y, y: x };
+      default: return { x, y };
     }
   };
 
+  const handleTileHover = useCallback((tile: Tile, x: number, y: number) => {
+    if (!tile) {
+      setHoveredTile(null);
+      onHoverEnd?.();
+      return;
+    }
+    const translated = translateCoordinates(x, y, grid, gridRotation);
+    setHoveredTile({ row: translated.y, col: translated.x });
+    onHover?.(translated.x, translated.y);
+  }, [onHover, onHoverEnd, grid, gridRotation, setHoveredTile]);
+
+  const handleTileLeave = useCallback(() => {
+    setHoveredTile(null);
+    onHoverEnd?.();
+  }, [onHoverEnd, setHoveredTile]);
+
   const isPathClear = (startX: number, startY: number, endX: number, endY: number) => {
-    // Get all tiles in the path
     const path: { x: number; y: number }[] = [];
     const dx = endX - startX;
     const dy = endY - startY;
     
-    // Determine the primary direction of movement
     if (Math.abs(dx) > Math.abs(dy)) {
-      // Moving primarily horizontally
       const step = dx > 0 ? 1 : -1;
       for (let x = startX; x !== endX + step; x += step) {
         path.push({ x, y: startY });
       }
     } else {
-      // Moving primarily vertically
       const step = dy > 0 ? 1 : -1;
       for (let y = startY; y !== endY + step; y += step) {
         path.push({ x: startX, y });
       }
     }
     
-    // Check if all tiles in the path are valid for movement
     return path.every(pos => {
-      if (pos.x < 0 || pos.y < 0 || pos.y >= grid.length || pos.x >= grid[0].length) return false;
-      const tile = grid[pos.y][pos.x];
+      const originalPos = translateCoordinates(pos.x, pos.y, grid, -gridRotation);
+      if (originalPos.x < 0 || originalPos.y < 0 || originalPos.y >= grid.length || !grid[0] || originalPos.x >= grid[0].length) return false;
+      const tile = grid[originalPos.y]?.[originalPos.x];
       return tile && tile.type && !['mountain', 'water', 'empty', undefined, null].includes(tile.type);
     });
   };
 
   const isValidMovementTarget = (x: number, y: number) => {
-    // First check if coordinates are within grid bounds
-    if (x < 0 || y < 0 || y >= grid.length || x >= grid[0].length) {
-      console.log('Invalid: Out of bounds', { x, y, gridSize: { rows: grid.length, cols: grid[0].length } });
-      return false;
-    }
-    
-    // Check if we have a valid hover state
-    if (!hoveredTile) {
-      console.log('Invalid: No hover state');
-      return false;
-    }
-    
-    // Get the target tile
-    const targetTile = grid[y][x];
-    
-    // Check if tile exists and has a valid type
-    if (!targetTile || !targetTile.type) {
-      console.log('Invalid: No tile or type', { targetTile });
-      return false;
-    }
-    
-    // Check if tile type is valid for movement
-    const isValidTileType = !['mountain', 'water', 'empty', undefined, null].includes(targetTile.type);
-    
-    if (!isValidTileType) {
-      console.log('Invalid: Invalid tile type', { tileType: targetTile.type });
+    const originalTarget = translateCoordinates(x, y, grid, -gridRotation);
+    const originalCharacter = translateCoordinates(character.x, character.y, grid, -gridRotation);
+
+    if (originalTarget.x < 0 || originalTarget.y < 0 || originalTarget.y >= grid.length || !grid[0] || originalTarget.x >= grid[0].length) {
+      console.log('Invalid: Out of bounds after translation', { x, y, originalTarget, gridSize: { rows: grid.length, cols: grid[0]?.length ?? 0 } });
       return false;
     }
 
-    // Check if there's a clear path to the target
-    if (!isPathClear(character.x, character.y, x, y)) {
-      console.log('Invalid: Path is blocked');
+    const targetTile = grid[originalTarget.y]?.[originalTarget.x];
+
+    if (!targetTile || !targetTile.type) {
+      console.log('Invalid: No tile or type at original position', { originalTarget, targetTile });
       return false;
     }
-    
-    console.log('Valid movement target', { x, y, tileType: targetTile.type });
+
+    const isValidTileType = !['mountain', 'water', 'empty'].includes(targetTile.type);
+
+    if (!isValidTileType) {
+      console.log('Invalid: Invalid tile type at original position', { originalTarget, tileType: targetTile.type });
+      return false;
+    }
+
+    if (!isPathClear(originalCharacter.x, originalCharacter.y, originalTarget.x, originalTarget.y)) {
+      console.log('Invalid: Path is blocked in original grid');
+      return false;
+    }
+
+    console.log('Valid movement target after translation', { x, y, originalTarget, tileType: targetTile.type });
     return true;
   };
 
-  const handleCharacterMove = (x: number, y: number) => {
-    console.log('Attempting to move character to:', { x, y });
-    
-    // First validate the movement target
+  const handleMove = (targetTileInfo: { tile: Tile; x: number; y: number }) => {
+    const { x, y } = targetTileInfo;
+    const originalTarget = translateCoordinates(x, y, grid, -gridRotation);
+
     const isValid = isValidMovementTarget(x, y);
-    console.log('Movement validation result:', isValid);
-    
+
     if (!isValid) {
-      // Determine the specific reason for invalid movement
-      if (x < 0 || y < 0 || y >= grid.length || x >= grid[0].length) {
+      const originalTargetCheck = translateCoordinates(x, y, grid, -gridRotation);
+
+      if (originalTargetCheck.x < 0 || originalTargetCheck.y < 0 || originalTargetCheck.y >= grid.length || !grid[0] || originalTargetCheck.x >= grid[0].length) {
         toast({
           title: 'Invalid Move',
-          description: 'That position is outside the map boundaries',
+          description: 'Cannot move outside the map boundaries.',
           variant: 'destructive'
         });
-        return;
+      } else {
+        const targetTile = grid[originalTargetCheck.y]?.[originalTargetCheck.x];
+        if (!targetTile || targetTile.type === 'empty') {
+          toast({
+            title: 'Invalid Move',
+            description: 'Cannot move to an empty space.',
+            variant: 'destructive'
+          });
+        } else if (['mountain', 'water'].includes(targetTile.type)) {
+          toast({
+            title: 'Invalid Move',
+            description: `Cannot move to ${targetTile.type} tiles.`,
+            variant: 'destructive'
+          });
+        } else if (!isPathClear(character.x, character.y, originalTargetCheck.x, originalTargetCheck.y)) {
+          toast({
+            title: 'Invalid Move',
+            description: 'Path is blocked in original grid',
+            variant: 'destructive'
+          });
+        }
       }
-
-      const targetTile = grid[y][x];
-      
-      if (!targetTile || !targetTile.type || targetTile.type === 'empty') {
-        toast({
-          title: 'Invalid Move',
-          description: 'You cannot move onto empty tiles',
-          variant: 'destructive'
-        });
-        return;
-      }
-
-      if (targetTile.type === 'mountain' || targetTile.type === 'water') {
-        toast({
-          title: 'Invalid Move',
-          description: `You cannot move onto ${targetTile.type} tiles`,
-          variant: 'destructive'
-        });
-        return;
-      }
-
-      if (!isPathClear(character.x, character.y, x, y)) {
-        toast({
-          title: 'Invalid Move',
-          description: 'The path to that tile is blocked',
-          variant: 'destructive'
-        });
-        return;
-      }
-
       return;
     }
 
-    const targetTile = grid[y][x];
-    console.log('Moving character to tile:', { targetTile });
+    onCharacterMove(originalTarget.x, originalTarget.y);
+    const movedToTile = grid[originalTarget.y]?.[originalTarget.x];
+    if (movedToTile && movedToTile.type === 'mystery' && !movedToTile.isVisited) {
+      handleMysteryTile(movedToTile);
+    }
+  };
 
-    // Update character position
-    onCharacterMove(x, y);
-
-    // Handle tile effects and mark tiles as visited along the path
-    const path = [];
-    const dx = x - character.x;
-    const dy = y - character.y;
+  const handleTileClick = (tile: Tile, x: number, y: number) => {
+    if (!tile) return;
     
-    if (Math.abs(dx) > Math.abs(dy)) {
-      // Moving primarily horizontally
-      const step = dx > 0 ? 1 : -1;
-      for (let currX = character.x; currX !== x + step; currX += step) {
-        path.push({ x: currX, y: character.y });
-      }
+    if (isMovementMode) {
+      handleMove({ tile, x, y });
     } else {
-      // Moving primarily vertically
-      const step = dy > 0 ? 1 : -1;
-      for (let currY = character.y; currY !== y + step; currY += step) {
-        path.push({ x: character.x, y: currY });
+      if (tile.type === 'mystery') {
+        handleMysteryTile(tile);
+      } else {
+        onTileClick(x, y);
       }
     }
-
-    // Mark all tiles in the path as visited
-    const newGrid = [...grid];
-    path.forEach(pos => {
-      const tile = newGrid[pos.y][pos.x];
-      if (tile && !tile.isVisited) {
-        newGrid[pos.y][pos.x] = {
-          ...tile,
-          isVisited: true
-        };
-      }
-    });
-
-    // Handle mystery tile at the destination
-    if (targetTile.type === 'mystery' && !targetTile.isVisited) {
-      handleMysteryTile(targetTile);
-    }
-
-    onGridUpdate(newGrid);
   };
 
   if (grid.length === 0) {
@@ -285,81 +262,87 @@ export function MapGrid({
   }
 
   return (
-    <div className="relative">
-      <div className="grid grid-cols-12 w-full">
-        {grid.map((row, y) => (
-          <React.Fragment key={y}>
-            {row.map((tile, x) => {
-              const isSelected = hoveredTile?.row === y && hoveredTile?.col === x;
-              const isValidMove = isMovementMode && isValidMovementTarget(x, y);
-              const isVisited = tile.revealed || false;
+    <div className="relative" aria-label="map-container">
+      <div 
+        className="grid w-full" 
+        style={{ gridTemplateColumns: `repeat(${grid[0]?.length ?? 0}, minmax(0, 1fr))` }}
+        role="grid"
+        aria-label="map-grid"
+      >
+        {grid.map((row, y) => 
+          row.map((tile, x) => {
+            const isCurrentHovered = hoveredTile?.row === y && hoveredTile?.col === x;
+            const isValidMove = isMovementMode && isValidMovementTarget(x, y);
+            const isVisited = tile.revealed || false;
 
-              return (
-                <div
-                  key={`${y}-${x}`}
-                  className={cn(
-                    "relative aspect-square group",
-                    isMovementMode && isValidMove && isSelected && "shadow-[0_0_15px_rgba(34,197,94,0.2)]",
-                    "transition-all duration-200",
-                    "cursor-pointer"
-                  )}
-                  onClick={(e) => {
-                    console.log('Tile clicked:', { x, y, isMovementMode, isValidMove });
-                    e.stopPropagation();
-                    
+            return (
+              <div
+                key={`${y}-${x}`}
+                className={cn(
+                  "relative aspect-square group",
+                  isMovementMode && isValidMove && isCurrentHovered && "shadow-[0_0_15px_rgba(34,197,94,0.2)]",
+                  "transition-all duration-200",
+                  "cursor-pointer"
+                )}
+                onClick={(e) => {
+                  console.log('Tile clicked:', { x, y, isMovementMode, isValidMove });
+                  e.stopPropagation();
+                  handleTileClick(tile, x, y);
+                }}
+                onMouseEnter={() => handleTileHover(tile, x, y)}
+                onMouseLeave={handleTileLeave}
+                role="gridcell"
+                aria-label={`map-tile-${x}-${y}`}
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
                     if (isMovementMode) {
-                      handleCharacterMove(x, y);
+                      handleMove({ tile, x, y });
                     } else {
                       onTileClick(x, y);
                     }
-                  }}
-                  onMouseEnter={() => {
-                    console.log('Mouse entered tile:', { x, y });
-                    onHover?.(x, y);
-                  }}
-                  onMouseLeave={() => {
-                    console.log('Mouse left tile');
-                    onHoverEnd?.();
-                  }}
-                >
-                  <div className="absolute inset-0">
-                    <TileVisual
-                      tile={tile}
-                      isSelected={isSelected}
-                      isHovered={false}
-                      isCharacterPresent={character.x === x && character.y === y}
-                    />
-                  </div>
-
-                  {!isMovementMode && tile.type !== 'empty' && (
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/50">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDeleteTile?.(x, y);
-                        }}
-                        className="p-1 bg-red-500 hover:bg-red-600 rounded-full text-white"
-                      >
-                        <Trash className="h-4 w-4" />
-                      </button>
-                    </div>
-                  )}
-
-                  {character.x === x && character.y === y && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center">
-                        <User className="w-4 h-4 text-amber-900" />
-                      </div>
-                    </div>
-                  )}
+                  }
+                }}
+              >
+                <div className="absolute inset-0">
+                  <TileVisual
+                    tile={tile}
+                    isSelected={selectedTile?.x === x && selectedTile?.y === y}
+                    isHovered={isCurrentHovered}
+                    isCharacterPresent={character.x === x && character.y === y}
+                  />
                 </div>
-              );
-            })}
-          </React.Fragment>
-        ))}
+
+                {!isMovementMode && tile.type !== 'empty' && (
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/50">
+                       <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteTile?.(x, y);
+                      }}
+                      className="p-1 bg-red-500 hover:bg-red-600 rounded-full text-white"
+                      aria-label="Delete Tile"
+                      title="Delete Tile"
+                    >
+                      <Trash className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+
+                {character.x === x && character.y === y && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center">
+                      <User className="w-4 h-4 text-amber-900" />
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
       </div>
 
-      {currentEvent && !showBattle && (
+      {currentEvent && (
         <Dialog open={true} onOpenChange={() => setCurrentEvent(null)}>
           <DialogContent>
           <DialogHeader>
@@ -379,63 +362,6 @@ export function MapGrid({
             </div>
         </DialogContent>
       </Dialog>
-      )}
-
-      {showBattle && (
-        <Dialog open={true} onOpenChange={() => setShowBattle(false)} modal>
-          <DialogContent className="fixed inset-0 w-screen h-screen sm:static sm:max-w-[100vw] sm:max-h-[100vh] sm:h-full sm:w-full border border-amber-800/20 bg-gray-900 p-0 overflow-y-auto">
-            <div className="h-full flex flex-col">
-              <DialogHeader className="sticky top-0 z-10 p-6 border-b border-amber-800/20 bg-gray-900">
-                <DialogTitle className="text-2xl font-medievalsharp text-amber-500">
-                  Battle!
-                </DialogTitle>
-                <DialogDescription className="text-gray-300 mt-2">
-                  A wild creature appears!
-            </DialogDescription>
-          </DialogHeader>
-              <div className="flex-1 p-6 overflow-y-auto">
-                <BattleMinigame
-                  onVictory={() => {
-                    setShowBattle(false);
-                    const expGain = Math.floor(Math.random() * 30) + 20; // 20-50 exp
-                    if (onExperienceUpdate) {
-                      onExperienceUpdate(expGain);
-                    }
-                    toast({
-                      title: "Victory!",
-                      description: `You gained ${expGain} experience!`,
-                      variant: "default"
-                    });
-                  }}
-                  onDefeat={() => {
-                    setShowBattle(false);
-                    toast({
-                      title: "Defeat",
-                      description: "You were defeated...",
-                      variant: "destructive"
-                    });
-                  }}
-                  onClose={() => setShowBattle(false)}
-                  enemyName="Mysterious Creature"
-                  enemyLevel={Math.floor(Math.random() * 3) + 1}
-                  />
-                </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
-
-      {showBattleModal && currentBattle && (
-        <BattleModal
-          isOpen={showBattleModal}
-          onClose={() => setShowBattleModal(false)}
-          enemyName={currentBattle.enemyName}
-          enemyLevel={currentBattle.enemyLevel}
-          onBattleEnd={(won) => {
-            setShowBattleModal(false);
-            setCurrentBattle(null);
-          }}
-        />
       )}
     </div>
   );

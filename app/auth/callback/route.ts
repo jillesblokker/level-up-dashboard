@@ -10,8 +10,8 @@ export async function GET(request: Request) {
   if (code) {
     const cookieStore = cookies()
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      process.env['NEXT_PUBLIC_SUPABASE_URL']!,
+      process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']!,
       {
         cookies: {
           get(name: string) {
@@ -31,6 +31,13 @@ export async function GET(request: Request) {
       const { error } = await supabase.auth.exchangeCodeForSession(code)
       if (error) {
         console.error('Auth callback error:', error)
+        return NextResponse.redirect(new URL('/auth/signin', requestUrl.origin))
+      }
+
+      // Verify the user after session exchange
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      if (userError || !user) {
+        console.error('Auth verification error:', userError)
         return NextResponse.redirect(new URL('/auth/signin', requestUrl.origin))
       }
     } catch (error) {

@@ -1,12 +1,13 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { ArrowLeft, Award, Calendar, CheckCircle, Clock, Coins, Sword, Trophy, XCircle, PlusCircle, Upload, Edit, X } from "lucide-react"
+import { ArrowLeft, Award, Calendar, CheckCircle, Clock, Coins, Sword, Trophy, XCircle, PlusCircle, Upload, Edit, X, Save, Settings, RefreshCw } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { compressImage } from "@/lib/image-utils"
 import { toast } from "@/components/ui/use-toast"
 import { showScrollToast } from "@/lib/toast-utils"
+import { emitQuestCompletedWithRewards, emitGoldGained, emitExperienceGained } from "@/lib/kingdom-events"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -25,6 +26,12 @@ import { DailyQuests } from "@/components/daily-quests"
 import { Milestones } from "@/components/milestones"
 import { Checkbox } from "@/components/ui/checkbox"
 import { HeaderSection } from "@/components/HeaderSection"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 // Quest types
 interface Quest {
@@ -136,7 +143,19 @@ export default function QuestsPage() {
   const [newQuestName, setNewQuestName] = useState("")
   const [newQuestDescription, setNewQuestDescription] = useState("")
   const [generatingQuest, setGeneratingQuest] = useState(false)
-  const [quests, setQuests] = useState<Quest[]>([
+  
+  // Enhanced quest state with persistence
+  const [quests, setQuests] = useState<Quest[]>([])
+  const [isQuestsLoaded, setIsQuestsLoaded] = useState(false)
+  
+  // Add save status state (similar to realm)
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [lastSaveTime, setLastSaveTime] = useState<Date | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [retryCount, setRetryCount] = useState(0)
+
+  // Default quest data (fallback when no saved data exists)
+  const defaultQuests: Quest[] = [
     {
       id: "q1",
       title: "Strength Foundation",
@@ -220,7 +239,7 @@ export default function QuestsPage() {
       completed: false,
       isNew: true,
     },
-  ])
+  ]
 
   // Daily quests
   const dailyQuests: Quest[] = [
@@ -317,36 +336,85 @@ export default function QuestsPage() {
     },
   ]
 
-  // Function to handle quest progress update
-  const updateQuestProgress = (questId: string, newProgress: number) => {
+  // Function to handle quest progress update with immediate save
+  const updateQuestProgress = async (questId: string, newProgress: number) => {
+    console.log('=== QUEST PROGRESS UPDATE STARTED ===', { questId, newProgress })
+    
+    // Find the quest being updated
+    const questToUpdate = quests.find((q) => q.id === questId)
+    if (!questToUpdate) {
+      console.warn('Quest not found:', questId)
+      return
+    }
+
     // Update the quest progress
-    setQuests((prevQuests) =>
-      prevQuests.map((quest) =>
-        quest.id === questId
-          ? {
-              ...quest,
-              progress: newProgress,
-              completed: newProgress >= 100,
-            }
-          : quest,
-      ),
+    const updatedQuests = quests.map((quest) =>
+      quest.id === questId
+        ? {
+            ...quest,
+            progress: newProgress,
+            completed: newProgress >= 100,
+          }
+        : quest,
     )
 
-    // If quest is completed, give rewards
-    const completedQuest = quests.find((q) => q.id === questId)
-    if (completedQuest && newProgress >= 100 && !completedQuest.completed) {
-      // Add gold to balance
-      setGoldBalance((prev) => prev + completedQuest.rewards.gold)
+    // Update state
+    setQuests(updatedQuests)
 
-      // Show completion toast
-      showScrollToast(
-        toast,
-        'Quest Complete!',
-        `You've completed: ${completedQuest.title}\n` +
-        `+${completedQuest.rewards.xp} XP\n` +
-        `+${completedQuest.rewards.gold} Gold` +
-        (completedQuest.rewards.items ? `\nItems: ${completedQuest.rewards.items.join(", ")}` : '')
+    // IMMEDIATE SAVE: Save the quests right after updating progress
+    console.log('Quest progress updated, triggering immediate save')
+    await saveQuestsImmediately(updatedQuests, 0)
+
+    // If quest is completed, give rewards
+    if (newProgress >= 100 && !questToUpdate.completed) {
+      // Add gold to balance
+      setGoldBalance((prev) => {
+        const newBalance = prev + questToUpdate.rewards.gold
+        localStorage.setItem("levelup-gold-balance", newBalance.toString())
+        return newBalance
+      })
+
+      // Show completion toast with save status
+      const completionMessage = 
+        `You've completed: ${questToUpdate.title}\n` +
+        `+${questToUpdate.rewards.xp} XP\n` +
+        `+${questToUpdate.rewards.gold} Gold` +
+        (questToUpdate.rewards.items ? `\nItems: ${questToUpdate.rewards.items.join(", ")}` : '')
+
+      if (saveStatus === 'saved') {
+        showScrollToast(
+          toast,
+          'Quest Complete & Saved ✓',
+          completionMessage
+        )
+      } else if (saveStatus === 'error') {
+        showScrollToast(
+          toast,
+          'Quest Complete (Save Error)',
+          completionMessage + '\n⚠️ Progress saved locally'
+        )
+      } else {
+        showScrollToast(
+          toast,
+          'Quest Complete!',
+          completionMessage
+        )
+      }
+
+      // Emit quest completed event
+      emitQuestCompletedWithRewards(
+        questToUpdate.title, 
+        questToUpdate.rewards.gold, 
+        questToUpdate.rewards.xp, 
+        'quests-page'
       )
+    } else if (newProgress < 100) {
+      // Show progress update toast
+      toast({
+        title: "Progress Updated",
+        description: `${questToUpdate.title}: ${newProgress}% complete`,
+        duration: 2000
+      })
     }
   }
 
@@ -442,6 +510,120 @@ export default function QuestsPage() {
     }
   }, [])
 
+  // Load quests from localStorage on component mount
+  useEffect(() => {
+    const loadQuests = () => {
+      try {
+        const savedQuests = localStorage.getItem('main-quests')
+        if (savedQuests) {
+          const parsedQuests = JSON.parse(savedQuests)
+          if (Array.isArray(parsedQuests) && parsedQuests.length > 0) {
+            setQuests(parsedQuests)
+            console.log('Loaded quests from localStorage:', parsedQuests.length)
+          } else {
+            setQuests(defaultQuests)
+            console.log('Using default quests - invalid saved data')
+          }
+        } else {
+          setQuests(defaultQuests)
+          console.log('Using default quests - no saved data')
+        }
+      } catch (error) {
+        console.error('Error loading quests:', error)
+        setQuests(defaultQuests)
+      } finally {
+        setIsQuestsLoaded(true)
+      }
+    }
+
+    loadQuests()
+  }, [])
+
+  // Enhanced save function with detailed error handling
+  const saveQuestsImmediately = async (questsToSave: Quest[], retryAttempt = 0) => {
+    console.log('=== IMMEDIATE QUEST SAVE STARTED ===', { retryAttempt, questCount: questsToSave.length })
+    
+    try {
+      setSaveStatus('saving')
+      setSaveError(null)
+      setRetryCount(retryAttempt)
+      
+      // Save to localStorage
+      localStorage.setItem('main-quests', JSON.stringify(questsToSave))
+      console.log('=== QUEST SAVE SUCCESSFUL ===', { timestamp: new Date(), questCount: questsToSave.length })
+      
+      setSaveStatus('saved')
+      setLastSaveTime(new Date())
+      setRetryCount(0)
+      
+      // Auto-hide success status after 3 seconds
+      setTimeout(() => {
+        setSaveStatus('idle')
+      }, 3000)
+
+    } catch (error: any) {
+      console.error('=== QUEST SAVE FAILED ===', error)
+      
+      const errorMessage = error?.message || 'Unknown error'
+      setSaveError(errorMessage)
+      
+      // Retry logic for errors
+      if (retryAttempt < 3) {
+        const delay = Math.pow(2, retryAttempt) * 1000 // Exponential backoff
+        console.log(`Retrying quest save in ${delay}ms...`)
+        
+        setTimeout(() => {
+          saveQuestsImmediately(questsToSave, retryAttempt + 1)
+        }, delay)
+      } else {
+        setSaveStatus('error')
+        setRetryCount(3)
+        toast({
+          title: "Save Failed",
+          description: `Quest save failed after ${retryAttempt + 1} attempts.`,
+          variant: "destructive"
+        })
+        
+        // Clear error status after 5 seconds
+        setTimeout(() => {
+          setSaveStatus('idle')
+          setRetryCount(0)
+        }, 5000)
+      }
+    }
+  }
+
+  // Auto-save quests when they change (but only after initial load)
+  useEffect(() => {
+    if (isQuestsLoaded && quests.length > 0) {
+      const timeoutId = setTimeout(() => {
+        saveQuestsImmediately(quests, 0)
+      }, 1000) // Debounce saves by 1 second
+
+      return () => clearTimeout(timeoutId)
+    }
+  }, [quests, isQuestsLoaded])
+
+  // Add keyboard shortcut support for manual save
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      // Manual save shortcut (Ctrl+S or Cmd+S)
+      if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+        event.preventDefault();
+        console.log('Manual quest save triggered by keyboard shortcut')
+        
+        saveQuestsImmediately(quests, 0);
+        toast({
+          title: "Manual Save",
+          description: "Quest progress saved using keyboard shortcut (Ctrl+S)"
+        });
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [quests]); // Removed saveQuestsImmediately and toast from dependencies since they don't change
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -487,6 +669,28 @@ export default function QuestsPage() {
 
   return (
     <div className="pt-16 min-h-screen bg-black text-white">
+      {/* Add save status indicator */}
+      <div className="absolute top-20 right-4 flex items-center gap-2 z-50">
+        {/* Enhanced Save status indicator */}
+        {saveStatus === 'saving' && (
+          <div className="text-amber-500 text-sm flex items-center gap-1">
+            <div className="animate-spin h-4 w-4 border-2 border-amber-500 rounded-full border-t-transparent"></div>
+            Saving...
+            {retryCount > 0 && <span className="text-xs">(retry {retryCount})</span>}
+          </div>
+        )}
+        {saveStatus === 'saved' && lastSaveTime && (
+          <div className="text-green-500 text-sm flex items-center gap-1">
+            ✓ Saved {lastSaveTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </div>
+        )}
+        {saveStatus === 'error' && (
+          <div className="text-red-500 text-sm flex items-center gap-1" title={saveError || 'Save failed'}>
+            ⚠️ Save failed {retryCount > 0 && <span>({retryCount} attempts)</span>}
+          </div>
+        )}
+      </div>
+
       <HeaderSection
         title="QUESTS"
         imageSrc={coverImage}
@@ -515,6 +719,57 @@ export default function QuestsPage() {
 
       {/* Content */}
       <div className="max-w-6xl mx-auto px-4 py-8 relative">
+        {/* Add quest management controls */}
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <h2 className="text-2xl font-bold text-white">Quest Management</h2>
+            <div className="text-sm text-gray-400">
+              {quests.filter(q => q.completed).length} / {quests.length} completed
+            </div>
+          </div>
+          
+          {/* Settings Dropdown with Manual Save */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label="Quest settings menu">
+                <Settings className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => {
+                  console.log('Manual quest save triggered from settings menu')
+                  saveQuestsImmediately(quests, 0);
+                  toast({
+                    title: "Manual Save",
+                    description: "Quest progress saved manually"
+                  });
+                }}
+                aria-label="Save Now"
+              >
+                <Save className="mr-2 h-4 w-4" />
+                Save Now
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  if (confirm('Are you sure you want to reset all quest progress? This cannot be undone.')) {
+                    setQuests(defaultQuests)
+                    localStorage.removeItem('main-quests')
+                    toast({
+                      title: "Quests Reset",
+                      description: "All quest progress has been reset to default state."
+                    });
+                  }
+                }}
+                aria-label="Reset Quests"
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Reset All Quests
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
         <Tabs defaultValue="daily" className="space-y-8">
           <TabsList>
             <TabsTrigger value="daily">Daily Quests</TabsTrigger>
@@ -568,7 +823,7 @@ function QuestCard({ quest, onProgressUpdate }: { quest: Quest; onProgressUpdate
           checked={quest.completed}
           onCheckedChange={() => handleProgressChange(quest.completed ? 0 : 100)}
           aria-label={`Mark ${quest.title} as ${quest.completed ? 'incomplete' : 'complete'}`}
-          className="h-6 w-6 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white"
+          className="h-6 w-6 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white data-[state=checked]:border-amber-500"
         />
       </div>
 

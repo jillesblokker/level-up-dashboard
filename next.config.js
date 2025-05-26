@@ -7,7 +7,10 @@ const nextConfig = {
     formats: ['image/avif', 'image/webp'],
   },
   experimental: {
-    serverActions: true,
+    serverActions: {
+      allowedOrigins: ['localhost:3005'],
+      bodySizeLimit: '2mb'
+    },
     serverComponentsExternalPackages: ['canvas'],
   },
   headers: async () => [

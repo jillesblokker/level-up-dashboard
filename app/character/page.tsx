@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { ArrowLeft, Award, Crown, Sword, Upload, Edit, X } from "lucide-react"
+import { Edit, X, Upload, Award, Sword } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 

@@ -225,7 +225,7 @@ export async function PUT(request: Request) {
 }
 
 // Export quests as CSV
-export async function PATCH(request: Request) {
+export async function PATCH() {
   try {
     const session = await auth();
     if (!session?.user?.email) {

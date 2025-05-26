@@ -224,7 +224,7 @@ export default function MessagingPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
-      <NavBar />
+      <NavBar goldBalance={1000} session={undefined} />
 
       <main className="flex-1 p-4 md:p-6">
         <div className="flex items-center justify-between mb-6">

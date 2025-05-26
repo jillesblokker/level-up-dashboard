@@ -1,102 +1,114 @@
-// Tile types
+// types/tiles.ts
+
 export type TileType = 
-  | "empty" 
-  | "grass" 
-  | "forest" 
-  | "water" 
-  | "mountain" 
-  | "city" 
-  | "town" 
-  | "desert" 
-  | "road" 
-  | "corner" 
-  | "crossroad" 
-  | "intersection"
-  | "t-junction"
-  | "dead-end"
-  | "special" 
-  | "snow"
-  | "mystery" 
-  | "big-mystery" 
-  | "treasure" 
-  | "monster" 
-  | "dungeon"
-  | "ice"
-  | "farm"
-  | "mine";
+  | 'empty'
+  | 'mountain'
+  | 'grass'
+  | 'forest'
+  | 'water'
+  | 'city'
+  | 'town'
+  | 'mystery'
+  | 'road'
+  | 'corner-road'
+  | 'crossroad'
+  | 'village'
+  | 'portal'
+  | 'snow'
+  | 'cave'
+  | 'dungeon'
+  | 'castle'
+  | 'ice'
+  | 'desert';
 
-// Connection types
-export type ConnectionDirection = "top" | "right" | "bottom" | "left";
+export type ConnectionDirection = 'north' | 'east' | 'south' | 'west';
 
-// Define the tile interface
+// Interface for a tile on the map grid
 export interface Tile {
   id: string;
   type: TileType;
+  name: string;
+  description: string;
   connections: ConnectionDirection[];
   rotation: 0 | 90 | 180 | 270;
   revealed: boolean;
-  name?: string;
-  description?: string;
-  isMainTile?: boolean;
-  cityName?: string;
-  cityX?: number;
-  cityY?: number;
-  citySize?: 1 | 2 | 3;
-  bigMysteryX?: number;
-  bigMysteryY?: number;
-  tileSize?: 1 | 2;
-  isVisited?: boolean;
-  isTown?: boolean;
+  isVisited: boolean;
   x: number;
   y: number;
-  ariaLabel?: string;
-  image?: string;
+  ariaLabel: string;
+  image: string;
+  isMainTile?: boolean | undefined;
+  isTown?: boolean | undefined;
+  cityName?: string | undefined;
+  cityX?: number | undefined;
+  cityY?: number | undefined;
+  citySize?: 1 | 2 | 3 | undefined;
+  bigMysteryX?: number | undefined;
+  bigMysteryY?: number | undefined;
+  tileSize?: 1 | 2 | undefined;
+  cost?: number | undefined;
+  quantity?: number | undefined;
 }
 
-export interface CityData {
-  name: string;
-  isTown: boolean;
-  size: 1 | 2 | 3;
-}
-
-// Define the selected tile interface
-export interface SelectedTile {
+// Interface for an item in the player's inventory
+export interface InventoryItem {
   id: string;
   type: TileType;
   name: string;
   description: string;
   connections: ConnectionDirection[];
   rotation: 0 | 90 | 180 | 270;
-  cost: number;
-  quantity: number;
-  isSelected?: boolean;
-}
-
-// Define the inventory tile interface
-export interface InventoryTile {
-  id: string;
-  type: TileType;
-  name: string;
-  count: number;
-  cost: number;
-  description?: string;
-  connections?: ConnectionDirection[];
-  rotation?: 0 | 90 | 180 | 270;
-}
-
-// Define the character interface
-export interface Character {
+  revealed: boolean;
+  isVisited: boolean;
   x: number;
   y: number;
-}
-
-export interface TileItem {
-  id: string;
-  type: TileType;
-  name: string;
-  description: string;
-  connections: ConnectionDirection[];
-  rotation?: 0 | 90 | 180 | 270;
+  ariaLabel: string;
+  image: string;
   cost: number;
   quantity: number;
-} 
+  isMainTile?: boolean | undefined;
+  isTown?: boolean | undefined;
+  cityName?: string | undefined;
+  cityX?: number | undefined;
+  cityY?: number | undefined;
+  citySize?: 1 | 2 | 3 | undefined;
+  bigMysteryX?: number | undefined;
+  bigMysteryY?: number | undefined;
+  tileSize?: 1 | 2 | undefined;
+}
+
+// Interface for a tile selected from inventory, ready to be placed
+// It extends InventoryItem and might have slight differences
+export type SelectedInventoryItem = InventoryItem;
+
+// Interface for the MapGrid component's props
+export interface MapGridProps {
+  grid: Tile[][];
+  character: { x: number; y: number };
+  onCharacterMove: (newX: number, newY: number) => void;
+  onTileClick: (x: number, y: number) => void;
+  selectedTile: SelectedInventoryItem | null;
+  onGridUpdate: (newGrid: Tile[][]) => void;
+  isMovementMode: boolean;
+  onDiscovery: (message: string) => void;
+  onTilePlaced: (x: number, y: number) => void;
+  onGoldUpdate: (amount: number) => void;
+  onHover: (x: number, y: number) => void;
+  onHoverEnd: () => void;
+  hoveredTile: { row: number; col: number } | null;
+  onDeleteTile: (x: number, y: number) => void;
+  gridRotation: number;
+}
+
+export type GridCoordinates = { x: number; y: number };
+
+export type GridPosition = { row: number; col: number };
+
+// Define the structure of the raw grid data expected from Supabase (if it's numeric)
+export type NumericGrid = number[][];
+
+// You might also have other types here, keep them as is.
+// Example:
+// export interface OtherRelamType {
+//   // ... properties ...
+// }

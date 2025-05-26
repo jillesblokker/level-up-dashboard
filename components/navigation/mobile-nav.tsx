@@ -15,7 +15,10 @@ import {
   Compass,
   Settings,
   Palette,
-  ChevronDown
+  ChevronDown,
+  Gamepad,
+  Calendar,
+  Package
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -116,10 +119,10 @@ export function MobileNav({ onSaveMap, tabs, activeTab, onTabChange }: MobileNav
   const mainNavItems = [
     { href: "/", label: "Kingdom", icon: Crown },
     { href: "/realm", label: "Realm", icon: MapIcon },
-    { href: "/achievements", label: "Achievements", icon: Trophy },
     { href: "/character", label: "Character", icon: User },
-    { href: "/guildhall", label: "Guildhall", icon: Building },
     { href: "/quests", label: "Quests", icon: Compass },
+    { href: "/guildhall", label: "Guildhall", icon: Building },
+    { href: "/game-center", label: "Game Center", icon: Gamepad },
   ]
 
   const accountItems = [

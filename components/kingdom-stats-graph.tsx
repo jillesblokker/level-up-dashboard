@@ -3,184 +3,140 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ScrollText, Coins, Trophy } from "lucide-react"
-import { db } from "@/lib/database"
-import { MapGrid } from "@/types/tiles"
+import { ScrollText, Coins, Trophy, ChevronDown } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
+import { getAggregatedKingdomData } from "@/lib/kingdom-events"
 
-// Mock data for the graphs
-const mockQuestData = [
-  { day: "Mon", value: 4 },
-  { day: "Tue", value: 2 },
-  { day: "Wed", value: 6 },
-  { day: "Thu", value: 3 },
-  { day: "Fri", value: 5 },
-  { day: "Sat", value: 8 },
-  { day: "Sun", value: 7 },
-]
+// Time period types
+type TimePeriod = 'today' | 'weekly' | 'yearly'
 
-const mockGoldData = [
-  { day: "Mon", value: 150 },
-  { day: "Tue", value: 75 },
-  { day: "Wed", value: 320 },
-  { day: "Thu", value: 110 },
-  { day: "Fri", value: 250 },
-  { day: "Sat", value: 400 },
-  { day: "Sun", value: 300 },
-]
+// Data type for graph rendering
+interface GraphData {
+  day: string
+  gold: number
+  experience: number
+  quests: number
+}
 
-const mockExpData = [
-  { day: "Mon", value: 30 },
-  { day: "Tue", value: 20 },
-  { day: "Wed", value: 60 },
-  { day: "Thu", value: 35 },
-  { day: "Fri", value: 45 },
-  { day: "Sat", value: 80 },
-  { day: "Sun", value: 65 },
-]
+// Empty state component
+function EmptyState() {
+  return (
+    <div className="h-64 flex flex-col items-center justify-center text-center space-y-2" aria-label="kingdom-stats-empty-state">
+      <div className="text-gray-500 text-lg">No data yet</div>
+      <div className="text-gray-400 text-sm">Start habit building now</div>
+    </div>
+  )
+}
 
 export function KingdomStatsGraph() {
   const [activeTab, setActiveTab] = useState("quests")
-  const today = new Date().toLocaleDateString('en-US', { weekday: 'short' })
-  
-  // Initialize with mock data
-  const [questsData, setQuestsData] = useState([
-    { day: "Mon", value: 3 },
-    { day: "Tue", value: 5 },
-    { day: "Wed", value: 2 },
-    { day: "Thu", value: 4 },
-    { day: "Fri", value: 6 },
-    { day: "Sat", value: 3 },
-    { day: "Sun", value: 0 },
-  ])
-  
-  const [goldData, setGoldData] = useState([
-    { day: "Mon", value: 150 },
-    { day: "Tue", value: 75 },
-    { day: "Wed", value: 220 },
-    { day: "Thu", value: 180 },
-    { day: "Fri", value: 90 },
-    { day: "Sat", value: 250 },
-    { day: "Sun", value: 0 },
-  ])
-  
-  const [expData, setExpData] = useState([
-    { day: "Mon", value: 80 },
-    { day: "Tue", value: 120 },
-    { day: "Wed", value: 95 },
-    { day: "Thu", value: 140 },
-    { day: "Fri", value: 75 },
-    { day: "Sat", value: 110 },
-    { day: "Sun", value: 0 },
-  ])
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>('weekly')
+  const [graphData, setGraphData] = useState<GraphData[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Load saved stats on component mount
+  // Load data when time period changes
   useEffect(() => {
-    const loadStats = async () => {
+    const loadData = () => {
       try {
-        const savedStats = await db.getQuestStats();
-        if (savedStats) {
-          if (savedStats.quests) setQuestsData(savedStats.quests);
-          if (savedStats.gold) setGoldData(savedStats.gold);
-          if (savedStats.exp) setExpData(savedStats.exp);
-        }
+        setIsLoading(true)
+        const data = getAggregatedKingdomData(timePeriod)
+        setGraphData(data)
+        console.log(`📊 Kingdom stats loaded for ${timePeriod}:`, data)
       } catch (error) {
-        console.error("Error loading stats:", error);
+        console.error('Error loading kingdom stats:', error)
+        setGraphData([])
+      } finally {
+        setIsLoading(false)
       }
-    };
+    }
 
-    loadStats();
-  }, []);
+    loadData()
+  }, [timePeriod])
 
-  // Save stats when they change
+  // Listen for real-time updates
   useEffect(() => {
-    const saveStats = async () => {
-      try {
-        await db.saveQuestStats({
-          quests: questsData,
-          gold: goldData,
-          exp: expData
-        });
-      } catch (error) {
-        console.error("Error saving stats:", error);
-      }
-    };
-
-    saveStats();
-  }, [questsData, goldData, expData]);
-
-  // Listen for updates to graph data
-  useEffect(() => {
-    // When a quest is completed
-    const handleQuestComplete = () => {
-      setQuestsData(currentData => {
-        const newData = [...currentData]
-        const todayIndex = newData.findIndex(item => item.day === today)
-        if (todayIndex !== -1) {
-          newData[todayIndex] = { ...newData[todayIndex], value: newData[todayIndex].value + 1 }
-        }
-        return newData
-      })
+    const handleKingdomUpdate = () => {
+      // Reload data when events occur
+      const data = getAggregatedKingdomData(timePeriod)
+      setGraphData(data)
+      console.log(`🔄 Kingdom stats updated for ${timePeriod}:`, data)
     }
 
-    // When gold is earned
-    const handleGoldUpdate = (event: CustomEvent) => {
-      const amount = event.detail.amount
-      setGoldData(currentData => {
-        const newData = [...currentData]
-        const todayIndex = newData.findIndex(item => item.day === today)
-        if (todayIndex !== -1) {
-          newData[todayIndex] = { ...newData[todayIndex], value: newData[todayIndex].value + amount }
-        }
-        return newData
-      })
-    }
+    // Listen for kingdom events
+    window.addEventListener('kingdom:goldGained', handleKingdomUpdate)
+    window.addEventListener('kingdom:experienceGained', handleKingdomUpdate)
+    window.addEventListener('kingdom:questCompleted', handleKingdomUpdate)
 
-    // When experience is earned
-    const handleExpUpdate = (event: CustomEvent) => {
-      const amount = event.detail.amount
-      setExpData(currentData => {
-        const newData = [...currentData]
-        const todayIndex = newData.findIndex(item => item.day === today)
-        if (todayIndex !== -1) {
-          newData[todayIndex] = { ...newData[todayIndex], value: newData[todayIndex].value + amount }
-        }
-        return newData
-      })
-    }
+    // Listen for legacy events for backward compatibility
+    window.addEventListener('goldUpdate', handleKingdomUpdate)
+    window.addEventListener('expUpdate', handleKingdomUpdate)
+    window.addEventListener('questComplete', handleKingdomUpdate)
 
-    // Add event listeners to window
-    window.addEventListener('questComplete', handleQuestComplete)
-    window.addEventListener('goldUpdate', handleGoldUpdate as EventListener)
-    window.addEventListener('expUpdate', handleExpUpdate as EventListener)
-
-    // Cleanup function
     return () => {
-      window.removeEventListener('questComplete', handleQuestComplete)
-      window.removeEventListener('goldUpdate', handleGoldUpdate as EventListener)
-      window.removeEventListener('expUpdate', handleExpUpdate as EventListener)
+      window.removeEventListener('kingdom:goldGained', handleKingdomUpdate)
+      window.removeEventListener('kingdom:experienceGained', handleKingdomUpdate)
+      window.removeEventListener('kingdom:questCompleted', handleKingdomUpdate)
+      window.removeEventListener('goldUpdate', handleKingdomUpdate)
+      window.removeEventListener('expUpdate', handleKingdomUpdate)
+      window.removeEventListener('questComplete', handleKingdomUpdate)
     }
-  }, []) // Empty dependency array means this effect runs once on mount
+  }, [timePeriod])
 
-  const getHighestValue = (data: {day: string, value: number}[]) => {
-    return Math.max(...data.map(item => item.value), 10)
+  // Check if data has any values > 0
+  const hasData = (data: GraphData[], type: 'quests' | 'gold' | 'experience') => {
+    return data.some(item => item[type] > 0)
   }
 
-  const renderGraph = (data: {day: string, value: number}[], color: string, unit: string) => {
-    const highestValue = getHighestValue(data)
+  // Get time period display name
+  const getTimePeriodName = () => {
+    switch (timePeriod) {
+      case 'today':
+        return 'Today\'s Progress'
+      case 'weekly':
+        return 'Weekly Progress'
+      case 'yearly':
+        return 'This Year\'s Progress'
+      default:
+        return 'Weekly Progress'
+    }
+  }
+
+  const getHighestValue = (data: GraphData[], type: 'quests' | 'gold' | 'experience') => {
+    return Math.max(...data.map(item => item[type]), 10)
+  }
+
+  const renderGraph = (data: GraphData[], type: 'quests' | 'gold' | 'experience', color: string, unit: string) => {
+    const highestValue = getHighestValue(data, type)
+    
+    if (isLoading) {
+      return (
+        <div className="h-64 flex items-center justify-center" aria-label="kingdom-stats-loading">
+          <div className="text-gray-400">Loading stats...</div>
+        </div>
+      )
+    }
+
     return (
-      <div className="h-64 flex items-end w-full space-x-1">
+      <div className="h-64 flex items-end w-full space-x-1" aria-label={`kingdom-stats-${type}-graph`}>
         {data.map((item, index) => (
           <div key={index} className="flex flex-col items-center flex-1">
             <div 
-              className={`w-full ${color} rounded-t`} 
+              className={`w-full ${color} rounded-t transition-all duration-300`} 
               style={{ 
-                height: `${item.value > 0 ? (item.value / highestValue) * 160 : 0}px`,
-                minHeight: item.value > 0 ? '4px' : '0'
+                height: `${item[type] > 0 ? (item[type] / highestValue) * 160 : 0}px`,
+                minHeight: item[type] > 0 ? '4px' : '0'
               }}
+              aria-label={`${type}-bar-${item.day}-${item[type]}`}
             ></div>
             <div className="mt-2 w-full text-center">
               <div className="text-xs font-medium text-gray-400">{item.day}</div>
-              <div className="text-sm font-bold">{item.value}{unit}</div>
+              <div className="text-sm font-bold">{item[type]}{unit}</div>
             </div>
           </div>
         ))}
@@ -189,25 +145,47 @@ export function KingdomStatsGraph() {
   }
 
   return (
-    <Card className="border border-amber-800/20 bg-black">
+    <Card className="border border-amber-800/20 bg-black" aria-label="kingdom-stats-card">
       <CardHeader>
-        <CardTitle className="text-xl font-medievalsharp text-amber-500">Weekly Progress</CardTitle>
+        <CardTitle className="text-xl font-medievalsharp text-amber-500">
+          <div className="flex items-center justify-between">
+            {getTimePeriodName()}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="time-period-dropdown">
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => setTimePeriod('today')} aria-label="select-today">
+                  Today
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTimePeriod('weekly')} aria-label="select-weekly">
+                  Weekly
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTimePeriod('yearly')} aria-label="select-yearly">
+                  This Year
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="quests" onValueChange={setActiveTab}>
-          <TabsList className="mb-4 w-full grid grid-cols-3">
-            <TabsTrigger value="quests">Quests</TabsTrigger>
-            <TabsTrigger value="gold">Gold</TabsTrigger>
-            <TabsTrigger value="exp">Experience</TabsTrigger>
+        <Tabs defaultValue="quests" onValueChange={setActiveTab} aria-label="kingdom-stats-tabs">
+          <TabsList className="mb-4 w-full grid grid-cols-3" aria-label="kingdom-stats-tab-list">
+            <TabsTrigger value="quests" aria-label="quests-tab">Quests</TabsTrigger>
+            <TabsTrigger value="gold" aria-label="gold-tab">Gold</TabsTrigger>
+            <TabsTrigger value="exp" aria-label="experience-tab">Experience</TabsTrigger>
           </TabsList>
-          <TabsContent value="quests">
-            {renderGraph(questsData, 'bg-purple-600', '')}
+          <TabsContent value="quests" aria-label="quests-content">
+            {hasData(graphData, 'quests') ? renderGraph(graphData, 'quests', 'bg-purple-600', '') : <EmptyState />}
           </TabsContent>
-          <TabsContent value="gold">
-            {renderGraph(goldData, 'bg-yellow-500', 'g')}
+          <TabsContent value="gold" aria-label="gold-content">
+            {hasData(graphData, 'gold') ? renderGraph(graphData, 'gold', 'bg-yellow-500', 'g') : <EmptyState />}
           </TabsContent>
-          <TabsContent value="exp">
-            {renderGraph(expData, 'bg-blue-500', 'xp')}
+          <TabsContent value="exp" aria-label="experience-content">
+            {hasData(graphData, 'experience') ? renderGraph(graphData, 'experience', 'bg-blue-500', 'xp') : <EmptyState />}
           </TabsContent>
         </Tabs>
       </CardContent>
