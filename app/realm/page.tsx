@@ -2057,28 +2057,94 @@ const handleTileSelection = (tile: InventoryItem | null) => {
       return;
     }
 
+    // Show outcome message
     toast({
       title: outcome.message,
-      description: outcome.message // Use message as description since description doesn't exist
+      description: outcome.message
     });
 
     // Apply rewards
-    const reward = outcome.reward as MysteryEventReward | undefined; // Cast to handle potential undefined
+    const reward = outcome.reward as MysteryEventReward | undefined;
     if (reward && typeof reward === 'object') {
+      // Handle gold reward
       if (reward.type === 'gold' && reward.amount !== undefined) {
         const goldAmount = typeof reward.amount === 'number' ? reward.amount : parseInt(String(reward.amount));
         if (!isNaN(goldAmount)) {
           handleGoldUpdate(goldAmount);
+          toast({
+            title: "Gold Gained!",
+            description: `You gained ${goldAmount} gold pieces.`,
+            duration: 3000
+          });
         } else {
           console.warn('Invalid gold reward amount:', reward.amount);
         }
       }
-       // Handle item rewards - assuming reward.item is an array of InventoryItem
-       if (reward.type === 'item' && reward.item && Array.isArray(reward.item)) { // Changed reward.items to reward.item
-           updateInventoryFromTileItems(reward.item as any); // Use any to avoid type conflict for now
-       }
+
+      // Handle experience reward
+      if (reward.type === 'experience' && reward.amount !== undefined) {
+        const expAmount = typeof reward.amount === 'number' ? reward.amount : parseInt(String(reward.amount));
+        if (!isNaN(expAmount)) {
+          handleExperienceUpdate(expAmount);
+          toast({
+            title: "Experience Gained!",
+            description: `You gained ${expAmount} experience points!`,
+            duration: 3000
+          });
+        } else {
+          console.warn('Invalid experience reward amount:', reward.amount);
+        }
+      }
+
+      // Handle item rewards
+      if (reward.type === 'item' && reward.item && Array.isArray(reward.item)) {
+        updateInventoryFromTileItems(reward.item as any);
+        const firstItem = reward.item[0];
+        if (firstItem) {
+          toast({
+            title: "Item Found!",
+            description: `You found ${firstItem.name}`,
+            duration: 3000
+          });
+        }
+      }
     }
 
+    // Replace the mystery tile with a grass tile at the character's current position
+    setGrid((prevGrid) => {
+      const newGrid = [...prevGrid];
+      const { x, y } = characterPosition;
+      
+      if (newGrid[y] && newGrid[y][x]) {
+        const currentTile = newGrid[y][x];
+        if (currentTile) {
+          const newTile = {
+            ...currentTile,
+            type: 'grass' as TileType,
+            name: 'Grass Tile',
+            description: 'A lush grass tile',
+            image: '/images/tiles/grass-tile.png',
+            isVisited: true,
+            ariaLabel: `Grass tile at position ${x},${y}`,
+            isMainTile: false,
+            isTown: false,
+            cityName: undefined,
+            cityX: undefined,
+            cityY: undefined,
+            citySize: undefined,
+            bigMysteryX: undefined,
+            bigMysteryY: undefined,
+            tileSize: undefined,
+            cost: 0,
+            quantity: 1
+          };
+          newGrid[y][x] = newTile;
+        }
+      }
+      return newGrid;
+    });
+
+    // Clear the current event
     setCurrentEvent(null);
   };
 

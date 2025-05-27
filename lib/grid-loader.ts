@@ -114,6 +114,17 @@ export function createTileFromNumeric(numeric: number, x: number, y: number) {
     x,
     y,
     ariaLabel: `${type} tile at position ${x},${y}`,
-    image: `/images/tiles/${type}-tile.png`
+    image: `/images/tiles/${type}-tile.png`,
+    isMainTile: false,
+    isTown: false,
+    cityName: undefined,
+    cityX: undefined,
+    cityY: undefined,
+    citySize: undefined,
+    bigMysteryX: undefined,
+    bigMysteryY: undefined,
+    tileSize: undefined,
+    cost: 0,
+    quantity: 1
   }
-} 
+}
