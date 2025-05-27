@@ -9,17 +9,17 @@ export type TileType =
   | 'city'
   | 'town'
   | 'mystery'
-  | 'road'
-  | 'corner-road'
-  | 'crossroad'
-  | 'village'
   | 'portal'
+  | 'portal-entrance'
+  | 'portal-exit'
   | 'snow'
   | 'cave'
   | 'dungeon'
   | 'castle'
   | 'ice'
-  | 'desert';
+  | 'desert'
+  | 'lava'
+  | 'volcano';
 
 export type ConnectionDirection = 'north' | 'east' | 'south' | 'west';
 

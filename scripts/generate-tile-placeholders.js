@@ -12,12 +12,8 @@ if (!fs.existsSync(TILES_DIR)) {
 
 // List of missing tiles
 const missingTiles = [
-  'road-tile',
-  'corner-road-tile',
-  'crossroad-tile',
   'snow-tile',
-  'portal-tile',
-  'village-tile'
+  'portal-tile'
 ];
 
 // Generate placeholder for each missing tile

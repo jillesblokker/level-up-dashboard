@@ -1,5 +1,5 @@
 // Define types for the component
-export type TileType = "empty" | "grass" | "forest" | "water" | "desert" | "road" | "corner-road" | "crossroad" | "city" | "town" | "mountain" | "mystery";
+export type TileType = "empty" | "grass" | "forest" | "water" | "desert" | "city" | "town" | "mountain" | "mystery";
 
 export interface Tile {
   id: string;

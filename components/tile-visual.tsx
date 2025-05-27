@@ -46,6 +46,22 @@ export function TileVisual({
         return '/images/tiles/town-tile.png'
       case 'mystery':
         return '/images/tiles/mystery-tile.png'
+      case 'portal-entrance':
+        return '/images/tiles/portal-entrance-tile.png'
+      case 'portal-exit':
+        return '/images/tiles/portal-exit-tile.png'
+      case 'cave':
+        return '/images/tiles/cave-tile.png'
+      case 'dungeon':
+        return '/images/tiles/dungeon-tile.png'
+      case 'castle':
+        return '/images/tiles/castle-tile.png'
+      case 'snow':
+        return '/images/tiles/snow-tile.png'
+      case 'lava':
+        return '/images/tiles/lava-tile.png'
+      case 'volcano':
+        return '/images/tiles/volcano-tile.png'
       default:
         return '/images/tiles/empty-tile.png'
     }
@@ -83,11 +99,6 @@ export function TileVisual({
           {tile.isMainTile && (
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center text-xs font-bold text-black z-10">
               M
-            </div>
-          )}
-          {tile.isDiscovered && !tile.isVisited && (
-            <div className="absolute -top-1 -left-1 w-4 h-4 bg-blue-400 rounded-full flex items-center justify-center text-xs font-bold text-white z-10">
-              !
             </div>
           )}
         </>

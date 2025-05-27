@@ -8,6 +8,7 @@ import { compressImage } from "@/lib/image-utils"
 import { toast } from "@/components/ui/use-toast"
 import { showScrollToast } from "@/lib/toast-utils"
 import { emitQuestCompletedWithRewards, emitGoldGained, emitExperienceGained } from "@/lib/kingdom-events"
+import { supabase } from '@/lib/supabase-client'
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -52,100 +53,22 @@ interface Quest {
   isAI?: boolean
 }
 
-// AI Quest Generator
-function generateAIQuest(userGoals: string[]): Quest {
-  // Sample categories and templates
-  const categories = ["Might", "Endurance", "Wisdom", "Vitality", "Resilience", "Dexterity"]
-  const difficultyLevels: ("easy" | "medium" | "hard" | "epic")[] = ["easy", "medium", "hard", "epic"]
-
-  const templates = [
-    { title: "Master of {skill}", description: "Complete {count} {activity} sessions this week." },
-    { title: "{skill} Champion", description: "Reach a streak of {count} days doing {activity}." },
-    { title: "The {adjective} {role}", description: "Perform {activity} for {count} minutes each day." },
-    { title: "{skill} Explorer", description: "Try {count} different types of {activity} this month." },
-  ]
-
-  const activities = {
-    Might: ["strength training", "push-ups", "pull-ups", "weight lifting", "bodyweight exercises"],
-    Endurance: ["running", "cycling", "swimming", "cardio", "HIIT workouts"],
-    Wisdom: ["reading", "learning", "studying", "meditation", "problem-solving"],
-    Vitality: ["meal prep", "healthy eating", "hydration", "nutrition tracking", "cooking"],
-    Resilience: ["sleep tracking", "stress management", "recovery", "stretching", "rest days"],
-    Dexterity: ["task completion", "project work", "skill practice", "time management", "focus sessions"],
-  }
-
-  const adjectives = ["Mighty", "Swift", "Wise", "Vital", "Resilient", "Agile", "Focused", "Disciplined"]
-  const roles = ["Warrior", "Runner", "Sage", "Alchemist", "Guardian", "Artisan", "Ranger", "Knight"]
-
-  // Select random elements
-  const category = categories[Math.floor(Math.random() * categories.length)]
-  const template = templates[Math.floor(Math.random() * templates.length)]
-  const activity =
-    activities[category as keyof typeof activities][
-      Math.floor(Math.random() * activities[category as keyof typeof activities].length)
-    ]
-  const count = Math.floor(Math.random() * 5) + 3 // 3-7
-  const adjective = adjectives[Math.floor(Math.random() * adjectives.length)]
-  const role = roles[Math.floor(Math.random() * roles.length)]
-  const difficulty = difficultyLevels[Math.floor(Math.random() * difficultyLevels.length)]
-
-  // Calculate rewards based on difficulty
-  const baseXP = difficulty === "easy" ? 50 : difficulty === "medium" ? 100 : difficulty === "hard" ? 200 : 500
-  const baseGold = difficulty === "easy" ? 25 : difficulty === "medium" ? 50 : difficulty === "hard" ? 100 : 250
-
-  // Generate title and description
-  const title = template.title.replace("{skill}", category).replace("{adjective}", adjective).replace("{role}", role)
-
-  let description = template.description.replace("{count}", count.toString()).replace("{activity}", activity)
-
-  // Add user goal context if available
-  if (userGoals.length > 0) {
-    const randomGoal = userGoals[Math.floor(Math.random() * userGoals.length)]
-    description += ` This will help you achieve your goal: "${randomGoal}".`
-  }
-
-  // Create deadline (7-14 days from now)
-  const daysToAdd = Math.floor(Math.random() * 7) + 7
-  const deadline = new Date()
-  deadline.setDate(deadline.getDate() + daysToAdd)
-
-  return {
-    id: `ai-quest-${Date.now()}`,
-    title,
-    description,
-    category,
-    difficulty,
-    rewards: {
-      xp: baseXP,
-      gold: baseGold,
-      items: difficulty === "epic" ? ["Epic Gear Piece"] : undefined,
-    },
-    progress: 0,
-    completed: false,
-    deadline: deadline.toISOString().split("T")[0],
-    isNew: true,
-    isAI: true,
+// TypeScript: Add window.ethereum type to avoid TS error
+declare global {
+  interface Window {
+    ethereum?: any;
   }
 }
 
 export default function QuestsPage() {
   const [goldBalance, setGoldBalance] = useState(1000)
-  const [showAIQuestDialog, setShowAIQuestDialog] = useState(false)
-  const [userGoals, setUserGoals] = useState<string[]>([
-    "Run a 5K race in under 30 minutes",
-    "Read 12 books this year",
-    "Learn to cook 5 new healthy recipes",
-    "Meditate for 10 minutes daily",
-  ])
-  const [newGoal, setNewGoal] = useState("")
-  const [generatedQuest, setGeneratedQuest] = useState<Quest | null>(null)
-  const [dialogOpen, setDialogOpen] = useState(false)
   const [newQuestName, setNewQuestName] = useState("")
   const [newQuestDescription, setNewQuestDescription] = useState("")
-  const [generatingQuest, setGeneratingQuest] = useState(false)
   
   // Enhanced quest state with persistence
   const [quests, setQuests] = useState<Quest[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [isQuestsLoaded, setIsQuestsLoaded] = useState(false)
   
   // Add save status state (similar to realm)
@@ -418,40 +341,6 @@ export default function QuestsPage() {
     }
   }
 
-  // Function to generate a new AI quest
-  const generateNewAIQuest = () => {
-    const newQuest = generateAIQuest(userGoals)
-    setGeneratedQuest(newQuest)
-    setShowAIQuestDialog(true)
-  }
-
-  // Function to accept the generated quest
-  const acceptGeneratedQuest = () => {
-    if (generatedQuest) {
-      setQuests((prev) => [generatedQuest, ...prev])
-      setShowAIQuestDialog(false)
-      setGeneratedQuest(null)
-
-      toast({
-        title: "New Quest Accepted!",
-        description: `"${generatedQuest.title}" has been added to your quest log.`,
-      })
-    }
-  }
-
-  // Function to add a new user goal
-  const addUserGoal = () => {
-    if (newGoal.trim()) {
-      setUserGoals((prev) => [...prev, newGoal.trim()])
-      setNewGoal("")
-
-      toast({
-        title: "Goal Added",
-        description: "Your new goal has been added. AI quests will now be tailored to this goal.",
-      })
-    }
-  }
-
   // Tabs configuration
   interface TabOption {
     value: string;
@@ -490,6 +379,10 @@ export default function QuestsPage() {
     if (savedGold) {
       setGoldBalance(Number.parseInt(savedGold, 10))
     }
+    // Check if window.ethereum is defined before accessing it
+    if (typeof window !== 'undefined' && (window as any).ethereum) {
+      console.log('Ethereum provider detected:', (window as any).ethereum.selectedAddress);
+    }
   }, [])
 
   const [isHovering, setIsHovering] = useState(false)
@@ -512,32 +405,44 @@ export default function QuestsPage() {
 
   // Load quests from localStorage on component mount
   useEffect(() => {
-    const loadQuests = () => {
+    const fetchQuests = async () => {
       try {
-        const savedQuests = localStorage.getItem('main-quests')
-        if (savedQuests) {
-          const parsedQuests = JSON.parse(savedQuests)
-          if (Array.isArray(parsedQuests) && parsedQuests.length > 0) {
-            setQuests(parsedQuests)
-            console.log('Loaded quests from localStorage:', parsedQuests.length)
-          } else {
-            setQuests(defaultQuests)
-            console.log('Using default quests - invalid saved data')
-          }
-        } else {
-          setQuests(defaultQuests)
-          console.log('Using default quests - no saved data')
-        }
-      } catch (error) {
-        console.error('Error loading quests:', error)
-        setQuests(defaultQuests)
+        const { data, error } = await supabase.from('quests').select('*');
+        if (error) throw error;
+        setQuests(data || []);
+      } catch (err) {
+        setError('Failed to load quests');
+        console.error(err);
       } finally {
-        setIsQuestsLoaded(true)
+        setLoading(false);
+        setIsQuestsLoaded(true);
       }
-    }
+    };
 
-    loadQuests()
-  }, [])
+    fetchQuests();
+  }, []);
+
+  // Real-time sync for quests
+  useEffect(() => {
+    // Subscribe to all changes on the quests table
+    const channel = supabase
+      .channel('public:quests')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'quests' },
+        (payload) => {
+          // Refetch quests on any change
+          supabase.from('quests').select('*').then(({ data, error }) => {
+            if (!error) setQuests(data || []);
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   // Enhanced save function with detailed error handling
   const saveQuestsImmediately = async (questsToSave: Quest[], retryAttempt = 0) => {
@@ -667,6 +572,26 @@ export default function QuestsPage() {
     fileInputRef.current?.click()
   }
 
+  const handleQuestToggle = async (questId: string) => {
+    const quest = quests.find(q => q.id === questId);
+    if (!quest) return;
+    const newCompleted = !quest.completed;
+    const updatedQuests = quests.map(q => 
+      q.id === questId ? { ...q, completed: newCompleted } : q
+    );
+    setQuests(updatedQuests);
+
+    try {
+      const { error } = await supabase
+        .from('quests')
+        .update({ completed: newCompleted })
+        .eq('id', questId);
+      if (error) throw error;
+    } catch (err) {
+      console.error('Failed to update quest:', err);
+    }
+  };
+
   return (
     <div className="pt-16 min-h-screen bg-black text-white">
       {/* Add save status indicator */}
@@ -793,10 +718,24 @@ export default function QuestsPage() {
 function QuestCard({ quest, onProgressUpdate }: { quest: Quest; onProgressUpdate: (progress: number) => void }) {
   const [progress, setProgress] = useState(quest.progress)
 
-  // Update progress
-  const handleProgressChange = (newProgress: number) => {
+  // Update progress and sync with Supabase
+  const handleProgressChange = async (newProgress: number) => {
     setProgress(newProgress)
     onProgressUpdate(newProgress)
+    try {
+      const { error } = await supabase
+        .from('quests')
+        .update({ progress: newProgress, completed: newProgress >= 100 })
+        .eq('id', quest.id);
+      if (error) throw error;
+      // Refetch quests for real-time sync
+      const { data, error: fetchError } = await supabase.from('quests').select('*');
+      if (!fetchError) {
+        // Optionally update parent state if needed
+      }
+    } catch (err) {
+      console.error('Failed to update quest progress:', err);
+    }
   }
 
   // Calculate days remaining
@@ -807,6 +746,17 @@ function QuestCard({ quest, onProgressUpdate }: { quest: Quest; onProgressUpdate
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     return diffDays
   }
+
+  const questData = {
+    id: quest.id,
+    title: typeof quest.title === 'string' ? quest.title : '',
+    difficulty: (['easy', 'medium', 'hard', 'epic'].includes(quest.difficulty) ? quest.difficulty : 'easy') as 'easy' | 'medium' | 'hard' | 'epic',
+    rewards: {
+      xp: typeof quest.rewards?.xp === 'number' ? quest.rewards.xp : 0,
+      gold: typeof quest.rewards?.gold === 'number' ? quest.rewards.gold : 0,
+      items: Array.isArray(quest.rewards?.items) ? quest.rewards.items : [],
+    },
+  };
 
   return (
     <Card 
@@ -929,6 +879,5 @@ function QuestCard({ quest, onProgressUpdate }: { quest: Quest; onProgressUpdate
         )}
       </CardFooter>
     </Card>
-  )
+  );
 }
-

@@ -14,7 +14,7 @@ import {
 // import { useSession } from "next-auth/react"
 import { logout } from '@/app/actions/auth'
 import Link from "next/link"
-import { ClipboardCheck, Palette, User, Settings } from "lucide-react"
+import { ClipboardCheck, Palette, User, Settings, Monitor } from "lucide-react"
 
 export function UserNav({ session }: { session: any }) {
   // const { data: session } = useSession()
@@ -74,6 +74,12 @@ export function UserNav({ session }: { session: any }) {
             <DropdownMenuItem className="cursor-pointer">
               <Palette className="mr-2 h-4 w-4" />
               <span>Design System</span>
+            </DropdownMenuItem>
+          </Link>
+          <Link href="/server-checks">
+            <DropdownMenuItem className="cursor-pointer" aria-label="Server Checks">
+              <Monitor className="mr-2 h-4 w-4" />
+              <span>Server Checks</span>
             </DropdownMenuItem>
           </Link>
         </DropdownMenuGroup>

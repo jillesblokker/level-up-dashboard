@@ -24,6 +24,41 @@ export interface MapGridProps {
   showMinimap: boolean;
 }
 
+const getTileImage = (tileType: string) => {
+  switch (tileType) {
+    case 'grass':
+      return '/images/tiles/grass-tile.png';
+    case 'forest':
+      return '/images/tiles/forest-tile.png';
+    case 'water':
+      return '/images/tiles/water-tile.png';
+    case 'mountain':
+      return '/images/tiles/mountain-tile.png';
+    case 'desert':
+      return '/images/tiles/desert-tile.png';
+    case 'ice':
+      return '/images/tiles/ice-tile.png';
+    case 'city':
+      return '/images/tiles/city-tile.png';
+    case 'town':
+      return '/images/tiles/town-tile.png';
+    case 'mystery':
+      return '/images/tiles/mystery-tile.png';
+    case 'portal-entrance':
+      return '/images/tiles/portal-entrance-tile.png';
+    case 'portal-exit':
+      return '/images/tiles/portal-exit-tile.png';
+    case 'cave':
+      return '/images/tiles/cave-tile.png';
+    case 'dungeon':
+      return '/images/tiles/dungeon-tile.png';
+    case 'castle':
+      return '/images/tiles/castle-tile.png';
+    default:
+      return '/images/tiles/empty-tile.png';
+  }
+};
+
 const MapGrid: React.FC<MapGridProps> = ({
   grid,
   character,
@@ -121,7 +156,7 @@ const MapGrid: React.FC<MapGridProps> = ({
                   aria-label={`${tile.type} tile at position ${x},${y}`}
                 >
                   <Image
-                    src={tile.image}
+                    src={getTileImage(tile.type)}
                     alt={tile.name}
                     width={64}
                     height={64}

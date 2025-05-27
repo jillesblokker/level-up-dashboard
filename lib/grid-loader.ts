@@ -10,11 +10,15 @@ export const numericToTileType: { [key: number]: TileType } = {
   5: 'city',
   6: 'town',
   7: 'mystery',
-  8: 'empty', // Assuming 8-12 are also empty based on previous context
-  9: 'empty',
-  10: 'empty',
-  11: 'empty',
-  12: 'empty'
+  8: 'portal-entrance',
+  9: 'portal-exit',
+  10: 'snow',
+  11: 'cave',
+  12: 'dungeon',
+  13: 'castle',
+  14: 'ice',
+  15: 'lava',
+  16: 'volcano'
 }
 
 export interface GridData {

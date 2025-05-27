@@ -160,7 +160,7 @@ export function MapGrid({
       const originalPos = translateCoordinates(pos.x, pos.y, grid, -gridRotation);
       if (originalPos.x < 0 || originalPos.y < 0 || originalPos.y >= grid.length || !grid[0] || originalPos.x >= grid[0].length) return false;
       const tile = grid[originalPos.y]?.[originalPos.x];
-      return tile && tile.type && !['mountain', 'water', 'empty', undefined, null].includes(tile.type);
+      return tile && tile.type && !['mountain', 'water', 'lava', 'volcano', 'empty', undefined, null].includes(tile.type);
     });
   };
 
@@ -180,7 +180,7 @@ export function MapGrid({
       return false;
     }
 
-    const isValidTileType = !['mountain', 'water', 'empty'].includes(targetTile.type);
+    const isValidTileType = !['mountain', 'water', 'lava', 'volcano', 'empty'].includes(targetTile.type);
 
     if (!isValidTileType) {
       console.log('Invalid: Invalid tile type at original position', { originalTarget, tileType: targetTile.type });
@@ -219,7 +219,7 @@ export function MapGrid({
             description: 'Cannot move to an empty space.',
             variant: 'destructive'
           });
-        } else if (['mountain', 'water'].includes(targetTile.type)) {
+        } else if (['mountain', 'water', 'lava', 'volcano'].includes(targetTile.type)) {
           toast({
             title: 'Invalid Move',
             description: `Cannot move to ${targetTile.type} tiles.`,

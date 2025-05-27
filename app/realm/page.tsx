@@ -38,7 +38,7 @@ import { Minimap } from "@/components/Minimap"
 import { MinimapEntity, MinimapRotationMode } from "@/types/minimap"
 import { useAchievementStore } from '@/stores/achievementStore'
 import { loadInitialGrid, createTileFromNumeric, numericToTileType } from "@/lib/grid-loader"
-import { getLatestGrid, uploadGridData, updateGridData, subscribeToGridChanges, createQuestCompletion, getQuestCompletions, TilePlacement as DBTilePlacement } from '@/lib/api'
+import { getLatestGrid, uploadGridData, updateGridData, subscribeToGridChanges, createQuestCompletion, getQuestCompletions } from '@/lib/api'
 import { useAuth } from "@/components/providers"
 import Link from "next/link"
 import { logger } from "@/lib/logger"
@@ -76,7 +76,7 @@ const ZOOM_LEVELS = [0.5, 1, 1.5, 2]
 const AUTOSAVE_INTERVAL = 30000 // 30 seconds
 
 // Initial state
-const initialTileInventory: Record<TileType, InventoryItem> = {
+const initialTileInventory: Partial<Record<TileType, InventoryItem>> = ({
   grass: {
     id: 'grass-1',
     type: 'grass',
@@ -94,7 +94,7 @@ const initialTileInventory: Record<TileType, InventoryItem> = {
     y: 0,
     isMainTile: false,
     isTown: false,
-    cityName: undefined, // Added optional properties
+    cityName: undefined,
   },
   water: {
     id: 'water-1',
@@ -267,101 +267,6 @@ const initialTileInventory: Record<TileType, InventoryItem> = {
     isTown: false,
     cityName: undefined, // Added optional properties
   },
-  road: {
-    id: 'road-1',
-    type: 'road',
-    name: "Road",
-    description: "Road tile",
-    connections: [],
-    rotation: 0,
-    cost: 15,
-    quantity: 30,
-    image: '/images/tiles/grass-tile.png', // Use grass as fallback
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "Road tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: false,
-    cityName: undefined, // Added optional properties
-  },
-  'corner-road': {
-    id: 'corner-road-1',
-    type: 'corner-road',
-    name: "Corner Road",
-    description: "Corner road tile",
-    connections: [],
-    rotation: 0,
-    cost: 15,
-    quantity: 30,
-    image: '/images/tiles/grass-tile.png', // Use grass as fallback
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "Corner road tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: false,
-    cityName: undefined, // Added optional properties
-  },
-  crossroad: {
-    id: 'crossroad-1',
-    type: 'crossroad',
-    name: "Crossroad",
-    description: "Crossroad tile",
-    connections: [],
-    rotation: 0,
-    cost: 15,
-    quantity: 30,
-    image: '/images/tiles/grass-tile.png', // Use grass as fallback
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "Crossroad tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: false,
-    cityName: undefined, // Added optional properties
-  },
-  village: {
-    id: 'village-1',
-    type: 'village',
-    name: "Village",
-    description: "Village tile",
-    connections: [],
-    rotation: 0,
-    cost: 60,
-    quantity: 10,
-    image: '/images/tiles/town-tile.png', // Use town as fallback
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "Village tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: true,
-    cityName: undefined, // Added optional properties
-  },
-  portal: {
-    id: 'portal-1',
-    type: 'portal',
-    name: "Portal",
-    description: "Portal tile",
-    connections: [],
-    rotation: 0,
-    cost: 200,
-    quantity: 1,
-    image: '/images/tiles/mystery-tile.png', // Use mystery as fallback
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "Portal tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: false,
-    cityName: undefined, // Added optional properties
-  },
   snow: {
     id: 'snow-1',
     type: 'snow',
@@ -390,7 +295,7 @@ const initialTileInventory: Record<TileType, InventoryItem> = {
     rotation: 0,
     cost: 45,
     quantity: 15,
-    image: '/images/tiles/mountain-tile.png', // Use mountain as fallback
+    image: '/images/tiles/cave-tile.png',
     revealed: true,
     isVisited: false,
     ariaLabel: "Cave tile in inventory",
@@ -409,7 +314,7 @@ const initialTileInventory: Record<TileType, InventoryItem> = {
     rotation: 0,
     cost: 80,
     quantity: 8,
-    image: '/images/tiles/mystery-tile.png', // Use mystery as fallback
+    image: '/images/tiles/dungeon-tile.png',
     revealed: true,
     isVisited: false,
     ariaLabel: "Dungeon tile in inventory",
@@ -428,7 +333,7 @@ const initialTileInventory: Record<TileType, InventoryItem> = {
     rotation: 0,
     cost: 150,
     quantity: 3,
-    image: '/images/tiles/city-tile.png', // Use city as fallback
+    image: '/images/tiles/castle-tile.png',
     revealed: true,
     isVisited: false,
     ariaLabel: "Castle tile in inventory",
@@ -437,8 +342,84 @@ const initialTileInventory: Record<TileType, InventoryItem> = {
     isMainTile: false,
     isTown: true,
     cityName: undefined, // Added optional properties
-  }
-};
+  },
+  lava: {
+    id: 'lava-1',
+    type: 'lava',
+    name: "Lava",
+    description: "A dangerous lava tile that cannot be entered",
+    connections: [],
+    rotation: 0,
+    cost: 60,
+    quantity: 10,
+    image: '/images/tiles/lava-tile.png',
+    revealed: true,
+    isVisited: false,
+    ariaLabel: "Lava tile in inventory",
+    x: 0,
+    y: 0,
+    isMainTile: false,
+    isTown: false,
+    cityName: undefined,
+  },
+  volcano: {
+    id: 'volcano-1',
+    type: 'volcano',
+    name: "Volcano",
+    description: "A dangerous volcano tile that cannot be entered",
+    connections: [],
+    rotation: 0,
+    cost: 80,
+    quantity: 5,
+    image: '/images/tiles/volcano-tile.png',
+    revealed: true,
+    isVisited: false,
+    ariaLabel: "Volcano tile in inventory",
+    x: 0,
+    y: 0,
+    isMainTile: false,
+    isTown: false,
+    cityName: undefined,
+  },
+  'portal-entrance': {
+    id: 'portal-entrance-1',
+    type: 'portal-entrance',
+    name: "Portal Entrance",
+    description: "Entrance portal tile",
+    connections: [],
+    rotation: 0,
+    cost: 200,
+    quantity: 1,
+    image: '/images/tiles/portal-entrance-tile.png',
+    revealed: true,
+    isVisited: false,
+    ariaLabel: "Portal entrance tile in inventory",
+    x: 0,
+    y: 0,
+    isMainTile: false,
+    isTown: false,
+    cityName: undefined,
+  },
+  'portal-exit': {
+    id: 'portal-exit-1',
+    type: 'portal-exit',
+    name: "Portal Exit",
+    description: "Exit portal tile",
+    connections: [],
+    rotation: 0,
+    cost: 200,
+    quantity: 1,
+    image: '/images/tiles/portal-exit-tile.png',
+    revealed: true,
+    isVisited: false,
+    ariaLabel: "Portal exit tile in inventory",
+    x: 0,
+    y: 0,
+    isMainTile: false,
+    isTown: false,
+    cityName: undefined,
+  },
+});
 
 // Add location data
 const locationData = {
@@ -451,11 +432,6 @@ const locationData = {
     name: "Riverside Haven",
     description: "A peaceful town nestled by the river. Known for its friendly inhabitants and local crafts.",
     locationId: "riverside-haven"
-  },
-   village: { // Added village location data
-    name: "Forest Village",
-    description: "A small village nestled within the trees.",
-    locationId: "forest-village"
   },
   castle: { // Added castle location data
     name: "Skyreach Castle",
@@ -671,7 +647,6 @@ const loadAndProcessInitialGrid = async (): Promise<Tile[][]> => {
   
   // Image mapping for tile types
   const getImageForTileType = (tileType: string): string => {
-    // Map tile types to their image paths with fallbacks
     const tileImages: Record<string, string> = {
       'empty': '/images/tiles/empty-tile.png',
       'grass': '/images/tiles/grass-tile.png',
@@ -683,17 +658,13 @@ const loadAndProcessInitialGrid = async (): Promise<Tile[][]> => {
       'town': '/images/tiles/town-tile.png',
       'mystery': '/images/tiles/mystery-tile.png',
       'ice': '/images/tiles/ice-tile.png',
-      'road': '/images/tiles/grass-tile.png', // Use grass as fallback
-      'corner-road': '/images/tiles/grass-tile.png', // Use grass as fallback
-      'crossroad': '/images/tiles/grass-tile.png', // Use grass as fallback
-      'village': '/images/tiles/town-tile.png', // Use town as fallback
-      'portal': '/images/tiles/mystery-tile.png', // Use mystery as fallback
-      'snow': '/images/tiles/ice-tile.png', // Use ice as fallback
-      'cave': '/images/tiles/mountain-tile.png', // Use mountain as fallback
-      'dungeon': '/images/tiles/mystery-tile.png', // Use mystery as fallback
-      'castle': '/images/tiles/city-tile.png', // Use city as fallback
+      'portal-entrance': '/images/tiles/portal-entrance-tile.png',
+      'portal-exit': '/images/tiles/portal-exit-tile.png',
+      'snow': '/images/tiles/ice-tile.png',
+      'cave': '/images/tiles/cave-tile.png',
+      'dungeon': '/images/tiles/dungeon-tile.png',
+      'castle': '/images/tiles/castle-tile.png',
     };
-
     return tileImages[tileType] || '/images/tiles/empty-tile.png';
   };
   
@@ -744,7 +715,7 @@ export default function RealmPage() {
   const subscriptionRef = useRef<any>(null)
 
   // State declarations
-  const [inventory, setInventory] = useLocalStorage<Record<TileType, InventoryItem>>("tile-inventory", initialTileInventory)
+  const [inventory, setInventory] = useLocalStorage<Partial<Record<TileType, InventoryItem>>>("tile-inventory", initialTileInventory)
   const [showScrollMessage, setShowScrollMessage] = useState(false)
   const [characterPosition, setCharacterPosition] = useLocalStorage<Position>("character-position", { x: 2, y: 0 })
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -782,6 +753,9 @@ export default function RealmPage() {
   const [lastSaveTime, setLastSaveTime] = useState<Date | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [retryCount, setRetryCount] = useState(0)
+  // Add state for portal modal and portal teleportation
+  const [showPortalModal, setShowPortalModal] = useState(false);
+  const [portalSource, setPortalSource] = useState<{ x: number; y: number; type: TileType } | null>(null);
 
   // Effect to initialize grid on mount or session/supabase change
   useEffect(() => {
@@ -885,11 +859,11 @@ export default function RealmPage() {
                   let hasUserModifications = false
                   let modificationCount = 0
                   for (let i = 0; i < Math.min(csvTilesFlat.length, supabaseTilesFlat.length); i++) {
-                    if (csvTilesFlat[i].type !== supabaseTilesFlat[i].type) {
+                    if (csvTilesFlat[i]?.type !== supabaseTilesFlat[i]?.type) {
                       hasUserModifications = true
                       modificationCount++
                       if (modificationCount <= 5) { // Log first 5 modifications
-                        logger.info(`User modification detected at position ${csvTilesFlat[i].x},${csvTilesFlat[i].y}: CSV=${csvTilesFlat[i].type}, Supabase=${supabaseTilesFlat[i].type}`, 'GridInit')
+                        logger.info(`User modification detected at position ${csvTilesFlat[i]?.x},${csvTilesFlat[i]?.y}: CSV=${csvTilesFlat[i]?.type}, Supabase=${supabaseTilesFlat[i]?.type}`, 'GridInit')
                       }
                     }
                   }
@@ -978,18 +952,15 @@ export default function RealmPage() {
                 case 'city': return 5;
                 case 'town': return 6;
                 case 'mystery': return 7;
-                case 'road': return 8;
-                case 'corner-road': return 9; // Use correct TileType value
-                case 'crossroad': return 10; // Use correct TileType value
-                case 'village': return 11; // Use correct TileType value
-                case 'portal': return 12; // Use correct TileType value
-                case 'snow': return 13; // Use correct TileType value
-                case 'cave': return 14; // Use correct TileType value
-                case 'dungeon': return 15; // Use correct TileType value
-                case 'castle': return 16; // Use correct TileType value
-                case 'ice': return 17; // Use correct TileType value
-                // Removed unused or incorrect types: intersection, t-junction, dead-end, special, big-mystery, treasure, monster, farm, mine
-                default: return 0; // Default to empty if type is not recognized
+                case 'portal-entrance': return 8;
+                case 'portal-exit': return 9;
+                case 'snow': return 10;
+                case 'cave': return 11;
+                case 'dungeon': return 12;
+                case 'castle': return 13;
+                case 'ice': return 14;
+                case 'lava': return 15;
+                default: return 0;
               }
             })
           );
@@ -1419,7 +1390,7 @@ export default function RealmPage() {
         .from('realm_grids')
         .upsert({
           id: session.user.id,
-          grid_data: currentGrid,
+          grid: currentGrid,
           updated_at: new Date().toISOString()
         }, {
           onConflict: 'id'
@@ -1553,7 +1524,8 @@ export default function RealmPage() {
 
       // IMMEDIATE SAVE: Save the grid right after placing the tile
       logger.info(`Tile placed at ${x},${y}, triggering immediate save`, 'TilePlacement');
-      await saveGridImmediately(newGrid);
+      const numericGrid = newGrid.map(row => row.map(tile => 0)); // Placeholder: replace with actual numeric conversion if needed
+      await saveGridImmediately(numericGrid);
 
        // Decrement quantity in inventory
        setInventory(prevInventory => {
@@ -1612,7 +1584,7 @@ export default function RealmPage() {
     const tile = grid?.[newY]?.[newX];
     logger.info(`Character moved to ${newX},${newY}. Tile type: ${tile?.type}`, 'CharacterMove');
     // Ensure tile and tile.type are defined before accessing
-    if (tile?.type && (tile.type === 'city' || tile.type === 'town' || tile.type === 'village' || tile.type === 'castle')) { // Include village and castle
+    if (tile?.type && (tile.type === 'city' || tile.type === 'town' || tile.type === 'castle')) { // Include village and castle
       // Find the correct location data using locationId if available, otherwise use type
        const locationKey = (tile as any).locationId || tile.type; // Use locationId if present on tile
        const locationInfo = (locationData as any)?.[locationKey];
@@ -1625,6 +1597,9 @@ export default function RealmPage() {
         });
         setShowLocationModal(true);
       }
+    } else if (tile?.type === 'portal-entrance' || tile?.type === 'portal-exit') {
+      setPortalSource({ x: newX, y: newY, type: tile.type });
+      setShowPortalModal(true);
     }
   }, [setCharacterPosition, grid, locationData]);
 
@@ -1776,7 +1751,7 @@ export default function RealmPage() {
     // Route to the appropriate directory based on location type
     if (locationType === 'city' || locationType === 'castle') {
       router.push(`/city/${locationSlug}`);
-    } else if (locationType === 'town' || locationType === 'village') {
+    } else if (locationType === 'town') {
       router.push(`/town/${locationSlug}`);
     } else {
       // Fallback to generic location route
@@ -1792,8 +1767,7 @@ export default function RealmPage() {
       return '/images/tiles/empty-tile.png';
     }
     
-    // Map tile types to actual available images or fallbacks
-    const imageMap: Record<TileType, string> = {
+    const imageMap: Record<string, string> = {
       empty: '/images/tiles/empty-tile.png',
       grass: '/images/tiles/grass-tile.png',
       water: '/images/tiles/water-tile.png',
@@ -1804,16 +1778,13 @@ export default function RealmPage() {
       mystery: '/images/tiles/mystery-tile.png',
       city: '/images/tiles/city-tile.png',
       town: '/images/tiles/town-tile.png',
-      // Fallbacks for missing images
-      road: '/images/tiles/grass-tile.png', // Use grass as fallback
-      'corner-road': '/images/tiles/grass-tile.png', // Use grass as fallback
-      crossroad: '/images/tiles/grass-tile.png', // Use grass as fallback
-      village: '/images/tiles/town-tile.png', // Use town as fallback
-      portal: '/images/tiles/mystery-tile.png', // Use mystery as fallback
-      snow: '/images/tiles/ice-tile.png', // Use ice as fallback
-      cave: '/images/tiles/mountain-tile.png', // Use mountain as fallback
-      dungeon: '/images/tiles/mystery-tile.png', // Use mystery as fallback
-      castle: '/images/tiles/city-tile.png', // Use city as fallback
+      'portal-entrance': '/images/tiles/portal-entrance-tile.png',
+      'portal-exit': '/images/tiles/portal-exit-tile.png',
+      snow: '/images/tiles/ice-tile.png',
+      cave: '/images/tiles/cave-tile.png',
+      dungeon: '/images/tiles/dungeon-tile.png',
+      castle: '/images/tiles/castle-tile.png',
+      lava: '/images/tiles/lava-tile.png',
     };
     
     return imageMap[tile.type] || '/images/tiles/empty-tile.png';
@@ -1958,16 +1929,14 @@ const handleTileSelection = (tile: InventoryItem | null) => {
               case 'city': return 5;
               case 'town': return 6;
               case 'mystery': return 7;
-              case 'road': return 8;
-              case 'corner-road': return 9;
-              case 'crossroad': return 10;
-              case 'village': return 11;
-              case 'portal': return 12;
-              case 'snow': return 13;
-              case 'cave': return 14;
-              case 'dungeon': return 15;
-              case 'castle': return 16;
-              case 'ice': return 17;
+              case 'portal-entrance': return 8;
+              case 'portal-exit': return 9;
+              case 'snow': return 10;
+              case 'cave': return 11;
+              case 'dungeon': return 12;
+              case 'castle': return 13;
+              case 'ice': return 14;
+              case 'lava': return 15;
               default: return 0;
             }
           })
@@ -2180,6 +2149,45 @@ const handleTileSelection = (tile: InventoryItem | null) => {
     }
   };
 
+  // Helper to find the other portal
+  const findOtherPortal = (grid: Tile[][], sourceType: TileType): { x: number; y: number } | null => {
+    const targetType = sourceType === 'portal-entrance' ? 'portal-exit' : 'portal-entrance';
+    for (let y = 0; y < grid.length; y++) {
+      if (!grid[y]) continue;
+      for (let x = 0; x < grid[y].length; x++) {
+        if (grid[y]?.[x]?.type === targetType) {
+          return { x, y };
+        }
+      }
+    }
+    return null;
+  };
+
+  // Portal modal handlers
+  const handlePortalEnter = () => {
+    if (!portalSource) return;
+    const dest = findOtherPortal(grid, portalSource.type);
+    if (
+      dest &&
+      typeof dest.y === 'number' &&
+      typeof dest.x === 'number' &&
+      Array.isArray(grid) &&
+      Array.isArray(grid[dest.y])
+    ) {
+      const row = grid[dest.y];
+      if (row && row[dest.x] !== undefined) {
+        setCharacterPosition({ x: dest.x, y: dest.y });
+        logger.info(`Teleported from ${portalSource.type} at (${portalSource.x},${portalSource.y}) to (${dest.x},${dest.y})`, 'PortalTeleport');
+      }
+    }
+    setShowPortalModal(false);
+    setPortalSource(null);
+  };
+  const handlePortalLeave = () => {
+    setShowPortalModal(false);
+    setPortalSource(null);
+  };
+
   if (isLoading || isAuthLoading || !supabase) { // Also wait for supabase client
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -2337,16 +2345,14 @@ const handleTileSelection = (tile: InventoryItem | null) => {
                         case 'city': return 5;
                         case 'town': return 6;
                         case 'mystery': return 7;
-                        case 'road': return 8;
-                        case 'corner-road': return 9;
-                        case 'crossroad': return 10;
-                        case 'village': return 11;
-                        case 'portal': return 12;
-                        case 'snow': return 13;
-                        case 'cave': return 14;
-                        case 'dungeon': return 15;
-                        case 'castle': return 16;
-                        case 'ice': return 17;
+                        case 'portal-entrance': return 8;
+                        case 'portal-exit': return 9;
+                        case 'snow': return 10;
+                        case 'cave': return 11;
+                        case 'dungeon': return 12;
+                        case 'castle': return 13;
+                        case 'ice': return 14;
+                        case 'lava': return 15;
                         default: return 0;
                       }
                     })
@@ -2527,6 +2533,21 @@ const handleTileSelection = (tile: InventoryItem | null) => {
           onRotationModeChange={setMinimapRotationMode}
           onClose={() => setMinimapSwitch(false)}
         />
+      )}
+
+      {showPortalModal && portalSource && (
+        <Dialog open={true} onOpenChange={handlePortalLeave} aria-modal="true" role="dialog" aria-label="portal-modal">
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Enter Portal?</DialogTitle>
+              <DialogDescription>Do you want to enter the portal and teleport to the other side?</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button onClick={handlePortalEnter} aria-label="Enter Portal">Enter</Button>
+              <Button onClick={handlePortalLeave} aria-label="Leave Portal" variant="secondary">Leave</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   )
