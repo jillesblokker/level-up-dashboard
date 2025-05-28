@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/components/ui/use-toast"
 import { addToInventory, getInventory, addToKingdomInventory, InventoryItem } from "@/lib/inventory-manager"
 import { HeaderSection } from "@/components/HeaderSection"
+import Image from "next/image"
 
 interface LocationItem {
   id: string
@@ -183,30 +184,44 @@ export default function LocationClient({ slug, locationId }: Props) {
                 <>
                   <h2 className="text-xl font-bold mb-4">Horses for Sale</h2>
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {location.horses?.map((horse) => (
-                      <Card key={horse.id} className="flex flex-col">
-                        <CardHeader>
-                          <div className="flex items-center gap-2">
-                            <span className="text-2xl">{horse.emoji}</span>
-                            <CardTitle className="text-lg">{horse.name}</CardTitle>
+                    {location.horses?.map((horse) => {
+                      let imagePath = "/images/items/placeholder.jpg";
+                      if (horse.name === "Sally Swift Horse") imagePath = "/images/items/horse/horse-stelony.png";
+                      if (horse.name === "Buster Endurance Horse") imagePath = "/images/items/horse/horse-perony.png";
+                      if (horse.name === "Shadow War Horse") imagePath = "/images/items/horse/horse-felony.png";
+                      return (
+                        <Card key={horse.id} className="flex flex-col">
+                          <div className="w-full aspect-[4/3] relative bg-black">
+                            <Image
+                              src={imagePath}
+                              alt={`${horse.name} image`}
+                              fill
+                              className="object-contain"
+                              sizes="(max-width: 768px) 100vw, 33vw"
+                              aria-label={`${horse.name}-image`}
+                              onError={(e) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
+                            />
                           </div>
-                          <CardDescription>{horse.description}</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex-1">
-                          <p className="text-sm text-muted-foreground">Price: {horse.price} gold</p>
-                          <p className="text-sm text-muted-foreground">Movement: +{horse.movement}</p>
-                        </CardContent>
-                        <CardContent className="pt-0">
-                          <Button
-                            className="w-full"
-                            onClick={() => handlePurchase(horse as LocationItem)}
-                            disabled={gold < horse.price}
-                          >
-                            Purchase
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    ))}
+                          <CardHeader>
+                            <CardTitle className="text-lg">{horse.name}</CardTitle>
+                            <CardDescription>{horse.description}</CardDescription>
+                          </CardHeader>
+                          <CardContent className="flex-1">
+                            <p className="text-sm text-muted-foreground">Price: {horse.price} gold</p>
+                            <p className="text-sm text-muted-foreground">Movement: +{horse.movement}</p>
+                          </CardContent>
+                          <CardContent className="pt-0">
+                            <Button
+                              className="w-full"
+                              onClick={() => handlePurchase(horse as LocationItem)}
+                              disabled={gold < horse.price}
+                            >
+                              Purchase
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                   </div>
                 </>
               )}
@@ -223,7 +238,6 @@ export default function LocationClient({ slug, locationId }: Props) {
                         <Card key={artifact.id} className="flex flex-col">
                           <CardHeader>
                             <div className="flex items-center gap-2">
-                              <span className="text-2xl">{artifact.emoji}</span>
                               <CardTitle className="text-lg">{artifact.name}</CardTitle>
                             </div>
                             <CardDescription>{artifact.description}</CardDescription>
@@ -247,30 +261,45 @@ export default function LocationClient({ slug, locationId }: Props) {
                   </div>
                   <h2 className="text-xl font-bold mt-4 mb-4">Buy Items</h2>
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {location.items?.map((item) => (
-                      <Card key={item.id} className="flex flex-col">
-                        <CardHeader>
-                          <div className="flex items-center gap-2">
-                            <span className="text-2xl">{item.emoji}</span>
-                            <CardTitle className="text-lg">{item.name}</CardTitle>
+                    {location.items?.map((item) => {
+                      let imagePath = "/images/items/placeholder.jpg";
+                      if (item.name === "Ancient Artifact") imagePath = "/images/items/artifact/crown/artifact-crowny.png";
+                      if (item.name === "Magic Scroll") imagePath = "/images/items/scroll/scroll-scrolly.png";
+                      if (item.name === "Tome of Knowledge") imagePath = "/images/items/scroll/scroll-perkamento.png";
+                      // Add more mappings as needed
+                      return (
+                        <Card key={item.id} className="flex flex-col">
+                          <div className="w-full aspect-[4/3] relative bg-black">
+                            <Image
+                              src={imagePath}
+                              alt={`${item.name} image`}
+                              fill
+                              className="object-contain"
+                              sizes="(max-width: 768px) 100vw, 33vw"
+                              aria-label={`${item.name}-image`}
+                              onError={(e) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
+                            />
                           </div>
-                          <CardDescription>{item.description}</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex-1">
-                          <p className="text-sm text-muted-foreground">Price: {item.price} gold</p>
-                          <p className="text-sm text-muted-foreground">Type: {item.type}</p>
-                        </CardContent>
-                        <CardContent className="pt-0">
-                          <Button
-                            className="w-full"
-                            onClick={() => handlePurchase(item)}
-                            disabled={gold < item.price}
-                          >
-                            Purchase
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    ))}
+                          <CardHeader>
+                            <CardTitle className="text-lg">{item.name}</CardTitle>
+                            <CardDescription>{item.description}</CardDescription>
+                          </CardHeader>
+                          <CardContent className="flex-1">
+                            <p className="text-sm text-muted-foreground">Price: {item.price} gold</p>
+                            <p className="text-sm text-muted-foreground">Type: {item.type}</p>
+                          </CardContent>
+                          <CardContent className="pt-0">
+                            <Button
+                              className="w-full"
+                              onClick={() => handlePurchase(item)}
+                              disabled={gold < item.price}
+                            >
+                              Purchase
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                   </div>
                 </>
               )}
@@ -278,30 +307,45 @@ export default function LocationClient({ slug, locationId }: Props) {
                 <>
                   <h2 className="text-xl font-bold mb-4">Potions for Sale</h2>
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {location.items?.map((item) => (
-                      <Card key={item.id} className="flex flex-col">
-                        <CardHeader>
-                          <div className="flex items-center gap-2">
-                            <span className="text-2xl">{item.emoji}</span>
-                            <CardTitle className="text-lg">{item.name}</CardTitle>
+                    {location.items?.map((item) => {
+                      let imagePath = "/images/items/placeholder.jpg";
+                      if (item.name === "Health Potion") imagePath = "/images/items/potion/potion-health.png";
+                      if (item.name === "Mana Potion") imagePath = "/images/items/potion/potion-gold.png";
+                      if (item.name === "Antidote") imagePath = "/images/items/potion/potion-exp.png";
+                      // Add more mappings as needed
+                      return (
+                        <Card key={item.id} className="flex flex-col">
+                          <div className="w-full aspect-[4/3] relative bg-black">
+                            <Image
+                              src={imagePath}
+                              alt={`${item.name} image`}
+                              fill
+                              className="object-contain"
+                              sizes="(max-width: 768px) 100vw, 33vw"
+                              aria-label={`${item.name}-image`}
+                              onError={(e) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
+                            />
                           </div>
-                          <CardDescription>{item.description}</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex-1">
-                          <p className="text-sm text-muted-foreground">Price: {item.price} gold</p>
-                          <p className="text-sm text-muted-foreground">Type: {item.type}</p>
-                        </CardContent>
-                        <CardContent className="pt-0">
-                          <Button
-                            className="w-full"
-                            onClick={() => handlePurchase(item)}
-                            disabled={gold < item.price}
-                          >
-                            Purchase
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    ))}
+                          <CardHeader>
+                            <CardTitle className="text-lg">{item.name}</CardTitle>
+                            <CardDescription>{item.description}</CardDescription>
+                          </CardHeader>
+                          <CardContent className="flex-1">
+                            <p className="text-sm text-muted-foreground">Price: {item.price} gold</p>
+                            <p className="text-sm text-muted-foreground">Type: {item.type}</p>
+                          </CardContent>
+                          <CardContent className="pt-0">
+                            <Button
+                              className="w-full"
+                              onClick={() => handlePurchase(item)}
+                              disabled={gold < item.price}
+                            >
+                              Purchase
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                   </div>
                 </>
               )}

@@ -175,26 +175,29 @@ export function KingdomClient({ session }: { session: any }) {
                     >
                       <CardHeader className="p-4">
                         <div 
-                          className="flex items-center justify-between"
+                          className="flex flex-col items-center justify-center space-y-2"
                           aria-label={`item-header-${item.id}`}
                         >
-                          <div className="flex items-center space-x-2">
-                            {['stelony', 'twig', 'reflecto'].includes(item.id) ? (
-                              <Image src={`/images/items/${item.id.charAt(0).toUpperCase() + item.id.slice(1)}.png`} alt={item.name} width={40} height={40} className="rounded" />
-                            ) : (
-                              <span className="text-2xl">{item.emoji}</span>
-                            )}
-                            <div>
-                              <h4 className="text-amber-500 font-semibold">{item.name}</h4>
-                              <p className="text-xs text-gray-400">{item.type}</p>
-                            </div>
+                          <div className="w-full aspect-[4/3] relative mb-2">
+                            <Image
+                              src={item.image || "/images/items/placeholder.jpg"}
+                              alt={`${item.name} ${item.type}`}
+                              fill
+                              className="object-contain rounded"
+                              aria-label={`${item.name}-image`}
+                              onError={(e) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
+                            />
                           </div>
-                          {Object.entries(item.stats ?? {}).map(([stat, value]) => (
-                            <Badge key={stat} className="bg-amber-950/30 text-amber-500 border-amber-800/30">
-                              {stat} +{value}
-                            </Badge>
-                          ))}
+                          <div className="flex flex-col items-center">
+                            <h4 className="text-amber-500 font-semibold text-lg">{item.name}</h4>
+                            <p className="text-xs text-gray-400">{item.type}</p>
+                          </div>
                         </div>
+                        {Object.entries(item.stats ?? {}).map(([stat, value]) => (
+                          <Badge key={stat} className="bg-amber-950/30 text-amber-500 border-amber-800/30 mt-2">
+                            {stat} +{value}
+                          </Badge>
+                        ))}
                       </CardHeader>
                       <CardContent className="p-4 pt-0">
                         <p className="text-sm text-gray-400">{item.description}</p>

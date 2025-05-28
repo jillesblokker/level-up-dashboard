@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/components/ui/use-toast"
 import { addToInventory, getInventory, addToKingdomInventory } from "@/lib/inventory-manager"
 import { HeaderSection } from "@/components/HeaderSection"
+import Image from "next/image"
 
 interface LocationItem {
   id: string
@@ -183,7 +184,7 @@ export default function CityLocationPage() {
 
   const locationImage = params.locationId === "royal-stables"
     ? "/images/locations/royal-stables.png"
-    : `/images/locations/${location.name.toLowerCase().replace(/\s+/g, '-')}.png`;
+    : `/images/locations/${location.name.toLowerCase().replace(/'/g, '').replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}.png`;
 
   return (
     <div className="min-h-screen bg-background">
@@ -214,52 +215,88 @@ export default function CityLocationPage() {
               <>
                 <h2 className="text-xl font-bold mb-4">Horses for Sale</h2>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {location.horses.map((horse: LocationItem & { movement: number }) => (
-                    <Card key={horse.id} className="flex flex-col">
+                  {location.horses.map((horse: LocationItem & { movement: number }) => {
+                    let imagePath = "/images/items/placeholder.jpg";
+                    if (horse.name === "Sally Swift Horse") imagePath = "/images/items/horse/horse-stelony.png";
+                    if (horse.name === "Buster Endurance Horse") imagePath = "/images/items/horse/horse-perony.png";
+                    if (horse.name === "Shadow War Horse") imagePath = "/images/items/horse/horse-felony.png";
+                    return (
+                      <Card key={horse.id} className="flex flex-col">
+                        <div className="w-full aspect-[4/3] relative bg-black">
+                          <Image
+                            src={imagePath}
+                            alt={`${horse.name} image`}
+                            fill
+                            className="object-contain"
+                            sizes="(max-width: 768px) 100vw, 33vw"
+                            aria-label={`${horse.name}-image`}
+                            onError={(e) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
+                          />
+                        </div>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{horse.name}</CardTitle>
+                          <CardDescription>{horse.description}</CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex-1">
+                          <p className="text-sm text-muted-foreground">Price: {horse.price} gold</p>
+                          <p className="text-sm text-muted-foreground">Movement: +{horse.movement}</p>
+                        </CardContent>
+                        <CardContent className="pt-0">
+                          <Button
+                            className="w-full"
+                            onClick={() => handlePurchase(horse as LocationItem)}
+                            disabled={gold < horse.price}
+                          >
+                            Purchase
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                {location.items && location.items.map((item: LocationItem) => {
+                  let imagePath = "/images/items/placeholder.jpg";
+                  if (item.name === "Health Potion") imagePath = "/images/items/potion/potion-health.png";
+                  if (item.name === "Mana Potion") imagePath = "/images/items/potion/potion-gold.png";
+                  if (item.name === "Antidote") imagePath = "/images/items/potion/potion-exp.png";
+                  if (item.type === "equipment" && item.id === "sword") imagePath = "/images/items/sword/sword-twig.png";
+                  if (item.type === "equipment" && item.id === "shield") imagePath = "/images/items/shield/shield-reflecto.png";
+                  if (item.type === "equipment" && (item.id === "armor-set" || item.id === "armor")) imagePath = "/images/items/armor/armor-normalo.png";
+                  if (item.type === "artifact") imagePath = "/images/items/artifact/artifact-crowny.png";
+                  if (item.name === "Ancient Artifact") imagePath = "/images/items/artifact/ring/artifact-ringo.png";
+                  if (item.name === "Magic Scroll") imagePath = "/images/items/scroll/scroll-scrolly.png";
+                  if (item.name === "Tome of Knowledge") imagePath = "/images/items/scroll/scroll-perkamento.png";
+                  if (item.type === "scroll") imagePath = "/images/items/scroll/scroll-scrolly.png";
+                  return (
+                    <Card key={item.id} className="overflow-hidden">
+                      <div className="w-full aspect-[4/3] relative bg-black">
+                        <Image
+                          src={imagePath}
+                          alt={`${item.name} image`}
+                          fill
+                          className="object-contain"
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          aria-label={`${item.name}-image`}
+                          onError={(e) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
+                        />
+                      </div>
                       <CardHeader>
-                        <CardTitle className="text-lg">{horse.name}</CardTitle>
-                        <CardDescription>{horse.description}</CardDescription>
+                        <CardTitle>{item.name}</CardTitle>
+                        <CardDescription>{item.description}</CardDescription>
                       </CardHeader>
-                      <CardContent className="flex-1">
-                        <p className="text-sm text-muted-foreground">Price: {horse.price} gold</p>
-                        <p className="text-sm text-muted-foreground">Movement: +{horse.movement}</p>
-                      </CardContent>
-                      <CardContent className="pt-0">
-                        <Button
-                          className="w-full"
-                          onClick={() => handlePurchase(horse as LocationItem)}
-                          disabled={gold < horse.price}
-                        >
+                      <CardContent>
+                        <div className="text-sm mb-2">Price: {item.price} gold</div>
+                        <div className="text-xs text-gray-400">Type: {item.type}</div>
+                        <Button className="w-full mt-4" onClick={() => handlePurchase(item)}>
                           Purchase
                         </Button>
                       </CardContent>
                     </Card>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {location.items.map((item: LocationItem) => (
-                  <Card key={item.id} className="flex flex-col">
-                    <CardHeader>
-                      <CardTitle className="text-lg">{item.name}</CardTitle>
-                      <CardDescription>{item.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex-1">
-                      <p className="text-sm text-muted-foreground">Price: {item.price} gold</p>
-                      <p className="text-sm text-muted-foreground">Type: {item.type}</p>
-                    </CardContent>
-                    <CardContent className="pt-0">
-                      <Button
-                        className="w-full"
-                        onClick={() => handlePurchase(item)}
-                        disabled={gold < item.price}
-                      >
-                        Purchase
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
+                  )
+                })}
               </div>
             )}
           </CardContent>
@@ -267,4 +304,6 @@ export default function CityLocationPage() {
       </div>
     </div>
   )
-} 
+}
+
+// NOTE: Dev server runs on port 3005, so images are accessible at http://localhost:3005/images/... 

@@ -4,6 +4,7 @@ import { Coins } from "lucide-react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { StoreItem, WeaponItem, ArmorItem, PotionItem, FoodItem, MountItem, MagicItem } from "@/lib/city-item-manager"
+import Image from "next/image"
 
 interface ItemCardProps {
   item: StoreItem | WeaponItem | ArmorItem | PotionItem | FoodItem | MountItem | MagicItem
@@ -63,36 +64,28 @@ export function ItemCard({ item, onPurchase }: ItemCardProps) {
       </CardHeader>
       
       <CardContent className="pb-2">
-        {/* Image placeholder - enhanced version */}
+        {/* Image area - show item image if available, else fallback */}
         <div className="w-full h-32 mb-3 rounded-md overflow-hidden border border-amber-800/30 relative group">
-          <div 
-            id={item.image || `placeholder-${item.id}`} 
-            className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900 relative"
-          >
-            {/* Placeholder decoration elements */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-70">
-              <div className="w-16 h-16 rounded-full border-2 border-dashed border-amber-500/40 animate-spin-slow"></div>
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-12 h-12 rounded-full border border-amber-500/30"></div>
-            </div>
-            
-            {/* Center icon or text based on item type */}
-            <div className="relative z-10 text-amber-500/80 text-center">
-              <div className="text-xl font-semibold mb-1">
-                {isWeapon(item as any) ? "⚔️" : 
-                 isArmor(item as any) ? "🛡️" : 
-                 isPotion(item as any) ? "⚗️" : 
-                 isFood(item as any) ? "🍗" : 
-                 isMount(item as any) ? "🐎" : 
-                 isMagic(item as any) ? "✨" : "📦"}
-              </div>
-              <span className="text-xs font-medium">Item Image</span>
-            </div>
-            
-            {/* Hover effect */}
-            <div className="absolute inset-0 bg-amber-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          </div>
+          {item.image ? (
+            <Image
+              src={item.image}
+              alt={item.name + ' ' + getItemType()}
+              fill
+              className="object-contain w-full h-full bg-black"
+              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
+              aria-label={`${item.name}-image`}
+              onError={(e) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
+            />
+          ) : (
+            <Image
+              src="/images/items/placeholder.jpg"
+              alt={item.name + ' placeholder'}
+              fill
+              className="object-contain w-full h-full bg-black"
+              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
+              aria-label={`${item.name}-fallback-image`}
+            />
+          )}
         </div>
 
         {/* Stats/Effects */}

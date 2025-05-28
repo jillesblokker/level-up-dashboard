@@ -52,7 +52,7 @@ export default function ShopPage() {
       name: "Health Potion",
       description: "Restores 50 health points",
       price: 40,
-      image: "",
+      image: "/images/items/potion/potion-health.png",
       emoji: "🧪"
     },
     {
@@ -60,7 +60,7 @@ export default function ShopPage() {
       name: "Mana Potion",
       description: "Restores 50 mana points",
       price: 45,
-      image: "",
+      image: "/images/items/potion/potion-mana.png",
       emoji: "🔮"
     },
     {
@@ -68,7 +68,7 @@ export default function ShopPage() {
       name: "Strength Potion",
       description: "Increases strength by 5 for 1 hour",
       price: 60,
-      image: "",
+      image: "/images/items/potion/potion-strength.png",
       emoji: "💪"
     },
     {
@@ -76,7 +76,7 @@ export default function ShopPage() {
       name: "Leather Armor",
       description: "Basic protection against physical damage",
       price: 100,
-      image: "",
+      image: "/images/items/armor/armor-leather.png",
       emoji: "🥋"
     },
     {
@@ -84,7 +84,7 @@ export default function ShopPage() {
       name: "Iron Sword",
       description: "A reliable weapon for combat",
       price: 90,
-      image: "",
+      image: "/images/items/sword/sword-iron.png",
       emoji: "⚔️"
     },
     {
@@ -92,7 +92,7 @@ export default function ShopPage() {
       name: "Magic Scroll",
       description: "Teaches a random spell",
       price: 80,
-      image: "",
+      image: "/images/items/scroll/scroll-magic.png",
       emoji: "📜"
     }
   ]

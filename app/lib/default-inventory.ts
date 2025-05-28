@@ -2,7 +2,7 @@ export interface InventoryItem {
   id: string;
   name: string;
   description: string;
-  type: 'mount' | 'weapon' | 'shield';
+  type: 'mount' | 'weapon' | 'shield' | 'armor';
   stats: {
     movement?: number;
     attack?: number;
@@ -11,6 +11,7 @@ export interface InventoryItem {
   emoji: string;
   quantity: number;
   isDefault?: boolean;
+  image: string;
 }
 
 export const defaultInventoryItems: InventoryItem[] = [
@@ -24,7 +25,8 @@ export const defaultInventoryItems: InventoryItem[] = [
     },
     emoji: '🐎',
     quantity: 1,
-    isDefault: true
+    isDefault: true,
+    image: '/images/items/horse/horse-stelony.png',
   },
   {
     id: 'twig',
@@ -36,7 +38,8 @@ export const defaultInventoryItems: InventoryItem[] = [
     },
     emoji: '🗡️',
     quantity: 1,
-    isDefault: true
+    isDefault: true,
+    image: '/images/items/sword/sword-twig.png',
   },
   {
     id: 'reflecto',
@@ -48,6 +51,20 @@ export const defaultInventoryItems: InventoryItem[] = [
     },
     emoji: '🛡️',
     quantity: 1,
-    isDefault: true
-  }
+    isDefault: true,
+    image: '/images/items/shield/shield-reflecto.png',
+  },
+  {
+    id: 'normalo',
+    name: 'Normalo',
+    description: 'Standard issue armor for new adventurers',
+    type: 'armor',
+    stats: {
+      defense: 1
+    },
+    emoji: '🥋',
+    quantity: 1,
+    isDefault: true,
+    image: '/images/items/armor/armor-normalo.png',
+  },
 ]; 
