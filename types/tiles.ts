@@ -19,7 +19,9 @@ export type TileType =
   | 'ice'
   | 'desert'
   | 'lava'
-  | 'volcano';
+  | 'volcano'
+  | 'sheep'
+  | 'horse';
 
 export type ConnectionDirection = 'north' | 'east' | 'south' | 'west';
 

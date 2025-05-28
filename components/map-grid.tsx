@@ -39,6 +39,10 @@ interface MapGridProps extends BaseMapGridProps {
   onExperienceUpdate?: (amount: number) => void;
   onRotateTile?: (x: number, y: number) => void;
   setHoveredTile: (tile: { row: number; col: number } | null) => void;
+  horsePos?: { x: number; y: number } | null;
+  sheepPos?: { x: number; y: number } | null;
+  eaglePos?: { x: number; y: number } | null;
+  penguinPos?: { x: number; y: number } | null;
 }
 
 interface HoveredTile {
@@ -76,7 +80,11 @@ export function MapGrid({
   isMovementMode = false,
   gridRotation,
   hoveredTile,
-  setHoveredTile
+  setHoveredTile,
+  horsePos = null,
+  sheepPos = null,
+  eaglePos = null,
+  penguinPos = null
 }: MapGridProps) {
   const { toast } = useToast();
   const router = useRouter();
@@ -311,6 +319,42 @@ export function MapGrid({
                     isHovered={isCurrentHovered}
                     isCharacterPresent={character.x === x && character.y === y}
                   />
+                  {/* Overlay horse image at horsePos if present */}
+                  {horsePos && x === horsePos.x && y === horsePos.y && (
+                    <img
+                      src="/images/Animales/horse.png"
+                      alt="Horse"
+                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none', zIndex: 10 }}
+                      aria-label="Horse overlay"
+                    />
+                  )}
+                  {/* Overlay sheep image at sheepPos if present */}
+                  {sheepPos && x === sheepPos.x && y === sheepPos.y && (
+                    <img
+                      src="/images/Animales/sheep.png"
+                      alt="Sheep"
+                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none', zIndex: 10 }}
+                      aria-label="Sheep overlay"
+                    />
+                  )}
+                  {/* Overlay eagle image at eaglePos if present */}
+                  {eaglePos && x === eaglePos.x && y === eaglePos.y && (
+                    <img
+                      src="/images/Animales/eagle.png"
+                      alt="Eagle"
+                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none', zIndex: 10 }}
+                      aria-label="Eagle overlay"
+                    />
+                  )}
+                  {/* Overlay penguin image at penguinPos if present */}
+                  {penguinPos && x === penguinPos.x && y === penguinPos.y && (
+                    <img
+                      src="/images/Animales/penguin.png"
+                      alt="Penguin"
+                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none', zIndex: 10 }}
+                      aria-label="Penguin overlay"
+                    />
+                  )}
                 </div>
 
                 {!isMovementMode && tile.type !== 'empty' && (
@@ -331,9 +375,12 @@ export function MapGrid({
 
                 {character.x === x && character.y === y && (
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center">
-                      <User className="w-4 h-4 text-amber-900" />
-                    </div>
+                    <img
+                      src="/images/character/character.png"
+                      alt="Character"
+                      style={{ width: 32, height: 32, objectFit: 'contain', zIndex: 20 }}
+                      aria-label="Character"
+                    />
                   </div>
                 )}
               </div>

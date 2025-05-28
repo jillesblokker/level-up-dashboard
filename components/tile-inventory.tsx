@@ -8,21 +8,21 @@ import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { useGoldStore } from "@/stores/goldStore"
-import { TileType, InventoryTile, TileItem } from "@/types/tiles"
+import { TileType, InventoryItem } from "@/types/tiles"
 import { useState } from "react"
 
 interface TileInventoryProps {
-  tiles: TileItem[]
-  selectedTile: TileItem | null
-  onSelectTile: (tile: TileItem | null) => void
-  onUpdateTiles: (tiles: TileItem[]) => void
+  tiles: InventoryItem[]
+  selectedTile: InventoryItem | null
+  onSelectTile: (tile: InventoryItem | null) => void
+  onUpdateTiles: (tiles: InventoryItem[]) => void
 }
 
 export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles }: TileInventoryProps) {
   const { gold, updateGold } = useGoldStore()
   const [buyQuantities, setBuyQuantities] = useState<{ [key: string]: number }>({})
 
-  const handleBuyTile = (tile: TileItem, e: React.MouseEvent) => {
+  const handleBuyTile = (tile: InventoryItem, e: React.MouseEvent) => {
     e.stopPropagation()
     
     const quantity = buyQuantities[tile.type] || 1
@@ -30,10 +30,9 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     const currentGold = parseInt(localStorage.getItem('character-gold') || '1000')
 
     if (currentGold < totalCost) {
-      toast({
-        title: "Not enough gold",
-        description: `You need ${totalCost} gold to buy ${quantity} ${tile.name || tile.type} tile${quantity > 1 ? 's' : ''}.`
-      })
+      toast(
+        `Not enough gold: You need ${totalCost} gold to buy ${quantity} ${tile.name || tile.type} tile${quantity > 1 ? 's' : ''}.`
+      )
       return
     }
 
@@ -52,10 +51,9 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     )
     onUpdateTiles(newTiles)
     
-    toast({
-      title: "Tiles purchased",
-      description: `You bought ${quantity} ${tile.name || tile.type} tile${quantity > 1 ? 's' : ''} for ${totalCost} gold.`
-    })
+    toast(
+      `You bought ${quantity} ${tile.name || tile.type} tile${quantity > 1 ? 's' : ''} for ${totalCost} gold.`
+    )
 
     // Reset the quantity after purchase
     setBuyQuantities(prev => ({ ...prev, [tile.type]: 1 }))

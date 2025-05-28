@@ -119,7 +119,7 @@ export function TileVisual({
             >
               <div className="w-3/4 h-3/4 relative">
                 <Image
-                  src="/images/character/character-token.png"
+                  src="/images/character/character.png"
                   alt="Character token"
                   fill
                   sizes="(max-width: 768px) 25vw, (max-width: 1200px) 20vw, 15vw"
@@ -191,7 +191,7 @@ export function TileVisual({
             >
               <div className="w-3/4 h-3/4 relative">
                 <Image
-                  src="/images/character/character-token.png"
+                  src="/images/character/character.png"
                   alt="Character"
                   fill
                   sizes="(max-width: 768px) 25vw, (max-width: 1200px) 20vw, 15vw"

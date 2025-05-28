@@ -756,6 +756,15 @@ export default function RealmPage() {
   // Add state for portal modal and portal teleportation
   const [showPortalModal, setShowPortalModal] = useState(false);
   const [portalSource, setPortalSource] = useState<{ x: number; y: number; type: TileType } | null>(null);
+  // Add state to track if the horse is present on the map
+  const [isHorsePresent, setIsHorsePresent] = useState(true);
+  // Add state for eagle and penguin
+  const [eaglePosition, setEaglePosition] = useState<{ x: number; y: number }>({ x: 10, y: 6 });
+  const [penguinPosition, setPenguinPosition] = useState<{ x: number; y: number } | null>(null);
+  const [isPenguinPresent, setIsPenguinPresent] = useState(false);
+  // Add state for animal positions
+  const [horsePosition, setHorsePosition] = useState<{ x: number; y: number }>({ x: 10, y: 3 });
+  const [sheepPosition, setSheepPosition] = useState<{ x: number; y: number }>({ x: 2, y: 4 });
 
   // Effect to initialize grid on mount or session/supabase change
   useEffect(() => {
@@ -1580,6 +1589,43 @@ export default function RealmPage() {
   // 1. Create handleCharacterMove in RealmPage
   const handleCharacterMove = useCallback((newX: number, newY: number) => {
     setCharacterPosition({ x: newX, y: newY });
+    // Check if player moves onto the horse location and horse is present
+    if (isHorsePresent && newX === 10 && newY === 3) {
+      // Add horse to inventory
+      setInventory(prevInventory => {
+        const updatedInventory = { ...prevInventory };
+        if (updatedInventory['horse']) {
+          updatedInventory['horse'].quantity += 1;
+        } else {
+          updatedInventory['horse'] = {
+            id: 'horse-1',
+            type: 'horse' as TileType,
+            name: 'Horse',
+            description: 'A loyal horse for your adventures.',
+            connections: [],
+            rotation: 0,
+            cost: 0,
+            quantity: 1,
+            image: '/images/Animales/horse.png',
+            revealed: true,
+            isVisited: false,
+            ariaLabel: 'Horse in inventory',
+            x: 0,
+            y: 0,
+            isMainTile: false,
+            isTown: false,
+            cityName: undefined,
+          };
+        }
+        return updatedInventory;
+      });
+      setIsHorsePresent(false);
+      toast({
+        title: 'You found a horse!',
+        description: 'The horse has been added to your inventory.',
+        duration: 3000
+      });
+    }
     // Safely access the tile
     const tile = grid?.[newY]?.[newX];
     logger.info(`Character moved to ${newX},${newY}. Tile type: ${tile?.type}`, 'CharacterMove');
@@ -1601,7 +1647,7 @@ export default function RealmPage() {
       setPortalSource({ x: newX, y: newY, type: tile.type });
       setShowPortalModal(true);
     }
-  }, [setCharacterPosition, grid, locationData]);
+  }, [setCharacterPosition, grid, locationData, isHorsePresent, setInventory, setIsHorsePresent, toast]);
 
   // 2. Use handleCharacterMove in keyboard navigation
   useEffect(() => {
@@ -1766,7 +1812,6 @@ export default function RealmPage() {
     if (!tile || tile.type === 'empty') {
       return '/images/tiles/empty-tile.png';
     }
-    
     const imageMap: Record<string, string> = {
       empty: '/images/tiles/empty-tile.png',
       grass: '/images/tiles/grass-tile.png',
@@ -1785,8 +1830,9 @@ export default function RealmPage() {
       dungeon: '/images/tiles/dungeon-tile.png',
       castle: '/images/tiles/castle-tile.png',
       lava: '/images/tiles/lava-tile.png',
+      volcano: '/images/tiles/volcano-tile.png',
+      sheep: '/images/Animales/sheep.png',
     };
-    
     return imageMap[tile.type] || '/images/tiles/empty-tile.png';
   };
 
@@ -2254,6 +2300,138 @@ const handleTileSelection = (tile: InventoryItem | null) => {
     setPortalSource(null);
   };
 
+  type AnimalType = 'horse' | 'sheep' | 'penguin' | 'bird';
+
+  // Helper: Find all connected ice tiles (BFS)
+  const getConnectedIceTiles = (start: { x: number; y: number }, grid: Tile[][]) => {
+    const visited = new Set<string>();
+    const queue = [start];
+    const connected: { x: number; y: number }[] = [];
+    while (queue.length > 0) {
+      const { x, y } = queue.shift()!;
+      const key = `${x},${y}`;
+      if (visited.has(key)) continue;
+      visited.add(key);
+      if (!grid[y] || !grid[y][x]) continue;
+      const tile = grid[y][x];
+      if (!tile || (tile.type !== 'ice' && tile.type !== 'snow')) continue;
+      connected.push({ x, y });
+      // Check 4 directions
+      [
+        { x: x + 1, y },
+        { x: x - 1, y },
+        { x, y: y + 1 },
+        { x, y: y - 1 }
+      ].forEach(pos => {
+        if (
+          pos.x >= 0 && pos.y >= 0 &&
+          pos.y < grid.length &&
+          grid[0] && pos.x < grid[0].length &&
+          !visited.has(`${pos.x},${pos.y}`)
+        ) {
+          if (!grid[pos.y] || !grid[pos.y][pos.x]) return;
+          const t = grid[pos.y][pos.x];
+          if (t && (t.type === 'ice' || t.type === 'snow')) {
+            queue.push(pos);
+          }
+        }
+      });
+    }
+    return connected;
+  };
+
+  const getValidAdjacentTiles = (x: number, y: number, animalType: AnimalType) => {
+    const adjacentTiles = [
+      { x: x + 1, y },
+      { x: x - 1, y },
+      { x, y: y + 1 },
+      { x, y: y - 1 }
+    ];
+
+    return adjacentTiles.filter(pos => {
+      if (pos.x < 0 || pos.y < 0 || pos.y >= grid.length || !grid[0] || pos.x >= grid[0].length) {
+        return false;
+      }
+      const tile = grid[pos.y]?.[pos.x];
+      if (!tile || !tile.type) return false;
+      switch (animalType) {
+        case 'horse':
+        case 'sheep':
+          return tile.type === 'grass' || tile.type === 'mystery';
+        case 'penguin':
+          return tile.type === 'ice' || tile.type === 'snow';
+        case 'bird':
+          return true;
+        default:
+          return false;
+      }
+    });
+  };
+
+  // Function to move animals randomly
+  const moveAnimals = useCallback(() => {
+    // Horse
+    if (isHorsePresent) {
+      const validHorseMoves = getValidAdjacentTiles(horsePosition.x, horsePosition.y, 'horse');
+      if (validHorseMoves.length > 0) {
+        const randomMove = validHorseMoves[Math.floor(Math.random() * validHorseMoves.length)];
+        if (randomMove) setHorsePosition(randomMove);
+      }
+    }
+    // Sheep
+    const validSheepMoves = getValidAdjacentTiles(sheepPosition.x, sheepPosition.y, 'sheep');
+    if (validSheepMoves.length > 0) {
+      const randomMove = validSheepMoves[Math.floor(Math.random() * validSheepMoves.length)];
+      if (randomMove) setSheepPosition(randomMove);
+    }
+    // Eagle (bird)
+    if (eaglePosition) {
+      const validEagleMoves = getValidAdjacentTiles(eaglePosition.x, eaglePosition.y, 'bird');
+      if (validEagleMoves.length > 0) {
+        const randomMove = validEagleMoves[Math.floor(Math.random() * validEagleMoves.length)];
+        if (randomMove) setEaglePosition(randomMove);
+      }
+    }
+    // Penguin
+    if (isPenguinPresent && penguinPosition) {
+      // Only move if there are at least 2 connected ice tiles
+      const connected = getConnectedIceTiles(penguinPosition, grid);
+      if (connected.length > 1) {
+        // Only move to adjacent ice tiles that are part of the connected group
+        const validPenguinMoves = getValidAdjacentTiles(penguinPosition.x, penguinPosition.y, 'penguin').filter(pos =>
+          connected.some(c => c.x === pos.x && c.y === pos.y)
+        );
+        if (validPenguinMoves.length > 0) {
+          const randomMove = validPenguinMoves[Math.floor(Math.random() * validPenguinMoves.length)];
+          if (randomMove) setPenguinPosition(randomMove);
+        }
+      }
+    }
+  }, [grid, horsePosition, sheepPosition, eaglePosition, penguinPosition, isHorsePresent, isPenguinPresent]);
+
+  // Set up interval for animal movement
+  useEffect(() => {
+    const interval = setInterval(moveAnimals, 5000);
+    return () => clearInterval(interval);
+  }, [moveAnimals]);
+
+  // Penguin spawn logic: when first ice tile is placed
+  useEffect(() => {
+    if (!isPenguinPresent) {
+      for (let y = 0; y < grid.length; y++) {
+        if (!grid[y]) continue;
+        for (let x = 0; x < grid[y].length; x++) {
+          const tile = grid[y][x];
+          if (tile && (tile.type === 'ice' || tile.type === 'snow')) {
+            setPenguinPosition({ x, y });
+            setIsPenguinPresent(true);
+            return;
+          }
+        }
+      }
+    }
+  }, [grid, isPenguinPresent]);
+
   if (isLoading || isAuthLoading || !supabase) { // Also wait for supabase client
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -2529,7 +2707,11 @@ const handleTileSelection = (tile: InventoryItem | null) => {
                     }
                   }}
                   gridRotation={gridRotation}
-                  setHoveredTile={setHoveredTile} // Add this prop
+                  setHoveredTile={setHoveredTile}
+                  horsePos={isHorsePresent ? horsePosition : null}
+                  sheepPos={sheepPosition}
+                  eaglePos={eaglePosition}
+                  penguinPos={isPenguinPresent ? penguinPosition : null}
                 />
                 </div>
           </div>
