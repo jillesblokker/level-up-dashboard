@@ -99,6 +99,36 @@ const locationData: Record<string, any> = {
   }
 }
 
+// Helper function for item image mapping
+function getItemImagePath(item: any): string {
+  if (!item) return "/images/items/placeholder.jpg";
+  if (item.name === "Health Potion") return "/images/items/potion/potion-health.png";
+  if (item.name === "Mana Potion") return "/images/items/potion/potion-gold.png";
+  if (item.name === "Antidote") return "/images/items/potion/potion-exp.png";
+  if (item.name === "Ancient Artifact") {
+    const variations: string[] = [
+      "/images/items/artifact/crown/artifact-crowny.png",
+      "/images/items/artifact/ring/artifact-ringo.png",
+      "/images/items/artifact/scepter/artifact-staffy.png"
+    ];
+    let idx = 0;
+    if (item.id && typeof item.id === 'string') {
+      const mod = item.id.length % variations.length;
+      idx = isNaN(mod) ? 0 : mod;
+    }
+    return typeof variations[idx] === 'string' ? variations[idx] : variations[0];
+  }
+  if (item.name === "Magic Scroll") return "/images/items/scroll/scroll-scrolly.png";
+  if (item.name === "Tome of Knowledge" || item.type === "book") return "/images/items/scroll/scroll-perkamento.png";
+  if (item.type === "sword") return "/images/items/sword/sword-twig.png";
+  if (item.type === "shield") return "/images/items/shield/shield-reflecto.png";
+  if (item.type === "armor") return "/images/items/armor/armor-normalo.png";
+  if (item.type === "artifact") return "/images/items/artifact/crown/artifact-crowny.png";
+  if (item.type === "scroll") return "/images/items/scroll/scroll-scrolly.png";
+  if (item.type === "potion") return "/images/items/potion/potion-health.png";
+  return "/images/items/placeholder.jpg";
+}
+
 export default function CityLocationPage() {
   const params = useParams() as { cityName: string; locationId: string }
   const router = useRouter()
@@ -258,18 +288,7 @@ export default function CityLocationPage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                 {location.items && location.items.map((item: LocationItem) => {
-                  let imagePath = "/images/items/placeholder.jpg";
-                  if (item.name === "Health Potion") imagePath = "/images/items/potion/potion-health.png";
-                  if (item.name === "Mana Potion") imagePath = "/images/items/potion/potion-gold.png";
-                  if (item.name === "Antidote") imagePath = "/images/items/potion/potion-exp.png";
-                  if (item.type === "equipment" && item.id === "sword") imagePath = "/images/items/sword/sword-twig.png";
-                  if (item.type === "equipment" && item.id === "shield") imagePath = "/images/items/shield/shield-reflecto.png";
-                  if (item.type === "equipment" && (item.id === "armor-set" || item.id === "armor")) imagePath = "/images/items/armor/armor-normalo.png";
-                  if (item.type === "artifact") imagePath = "/images/items/artifact/artifact-crowny.png";
-                  if (item.name === "Ancient Artifact") imagePath = "/images/items/artifact/ring/artifact-ringo.png";
-                  if (item.name === "Magic Scroll") imagePath = "/images/items/scroll/scroll-scrolly.png";
-                  if (item.name === "Tome of Knowledge") imagePath = "/images/items/scroll/scroll-perkamento.png";
-                  if (item.type === "scroll") imagePath = "/images/items/scroll/scroll-scrolly.png";
+                  let imagePath = getItemImagePath(item)
                   return (
                     <Card key={item.id} className="overflow-hidden">
                       <div className="w-full aspect-[4/3] relative bg-black">
