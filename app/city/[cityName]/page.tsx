@@ -29,8 +29,7 @@ export default function CityPage() {
     )
   }
 
-  const cityName = params['cityName'] as string
-  const cityData = getCityData(cityName)
+  const cityData = getCityData(params['cityName'] as string)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -62,7 +61,7 @@ export default function CityPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p>The city "{cityName}" does not exist or has been removed.</p>
+            <p>The city "{params['cityName']}" does not exist or has been removed.</p>
           </CardContent>
         </Card>
       </div>
@@ -105,7 +104,7 @@ export default function CityPage() {
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="city-locations-grid">
           {cityData.locations.map((location: CityLocation) => (
-            <Link key={location.id} href={`/city/${cityName}/${location.id}`} aria-label={`Enter ${location.name}`} className="block">
+            <Link key={location.id} href={`/city/${params['cityName']}/${location.id}`} aria-label={`Enter ${location.name}`} className="block">
               <Card className="overflow-hidden bg-black border border-amber-800/20 hover:border-amber-500 transition-colors cursor-pointer" aria-label={`${location.name}-card`}>
                 <div 
                   className="h-48 bg-cover bg-center" 

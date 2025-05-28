@@ -9,7 +9,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Tile } from "@/types/tiles";
 import { TileVisual } from "@/components/tile-visual";
 import { cn } from "@/lib/utils";
-import { BattleMinigame } from "@/components/battle-minigame";
 import { generateMysteryEvent, handleEventOutcome, MysteryEvent, MysteryEventOutcome, MysteryEventReward, MysteryEventType } from '@/lib/mystery-events'
 import { BattleModal } from "@/components/battle-modal"
 import { Battle } from "@/types/battle";

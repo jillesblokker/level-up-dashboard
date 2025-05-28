@@ -12,7 +12,6 @@ const filesToFix = [
   'app/riddles/page.tsx',
   'app/rivals/page.tsx',
   'app/settings/events/page.tsx',
-  'components/battle-minigame.tsx',
   'components/battle-modal.tsx',
   'components/category-modals/condition-workout-form.tsx',
   'components/category-modals/knowledge-workout-form.tsx',
@@ -20,7 +19,6 @@ const filesToFix = [
   'components/community-fix.tsx',
   'components/onboarding-guide.tsx',
   'components/strength-workout-form.tsx',
-  'components/tic-tac-toe.tsx',
   'components/town-view.tsx'
 ];
 
