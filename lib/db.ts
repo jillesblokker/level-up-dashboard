@@ -115,7 +115,6 @@ class LevelUpDatabase extends Dexie {
 
   constructor() {
     super('levelUpDashboard');
-    
     this.version(1).stores({
       characters: '++id, name',
       images: 'id, dateModified',
@@ -130,32 +129,28 @@ class LevelUpDatabase extends Dexie {
   }
 }
 
-// Create and export a single instance of the database
-let db: LevelUpDatabase;
-
-try {
+// Conditionally define and export db based on environment
+let db: LevelUpDatabase | undefined = undefined;
+if (typeof window !== "undefined") {
   db = new LevelUpDatabase();
-  // Verify the database is accessible
   db.open().catch((error) => {
     console.error("Failed to open database:", error);
-    throw error;
   });
-} catch (error) {
-  console.error("Failed to initialize database:", error);
-  // Create a fallback database instance that won't crash the app
-  db = new Dexie('levelUpDashboard') as LevelUpDatabase;
-  // We'll initialize the schema again when possible
-  db.version(1).stores({
-    characters: '++id, name',
-    images: 'id, dateModified',
-    quests: '++id, category, completed',
-    inventory: '++id, type',
-    tileInventory: 'id, type',
-    mapTiles: '++id, [x+y], discovered',
-    cities: '++id, name',
-    cityLocations: '++id, name, type',
-    activities: 'date'
-  });
+} else {
+  // On the server, export a dummy db object to silence errors
+  db = {
+    characters: {} as Table<Character>,
+    images: {} as Table<Image>,
+    quests: {} as Table<Quest>,
+    inventory: {} as Table<InventoryItem>,
+    tileInventory: {} as Table<TileItem>,
+    mapTiles: {} as Table<MapTile>,
+    cities: {} as Table<City>,
+    cityLocations: {} as Table<CityLocation>,
+    activities: {} as Table<DailyActivity>,
+    open: async () => {},
+    delete: async () => {}
+  } as unknown as LevelUpDatabase;
 }
 
 export { db };
@@ -164,6 +159,7 @@ export { db };
 
 // Get all items from a table
 export async function getAll<T>(table: Table<T>): Promise<T[]> {
+  if (!db) return [];
   try {
     return await table.toArray();
   } catch (error) {
@@ -174,6 +170,7 @@ export async function getAll<T>(table: Table<T>): Promise<T[]> {
 
 // Get an item by id
 export async function getById<T>(table: Table<T>, id: number | string): Promise<T | undefined> {
+  if (!db) return undefined;
   try {
     return await table.get(id);
   } catch (error) {
@@ -184,6 +181,7 @@ export async function getById<T>(table: Table<T>, id: number | string): Promise<
 
 // Add an item to a table
 export async function add<T>(table: Table<T>, item: T): Promise<number | string> {
+  if (!db) throw new Error('Database not initialized');
   try {
     return await table.add(item);
   } catch (error) {
@@ -198,6 +196,7 @@ export async function update<T>(
   id: number | string,
   changes: Partial<T>
 ): Promise<number> {
+  if (!db) throw new Error('Database not initialized');
   try {
     return await table.update(id, changes as any);
   } catch (error) {
@@ -208,6 +207,7 @@ export async function update<T>(
 
 // Delete an item from a table
 export async function remove<T>(table: Table<T>, id: number | string): Promise<void> {
+  if (!db) throw new Error('Database not initialized');
   try {
     await table.delete(id);
   } catch (error) {
@@ -218,12 +218,11 @@ export async function remove<T>(table: Table<T>, id: number | string): Promise<v
 
 // Initialize database with default data if empty
 export async function initializeDatabase() {
+  if (!db) throw new Error('Database not initialized');
   try {
-  const characterCount = await db.characters.count();
-  
-  if (characterCount === 0) {
-    const now = new Date().toISOString();
-    
+    const characterCount = await db.characters.count();
+    if (characterCount === 0) {
+      const now = new Date().toISOString();
       // Initialize tiles with costs
       const initialTiles = [
         { id: "grass", name: "Grass", description: "Basic terrain", cost: 5, type: "grass", connections: [], rotation: 0, quantity: 50 },
@@ -253,25 +252,25 @@ export async function initializeDatabase() {
       // Add starter city using put
       await db.cities.put({
         id: 1,
-      name: "Starterton",
-      description: "A small town where your adventure begins.",
-      population: 100,
-      wealth: 50,
-      locations: [],
-        dateDiscovered: now,
+        name: "Starterton",
+        description: "A small town where your adventure begins.",
+        population: 100,
+        wealth: 50,
+        locations: [],
+        dateDiscovered: new Date().toISOString(),
         version: 1
-    });
+      });
     
       // Add starter city locations using put
-    const locationTypes = ['tavern', 'blacksmith', 'market', 'academy'];
-    const locationNames = ['The Drunken Dragon', 'Ironforge Smithy', 'Market Square', 'Wizard\'s Academy'];
-    
-    for (let i = 0; i < locationTypes.length; i++) {
+      const locationTypes = ['tavern', 'blacksmith', 'market', 'academy'];
+      const locationNames = ['The Drunken Dragon', 'Ironforge Smithy', 'Market Square', 'Wizard\'s Academy'];
+      
+      for (let i = 0; i < locationTypes.length; i++) {
         await db.cityLocations.put({
           id: i + 1,
-        name: locationNames[i],
-        type: locationTypes[i],
-        description: `A ${locationTypes[i]} in Starterton.`,
+          name: locationNames[i] ?? "",
+          type: locationTypes[i] ?? "",
+          description: `A ${locationTypes[i] ?? ""} in Starterton.`,
           unlocked: i < 2, // Only first two locations unlocked initially
           version: 1,
           lastUpdated: now
@@ -316,6 +315,7 @@ function determineInitialTileType(x: number, y: number): string {
 }
 
 export async function getTileInventory() {
+  if (!db) return [];
   try {
     const tiles = await db.tileInventory.toArray();
     return tiles.map(tile => ({
@@ -335,6 +335,7 @@ export async function getTileInventory() {
 }
 
 export async function saveTileInventory(tiles: TileItem[]) {
+  if (!db) return false;
   try {
     // Clear existing inventory
     await db.tileInventory.clear();
@@ -352,4 +353,9 @@ export async function saveTileInventory(tiles: TileItem[]) {
     console.error("Error saving tile inventory:", error);
     return false;
   }
+}
+
+// Example usage of db with fallback for possibly undefined
+export function getDbInstance(): LevelUpDatabase | undefined {
+  return db;
 } 
