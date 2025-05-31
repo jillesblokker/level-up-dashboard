@@ -2,10 +2,10 @@
 
 import React from 'react';
 import { NavBar } from '@/components/nav-bar';
-import { useAuth } from '@/components/providers';
+import { useAuthContext } from '@/components/providers';
 
 export function AuthContent({ children }: { children: React.ReactNode }) {
-  const { session, isLoading, goldBalance } = useAuth();
+  const { isGuest, isLoading, userId } = useAuthContext();
 
   if (isLoading) {
     // Optional: Render a loading state or null while auth is checking
@@ -14,7 +14,7 @@ export function AuthContent({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <NavBar session={session} goldBalance={goldBalance} />
+      <NavBar goldBalance={0} session={userId ? { user: { id: userId } } : null} />
       <main className="flex-1">{children}</main>
     </>
   );

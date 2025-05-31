@@ -39,9 +39,10 @@ import { MinimapEntity, MinimapRotationMode } from "@/types/minimap"
 import { useAchievementStore } from '@/stores/achievementStore'
 import { loadInitialGrid, createTileFromNumeric, numericToTileType } from "@/lib/grid-loader"
 import { getLatestGrid, uploadGridData, updateGridData, subscribeToGridChanges, createQuestCompletion, getQuestCompletions } from '@/lib/api'
-import { useAuth } from "@/components/providers"
+import { useAuthContext } from '@/components/providers'
 import Link from "next/link"
 import { logger } from "@/lib/logger"
+import { supabase } from '@/lib/supabase-client'
 
 // Types
 interface Position {
@@ -711,7 +712,7 @@ export default function RealmPage() {
   const gridRef = useRef<HTMLDivElement>(null)
   const { updateProgress } = useAchievementStore()
   const creatureStore = useCreatureStore()
-  const { session, isLoading: isAuthLoading, supabase } = useAuth()
+  const { userId, isLoading: isAuthLoading, isGuest } = useAuthContext();
   const subscriptionRef = useRef<any>(null)
 
   // State declarations
@@ -806,7 +807,7 @@ export default function RealmPage() {
               logger.info('Using default initial grid after local storage parsing error', 'GridInit')
             }
           }
-        } else if (session?.user?.id && supabase) {
+        } else if (userId && !isGuest) {
           logger.info('=== LOADING GRID FOR AUTHENTICATED USER ===', 'GridInit')
           logger.info('Authenticated user, loading initial grid from CSV first, then checking Supabase for modifications...', 'GridInit')
           // Always start with the CSV initial grid
@@ -817,7 +818,7 @@ export default function RealmPage() {
             const { data: initialGridData, error: fetchError } = await supabase
               .from('realm_grids')
               .select('grid')
-              .eq('user_id', session.user.id)
+              .eq('user_id', userId)
               .order('updated_at', { ascending: false })
               .limit(1)
 
@@ -922,7 +923,7 @@ export default function RealmPage() {
     }
 
     initializeGrid()
-  }, [session?.user?.id, supabase, toast])
+  }, [userId, isGuest, toast])
 
   // Effect to save grid to database for authenticated users or local storage for anonymous users
   useEffect(() => {
@@ -933,7 +934,7 @@ export default function RealmPage() {
 
     const saveGrid = async () => {
       // Add a stricter check for authenticated Supabase save
-      if (!isSkippingAuth && (!session?.user?.id || !supabase)) {
+      if (!isSkippingAuth && (!userId || isGuest)) {
         logger.info('Skipping Supabase save: No authenticated user session', 'GridSave')
         return // Exit if not skipping auth but no session is available
       }
@@ -979,7 +980,7 @@ export default function RealmPage() {
           const { data: existingGrids, error: fetchError } = await supabase
             .from('realm_grids')
             .select('id, updated_at') // Select only id and updated_at
-            .eq('user_id', session.user.id)
+            .eq('user_id', userId)
             .order('updated_at', { ascending: false });
 
           if (fetchError) {
@@ -1027,7 +1028,7 @@ export default function RealmPage() {
             const { error: insertError } = await supabase
               .from('realm_grids')
               .insert([{ 
-                user_id: session.user.id,
+                user_id: userId,
                 grid: numericGrid as any, // Cast to any if needed
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
@@ -1061,13 +1062,13 @@ export default function RealmPage() {
     // Cleanup function for when isInitialized is false or component unmounts before initialization
     return () => {};
 
-  }, [grid, isInitialized, session?.user?.id, supabase])
+  }, [grid, isInitialized, userId, isGuest])
 
 
   // Effect for real-time subscription
    useEffect(() => {
        // Ensure supabase is defined before attempting to subscribe
-       if (session?.user?.id && supabase) { // Add supabase check here
+       if (userId && !isGuest) { // Add supabase check here
            console.log('Setting up Supabase real-time subscription for tile placements.');
            // This subscription should ideally listen to changes in the tilePlacement table.
            // For now, keeping it minimal as the primary fix is loading.
@@ -1082,7 +1083,7 @@ export default function RealmPage() {
                  table: 'tile_placement', // Listen to changes in the tile_placement table
                  // Note: Filtering by userId here requires a userId column in the tile_placement table.
                  // Ensure your database schema includes this column.
-                 filter: `userId=eq.${session.user.id}` // Assuming tilePlacement table has a userId column
+                 filter: `userId=eq.${userId}` // Assuming tilePlacement table has a userId column
                },
                (payload) => {
                  console.log('Real-time tile placement change received:', payload);
@@ -1116,7 +1117,7 @@ export default function RealmPage() {
             console.log('No active Supabase grid subscription.');
             return () => {}; // Return empty cleanup function
        }
-   }, [session?.user?.id, supabase, toast]); // Depend on session, supabase, and toast
+   }, [userId, isGuest, toast]); // Depend on session, supabase, and toast
 
   // Other useEffects remain unchanged...
 
@@ -1382,7 +1383,7 @@ export default function RealmPage() {
       setSaveError(null)
       setRetryCount(retryAttempt)
       
-      if (!session?.user?.id || !supabase) {
+      if (!userId || isGuest) {
         console.log('No user or session, saving to localStorage')
         localStorage.setItem('realm-grid-data', JSON.stringify(currentGrid))
         setSaveStatus('saved')
@@ -1398,7 +1399,7 @@ export default function RealmPage() {
       const { data, error } = await supabase
         .from('realm_grids')
         .upsert({
-          id: session.user.id,
+          id: userId,
           grid: currentGrid,
           updated_at: new Date().toISOString()
         }, {
@@ -2242,7 +2243,7 @@ const handleTileSelection = (tile: InventoryItem | null) => {
 
   // Add a function to handle quest completion and unlock dragon creatures
   const handleQuestCompletion = async () => {
-    if (!session?.user?.id || !supabase) {
+    if (!userId || isGuest) {
         console.warn('Session or Supabase client not available for quest completion');
         return; // Ensure user and supabase are available
     }
@@ -2253,7 +2254,7 @@ const handleTileSelection = (tile: InventoryItem | null) => {
     setQuestCompletedCount(newCount);
     try {
       // Pass the supabase client to createQuestCompletion
-      await createQuestCompletion('realm', 'Quest Completed');
+      await createQuestCompletion(supabase, 'realm', 'Quest Completed');
       console.log('Quest completion recorded in Supabase.');
     } catch (error) {
       console.error('Failed to record quest completion:', error);
@@ -2326,11 +2327,11 @@ const handleTileSelection = (tile: InventoryItem | null) => {
         if (
           pos.x >= 0 && pos.y >= 0 &&
           pos.y < grid.length &&
-          grid[0] && pos.x < grid[0].length &&
+          Array.isArray(grid[0]) && pos.x < grid[0].length &&
           !visited.has(`${pos.x},${pos.y}`)
         ) {
-          if (!grid[pos.y] || !grid[pos.y][pos.x]) return;
-          const t = grid[pos.y][pos.x];
+          if (!grid[pos.y]?.[pos.x]) return;
+          const t = grid[pos.y]?.[pos.x];
           if (t && (t.type === 'ice' || t.type === 'snow')) {
             queue.push(pos);
           }
@@ -2349,7 +2350,7 @@ const handleTileSelection = (tile: InventoryItem | null) => {
     ];
 
     return adjacentTiles.filter(pos => {
-      if (pos.x < 0 || pos.y < 0 || pos.y >= grid.length || !grid[0] || pos.x >= grid[0].length) {
+      if (pos.x < 0 || pos.y < 0 || pos.y >= grid.length || !Array.isArray(grid[0]) || pos.x >= (grid[0]?.length ?? 0)) {
         return false;
       }
       const tile = grid[pos.y]?.[pos.x];
@@ -2784,7 +2785,7 @@ const handleTileSelection = (tile: InventoryItem | null) => {
       )}
 
       {showPortalModal && portalSource && (
-        <Dialog open={true} onOpenChange={handlePortalLeave} aria-modal="true" role="dialog" aria-label="portal-modal">
+        <Dialog open={true} onOpenChange={handlePortalLeave} aria-label="portal-modal">
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Enter Portal?</DialogTitle>

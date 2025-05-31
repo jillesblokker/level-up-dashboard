@@ -155,55 +155,36 @@ export async function getQuestCompletions(supabase: SupabaseClient<Database>): P
   }
 }
 
+// Helper to get Supabase UUID from Clerk user ID
+async function getSupabaseUserIdFromClerk(clerkId: string, supabase: any): Promise<string> {
+  const { data, error } = await supabase
+    .from('users')
+    .select('id')
+    .eq('clerk_id', clerkId)
+    .single();
+  if (error || !data) throw new Error('Could not find Supabase user for Clerk ID');
+  return data.id;
+}
+
+// Example: uploadGridData
 export async function uploadGridData(
-  supabase: SupabaseClient<Database>,
+  supabase: any,
   grid: number[][],
-  userId: string
+  clerkId: string
 ): Promise<{ id: string } | null> {
-  if (!userId) {
-    console.error('No user ID provided for grid upload');
-    throw new Error('Authentication required to upload grid data');
-  }
-
+  if (!clerkId) throw new Error('No Clerk user ID provided');
+  const userId = await getSupabaseUserIdFromClerk(clerkId, supabase);
   try {
-    // First verify the user's session
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    
-    if (sessionError) {
-      console.error('Error checking session:', sessionError);
-      throw new Error('Failed to verify authentication');
-    }
-
-    if (!session) {
-      console.error('No active session found');
-      throw new Error('Authentication required to upload grid data');
-    }
-
     const { data, error } = await supabase
       .from('realm_grids')
       .insert([
-        {
-          user_id: userId,
-          grid: grid,
-          version: 1
-        },
+        { user_id: userId, grid, version: 1 },
       ])
       .select('id')
       .single();
-
-    if (error) {
-      console.error('Error uploading grid data:', error);
-      if (error.code === '42501') {
-        throw new Error('Permission denied: You do not have access to upload grid data');
-      } else if (error.code === '23505') {
-        throw new Error('A grid already exists for this user');
-      }
-      throw error;
-    }
-
+    if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Failed to upload grid data:', error);
     throw new Error(error instanceof Error ? error.message : 'Failed to upload grid data');
   }
 }
@@ -231,33 +212,14 @@ export async function updateGridData(
   }
 }
 
+// Example: getLatestGrid
 export async function getLatestGrid(
-  supabase: SupabaseClient<Database>,
-  userId: string
+  supabase: any,
+  clerkId: string
 ): Promise<{ id: string; grid: number[][] } | null> {
-  if (!userId) {
-    console.error('No user ID provided for grid fetch');
-    throw new Error('Authentication required to fetch grid data');
-  }
-
+  if (!clerkId) throw new Error('No Clerk user ID provided');
+  const userId = await getSupabaseUserIdFromClerk(clerkId, supabase);
   try {
-    // First verify the user's session
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    
-    if (sessionError) {
-      console.error('Error checking session:', {
-        code: sessionError.code,
-        message: sessionError.message
-      });
-      throw new Error('Failed to verify authentication');
-    }
-
-    if (!session) {
-      console.error('No active session found for user:', userId);
-      throw new Error('Authentication required to fetch grid data');
-    }
-
-    // Fetch the latest grid directly - the RLS policies will handle access control
     const { data, error } = await supabase
       .from('realm_grids')
       .select('id, grid')
@@ -265,65 +227,11 @@ export async function getLatestGrid(
       .order('version', { ascending: false })
       .limit(1)
       .single();
-
-    if (error) {
-      if (error.code === 'PGRST116') {
-        // No rows found - this is not an error
-        return null;
-      }
-      
-      console.error('Error fetching latest grid:', {
-        code: error.code,
-        message: error.message,
-        hint: error.hint,
-        details: error.details,
-        userId
-      });
-
-      if (error.code === '42501') {
-        throw new Error('Permission denied: Please ensure you have the correct permissions');
-      } else if (error.code === '42P01') {
-        throw new Error('Table not found: Please contact support');
-      } else {
-        throw new Error(`Failed to fetch grid data: ${error.message}`);
-      }
-    }
-
-    // Validate grid data structure
-    if (!data || !data.grid || !Array.isArray(data.grid)) {
-      console.error('Invalid grid data structure:', {
-        data,
-        userId
-      });
-      throw new Error('Invalid grid data structure');
-    }
-
-    // Ensure grid is a 2D array of numbers
-    const validatedGrid = data.grid.map((row: any) => {
-      if (!Array.isArray(row)) {
-        throw new Error('Invalid grid row structure');
-      }
-      return row.map((cell: any) => {
-        const num = Number(cell);
-        if (isNaN(num)) {
-          throw new Error('Invalid grid cell value');
-        }
-        return num;
-      });
-    });
-
-    return {
-      id: data.id,
-      grid: validatedGrid
-    };
+    if (error) throw error;
+    if (!data || !data.grid || !Array.isArray(data.grid)) throw new Error('Invalid grid data structure');
+    return data;
   } catch (error) {
-    console.error('Failed to fetch latest grid:', {
-      name: error instanceof Error ? error.name : 'Unknown error',
-      message: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined,
-      userId
-    });
-    throw error instanceof Error ? error : new Error('Failed to fetch latest grid');
+    throw new Error(error instanceof Error ? error.message : 'Failed to fetch grid data');
   }
 }
 

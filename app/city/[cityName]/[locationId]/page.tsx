@@ -17,6 +17,7 @@ interface LocationItem {
   price: number
   type: "item" | "resource" | "creature" | "scroll" | "equipment" | "artifact" | "book"
   emoji?: string
+  image?: string
 }
 
 const locationData: Record<string, any> = {
@@ -72,9 +73,9 @@ const locationData: Record<string, any> = {
     description: "Buy equipment: sword, shield, and armor set.",
     icon: Swords,
     items: [
-      { id: "sword", name: "Sword", description: "A sharp blade for battle.", price: 120, type: "equipment", emoji: "⚔️" },
-      { id: "shield", name: "Shield", description: "Protects you from attacks.", price: 100, type: "equipment", emoji: "🛡️" },
-      { id: "armor-set", name: "Armor Set", description: "Full body protection.", price: 250, type: "equipment", emoji: "🥋" }
+      { id: "sword", name: "Sword", description: "A sharp blade for battle.", price: 120, type: "equipment", emoji: "⚔️", image: "/images/items/sword/sword-twig.png" },
+      { id: "shield", name: "Shield", description: "Protects you from attacks.", price: 100, type: "equipment", emoji: "🛡️", image: "/images/items/shield/shield-reflecto.png" },
+      { id: "armor-set", name: "Armor Set", description: "Full body protection.", price: 250, type: "equipment", emoji: "🥋", image: "/images/items/armor/armor-normalo.png" }
     ]
   },
   "kingdom-marketplace": {
@@ -288,7 +289,7 @@ export default function CityLocationPage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                 {location.items && location.items.map((item: LocationItem) => {
-                  let imagePath = getItemImagePath(item)
+                  let imagePath = item.image || getItemImagePath(item);
                   return (
                     <Card key={item.id} className="overflow-hidden">
                       <div className="w-full aspect-[4/3] relative bg-black">
@@ -306,15 +307,21 @@ export default function CityLocationPage() {
                         <CardTitle>{item.name}</CardTitle>
                         <CardDescription>{item.description}</CardDescription>
                       </CardHeader>
-                      <CardContent>
-                        <div className="text-sm mb-2">Price: {item.price} gold</div>
-                        <div className="text-xs text-gray-400">Type: {item.type}</div>
-                        <Button className="w-full mt-4" onClick={() => handlePurchase(item)}>
+                      <CardContent className="flex-1">
+                        <p className="text-sm text-muted-foreground">Price: {item.price} gold</p>
+                        <p className="text-sm text-muted-foreground">Type: {item.type}</p>
+                      </CardContent>
+                      <CardContent className="pt-0">
+                        <Button
+                          className="w-full"
+                          onClick={() => handlePurchase(item)}
+                          disabled={gold < item.price}
+                        >
                           Purchase
                         </Button>
                       </CardContent>
                     </Card>
-                  )
+                  );
                 })}
               </div>
             )}

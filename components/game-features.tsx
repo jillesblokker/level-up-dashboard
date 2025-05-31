@@ -18,6 +18,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { CreatureCard } from '@/components/creature-card';
 import { useCreatureStore } from '@/stores/creatureStore';
 import Image from 'next/image';
+import { Toggle } from '@/components/ui/toggle';
 
 export function GameFeatures() {
   const router = useRouter();
@@ -37,6 +38,7 @@ export function GameFeatures() {
   const [achievementsError, setAchievementsError] = useState<string | null>(null);
   const dataLoadedRef = useRef(false);
   const undiscoveredImg = '/images/undiscovered.png';
+  const [showAllDiscovered, setShowAllDiscovered] = useState(false);
 
   useEffect(() => {
     console.debug('[GameFeatures] mount');
@@ -147,9 +149,24 @@ export function GameFeatures() {
     </div>
   ) : null;
 
+  // Helper to determine if a card is discovered (overridden by toggle)
+  const isDiscovered = (id: string) => showAllDiscovered ? true : isCreatureDiscovered(id);
+
   return (
     <main className="container mx-auto p-6" aria-label="achievements-section">
-      <h1 className="text-3xl font-bold mb-6">Achievements</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold">Achievements</h1>
+        <Toggle
+          aria-label={showAllDiscovered ? "Show only real discovered cards" : "Show all cards as discovered"}
+          pressed={showAllDiscovered}
+          onPressedChange={setShowAllDiscovered}
+          variant="outline"
+          size="sm"
+          className="ml-2"
+        >
+          {showAllDiscovered ? "Show Real Progress" : "Show All Discovered"}
+        </Toggle>
+      </div>
       <div className="mb-6">
         {achievementsLoading ? (
           <div className="text-center text-gray-500">Loading achievements...</div>
@@ -165,10 +182,10 @@ export function GameFeatures() {
               {creatures
                 .filter(c => c.id !== '000')
                 .slice()
-                .sort((a, b) => Number(!isCreatureDiscovered(a.id)) - Number(!isCreatureDiscovered(b.id)))
+                .sort((a, b) => Number(!isDiscovered(a.id)) - Number(!isDiscovered(b.id)))
                 .map(creature => {
                   const achievement = achievements.find(a => a.id === creature.id);
-                  const discovered = isCreatureDiscovered(creature.id);
+                  const discovered = isDiscovered(creature.id);
                   return (
                     <Card 
                       key={creature.id}

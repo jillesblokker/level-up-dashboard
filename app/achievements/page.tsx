@@ -21,6 +21,7 @@ export default function AchievementsRedirect() {
 export function AchievementsPage() {
   const [achievements, setAchievements] = useState<Achievement[]>([])
   const [activeTab, setActiveTab] = useState("all")
+  const [showAllDiscovered, setShowAllDiscovered] = useState(false)
 
   useEffect(() => {
     // Load initial data
@@ -40,7 +41,11 @@ export function AchievementsPage() {
     }
   }, [])
 
-  const filteredAchievements = achievements.filter(achievement => {
+  // If toggled, pretend all achievements are discovered
+  const displayAchievements = showAllDiscovered
+    ? achievements.map(a => ({ ...a, isUnlocked: true }))
+    : achievements;
+  const filteredAchievements = displayAchievements.filter(achievement => {
     if (activeTab === "all") return true
     if (activeTab === "unlocked") return achievement.isUnlocked
     if (activeTab === "locked") return !achievement.isUnlocked
@@ -56,7 +61,16 @@ export function AchievementsPage() {
 
   return (
     <main className="container mx-auto p-6" aria-label="achievements-section">
-      <h1 className="text-3xl font-bold mb-6">Achievements</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold">Achievements</h1>
+        <button
+          className="px-4 py-2 rounded bg-amber-500 text-black font-semibold shadow hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-400"
+          aria-label={showAllDiscovered ? "Show only real discovered achievements" : "Show all achievements as discovered"}
+          onClick={() => setShowAllDiscovered(v => !v)}
+        >
+          {showAllDiscovered ? "Show Real Progress" : "Show All Discovered"}
+        </button>
+      </div>
       
       <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-4" aria-label="achievements-tabs">

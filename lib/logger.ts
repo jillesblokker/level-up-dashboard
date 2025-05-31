@@ -1,6 +1,8 @@
 // Logger utility for the Level Up Dashboard
 // Provides consistent logging across the application with different log levels
 
+import { supabase } from './supabase-client';
+
 export interface LogEntry {
   timestamp: Date;
   level: 'info' | 'warning' | 'error';
@@ -158,4 +160,29 @@ class Logger {
 export const logger = new Logger();
 
 // Export logger instance as default
-export default logger; 
+export default logger;
+
+export async function logQuestAction(
+  userId: string,
+  action: string,
+  questId: string,
+  details?: Record<string, any>
+) {
+  try {
+    const { error } = await supabase
+      .from('QuestLogs')
+      .insert({
+        userId,
+        action,
+        questId,
+        details: details || {},
+        timestamp: new Date().toISOString()
+      });
+
+    if (error) {
+      console.error('Error logging quest action:', error);
+    }
+  } catch (error) {
+    console.error('Error in logQuestAction:', error);
+  }
+} 
