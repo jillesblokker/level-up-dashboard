@@ -4,7 +4,7 @@ export interface NotificationData {
   id: string
   title: string
   message: string
-  type: "achievement" | "quest" | "friend" | "system" | "success" | "warning" | "danger" | "info" | "discovery"
+  type: "achievement" | "quest" | "friend" | "system" | "success" | "warning" | "danger" | "info" | "discovery" | "event" | "levelup"
   read: boolean
   timestamp: string
   action?: {
@@ -82,7 +82,13 @@ class NotificationService {
     this.dispatchNotificationEvent(notification)
 
     // Show toast for important notifications
-    if (type === "achievement" || type === "quest" || type === "discovery") {
+    if (
+      type === "achievement" ||
+      type === "quest" ||
+      type === "discovery" ||
+      type === "event" ||
+      type === "levelup"
+    ) {
       toast({
         title: notification.title,
         description: notification.message,

@@ -1,6 +1,7 @@
 import { toast } from "@/components/ui/use-toast"
 import { showScrollToast } from "@/lib/toast-utils"
 import { calculateLevelFromExperience, calculateExperienceForLevel, CharacterStats } from "@/types/character"
+import { createLevelUpNotification } from "@/lib/notifications"
 
 interface Perk {
   id: string;
@@ -110,6 +111,7 @@ export function gainExperience(amount: number, source: string, category: string 
 
     // Show toast notifications
     if (newLevel > currentStats.level) {
+      createLevelUpNotification(currentStats.level, newLevel);
       toast({
         title: "Level Up!",
         description: `You've reached level ${newLevel}!`,

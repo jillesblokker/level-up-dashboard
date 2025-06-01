@@ -2,6 +2,7 @@ import { getRandomElement, getRandomInt } from '@/lib/utils'
 import { toast } from "@/components/ui/use-toast";
 import { addToInventory, getInventory, InventoryItem } from "@/lib/inventory-manager"
 import { emitGoldGained, emitExperienceGained } from "./kingdom-events"
+import { createEventNotification } from "@/lib/notifications"
 
 export type MysteryEventType = 'treasure' | 'quest' | 'trade' | 'blessing' | 'curse' | 'riddle'
 
@@ -427,6 +428,8 @@ export const handleEventOutcome = (event: MysteryEvent, choice: string) => {
     });
 
     emitGoldGained(reward.amount, 'mystery-events');
+
+    createEventNotification('Treasure Found!', `You opened a treasure chest and gained ${reward.amount} gold!`);
   }
   
   if (reward.type === 'item' && reward.item && reward.item.length > 0) {
@@ -438,6 +441,8 @@ export const handleEventOutcome = (event: MysteryEvent, choice: string) => {
         description: `You found ${firstItem.name}`,
         duration: 3000
       });
+
+      createEventNotification('Artifact Found', `You found a mysterious artifact!`);
     }
   }
   
@@ -456,6 +461,8 @@ export const handleEventOutcome = (event: MysteryEvent, choice: string) => {
       description: `You found ${reward.scroll.name}!`,
       duration: 3000
     });
+
+    createEventNotification('Scroll Discovered!', `You found ${reward.scroll.name}!`);
   }
 
   if (reward.type === 'experience' && reward.amount) {
@@ -471,6 +478,8 @@ export const handleEventOutcome = (event: MysteryEvent, choice: string) => {
     });
 
     emitExperienceGained(reward.amount, 'mystery-events');
+
+    createEventNotification('Ancient Shrine', `You prayed at the shrine and gained ${reward.amount} XP!`);
   }
 };
 

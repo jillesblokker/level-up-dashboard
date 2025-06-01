@@ -43,6 +43,7 @@ import { useAuthContext } from '@/components/providers'
 import Link from "next/link"
 import { logger } from "@/lib/logger"
 import { supabase } from '@/lib/supabase-client'
+import { createEventNotification } from "@/lib/notifications"
 
 // Types
 interface Position {
@@ -1626,6 +1627,9 @@ export default function RealmPage() {
         description: 'The horse has been added to your inventory.',
         duration: 3000
       });
+      console.log("[Notification] Adding horse found event notification");
+      createEventNotification('Horse Found!', 'You found a horse on the map and it has been added to your inventory!');
+      console.log("[Notification] Horse event notification added");
     }
     // Safely access the tile
     const tile = grid?.[newY]?.[newX];

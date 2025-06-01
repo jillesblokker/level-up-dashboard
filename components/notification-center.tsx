@@ -4,14 +4,12 @@ import { useEffect, useState } from "react"
 import { Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { ScrollArea } from "@/components/ui/scroll-area"
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 import { NotificationData, notificationService } from "@/lib/notification-service"
 import { useRouter } from "next/navigation"
@@ -58,126 +56,77 @@ export function NotificationCenter() {
     setUnreadCount(notificationService.getUnreadCount())
   }
 
-  const handleAction = (notification: NotificationData) => {
-    if (notification.action) {
-      handleMarkAsRead(notification.id)
-      setOpen(false)
-      router.push(notification.action.href)
-    }
-  }
-
-  const getNotificationIcon = (type: NotificationData["type"]) => {
-    switch (type) {
-      case "achievement":
-        return "🏆"
-      case "quest":
-        return "⚔️"
-      case "friend":
-        return "👥"
-      case "discovery":
-        return "🔍"
-      case "success":
-        return "✅"
-      case "warning":
-        return "⚠️"
-      case "danger":
-        return "❌"
-      case "info":
-        return "ℹ️"
-      default:
-        return "📢"
-    }
-  }
+  // Only show high-level notifications
+  const highLevelTypes = ["achievement", "quest", "discovery", "event", "levelup"]
+  const filteredNotifications = notifications.filter(n => highLevelTypes.includes(n.type))
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" className="relative" size="icon">
-          <Bell className="h-[1.2rem] w-[1.2rem]" />
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button variant="ghost" size="icon" aria-label="Open notification center">
+          <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
+            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
               {unreadCount}
             </span>
           )}
+          <span className="sr-only">Notifications</span>
         </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Notifications</DialogTitle>
-          <DialogDescription>
-            {notifications.length === 0
-              ? "No notifications yet"
-              : `You have ${unreadCount} unread notification${unreadCount !== 1 ? "s" : ""}`}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4">
-          {notifications.length > 0 && (
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={handleMarkAllAsRead}
-              disabled={unreadCount === 0}
-            >
-              Mark all as read
+      </SheetTrigger>
+      <SheetContent side="right" aria-label="notification-center-sidepanel" className="w-96 max-w-full bg-black border-l border-amber-800/20">
+        <SheetHeader>
+          <SheetTitle className="text-amber-500">Notifications</SheetTitle>
+        </SheetHeader>
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-xs text-muted-foreground">Realm & Achievement Events</span>
+          {unreadCount > 0 && (
+            <Button variant="ghost" size="sm" onClick={handleMarkAllAsRead} className="h-8 px-2 text-xs">
+              Mark all read
             </Button>
           )}
-          <ScrollArea className="h-[300px] w-full rounded-md border p-4">
-            <div className="grid gap-4">
-              {notifications.map((notification) => (
-                <div
-                  key={notification.id}
-                  className={cn(
-                    "grid gap-1 rounded-lg border p-4 transition-colors",
-                    !notification.read && "bg-muted/50"
-                  )}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="grid gap-1">
-                      <div className="flex items-center gap-2">
-                        <span>{getNotificationIcon(notification.type)}</span>
-                        <h4 className="font-semibold">{notification.title}</h4>
-                      </div>
-                      <p className="text-sm text-muted-foreground whitespace-pre-line">
-                        {notification.message}
-                      </p>
-                      {notification.action && (
-                        <Button
-                          variant="link"
-                          className="px-0 text-sm"
-                          onClick={() => handleAction(notification)}
-                        >
-                          {notification.action.label}
-                        </Button>
-                      )}
+        </div>
+        <div className="divide-y divide-amber-800/10 max-h-[80vh] overflow-auto">
+          {filteredNotifications.length === 0 ? (
+            <div className="p-4 text-center text-muted-foreground">No notifications</div>
+          ) : (
+            filteredNotifications.map((notification) => (
+              <div key={notification.id} className={cn("p-3 relative", notification.read ? "opacity-70" : "")}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium text-sm">{notification.title}</h4>
+                      <span className="text-xs text-muted-foreground">{new Date(notification.timestamp).toLocaleString()}</span>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6"
-                      onClick={() => handleDelete(notification.id)}
-                    >
-                      ✕
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{new Date(notification.timestamp).toLocaleString()}</span>
-                    {!notification.read && (
-                      <Button
-                        variant="ghost"
-                        className="h-auto px-2 py-1 text-xs"
-                        onClick={() => handleMarkAsRead(notification.id)}
-                      >
-                        Mark as read
-                      </Button>
-                    )}
+                    <p className="text-sm text-muted-foreground mt-1">{notification.message}</p>
                   </div>
                 </div>
-              ))}
-            </div>
-          </ScrollArea>
+                <div className="mt-2 flex justify-end gap-2">
+                  {!notification.read && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleMarkAsRead(notification.id)}
+                      className="h-7 px-2 text-xs"
+                    >
+                      Mark as read
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDelete(notification.id)}
+                    className="h-7 px-2 text-xs text-red-500 hover:text-red-600"
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   )
 }
 

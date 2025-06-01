@@ -2,7 +2,7 @@ interface Notification {
   id: string
   title: string
   message: string
-  type: "achievement" | "quest" | "friend" | "system"
+  type: "achievement" | "quest" | "friend" | "system" | "success" | "warning" | "danger" | "info" | "discovery" | "event" | "levelup"
   read: boolean
   timestamp: string
   action?: {
@@ -43,6 +43,30 @@ export function createQuestNotification(questName: string, goldReward: number) {
   }
 
   dispatchNotification(notification)
+}
+
+export function createEventNotification(title: string, message: string) {
+  const notification: Notification = {
+    id: `event-${Date.now()}`,
+    title,
+    message,
+    type: "event",
+    read: false,
+    timestamp: new Date().toISOString(),
+  };
+  dispatchNotification(notification);
+}
+
+export function createLevelUpNotification(fromLevel: number, toLevel: number) {
+  const notification: Notification = {
+    id: `levelup-${Date.now()}`,
+    title: "Level Up!",
+    message: `You leveled up! Level ${fromLevel} → Level ${toLevel}`,
+    type: "levelup",
+    read: false,
+    timestamp: new Date().toISOString(),
+  };
+  dispatchNotification(notification);
 }
 
 function dispatchNotification(notification: Notification) {
