@@ -6,7 +6,6 @@ import Link from "next/link"
 import { toast } from "@/components/ui/use-toast"
 import { showScrollToast } from "@/lib/toast-utils"
 import { emitQuestCompletedWithRewards } from "@/lib/kingdom-events"
-import { useAuth } from '@/components/providers'
 import { logger } from "@/lib/logger"
 import { QuestService } from '@/lib/quest-service'
 import { Quest } from '@/lib/quest-types'
@@ -28,6 +27,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
+import { defaultQuests } from '@/lib/quest-sample-data'
+import { useSupabaseClientWithToken } from '@/lib/hooks/use-supabase-client'
 
 // Add logging function
 const logQuestAction = async (action: string, questId: string, details: any, userId: string) => {
@@ -48,10 +49,8 @@ export default function QuestsPage() {
   const { user } = useUser();
   const userId = user?.id;
   const [goldBalance, setGoldBalance] = useState(1000)
-  
-  // Enhanced quest state
-  const [quests, setQuests] = useState<Quest[]>([])
-  const [loading, setLoading] = useState(true)
+  const [quests, setQuests] = useState<Quest[]>(defaultQuests)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isQuestsLoaded, setIsQuestsLoaded] = useState(false)
   
@@ -61,35 +60,64 @@ export default function QuestsPage() {
   const [saveError, setSaveError] = useState<string | null>(null)
   const [retryCount, setRetryCount] = useState(0)
 
-  // Load quests on component mount
+  const supabase = useSupabaseClientWithToken();
+
+  // Helper to insert all default quests for a user into Supabase
+  const insertDefaultQuestsToSupabase = async (userId: string) => {
+    try {
+      await Promise.all(
+        defaultQuests.map(q =>
+          QuestService.createQuest(supabase, {
+            ...q,
+            userId,
+            completed: false,
+            progress: 0,
+            isNew: true,
+            isAI: false,
+          })
+        )
+      );
+    } catch (err) {
+      console.error('Failed to insert default quests:', err);
+    }
+  };
+
+  // Fetch from Supabase on refresh or login
+  const fetchQuests = async () => {
+    if (!userId) {
+      setQuests(defaultQuests);
+      setLoading(false);
+      setIsQuestsLoaded(true);
+      return;
+    }
+    setLoading(true);
+    try {
+      let questsFromDb = await QuestService.getQuests(supabase, userId);
+      if (!questsFromDb || questsFromDb.length === 0) {
+        // Insert default quests for this user
+        await insertDefaultQuestsToSupabase(userId);
+        // Fetch again
+        questsFromDb = await QuestService.getQuests(supabase, userId);
+      }
+      setQuests(questsFromDb && questsFromDb.length > 0 ? questsFromDb : defaultQuests);
+      setError(null);
+    } catch (err) {
+      // Always show default quests if error
+      setQuests(defaultQuests);
+      setError(null); // Don't show error message, just fallback
+    } finally {
+      setLoading(false);
+      setIsQuestsLoaded(true);
+    }
+  };
+
+  // On mount or when user changes, show default quests, then fetch from Supabase
   useEffect(() => {
-    const fetchQuests = async () => {
-      if (!userId) {
-        console.log('No user ID available, skipping quest fetch');
-        setLoading(false);
-        setIsQuestsLoaded(true);
-        return;
-      }
-
-      try {
-        console.log('Fetching quests for user:', userId); // Debug log
-        const quests = await QuestService.getQuests(userId);
-        console.log('Fetched quests:', quests); // Debug log
-        setQuests(quests);
-      } catch (err) {
-        let message = 'Failed to load quests';
-        if (err instanceof Error) {
-          message = err.message;
-          console.error('Quests fetch error:', err);
-        }
-        setError(message);
-      } finally {
-        setLoading(false);
-        setIsQuestsLoaded(true);
-      }
-    };
-
+    setQuests(defaultQuests);
+    setLoading(true);
+    setIsQuestsLoaded(false);
     fetchQuests();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   // Update quest progress
@@ -112,7 +140,7 @@ export default function QuestsPage() {
       }, userId);
 
       // Update the quest in Supabase
-      const updatedQuest = await QuestService.updateQuestProgress(questId, newProgress);
+      const updatedQuest = await QuestService.updateQuestProgress(supabase, questId, newProgress);
 
       // Update local state
       setQuests(prevQuests => 
@@ -176,6 +204,20 @@ export default function QuestsPage() {
 
   // Toggle quest completion
   const handleQuestToggle = async (questId: string) => {
+    const quest = quests.find(q => q.id === questId);
+    if (!quest) return;
+
+    // If the id is not a valid database id (e.g., it's a slug like 'plank'), just update local state
+    const isDbId = /^[a-z0-9]{20,}$|^[0-9a-fA-F-]{36}$/.test(questId); // cuid or uuid
+    if (!isDbId) {
+      setQuests(prevQuests =>
+        prevQuests.map(q =>
+          q.id === questId ? { ...q, completed: !q.completed, progress: !q.completed ? 100 : 0 } : q
+        )
+      );
+      return;
+    }
+
     if (!userId) {
       console.error('No userId found in session. Cannot update quest.');
       toast({
@@ -187,9 +229,6 @@ export default function QuestsPage() {
     }
 
     try {
-      const quest = quests.find(q => q.id === questId);
-      if (!quest) return;
-
       // Log the toggle action
       await logQuestAction('quest_toggle', questId, {
         oldStatus: quest.completed,
@@ -197,11 +236,11 @@ export default function QuestsPage() {
       }, userId);
 
       // Update the quest in Supabase
-      const updatedQuest = await QuestService.toggleQuestCompletion(questId);
+      const updatedQuest = await QuestService.toggleQuestCompletion(supabase, questId);
 
       // Update local state
-      setQuests(prevQuests => 
-        prevQuests.map(q => 
+      setQuests(prevQuests =>
+        prevQuests.map(q =>
           q.id === questId ? updatedQuest : q
         )
       );
@@ -232,12 +271,46 @@ export default function QuestsPage() {
 
   // Group quests by category
   const questsByCategory = quests.reduce((acc, quest) => {
-    if (!acc[quest.category]) {
-      acc[quest.category] = [];
+    const category = quest.category || 'uncategorized';
+    if (!acc[category]) {
+      acc[category] = [];
     }
-    acc[quest.category].push(quest);
+    acc[category].push(quest);
     return acc;
   }, {} as Record<string, Quest[]>);
+
+  // Update all async functions that use Supabase to use the supabase client from the hook
+  // For example, when loading quest completion state:
+  useEffect(() => {
+    if (!supabase || !userId) return;
+    const fetchQuestCompletions = async () => {
+      const { data, error } = await supabase
+        .from('quest_completion')
+        .select('*')
+        .eq('user_id', userId);
+      if (!error && data) {
+        // Set quest completion state from data
+      }
+    };
+    fetchQuestCompletions();
+  }, [supabase, userId]);
+
+  // When saving quest completion:
+  const handleQuestCheck = async (questId: string, checked: boolean) => {
+    if (!supabase || !userId) return;
+    if (checked) {
+      await supabase
+        .from('quest_completion')
+        .upsert({ user_id: userId, quest_id: questId, completed_at: new Date().toISOString() });
+    } else {
+      await supabase
+        .from('quest_completion')
+        .delete()
+        .eq('user_id', userId)
+        .eq('quest_id', questId);
+    }
+    // Update local state as needed
+  };
 
   return (
     <div className="pt-16 min-h-screen bg-black text-white">
@@ -279,7 +352,7 @@ export default function QuestsPage() {
                   setLoading(true);
                   try {
                     console.log('Refreshing quests for user:', userId); // Debug log
-                    const refreshedQuests = await QuestService.getQuests(userId);
+                    const refreshedQuests = await QuestService.getQuests(supabase, userId);
                     console.log('Refreshed quests:', refreshedQuests); // Debug log
                     setQuests(refreshedQuests);
                     toast({
@@ -363,11 +436,11 @@ export default function QuestsPage() {
             {/* Quests Tab */}
             <TabsContent value="quests" className="mt-6">
               <ScrollArea className="h-[calc(100vh-300px)]" aria-label="quests-scroll-area">
-                <div className="grid gap-4">
+                <div className="space-y-6">
                   {Object.entries(questsByCategory).map(([category, categoryQuests]) => (
-                    <div key={category} className="space-y-4">
-                      <h3 className="text-xl font-bold text-amber-500 capitalize">{category}</h3>
-                      <div className="grid gap-4">
+                    <div key={category}>
+                      <h3 className="text-xl font-bold text-amber-500 capitalize mb-2">{category}</h3>
+                      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                         {categoryQuests.map(quest => (
                           <QuestCard
                             key={quest.id}
@@ -413,37 +486,26 @@ function QuestCard({
   onProgressUpdate: (progress: number) => void;
   onToggle: () => void;
 }) {
+  // Handler for card click (toggles completion)
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Prevent toggling if clicking on the checkbox directly
+    if ((e.target as HTMLElement).closest('input[type="checkbox"]')) return;
+    onToggle();
+  };
   return (
     <Card 
-      className={`relative bg-gradient-to-b from-black to-gray-900 border-amber-800/20 ${quest.isNew ? "border-amber-500" : ""} ${quest.completed ? "bg-amber-50/30 dark:bg-amber-900/10" : ""}`}
-      role="button"
+      className={`relative bg-gradient-to-b from-black to-gray-900 border-amber-800/20 p-3 min-h-[140px] flex flex-col justify-between cursor-pointer ${quest.isNew ? "border-amber-500" : ""} ${quest.completed ? "bg-amber-50/30 dark:bg-amber-900/10" : ""}`}
+      role="region"
       tabIndex={0}
       aria-label={`${quest.title} quest card`}
+      onClick={handleCardClick}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle(); } }}
     >
-      {/* Checkbox positioned absolutely in the top right */}
-      <div className="absolute top-4 right-4 z-10">
-        <Checkbox
-          checked={quest.completed}
-          onCheckedChange={onToggle}
-          aria-label={`Mark ${quest.title} as ${quest.completed ? 'incomplete' : 'complete'}`}
-          className="h-6 w-6 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white data-[state=checked]:border-amber-500"
-        />
-      </div>
-
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <div className="space-y-1 pr-8">
-            <CardTitle className="font-serif text-white">{quest.title}</CardTitle>
-            <CardDescription className="text-gray-300">{quest.description}</CardDescription>
-          </div>
-          <div className="flex gap-2">
-            {quest.isNew && <Badge className="bg-amber-500 text-white">New</Badge>}
-            {quest.isAI && <Badge className="bg-purple-500 text-white">AI</Badge>}
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-2 mt-2">
-          <Badge
-            className={
+      <div className="flex justify-between items-start mb-2">
+        <div className="flex-1 pr-2">
+          <CardTitle className="font-serif text-white text-lg leading-tight mb-1">{quest.title}</CardTitle>
+          <div className="flex flex-wrap gap-1 mb-1">
+            <Badge className={
               quest.difficulty === "easy"
                 ? "bg-green-500 text-white"
                 : quest.difficulty === "medium"
@@ -451,80 +513,35 @@ function QuestCard({
                   : quest.difficulty === "hard"
                     ? "bg-amber-500 text-white"
                     : "bg-red-500 text-white"
-            }
-          >
-            {quest.difficulty.charAt(0).toUpperCase() + quest.difficulty.slice(1)}
-          </Badge>
-          <Badge className="text-amber-300 border-amber-800/20">{quest.category}</Badge>
+            }>
+              {quest.difficulty.charAt(0).toUpperCase() + quest.difficulty.slice(1)}
+            </Badge>
+            {quest.isNew && <Badge className="bg-amber-500 text-white">New</Badge>}
+            {quest.isAI && <Badge className="bg-purple-500 text-white">AI</Badge>}
+          </div>
         </div>
-      </CardHeader>
-      <CardContent className="pb-2">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm text-white">
-              <span>Progress</span>
-              <span>{quest.progress}%</span>
-            </div>
-            <Progress value={quest.progress} className="h-2" aria-label={`Quest progress: ${quest.progress}%`} />
-          </div>
-
-          <div className="flex flex-wrap gap-4 text-white">
-            <div className="flex items-center gap-1 text-sm">
-              <Trophy className="h-4 w-4 text-amber-500" />
-              <span>{quest.rewards.xp} XP</span>
-            </div>
-            <div className="flex items-center gap-1 text-sm">
-              <Coins className="h-4 w-4 text-yellow-500" />
-              <span>{quest.rewards.gold} Gold</span>
-            </div>
-            {quest.rewards.items &&
-              quest.rewards.items.map((item: string, i: number) => (
-                <div key={i} className="flex items-center gap-1 text-sm">
-                  <Award className="h-4 w-4 text-purple-500" />
-                  <span>{item}</span>
-                </div>
-              ))}
-          </div>
-
-          {quest.deadline && (
-            <div className="flex items-center gap-2 text-sm text-gray-300">
-              <Clock className="h-4 w-4" />
-              <span>
-                {getDaysRemaining(quest.deadline) > 0
-                  ? `${getDaysRemaining(quest.deadline)} days remaining`
-                  : "Due today!"}
-              </span>
-            </div>
-          )}
+        <Checkbox
+          checked={quest.completed}
+          onCheckedChange={onToggle}
+          aria-label={`Mark ${quest.title} as ${quest.completed ? 'incomplete' : 'complete'}`}
+          className="h-5 w-5 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white data-[state=checked]:border-amber-500 mt-1"
+          tabIndex={-1}
+        />
+      </div>
+      <div className="flex flex-col gap-2 mb-2">
+        <div className="flex justify-between text-xs text-white">
+          <span>Progress</span>
+          <span>{quest.completed ? '100' : quest.progress}%</span>
         </div>
-      </CardContent>
-      <CardFooter>
-        {quest.completed ? (
-          <Button className="w-full text-white" variant="outline" disabled aria-label="Quest completed">
-            <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-            Completed
-          </Button>
-        ) : (
-          <div className="w-full flex gap-2">
-            <Button
-              className="flex-1 bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white"
-              onClick={() => onProgressUpdate(Math.min(100, quest.progress + 25))}
-              aria-label="Update quest progress"
-            >
-              Update Progress
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => onProgressUpdate(100)}
-              className="text-white"
-              aria-label="Mark quest as complete"
-            >
-              <CheckCircle className="mr-2 h-4 w-4" />
-              Mark Complete
-            </Button>
-          </div>
-        )}
-      </CardFooter>
+        <Progress value={quest.completed ? 100 : quest.progress} className="h-1.5" aria-label={`Quest progress: ${quest.completed ? 100 : quest.progress}%`} />
+        <div className="flex flex-wrap gap-2 text-xs text-white mt-1">
+          <span className="flex items-center gap-1"><Trophy className="h-3 w-3 text-amber-500" />{quest.rewards.xp} XP</span>
+          <span className="flex items-center gap-1"><Coins className="h-3 w-3 text-yellow-500" />{quest.rewards.gold} Gold</span>
+          {quest.rewards.items && quest.rewards.items.map((item: string, i: number) => (
+            <span key={i} className="flex items-center gap-1"><Award className="h-3 w-3 text-purple-500" />{item}</span>
+          ))}
+        </div>
+      </div>
     </Card>
   );
 }

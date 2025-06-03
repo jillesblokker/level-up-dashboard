@@ -1,74 +1,29 @@
-import { supabase } from '@/lib/supabase-client';
 import { Quest, QuestFilters } from './quest-types';
 
 export class QuestService {
-  private static async getSupabaseUserId(clerkUserId: string): Promise<string> {
-    // First try to get the user from the users table
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('id')
-      .eq('clerk_id', clerkUserId)
-      .single();
-
-    if (userError) {
-      console.error('Error fetching user:', userError);
-      throw new Error('Failed to fetch user');
-    }
-
-    if (!userData) {
-      // If user doesn't exist, create them
-      const { data: newUser, error: createError } = await supabase
-        .from('users')
-        .insert({ clerk_id: clerkUserId })
-        .select('id')
-        .single();
-
-      if (createError) {
-        console.error('Error creating user:', createError);
-        throw new Error('Failed to create user');
-      }
-
-      return newUser.id;
-    }
-
-    return userData.id;
-  }
-
-  static async getQuests(clerkUserId: string, filters?: QuestFilters): Promise<Quest[]> {
-    if (!clerkUserId) {
+  static async getQuests(supabase: any, userId: string, filters?: QuestFilters): Promise<Quest[]> {
+    if (!userId) {
       throw new Error('No user ID provided');
     }
-
-    const supabaseUserId = await this.getSupabaseUserId(clerkUserId);
 
     let query = supabase
       .from('QuestCompletionLog')
       .select('*')
-      .eq('userId', supabaseUserId);
+      .eq('userId', userId);
 
     if (filters) {
-      if (filters.category) {
-        query = query.eq('category', filters.category);
-      }
-      if (filters.difficulty) {
-        query = query.eq('difficulty', filters.difficulty);
-      }
-      if (filters.completed !== undefined) {
-        query = query.eq('completed', filters.completed);
-      }
-      if (filters.isNew !== undefined) {
-        query = query.eq('isNew', filters.isNew);
-      }
-      if (filters.isAI !== undefined) {
-        query = query.eq('isAI', filters.isAI);
-      }
+      if (filters.category) query = query.eq('category', filters.category);
+      if (filters.difficulty) query = query.eq('difficulty', filters.difficulty);
+      if (filters.completed !== undefined) query = query.eq('completed', filters.completed);
+      if (filters.isNew !== undefined) query = query.eq('isNew', filters.isNew);
+      if (filters.isAI !== undefined) query = query.eq('isAI', filters.isAI);
     }
 
     const { data, error } = await query;
 
     if (error) {
-      console.error('Error fetching quests:', error);
-      throw new Error(error.message);
+      console.error('Error fetching quests:', error, JSON.stringify(error));
+      throw new Error(error.message || JSON.stringify(error) || 'Unknown error fetching quests');
     }
 
     return (data || []).map((q: any) => ({
@@ -89,9 +44,7 @@ export class QuestService {
     }));
   }
 
-  static async createQuest(quest: Omit<Quest, 'id' | 'createdAt' | 'updatedAt'>): Promise<Quest> {
-    const supabaseUserId = await this.getSupabaseUserId(quest.userId);
-
+  static async createQuest(supabase: any, quest: Omit<Quest, 'id' | 'createdAt' | 'updatedAt'>): Promise<Quest> {
     const { data, error } = await supabase
       .from('QuestCompletionLog')
       .insert({
@@ -105,7 +58,7 @@ export class QuestService {
         date: quest.deadline,
         isNew: quest.isNew,
         isAI: quest.isAI,
-        userId: supabaseUserId
+        userId: quest.userId
       })
       .select()
       .single();
@@ -133,7 +86,7 @@ export class QuestService {
     };
   }
 
-  static async updateQuest(id: string, updates: Partial<Quest>): Promise<Quest> {
+  static async updateQuest(supabase: any, id: string, updates: Partial<Quest>): Promise<Quest> {
     const { data, error } = await supabase
       .from('QuestCompletionLog')
       .update({
@@ -175,7 +128,7 @@ export class QuestService {
     };
   }
 
-  static async deleteQuest(id: string): Promise<void> {
+  static async deleteQuest(supabase: any, id: string): Promise<void> {
     const { error } = await supabase
       .from('QuestCompletionLog')
       .delete()
@@ -187,7 +140,7 @@ export class QuestService {
     }
   }
 
-  static async updateQuestProgress(id: string, progress: number): Promise<Quest> {
+  static async updateQuestProgress(supabase: any, id: string, progress: number): Promise<Quest> {
     const { data, error } = await supabase
       .from('QuestCompletionLog')
       .update({
@@ -221,7 +174,7 @@ export class QuestService {
     };
   }
 
-  static async toggleQuestCompletion(id: string): Promise<Quest> {
+  static async toggleQuestCompletion(supabase: any, id: string): Promise<Quest> {
     const { data: currentQuest, error: fetchError } = await supabase
       .from('QuestCompletionLog')
       .select('completed')

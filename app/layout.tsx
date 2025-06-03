@@ -10,6 +10,7 @@ import { Toaster as SonnerToaster } from "sonner"
 import { GradientProvider } from './providers/gradient-provider'
 import { NavBar } from '@/components/nav-bar'
 import { AuthContent } from '@/components/auth-content'
+import AuthGate from "@/app/components/AuthGate"
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -61,7 +62,9 @@ export default function RootLayout({
         <GradientProvider>
           <Providers>
             <AuthContent>
-              {children}
+              <AuthGate>
+                {children}
+              </AuthGate>
             </AuthContent>
             <Toaster />
             <SonnerToaster 

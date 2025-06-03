@@ -42,8 +42,9 @@ import { getLatestGrid, uploadGridData, updateGridData, subscribeToGridChanges, 
 import { useAuthContext } from '@/components/providers'
 import Link from "next/link"
 import { logger } from "@/lib/logger"
-import { supabase } from '@/lib/supabase-client'
+import { useSupabaseClientWithToken } from '@/lib/hooks/use-supabase-client'
 import { createEventNotification } from "@/lib/notifications"
+import { useUser } from '@clerk/nextjs'
 
 // Types
 interface Position {
@@ -713,16 +714,18 @@ export default function RealmPage() {
   const gridRef = useRef<HTMLDivElement>(null)
   const { updateProgress } = useAchievementStore()
   const creatureStore = useCreatureStore()
-  const { userId, isLoading: isAuthLoading, isGuest } = useAuthContext();
+  const { user, isLoaded: isAuthLoaded } = useUser();
+  const userId = user?.id;
+  const isGuest = !user;
   const subscriptionRef = useRef<any>(null)
 
   // State declarations
   const [inventory, setInventory] = useLocalStorage<Partial<Record<TileType, InventoryItem>>>("tile-inventory", initialTileInventory)
   const [showScrollMessage, setShowScrollMessage] = useState(false)
-  const [characterPosition, setCharacterPosition] = useLocalStorage<Position>("character-position", { x: 2, y: 0 })
+  const [characterPosition, setCharacterPosition] = useState({ x: 0, y: 0 });
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [selectedTile, setSelectedTile] = useState<SelectedInventoryItem | null>(null)
-  const [grid, setGrid] = useState<Tile[][]>([])
+  const [grid, setGrid] = useState<Tile[][]>([]);
   const [gridRotation, setGridRotation] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [isInitialized, setIsInitialized] = useState(false)
@@ -768,163 +771,54 @@ export default function RealmPage() {
   const [horsePosition, setHorsePosition] = useState<{ x: number; y: number }>({ x: 10, y: 3 });
   const [sheepPosition, setSheepPosition] = useState<{ x: number; y: number }>({ x: 2, y: 4 });
 
+  const supabase = useSupabaseClientWithToken();
+
+  // Initialize grid
+  const initializeGrid = async () => {
+    if (!supabase) return;
+    try {
+      const { data: initialGridData, error: fetchError } = await supabase
+        .from('realm_grids')
+        .select('grid')
+        .eq('user_id', userId)
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (fetchError) {
+        logger.warning(`Supabase fetch error: ${fetchError.message}, using default grid`, 'GridInit');
+        const defaultGrid = await loadAndProcessInitialGrid();
+        setGrid(defaultGrid);
+      } else {
+        const fetchedGrid = initialGridData?.grid;
+        logger.info(`Fetched grid from Supabase: ${fetchedGrid ? 'found' : 'not found'}`, 'GridInit');
+
+        if (fetchedGrid) {
+          const processedGrid = processLoadedGrid(fetchedGrid);
+          setGrid(processedGrid);
+          logger.info('Grid loaded from Supabase', 'GridInit');
+        } else {
+          const defaultGrid = await loadAndProcessInitialGrid();
+          setGrid(defaultGrid);
+          logger.info('Loaded default grid as fallback', 'GridInit');
+        }
+      }
+    } catch (err) {
+      logger.error(`Error loading grid: ${err}`, 'GridInit');
+      const defaultGrid = await loadAndProcessInitialGrid();
+      setGrid(defaultGrid);
+    } finally {
+      setIsLoading(false);
+      setIsInitialized(true);
+    }
+  };
+
   // Effect to initialize grid on mount or session/supabase change
   useEffect(() => {
-    if (!isBrowser) return; // Skip if not in browser
-    
-    const initializeGrid = async () => {
-      setIsLoading(true)
-      let loadedGrid: Tile[][] = []
-
-      const skipAuthCookie = typeof document !== 'undefined' ? document.cookie.split(';').find(c => c.trim().startsWith('skip-auth=')) : null
-      const isSkippingAuth = skipAuthCookie ? skipAuthCookie.split('=')[1] === 'true' : false
-
-      try {
-        if (isSkippingAuth) {
-          logger.info('Skipping authentication, attempting to load from local storage...', 'GridInit')
-          const savedAnonymousGrid = localStorage.getItem('grid')
-          if (savedAnonymousGrid) {
-            try {
-              const parsedGrid = JSON.parse(savedAnonymousGrid)
-              logger.info('Parsed grid from local storage', 'GridInit')
-              if (Array.isArray(parsedGrid) && parsedGrid.every(row => Array.isArray(row) && row.every(tile => typeof tile === 'object' && tile !== null && 'type' in tile && 'x' in tile && 'y' in tile))) {
-                const baseGrid = createBaseGrid(INITIAL_ROWS, GRID_COLS)
-                logger.info('Base grid created (local storage path)', 'GridInit')
-                const savedTiles = (parsedGrid as Tile[][]).flat().filter((tile): tile is Tile =>
-                  tile !== null && typeof tile === 'object' && 'type' in tile && 'x' in tile && 'y' in tile
-                )
-                logger.info('Saved tiles from local storage', 'GridInit')
-                loadedGrid = mergeTilesIntoGrid(baseGrid, savedTiles)
-                logger.info('Merged grid (local storage path)', 'GridInit')
-                logger.info('Successfully loaded grid from local storage', 'GridInit')
-              } else {
-                logger.warning('Invalid grid data in local storage', 'GridInit')
-                loadedGrid = await loadAndProcessInitialGrid()
-                logger.info('Using default initial grid due to invalid local storage data', 'GridInit')
-              }
-            } catch (error) {
-              logger.error(`Error parsing grid from local storage: ${error instanceof Error ? error.message : 'Unknown error'}`, 'GridInit')
-              loadedGrid = await loadAndProcessInitialGrid()
-              logger.info('Using default initial grid after local storage parsing error', 'GridInit')
-            }
-          }
-        } else if (userId && !isGuest) {
-          logger.info('=== LOADING GRID FOR AUTHENTICATED USER ===', 'GridInit')
-          logger.info('Authenticated user, loading initial grid from CSV first, then checking Supabase for modifications...', 'GridInit')
-          // Always start with the CSV initial grid
-          loadedGrid = await loadAndProcessInitialGrid()
-          logger.info(`Loaded initial CSV grid as base: ${loadedGrid.length}x${loadedGrid[0]?.length}`, 'GridInit')
-          
-          try {
-            const { data: initialGridData, error: fetchError } = await supabase
-              .from('realm_grids')
-              .select('grid')
-              .eq('user_id', userId)
-              .order('updated_at', { ascending: false })
-              .limit(1)
-
-            if (fetchError) {
-              logger.warning(`Supabase fetch error: ${fetchError.message}, using CSV grid`, 'GridInit')
-            } else {
-              const fetchedGrid = initialGridData?.[0]?.grid
-              logger.info(`Fetched grid from Supabase: ${fetchedGrid ? 'found' : 'not found'}`, 'GridInit')
-
-              if (fetchedGrid && Array.isArray(fetchedGrid) && fetchedGrid.length > 0) {
-                try {
-                  // Convert numeric grid back to Tile grid
-                  const supabaseGrid = fetchedGrid.map((row: number[], y: number) => row.map((cell: number, x: number) => {
-                    const tileType = numericToTileType[cell] || 'empty';
-                    return {
-                      id: `tile-${x}-${y}-${Date.now()}`,
-                      type: tileType,
-                      name: `${tileType.charAt(0).toUpperCase() + tileType.slice(1)} Tile`,
-                      description: `A ${tileType} tile`,
-                      connections: [],
-                      rotation: 0 as 0 | 90 | 180 | 270,
-                      revealed: true,
-                      isVisited: false,
-                      x,
-                      y,
-                      ariaLabel: `${tileType} tile at position ${x},${y}`,
-                      image: `/images/tiles/${tileType}-tile.png`,
-                      isMainTile: false,
-                      isTown: false,
-                      cityName: undefined,
-                      cityX: undefined,
-                      cityY: undefined,
-                      citySize: undefined,
-                      bigMysteryX: undefined,
-                      bigMysteryY: undefined,
-                      tileSize: undefined,
-                      cost: 0,
-                      quantity: 1,
-                    } as Tile;
-                  }));
-
-                  logger.info(`Converted Supabase grid: ${supabaseGrid.length}x${supabaseGrid[0]?.length}`, 'GridInit')
-
-                  // Check if Supabase grid differs from CSV grid (indicating user modifications)
-                  const csvTilesFlat = loadedGrid.flat()
-                  const supabaseTilesFlat = supabaseGrid.flat()
-                  
-                  let hasUserModifications = false
-                  let modificationCount = 0
-                  for (let i = 0; i < Math.min(csvTilesFlat.length, supabaseTilesFlat.length); i++) {
-                    if (csvTilesFlat[i]?.type !== supabaseTilesFlat[i]?.type) {
-                      hasUserModifications = true
-                      modificationCount++
-                      if (modificationCount <= 5) { // Log first 5 modifications
-                        logger.info(`User modification detected at position ${csvTilesFlat[i]?.x},${csvTilesFlat[i]?.y}: CSV=${csvTilesFlat[i]?.type}, Supabase=${supabaseTilesFlat[i]?.type}`, 'GridInit')
-                      }
-                    }
-                  }
-
-                  logger.info(`Total modifications found: ${modificationCount}`, 'GridInit')
-
-                  if (hasUserModifications) {
-                    loadedGrid = supabaseGrid
-                    logger.info('✅ Using Supabase grid - user modifications detected', 'GridInit')
-                  } else {
-                    logger.info('Using CSV grid - no modifications detected', 'GridInit')
-                  }
-                } catch (parseError) {
-                  logger.warning(`Error parsing Supabase grid: ${parseError instanceof Error ? parseError.message : 'Unknown error'}, keeping CSV grid`, 'GridInit')
-                }
-            } else {
-                logger.info('Supabase grid is empty or invalid, keeping CSV grid', 'GridInit')
-              }
-            }
-          } catch (error) {
-            logger.warning(`Supabase error: ${error instanceof Error ? error.message : 'Unknown error'}, using CSV grid`, 'GridInit')
-          }
-          logger.info('=== GRID LOADING COMPLETE ===', 'GridInit')
-        } else {
-          logger.info('No authenticated user, using default initial grid...', 'GridInit')
-          loadedGrid = await loadAndProcessInitialGrid()
-        }
-
-        setGrid(loadedGrid)
-        console.log('Initial loaded grid:', loadedGrid)
-        setIsInitialized(true)
-      } catch (error) {
-        logger.error(`Error initializing grid: ${error instanceof Error ? error.message : 'Unknown error'}`, 'GridInit')
-        toast({
-          title: "Error",
-          description: error instanceof Error ? error.message : "Failed to load your realm. Creating a new one...",
-          variant: "destructive"
-        })
-        loadedGrid = await loadAndProcessInitialGrid()
-        setGrid(loadedGrid)
-        console.log('Initial loaded grid (after error):', loadedGrid)
-        setIsInitialized(true)
-        logger.info('Using default initial grid after initialization error', 'GridInit')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    initializeGrid()
-  }, [userId, isGuest, toast])
+    if (!isAuthLoaded || !supabase) return;
+    setIsLoading(true);
+    initializeGrid();
+  }, [userId, isAuthLoaded, supabase]);
 
   // Effect to save grid to database for authenticated users or local storage for anonymous users
   useEffect(() => {
@@ -978,6 +872,7 @@ export default function RealmPage() {
           logger.info('Converted grid to numeric format for Supabase', 'GridSave');
 
           // Get all grids for the user and sort by updated_at
+          if (!supabase) throw new Error('Supabase client not initialized');
           const { data: existingGrids, error: fetchError } = await supabase
             .from('realm_grids')
             .select('id, updated_at') // Select only id and updated_at
@@ -1011,7 +906,8 @@ export default function RealmPage() {
 
             // Delete any older grids to prevent accumulation
             if (existingGrids.length > 1) {
-              const olderGridIds = existingGrids.slice(1).map(grid => grid.id);
+              const olderGridIds = existingGrids.slice(1).map((grid: any) => grid.id);
+              if (!supabase) throw new Error('Supabase client not initialized');
               const { error: deleteError } = await supabase
                 .from('realm_grids')
                 .delete()
@@ -1026,6 +922,7 @@ export default function RealmPage() {
           } else {
             // No existing grids, create a new one
             logger.info('No existing grids found, creating new grid...', 'GridSave');
+            if (!supabase) throw new Error('Supabase client not initialized');
             const { error: insertError } = await supabase
               .from('realm_grids')
               .insert([{ 
@@ -1074,39 +971,47 @@ export default function RealmPage() {
            // This subscription should ideally listen to changes in the tilePlacement table.
            // For now, keeping it minimal as the primary fix is loading.
            // A proper real-time update for tile placements would require a specific Supabase Realtime setup for the tilePlacement table.
-           const subscription = supabase
-             .channel('tile_placements_channel') // Use a unique channel name for tile placements
-             .on(
-               'postgres_changes',
-               {
-                 event: '*' ,
-                 schema: 'public',
-                 table: 'tile_placement', // Listen to changes in the tile_placement table
-                 // Note: Filtering by userId here requires a userId column in the tile_placement table.
-                 // Ensure your database schema includes this column.
-                 filter: `userId=eq.${userId}` // Assuming tilePlacement table has a userId column
-               },
-               (payload) => {
-                 console.log('Real-time tile placement change received:', payload);
-                 // Handle real-time updates here: e.g., update local grid state based on payload
-                 // This is a placeholder; actual implementation would depend on payload structure.
-                 toast({
-                    title: "Real-time Update",
-                    description: "Tile placement change detected (real-time update not fully implemented).".concat(payload.eventType || ''),
-                    variant: "default"
-                 });
+           let subscription: any = null;
+           let supabase: any = null;
+           (async () => {
+             if (!supabase) return;
+             subscription = supabase
+               .channel('tile_placements_channel') // Use a unique channel name for tile placements
+               .on(
+                 'postgres_changes',
+                 {
+                   event: '*' ,
+                   schema: 'public',
+                   table: 'tile_placement', // Listen to changes in the tile_placement table
+                   // Note: Filtering by userId here requires a userId column in the tile_placement table.
+                   // Ensure your database schema includes this column.
+                   filter: `userId=eq.${userId}` // Assuming tilePlacement table has a userId column
+                 },
+                 (payload: any) => {
+                   console.log('Real-time tile placement change received:', payload);
+                   // Handle real-time updates here: e.g., update local grid state based on payload
+                   // This is a placeholder; actual implementation would depend on payload structure.
+                   toast({
+                      title: "Real-time Update",
+                      description: "Tile placement change detected (real-time update not fully implemented).".concat(payload.eventType || ''),
+                      variant: "default"
+                   });
 
-                 // Optionally, re-fetch and update the grid for simplicity for now:
-                 // initializeGrid(); // This might cause rapid re-renders; consider a more targeted update
-               }
-             )
-             .subscribe();
-
+                   // Optionally, re-fetch and update the grid for simplicity for now:
+                   // initializeGrid(); // This might cause rapid re-renders; consider a more targeted update
+                 }
+               )
+               .subscribe();
+           })();
            return () => {
                console.log('Unsubscribing from Supabase tile placement subscription.');
                // Check if subscription is not null before removing
-               if (subscription) {
-               supabase.removeChannel(subscription);
+               if (subscription && supabase) {
+                 // removeChannel is not async, but if it returns a promise, use .then()
+                 const result = supabase.removeChannel(subscription);
+                 if (result && typeof result.then === 'function') {
+                   result.then(() => {}).catch(() => {});
+                 }
                }
            };
        } else {
@@ -1352,10 +1257,9 @@ export default function RealmPage() {
 
   // Update handleAchievementUnlock to be async and handle state properly
   const handleAchievementUnlock = useCallback(async (creatureId: string, requirement: string | number) => {
-    if (supabase) {
-      updateProgress(creatureId, Number(requirement)); // Convert to number
-    }
-  }, [supabase, updateProgress]);
+    // No need to check for supabase client existence, just call updateProgress
+    updateProgress(creatureId, Number(requirement)); // Convert to number
+  }, [updateProgress]);
 
   // Add useEffect for first realm visit achievement
   useEffect(() => {
@@ -1397,6 +1301,7 @@ export default function RealmPage() {
         return
       }
 
+      if (!supabase) throw new Error('Supabase client not initialized');
       const { data, error } = await supabase
         .from('realm_grids')
         .upsert({
@@ -1408,7 +1313,8 @@ export default function RealmPage() {
         })
 
       if (error) {
-        console.error('Save error details:', error)
+        console.error('Save error details:', error, JSON.stringify(error, null, 2));
+        if (error && error.message) console.error('Error message:', error.message);
         throw error
       }
 
@@ -2258,6 +2164,7 @@ const handleTileSelection = (tile: InventoryItem | null) => {
     setQuestCompletedCount(newCount);
     try {
       // Pass the supabase client to createQuestCompletion
+      if (!supabase) throw new Error('Supabase client not initialized');
       await createQuestCompletion(supabase, 'realm', 'Quest Completed');
       console.log('Quest completion recorded in Supabase.');
     } catch (error) {
@@ -2271,13 +2178,13 @@ const handleTileSelection = (tile: InventoryItem | null) => {
     const targetType = sourceType === 'portal-entrance' ? 'portal-exit' : 'portal-entrance';
     for (let y = 0; y < grid.length; y++) {
       if (!grid[y]) continue;
-      for (let x = 0; x < grid[y].length; x++) {
+      for (let x = 0; x < (grid[y]?.length ?? 0); x++) {
         if (grid[y]?.[x]?.type === targetType) {
           return { x, y };
         }
       }
     }
-    return null;
+    return null; // Add explicit return for when no portal is found
   };
 
   // Portal modal handlers
@@ -2300,6 +2207,7 @@ const handleTileSelection = (tile: InventoryItem | null) => {
     setShowPortalModal(false);
     setPortalSource(null);
   };
+
   const handlePortalLeave = () => {
     setShowPortalModal(false);
     setPortalSource(null);
@@ -2425,8 +2333,8 @@ const handleTileSelection = (tile: InventoryItem | null) => {
     if (!isPenguinPresent) {
       for (let y = 0; y < grid.length; y++) {
         if (!grid[y]) continue;
-        for (let x = 0; x < grid[y].length; x++) {
-          const tile = grid[y][x];
+        for (let x = 0; x < (grid[y]?.length ?? 0); x++) {
+          const tile = grid[y]?.[x];
           if (tile && (tile.type === 'ice' || tile.type === 'snow')) {
             setPenguinPosition({ x, y });
             setIsPenguinPresent(true);
@@ -2437,7 +2345,12 @@ const handleTileSelection = (tile: InventoryItem | null) => {
     }
   }, [grid, isPenguinPresent]);
 
-  if (isLoading || isAuthLoading || !supabase) { // Also wait for supabase client
+  // Add debug log before returning JSX
+  console.log('Current grid state:', grid);
+  console.log('Current selected tile state:', selectedTile); // Log selected tile state
+
+  // Show loading state if needed
+  if (isLoading || !isAuthLoaded || !isInitialized) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
@@ -2445,12 +2358,8 @@ const handleTileSelection = (tile: InventoryItem | null) => {
           <p className="text-gray-500">Please wait while we prepare your kingdom.</p>
         </div>
       </div>
-    )
+    );
   }
-
-  // Add debug log before returning JSX
-  console.log('Current grid state:', grid);
-  console.log('Current selected tile state:', selectedTile); // Log selected tile state
 
   return (
     <div className="relative min-h-screen bg-background p-4">

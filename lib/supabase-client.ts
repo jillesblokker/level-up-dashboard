@@ -3,25 +3,32 @@ import { TileType } from '@/types/tiles'
 import { Database } from '@/types/supabase'
 
 // Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+export const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'] || ''
+export const supabaseAnonKey = process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'] || ''
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables')
 }
 
-// Create a single instance of the Supabase client
-export const supabase = createBrowserClient<Database>(
-  supabaseUrl,
-  supabaseAnonKey,
-  {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true
+// Create a Supabase client with a given token
+export function createSupabaseClientWithToken(token?: string) {
+  return createBrowserClient<Database>(
+    supabaseUrl,
+    supabaseAnonKey,
+    {
+      global: {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : '',
+        },
+      },
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      },
     }
-  }
-)
+  )
+}
 
 // Types
 export interface GridData {
@@ -40,7 +47,7 @@ const handleSupabaseError = (error: any): never => {
 }
 
 // Grid operations with error handling
-export async function uploadGridData(grid: number[][], userId: string): Promise<GridData> {
+export async function uploadGridData(supabase: ReturnType<typeof createBrowserClient>, grid: number[][], userId: string): Promise<GridData> {
   try {
     const { data, error } = await supabase
       .from('realm_grids')
@@ -62,7 +69,7 @@ export async function uploadGridData(grid: number[][], userId: string): Promise<
   }
 }
 
-export async function getLatestGrid(userId: string): Promise<GridData | null> {
+export async function getLatestGrid(supabase: ReturnType<typeof createBrowserClient>, userId: string): Promise<GridData | null> {
   try {
     const { data, error } = await supabase
       .from('realm_grids')
@@ -79,7 +86,7 @@ export async function getLatestGrid(userId: string): Promise<GridData | null> {
   }
 }
 
-export async function updateGridData(gridId: string, grid: number[][], userId: string): Promise<GridData> {
+export async function updateGridData(supabase: ReturnType<typeof createBrowserClient>, gridId: string, grid: number[][], userId: string): Promise<GridData> {
   try {
     const { data: existingGrid, error: fetchError } = await supabase
       .from('realm_grids')
@@ -113,7 +120,7 @@ export async function updateGridData(gridId: string, grid: number[][], userId: s
 }
 
 // Auth helper functions
-export const getCurrentUser = async () => {
+export const getCurrentUser = async (supabase: ReturnType<typeof createBrowserClient>) => {
   try {
     const { data: { user }, error } = await supabase.auth.getUser()
     if (error) throw error
@@ -124,7 +131,7 @@ export const getCurrentUser = async () => {
 }
 
 // Session helper
-export const getSession = async () => {
+export const getSession = async (supabase: ReturnType<typeof createBrowserClient>) => {
   try {
     const { data: { session }, error } = await supabase.auth.getSession()
     if (error) throw error
@@ -136,6 +143,7 @@ export const getSession = async () => {
 
 // Real-time subscription helper
 export const subscribeToGridChanges = (
+  supabase: ReturnType<typeof createBrowserClient>,
   userId: string,
   callback: (payload: any) => void
 ) => {
