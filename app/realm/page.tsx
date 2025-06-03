@@ -707,6 +707,29 @@ const loadAndProcessInitialGrid = async (): Promise<Tile[][]> => {
 // Add this near the top of the file, after imports
 const isBrowser = typeof window !== 'undefined';
 
+// Add helper to load/save character position from Supabase
+async function loadCharacterPosition(supabase: any, userId: string): Promise<{ x: number; y: number } | null> {
+  try {
+    const { data, error } = await supabase
+      .from('character_positions')
+      .select('x, y')
+      .eq('user_id', userId)
+      .single();
+    if (error || !data) return null;
+    return { x: data.x, y: data.y };
+  } catch {
+    return null;
+  }
+}
+
+async function saveCharacterPosition(supabase: any, userId: string, pos: { x: number; y: number }) {
+  try {
+    await supabase
+      .from('character_positions')
+      .upsert({ user_id: userId, x: pos.x, y: pos.y }, { onConflict: 'user_id' });
+  } catch {}
+}
+
 export default function RealmPage() {
   const { toast } = useToast()
   const router = useRouter()
@@ -722,7 +745,7 @@ export default function RealmPage() {
   // State declarations
   const [inventory, setInventory] = useLocalStorage<Partial<Record<TileType, InventoryItem>>>("tile-inventory", initialTileInventory)
   const [showScrollMessage, setShowScrollMessage] = useState(false)
-  const [characterPosition, setCharacterPosition] = useState({ x: 0, y: 0 });
+  const [characterPosition, setCharacterPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [selectedTile, setSelectedTile] = useState<SelectedInventoryItem | null>(null)
   const [grid, setGrid] = useState<Tile[][]>([]);
@@ -1558,7 +1581,13 @@ export default function RealmPage() {
       setPortalSource({ x: newX, y: newY, type: tile.type });
       setShowPortalModal(true);
     }
-  }, [setCharacterPosition, grid, locationData, isHorsePresent, setInventory, setIsHorsePresent, toast]);
+    if (supabase && userId) {
+      saveCharacterPosition(supabase, userId, { x: newX, y: newY });
+    }
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('character-position', JSON.stringify({ x: newX, y: newY }));
+    }
+  }, [setCharacterPosition, grid, locationData, isHorsePresent, setInventory, setIsHorsePresent, toast, supabase, userId]);
 
   // 2. Use handleCharacterMove in keyboard navigation
   useEffect(() => {

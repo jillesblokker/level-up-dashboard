@@ -9,8 +9,12 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
-import { Sword, Brain, Crown, Castle, Hammer, Heart } from "lucide-react"
+import { Sword, Brain, Crown, Castle, Hammer, Heart, PlusCircle, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { QuestService } from '@/lib/quest-service'
+import { useSupabaseClientWithToken } from '@/lib/hooks/use-supabase-client'
+import { useUser } from "@clerk/nextjs"
+import { defaultQuests } from '@/lib/quest-sample-data'
 
 interface Milestone {
   id: string;
@@ -25,7 +29,28 @@ interface Milestone {
   completed: boolean;
 }
 
+const milestoneCategories = [
+  { key: 'might', label: 'Might', icon: Sword, iconClass: 'text-red-500' },
+  { key: 'knowledge', label: 'Knowledge', icon: Brain, iconClass: 'text-blue-500' },
+  { key: 'honor', label: 'Honor', icon: Crown, iconClass: 'text-yellow-500' },
+  { key: 'castle', label: 'Castle', icon: Castle, iconClass: 'text-purple-500' },
+  { key: 'craft', label: 'Craft', icon: Hammer, iconClass: 'text-amber-500' },
+  { key: 'vitality', label: 'Vitality', icon: Heart, iconClass: 'text-green-500' },
+];
+
+const defaultMilestoneCards: Record<string, { title: string; description: string }> = {
+  might: { title: '500 Push Ups in One Day', description: 'Complete 500 push ups in a single day' },
+  knowledge: { title: 'Read 5 Books in a Month', description: 'Complete reading 5 books in one month' },
+  honor: { title: 'Wake Up Before 6AM for 30 Days', description: 'Wake up before 6AM for 30 consecutive days' },
+  castle: { title: 'Clean the Entire House in a Day', description: 'Do a full house cleaning in one day' },
+  craft: { title: 'Complete a 30-Day Drawing Challenge', description: 'Draw something every day for 30 days' },
+  vitality: { title: 'Run a Marathon', description: 'Complete a full marathon (42km) in one go' },
+};
+
 export function Milestones() {
+  const { user } = useUser();
+  const userId = user?.id;
+  const supabase = useSupabaseClientWithToken();
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [newQuestCategory, setNewQuestCategory] = useState("")
   const [milestones, setMilestones] = useState<Milestone[]>([])
@@ -38,20 +63,74 @@ export function Milestones() {
   })
 
   useEffect(() => {
-    // Load milestones from localStorage
-    const savedMilestones = localStorage.getItem("milestones")
-    if (savedMilestones) {
-      setMilestones(JSON.parse(savedMilestones))
-    }
-  }, [])
+    if (!userId) return;
+    const fetchMilestones = async () => {
+      try {
+        // Get all milestones for the user
+        const data = await QuestService.getQuests(supabase, userId, { category: newQuestCategory });
+        // If none exist for this category, insert a default one
+        if ((data.length === 0) && newQuestCategory) {
+          // Find a random quest from this category
+          const categoryQuests = defaultQuests.filter(q => q.category === newQuestCategory);
+          if (categoryQuests.length > 0) {
+            const randomQuest = categoryQuests[Math.floor(Math.random() * categoryQuests.length)];
+            if (randomQuest) {
+              // Insert as a milestone (make it bigger: multiply xp/gold/target)
+              const newMilestoneQuest = await QuestService.createQuest(supabase, {
+                title: `Milestone: ${randomQuest.title}`,
+                description: randomQuest.description || `Milestone based on quest: ${randomQuest.title}`,
+                category: newQuestCategory,
+                difficulty: 'hard',
+                rewards: { xp: randomQuest.rewards.xp * 5, gold: randomQuest.rewards.gold * 5, items: [] },
+                progress: 0,
+                completed: false,
+                deadline: '',
+                isNew: true,
+                isAI: false,
+                userId
+              });
+              setMilestones([{
+                id: newMilestoneQuest.id,
+                name: newMilestoneQuest.title,
+                category: newMilestoneQuest.category,
+                icon: '🎯',
+                experience: newMilestoneQuest.rewards.xp,
+                gold: newMilestoneQuest.rewards.gold,
+                frequency: 'once',
+                progress: 0,
+                target: 10,
+                completed: false
+              }]);
+              return;
+            }
+          }
+        }
+        setMilestones(data.map(q => ({
+          id: q.id,
+          name: q.title,
+          category: q.category,
+          icon: '🎯',
+          experience: q.rewards.xp,
+          gold: q.rewards.gold,
+          frequency: 'once',
+          progress: q.progress,
+          target: 1,
+          completed: q.completed
+        })));
+      } catch (err) {
+        console.error('Failed to fetch milestones:', err);
+        toast({
+          title: 'Error',
+          description: 'Failed to load milestones. Please try again.',
+          variant: 'destructive'
+        });
+      }
+    };
+    fetchMilestones();
+  }, [userId, supabase, newQuestCategory]);
 
-  const saveMilestones = (updatedMilestones: Milestone[]) => {
-    localStorage.setItem("milestones", JSON.stringify(updatedMilestones))
-    setMilestones(updatedMilestones)
-  }
-
-  const handleAddMilestone = () => {
-    if (!newMilestone.name || !newQuestCategory) {
+  const handleAddMilestone = async () => {
+    if (!userId || !newMilestone.name || !newQuestCategory) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -60,416 +139,203 @@ export function Milestones() {
       return
     }
 
-    const milestone: Milestone = {
-      id: Date.now().toString(),
-      name: newMilestone.name,
-      category: newQuestCategory,
-      icon: newMilestone.icon,
-      experience: newMilestone.experience,
-      gold: newMilestone.gold,
-      frequency: "once",
-      progress: 0,
-      target: newMilestone.target,
-      completed: false,
+    try {
+      const newQuest = await QuestService.createQuest(supabase, {
+        title: newMilestone.name,
+        description: "",
+        category: newQuestCategory,
+        difficulty: "medium",
+        rewards: { xp: newMilestone.experience, gold: newMilestone.gold, items: [] },
+        progress: 0,
+        completed: false,
+        deadline: "",
+        isNew: true,
+        isAI: false,
+        userId
+      });
+
+      setMilestones(prev => [...prev, {
+        id: newQuest.id,
+        name: newQuest.title,
+        category: newQuest.category,
+        icon: newMilestone.icon,
+        experience: newQuest.rewards.xp,
+        gold: newQuest.rewards.gold,
+        frequency: "once",
+        progress: 0,
+        target: newMilestone.target,
+        completed: false
+      }]);
+
+      setNewMilestone({
+        name: "",
+        icon: "🎯",
+        experience: 500,
+        gold: 250,
+        target: 1,
+      });
+      setIsDialogOpen(false);
+      setNewQuestCategory("");
+
+      toast({
+        title: "Milestone Added",
+        description: "Your new milestone has been added successfully!",
+      });
+    } catch (err) {
+      console.error('Failed to add milestone:', err);
+      toast({
+        title: "Error",
+        description: "Failed to add milestone. Please try again.",
+        variant: "destructive"
+      });
     }
-
-    const updatedMilestones = [...milestones, milestone]
-    saveMilestones(updatedMilestones)
-
-    setNewMilestone({
-      name: "",
-      icon: "🎯",
-      experience: 500,
-      gold: 250,
-      target: 1,
-    })
-    setIsDialogOpen(false)
-    setNewQuestCategory("")
-
-    toast({
-      title: "Milestone Added",
-      description: "Your new milestone has been added successfully!",
-    })
   }
 
-  const updateProgress = (id: string, increment: boolean) => {
-    const updatedMilestones = milestones.map((milestone) => {
-      if (milestone.id === id) {
-        const newProgress = increment
-          ? Math.min(milestone.progress + 1, milestone.target)
-          : Math.max(milestone.progress - 1, 0)
-        
-        const completed = newProgress >= milestone.target
-        if (completed && !milestone.completed) {
-          // Trigger completion rewards
-          const event = new CustomEvent("milestone-completed", {
-            detail: {
-              experience: milestone.experience,
-              gold: milestone.gold,
-            },
-          })
-          window.dispatchEvent(event)
-          
-          toast({
-            title: "Milestone Completed! 🎉",
-            description: `You've earned ${milestone.experience} XP and ${milestone.gold} gold!`,
-          })
-        }
-        
-        return {
-          ...milestone,
-          progress: newProgress,
-          completed,
-        }
-      }
-      return milestone
-    })
-
-    saveMilestones(updatedMilestones)
-  }
-
-  const deleteMilestone = (id: string) => {
-    const updatedMilestones = milestones.filter((milestone) => milestone.id !== id)
-    saveMilestones(updatedMilestones)
-    
-    toast({
-      title: "Milestone Deleted",
-      description: "The milestone has been removed.",
-    })
+  const handleDeleteMilestone = async (id: string) => {
+    if (!userId) return;
+    try {
+      await QuestService.deleteQuest(supabase, id);
+      setMilestones(prev => prev.filter(m => m.id !== id));
+      toast({
+        title: "Milestone Deleted",
+        description: "The milestone has been removed.",
+      });
+    } catch (err) {
+      console.error('Failed to delete milestone:', err);
+      toast({
+        title: "Error",
+        description: "Failed to delete milestone. Please try again.",
+        variant: "destructive"
+      });
+    }
   }
 
   return (
     <div className="space-y-8">
-      {/* Might Category */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Sword className="h-5 w-5 text-red-500" />
-            <h3 className="text-lg font-semibold">Might</h3>
+      {milestoneCategories.map(category => (
+        <div key={category.key}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <category.icon className={`h-5 w-5 ${category.iconClass}`} />
+              <h3 className="text-lg font-semibold">{category.label}</h3>
+            </div>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setNewQuestCategory("might")
-              setIsDialogOpen(true)
-            }}
-          >
-            Add Milestone
-          </Button>
-        </div>
-        <div className="grid gap-4">
-          {milestones
-            .filter((milestone) => milestone.category === "might")
-            .map((milestone) => (
-              <MilestoneCard
-                key={milestone.id}
-                milestone={milestone}
-                onDelete={deleteMilestone}
-                onUpdateProgress={updateProgress}
-              />
-            ))}
-        </div>
-      </div>
-
-      {/* Knowledge Category */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Brain className="h-5 w-5 text-blue-500" />
-            <h3 className="text-lg font-semibold">Knowledge</h3>
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {/* Default Milestone Card */}
+            <Card className="bg-black/80 border-amber-800/50">
+              <CardHeader>
+                <CardTitle className="text-amber-500">{defaultMilestoneCards[category.key]?.title}</CardTitle>
+                <CardDescription>{defaultMilestoneCards[category.key]?.description}</CardDescription>
+              </CardHeader>
+            </Card>
+            {milestones
+              .filter((milestone) => milestone.category === category.key)
+              .map((milestone) => (
+                <MilestoneCard
+                  key={milestone.id}
+                  milestone={milestone}
+                  onDelete={handleDeleteMilestone}
+                  onUpdateProgress={(id, increment) => {
+                    // Update progress logic here if needed
+                  }}
+                />
+              ))}
+            {/* Add Milestone Card */}
+            <Card 
+              className="relative bg-gradient-to-b from-black to-gray-900 border-amber-800/20 p-3 min-h-[140px] flex flex-col justify-between cursor-pointer"
+              role="button"
+              tabIndex={0}
+              aria-label={`${category.key}-add-milestone-card`}
+              onClick={() => {
+                setNewQuestCategory(category.key)
+                setIsDialogOpen(true)
+              }}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setNewQuestCategory(category.key); setIsDialogOpen(true); } }}
+            >
+              <div className="flex justify-center items-center h-full">
+                <PlusCircle className="h-8 w-8 text-amber-500" />
+              </div>
+            </Card>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setNewQuestCategory("knowledge")
-              setIsDialogOpen(true)
-            }}
-          >
-            Add Milestone
-          </Button>
         </div>
-        <div className="grid gap-4">
-          {milestones
-            .filter((milestone) => milestone.category === "knowledge")
-            .map((milestone) => (
-              <MilestoneCard
-                key={milestone.id}
-                milestone={milestone}
-                onDelete={deleteMilestone}
-                onUpdateProgress={updateProgress}
-              />
-            ))}
-        </div>
-      </div>
-
-      {/* Honor Category */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Crown className="h-5 w-5 text-yellow-500" />
-            <h3 className="text-lg font-semibold">Honor</h3>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setNewQuestCategory("honor")
-              setIsDialogOpen(true)
-            }}
-          >
-            Add Milestone
-          </Button>
-        </div>
-        <div className="grid gap-4">
-          {milestones
-            .filter((milestone) => milestone.category === "honor")
-            .map((milestone) => (
-              <MilestoneCard
-                key={milestone.id}
-                milestone={milestone}
-                onDelete={deleteMilestone}
-                onUpdateProgress={updateProgress}
-              />
-            ))}
-        </div>
-      </div>
-
-      {/* Vitality Category */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Heart className="h-5 w-5 text-green-500" />
-            <h3 className="text-lg font-semibold">Vitality</h3>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setNewQuestCategory("vitality")
-              setIsDialogOpen(true)
-            }}
-          >
-            Add Milestone
-          </Button>
-        </div>
-        <div className="grid gap-4">
-          {milestones
-            .filter((milestone) => milestone.category === "vitality")
-            .map((milestone) => (
-              <MilestoneCard
-                key={milestone.id}
-                milestone={milestone}
-                onDelete={deleteMilestone}
-                onUpdateProgress={updateProgress}
-              />
-            ))}
-        </div>
-      </div>
-
-      {/* Resilience Category */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Castle className="h-5 w-5 text-purple-500" />
-            <h3 className="text-lg font-semibold">Resilience</h3>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setNewQuestCategory("resilience")
-              setIsDialogOpen(true)
-            }}
-          >
-            Add Milestone
-          </Button>
-        </div>
-        <div className="grid gap-4">
-          {milestones
-            .filter((milestone) => milestone.category === "resilience")
-            .map((milestone) => (
-              <MilestoneCard
-                key={milestone.id}
-                milestone={milestone}
-                onDelete={deleteMilestone}
-                onUpdateProgress={updateProgress}
-              />
-            ))}
-        </div>
-      </div>
-
-      {/* Dexterity Category */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Hammer className="h-5 w-5 text-amber-500" />
-            <h3 className="text-lg font-semibold">Dexterity</h3>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setNewQuestCategory("dexterity")
-              setIsDialogOpen(true)
-            }}
-          >
-            Add Milestone
-          </Button>
-        </div>
-        <div className="grid gap-4">
-          {milestones
-            .filter((milestone) => milestone.category === "dexterity")
-            .map((milestone) => (
-              <MilestoneCard
-                key={milestone.id}
-                milestone={milestone}
-                onDelete={deleteMilestone}
-                onUpdateProgress={updateProgress}
-              />
-            ))}
-        </div>
-      </div>
+      ))}
 
       {/* Add Milestone Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add New Milestone</DialogTitle>
-            <DialogDescription>
-              Create a new milestone to track your long-term goals
-            </DialogDescription>
+            <DialogDescription>Create a new milestone for your journey</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="name">Milestone Name</Label>
               <Input
                 id="name"
-                placeholder="Enter milestone name"
                 value={newMilestone.name}
-                onChange={(e) =>
-                  setNewMilestone({ ...newMilestone, name: e.target.value })
-                }
+                onChange={(e) => setNewMilestone({ ...newMilestone, name: e.target.value })}
+                placeholder="Enter milestone name"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="icon">Icon</Label>
-              <Input
-                id="icon"
-                placeholder="Enter an emoji icon"
-                value={newMilestone.icon}
-                onChange={(e) =>
-                  setNewMilestone({ ...newMilestone, icon: e.target.value })
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="target">Target Amount</Label>
-              <Input
-                id="target"
-                type="number"
-                min="1"
-                value={newMilestone.target}
-                onChange={(e) =>
-                  setNewMilestone({ ...newMilestone, target: parseInt(e.target.value) || 1 })
-                }
-              />
-            </div>
-            <div className="space-y-2">
+            <div>
               <Label htmlFor="experience">Experience Points</Label>
               <Input
                 id="experience"
                 type="number"
-                min="0"
                 value={newMilestone.experience}
-                onChange={(e) =>
-                  setNewMilestone({ ...newMilestone, experience: parseInt(e.target.value) || 0 })
-                }
+                onChange={(e) => setNewMilestone({ ...newMilestone, experience: Number(e.target.value) })}
+                placeholder="Enter experience points"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="gold">Gold Reward</Label>
+            <div>
+              <Label htmlFor="gold">Gold</Label>
               <Input
                 id="gold"
                 type="number"
-                min="0"
                 value={newMilestone.gold}
-                onChange={(e) =>
-                  setNewMilestone({ ...newMilestone, gold: parseInt(e.target.value) || 0 })
-                }
+                onChange={(e) => setNewMilestone({ ...newMilestone, gold: Number(e.target.value) })}
+                placeholder="Enter gold amount"
               />
             </div>
-          </div>
-          <div className="flex justify-end gap-4">
-            <Button variant="ghost" onClick={() => setIsDialogOpen(false)}>
-              Cancel
-            </Button>
+            <div>
+              <Label htmlFor="target">Target</Label>
+              <Input
+                id="target"
+                type="number"
+                value={newMilestone.target}
+                onChange={(e) => setNewMilestone({ ...newMilestone, target: Number(e.target.value) })}
+                placeholder="Enter target value"
+              />
+            </div>
             <Button onClick={handleAddMilestone}>Add Milestone</Button>
           </div>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
 
-// MilestoneCard Component
-function MilestoneCard({ milestone, onDelete, onUpdateProgress }: { 
-  milestone: Milestone; 
-  onDelete: (id: string) => void;
-  onUpdateProgress: (id: string, increment: boolean) => void;
-}) {
+function MilestoneCard({ milestone, onDelete, onUpdateProgress }: { milestone: Milestone; onDelete: (id: string) => void; onUpdateProgress: (id: string, increment: boolean) => void; }) {
   return (
-    <Card key={milestone.id}>
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-base">{milestone.name}</CardTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-red-500 hover:text-red-700"
-            onClick={() => onDelete(milestone.id)}
-          >
-            Delete
-          </Button>
-        </div>
+    <Card className="bg-black/80 border-amber-800/50">
+      <CardHeader>
+        <CardTitle className="text-amber-500">{milestone.name}</CardTitle>
+        <CardDescription>{milestone.icon} {milestone.experience} XP, {milestone.gold} Gold</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center gap-4 mb-4">
-          <span className="text-2xl">{milestone.icon}</span>
-          <div className="flex-1">
-            <div className="flex justify-between text-sm mb-1">
-              <span>Progress: {milestone.progress}/{milestone.target}</span>
-              <span>{Math.round((milestone.progress / milestone.target) * 100)}%</span>
-            </div>
-            <Progress value={(milestone.progress / milestone.target) * 100} />
-          </div>
-        </div>
         <div className="flex justify-between items-center">
-          <div className="flex gap-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onUpdateProgress(milestone.id, false)}
-              disabled={milestone.progress <= 0}
-            >
-              -
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onUpdateProgress(milestone.id, true)}
-              disabled={milestone.completed}
-            >
-              +
-            </Button>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>{milestone.experience} XP</span>
-            <span>{milestone.gold} Gold</span>
-          </div>
+          <Progress value={milestone.progress} className="h-1.5" aria-label={`Milestone progress: ${milestone.progress}%`} />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-5 w-5 text-red-500"
+            onClick={() => onDelete(milestone.id)}
+            aria-label={`Delete ${milestone.name} milestone`}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 } 

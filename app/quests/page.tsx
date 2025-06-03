@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ArrowLeft, Award, Calendar, CheckCircle, Clock, Coins, Sword, Trophy, XCircle, PlusCircle, Upload, Edit, X, Save, Settings, RefreshCw } from "lucide-react"
+import { ArrowLeft, Award, Calendar, CheckCircle, Clock, Coins, Sword, Trophy, XCircle, PlusCircle, Upload, Edit, X, Save, Settings, RefreshCw, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "@/components/ui/use-toast"
 import { showScrollToast } from "@/lib/toast-utils"
@@ -29,6 +29,10 @@ import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
 import { defaultQuests } from '@/lib/quest-sample-data'
 import { useSupabaseClientWithToken } from '@/lib/hooks/use-supabase-client'
+import { KnowledgeModal } from "@/components/category-modals/knowledge-modal"
+import { ConditionModal } from "@/components/category-modals/condition-modal"
+import { NutritionModal } from "@/components/category-modals/nutrition-modal"
+import { Milestones } from '@/components/milestones'
 
 // Add logging function
 const logQuestAction = async (action: string, questId: string, details: any, userId: string) => {
@@ -61,6 +65,9 @@ export default function QuestsPage() {
   const [retryCount, setRetryCount] = useState(0)
 
   const supabase = useSupabaseClientWithToken();
+
+  const [isAddQuestModalOpen, setIsAddQuestModalOpen] = useState(false)
+  const [currentCategory, setCurrentCategory] = useState<string | null>(null)
 
   // Helper to insert all default quests for a user into Supabase
   const insertDefaultQuestsToSupabase = async (userId: string) => {
@@ -312,6 +319,57 @@ export default function QuestsPage() {
     // Update local state as needed
   };
 
+  const handleAddQuest = async (activity: string, amount: number, details?: string) => {
+    if (!userId || !currentCategory) return
+    try {
+      const newQuest = await QuestService.createQuest(supabase, {
+        title: activity,
+        description: details || "",
+        category: currentCategory,
+        difficulty: "medium",
+        rewards: { xp: amount, gold: Math.floor(amount / 2), items: [] },
+        progress: 0,
+        completed: false,
+        deadline: "",
+        isNew: true,
+        isAI: false,
+        userId
+      })
+      setQuests(prev => [...prev, newQuest])
+      setIsAddQuestModalOpen(false)
+      toast({
+        title: "Quest Added",
+        description: "Your new quest has been added successfully!",
+      })
+    } catch (err) {
+      console.error('Failed to add quest:', err)
+      toast({
+        title: "Error",
+        description: "Failed to add quest. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const handleDeleteQuest = async (questId: string) => {
+    if (!userId) return
+    try {
+      await QuestService.deleteQuest(supabase, questId)
+      setQuests(prev => prev.filter(q => q.id !== questId))
+      toast({
+        title: "Quest Deleted",
+        description: "The quest has been removed.",
+      })
+    } catch (err) {
+      console.error('Failed to delete quest:', err)
+      toast({
+        title: "Error",
+        description: "Failed to delete quest. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
   return (
     <div className="pt-16 min-h-screen bg-black text-white">
       <HeaderSection
@@ -447,8 +505,25 @@ export default function QuestsPage() {
                             quest={quest}
                             onProgressUpdate={(progress) => updateQuestProgress(quest.id, progress)}
                             onToggle={() => handleQuestToggle(quest.id)}
+                            onDelete={() => handleDeleteQuest(quest.id)}
                           />
                         ))}
+                        {/* Add Quest Card */}
+                        <Card 
+                          className="relative bg-gradient-to-b from-black to-gray-900 border-amber-800/20 p-3 min-h-[140px] flex flex-col justify-between cursor-pointer"
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`${category}-add-quest-card`}
+                          onClick={() => {
+                            setCurrentCategory(category)
+                            setIsAddQuestModalOpen(true)
+                          }}
+                          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setCurrentCategory(category); setIsAddQuestModalOpen(true); } }}
+                        >
+                          <div className="flex justify-center items-center h-full">
+                            <PlusCircle className="h-8 w-8 text-amber-500" />
+                          </div>
+                        </Card>
                       </div>
                     </div>
                   ))}
@@ -459,19 +534,23 @@ export default function QuestsPage() {
             {/* Milestones Tab */}
             <TabsContent value="milestones" className="mt-6">
               <ScrollArea className="h-[calc(100vh-300px)]" aria-label="milestones-scroll-area">
-                <div className="grid gap-4">
-                  <Card className="bg-black/80 border-amber-800/50">
-                    <CardHeader>
-                      <CardTitle className="text-amber-500">Coming Soon</CardTitle>
-                      <CardDescription>Milestones feature is under development</CardDescription>
-                    </CardHeader>
-                  </Card>
-                </div>
+                <Milestones />
               </ScrollArea>
             </TabsContent>
           </Tabs>
         )}
       </div>
+
+      {/* Add Quest Modal */}
+      {isAddQuestModalOpen && currentCategory && (
+        currentCategory === 'knowledge' ? (
+          <KnowledgeModal open={true} onOpenChange={setIsAddQuestModalOpen} onSubmit={(activity, amount, details) => handleAddQuest(activity, amount, details)} />
+        ) : currentCategory === 'condition' ? (
+          <ConditionModal open={true} onOpenChange={setIsAddQuestModalOpen} onSubmit={(activity, duration, distance) => handleAddQuest(activity, duration, distance?.toString())} />
+        ) : currentCategory === 'nutrition' ? (
+          <NutritionModal open={true} onOpenChange={setIsAddQuestModalOpen} onSubmit={(mealType, description, macros) => handleAddQuest(mealType, 0, description)} />
+        ) : null
+      )}
     </div>
   );
 }
@@ -480,11 +559,13 @@ export default function QuestsPage() {
 function QuestCard({ 
   quest, 
   onProgressUpdate,
-  onToggle 
+  onToggle,
+  onDelete
 }: { 
   quest: Quest; 
   onProgressUpdate: (progress: number) => void;
   onToggle: () => void;
+  onDelete: () => void;
 }) {
   // Handler for card click (toggles completion)
   const handleCardClick = (e: React.MouseEvent) => {
@@ -520,13 +601,24 @@ function QuestCard({
             {quest.isAI && <Badge className="bg-purple-500 text-white">AI</Badge>}
           </div>
         </div>
-        <Checkbox
-          checked={quest.completed}
-          onCheckedChange={onToggle}
-          aria-label={`Mark ${quest.title} as ${quest.completed ? 'incomplete' : 'complete'}`}
-          className="h-5 w-5 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white data-[state=checked]:border-amber-500 mt-1"
-          tabIndex={-1}
-        />
+        <div className="flex items-center gap-2">
+          <Checkbox
+            checked={quest.completed}
+            onCheckedChange={onToggle}
+            aria-label={`Mark ${quest.title} as ${quest.completed ? 'incomplete' : 'complete'}`}
+            className="h-5 w-5 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white data-[state=checked]:border-amber-500 mt-1"
+            tabIndex={-1}
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-5 w-5 text-red-500"
+            onClick={(e) => { e.stopPropagation(); onDelete(); }}
+            aria-label={`Delete ${quest.title} quest`}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
       <div className="flex flex-col gap-2 mb-2">
         <div className="flex justify-between text-xs text-white">
