@@ -8,17 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { ReplayabilityManager, Achievement } from "@/lib/replayability"
 import { Trophy, Star, Calendar, Target } from "lucide-react"
-import { useRouter } from 'next/navigation'
 
 export default function AchievementsPage() {
-  const router = useRouter();
-  useEffect(() => {
-    router.replace('/game-center?tab=achievements');
-  }, [router]);
-  return <div className="p-8 text-center">Achievements have moved to the <b>Game Center</b>. Redirecting...</div>;
-}
-
-export function AchievementsPage() {
   const [achievements, setAchievements] = useState<Achievement[]>([])
   const [activeTab, setActiveTab] = useState("all")
   const [showAllDiscovered, setShowAllDiscovered] = useState(false)
