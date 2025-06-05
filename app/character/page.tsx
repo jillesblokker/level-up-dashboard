@@ -57,9 +57,8 @@ export default function CharacterPage() {
   const [isHovering, setIsHovering] = useState(false)
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [coverImage, setCoverImage] = useState(() => {
-    if (typeof window !== 'undefined') {
-      // @ts-ignore
-      return window.headerImages?.character || "/images/character-header.jpg"
+    if (typeof window !== 'undefined' && window.headerImages) {
+      return window.headerImages.character || "/images/character-header.jpg"
     }
     return "/images/character-header.jpg"
   })
@@ -458,8 +457,7 @@ export default function CharacterPage() {
           setCoverImage(result)
           localStorage.setItem("character-header-image", result)
           // Update global state
-          if (typeof window !== 'undefined') {
-            // @ts-ignore
+          if (typeof window !== 'undefined' && window.headerImages) {
             window.headerImages.character = result
           }
           setIsUploading(false)
@@ -551,6 +549,7 @@ export default function CharacterPage() {
                 className="hidden"
                 accept="image/jpeg,image/png,image/gif" 
                 onChange={handleImageUpload}
+                placeholder="Enter value"
               />
             </div>
           </div>

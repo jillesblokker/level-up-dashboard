@@ -11,6 +11,18 @@ import { getCategoryData } from "@/lib/category-data"
 
 export default function CategoryPage() {
   const params = useParams()
+  const slug = params ? (params['slug'] as string) : ''
+  const categoryData = getCategoryData(slug)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Simulate data loading
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [])
+
   if (!params) {
     return (
       <div className="container py-10" role="main" aria-label="category-error-section">
@@ -25,19 +37,6 @@ export default function CategoryPage() {
       </div>
     )
   }
-  
-  const slug = params['slug'] as string
-  const categoryData = getCategoryData(slug)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    // Simulate data loading
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 500)
-
-    return () => clearTimeout(timer)
-  }, [])
 
   if (!categoryData) {
     return (
@@ -50,7 +49,6 @@ export default function CategoryPage() {
             </Button>
           </Link>
         </div>
-        
         <Card aria-label="category-not-found-card">
           <CardHeader>
             <CardTitle>Category Not Found</CardTitle>

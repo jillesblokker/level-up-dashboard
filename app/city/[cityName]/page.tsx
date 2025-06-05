@@ -14,6 +14,18 @@ import { getCityData, type CityData, type CityLocation } from "@/lib/city-data"
 
 export default function CityPage() {
   const params = useParams()
+  const cityName = params ? (params['cityName'] as string) : ''
+  const cityData = getCityData(cityName)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Simulate data loading
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [])
+
   if (!params) {
     return (
       <div className="container py-10" role="main" aria-label="city-error-section">
@@ -29,18 +41,6 @@ export default function CityPage() {
     )
   }
 
-  const cityData = getCityData(params['cityName'] as string)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    // Simulate data loading
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 500)
-
-    return () => clearTimeout(timer)
-  }, [])
-
   if (!cityData) {
     return (
       <div className="container py-10" role="main" aria-label="city-not-found-section">
@@ -52,7 +52,6 @@ export default function CityPage() {
             </Button>
           </Link>
         </div>
-        
         <Card aria-label="city-not-found-card">
           <CardHeader>
             <CardTitle>City Not Found</CardTitle>
@@ -61,7 +60,7 @@ export default function CityPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p>The city "{params['cityName']}" does not exist or has been removed.</p>
+            <p>The city "{cityName}" does not exist or has been removed.</p>
           </CardContent>
         </Card>
       </div>
