@@ -76,4 +76,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
       </AuthProvider>
     </ClerkProvider>
   )
-} 
+}
+
+export { useAuthContext as useAuth } 

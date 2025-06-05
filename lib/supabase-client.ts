@@ -160,4 +160,6 @@ export const subscribeToGridChanges = (
       callback
     )
     .subscribe()
-} 
+}
+
+export const supabase = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey) 

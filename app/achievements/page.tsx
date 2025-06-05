@@ -10,7 +10,7 @@ import { ReplayabilityManager, Achievement } from "@/lib/replayability"
 import { Trophy, Star, Calendar, Target } from "lucide-react"
 import { useRouter } from 'next/navigation'
 
-export default function AchievementsRedirect() {
+export default function AchievementsPage() {
   const router = useRouter();
   useEffect(() => {
     router.replace('/game-center?tab=achievements');
