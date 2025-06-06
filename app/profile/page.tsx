@@ -106,10 +106,25 @@ export default function ProfilePage() {
 
   if (!session?.user) {
     return (
-      <div className="container max-w-2xl py-8">
-        <Card className="p-6" aria-label="profile-signin-card">
-          <p className="text-center">Please sign in to view your profile</p>
-        </Card>
+      <div className="container max-w-2xl py-16 flex flex-col items-center justify-center">
+        <div className="relative w-full max-w-md h-64 flex flex-col items-center justify-center text-center rounded-lg overflow-hidden mb-8">
+          {/* Placeholder image */}
+          <img
+            src="/images/placeholders/item-placeholder.svg"
+            alt="Profile placeholder"
+            className="absolute inset-0 w-full h-full object-cover opacity-70 pointer-events-none"
+            aria-hidden="true"
+          />
+          {/* Overlay for readability */}
+          <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
+          <div className="relative z-10 flex flex-col items-center justify-center h-full w-full">
+            <h2 className="text-2xl font-bold text-amber-500 mb-2 drop-shadow">Sign in to view your profile</h2>
+            <p className="text-gray-300 mb-4">Access your stats, avatar, and progress by signing in.</p>
+            <Button className="bg-gradient-to-r from-amber-500 to-amber-700 text-white font-bold rounded px-6 py-2 mt-2" aria-label="Sign in to profile" onClick={() => window.location.href = '/auth/signin'}>
+              Sign In
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
