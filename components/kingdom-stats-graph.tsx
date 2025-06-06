@@ -27,10 +27,38 @@ interface GraphData {
 // Empty state component
 function EmptyState() {
   return (
-    <div className="h-64 flex flex-col items-center justify-center text-center space-y-2" aria-label="kingdom-stats-empty-state">
-      <div className="text-gray-500 text-lg">No data yet</div>
-      <div className="text-gray-400 text-sm">Start habit building now</div>
-    </div>
+    <section
+      className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden"
+      aria-label="kingdom-stats-empty-state-section"
+    >
+      {/* Placeholder image */}
+      <img
+        src="/images/quests-header.jpg"
+        alt="Empty kingdom stats placeholder"
+        className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none"
+        aria-hidden="true"
+      />
+      {/* Overlay for readability */}
+      <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
+      {/* Content */}
+      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3">
+        <div className="text-amber-500 text-xl font-bold drop-shadow-md" aria-label="kingdom-stats-empty-title">
+          No data yet
+        </div>
+        <div className="text-gray-100 text-base" aria-label="kingdom-stats-empty-desc">
+          Start habit building now to see your kingdom flourish!
+        </div>
+        <button
+          className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 transition-all"
+          aria-label="Start your first quest"
+          tabIndex={0}
+          role="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        >
+          Start Your First Quest
+        </button>
+      </div>
+    </section>
   )
 }
 
