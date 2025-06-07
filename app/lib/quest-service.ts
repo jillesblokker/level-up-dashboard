@@ -1,5 +1,7 @@
 import { supabase } from '@/lib/supabase-client'
 import { Quest, QuestFilters } from './quest-types'
+import { SupabaseClient } from '@supabase/supabase-js'
+import { Database } from '@/types/supabase'
 
 export class QuestService {
   static async getQuests(userId: string, filters?: QuestFilters): Promise<Quest[]> {
@@ -141,38 +143,46 @@ export class QuestService {
     }
   }
 
-  static async updateQuestProgress(id: string, progress: number): Promise<Quest> {
+  static async updateQuestProgress(
+    supabase: SupabaseClient<Database>,
+    id: string,
+    progress: number
+  ): Promise<Quest> {
+    if (!supabase) {
+      console.error('Supabase client not initialized');
+      throw new Error('Supabase client not initialized');
+    }
     const { data, error } = await supabase
-      .from('QuestCompletion')
+      .from('quests')
       .update({
         progress,
         completed: progress >= 100
       })
       .eq('id', id)
       .select()
-      .single()
+      .single();
 
     if (error) {
-      console.error('Error updating quest progress:', error)
-      throw new Error(error.message)
+      console.error('Error updating quest progress:', error);
+      throw new Error(error.message);
     }
 
     return {
       id: data.id,
-      title: data.questName,
+      title: data.title,
       description: data.description,
       category: data.category,
       difficulty: data.difficulty,
       rewards: data.rewards || { xp: 0, gold: 0, items: [] },
       progress: data.progress ?? 0,
       completed: data.completed ?? false,
-      deadline: data.date,
+      deadline: data.deadline,
       isNew: data.isNew,
       isAI: data.isAI,
       userId: data.userId,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at
-    }
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt
+    };
   }
 
   static async toggleQuestCompletion(id: string): Promise<Quest> {
