@@ -6,13 +6,17 @@
     "dev": "next dev -p 3005 -H 0.0.0.0",
     "clean-start": "rm -rf .next node_modules/.cache && next dev -p 3005",
     "dev:custom": "node server.js",
-    "build": "prisma generate && prisma db push && next build",
+    "build": "prisma generate && next build",
     "start": "next start -p 3005",
     "lint": "next lint",
     "postinstall": "prisma generate",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "db:migrate": "./db-migrate.sh",
+    "db:push": "prisma db push",
+    "db:generate": "prisma generate",
+    "vercel-build": "prisma generate && prisma migrate deploy --preview-feature && next build"
   },
   "dependencies": {
     "@auth/core": "0.34.2",
