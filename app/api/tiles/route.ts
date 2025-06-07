@@ -9,8 +9,6 @@ export const dynamic = 'force-dynamic';
 // Create a new tile placement
 export async function POST(request: Request) {
   try {
-    console.log('Starting tile placement request...'); // Debug log
-    
     const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env['NEXT_PUBLIC_SUPABASE_URL']!,
@@ -26,7 +24,6 @@ export async function POST(request: Request) {
     const { data: { session } } = await supabase.auth.getSession();
 
     if (!session?.user?.id) {
-      console.log('No session found');
       return NextResponse.json({ error: 'Unauthorized - No valid session' }, { status: 401 });
     }
 
@@ -42,12 +39,10 @@ export async function POST(request: Request) {
     });
 
     const data = await request.json();
-    console.log('Received tile placement data:', data);
     
     const { tileType, posX, posY } = data;
     
     if (!tileType || typeof posX !== 'number' || typeof posY !== 'number') {
-      console.log('Invalid tile placement data:', { tileType, posX, posY });
       return NextResponse.json({ 
         error: 'Invalid data', 
         details: 'Missing or invalid tileType, posX, or posY' 
@@ -64,7 +59,6 @@ export async function POST(request: Request) {
     });
 
     if (existingTile) {
-      console.log('Tile already exists at position:', { posX, posY });
       return NextResponse.json({ 
         error: 'Tile placement failed', 
         details: 'A tile already exists at this position',
@@ -83,10 +77,8 @@ export async function POST(request: Request) {
         }
       });
       
-      console.log('Successfully created tile placement:', placement);
       return NextResponse.json(placement);
     } catch (error) {
-      console.error('Database error while creating tile:', error);
       
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         // Handle specific Prisma errors
@@ -112,7 +104,6 @@ export async function POST(request: Request) {
       throw error; // Re-throw unknown errors
     }
   } catch (error) {
-    console.error('Error in tile placement endpoint:', error);
     return NextResponse.json({ 
       error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error occurred'
@@ -152,7 +143,6 @@ export async function GET() {
 
     return NextResponse.json(placements);
   } catch (error) {
-    console.error('Error fetching tile placements:', error);
     return NextResponse.json({ 
       error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error'

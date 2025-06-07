@@ -10,6 +10,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 export default function TemplePage() {
   const params = useParams()
+  const cityName = params ? (params['cityName'] as string) : ''
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Simulate data loading
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [])
+
   if (!params) {
     return (
       <div className="container py-10" role="main" aria-label="temple-error-section">
@@ -24,18 +35,6 @@ export default function TemplePage() {
       </div>
     )
   }
-
-  const cityName = params['cityName'] as string
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    // Simulate data loading
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 500)
-
-    return () => clearTimeout(timer)
-  }, [])
 
   return (
     <div className="container py-10" role="main" aria-label="temple-content-section">

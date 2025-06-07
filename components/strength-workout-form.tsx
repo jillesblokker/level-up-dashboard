@@ -63,7 +63,7 @@ export function StrengthWorkoutForm({ onSubmit }: StrengthWorkoutFormProps) {
         </div>
         <div className="flex-1">
           <p className="text-sm font-medium">{reps > 0 ? `${reps} ${exercise}` : "Enter your workout"}</p>
-          {reps > 0 && <p className="text-xs text-muted-foreground">You'll earn +{Math.floor(reps / 10) * 5} XP</p>}
+          {reps > 0 && <p className="text-xs text-muted-foreground">You&apos;ll earn +{Math.floor(reps / 10) * 5} XP</p>}
         </div>
       </div>
 

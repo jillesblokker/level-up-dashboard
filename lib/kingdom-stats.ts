@@ -187,7 +187,7 @@ export class KingdomStats extends EventEmitter implements KingdomStatsInterface 
 
 export const kingdomStats = new KingdomStats();
 
-export interface KingdomStats {
+export interface KingdomStatsDataShape {
   questsCompleted: number
   goldEarned: number
   expEarned: number
@@ -198,7 +198,6 @@ export interface KingdomStats {
   happiness: number
   resources: {
     wood: number
-    stone: number
     food: number
     iron: number
     total: number
@@ -216,7 +215,7 @@ export interface KingdomStats {
   }[]
 }
 
-export const defaultKingdomStats: KingdomStats = {
+export const defaultKingdomStats: KingdomStatsDataShape = {
   questsCompleted: 0,
   goldEarned: 0,
   expEarned: 0,
@@ -227,7 +226,6 @@ export const defaultKingdomStats: KingdomStats = {
   happiness: 75,
   resources: {
     wood: 200,
-    stone: 100,
     food: 300,
     iron: 50,
     total: 650
@@ -256,7 +254,7 @@ export const defaultKingdomStats: KingdomStats = {
   inventory: []
 }
 
-export function calculateIncome(stats: KingdomStats): number {
+export function calculateIncome(stats: KingdomStatsDataShape): number {
   const baseIncome = 10
   const populationIncome = stats.population * 0.5
   const marketIncome = stats.buildings.markets * 100
@@ -265,7 +263,7 @@ export function calculateIncome(stats: KingdomStats): number {
   return Math.floor((baseIncome + populationIncome + marketIncome) * happinessMultiplier)
 }
 
-export function calculateUpkeep(stats: KingdomStats): number {
+export function calculateUpkeep(stats: KingdomStatsDataShape): number {
   const militaryUpkeep = 
     stats.military.soldiers * 2 +
     stats.military.archers * 3 +
@@ -286,7 +284,7 @@ export function calculateUpkeep(stats: KingdomStats): number {
   return militaryUpkeep + buildingUpkeep
 }
 
-export function calculateResourceProduction(stats: KingdomStats) {
+export function calculateResourceProduction(stats: KingdomStatsDataShape) {
   return {
     wood: stats.buildings.farms * 10,
     stone: stats.buildings.mines * 5,
@@ -295,7 +293,7 @@ export function calculateResourceProduction(stats: KingdomStats) {
   }
 }
 
-export function calculateMilitaryStrength(stats: KingdomStats): number {
+export function calculateMilitaryStrength(stats: KingdomStatsDataShape): number {
   const unitStrength = 
     stats.military.soldiers * 10 +
     stats.military.archers * 15 +
@@ -310,7 +308,7 @@ export function calculateMilitaryStrength(stats: KingdomStats): number {
   return unitStrength + defenseStrength
 }
 
-export function calculatePopulationGrowth(stats: KingdomStats): number {
+export function calculatePopulationGrowth(stats: KingdomStatsDataShape): number {
   const baseGrowth = stats.population * 0.05
   const foodFactor = stats.resources.food >= stats.population ? 1 : 0.5
   const happinessFactor = stats.happiness / 100
@@ -323,7 +321,7 @@ export function calculatePopulationGrowth(stats: KingdomStats): number {
   return Math.floor(baseGrowth * foodFactor * happinessFactor)
 }
 
-export function calculateHappinessChange(stats: KingdomStats): number {
+export function calculateHappinessChange(stats: KingdomStatsDataShape): number {
   let change = 0
 
   // Food availability
@@ -352,7 +350,7 @@ export function getNextLevelExperience(level: number): number {
   return Math.floor(1000 * Math.pow(1.5, level - 1))
 }
 
-export function getAvailableTitles(stats: KingdomStats): string[] {
+export function getAvailableTitles(stats: KingdomStatsDataShape): string[] {
   const titles = []
 
   if (stats.population >= 500) titles.push('Lord of the Realm')
@@ -371,7 +369,7 @@ export function getAvailableTitles(stats: KingdomStats): string[] {
   return titles
 }
 
-export function getAvailablePerks(stats: KingdomStats): string[] {
+export function getAvailablePerks(stats: KingdomStatsDataShape): string[] {
   const perks = []
 
   if (stats.level >= 5) perks.push('Efficient Administration')

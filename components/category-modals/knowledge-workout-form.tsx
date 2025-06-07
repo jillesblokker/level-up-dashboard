@@ -152,7 +152,7 @@ export function KnowledgeWorkoutForm({ onSubmit }: KnowledgeWorkoutFormProps) {
           <p className="text-sm font-medium">
             {amount > 0 ? `${amount} ${getAmountLabel().toLowerCase()} of ${activity}` : "Enter your learning activity"}
           </p>
-          {amount > 0 && <p className="text-xs text-muted-foreground">You'll earn +{calculateXP()} XP</p>}
+          {amount > 0 && <p className="text-xs text-muted-foreground">You&apos;ll earn +{calculateXP()} XP</p>}
         </div>
       </div>
 

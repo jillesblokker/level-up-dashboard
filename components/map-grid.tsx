@@ -1,38 +1,15 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { User, Building, RotateCw, Trash } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tile } from "@/types/tiles";
 import { TileVisual } from "@/components/tile-visual";
 import { cn } from "@/lib/utils";
-import { generateMysteryEvent, handleEventOutcome, MysteryEvent, MysteryEventOutcome, MysteryEventReward, MysteryEventType } from '@/lib/mystery-events'
-import { BattleModal } from "@/components/battle-modal"
-import { Battle } from "@/types/battle";
-import { MapGridProps as BaseMapGridProps, SelectedInventoryItem } from '@/types/tiles';
-
-interface CityData {
-  name: string;
-  type: string;
-}
-
-interface Event {
-  type: 'mystery' | 'battle';
-  title: string;
-  description: string;
-  choices: string[];
-  enemyName?: string;
-  enemyLevel?: number;
-}
-
-interface BattleEvent extends Event {
-  type: 'battle';
-  enemyName: string;
-  enemyLevel: number;
-}
+import { generateMysteryEvent, MysteryEventOutcome } from '@/lib/mystery-events'
+import { MapGridProps as BaseMapGridProps } from '@/types/tiles';
+import Image from 'next/image';
 
 interface MapGridProps extends BaseMapGridProps {
   onExperienceUpdate?: (amount: number) => void;
@@ -42,12 +19,6 @@ interface MapGridProps extends BaseMapGridProps {
   sheepPos?: { x: number; y: number } | null;
   eaglePos?: { x: number; y: number } | null;
   penguinPos?: { x: number; y: number } | null;
-}
-
-interface HoveredTile {
-  tile: Tile;
-  x: number;
-  y: number;
 }
 
 interface GameEvent {
@@ -62,20 +33,13 @@ interface GameEvent {
 }
 
 export function MapGrid({ 
-  onDiscovery, 
   selectedTile = null,
-  onTilePlaced,
   grid,
   character,
   onCharacterMove,
   onTileClick,
-  onGridUpdate,
-  onGoldUpdate,
-  onExperienceUpdate,
   onHover,
   onHoverEnd,
-  onRotateTile,
-  onDeleteTile,
   isMovementMode = false,
   gridRotation,
   hoveredTile,
@@ -86,13 +50,9 @@ export function MapGrid({
   penguinPos = null
 }: MapGridProps) {
   const { toast } = useToast();
-  const router = useRouter();
   const [currentEvent, setCurrentEvent] = useState<GameEvent | null>(null);
-  const [currentBattle, setCurrentBattle] = useState<Battle | null>(null);
-  const [showBattleModal, setShowBattleModal] = useState(false);
-  const [battlePosition, setBattlePosition] = useState<{ x: number; y: number } | null>(null);
 
-  const handleMysteryTile = (tile: Tile) => {
+  const handleMysteryTile = () => {
     const event = generateMysteryEvent();
     setCurrentEvent({
       type: 'mystery',
@@ -103,7 +63,7 @@ export function MapGrid({
     });
   };
 
-  const handleEventChoice = (choice: string, index: number) => {
+  const handleEventChoice = (choice: string) => {
     if (!currentEvent) return;
 
     if (currentEvent.type === 'mystery') {
@@ -246,21 +206,15 @@ export function MapGrid({
     onCharacterMove(originalTarget.x, originalTarget.y);
     const movedToTile = grid[originalTarget.y]?.[originalTarget.x];
     if (movedToTile && movedToTile.type === 'mystery' && !movedToTile.isVisited) {
-      handleMysteryTile(movedToTile);
+      handleMysteryTile();
     }
   };
 
   const handleTileClick = (tile: Tile, x: number, y: number) => {
-    if (!tile) return;
-    
     if (isMovementMode) {
       handleMove({ tile, x, y });
     } else {
-      if (tile.type === 'mystery') {
-        handleMysteryTile(tile);
-      } else {
-        onTileClick(x, y);
-      }
+      onTileClick?.(x, y);
     }
   };
 
@@ -269,145 +223,113 @@ export function MapGrid({
   }
 
   return (
-    <div className="relative" aria-label="map-container">
+    <div
+      className="relative w-full h-full overflow-hidden"
+      role="grid"
+      aria-label="map-grid"
+    >
       <div 
-        className="grid w-full" 
-        style={{ gridTemplateColumns: `repeat(${grid[0]?.length ?? 0}, minmax(0, 1fr))` }}
-        role="grid"
-        aria-label="map-grid"
+        className="w-full h-full overflow-auto"
+        aria-label="map-grid-scroll-area"
       >
-        {grid.map((row, y) => 
-          row.map((tile, x) => {
-            const isCurrentHovered = hoveredTile?.row === y && hoveredTile?.col === x;
-            const isValidMove = isMovementMode && isValidMovementTarget(x, y);
-            const isVisited = tile.revealed || false;
-
-            return (
-              <div
-                key={`${y}-${x}`}
-                className={cn(
-                  "relative aspect-square group",
-                  isMovementMode && isValidMove && isCurrentHovered && "shadow-[0_0_15px_rgba(34,197,94,0.2)]",
-                  "transition-all duration-200",
-                  "cursor-pointer"
-                )}
-                onClick={(e) => {
-                  console.log('Tile clicked:', { x, y, isMovementMode, isValidMove });
-                  e.stopPropagation();
-                  handleTileClick(tile, x, y);
-                }}
-                onMouseEnter={() => handleTileHover(tile, x, y)}
-                onMouseLeave={handleTileLeave}
-                role="gridcell"
-                aria-label={`map-tile-${x}-${y}`}
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    if (isMovementMode) {
-                      handleMove({ tile, x, y });
-                    } else {
-                      onTileClick(x, y);
-                    }
-                  }
-                }}
-              >
-                <div className="absolute inset-0">
+        <div role="rowgroup" aria-label="map-rows">
+          {grid.map((row: Tile[], y: number) => (
+            <div
+              key={y}
+              className={`grid w-full`} 
+              style={{ gridTemplateColumns: `repeat(${row.length}, minmax(32px, 1fr))` }}
+              role="row"
+              aria-label={`map-row-${y}`}
+            >
+              {row.map((tile: Tile, x: number) => (
+                <div
+                  key={`${x}-${y}`}
+                  className={cn(
+                    "relative w-full h-full aspect-square min-w-[32px] min-h-[32px]",
+                    isMovementMode && isValidMovementTarget(x, y) && "cursor-pointer"
+                  )}
+                  role="gridcell"
+                  aria-label={`tile-${tile.type}-${x}-${y}`}
+                  onClick={() => handleTileClick(tile, x, y)}
+                  onMouseEnter={() => handleTileHover(tile, x, y)}
+                  onMouseLeave={handleTileLeave}
+                >
                   <TileVisual
                     tile={tile}
                     isSelected={selectedTile?.x === x && selectedTile?.y === y}
-                    isHovered={isCurrentHovered}
+                    isHovered={hoveredTile?.row === y && hoveredTile?.col === x}
                     isCharacterPresent={character.x === x && character.y === y}
                   />
-                  {/* Overlay horse image at horsePos if present */}
-                  {horsePos && x === horsePos.x && y === horsePos.y && (
-                    <img
-                      src="/images/Animales/horse.png"
-                      alt="Horse"
-                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none', zIndex: 10 }}
-                      aria-label="Horse overlay"
-                    />
+                  {horsePos && horsePos.x === x && horsePos.y === y && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Image
+                        src="/images/Animales/horse.png"
+                        alt="Horse"
+                        width={32}
+                        height={32}
+                        className="z-10"
+                      />
+                    </div>
                   )}
-                  {/* Overlay sheep image at sheepPos if present */}
-                  {sheepPos && x === sheepPos.x && y === sheepPos.y && (
-                    <img
-                      src="/images/Animales/sheep.png"
-                      alt="Sheep"
-                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none', zIndex: 10 }}
-                      aria-label="Sheep overlay"
-                    />
+                  {sheepPos && sheepPos.x === x && sheepPos.y === y && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Image
+                        src="/images/Animales/sheep.png"
+                        alt="Sheep"
+                        width={32}
+                        height={32}
+                        className="z-10"
+                      />
+                    </div>
                   )}
-                  {/* Overlay eagle image at eaglePos if present */}
-                  {eaglePos && x === eaglePos.x && y === eaglePos.y && (
-                    <img
-                      src="/images/Animales/eagle.png"
-                      alt="Eagle"
-                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none', zIndex: 10 }}
-                      aria-label="Eagle overlay"
-                    />
+                  {eaglePos && eaglePos.x === x && eaglePos.y === y && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Image
+                        src="/images/Animales/eagle.png"
+                        alt="Eagle"
+                        width={32}
+                        height={32}
+                        className="z-10"
+                      />
+                    </div>
                   )}
-                  {/* Overlay penguin image at penguinPos if present */}
-                  {penguinPos && x === penguinPos.x && y === penguinPos.y && (
-                    <img
-                      src="/images/Animales/penguin.png"
-                      alt="Penguin"
-                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none', zIndex: 10 }}
-                      aria-label="Penguin overlay"
-                    />
+                  {penguinPos && penguinPos.x === x && penguinPos.y === y && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Image
+                        src="/images/Animales/penguin.png"
+                        alt="Penguin"
+                        width={32}
+                        height={32}
+                        className="z-10"
+                      />
+                    </div>
                   )}
                 </div>
-
-                {!isMovementMode && tile.type !== 'empty' && (
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/50">
-                       <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDeleteTile?.(x, y);
-                      }}
-                      className="p-1 bg-red-500 hover:bg-red-600 rounded-full text-white"
-                      aria-label="Delete Tile"
-                      title="Delete Tile"
-                    >
-                      <Trash className="h-4 w-4" />
-                    </button>
-                  </div>
-                )}
-
-                {character.x === x && character.y === y && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <img
-                      src="/images/character/character.png"
-                      alt="Character"
-                      style={{ width: 32, height: 32, objectFit: 'contain', zIndex: 20 }}
-                      aria-label="Character"
-                    />
-                  </div>
-                )}
-              </div>
-            );
-          })
-        )}
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
-
       {currentEvent && (
-        <Dialog open={true} onOpenChange={() => setCurrentEvent(null)}>
+        <Dialog open={!!currentEvent} onOpenChange={() => setCurrentEvent(null)}>
           <DialogContent>
-          <DialogHeader>
+            <DialogHeader>
               <DialogTitle>{currentEvent.title}</DialogTitle>
               <DialogDescription>{currentEvent.description}</DialogDescription>
-          </DialogHeader>
-            <div className="grid gap-4">
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
               {currentEvent.choices.map((choice, index) => (
                 <Button
                   key={index}
                   variant={index === 0 ? "default" : "secondary"}
-                  onClick={() => handleEventChoice(choice, index)}
+                  onClick={() => handleEventChoice(choice)}
                 >
                   {choice}
                 </Button>
               ))}
             </div>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

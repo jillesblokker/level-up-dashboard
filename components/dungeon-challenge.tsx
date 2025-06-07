@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { toast } from "@/components/ui/use-toast"
 import {
   Sword,
   Shield,
@@ -41,22 +40,6 @@ export function DungeonChallenge({ difficulty, onComplete }: DungeonChallengePro
   const [gameResult, setGameResult] = useState<string>("")
   const [timeLeft, setTimeLeft] = useState<number>(60)
   const [timerActive, setTimerActive] = useState<boolean>(false)
-  const [currentRound, setCurrentRound] = useState(1)
-  const [totalRounds] = useState(3)
-  const [showMemoryGame, setShowMemoryGame] = useState(true)
-  const [roundComplete, setRoundComplete] = useState(false)
-  const [rewards, setRewards] = useState({
-    gold: 0,
-    experience: 0,
-    items: [] as string[],
-  })
-  const [roundResults, setRoundResults] = useState<
-    {
-      swordPairs: number
-      shieldPairs: number
-      success: boolean
-    }[]
-  >([])
 
   // Initialize game
   useEffect(() => {
@@ -238,108 +221,6 @@ export function DungeonChallenge({ difficulty, onComplete }: DungeonChallengePro
     }
   }
 
-  // Configure difficulty for each round
-  const getDifficultyConfig = (round: number) => {
-    const baseConfig = {
-      easy: { pairs: 6, swordProbability: 0.3, time: 45 },
-      medium: { pairs: 8, swordProbability: 0.25, time: 40 },
-      hard: { pairs: 10, swordProbability: 0.2, time: 35 },
-    }
-
-    // Increase difficulty with each round
-    const config = { ...baseConfig[difficulty] }
-    config.pairs += (round - 1) * 2
-    config.swordProbability -= (round - 1) * 0.05
-    config.time -= (round - 1) * 5
-
-    return config
-  }
-
-  const handleMemoryGameComplete = (matches: { type: string; count: number }[]) => {
-    // Count sword and shield pairs
-    const swordMatch = matches.find((m) => m.type === "sword")
-    const swordPairs = swordMatch ? swordMatch.count : 0
-
-    const shieldMatch = matches.find((m) => m.type === "shield")
-    const shieldPairs = shieldMatch ? shieldMatch.count : 0
-
-    // Determine if round was successful (need at least 1 sword pair)
-    const success = swordPairs > 0
-
-    // Update round results
-    setRoundResults((prev) => [...prev, { swordPairs, shieldPairs, success }])
-
-    // Calculate rewards for this round
-    const roundGold = swordPairs * 50 + shieldPairs * 20
-    const roundExp = swordPairs * 30 + shieldPairs * 10
-
-    // Update total rewards
-    setRewards((prev) => ({
-      gold: prev.gold + roundGold,
-      experience: prev.experience + roundExp,
-      items: [...prev.items],
-    }))
-
-    // Show toast with round results
-    toast({
-      title: success ? "Round Complete!" : "Round Failed!",
-      description: `You found ${swordPairs} sword pairs and ${shieldPairs} shield pairs.`,
-      variant: success ? "default" : "destructive",
-    })
-
-    setShowMemoryGame(false)
-    setRoundComplete(true)
-  }
-
-  const handleNextRound = () => {
-    if (currentRound < totalRounds) {
-      // Check if previous round was successful
-      const lastResult = roundResults[roundResults.length - 1]
-      if (!lastResult.success) {
-        // Failed the challenge
-        toast({
-          title: "Dungeon Challenge Failed",
-          description: "You need at least one sword pair to continue!",
-          variant: "destructive",
-        })
-        onComplete(false)
-        return
-      }
-
-      // Move to next round
-      setCurrentRound((prev) => prev + 1)
-      setShowMemoryGame(true)
-      setRoundComplete(false)
-    } else {
-      // Final round complete
-      const lastResult = roundResults[roundResults.length - 1]
-      if (!lastResult.success) {
-        // Failed the final round
-        toast({
-          title: "Dungeon Challenge Failed",
-          description: "You were so close!",
-          variant: "destructive",
-        })
-        onComplete(false)
-        return
-      }
-
-      // Add special item for completing all rounds
-      const updatedRewards = {
-        ...rewards,
-        items: [...rewards.items, "Ancient Artifact"],
-      }
-      setRewards(updatedRewards)
-
-      // Success!
-      toast({
-        title: "Dungeon Conquered!",
-        description: `You've completed all ${totalRounds} rounds and found an Ancient Artifact!`,
-      })
-      onComplete(true)
-    }
-  }
-
   return (
     <div className="w-full max-w-3xl mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
@@ -351,6 +232,7 @@ export function DungeonChallenge({ difficulty, onComplete }: DungeonChallengePro
             <Progress
               value={(dungeonLevel / maxDungeonLevel) * 100}
               className="h-2 [&>div]:bg-amber-500 bg-gray-700"
+              aria-label="Dungeon level progress"
             />
           </div>
         </div>
@@ -361,21 +243,31 @@ export function DungeonChallenge({ difficulty, onComplete }: DungeonChallengePro
             <Progress
               value={(timeLeft / (difficulty === "easy" ? 60 : difficulty === "medium" ? 50 : 40)) * 100}
               className={`h-2 ${timeLeft < 10 ? "[&>div]:bg-red-500" : "[&>div]:bg-green-500"} bg-gray-700`}
+              aria-label="Time remaining progress"
             />
           </div>
         </div>
       </div>
 
       {gameOver ? (
-        <div className="mb-6 p-4 bg-gray-800 rounded-lg text-center">
+        <div 
+          className="mb-6 p-4 bg-gray-800 rounded-lg text-center"
+          role="alert"
+          aria-live="polite"
+        >
           <h3 className="text-xl font-bold mb-2">{gameResult}</h3>
-          <Button onClick={() => initializeGame()} className="bg-amber-600 hover:bg-amber-700 mr-2">
+          <Button 
+            onClick={() => initializeGame()} 
+            className="bg-amber-600 hover:bg-amber-700 mr-2"
+            aria-label="Try dungeon again"
+          >
             Try Again
           </Button>
           <Button
             onClick={() => onComplete(false)}
             variant="outline"
             className="border-amber-800/20 hover:bg-amber-900/20"
+            aria-label="Return to map"
           >
             Return to Map
           </Button>
@@ -387,13 +279,22 @@ export function DungeonChallenge({ difficulty, onComplete }: DungeonChallengePro
               Pairs Found: {matchedPairs}/{cards.length / 2}
             </span>
           </div>
-          <Button onClick={handleFlee} variant="outline" className="border-red-800/20 hover:bg-red-900/20 text-red-400">
+          <Button 
+            onClick={handleFlee} 
+            variant="outline" 
+            className="border-red-800/20 hover:bg-red-900/20 text-red-400"
+            aria-label="Flee from dungeon"
+          >
             Flee Dungeon
           </Button>
         </div>
       )}
 
-      <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
+      <div 
+        className="grid grid-cols-3 md:grid-cols-4 gap-4"
+        aria-label="Memory card grid"
+        role="grid"
+      >
         {cards.map((card) => (
           <div
             key={card.id}
@@ -403,6 +304,14 @@ export function DungeonChallenge({ difficulty, onComplete }: DungeonChallengePro
               ${card.flipped || card.matched ? "rotate-y-180" : ""}
               ${gameOver ? "pointer-events-none" : ""}
             `}
+            role="gridcell"
+            aria-label={card.flipped || card.matched ? `${card.type} card` : "Unflipped card"}
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                handleCardClick(card.id)
+              }
+            }}
           >
             <Card
               className={`
@@ -427,5 +336,4 @@ export function DungeonChallenge({ difficulty, onComplete }: DungeonChallengePro
       </div>
     </div>
   )
-}
-
+} 

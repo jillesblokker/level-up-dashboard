@@ -35,7 +35,7 @@ import { NutritionModal } from "@/components/category-modals/nutrition-modal"
 import { Milestones } from '@/components/milestones'
 
 // Add logging function
-const logQuestAction = async (action: string, questId: string, details: any, userId: string) => {
+const logQuestAction = async (action: string, questId: string, details: Record<string, unknown>, userId: string) => {
   try {
     await logger.info('Quest Action', JSON.stringify({
       action,
@@ -71,16 +71,25 @@ export default function QuestsPage() {
 
   // Helper to insert all default quests for a user into Supabase
   const insertDefaultQuestsToSupabase = async (userId: string) => {
+    if (!supabase.supabase) {
+      console.error('Supabase client not initialized');
+      return;
+    }
     try {
       await Promise.all(
         defaultQuests.map(q =>
-          QuestService.createQuest(supabase, {
+          QuestService.createQuest(supabase.supabase!, {
             ...q,
             userId,
             completed: false,
             progress: 0,
             isNew: true,
             isAI: false,
+            rewards: {
+              ...q.rewards,
+              items: q.rewards.items || []
+            },
+            deadline: q.deadline || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
           })
         )
       );
@@ -91,7 +100,7 @@ export default function QuestsPage() {
 
   // Fetch from Supabase on refresh or login
   const fetchQuests = async () => {
-    if (!userId) {
+    if (!supabase.supabase || !userId) {
       setQuests(defaultQuests);
       setLoading(false);
       setIsQuestsLoaded(true);
@@ -99,12 +108,12 @@ export default function QuestsPage() {
     }
     setLoading(true);
     try {
-      let questsFromDb = await QuestService.getQuests(supabase, userId);
+      let questsFromDb = await QuestService.getQuests(supabase.supabase!, userId);
       if (!questsFromDb || questsFromDb.length === 0) {
         // Insert default quests for this user
         await insertDefaultQuestsToSupabase(userId);
         // Fetch again
-        questsFromDb = await QuestService.getQuests(supabase, userId);
+        questsFromDb = await QuestService.getQuests(supabase.supabase!, userId);
       }
       setQuests(questsFromDb && questsFromDb.length > 0 ? questsFromDb : defaultQuests);
       setError(null);
@@ -129,8 +138,8 @@ export default function QuestsPage() {
 
   // Update quest progress
   const updateQuestProgress = async (questId: string, newProgress: number) => {
-    if (!userId) {
-      console.error('No userId found in session. Cannot update quest progress.');
+    if (!supabase.supabase || !userId) {
+      console.error('No userId or supabase client. Cannot update quest progress.');
       toast({
         title: "Error",
         description: "Please sign in to update quest progress.",
@@ -147,7 +156,7 @@ export default function QuestsPage() {
       }, userId);
 
       // Update the quest in Supabase
-      const updatedQuest = await QuestService.updateQuestProgress(supabase, questId, newProgress);
+      const updatedQuest = await QuestService.updateQuest(supabase.supabase!, questId, { progress: newProgress });
 
       // Update local state
       setQuests(prevQuests => 
@@ -173,7 +182,7 @@ export default function QuestsPage() {
 
         // Show completion toast
         const completionMessage = 
-          `You've completed: ${updatedQuest.title}\n` +
+          `You&apos;ve completed: ${updatedQuest.title}\n` +
           `+${updatedQuest.rewards.xp} XP\n` +
           `+${updatedQuest.rewards.gold} Gold` +
           (updatedQuest.rewards.items ? `\nItems: ${updatedQuest.rewards.items.join(", ")}` : '');
@@ -211,39 +220,38 @@ export default function QuestsPage() {
 
   // Toggle quest completion
   const handleQuestToggle = async (questId: string) => {
-    const quest = quests.find(q => q.id === questId);
-    if (!quest) return;
-
-    // If the id is not a valid database id (e.g., it's a slug like 'plank'), just update local state
-    const isDbId = /^[a-z0-9]{20,}$|^[0-9a-fA-F-]{36}$/.test(questId); // cuid or uuid
-    if (!isDbId) {
-      setQuests(prevQuests =>
-        prevQuests.map(q =>
-          q.id === questId ? { ...q, completed: !q.completed, progress: !q.completed ? 100 : 0 } : q
-        )
-      );
-      return;
-    }
-
-    if (!userId) {
-      console.error('No userId found in session. Cannot update quest.');
+    if (!supabase.supabase || !userId) {
+      console.error('No userId or supabase client. Cannot update quest.');
       toast({
         title: "Error",
-        description: "Please sign in to update quest status.",
+        description: "Please sign in to update quests.",
         variant: "destructive"
       });
       return;
     }
 
     try {
+      const quest = quests.find(q => q.id === questId);
+      if (!quest) return;
+
+      // If the id is not a valid database id (e.g., it's a slug like 'plank'), just update local state
+      if (!quest.id.startsWith('quest_')) {
+        setQuests(prevQuests =>
+          prevQuests.map(q =>
+            q.id === questId ? { ...q, completed: !q.completed } : q
+          )
+        );
+        return;
+      }
+
       // Log the toggle action
       await logQuestAction('quest_toggle', questId, {
-        oldStatus: quest.completed,
-        newStatus: !quest.completed
+        previousState: quest.completed,
+        newState: !quest.completed
       }, userId);
 
-      // Update the quest in Supabase
-      const updatedQuest = await QuestService.toggleQuestCompletion(supabase, questId);
+      // Update in Supabase
+      const updatedQuest = await QuestService.updateQuest(supabase.supabase!, questId, { completed: !quest.completed });
 
       // Update local state
       setQuests(prevQuests =>
@@ -254,17 +262,12 @@ export default function QuestsPage() {
 
       // Show toast
       toast({
-        title: updatedQuest.completed ? "Quest Completed" : "Quest Reopened",
+        title: "Quest Updated",
         description: `${updatedQuest.title} has been ${updatedQuest.completed ? 'completed' : 'reopened'}.`,
         duration: 2000
       });
     } catch (err) {
       console.error('Failed to toggle quest:', err);
-      toast({
-        title: "Error",
-        description: "Failed to update quest status. Please try again.",
-        variant: "destructive"
-      });
     }
   };
 
@@ -289,9 +292,9 @@ export default function QuestsPage() {
   // Update all async functions that use Supabase to use the supabase client from the hook
   // For example, when loading quest completion state:
   useEffect(() => {
-    if (!supabase || !userId) return;
+    if (!supabase.supabase || !userId) return;
     const fetchQuestCompletions = async () => {
-      const { data, error } = await supabase
+      const { data, error } = await supabase.supabase!
         .from('quest_completion')
         .select('*')
         .eq('user_id', userId);
@@ -300,75 +303,112 @@ export default function QuestsPage() {
       }
     };
     fetchQuestCompletions();
-  }, [supabase, userId]);
+  }, [supabase.supabase, userId]);
 
   // When saving quest completion:
   const handleQuestCheck = async (questId: string, checked: boolean) => {
-    if (!supabase || !userId) return;
-    if (checked) {
-      await supabase
-        .from('quest_completion')
-        .upsert({ user_id: userId, quest_id: questId, completed_at: new Date().toISOString() });
-    } else {
-      await supabase
-        .from('quest_completion')
-        .delete()
-        .eq('user_id', userId)
-        .eq('quest_id', questId);
+    if (!supabase.supabase || !userId) {
+      console.error('No userId or supabase client. Cannot update quest.');
+      toast({
+        title: "Error",
+        description: "Please sign in to update quests.",
+        variant: "destructive"
+      });
+      return;
     }
-    // Update local state as needed
+
+    try {
+      const quest = quests.find(q => q.id === questId);
+      if (!quest) return;
+
+      // Log the check action
+      await logQuestAction('quest_check', questId, {
+        checked,
+        previousState: quest.completed,
+        newState: checked
+      }, userId);
+
+      // Update in Supabase
+      const updatedQuest = await QuestService.updateQuest(supabase.supabase!, questId, { completed: checked });
+
+      // Update local state
+      setQuests(prevQuests =>
+        prevQuests.map(q =>
+          q.id === questId ? updatedQuest : q
+        )
+      );
+    } catch (err) {
+      console.error('Failed to update quest:', err);
+    }
   };
 
   const handleAddQuest = async (activity: string, amount: number, details?: string) => {
-    if (!userId || !currentCategory) return
+    if (!supabase.supabase || !userId) {
+      console.error('No userId or supabase client. Cannot add quest.');
+      toast({
+        title: "Error",
+        description: "Please sign in to add quests.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
-      const newQuest = await QuestService.createQuest(supabase, {
+      const newQuest = await QuestService.createQuest(supabase.supabase!, {
         title: activity,
-        description: details || "",
-        category: currentCategory,
-        difficulty: "medium",
-        rewards: { xp: amount, gold: Math.floor(amount / 2), items: [] },
+        description: details || `Complete ${amount} ${activity}`,
+        category: currentCategory || 'uncategorized',
+        difficulty: 'easy',
+        rewards: {
+          xp: amount * 10,
+          gold: amount * 5,
+          items: []
+        },
         progress: 0,
         completed: false,
-        deadline: "",
+        deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
         isNew: true,
         isAI: false,
         userId
-      })
-      setQuests(prev => [...prev, newQuest])
-      setIsAddQuestModalOpen(false)
+      });
+
+      setQuests(prevQuests => [...prevQuests, newQuest]);
+      setIsAddQuestModalOpen(false);
+      setCurrentCategory(null);
+
       toast({
         title: "Quest Added",
-        description: "Your new quest has been added successfully!",
-      })
+        description: `New quest "${activity}" has been added.`,
+        duration: 2000
+      });
     } catch (err) {
-      console.error('Failed to add quest:', err)
-      toast({
-        title: "Error",
-        description: "Failed to add quest. Please try again.",
-        variant: "destructive"
-      })
+      console.error('Failed to add quest:', err);
     }
-  }
+  };
 
   const handleDeleteQuest = async (questId: string) => {
-    if (!userId) return
+    if (!supabase.supabase || !userId) {
+      console.error('No userId or supabase client. Cannot delete quest.');
+      toast({
+        title: "Error",
+        description: "Please sign in to delete quests.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
-      await QuestService.deleteQuest(supabase, questId)
-      setQuests(prev => prev.filter(q => q.id !== questId))
+      await QuestService.deleteQuest(supabase.supabase!, questId);
+      setQuests(prevQuests => prevQuests.filter(q => q.id !== questId));
       toast({
         title: "Quest Deleted",
         description: "The quest has been removed.",
-      })
+        duration: 2000
+      });
     } catch (err) {
-      console.error('Failed to delete quest:', err)
-      toast({
-        title: "Error",
-        description: "Failed to delete quest. Please try again.",
-        variant: "destructive"
-      })
+      console.error('Failed to delete quest:', err);
     }
-  }
+  };
 
   return (
     <div className="pt-16 min-h-screen bg-black text-white">
@@ -409,9 +449,7 @@ export default function QuestsPage() {
                   }
                   setLoading(true);
                   try {
-                    console.log('Refreshing quests for user:', userId); // Debug log
-                    const refreshedQuests = await QuestService.getQuests(supabase, userId);
-                    console.log('Refreshed quests:', refreshedQuests); // Debug log
+                    const refreshedQuests = await QuestService.getQuests(supabase.supabase!, userId);
                     setQuests(refreshedQuests);
                     toast({
                       title: "Quests Refreshed",

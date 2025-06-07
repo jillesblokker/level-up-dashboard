@@ -24,7 +24,6 @@ export function useSupabaseClientWithToken() {
           }
           return;
         }
-        console.log('[Clerk JWT] Token received');
         const client = createSupabaseClientWithToken(token);
         if (isMounted) {
           setSupabase(client);

@@ -88,7 +88,7 @@ export default function MessagingPage() {
         id: 4,
         name: "David Wilson",
         avatar: "/placeholder.svg?height=80&width=80",
-        lastMessage: "Let's schedule that workout session",
+        lastMessage: "Let&apos;s schedule that workout session",
         lastMessageTime: "3 days ago",
         online: false,
         unreadCount: 0,
@@ -98,29 +98,30 @@ export default function MessagingPage() {
     setFriends(sampleFriends)
 
     // Find selected friend
-    const friend = sampleFriends.find((f) => f.id.toString() === friendId) || sampleFriends[0]
+    const friend = sampleFriends.find((f) => f.id.toString() === friendId) || sampleFriends[0] || null
     setSelectedFriend(friend)
 
     // Generate sample messages for the selected friend
+    const friendIdValue = friend ? friend.id : 0
     const sampleMessages: Message[] = [
       {
         id: 1,
-        senderId: friend.id,
-        text: "Hey there! How's your training going?",
+        senderId: friendIdValue,
+        text: "Hey there! How&apos;s your training going?",
         timestamp: "10:00 AM",
         read: true,
       },
       {
         id: 2,
         senderId: "me",
-        text: "It's going well! I hit a new personal record yesterday.",
+        text: "It&apos;s going well! I hit a new personal record yesterday.",
         timestamp: "10:05 AM",
         read: true,
       },
       {
         id: 3,
-        senderId: friend.id,
-        text: "That's awesome! What was the record?",
+        senderId: friendIdValue,
+        text: "That&apos;s awesome! What was the record?",
         timestamp: "10:10 AM",
         read: true,
       },
@@ -133,21 +134,21 @@ export default function MessagingPage() {
       },
       {
         id: 5,
-        senderId: friend.id,
-        text: "Wow, that's impressive! I'm still working on getting to 30.",
+        senderId: friendIdValue,
+        text: "Wow, that&apos;s impressive! I&apos;m still working on getting to 30.",
         timestamp: "10:20 AM",
         read: true,
       },
       {
         id: 6,
         senderId: "me",
-        text: "You'll get there soon! It took me months of consistent practice.",
+        text: "You&apos;ll get there soon! It took me months of consistent practice.",
         timestamp: "10:25 AM",
         read: true,
       },
       {
         id: 7,
-        senderId: friend.id,
+        senderId: friendIdValue,
         text: "Great job on your workout yesterday!",
         timestamp: "10:30 AM",
         read: false,
@@ -201,19 +202,19 @@ export default function MessagingPage() {
     // Simulate friend reply after a delay
     setTimeout(() => {
       const replies = [
-        "That's great!",
+        "That&apos;s great!",
         "Interesting, tell me more.",
         "I see what you mean.",
-        "Let's talk about this more later.",
+        "Let&apos;s talk about this more later.",
         "Thanks for sharing!",
-        "I'll keep that in mind.",
+        "I&apos;ll keep that in mind.",
         "Good to know!",
       ]
 
       const replyMsg: Message = {
         id: messages.length + 2,
-        senderId: selectedFriend.id,
-        text: replies[Math.floor(Math.random() * replies.length)],
+        senderId: selectedFriend?.id ?? 0,
+        text: replies[Math.floor(Math.random() * replies.length)] || "",
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         read: false,
       }

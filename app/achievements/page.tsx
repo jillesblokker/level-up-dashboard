@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ReplayabilityManager, Achievement } from "@/lib/replayability"
-import { useCreatureStore, Creature } from '@/stores/creatureStore'
+import { useCreatureStore } from '@/stores/creatureStore'
 import { CreatureCard } from '@/components/creature-card'
 import Image from 'next/image'
 import { HeaderSection } from '@/components/HeaderSection'

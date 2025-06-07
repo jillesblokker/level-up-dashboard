@@ -4,8 +4,8 @@ import bcrypt from 'bcryptjs'
 const prisma = new PrismaClient()
 
 async function main() {
-  const email = process.env.ADMIN_EMAIL
-  const password = process.env.ADMIN_PASSWORD
+  const email = process.env['ADMIN_EMAIL']
+  const password = process.env['ADMIN_PASSWORD']
 
   if (!email || !password) {
     console.error('Please provide ADMIN_EMAIL and ADMIN_PASSWORD environment variables')
@@ -28,8 +28,6 @@ async function main() {
         name: 'Admin',
       },
     })
-
-    console.log(`Admin user created/updated: ${user.email}`)
   } catch (error) {
     console.error('Error creating admin user:', error)
   } finally {

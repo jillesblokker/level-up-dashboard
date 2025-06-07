@@ -11,6 +11,7 @@ export interface InventoryItem {
 }
 
 const INVENTORY_KEY = 'character-inventory'
+const KINGDOM_INVENTORY_KEY = 'kingdom-inventory'
 
 export function getInventory(): InventoryItem[] {
   if (typeof window === 'undefined') return []
@@ -50,7 +51,7 @@ export function removeFromInventory(itemId: string, quantity: number = 1) {
   
   if (itemIndex === -1) return
   
-  const item = currentInventory[itemIndex]
+  const item = currentInventory[itemIndex]!
   item.quantity -= quantity
   
   if (item.quantity <= 0) {
@@ -107,18 +108,34 @@ export function getItemQuantity(itemId: string): number {
   const inventory = getInventory()
   const item = inventory.find(i => i.id === itemId)
   return item?.quantity || 0
-} 
+}
+
+export function getKingdomInventory(): InventoryItem[] {
+  if (typeof window === 'undefined') return []
+  
+  const savedInventory = localStorage.getItem(KINGDOM_INVENTORY_KEY)
+  if (!savedInventory) return []
+  
+  try {
+    return JSON.parse(savedInventory)
+  } catch (err) {
+    console.error('Error parsing kingdom inventory:', err)
+    return []
+  }
+}
 
 export function addToKingdomInventory(item: InventoryItem) {
-  if (typeof window === 'undefined') return;
-  const key = 'kingdom-inventory';
-  const currentInventory = JSON.parse(localStorage.getItem(key) || '[]');
-  const existingItem = currentInventory.find((i: any) => i.id === item.id);
+  if (typeof window === 'undefined') return
+  
+  const currentInventory = getKingdomInventory()
+  const existingItem = currentInventory.find(i => i.id === item.id)
+  
   if (existingItem) {
-    existingItem.quantity += item.quantity;
+    existingItem.quantity += item.quantity
   } else {
-    currentInventory.push(item);
+    currentInventory.push(item)
   }
-  localStorage.setItem(key, JSON.stringify(currentInventory));
-  window.dispatchEvent(new Event('character-inventory-update'));
+  
+  localStorage.setItem(KINGDOM_INVENTORY_KEY, JSON.stringify(currentInventory))
+  window.dispatchEvent(new Event('character-inventory-update'))
 } 

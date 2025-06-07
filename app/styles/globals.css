@@ -71,14 +71,20 @@
   html {
     font-family: var(--font-cardo), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
     overflow-x: hidden;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
   }
   
   body {
     font-family: var(--font-cardo), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
     overflow-x: hidden;
+    overflow-y: auto;
+    width: 100vw;
+    height: 100vh;
     background: linear-gradient(135deg, var(--background-start), var(--background-end));
-    min-height: 100vh;
     color: white;
+    position: relative;
   }
 }
  

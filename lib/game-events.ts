@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import { GameState } from '../types/game';
 
 // Event Types
 export type EventType = 
@@ -88,9 +89,9 @@ export class GameEventsManager extends EventEmitter {
 
   private initializeEventListeners() {
     // Listen for game state changes
-    window.addEventListener('gameStateChange', (event: CustomEvent) => {
+    window.addEventListener('gameStateChange', ((event: CustomEvent<GameState>) => {
       this.checkEventTriggers(event.detail);
-    });
+    }) as EventListener);
   }
 
   public addEvent(event: BaseEvent) {
@@ -130,7 +131,7 @@ export class GameEventsManager extends EventEmitter {
     }
   }
 
-  private checkEventTriggers(gameState: any) {
+  private checkEventTriggers(gameState: GameState) {
     // Check if any events should be triggered based on game state
     this.events.forEach((event, id) => {
       if (!this.activeEvents.has(id)) {
@@ -142,7 +143,7 @@ export class GameEventsManager extends EventEmitter {
     });
   }
 
-  private shouldTriggerEvent(event: BaseEvent, gameState: any): boolean {
+  private shouldTriggerEvent(event: BaseEvent, gameState: GameState): boolean {
     // Implement your trigger logic here
     // This is a placeholder implementation
     return false;

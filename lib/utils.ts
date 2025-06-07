@@ -36,8 +36,9 @@ export function getRandomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-export function getRandomElement<T>(array: T[]): T {
-  return array[Math.floor(Math.random() * array.length)]
+export function getRandomElement<T>(array: T[]): T | undefined {
+  if (array.length === 0) return undefined;
+  return array[Math.floor(Math.random() * array.length)];
 }
 
 export function shuffleArray<T>(array: T[]): T[] {
@@ -49,7 +50,7 @@ export function shuffleArray<T>(array: T[]): T[] {
   return newArray
 }
 
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
@@ -66,7 +67,7 @@ export function debounce<T extends (...args: any[]) => any>(
   }
 }
 
-export function throttle<T extends (...args: any[]) => any>(
+export function throttle<T extends (...args: unknown[]) => unknown>(
   func: T,
   limit: number
 ): (...args: Parameters<T>) => void {

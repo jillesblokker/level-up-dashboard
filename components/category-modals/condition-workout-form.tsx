@@ -118,7 +118,7 @@ export function ConditionWorkoutForm({ onSubmit }: ConditionWorkoutFormProps) {
               ? `${duration} min ${activity}${trackDistance && distance ? ` (${distance} km)` : ""}`
               : "Enter your workout"}
           </p>
-          {duration > 0 && <p className="text-xs text-muted-foreground">You'll earn +{calculateXP()} XP</p>}
+          {duration > 0 && <p className="text-xs text-muted-foreground">You&apos;ll earn +{calculateXP()} XP</p>}
         </div>
       </div>
 

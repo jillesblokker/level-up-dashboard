@@ -2,47 +2,39 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Home, Map, User, Trophy, ShoppingBag, Settings, Menu, Coins, Castle, X, Palette, Bell, List, Monitor, LogIn } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Logo } from "@/components/logo"
-import { NotificationCenter } from "@/components/notification-center"
-import { cn } from "@/lib/utils"
-import { Icons } from "@/components/icons"
-import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character"
-import { Progress } from "@/components/ui/progress"
-// import { useSession, signOut, signIn } from "next-auth/react"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-  DropdownMenuLabel,
-} from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { MainNav } from "@/components/main-nav"
-import { Search } from "@/components/search"
-import { UserNav } from "@/components/user-nav"
 import { MobileNav } from "@/components/navigation/mobile-nav"
+import { Session } from '@supabase/supabase-js'
+import { Castle, Coins } from "lucide-react"
+import { Progress } from "@/components/ui/progress"
+import { NotificationCenter } from "@/components/notification-center"
+import { UserNav } from "@/components/user-nav"
+import { calculateLevelFromExperience, calculateExperienceForLevel, calculateLevelProgress } from "@/types/character"
+
+interface CustomSession {
+  user?: {
+    id: string;
+    [key: string]: any;
+  };
+  [key: string]: any;
+}
 
 interface NavBarProps {
-  goldBalance: number
-  session?: any
+  goldBalance: number;
+  session?: CustomSession | null | undefined;
 }
 
 interface Notification {
-  id: string
-  title: string
-  message: string
-  type: "achievement" | "quest" | "friend" | "system"
-  read: boolean
-  timestamp: string
+  id: string;
+  title: string;
+  message: string;
+  type: "achievement" | "quest" | "friend" | "system";
+  read: boolean;
+  timestamp: string;
   action?: {
-    label: string
-    href: string
-  }
+    label: string;
+    href: string;
+  };
 }
 
 // Fixed timestamps for initial notifications to prevent hydration mismatch
@@ -85,41 +77,9 @@ const INITIAL_NOTIFICATIONS: Notification[] = [
   },
 ]
 
-const mainLinks = [
-  { href: "/kingdom", label: "Kingdom" },
-  { href: "/realm", label: "Realm" },
-  { href: "/character", label: "Character" },
-  { href: "/quests", label: "Quests" },
-  { href: "/guildhall", label: "Guildhall" },
-]
-
-const settingsLinks = [
-  { href: "/profile", label: "Profile", icon: User },
-  { href: "/design-system", label: "Design System", icon: Palette },
-  { href: "/settings/requirements", label: "Requirements", icon: List },
-]
-
-const navigation = [
-  { name: "Kingdom", href: "/kingdom" },
-  { name: "Character", href: "/character" },
-  { name: "Inventory", href: "/inventory" },
-  { name: "Quests", href: "/quests" },
-  { name: "Achievements", href: "/achievements" },
-  { name: "Realm", href: "/realm" },
-];
-
-interface NotificationCenterProps {
-  notifications: Notification[]
-  onMarkAsRead: (id: string) => void
-  onDelete: (id: string) => void
-  onMarkAllAsRead: () => void
-  unreadCount: number
-}
-
 export function NavBar({ goldBalance, session }: NavBarProps) {
-  const pathname = usePathname()
   const [isClient, setIsClient] = useState(false)
-  const [characterStats, setCharacterStats] = useState<CharacterStats>({
+  const [characterStats, setCharacterStats] = useState({
     level: 1,
     experience: 0,
     experienceToNextLevel: 100,
@@ -134,13 +94,6 @@ export function NavBar({ goldBalance, session }: NavBarProps) {
       total: 5
     }
   })
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [isSettingsMenuOpen, setIsSettingsMenuOpen] = useState(false)
-  const settingsMenuRef = useRef<HTMLDivElement>(null)
-  const settingsButtonRef = useRef<HTMLButtonElement>(null)
-  // const { data: session, status } = useSession()
-  const isAuthenticated = !!session // Check for session existence
 
   useEffect(() => {
     setIsClient(true)
@@ -152,7 +105,7 @@ export function NavBar({ goldBalance, session }: NavBarProps) {
       try {
         const savedStats = localStorage.getItem("character-stats")
         if (savedStats) {
-          const stats = JSON.parse(savedStats) as CharacterStats
+          const stats = JSON.parse(savedStats)
           const currentLevel = calculateLevelFromExperience(stats.experience)
           setCharacterStats({
             ...stats,
@@ -177,55 +130,12 @@ export function NavBar({ goldBalance, session }: NavBarProps) {
 
   // Load initial notifications
   useEffect(() => {
-    setNotifications(INITIAL_NOTIFICATIONS)
+    // No need to set notifications as they are already set in the INITIAL_NOTIFICATIONS constant
   }, [])
-
-  // Handle clicks outside the settings menu
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        settingsMenuRef.current && 
-        settingsButtonRef.current && 
-        !settingsMenuRef.current.contains(event.target as Node) &&
-        !settingsButtonRef.current.contains(event.target as Node)
-      ) {
-        setIsSettingsMenuOpen(false)
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   if (!isClient) {
     return null; // Return null on server-side to prevent hydration mismatch
   }
-
-  const toggleSettingsMenu = () => {
-    setIsSettingsMenuOpen(!isSettingsMenuOpen);
-  };
-
-  const markAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((notification) => (notification.id === id ? { ...notification, read: true } : notification)),
-    )
-  }
-
-  const deleteNotification = (id: string) => {
-    setNotifications((prev) => prev.filter((notification) => notification.id !== id))
-  }
-
-  const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((notification) => ({ ...notification, read: true })))
-  }
-
-  const addNotification = (notification: Notification) => {
-    setNotifications((prev) => [notification, ...prev])
-  }
-
-  const unreadCount = notifications.filter((notification) => !notification.read).length;
 
   const levelProgress = calculateLevelProgress(characterStats.experience)
 
@@ -251,7 +161,7 @@ export function NavBar({ goldBalance, session }: NavBarProps) {
             </div>
           </div>
           <NotificationCenter />
-          <UserNav />
+          <UserNav session={session as unknown as Session | null} />
         </div>
       </div>
     </div>

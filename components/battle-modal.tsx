@@ -185,7 +185,7 @@ export function BattleModal({ isOpen, onClose, enemyName, enemyLevel, onBattleEn
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span>{enemyName}'s Health</span>
+              <span>{enemyName}&apos;s Health</span>
               <span>{Math.max(0, Math.floor(state.enemyHealth))}%</span>
             </div>
             <Progress value={Math.max(0, state.enemyHealth)} className="h-3" />

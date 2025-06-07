@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams } from "next/navigation"
 import Link from "next/link"
 import { ChevronLeft } from "lucide-react"
 
@@ -10,6 +10,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 export default function TavernPage() {
   const params = useParams()
+  const cityName = params ? (params['cityName'] as string) : ''
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Simulate data loading
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [])
+
   if (!params) {
     return (
       <div className="container py-10" role="main" aria-label="tavern-error-section">
@@ -25,18 +36,6 @@ export default function TavernPage() {
     )
   }
 
-  const cityName = params['cityName'] as string
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    // Simulate data loading
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 500)
-
-    return () => clearTimeout(timer)
-  }, [])
-
   return (
     <div className="container py-10" role="main" aria-label="tavern-content-section">
       <div className="mb-6">
@@ -49,7 +48,7 @@ export default function TavernPage() {
       </div>
       
       <div className="mb-8">
-        <h1 className="text-4xl font-bold tracking-tight">The Dragon's Rest</h1>
+        <h1 className="text-4xl font-bold tracking-tight">The Dragon&apos;s Rest</h1>
         <p className="text-muted-foreground mt-2">A cozy tavern where adventurers gather to rest and share stories.</p>
       </div>
       

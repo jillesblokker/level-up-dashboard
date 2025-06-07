@@ -6,50 +6,53 @@ import { Button } from "@/components/ui/button"
 import { StoreItem, WeaponItem, ArmorItem, PotionItem, FoodItem, MountItem, MagicItem } from "@/lib/city-item-manager"
 import Image from "next/image"
 
+// Union type for all possible item types
+export type AnyItem = StoreItem | WeaponItem | ArmorItem | PotionItem | FoodItem | MountItem | MagicItem
+
 interface ItemCardProps {
-  item: StoreItem | WeaponItem | ArmorItem | PotionItem | FoodItem | MountItem | MagicItem
-  onPurchase: (item: any) => void
+  item: AnyItem
+  onPurchase: (item: AnyItem) => void
 }
 
 export function ItemCard({ item, onPurchase }: ItemCardProps) {
   // Helper to check if item is of a specific type
-  const isWeapon = (item: any): item is WeaponItem => 'stats' in item && 'attack' in item.stats
-  const isArmor = (item: any): item is ArmorItem => 'stats' in item && 'defense' in item.stats
-  const isPotion = (item: any): item is PotionItem => 'stats' in item && ('health' in item.stats || 'mana' in item.stats || 'stamina' in item.stats)
-  const isFood = (item: any): item is FoodItem => 'effect' in item
-  const isMount = (item: any): item is MountItem => 'speed' in item && 'stamina' in item
-  const isMagic = (item: any): item is MagicItem => 'power' in item
+  const isWeapon = (item: AnyItem): item is WeaponItem => 'stats' in item && 'attack' in item.stats
+  const isArmor = (item: AnyItem): item is ArmorItem => 'stats' in item && 'defense' in item.stats
+  const isPotion = (item: AnyItem): item is PotionItem => 'stats' in item && ('health' in item.stats || 'mana' in item.stats || 'stamina' in item.stats)
+  const isFood = (item: AnyItem): item is FoodItem => 'effect' in item
+  const isMount = (item: AnyItem): item is MountItem => 'speed' in item && 'stamina' in item
+  const isMagic = (item: AnyItem): item is MagicItem => 'power' in item
 
   // Get background color based on item category
   const getCardBackground = () => {
-    if (isWeapon(item as any)) return "from-red-900/20 to-gray-900"
-    if (isArmor(item as any)) return "from-blue-900/20 to-gray-900"
-    if (isPotion(item as any)) return "from-green-900/20 to-gray-900"
-    if (isFood(item as any)) return "from-yellow-900/20 to-gray-900"
-    if (isMount(item as any)) return "from-cyan-900/20 to-gray-900"
-    if (isMagic(item as any)) return "from-purple-900/20 to-gray-900"
+    if (isWeapon(item)) return "from-red-900/20 to-gray-900"
+    if (isArmor(item)) return "from-blue-900/20 to-gray-900"
+    if (isPotion(item)) return "from-green-900/20 to-gray-900"
+    if (isFood(item)) return "from-yellow-900/20 to-gray-900"
+    if (isMount(item)) return "from-cyan-900/20 to-gray-900"
+    if (isMagic(item)) return "from-purple-900/20 to-gray-900"
     return "from-amber-900/20 to-gray-900"
   }
 
   // Get item type display name
   const getItemType = () => {
-    if (isWeapon(item as any)) return "Weapon"
-    if (isArmor(item as any)) return "Armor"
-    if (isPotion(item as any)) return "Potion"
-    if (isFood(item as any)) return item.category.charAt(0).toUpperCase() + item.category.slice(1)
-    if (isMount(item as any)) return "Mount"
-    if (isMagic(item as any)) return item.category.charAt(0).toUpperCase() + item.category.slice(1)
+    if (isWeapon(item)) return "Weapon"
+    if (isArmor(item)) return "Armor"
+    if (isPotion(item)) return "Potion"
+    if (isFood(item)) return item.category.charAt(0).toUpperCase() + item.category.slice(1)
+    if (isMount(item)) return "Mount"
+    if (isMagic(item)) return item.category.charAt(0).toUpperCase() + item.category.slice(1)
     return item.category.charAt(0).toUpperCase() + item.category.slice(1)
   }
 
   // Get border color based on item category
   const getBorderColor = () => {
-    if (isWeapon(item as any)) return "hover:border-red-500/50"
-    if (isArmor(item as any)) return "hover:border-blue-500/50"
-    if (isPotion(item as any)) return "hover:border-green-500/50"
-    if (isFood(item as any)) return "hover:border-yellow-500/50"
-    if (isMount(item as any)) return "hover:border-cyan-500/50"
-    if (isMagic(item as any)) return "hover:border-purple-500/50"
+    if (isWeapon(item)) return "hover:border-red-500/50"
+    if (isArmor(item)) return "hover:border-blue-500/50"
+    if (isPotion(item)) return "hover:border-green-500/50"
+    if (isFood(item)) return "hover:border-yellow-500/50"
+    if (isMount(item)) return "hover:border-cyan-500/50"
+    if (isMagic(item)) return "hover:border-purple-500/50"
     return "hover:border-amber-500/50"
   }
 
@@ -90,79 +93,79 @@ export function ItemCard({ item, onPurchase }: ItemCardProps) {
 
         {/* Stats/Effects */}
         <div className="bg-black/20 p-2 rounded-md mb-2">
-          {isWeapon(item as any) && (
+          {isWeapon(item) && (
             <div className="space-y-1">
               <div className="flex justify-between text-sm">
                 <span>Attack</span>
-                <span className="text-red-500">+{(item as WeaponItem).stats.attack}</span>
+                <span className="text-red-500">+{item.stats.attack}</span>
               </div>
             </div>
           )}
 
-          {isArmor(item as any) && (
+          {isArmor(item) && (
             <div className="space-y-1">
               <div className="flex justify-between text-sm">
                 <span>Defense</span>
-                <span className="text-blue-500">+{(item as ArmorItem).stats.defense}</span>
+                <span className="text-blue-500">+{item.stats.defense}</span>
               </div>
             </div>
           )}
 
-          {isPotion(item as any) && (
+          {isPotion(item) && (
             <div className="space-y-1">
-              {(item as PotionItem).stats.health && (
+              {item.stats.health && (
                 <div className="flex justify-between text-sm">
                   <span>Health</span>
-                  <span className="text-green-500">+{(item as PotionItem).stats.health}</span>
+                  <span className="text-green-500">+{item.stats.health}</span>
                 </div>
               )}
-              {(item as PotionItem).stats.mana && (
+              {item.stats.mana && (
                 <div className="flex justify-between text-sm">
                   <span>Mana</span>
-                  <span className="text-blue-500">+{(item as PotionItem).stats.mana}</span>
+                  <span className="text-blue-500">+{item.stats.mana}</span>
                 </div>
               )}
-              {(item as PotionItem).stats.stamina && (
+              {item.stats.stamina && (
                 <div className="flex justify-between text-sm">
                   <span>Stamina</span>
-                  <span className="text-yellow-500">+{(item as PotionItem).stats.stamina}</span>
+                  <span className="text-yellow-500">+{item.stats.stamina}</span>
                 </div>
               )}
             </div>
           )}
 
-          {isFood(item as any) && (
+          {isFood(item) && (
             <div className="space-y-1">
               <div className="flex justify-between text-sm">
                 <span>Effect</span>
-                <span className="text-amber-400">{(item as FoodItem).effect}</span>
+                <span className="text-amber-400">{item.effect}</span>
               </div>
             </div>
           )}
 
-          {isMount(item as any) && (
+          {isMount(item) && (
             <div className="space-y-1">
               <div className="flex justify-between text-sm">
                 <span>Speed</span>
-                <span className="text-blue-500">+{(item as MountItem).speed}</span>
+                <span className="text-blue-500">+{item.speed}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span>Stamina</span>
-                <span className="text-yellow-500">+{(item as MountItem).stamina}</span>
+                <span className="text-yellow-500">+{item.stamina}</span>
               </div>
             </div>
           )}
 
-          {isMagic(item as any) && (
+          {isMagic(item) && (
             <div className="space-y-1">
               <div className="flex justify-between text-sm">
                 <span>Power</span>
-                <span className="text-purple-500">+{(item as MagicItem).power}</span>
+                <span className="text-purple-500">+{item.power}</span>
               </div>
-              {(item as MagicItem).element && (
+              {item.element && (
                 <div className="flex justify-between text-sm">
                   <span>Element</span>
-                  <span className="text-amber-400">{(item as MagicItem).element}</span>
+                  <span className="text-amber-400">{item.element}</span>
                 </div>
               )}
             </div>

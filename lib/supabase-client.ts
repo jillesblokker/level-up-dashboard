@@ -1,6 +1,7 @@
 import { createBrowserClient } from '@supabase/ssr'
 import { TileType } from '@/types/tiles'
 import { Database } from '@/types/supabase'
+import { PostgrestError } from '@supabase/supabase-js'
 
 // Initialize Supabase client
 export const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'] || ''
@@ -40,10 +41,23 @@ export interface GridData {
   version: number
 }
 
+interface GridChangePayload {
+  schema: string
+  table: string
+  commit_timestamp: string
+  eventType: 'INSERT' | 'UPDATE' | 'DELETE'
+  new: GridData
+  old: GridData
+  errors: null | PostgrestError[]
+}
+
 // Error handling wrapper
-const handleSupabaseError = (error: any): never => {
+const handleSupabaseError = (error: unknown): never => {
   console.error('Supabase operation failed:', error)
-  throw new Error(error.message || 'An error occurred while accessing the database')
+  if (error instanceof Error) {
+    throw new Error(error.message || 'An error occurred while accessing the database')
+  }
+  throw new Error('An unknown error occurred while accessing the database')
 }
 
 // Grid operations with error handling
@@ -145,7 +159,7 @@ export const getSession = async (supabase: ReturnType<typeof createBrowserClient
 export const subscribeToGridChanges = (
   supabase: ReturnType<typeof createBrowserClient>,
   userId: string,
-  callback: (payload: any) => void
+  callback: (payload: GridChangePayload) => void
 ) => {
   return supabase
     .channel('grid-changes')

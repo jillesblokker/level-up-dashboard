@@ -5,10 +5,8 @@ import { Providers } from "@/components/providers"
 import { Toaster } from "@/components/ui/toaster"
 import { cn } from "@/lib/utils"
 import type { Metadata, Viewport } from "next"
-import { Inter } from "next/font/google"
 import { Toaster as SonnerToaster } from "sonner"
 import { GradientProvider } from './providers/gradient-provider'
-import { NavBar } from '@/components/nav-bar'
 import { AuthContent } from '@/components/auth-content'
 import AuthGate from "@/app/components/AuthGate"
 
@@ -18,8 +16,6 @@ const fontSans = FontSans({
   display: "swap",
   preload: true,
 })
-
-const inter = Inter({ subsets: ["latin"] })
 
 export const viewport: Viewport = {
   width: "device-width",

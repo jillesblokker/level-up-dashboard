@@ -66,6 +66,8 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
               <li>Visit the market to buy special items</li>
             </ul>
           </div>
+
+          <p>Let&apos;s get started!</p>
         </div>
 
         <DialogFooter className="flex-col sm:flex-row gap-2">

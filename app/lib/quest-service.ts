@@ -3,6 +3,23 @@ import { Quest, QuestFilters } from './quest-types'
 import { SupabaseClient } from '@supabase/supabase-js'
 import { Database } from '@/types/supabase'
 
+type QuestCompletionRow = {
+  id: string;
+  questName: string;
+  description: string;
+  category: string;
+  difficulty: string;
+  rewards?: { xp: number; gold: number; items?: string[] };
+  progress?: number;
+  completed?: boolean;
+  date?: string;
+  isNew?: boolean;
+  isAI?: boolean;
+  userId: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export class QuestService {
   static async getQuests(userId: string, filters?: QuestFilters): Promise<Quest[]> {
     if (!userId) {
@@ -29,18 +46,18 @@ export class QuestService {
       throw new Error(error.message)
     }
 
-    return (data || []).map((q: any) => ({
+    return (data || []).map((q: QuestCompletionRow) => ({
       id: q.id,
       title: q.questName,
       description: q.description,
       category: q.category,
-      difficulty: q.difficulty,
+      difficulty: q.difficulty as Quest['difficulty'],
       rewards: q.rewards || { xp: 0, gold: 0, items: [] },
       progress: q.progress ?? 0,
       completed: q.completed ?? false,
-      deadline: q.date,
-      isNew: q.isNew,
-      isAI: q.isAI,
+      deadline: q.date ?? "",
+      isNew: q.isNew ?? false,
+      isAI: q.isAI ?? false,
       userId: q.userId,
       createdAt: q.created_at,
       updatedAt: q.updated_at

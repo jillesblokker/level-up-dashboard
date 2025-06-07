@@ -2,17 +2,13 @@
 
 import React from "react"
 import { useState, useEffect } from "react"
-import { ArrowLeft, ShoppingBag, ChevronLeft } from "lucide-react"
+import { ChevronLeft } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
-import { CityItemManager, WeaponItem } from "@/lib/city-item-manager"
-import { ItemCard } from "@/components/city/item-card"
-import { addToInventory, addToKingdomInventory } from "@/lib/inventory-manager"
-import { CharacterStats } from "@/types/character"
 import { useGoldStore } from '@/stores/goldStore'
 
 export default function ShopPage() {
@@ -170,8 +166,6 @@ Current gold: ${gold}`,
                       return
                     }
                     updateGold(-item.price)
-                    // Add to kingdom inventory (add 'type' property as required by InventoryItem)
-                    addToKingdomInventory({ ...item, quantity: 1, type: 'item' })
                     toast({
                       title: "Purchase successful",
                       description: `You purchased ${item.name} for ${item.price} gold.`,

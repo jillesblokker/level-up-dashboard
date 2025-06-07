@@ -1,5 +1,6 @@
 import { Trophy, BookOpen, Sword, Dumbbell, Brain } from "lucide-react";
 import React from "react";
+import { Achievement, ActivityLog, Stats } from "../types/game";
 
 export type CategoryItem = {
   id: string;
@@ -23,9 +24,9 @@ export type CategoryData = {
   bestStreak: number;
   achievementsCompleted: number;
   weeklyData: number[];
-  achievements: any[];
-  activityLog: any[];
-  stats: any[];
+  achievements: Achievement[];
+  activityLog: ActivityLog[];
+  stats: Stats[];
   items: CategoryItem[];
 };
 

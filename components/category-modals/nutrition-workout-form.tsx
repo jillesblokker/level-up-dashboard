@@ -151,7 +151,7 @@ export function NutritionWorkoutForm({ onSubmit }: NutritionWorkoutFormProps) {
               ? `${mealType}: ${description.substring(0, 30)}${description.length > 30 ? "..." : ""}`
               : "Enter your meal details"}
           </p>
-          {description && <p className="text-xs text-muted-foreground">You'll earn +{calculateXP()} XP</p>}
+          {description && <p className="text-xs text-muted-foreground">You&apos;ll earn +{calculateXP()} XP</p>}
         </div>
       </div>
 

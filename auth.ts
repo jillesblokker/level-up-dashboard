@@ -1,6 +1,7 @@
 import NextAuth from "next-auth"
 import GitHub from "next-auth/providers/github"
 import prisma from "@/lib/prisma"
+import type { Session, User } from 'next-auth'
 
 export const config = {
   providers: [
@@ -10,7 +11,7 @@ export const config = {
     }),
   ],
   callbacks: {
-    session: ({ session, user }: { session: any; user: any }) => ({
+    session: ({ session, user }: { session: Session; user: User }) => ({
       ...session,
       user: {
         ...session.user,

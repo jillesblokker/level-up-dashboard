@@ -2,6 +2,7 @@
 
 import { locationDetails } from "./location-data"
 import type { LocationData } from "./location-data"
+import Image from 'next/image'
 
 export default function LocationPage({ id }: { id: string }) {
   const location = locationDetails[id]
@@ -18,10 +19,12 @@ export default function LocationPage({ id }: { id: string }) {
     <div className="p-4">
       <h1 className="text-3xl font-bold mb-4">{location.name}</h1>
       <div className="relative h-64 mb-6">
-        <img
+        <Image
           src={location.image}
           alt={location.name}
           className="object-cover w-full h-full rounded-lg"
+          width={400}
+          height={300}
         />
       </div>
       <p className="text-lg mb-8">{location.description}</p>

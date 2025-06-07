@@ -31,6 +31,22 @@ export default function InventoryPage() {
   ];
 
   useEffect(() => {
+    function loadItems() {
+      try {
+        setIsLoading(true);
+        const inventoryItems = getInventory();
+        setItems(inventoryItems);
+      } catch (error) {
+        console.error("Error loading inventory items:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load inventory items",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    }
     loadItems();
     // Listen for inventory updates
     window.addEventListener("character-inventory-update", loadItems);
@@ -38,23 +54,6 @@ export default function InventoryPage() {
       window.removeEventListener("character-inventory-update", loadItems);
     };
   }, []);
-
-  const loadItems = () => {
-    try {
-      setIsLoading(true);
-      const inventoryItems = getInventory();
-      setItems(inventoryItems);
-    } catch (error) {
-      console.error("Error loading inventory items:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load inventory items",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const filteredItems = activeTab === "all" 
     ? items 

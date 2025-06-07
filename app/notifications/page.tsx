@@ -231,7 +231,7 @@ export default function NotificationsPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold tracking-tight font-serif">Notifications</h1>
-            <p className="text-muted-foreground">Stay updated on your kingdom's activities</p>
+            <p className="text-muted-foreground">Stay updated on your kingdom&apos;s activities</p>
           </div>
           <div className="flex gap-2">
             <Link href="/">
@@ -469,7 +469,7 @@ export default function NotificationsPage() {
                   <div className="text-center py-12 bg-gray-900/50 rounded-lg border border-gray-800">
                     <CheckCircle className="mx-auto h-12 w-12 text-green-700 mb-4" />
                     <h3 className="text-lg font-medium mb-2">No Unread Notifications</h3>
-                    <p className="text-muted-foreground">You've read all your notifications!</p>
+                    <p className="text-muted-foreground">You&apos;ve read all your notifications!</p>
                   </div>
                 )}
               </TabsContent>

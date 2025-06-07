@@ -53,11 +53,11 @@ export default function CategoryPage() {
           <CardHeader>
             <CardTitle>Category Not Found</CardTitle>
             <CardDescription>
-              We couldn't find the category you're looking for.
+              We couldn&apos;t find the category you&apos;re looking for.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p>The category "{slug}" does not exist or has been removed.</p>
+            <p>The category &quot;{slug}&quot; does not exist or has been removed.</p>
           </CardContent>
         </Card>
       </div>

@@ -6,7 +6,7 @@ export default function RiddlesPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-medieval mb-6 flex items-center">
-        <Scroll className="mr-2 h-6 w-6" /> The Riddle Master's Challenge
+        <Scroll className="mr-2 h-6 w-6" /> The Riddle Master&apos;s Challenge
       </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

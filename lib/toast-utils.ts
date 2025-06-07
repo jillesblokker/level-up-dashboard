@@ -1,4 +1,5 @@
 import { toast } from "@/components/ui/use-toast"
+import { ToastActionElement, ToastProps } from "@/components/ui/toast"
 
 type MessageType = 'tilePlaced' | 'movement' | 'combat' | 'discovery' | 'levelUp' | 'achievement' | 'error' | 'questComplete';
 
@@ -8,7 +9,7 @@ export function getCharacterName(): string {
 }
 
 // Define message templates for each type
-const messageTemplates = {
+const messageTemplates: Record<MessageType, string[]> = {
   tilePlaced: [
     "By your command, {name}, the realm grows ever grander!",
     "A wise choice, {name}! The kingdom expands with each stone laid.",
@@ -61,13 +62,13 @@ const messageTemplates = {
 // Get a random message for the given type
 function getRandomMessage(type: MessageType, name: string): string {
   const messages = messageTemplates[type];
-  const message = messages[Math.floor(Math.random() * messages.length)];
+  const message = messages[Math.floor(Math.random() * messages.length)]!;
   return message.replace(/{name}/g, name);
 }
 
 // Show a scroll-styled toast with a medieval message
-export function showScrollToast(toast: any, title: string, description: string) {
-  toast({
+export function showScrollToast(toastFn: typeof toast, title: string, description: string) {
+  toastFn({
     title,
     description,
     variant: "default",

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { ArrowLeft, Users, MessageCircle, Sword, Bell, User, UserPlus, Search, Upload, Edit, X } from "lucide-react"
+import { MessageCircle, Sword, Bell, User, Search, Upload, Edit, X } from "lucide-react"
 import Image from "next/image"
 import { compressImage } from "@/lib/image-utils"
 import { toast } from "@/components/ui/use-toast"
@@ -277,7 +277,7 @@ export default function GuildhallPage() {
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-amber-300/80">Recent Activity</span>
-                        <span className="text-white">Completed "Fetch Quest"</span>
+                        <span className="text-white">Completed &quot;Fetch Quest&quot;</span>
                       </div>
                     </div>
                   )}
@@ -481,83 +481,6 @@ export default function GuildhallPage() {
         </main>
       </div>
     </div>
-  )
-}
-
-// Friend Card Component
-function FriendCard({
-  name,
-  avatar,
-  level,
-  lastActive,
-  online,
-  categories,
-  recentActivity,
-}: {
-  name: string
-  avatar: string
-  level: number
-  lastActive: string
-  online: boolean
-  categories: string[]
-  recentActivity: string
-}) {
-  return (
-    <Card className="border-amber-800/20">
-      <CardHeader className="pb-2">
-        <div className="flex justify-between">
-          <div className="flex items-center gap-2">
-            <Avatar className="h-10 w-10 border-2 border-amber-800/20">
-              <AvatarImage src={avatar} alt={name} />
-              <AvatarFallback>{name.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <div>
-              <CardTitle className="text-base text-white">{name}</CardTitle>
-              <CardDescription className="flex items-center text-gray-300">
-                Level {level}
-                {online && <span className="ml-2 h-2 w-2 rounded-full bg-green-500"></span>}
-              </CardDescription>
-            </div>
-          </div>
-          <Badge className="text-amber-300 border-amber-800/20">{online ? "Online" : `Last active: ${lastActive}`}</Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="pb-2">
-        <div className="space-y-3">
-          <div className="space-y-1">
-            <div className="text-sm font-medium text-white">Top Categories</div>
-            <div className="flex gap-2">
-              {categories.map((category) => (
-                <Badge key={category} className="text-white bg-amber-900/20">
-                  {category}
-                </Badge>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <div className="text-sm font-medium text-white">Recent Activity</div>
-            <div className="text-sm text-gray-300">{recentActivity}</div>
-          </div>
-        </div>
-      </CardContent>
-      <CardFooter className="pt-2">
-        <div className="flex gap-2 w-full">
-          <Link href="/messaging" className="w-full">
-            <Button variant="outline" className="w-full text-white" size="sm">
-              <MessageCircle className="mr-1 h-4 w-4" />
-              Message
-            </Button>
-          </Link>
-          <Link href="/friend-stats" className="w-full">
-            <Button variant="outline" className="w-full text-white" size="sm">
-              <User className="mr-1 h-4 w-4" />
-              View Profile
-            </Button>
-          </Link>
-        </div>
-      </CardFooter>
-    </Card>
   )
 }
 

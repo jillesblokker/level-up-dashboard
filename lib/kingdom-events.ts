@@ -19,6 +19,24 @@ export interface TimeSeriesData {
   quests: number
 }
 
+interface StoredTimeSeriesData {
+  timestamp: string
+  hour: number
+  day: string
+  month: string
+  year: number
+  gold: number
+  experience: number
+  quests: number
+}
+
+interface AggregatedData {
+  day: string
+  gold: number
+  experience: number
+  quests: number
+}
+
 class KingdomEventsManager {
   private static instance: KingdomEventsManager
   
@@ -35,8 +53,6 @@ class KingdomEventsManager {
 
   // Emit events for other components to listen to
   public emitGoldGained(amount: number, source: string = 'unknown') {
-    console.log(`💰 Gold gained: ${amount} from ${source}`)
-    
     const event = new CustomEvent('kingdom:goldGained', {
       detail: { amount, source, timestamp: new Date() }
     })
@@ -53,8 +69,6 @@ class KingdomEventsManager {
   }
 
   public emitExperienceGained(amount: number, source: string = 'unknown') {
-    console.log(`⭐ Experience gained: ${amount} from ${source}`)
-    
     const event = new CustomEvent('kingdom:experienceGained', {
       detail: { amount, source, timestamp: new Date() }
     })
@@ -71,8 +85,6 @@ class KingdomEventsManager {
   }
 
   public emitQuestCompleted(questName: string, source: string = 'unknown') {
-    console.log(`🎯 Quest completed: ${questName} from ${source}`)
-    
     const event = new CustomEvent('kingdom:questCompleted', {
       detail: { questName, source, timestamp: new Date() }
     })
@@ -90,8 +102,6 @@ class KingdomEventsManager {
 
   // Combined event for quest completion with rewards
   public emitQuestCompletedWithRewards(questName: string, gold: number, experience: number, source: string = 'unknown') {
-    console.log(`🏆 Quest completed with rewards: ${questName} (+${gold}g, +${experience}xp) from ${source}`)
-    
     // Emit individual events
     this.emitQuestCompleted(questName, source)
     if (gold > 0) this.emitGoldGained(gold, source)
@@ -138,7 +148,7 @@ class KingdomEventsManager {
   }
 
   // Get aggregated data for different time periods
-  public getAggregatedData(period: 'today' | 'weekly' | 'yearly') {
+  public getAggregatedData(period: 'today' | 'weekly' | 'yearly'): AggregatedData[] {
     const data = this.getTimeSeriesData()
     const now = new Date()
     
@@ -158,9 +168,9 @@ class KingdomEventsManager {
     try {
       const saved = localStorage.getItem('kingdom-time-series-data')
       if (saved) {
-        const parsed = JSON.parse(saved)
+        const parsed = JSON.parse(saved) as StoredTimeSeriesData[]
         // Convert timestamp strings back to Date objects
-        return parsed.map((item: any) => ({
+        return parsed.map((item) => ({
           ...item,
           timestamp: new Date(item.timestamp)
         }))
@@ -176,9 +186,9 @@ class KingdomEventsManager {
     return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${date.getHours()}`
   }
 
-  private aggregateByHour(data: TimeSeriesData[], currentDate: Date) {
+  private aggregateByHour(data: TimeSeriesData[], currentDate: Date): AggregatedData[] {
     const hours = ['9AM', '11AM', '1PM', '3PM', '5PM', '7PM', '9PM', '11PM']
-    const hourMap = new Map()
+    const hourMap = new Map<string, AggregatedData>()
     
     // Initialize with zeros
     hours.forEach(hour => {
@@ -204,7 +214,7 @@ class KingdomEventsManager {
       else if (hour >= 23 || hour < 9) hourLabel = '11PM'
       
       if (hourLabel && hourMap.has(hourLabel)) {
-        const existing = hourMap.get(hourLabel)
+        const existing = hourMap.get(hourLabel)!
         existing.gold += item.gold
         existing.experience += item.experience
         existing.quests += item.quests
@@ -214,9 +224,9 @@ class KingdomEventsManager {
     return Array.from(hourMap.values())
   }
 
-  private aggregateByDay(data: TimeSeriesData[], currentDate: Date) {
+  private aggregateByDay(data: TimeSeriesData[], currentDate: Date): AggregatedData[] {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-    const dayMap = new Map()
+    const dayMap = new Map<string, AggregatedData>()
     
     // Initialize with zeros
     days.forEach(day => {
@@ -230,7 +240,7 @@ class KingdomEventsManager {
     weekData.forEach(item => {
       const dayName = item.day
       if (dayMap.has(dayName)) {
-        const existing = dayMap.get(dayName)
+        const existing = dayMap.get(dayName)!
         existing.gold += item.gold
         existing.experience += item.experience
         existing.quests += item.quests
@@ -240,9 +250,9 @@ class KingdomEventsManager {
     return Array.from(dayMap.values())
   }
 
-  private aggregateByMonth(data: TimeSeriesData[], currentDate: Date) {
+  private aggregateByMonth(data: TimeSeriesData[], currentDate: Date): AggregatedData[] {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    const monthMap = new Map()
+    const monthMap = new Map<string, AggregatedData>()
     
     // Initialize with zeros
     months.forEach(month => {
@@ -256,7 +266,7 @@ class KingdomEventsManager {
     yearData.forEach(item => {
       const monthName = item.month
       if (monthMap.has(monthName)) {
-        const existing = monthMap.get(monthName)
+        const existing = monthMap.get(monthName)!
         existing.gold += item.gold
         existing.experience += item.experience
         existing.quests += item.quests
@@ -267,15 +277,14 @@ class KingdomEventsManager {
   }
 
   private initializeEventListeners() {
-    // Optional: Add any global event listeners here if needed
-    console.log('Kingdom Events Manager initialized')
+    // Add any event listeners here
   }
 }
 
-// Export singleton instance
-export const kingdomEvents = KingdomEventsManager.getInstance()
+// Create singleton instance
+const kingdomEvents = KingdomEventsManager.getInstance()
 
-// Convenience functions for easy use across the app
+// Export helper functions
 export const emitGoldGained = (amount: number, source?: string) => 
   kingdomEvents.emitGoldGained(amount, source)
 
@@ -291,29 +300,10 @@ export const emitQuestCompletedWithRewards = (questName: string, gold: number, e
 export const getAggregatedKingdomData = (period: 'today' | 'weekly' | 'yearly') => 
   kingdomEvents.getAggregatedData(period)
 
-// Test function for debugging - can be called from browser console
+// Export for testing
 export const testKingdomEvents = () => {
-  console.log('🧪 Testing Kingdom Events System...')
-  
-  // Test gold gained
-  emitGoldGained(50, 'test-system')
-  
-  // Test experience gained  
-  emitExperienceGained(100, 'test-system')
-  
-  // Test quest completion with rewards
-  emitQuestCompletedWithRewards('Test Quest', 25, 75, 'test-system')
-  
-  // Show current data
-  console.log('📊 Current aggregated data:')
-  console.log('Today:', kingdomEvents.getAggregatedData('today'))
-  console.log('Weekly:', kingdomEvents.getAggregatedData('weekly'))
-  console.log('Yearly:', kingdomEvents.getAggregatedData('yearly'))
-  
-  return 'Test completed! Check the Kingdom page to see if stats updated.'
-}
-
-// Make test function available globally for console testing
-if (typeof window !== 'undefined') {
-  (window as any).testKingdomEvents = testKingdomEvents
+  // Add test data
+  emitGoldGained(100, 'test')
+  emitExperienceGained(50, 'test')
+  emitQuestCompleted('Test Quest', 'test')
 } 

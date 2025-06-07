@@ -65,9 +65,9 @@ export default function EventsPage() {
           <ul className="list-disc pl-6 space-y-2">
             <li>Always check your inventory before making choices in events</li>
             <li>Some events require specific items to unlock the best rewards</li>
-            <li>Battle events can be retried if you're defeated</li>
+            <li>Battle events can be retried if you&apos;re defeated</li>
             <li>Mystery tiles can be revisited after some time for new events</li>
-            <li>Certain choices can affect your kingdom's stats</li>
+            <li>Certain choices can affect your kingdom&apos;s stats</li>
             <li>Some events are part of larger questlines</li>
           </ul>
         </Card>

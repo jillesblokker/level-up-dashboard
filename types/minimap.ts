@@ -1,15 +1,16 @@
+import { Tile } from './tiles';
+
+export type MinimapRotationMode = 'fixed' | 'dynamic' | 'static';
+
 export interface MinimapEntity {
-  id: string;
-  type: 'npc' | 'enemy' | 'landmark';
-  position: { x: number; y: number };
-  icon?: string; // emoji or icon path
+  type: string;
+  x: number;
+  y: number;
   color?: string;
 }
 
-export type MinimapRotationMode = 'static' | 'player';
-
 export interface MinimapProps {
-  grid: any[][]; // Tile[][], but generic for now
+  grid: Tile[][];
   playerPosition: { x: number; y: number };
   playerDirection?: number; // degrees, 0 = north
   entities: MinimapEntity[];

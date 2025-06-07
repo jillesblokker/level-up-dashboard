@@ -10,6 +10,13 @@ export interface LogEntry {
   source: string;
 }
 
+interface StoredLogEntry {
+  timestamp: string;
+  level: 'info' | 'warning' | 'error';
+  message: string;
+  source: string;
+}
+
 class Logger {
   private logs: LogEntry[] = [];
   private maxLogs = 1000; // Keep last 1000 logs in memory
@@ -95,8 +102,8 @@ class Logger {
     try {
       const stored = localStorage.getItem('app-logs');
       if (stored) {
-        const parsed = JSON.parse(stored);
-        return parsed.map((log: any) => ({
+        const parsed = JSON.parse(stored) as StoredLogEntry[];
+        return parsed.map((log) => ({
           ...log,
           timestamp: new Date(log.timestamp)
         }));
@@ -166,7 +173,7 @@ export async function logQuestAction(
   userId: string,
   action: string,
   questId: string,
-  details?: Record<string, any>
+  details?: Record<string, unknown>
 ) {
   try {
     const { error } = await supabase

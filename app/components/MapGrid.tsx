@@ -6,20 +6,11 @@ import { Tile } from "@/types/tiles";
 export interface MapGridProps {
   grid: Tile[][];
   character: { x: number; y: number };
-  onCharacterMove: (x: number, y: number) => void;
   onTileClick: (x: number, y: number) => void;
-  selectedTile: any;
-  onGridUpdate: (grid: Tile[][]) => void;
-  isMovementMode: boolean;
-  onDiscovery: (message: string) => void;
-  onTilePlaced: (x: number, y: number) => void;
-  onGoldUpdate: (amount: number) => void;
   onHover: (tile: { row: number; col: number }) => void;
   onHoverEnd: () => void;
   hoveredTile: { row: number; col: number } | null;
-  onDeleteTile: (x: number, y: number) => void;
-  gridRotation: number;
-  setHoveredTile: (tile: { row: number; col: number } | null) => void;
+  onHoverTile: (tile: { row: number; col: number } | null) => void;
   zoomLevel: number;
   showMinimap: boolean;
 }
@@ -62,20 +53,11 @@ const getTileImage = (tileType: string) => {
 const MapGrid: React.FC<MapGridProps> = ({
   grid,
   character,
-  onCharacterMove,
   onTileClick,
-  selectedTile,
-  onGridUpdate,
-  isMovementMode,
-  onDiscovery,
-  onTilePlaced,
-  onGoldUpdate,
   onHover,
   onHoverEnd,
   hoveredTile,
-  onDeleteTile,
-  gridRotation,
-  setHoveredTile,
+  onHoverTile,
   zoomLevel,
   showMinimap
 }) => {
@@ -106,10 +88,10 @@ const MapGrid: React.FC<MapGridProps> = ({
 
   // Keep character in view when moving
   useEffect(() => {
-    if (isMovementMode && gridRef.current) {
+    if (gridRef.current) {
       handlePan(0, 0);
     }
-  }, [character.x, character.y, isMovementMode]);
+  }, [character.x, character.y]);
 
   return (
     <div className="relative w-full h-[calc(100vh-8rem)] overflow-hidden rounded-lg border border-amber-800/20" aria-label="map-container">
@@ -143,7 +125,7 @@ const MapGrid: React.FC<MapGridProps> = ({
                   className={`relative tile ${tile.type} ${tile.isVisited ? 'visited' : ''} ${tile.isMainTile ? 'main-tile' : ''}`}
                   style={{
                     transform: `rotate(${tile.rotation}deg)`,
-                    cursor: isMovementMode ? 'pointer' : 'default',
+                    cursor: 'pointer',
                     width: '64px',
                     height: '64px',
                     gridColumn: x + 1,

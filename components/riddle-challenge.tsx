@@ -93,6 +93,9 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
   const [isAnimating, setIsAnimating] = useState(false)
   const { toast } = useToast()
 
+  // Define currentRiddleData once for the whole component
+  const currentRiddleData = riddles[currentRiddle] || null
+
   // Get a random riddle
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * riddles.length)
@@ -106,7 +109,8 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
     if (selectedOption !== null) return // Prevent multiple selections
 
     setSelectedOption(option)
-    const correct = option === riddles[currentRiddle].answer
+    // Use currentRiddleData from component scope
+    const correct = currentRiddleData ? option === currentRiddleData.answer : false
     setIsCorrect(correct)
 
     if (correct) {
@@ -189,47 +193,60 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
       </CardHeader>
       <CardContent className="pt-6 pb-2">
         <div className="scroll-decoration p-4 mb-4">
-          <p className="text-lg font-medieval mb-4">{riddles[currentRiddle].question}</p>
+          <p className="text-lg font-medieval mb-4">
+            {currentRiddleData ? currentRiddleData.question : ""}
+          </p>
 
           <div className="grid grid-cols-1 gap-2 mt-4">
-            {riddles[currentRiddle].options.map((option, index) => (
-              <Button
-                key={index}
-                variant={
-                  selectedOption === option
-                    ? isCorrect
-                      ? "default"
-                      : "destructive"
-                    : showAnswer && option === riddles[currentRiddle].answer
-                      ? "default"
-                      : "outline"
+            {currentRiddleData &&
+              currentRiddleData.options.map((option: string, index: number) => {
+                let variant: "default" | "destructive" | "outline" = "outline";
+                if (selectedOption === option) {
+                  variant = isCorrect ? "default" : "destructive";
+                } else if (showAnswer && option === currentRiddleData.answer) {
+                  variant = "default";
                 }
-                className={`justify-start text-left p-4 h-auto ${
-                  selectedOption === option && isCorrect ? "bg-green-600 hover:bg-green-700" : ""
-                } ${
-                  showAnswer && option === riddles[currentRiddle].answer && selectedOption !== option
-                    ? "bg-green-600 hover:bg-green-700"
-                    : ""
-                } hover-scale btn-click-effect`}
-                onClick={() => handleOptionSelect(option)}
-                disabled={selectedOption !== null}
-              >
-                <span className="mr-2">{String.fromCharCode(65 + index)}.</span> {option}
-                {selectedOption === option && isCorrect && (
-                  <Sparkles className={`ml-auto h-5 w-5 ${isAnimating ? "animate-pulse" : ""}`} />
-                )}
-              </Button>
-            ))}
+
+                let extraClass = "";
+                if (selectedOption === option && isCorrect) {
+                  extraClass = "bg-green-600 hover:bg-green-700";
+                } else if (
+                  showAnswer &&
+                  option === currentRiddleData.answer &&
+                  selectedOption !== option
+                ) {
+                  extraClass = "bg-green-600 hover:bg-green-700";
+                }
+
+                return (
+                  <Button
+                    key={index}
+                    variant={variant}
+                    className={`justify-start text-left p-4 h-auto ${extraClass} hover-scale btn-click-effect`}
+                    onClick={() => handleOptionSelect(option)}
+                    disabled={selectedOption !== null}
+                  >
+                    <span className="mr-2">{String.fromCharCode(65 + index)}.</span> {option}
+                    {selectedOption === option && isCorrect && (
+                      <Sparkles className={`ml-auto h-5 w-5 ${isAnimating ? "animate-pulse" : ""}`} />
+                    )}
+                  </Button>
+                );
+              })}
           </div>
 
           {showAnswer && (
             <div
-              className={`mt-4 p-3 rounded-md ${isCorrect ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"}`}
+              className={`mt-4 p-3 rounded-md ${
+                isCorrect
+                  ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                  : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+              }`}
             >
               <p className="font-medieval">
                 {isCorrect
                   ? "Well done, wise one! Your answer is correct."
-                  : `The correct answer is: ${riddles[currentRiddle].answer}`}
+                  : `The correct answer is: ${currentRiddleData ? currentRiddleData.answer : ""}`}
               </p>
             </div>
           )}

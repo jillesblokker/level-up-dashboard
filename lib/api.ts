@@ -1,7 +1,6 @@
 import { TileType } from '@/types/tiles';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@/types/supabase';
-import { getSupabaseClient } from './supabase/client';
 
 // API response types
 interface ApiResponse<T> {
@@ -156,7 +155,7 @@ export async function getQuestCompletions(supabase: SupabaseClient<Database>): P
 }
 
 // Helper to get Supabase UUID from Clerk user ID
-async function getSupabaseUserIdFromClerk(clerkId: string, supabase: any): Promise<string> {
+async function getSupabaseUserIdFromClerk(clerkId: string, supabase: SupabaseClient<Database>): Promise<string> {
   const { data, error } = await supabase
     .from('users')
     .select('id')
@@ -168,7 +167,7 @@ async function getSupabaseUserIdFromClerk(clerkId: string, supabase: any): Promi
 
 // Example: uploadGridData
 export async function uploadGridData(
-  supabase: any,
+  supabase: SupabaseClient<Database>,
   grid: number[][],
   clerkId: string
 ): Promise<{ id: string } | null> {
@@ -214,7 +213,7 @@ export async function updateGridData(
 
 // Example: getLatestGrid
 export async function getLatestGrid(
-  supabase: any,
+  supabase: SupabaseClient<Database>,
   clerkId: string
 ): Promise<{ id: string; grid: number[][] } | null> {
   if (!clerkId) throw new Error('No Clerk user ID provided');
@@ -243,7 +242,7 @@ export function subscribeToGridChanges(
   console.log('Setting up Supabase real-time subscription for user:', userId);
   const subscription = supabase
     .channel(`realm_grids:user_id=eq.${userId}`)
-    .on('postgres_changes',
+    .on('postgres_changes' as any,
       { event: '*' , schema: 'public', table: 'realm_grids', filter: `user_id=eq.${userId}` },
       callback
     )

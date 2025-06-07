@@ -1,9 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, X, Dumbbell, Book, Coffee, Brain, Pencil } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { toast } from "@/components/ui/use-toast"
 import {
   HoverCard,
   HoverCardContent,
@@ -25,20 +23,6 @@ interface QuickActionButtonProps {
 }
 
 export function QuickActionButton({ title, icon, color, actions }: QuickActionButtonProps) {
-  const [isOpen, setIsOpen] = useState(false)
-
-  const toggleOpen = () => {
-    setIsOpen(!isOpen)
-  }
-
-  const handleQuickAction = (action: string) => {
-    toast({
-      title: "Quick Action",
-      description: `You've logged a ${action} activity!`,
-    })
-    setIsOpen(false)
-  }
-
   return (
     <HoverCard>
       <HoverCardTrigger asChild>

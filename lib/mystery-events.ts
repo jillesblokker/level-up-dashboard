@@ -382,7 +382,7 @@ export function generateMysteryEvent(): MysteryEvent {
     ...artifactEvents,
     ...riddleEvents
   ];
-  return getRandomElement(possibleEvents);
+  return getRandomElement(possibleEvents) ?? possibleEvents[0];
 }
 
 export const handleEventOutcome = (event: MysteryEvent, choice: string) => {

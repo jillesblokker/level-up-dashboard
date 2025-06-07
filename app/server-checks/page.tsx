@@ -15,6 +15,8 @@ interface StatusItem {
   errorMessage?: string | undefined
 }
 
+type TableRow = { table_name: string };
+
 export default function ServerChecksPage() {
   const [statuses, setStatuses] = useState<StatusItem[]>([
     { key: "realm", label: "Realm Map", description: "Tiles and map data are saved to Supabase.", status: "loading" },
@@ -48,7 +50,7 @@ export default function ServerChecksPage() {
     const tableRes = await supabase.rpc('list_tables');
     if (!tableRes.error && Array.isArray(tableRes.data)) {
       // For each table, try a select to check access
-      const checks = await Promise.all(tableRes.data.map(async (row: any) => {
+      const checks = await Promise.all(tableRes.data.map(async (row: TableRow) => {
         const res = await supabase.from(row.table_name).select("id").limit(1);
         return { name: row.table_name, status: res.error ? "error" : "working" };
       }));

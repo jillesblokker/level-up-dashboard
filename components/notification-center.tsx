@@ -12,13 +12,11 @@ import {
 } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 import { NotificationData, notificationService } from "@/lib/notification-service"
-import { useRouter } from "next/navigation"
 
 export function NotificationCenter() {
   const [notifications, setNotifications] = useState<NotificationData[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [open, setOpen] = useState(false)
-  const router = useRouter()
 
   useEffect(() => {
     // Initial load
@@ -26,9 +24,8 @@ export function NotificationCenter() {
     setUnreadCount(notificationService.getUnreadCount())
 
     // Listen for new notifications
-    const handleNewNotification = (event: CustomEvent<NotificationData>) => {
-      setNotifications(notificationService.getNotifications())
-      setUnreadCount(notificationService.getUnreadCount())
+    const handleNewNotification = (_event: CustomEvent<NotificationData>) => {
+      // Unused function
     }
 
     window.addEventListener("newNotification", handleNewNotification as EventListener)

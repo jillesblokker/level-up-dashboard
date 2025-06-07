@@ -16,9 +16,17 @@ import {
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
+interface ChartDataPoint {
+  name: string;
+  tasks?: number;
+  completedTasks?: number;
+  gold?: number;
+  xp?: number;
+}
+
 export function WeeklyProgressChart() {
   // Force data to be empty for debugging
-  const data: any[] = [];
+  const data: ChartDataPoint[] = [];
 
   const [activeMetric, setActiveMetric] = useState<'tasks' | 'xp' | 'gold'>('tasks');
   const router = useRouter();
@@ -41,6 +49,7 @@ export function WeeklyProgressChart() {
             activeMetric === "tasks" ? "bg-amber-900/50 text-white" : "text-muted-foreground"
           }`}
           onClick={() => setActiveMetric("tasks")}
+          aria-label="Show quest progress"
         >
           Quests
         </button>
@@ -49,6 +58,7 @@ export function WeeklyProgressChart() {
             activeMetric === "gold" ? "bg-amber-900/50 text-white" : "text-muted-foreground"
           }`}
           onClick={() => setActiveMetric("gold")}
+          aria-label="Show gold progress"
         >
           Gold
         </button>
@@ -57,28 +67,22 @@ export function WeeklyProgressChart() {
             activeMetric === "xp" ? "bg-amber-900/50 text-white" : "text-muted-foreground"
           }`}
           onClick={() => setActiveMetric("xp")}
+          aria-label="Show experience progress"
         >
           Experience
         </button>
       </div>
 
-      <div className="h-64 relative rounded-lg overflow-hidden">
+      <div className="h-64 relative rounded-lg overflow-hidden" aria-label="weekly-progress-chart">
         {isEmpty ? (
           <>
-            {/* Next.js Image with border for debug */}
             <Image
               src="/images/quests-header.jpg"
               alt="No data yet"
               fill
               className="object-cover rounded-lg z-0"
               priority
-              style={{ opacity: 0.7, border: '5px solid red' }}
-            />
-            {/* Plain img for debug */}
-            <img
-              src="/images/quests-header.jpg"
-              alt="No data yet plain img"
-              style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7, border: '5px solid blue', position: 'absolute', inset: 0, zIndex: 0 }}
+              style={{ opacity: 0.7 }}
             />
             <div className="absolute inset-0 bg-black/10 flex flex-col items-center justify-center rounded-lg z-10">
               <span className="text-2xl font-bold text-white drop-shadow mb-2">No data yet</span>

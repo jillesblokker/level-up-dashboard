@@ -3,26 +3,14 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { Activity, Award, Book, Brain, ChevronLeft, Coffee, Dumbbell, Moon, Trophy } from "lucide-react"
+import { ChevronLeft } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CategoryProgressChart } from "@/components/category-progress-chart"
-import { getCityData, type CityData, type CityLocation } from "@/lib/city-data"
+import { getCityData, type CityLocation } from "@/lib/city-data"
 
 export default function CityPage() {
   const params = useParams()
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    // Simulate data loading
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 500)
-    return () => clearTimeout(timer)
-  }, [])
 
   if (!params) {
     return (
@@ -42,7 +30,7 @@ export default function CityPage() {
   const cityName = params['cityName'] as string
   const cityData = getCityData(cityName)
 
-  if (!cityData) {
+  if (!cityName || !cityData) {
     return (
       <div className="container py-10" role="main" aria-label="city-not-found-section">
         <div className="mb-6">
@@ -57,11 +45,11 @@ export default function CityPage() {
           <CardHeader>
             <CardTitle>City Not Found</CardTitle>
             <CardDescription>
-              We couldn't find the city you're looking for.
+              We couldn&apos;t find the city you&apos;re looking for.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p>The city "{cityName}" does not exist or has been removed.</p>
+            <p>The city &quot;{cityName}&quot; does not exist or has been removed.</p>
           </CardContent>
         </Card>
       </div>

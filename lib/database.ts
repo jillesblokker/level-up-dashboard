@@ -3,7 +3,8 @@
 // A simple database implementation using IndexedDB
 // This provides persistence beyond localStorage limits
 
-import { InventoryTile, TileType } from "@/types/tiles";
+import { InventoryItem, TileType } from "@/types/tiles";
+import { QuestStats } from "@/types/game";
 
 class Database {
   private dbPromise: Promise<IDBDatabase> | null = null;
@@ -76,7 +77,7 @@ class Database {
     return this.dbPromise;
   }
 
-  async saveTileInventory(tiles: InventoryTile[]): Promise<void> {
+  async saveTileInventory(tiles: InventoryItem[]): Promise<void> {
     try {
       const db = await this.getDb();
       
@@ -112,7 +113,7 @@ class Database {
       }
 
       // Remove tiles that no longer exist
-      for (const oldId of existingIds) {
+      for (const oldId of Array.from(existingIds)) {
         store.delete(oldId);
       }
 
@@ -136,7 +137,7 @@ class Database {
     }
   }
 
-  async getTileInventory(): Promise<InventoryTile[]> {
+  async getTileInventory(): Promise<InventoryItem[]> {
     try {
       const db = await this.getDb();
       const tx = db.transaction(this.STORES.TILES, "readonly");
@@ -168,7 +169,7 @@ class Database {
       const tx = db.transaction(this.STORES.TILES, "readwrite");
       const store = tx.objectStore(this.STORES.TILES);
 
-      const tile = await new Promise<InventoryTile | undefined>((resolve, reject) => {
+      const tile = await new Promise<InventoryItem | undefined>((resolve, reject) => {
         const request = store.get(tileId);
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => reject(request.error);
@@ -232,11 +233,11 @@ class Database {
   }
 
   // Add error recovery method
-  private async handleDatabaseError(error: any): Promise<void> {
+  private async handleDatabaseError(error: unknown): Promise<void> {
     console.error("Database error:", error);
     
     // If database is corrupted, try to delete and recreate
-    if (error.name === "InvalidStateError" || error.name === "ConstraintError") {
+    if (typeof error === 'object' && error !== null && 'name' in error && (error as { name: string }).name === "InvalidStateError" || (error as { name: string }).name === "ConstraintError") {
       try {
         // Delete the database
         await new Promise<void>((resolve, reject) => {
@@ -277,7 +278,7 @@ class Database {
     }
   }
 
-  async saveQuestStats(stats: any) {
+  async saveQuestStats(stats: QuestStats) {
     try {
       localStorage.setItem("quest-stats", JSON.stringify(stats));
     } catch (error) {

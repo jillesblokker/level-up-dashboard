@@ -3,8 +3,6 @@
 import '@/app/globals.css'
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState, useEffect } from "react"
-import Image from 'next/image'
-import { Shield, User } from 'lucide-react'
 import { toast } from "sonner"
 import { SignIn, useUser } from "@clerk/nextjs"
 

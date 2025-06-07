@@ -11,6 +11,7 @@ import {
   Bed,
   PenTool,
   Filter,
+  LucideIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -21,17 +22,29 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
+interface Activity {
+  name: string;
+  icon: JSX.Element;
+  total: number;
+  days: number[];
+  color: string;
+}
+
+interface ActivityData {
+  [key: string]: Activity;
+}
+
 export function ActivityCalendar() {
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [activeFilters, setActiveFilters] = useState<string[]>([])
 
   // Generate calendar data based on the uploaded image
-  const generateCalendarData = () => {
+  const generateCalendarData = (): Activity[] => {
     const year = currentMonth.getFullYear()
     const month = currentMonth.getMonth()
 
     // Sample data based on the image
-    const activityData = {
+    const activityData: ActivityData = {
       // Mindpal - lots of activity
       mindpal: {
         name: "Mindpal",
@@ -132,7 +145,7 @@ export function ActivityCalendar() {
   }
 
   // Get last active text
-  const getLastActiveText = (activity: any) => {
+  const getLastActiveText = (activity: Activity): string => {
     if (activity.days.length === 0) return "Never"
 
     const lastDay = Math.max(...activity.days)
@@ -144,7 +157,7 @@ export function ActivityCalendar() {
   }
 
   // Check if a day has activity for any of the filtered activities
-  const hasActivityOnDay = (day: number) => {
+  const hasActivityOnDay = (day: number): boolean => {
     if (activeFilters.length === 0) {
       return activities.some((activity) => activity.days.includes(day))
     }
@@ -152,31 +165,43 @@ export function ActivityCalendar() {
   }
 
   // Get color for a day with activity
-  const getActivityColorForDay = (day: number) => {
+  const getActivityColorForDay = (day: number): string => {
     const activitiesOnDay = filteredActivities.filter((activity) => activity.days.includes(day))
     if (activitiesOnDay.length === 0) return ""
-    if (activitiesOnDay.length === 1) return activitiesOnDay[0].color
+    if (activitiesOnDay.length === 1) return activitiesOnDay[0]!.color
     return "bg-gradient-to-r from-amber-500 to-purple-500" // Multiple activities
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" aria-label="activity-calendar">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="h-5 w-5 p-0" onClick={prevMonth}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-5 w-5 p-0" 
+            onClick={prevMonth}
+            aria-label="Previous month"
+          >
             <ChevronLeft className="h-3 w-3" />
           </Button>
           <span className="text-sm">
             {year} · {monthNames[month]}
           </span>
-          <Button variant="ghost" size="icon" className="h-5 w-5 p-0" onClick={nextMonth}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-5 w-5 p-0" 
+            onClick={nextMonth}
+            aria-label="Next month"
+          >
             <ChevronRight className="h-3 w-3" />
           </Button>
         </div>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="h-8 gap-1">
+            <Button variant="outline" size="sm" className="h-8 gap-1" aria-label="Filter activities">
               <Filter className="h-3.5 w-3.5" />
               <span className="text-xs">Filter</span>
               {activeFilters.length > 0 && <Badge className="ml-1 h-5 px-1 text-xs">{activeFilters.length}</Badge>}
@@ -201,7 +226,7 @@ export function ActivityCalendar() {
       </div>
 
       <div className="space-y-4">
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7 gap-1" aria-label="calendar-grid">
           {dayNames.map((day, i) => (
             <div key={i} className="text-center text-xs text-muted-foreground">
               {day}
@@ -225,6 +250,7 @@ export function ActivityCalendar() {
                 className={`h-8 rounded-sm flex items-center justify-center text-xs ${
                   hasActivity ? activityColor + " text-white" : "bg-gray-800/50 text-muted-foreground"
                 }`}
+                aria-label={`Day ${day}${hasActivity ? ' with activity' : ''}`}
               >
                 {day}
               </div>
@@ -234,7 +260,7 @@ export function ActivityCalendar() {
 
         <div className="space-y-2 mt-4">
           <h3 className="text-sm font-medium">Activity Legend</h3>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3" aria-label="activity-legend">
             {activities.map((activity, index) => (
               <div key={index} className="flex items-center gap-1">
                 {activity.icon}

@@ -9,6 +9,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { addToInventory, getInventory, addToKingdomInventory } from "@/lib/inventory-manager"
 import { HeaderSection } from "@/components/HeaderSection"
 import Image from "next/image"
+import { TileType } from '@/types/tiles'
 
 interface LocationItem {
   id: string
@@ -101,7 +102,7 @@ const locationData: Record<string, any> = {
 }
 
 // Helper function for item image mapping
-function getItemImagePath(item: any): string {
+function getItemImagePath(item: LocationItem | undefined): string {
   if (!item) return "/images/items/placeholder.jpg";
   if (item.name === "Health Potion") return "/images/items/potion/potion-health.png";
   if (item.name === "Mana Potion") return "/images/items/potion/potion-gold.png";
@@ -121,12 +122,11 @@ function getItemImagePath(item: any): string {
   }
   if (item.name === "Magic Scroll") return "/images/items/scroll/scroll-scrolly.png";
   if (item.name === "Tome of Knowledge" || item.type === "book") return "/images/items/scroll/scroll-perkamento.png";
-  if (item.type === "sword") return "/images/items/sword/sword-twig.png";
-  if (item.type === "shield") return "/images/items/shield/shield-reflecto.png";
-  if (item.type === "armor") return "/images/items/armor/armor-normalo.png";
+  if (item.id === "sword") return "/images/items/sword/sword-twig.png";
+  if (item.id === "shield") return "/images/items/shield/shield-reflecto.png";
+  if (item.id === "armor-set") return "/images/items/armor/armor-normalo.png";
   if (item.type === "artifact") return "/images/items/artifact/crown/artifact-crowny.png";
   if (item.type === "scroll") return "/images/items/scroll/scroll-scrolly.png";
-  if (item.type === "potion") return "/images/items/potion/potion-health.png";
   return "/images/items/placeholder.jpg";
 }
 
@@ -192,18 +192,34 @@ export default function CityLocationPage() {
     addToInventory({
       id: item.id,
       name: item.name,
-      type: item.type as any,
+      type: item.type as TileType,
       description: item.description,
       quantity: 1,
-      image: getItemImagePath(item)
+      image: getItemImagePath(item),
+      connections: [],
+      rotation: 0,
+      revealed: true,
+      isVisited: false,
+      x: 0,
+      y: 0,
+      ariaLabel: item.name,
+      cost: item.price
     })
     addToKingdomInventory({
       id: item.id,
       name: item.name,
-      type: item.type as any,
+      type: item.type as TileType,
       description: item.description,
       quantity: 1,
-      image: getItemImagePath(item)
+      image: getItemImagePath(item),
+      connections: [],
+      rotation: 0,
+      revealed: true,
+      isVisited: false,
+      x: 0,
+      y: 0,
+      ariaLabel: item.name,
+      cost: item.price
     })
 
     // Dispatch update event
@@ -291,7 +307,7 @@ export default function CityLocationPage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                 {location.items && location.items.map((item: LocationItem) => {
-                  let imagePath = item.image || getItemImagePath(item);
+                  const imagePath = item.image || getItemImagePath(item);
                   return (
                     <Card key={item.id} className="overflow-hidden">
                       <div className="w-full aspect-[4/3] relative bg-black">

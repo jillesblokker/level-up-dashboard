@@ -6,7 +6,7 @@ export interface Quest {
   title: string;
   description: string;
   category: string;
-  difficulty: 'easy' | 'medium' | 'hard';
+  difficulty: 'easy' | 'medium' | 'hard' | 'epic';
   rewards: {
     xp: number;
     gold: number;
@@ -71,7 +71,7 @@ export class QuestService {
         title: quest.title,
         description: quest.description,
         category: quest.category,
-        difficulty: quest.difficulty as 'easy' | 'medium' | 'hard',
+        difficulty: quest.difficulty as 'easy' | 'medium' | 'hard' | 'epic',
         rewards: quest.rewards,
         progress: quest.progress,
         completed: quest.completed,
@@ -130,7 +130,7 @@ export class QuestService {
         title: data.title,
         description: data.description,
         category: data.category,
-        difficulty: data.difficulty as 'easy' | 'medium' | 'hard',
+        difficulty: data.difficulty as 'easy' | 'medium' | 'hard' | 'epic',
         rewards: data.rewards,
         progress: data.progress,
         completed: data.completed,
@@ -179,7 +179,7 @@ export class QuestService {
         title: data.title,
         description: data.description,
         category: data.category,
-        difficulty: data.difficulty as 'easy' | 'medium' | 'hard',
+        difficulty: data.difficulty as 'easy' | 'medium' | 'hard' | 'epic',
         rewards: data.rewards,
         progress: data.progress,
         completed: data.completed,
@@ -253,7 +253,7 @@ export class QuestService {
         title: data.title,
         description: data.description,
         category: data.category,
-        difficulty: data.difficulty as 'easy' | 'medium' | 'hard',
+        difficulty: data.difficulty as 'easy' | 'medium' | 'hard' | 'epic',
         rewards: data.rewards,
         progress: data.progress,
         completed: data.completed,

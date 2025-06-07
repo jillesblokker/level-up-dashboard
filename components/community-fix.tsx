@@ -35,6 +35,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { PageTransition } from "@/components/page-transition"
+import Image from 'next/image'
 
 // Sample leaderboard data
 const leaderboardData = [
@@ -195,6 +196,11 @@ interface Challenge {
     }
   }
   status: "active" | "won" | "lost" | "pending"
+}
+
+// Helper function for safe string fallback
+function safeString(val: unknown): string {
+  return typeof val === 'string' ? val : '';
 }
 
 export function CommunityComponent() {
@@ -722,10 +728,12 @@ export function CommunityComponent() {
                       <CardContent className="space-y-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <img
+                            <Image
                               src="/placeholder.svg?height=40&width=40"
                               alt="Your avatar"
                               className="w-10 h-10 rounded-full border-2 border-amber-500"
+                              width={40}
+                              height={40}
                             />
                             <div>
                               <p className="font-medium">You</p>
@@ -743,17 +751,25 @@ export function CommunityComponent() {
                           <div className="flex items-center gap-2">
                             <div className="text-right">
                               <p className="font-medium">{challenge.rivalName}</p>
-                              <Progress value={challenge.progress.rival} className="h-2 w-20" />
+                              {(() => {
+                                const rival = rivals.find((r) => r.id === challenge.rivalId);
+                                return (
+                                  <Progress value={challenge.progress.rival} className="h-2 w-20" />
+                                );
+                              })()}
                             </div>
-                            <img
-                              src={
-                                rivals.find((r) => r.id === challenge.rivalId)?.avatar ||
-                                "/placeholder.svg?height=40&width=40" ||
-                                "/placeholder.svg"
-                              }
-                              alt={challenge.rivalName}
-                              className="w-10 h-10 rounded-full border-2 border-blue-500"
-                            />
+                            {(() => {
+                              const rival = rivals.find((r) => r.id === challenge.rivalId);
+                              return (
+                                <Image
+                                  src={safeString(rival?.avatar)}
+                                  alt={safeString(rival?.name)}
+                                  className="w-10 h-10 rounded-full border-2 border-blue-500"
+                                  width={40}
+                                  height={40}
+                                />
+                              );
+                            })()}
                           </div>
                         </div>
 
@@ -844,10 +860,12 @@ export function CommunityComponent() {
                       <CardContent className="space-y-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <img
+                            <Image
                               src="/placeholder.svg?height=40&width=40"
                               alt="Your avatar"
                               className="w-10 h-10 rounded-full border-2 border-amber-500"
+                              width={40}
+                              height={40}
                             />
                             <div>
                               <p className="font-medium">You</p>
@@ -862,17 +880,25 @@ export function CommunityComponent() {
                           <div className="flex items-center gap-2">
                             <div className="text-right">
                               <p className="font-medium">{challenge.rivalName}</p>
-                              <Progress value={challenge.progress.rival} className="h-2 w-20" />
+                              {(() => {
+                                const rival = rivals.find((r) => r.id === challenge.rivalId);
+                                return (
+                                  <Progress value={challenge.progress.rival} className="h-2 w-20" />
+                                );
+                              })()}
                             </div>
-                            <img
-                              src={
-                                rivals.find((r) => r.id === challenge.rivalId)?.avatar ||
-                                "/placeholder.svg?height=40&width=40" ||
-                                "/placeholder.svg"
-                              }
-                              alt={challenge.rivalName}
-                              className="w-10 h-10 rounded-full border-2 border-blue-500"
-                            />
+                            {(() => {
+                              const rival = rivals.find((r) => r.id === challenge.rivalId);
+                              return (
+                                <Image
+                                  src={safeString(rival?.avatar)}
+                                  alt={safeString(rival?.name)}
+                                  className="w-10 h-10 rounded-full border-2 border-blue-500"
+                                  width={40}
+                                  height={40}
+                                />
+                              );
+                            })()}
                           </div>
                         </div>
 
@@ -929,10 +955,12 @@ export function CommunityComponent() {
                     <Card key={rival.id} className="medieval-card hover-scale">
                       <CardHeader>
                         <div className="flex items-center gap-4">
-                          <img
-                            src={rival.avatar || "/placeholder.svg"}
-                            alt={rival.name}
+                          <Image
+                            src={safeString(rival?.avatar)}
+                            alt={safeString(rival?.name)}
                             className="w-16 h-16 rounded-full border-2 border-amber-500"
+                            width={64}
+                            height={64}
                           />
                           <div>
                             <CardTitle className="font-serif">{rival.name}</CardTitle>
@@ -1079,10 +1107,12 @@ export function CommunityComponent() {
                           <Card key={rival.id} className="medieval-card hover-scale">
                             <CardHeader>
                               <div className="flex items-center gap-4">
-                                <img
-                                  src={rival.avatar || "/placeholder.svg"}
-                                  alt={rival.name}
+                                <Image
+                                  src={safeString(rival.avatar)}
+                                  alt={safeString(rival.name)}
                                   className="w-16 h-16 rounded-full border-2 border-amber-500"
+                                  width={64}
+                                  height={64}
                                 />
                                 <div>
                                   <CardTitle className="font-serif">{rival.name}</CardTitle>

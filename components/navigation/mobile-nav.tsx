@@ -13,12 +13,8 @@ import {
   User,
   Building,
   Compass,
-  Settings,
   Palette,
   ChevronDown,
-  Gamepad,
-  Calendar,
-  Package
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -38,13 +34,12 @@ import { cn } from "@/lib/utils"
 import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience } from "@/types/character"
 
 interface MobileNavProps {
-  onSaveMap?: () => void
   tabs?: { value: string; label: string }[]
   activeTab?: string
   onTabChange?: (value: string) => void
 }
 
-export function MobileNav({ onSaveMap, tabs, activeTab, onTabChange }: MobileNavProps) {
+export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const [characterStats, setCharacterStats] = useState<CharacterStats>({

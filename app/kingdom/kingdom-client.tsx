@@ -4,24 +4,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { KingdomStatsGraph } from "@/components/kingdom-stats-graph"
 import Image from "next/image"
 import { useState, useRef, useEffect } from "react"
-import { Camera, X, Upload, LogIn } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
-import { useToast } from "@/components/ui/use-toast"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { signIn } from "next-auth/react"
-import { defaultInventoryItems, InventoryItem } from "@/app/lib/default-inventory"
 import { Badge } from "@/components/ui/badge"
 import { HeaderSection } from "@/components/HeaderSection"
+import { InventoryItem, defaultInventoryItems } from "@/app/lib/default-inventory"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import type { Session } from '@supabase/supabase-js'
 
-export function KingdomClient({ session }: { session: any }) {
-  const [isHovering, setIsHovering] = useState(false)
-  const [showUploadModal, setShowUploadModal] = useState(false)
+interface WindowWithHeaderImages extends Window {
+  headerImages?: Record<string, string>;
+}
+
+export function KingdomClient({ session }: { session: Session | null }) {
   const [coverImage, setCoverImage] = useState("/images/kingdom-header.jpg")
-  const [isUploading, setIsUploading] = useState(false)
   const [inventory, setInventory] = useState<InventoryItem[]>([])
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const { toast } = useToast()
 
   // Load inventory on mount
   useEffect(() => {
@@ -51,58 +46,6 @@ export function KingdomClient({ session }: { session: any }) {
     }
   }, [])
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    setIsUploading(true)
-    
-    try {
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        try {
-          const result = event.target?.result as string
-          setCoverImage(result)
-          localStorage.setItem("kingdom-header-image", result)
-          if (typeof window !== 'undefined') {
-            (window as any).headerImages = (window as any).headerImages || {}
-            ;(window as any).headerImages.kingdom = result
-          }
-          setIsUploading(false)
-          setShowUploadModal(false)
-          
-          toast({
-            title: "Banner Updated",
-            description: "Your kingdom banner has been updated successfully.",
-          })
-        } catch (err) {
-          setIsUploading(false)
-          toast({
-            title: "Upload Failed",
-            description: "There was an error processing your image.",
-            variant: "destructive",
-          })
-        }
-      }
-      reader.onerror = () => {
-        setIsUploading(false)
-        toast({
-          title: "Upload Failed",
-          description: "There was an error reading your image file.",
-          variant: "destructive",
-        })
-      }
-      reader.readAsDataURL(file)
-    } catch (err) {
-      setIsUploading(false)
-      toast({
-        title: "Upload Failed",
-        description: "There was an error uploading your image.",
-        variant: "destructive",
-      })
-    }
-  }
-
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <HeaderSection
@@ -117,13 +60,10 @@ export function KingdomClient({ session }: { session: any }) {
             setCoverImage(result);
             localStorage.setItem("kingdom-header-image", result);
             if (typeof window !== 'undefined') {
-              (window as any).headerImages = (window as any).headerImages || {};
-              (window as any).headerImages.kingdom = result;
+              const win = window as WindowWithHeaderImages;
+              win.headerImages = win.headerImages || {};
+              win.headerImages['kingdom'] = result;
             }
-            toast({
-              title: "Banner Updated",
-              description: "Your kingdom banner has been updated successfully.",
-            });
           };
           reader.readAsDataURL(file);
         }}

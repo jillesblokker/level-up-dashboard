@@ -1,46 +1,20 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
-import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/components/ui/use-toast"
-import { showScrollToast } from "@/lib/toast-utils"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { ChevronDown } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState } from "react"
 import { useGradient } from '@/app/providers/gradient-provider'
 import { HeaderSection } from "@/components/HeaderSection"
 import { CreatureCard } from "@/components/creature-card"
-import { Toggle } from "@/components/ui/toggle"
-import { Switch } from "@/components/ui/switch"
 import { Minimap } from "@/components/Minimap"
 import QuestCard from "@/components/quest-card"
-import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip"
-import { Progress } from "@/components/ui/progress"
-import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
-import { Drawer, DrawerTrigger, DrawerContent } from "@/components/ui/drawer"
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
-import { Slider } from "@/components/ui/slider"
-import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext, PaginationEllipsis } from "@/components/ui/pagination"
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
-import { Calendar } from "@/components/ui/calendar"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
 import { TileVisual } from "@/components/tile-visual"
 import { MapGrid } from "@/components/map-grid"
 import { TownView } from "@/components/town-view"
-// import { LogCenter } from "@/components/LogCenter" // Commented out, not found
 
 type ColorItem = {
   name: string
@@ -74,6 +48,21 @@ type TypographyItem = {
   fontWeight: string
   fontFamily: string
 }
+
+const mockTile = {
+  id: 'tile-empty',
+  type: 'empty',
+  name: 'Empty Tile',
+  description: 'An empty tile.',
+  connections: [],
+  rotation: 0,
+  revealed: true,
+  isVisited: false,
+  ariaLabel: 'Empty tile',
+  x: 0,
+  y: 0,
+  image: '/images/tiles/empty-tile.png'
+};
 
 export default function DesignSystemPage() {
   const { toast } = useToast()
@@ -182,13 +171,6 @@ export default function DesignSystemPage() {
     }
   }
 
-  const handleFontChange = (index: number, newValue: string) => {
-    const newFonts = [...fonts]
-    newFonts[index].currentOption = newValue
-    newFonts[index].class = newValue
-    setFonts(newFonts)
-  }
-
   const handleTypographyChange = (index: number, type: 'fontSize' | 'fontWeight' | 'fontFamily', newValue: string) => {
     const newTypography = [...typography]
     newTypography[index][type] = newValue
@@ -203,29 +185,6 @@ export default function DesignSystemPage() {
       variant: "default"
     })
   }
-
-  const showWarningToastExample = () => {
-    toast({
-      title: "Warning",
-      description: "Caution! A warning message appears!",
-      variant: "default"
-    })
-  }
-
-  const showErrorToastExample = () => {
-    toast({
-      title: "Error",
-      description: "Alas! An error has occurred!",
-      variant: "destructive"
-    })
-  }
-
-  const showRegularToastExample = () => {
-    toast({
-      title: "Regular Toast",
-      description: "This is a regular toast notification",
-    });
-  };
 
   return (
     <div className="min-h-screen bg-black">
@@ -245,22 +204,22 @@ export default function DesignSystemPage() {
               </TabsList>
 
               <TabsContent value="colors" className="space-y-4">
-                {colors.map((color, index) => (
+                {colors.map((color: ColorItem, index) => (
                   <div key={index} className="flex items-center gap-4">
-                    <div className={`w-16 h-16 rounded-lg ${color.class}`} style={{ backgroundColor: color.value }} />
+                    <div className={`w-16 h-16 rounded-lg ${color.class!}`} style={{ backgroundColor: color.value! }} />
                     <div className="flex-1">
-                      <h3 className="text-white font-medium">{color.name}</h3>
-                      <p className="text-gray-400 text-sm mb-2">{color.description}</p>
+                      <h3 className="text-white font-medium">{color.name!}</h3>
+                      <p className="text-gray-400 text-sm mb-2">{color.description!}</p>
                       <div className="flex items-center gap-2">
                         <Input
                           type="color"
-                          value={color.value}
+                          value={color.value!}
                           onChange={(e) => handleColorChange(index, e.target.value)}
                           className="w-16 h-8"
                         />
                         <Input
                           type="text"
-                          value={color.value}
+                          value={color.value!}
                           onChange={(e) => handleColorChange(index, e.target.value)}
                           className="w-32"
                         />
@@ -271,30 +230,30 @@ export default function DesignSystemPage() {
               </TabsContent>
 
               <TabsContent value="gradients" className="space-y-4">
-                {gradients.map((gradient, index) => (
+                {gradients.map((gradient: GradientItem, index) => (
                   <div key={index} className="flex items-center gap-4">
                     <div 
                       className={`w-32 h-16 rounded-lg`} 
                       style={{ 
-                        background: `linear-gradient(${gradient.direction === 'to-b' ? '180deg' : '90deg'}, ${gradient.startColor}, ${gradient.endColor})` 
+                        background: `linear-gradient(${gradient.direction! === 'to-b' ? '180deg' : '90deg'}, ${gradient.startColor!}, ${gradient.endColor!})` 
                       }} 
                     />
                     <div className="flex-1">
-                      <h3 className="text-white font-medium">{gradient.name}</h3>
-                      <p className="text-gray-400 text-sm mb-2">{gradient.description}</p>
+                      <h3 className="text-white font-medium">{gradient.name!}</h3>
+                      <p className="text-gray-400 text-sm mb-2">{gradient.description!}</p>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <Label className="text-sm text-gray-400">Start Color</Label>
                           <div className="flex items-center gap-2">
                             <Input
                               type="color"
-                              value={gradient.startColor}
+                              value={gradient.startColor!}
                               onChange={(e) => handleGradientChange(index, 'startColor', e.target.value)}
                               className="w-16 h-8"
                             />
                             <Input
                               type="text"
-                              value={gradient.startColor}
+                              value={gradient.startColor!}
                               onChange={(e) => handleGradientChange(index, 'startColor', e.target.value)}
                               className="w-32"
                             />
@@ -305,13 +264,13 @@ export default function DesignSystemPage() {
                           <div className="flex items-center gap-2">
                             <Input
                               type="color"
-                              value={gradient.endColor === 'transparent' ? '#ffffff' : gradient.endColor}
+                              value={gradient.endColor! === 'transparent' ? '#ffffff' : gradient.endColor!}
                               onChange={(e) => handleGradientChange(index, 'endColor', e.target.value)}
                               className="w-16 h-8"
                             />
                             <Input
                               type="text"
-                              value={gradient.endColor}
+                              value={gradient.endColor!}
                               onChange={(e) => handleGradientChange(index, 'endColor', e.target.value)}
                               className="w-32"
                             />
@@ -323,7 +282,7 @@ export default function DesignSystemPage() {
                         <select
                           id="gradient-direction-select"
                           title="Gradient Direction"
-                          value={gradient.direction}
+                          value={gradient.direction!}
                           onChange={(e) => handleGradientChange(index, 'direction', e.target.value)}
                           className="w-full mt-1 bg-gray-900 border border-gray-800 rounded-md text-white p-2"
                         >
@@ -337,12 +296,12 @@ export default function DesignSystemPage() {
               </TabsContent>
 
               <TabsContent value="typography" className="space-y-6">
-                {typography.map((type, index) => (
+                {typography.map((type: TypographyItem, index) => (
                   <div key={index} className="space-y-4">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="text-white font-medium">{type.name}</h3>
-                        <p className={`${type.class} text-white mt-2`}>{type.example}</p>
+                        <h3 className="text-white font-medium">{type.name!}</h3>
+                        <p className={`${type.class!} text-white mt-2`}>{type.example!}</p>
                       </div>
                       <div className="grid grid-cols-3 gap-4">
                         <div>
@@ -350,7 +309,7 @@ export default function DesignSystemPage() {
                           <select
                             id={`typography-size-select-${index}`}
                             title="Typography Size"
-                            value={type.fontSize}
+                            value={type.fontSize!}
                             onChange={(e) => handleTypographyChange(index, 'fontSize', e.target.value)}
                             className="w-full mt-1 bg-gray-900 border border-gray-800 rounded-md text-white p-2"
                           >
@@ -369,28 +328,28 @@ export default function DesignSystemPage() {
                           <select
                             id={`typography-weight-select-${index}`}
                             title="Typography Weight"
-                            value={type.fontWeight}
+                            value={type.fontWeight!}
                             onChange={(e) => handleTypographyChange(index, 'fontWeight', e.target.value)}
                             className="w-full mt-1 bg-gray-900 border border-gray-800 rounded-md text-white p-2"
                           >
                             <option value="font-normal">Normal</option>
                             <option value="font-medium">Medium</option>
-                            <option value="font-semibold">Semibold</option>
+                            <option value="font-semibold">Semi-Bold</option>
                             <option value="font-bold">Bold</option>
                           </select>
                         </div>
                         <div>
-                          <Label htmlFor={`typography-font-select-${index}`} className="text-sm text-gray-400">Font</Label>
+                          <Label htmlFor={`typography-family-select-${index}`} className="text-sm text-gray-400">Family</Label>
                           <select
-                            id={`typography-font-select-${index}`}
-                            title="Typography Font"
-                            value={type.fontFamily}
+                            id={`typography-family-select-${index}`}
+                            title="Typography Family"
+                            value={type.fontFamily!}
                             onChange={(e) => handleTypographyChange(index, 'fontFamily', e.target.value)}
                             className="w-full mt-1 bg-gray-900 border border-gray-800 rounded-md text-white p-2"
                           >
-                            <option value="font-sans">Sans</option>
+                            <option value="font-sans">Sans-Serif</option>
                             <option value="font-serif">Serif</option>
-                            <option value="font-mono">Mono</option>
+                            <option value="font-mono">Monospace</option>
                           </select>
                         </div>
                       </div>
@@ -457,8 +416,44 @@ export default function DesignSystemPage() {
                           selectedTile={null}
                           onTilePlaced={() => {}}
                           grid={[
-                            [{ type: 'empty' }, { type: 'forest' }, { type: 'water' }],
-                            [{ type: 'mountain' }, { type: 'ice' }, { type: 'empty' }]
+                            [
+                              { ...mockTile },
+                              {
+                                ...mockTile,
+                                id: 'tile-forest',
+                                type: 'forest',
+                                name: 'Forest Tile',
+                                description: 'A lush forest tile.',
+                                image: '/images/tiles/forest-tile.png'
+                              },
+                              {
+                                ...mockTile,
+                                id: 'tile-water',
+                                type: 'water',
+                                name: 'Water Tile',
+                                description: 'A water tile.',
+                                image: '/images/tiles/water-tile.png'
+                              }
+                            ],
+                            [
+                              {
+                                ...mockTile,
+                                id: 'tile-mountain',
+                                type: 'mountain',
+                                name: 'Mountain Tile',
+                                description: 'A mountain tile.',
+                                image: '/images/tiles/mountain-tile.png'
+                              },
+                              {
+                                ...mockTile,
+                                id: 'tile-ice',
+                                type: 'ice',
+                                name: 'Ice Tile',
+                                description: 'An ice tile.',
+                                image: '/images/tiles/ice-tile.png'
+                              },
+                              { ...mockTile }
+                            ]
                           ]}
                           character={{ x: 1, y: 1 }}
                           onCharacterMove={() => {}}
@@ -544,8 +539,44 @@ export default function DesignSystemPage() {
                       <div className="mb-2">
                         <Minimap
                           grid={[
-                            [{ type: 'empty' }, { type: 'forest' }, { type: 'water' }],
-                            [{ type: 'mountain' }, { type: 'ice' }, { type: 'empty' }]
+                            [
+                              { ...mockTile },
+                              {
+                                ...mockTile,
+                                id: 'tile-forest',
+                                type: 'forest',
+                                name: 'Forest Tile',
+                                description: 'A lush forest tile.',
+                                image: '/images/tiles/forest-tile.png'
+                              },
+                              {
+                                ...mockTile,
+                                id: 'tile-water',
+                                type: 'water',
+                                name: 'Water Tile',
+                                description: 'A water tile.',
+                                image: '/images/tiles/water-tile.png'
+                              }
+                            ],
+                            [
+                              {
+                                ...mockTile,
+                                id: 'tile-mountain',
+                                type: 'mountain',
+                                name: 'Mountain Tile',
+                                description: 'A mountain tile.',
+                                image: '/images/tiles/mountain-tile.png'
+                              },
+                              {
+                                ...mockTile,
+                                id: 'tile-ice',
+                                type: 'ice',
+                                name: 'Ice Tile',
+                                description: 'An ice tile.',
+                                image: '/images/tiles/ice-tile.png'
+                              },
+                              { ...mockTile }
+                            ]
                           ]}
                           playerPosition={{ x: 1, y: 1 }}
                           playerDirection={0}
@@ -581,4 +612,4 @@ export default function DesignSystemPage() {
       </div>
     </div>
   )
-} 
+}

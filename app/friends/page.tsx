@@ -6,59 +6,11 @@ import { Activity, Award, Bell, MessageCircleIcon as Message, Search, UserPlus }
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { NavBar } from "@/components/nav-bar"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Leaderboard } from "@/components/leaderboard"
-
-// Sample leaderboard data
-const leaderboardData = [
-  {
-    id: 1,
-    name: "Sarah Johnson",
-    avatar: "/placeholder.svg?height=80&width=80",
-    xp: 25000,
-    level: 15,
-    topCategory: "Strength",
-    recentAchievement: "100 Push-ups Club",
-  },
-  {
-    id: 2,
-    name: "Michael Chen",
-    avatar: "/placeholder.svg?height=80&width=80",
-    xp: 23500,
-    level: 18,
-    topCategory: "Knowledge",
-    recentAchievement: "Book Worm",
-  },
-  {
-    id: 3,
-    name: "Jessica Patel",
-    avatar: "/placeholder.svg?height=80&width=80",
-    xp: 22000,
-    level: 12,
-    topCategory: "Nutrition",
-  },
-  {
-    id: 4,
-    name: "David Wilson",
-    avatar: "/placeholder.svg?height=80&width=80",
-    xp: 21000,
-    level: 20,
-    topCategory: "Strength",
-    recentAchievement: "Muscle-up Master",
-  },
-  {
-    id: 5,
-    name: "Emma Thompson",
-    avatar: "/placeholder.svg?height=80&width=80",
-    xp: 20500,
-    level: 14,
-    topCategory: "Recovery",
-  },
-]
 
 // Sample data for friends
 const friendsData = [
@@ -172,15 +124,6 @@ export default function FriendsPage() {
   const [friends, setFriends] = useState(friendsData)
   const [friendRequests, setFriendRequests] = useState(friendRequestsData)
   const [leaderboardTimeframe, setLeaderboardTimeframe] = useState<"weekly" | "monthly" | "all-time">("weekly")
-  const [goldBalance, setGoldBalance] = useState(1000)
-
-  // Load gold balance from localStorage
-  useEffect(() => {
-    const savedGold = localStorage.getItem("gold-balance")
-    if (savedGold) {
-      setGoldBalance(Number.parseInt(savedGold))
-    }
-  }, [])
 
   const filteredFriends = friends.filter((friend) => friend.name.toLowerCase().includes(searchQuery.toLowerCase()))
 

@@ -14,7 +14,7 @@ interface TileCardProps {
 }
 
 export function TileCard({ tile, owned, onPurchase }: TileCardProps) {
-  const { type, connections = [] } = tile;
+  const { type } = tile;
   // Render different tile types
   const renderTile = () => {
     switch (type) {

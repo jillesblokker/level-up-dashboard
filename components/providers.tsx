@@ -17,7 +17,7 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { isLoaded, isSignedIn, userId } = useClerkAuth();
+  const { isLoaded, userId } = useClerkAuth();
   const [isGuest, setIsGuest] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 

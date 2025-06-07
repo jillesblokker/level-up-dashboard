@@ -49,7 +49,6 @@ export default function FriendStatsPage() {
   const searchParams = useSearchParams()
   const friendId = searchParams?.get("id") || "1"
   const [friend, setFriend] = useState<FriendData | null>(null)
-  const [goldBalance, setGoldBalance] = useState(1000)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -142,11 +141,6 @@ export default function FriendStatsPage() {
       setFriend(sampleFriends[friendId as keyof typeof sampleFriends] || sampleFriends["1"])
       setLoading(false)
     }, 500)
-
-    const savedGold = localStorage.getItem("gold-balance")
-    if (savedGold) {
-      setGoldBalance(Number.parseInt(savedGold))
-    }
   }, [friendId])
 
   if (loading) {
@@ -171,7 +165,7 @@ export default function FriendStatsPage() {
           <div className="text-center py-12">
             <User className="mx-auto h-12 w-12 text-gray-700 mb-4" />
             <h3 className="text-lg font-medium mb-2">Friend Not Found</h3>
-            <p className="text-muted-foreground mb-4">The friend you're looking for doesn't exist.</p>
+            <p className="text-muted-foreground mb-4">The friend you&apos;re looking for doesn&apos;t exist.</p>
             <Link href="/community">
               <Button className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white">
                 Return to Community
@@ -190,7 +184,7 @@ export default function FriendStatsPage() {
       <main className="flex-1 p-4 md:p-6 space-y-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight font-serif">{friend.name}'s Stats</h1>
+            <h1 className="text-2xl font-bold tracking-tight font-serif">{friend.name}&apos;s Stats</h1>
             <p className="text-muted-foreground">View detailed statistics and progress</p>
           </div>
           <Link href="/community">

@@ -1,20 +1,15 @@
 import { createBrowserClient } from '@supabase/ssr'
+import { Tile, InventoryItem, Character, Quest, GameState } from '../types/game'
 
-export interface GameData {
-  grid?: any
-  inventory?: any
-  character?: any
-  quests?: any
-  [key: string]: any
-}
+export type GameData = GameState
 
 export async function syncGameData(
   localData: GameData,
   userId: string
 ): Promise<void> {
   const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env['NEXT_PUBLIC_SUPABASE_URL']!,
+    process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']!
   )
 
   try {
@@ -56,8 +51,8 @@ export async function syncGameData(
 
 export async function loadGameData(userId: string): Promise<GameData | null> {
   const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env['NEXT_PUBLIC_SUPABASE_URL']!,
+    process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']!
   )
 
   try {
@@ -89,14 +84,18 @@ export function getLocalGameData(): GameData {
     const quests = localStorage.getItem('quests')
 
     return {
-      grid: grid ? JSON.parse(grid) : null,
-      inventory: inventory ? JSON.parse(inventory) : null,
-      character: character ? JSON.parse(character) : null,
-      quests: quests ? JSON.parse(quests) : null,
+      grid: grid ? JSON.parse(grid) : undefined,
+      inventory: inventory ? JSON.parse(inventory) : {},
+      character: character ? JSON.parse(character) : undefined,
+      quests: quests ? JSON.parse(quests) : undefined,
+      selectedTile: null
     }
   } catch (error) {
     console.error('Error getting local game data:', error)
-    return {}
+    return {
+      inventory: {},
+      selectedTile: null
+    }
   }
 }
 

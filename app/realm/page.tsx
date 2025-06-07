@@ -45,6 +45,8 @@ import { logger } from "@/lib/logger"
 import { useSupabaseClientWithToken } from '@/lib/hooks/use-supabase-client'
 import { createEventNotification } from "@/lib/notifications"
 import { useUser } from '@clerk/nextjs'
+import { SupabaseClient } from '@supabase/supabase-js';
+import { Database } from '@/types/supabase';
 
 // Types
 interface Position {
@@ -520,49 +522,51 @@ const createEmptyTile = (x: number, y: number): Tile => ({
 });
 
 // Fix the processLoadedGrid function to handle undefined cases - Keep only one definition
-const processLoadedGrid = (loadedGrid: any): Tile[][] => {
+const processLoadedGrid = (loadedGrid: unknown): Tile[][] => {
   if (!Array.isArray(loadedGrid)) {
     logger.error('Invalid grid data format', 'GridInit');
     return createBaseGrid(INITIAL_ROWS, GRID_COLS);
   }
 
-  return loadedGrid.map((row: any[], y: number) => {
+  return loadedGrid.map((row: unknown, y: number) => {
     if (!Array.isArray(row)) {
       // If a row is not an array, fill it with empty tiles
       return Array(GRID_COLS).fill(null).map((_, x) => createEmptyTile(x, y));
     }
 
-    return row.map((cell: any, x: number) => {
-      // Ensure cell is an object before accessing properties
-      const tileType = cell?.type || 'empty';
-      const baseTile: Tile = { // Explicitly type the base object
-        id: cell?.id || `tile-${x}-${y}-${Date.now()}`, // Use existing ID or generate new one
+    return row.map((cell: unknown, x: number) => {
+      if (typeof cell !== 'object' || cell === null) {
+        // If cell is not an object, return an empty tile
+        return createEmptyTile(x, y);
+      }
+      const c = cell as Record<string, any>;
+      const tileType = c['type'] || 'empty';
+      const baseTile: Tile = {
+        id: c['id'] || `tile-${x}-${y}-${Date.now()}`,
         type: tileType,
-        name: cell?.name || 'Empty Tile',
-        description: cell?.description || 'An empty space ready for a new tile',
-        connections: cell?.connections || [],
-        rotation: cell?.rotation || 0,
-        revealed: cell?.revealed ?? true,
-        isVisited: cell?.isVisited ?? false,
-        x: cell?.x ?? x, // Use existing position or default
-        y: cell?.y ?? y, // Use existing position or default
-        ariaLabel: cell?.ariaLabel || `${tileType} tile at position ${x},${y}`,
-        image: cell?.image || `/images/tiles/${tileType}-tile.png`,
-        cost: cell?.cost ?? 0, // Provide default for cost
-        quantity: cell?.quantity ?? 1, // Provide default for quantity
-        isMainTile: cell?.isMainTile ?? false,
-        isTown: cell?.isTown ?? false, // Provide default for isTown
-        // Handle optional properties, ensuring they are undefined if not present
-        cityName: cell?.cityName,
-        cityX: cell?.cityX,
-        cityY: cell?.cityY,
-        citySize: cell?.citySize,
-        bigMysteryX: cell?.bigMysteryX,
-        bigMysteryY: cell?.bigMysteryY,
-        tileSize: cell?.tileSize,
+        name: c['name'] || 'Empty Tile',
+        description: c['description'] || 'An empty space ready for a new tile',
+        connections: c['connections'] || [],
+        rotation: c['rotation'] || 0,
+        revealed: c['revealed'] ?? true,
+        isVisited: c['isVisited'] ?? false,
+        x: c['x'] ?? x,
+        y: c['y'] ?? y,
+        ariaLabel: c['ariaLabel'] || `${tileType} tile at position ${x},${y}`,
+        image: c['image'] || `/images/tiles/${tileType}-tile.png`,
+        cost: c['cost'] ?? 0,
+        quantity: c['quantity'] ?? 1,
+        isMainTile: c['isMainTile'] ?? false,
+        isTown: c['isTown'] ?? false,
+        cityName: c['cityName'],
+        cityX: c['cityX'],
+        cityY: c['cityY'],
+        citySize: c['citySize'],
+        bigMysteryX: c['bigMysteryX'],
+        bigMysteryY: c['bigMysteryY'],
+        tileSize: c['tileSize'],
       };
-
-      return baseTile; // Return the explicitly typed tile
+      return baseTile;
     });
   });
 };
@@ -708,7 +712,7 @@ const loadAndProcessInitialGrid = async (): Promise<Tile[][]> => {
 const isBrowser = typeof window !== 'undefined';
 
 // Add helper to load/save character position from Supabase
-async function loadCharacterPosition(supabase: any, userId: string): Promise<{ x: number; y: number } | null> {
+async function loadCharacterPosition(supabase: SupabaseClient<Database>, userId: string): Promise<{ x: number; y: number } | null> {
   try {
     const { data, error } = await supabase
       .from('character_positions')
@@ -722,12 +726,14 @@ async function loadCharacterPosition(supabase: any, userId: string): Promise<{ x
   }
 }
 
-async function saveCharacterPosition(supabase: any, userId: string, pos: { x: number; y: number }) {
+async function saveCharacterPosition(supabase: SupabaseClient<Database>, userId: string, pos: { x: number; y: number }) {
   try {
     await supabase
       .from('character_positions')
       .upsert({ user_id: userId, x: pos.x, y: pos.y }, { onConflict: 'user_id' });
-  } catch {}
+  } catch (error) {
+    logger.error(`Error saving character position: ${error}`, 'CharacterPosition');
+  }
 }
 
 export default function RealmPage() {
@@ -798,8 +804,15 @@ export default function RealmPage() {
 
   // Initialize grid
   const initializeGrid = async () => {
-    if (!supabase) return;
+    let defaultGrid: Tile[][] = [];
     try {
+      defaultGrid = await loadAndProcessInitialGrid();
+      if (!supabase) {
+        setGrid(defaultGrid);
+        setIsLoading(false);
+        setIsInitialized(true);
+        return;
+      }
       const { data: initialGridData, error: fetchError } = await supabase
         .from('realm_grids')
         .select('grid')
@@ -807,28 +820,23 @@ export default function RealmPage() {
         .order('updated_at', { ascending: false })
         .limit(1)
         .single();
-
-      if (fetchError) {
-        logger.warning(`Supabase fetch error: ${fetchError.message}, using default grid`, 'GridInit');
-        const defaultGrid = await loadAndProcessInitialGrid();
+      if (fetchError || !initialGridData?.grid) {
+        logger.warning(`Supabase fetch error: ${fetchError?.message || 'No grid found'}, using default grid`, 'GridInit');
         setGrid(defaultGrid);
       } else {
-        const fetchedGrid = initialGridData?.grid;
+        const fetchedGrid = initialGridData.grid;
         logger.info(`Fetched grid from Supabase: ${fetchedGrid ? 'found' : 'not found'}`, 'GridInit');
-
-        if (fetchedGrid) {
+        if (fetchedGrid && Array.isArray(fetchedGrid) && fetchedGrid.length > 0) {
           const processedGrid = processLoadedGrid(fetchedGrid);
           setGrid(processedGrid);
           logger.info('Grid loaded from Supabase', 'GridInit');
         } else {
-          const defaultGrid = await loadAndProcessInitialGrid();
           setGrid(defaultGrid);
           logger.info('Loaded default grid as fallback', 'GridInit');
         }
       }
     } catch (err) {
       logger.error(`Error loading grid: ${err}`, 'GridInit');
-      const defaultGrid = await loadAndProcessInitialGrid();
       setGrid(defaultGrid);
     } finally {
       setIsLoading(false);
@@ -995,7 +1003,7 @@ export default function RealmPage() {
            // For now, keeping it minimal as the primary fix is loading.
            // A proper real-time update for tile placements would require a specific Supabase Realtime setup for the tilePlacement table.
            let subscription: any = null;
-           let supabase: any = null;
+           const supabase: any = null;
            (async () => {
              if (!supabase) return;
              subscription = supabase
@@ -1265,7 +1273,7 @@ export default function RealmPage() {
       if (newWaterDestroyed >= 1) useCreatureStore.getState().discoverCreature('016'); // Sparky
       if (newWaterDestroyed >= 5) useCreatureStore.getState().discoverCreature('017'); // Boulty
       if (newWaterDestroyed >= 10) useCreatureStore.getState().discoverCreature('018'); // Voulty
-      setTileCounts({ ...tileCounts, waterDestroyed: newWaterDestroyed });
+      updateTileCounts('water');
     }
     
     setTileCounts(updatedTileCounts);
@@ -1406,56 +1414,56 @@ export default function RealmPage() {
   }
 
   // Update tile counts for placed tiles and handle achievements/creatures
-setTileCounts(prevCounts => {
-  const updatedCounts = { ...prevCounts };
+  const updateTileCounts = (tileType: TileType) => setTileCounts(prevCounts => {
+    const updatedCounts = { ...prevCounts };
 
-  // Forest tile placement achievements and creatures
-  if (tileType === 'forest') {
-    updatedCounts.forestPlaced = (updatedCounts.forestPlaced ?? 0) + 1;
-    updateProgress('place_10_forest_tiles', updatedCounts.forestPlaced);
-    if (updatedCounts.forestPlaced >= 1) {
-      useCreatureStore.getState().discoverCreature('007'); // Leaf
+    // Forest tile placement achievements and creatures
+    if (tileType === 'forest') {
+      updatedCounts.forestPlaced = (updatedCounts.forestPlaced ?? 0) + 1;
+      updateProgress('place_10_forest_tiles', updatedCounts.forestPlaced);
+      if (updatedCounts.forestPlaced >= 1) {
+        useCreatureStore.getState().discoverCreature('007'); // Leaf
+      }
+      if (updatedCounts.forestPlaced >= 5) {
+        useCreatureStore.getState().discoverCreature('008'); // Oaky
+      }
+      if (updatedCounts.forestPlaced >= 10) {
+        useCreatureStore.getState().discoverCreature('009'); // Seqoio
+        toast({
+          title: 'Achievement Unlocked!',
+          description: "Forest Planter: You've placed 10 forest tiles!",
+          duration: 5000
+        });
+      }
     }
-    if (updatedCounts.forestPlaced >= 5) {
-      useCreatureStore.getState().discoverCreature('008'); // Oaky
+
+    // Water tile placement achievements and creatures
+    if (tileType === 'water') {
+      updatedCounts.waterPlaced = (updatedCounts.waterPlaced ?? 0) + 1;
+      updateProgress('place_10_water_tiles', updatedCounts.waterPlaced);
+      if (updatedCounts.waterPlaced >= 1) useCreatureStore.getState().discoverCreature('004'); // Dolphio
+      if (updatedCounts.waterPlaced >= 5) useCreatureStore.getState().discoverCreature('005'); // Divero
+      if (updatedCounts.waterPlaced >= 10) {
+        useCreatureStore.getState().discoverCreature('006'); // Flippur
+        toast({
+          title: 'Achievement Unlocked!',
+          description: "Water Shaper: You've placed 10 water tiles!",
+          duration: 5000
+        });
+      }
     }
-    if (updatedCounts.forestPlaced >= 10) {
-      useCreatureStore.getState().discoverCreature('009'); // Seqoio
-      toast({
-        title: 'Achievement Unlocked!',
-        description: "Forest Planter: You've placed 10 forest tiles!",
-        duration: 5000
-      });
+
+    // Mountain tile placement achievements and creatures (add more if needed)
+    if (tileType === 'mountain') {
+      updatedCounts.mountainPlaced = (updatedCounts.mountainPlaced ?? 0) + 1;
+      updateProgress('place_10_mountain_tiles', updatedCounts.mountainPlaced);
+      // Add similar unlocks for mountain placement if needed
     }
-  }
 
-  // Water tile placement achievements and creatures
-  if (tileType === 'water') {
-    updatedCounts.waterPlaced = (updatedCounts.waterPlaced ?? 0) + 1;
-    updateProgress('place_10_water_tiles', updatedCounts.waterPlaced);
-    if (updatedCounts.waterPlaced >= 1) useCreatureStore.getState().discoverCreature('004'); // Dolphio
-    if (updatedCounts.waterPlaced >= 5) useCreatureStore.getState().discoverCreature('005'); // Divero
-    if (updatedCounts.waterPlaced >= 10) {
-      useCreatureStore.getState().discoverCreature('006'); // Flippur
-      toast({
-        title: 'Achievement Unlocked!',
-        description: "Water Shaper: You've placed 10 water tiles!",
-        duration: 5000
-      });
-    }
-  }
+    // Add checks for other placed tile types if needed
 
-  // Mountain tile placement achievements and creatures (add more if needed)
-  if (tileType === 'mountain') {
-    updatedCounts.mountainPlaced = (updatedCounts.mountainPlaced ?? 0) + 1;
-    updateProgress('place_10_mountain_tiles', updatedCounts.mountainPlaced);
-    // Add similar unlocks for mountain placement if needed
-  }
-
-  // Add checks for other placed tile types if needed
-
-  return updatedCounts;
-});
+    return updatedCounts;
+  });
 
   // 1. Create handleCharacterMove in RealmPage
   const handleCharacterMove = useCallback((newX: number, newY: number) => {
@@ -1477,7 +1485,7 @@ setTileCounts(prevCounts => {
             rotation: 0,
             cost: 0,
             quantity: 1,
-            image: '/images/Animales/horse.png',
+            image: '/images/Animales/horse.svg',
             revealed: true,
             isVisited: false,
             ariaLabel: 'Horse in inventory',
@@ -1602,6 +1610,13 @@ setTileCounts(prevCounts => {
           } else {
             logger.warning(`Cannot update grid at position y=${newY}, x=${newX} - invalid grid structure`, 'MysteryEventTrigger');
           }
+        } else if (movementMode && clickedTile?.type === "dungeon") {
+          // Store dungeon position and navigate to dungeon page
+          localStorage.setItem("current-dungeon", JSON.stringify({
+            position: { x: newX, y: newY },
+            type: "dungeon"
+          }));
+          router.push("/dungeon");
         } else if (movementMode && clickedTile?.type === "grass") {
            // Log when character moves onto a grass tile
            logger.info(`Character moved onto a grass tile at ${newX},${newY}. Modal should not appear.`, 'CharacterMove');
@@ -1611,7 +1626,7 @@ setTileCounts(prevCounts => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [characterPosition, grid, handleCharacterMove, movementMode, toast]);
+  }, [characterPosition, grid, handleCharacterMove, movementMode, toast, router]);
 
   // Handle inventory updates - used by TileInventory component
   const handleInventoryUpdate = useCallback((updatedTiles: InventoryItem[]) => { // Explicitly type as InventoryItem[] and wrap in useCallback
@@ -1711,7 +1726,7 @@ setTileCounts(prevCounts => {
       castle: '/images/tiles/castle-tile.png',
       lava: '/images/tiles/lava-tile.png',
       volcano: '/images/tiles/volcano-tile.png',
-      sheep: '/images/Animales/sheep.png',
+      sheep: '/images/Animales/sheep.svg',
     };
     return imageMap[tile.type] || '/images/tiles/empty-tile.png';
   };
@@ -2404,58 +2419,6 @@ const handleTileSelection = (tile: InventoryItem | null) => {
         return updatedInventory;
       });
 
-      // Update tile counts for placed tiles and handle achievements/creatures
-      setTileCounts(prevCounts => {
-        const updatedCounts = { ...prevCounts };
-
-        // Forest tile placement achievements and creatures
-        if (tileType === 'forest') {
-          updatedCounts.forestPlaced = (updatedCounts.forestPlaced ?? 0) + 1;
-          updateProgress('place_10_forest_tiles', updatedCounts.forestPlaced);
-          if (updatedCounts.forestPlaced >= 1) {
-            useCreatureStore.getState().discoverCreature('007'); // Leaf
-          }
-          if (updatedCounts.forestPlaced >= 5) {
-            useCreatureStore.getState().discoverCreature('008'); // Oaky
-          }
-          if (updatedCounts.forestPlaced >= 10) {
-            useCreatureStore.getState().discoverCreature('009'); // Seqoio
-            toast({
-              title: 'Achievement Unlocked!',
-              description: "Forest Planter: You've placed 10 forest tiles!",
-              duration: 5000
-            });
-          }
-        }
-
-        // Water tile placement achievements and creatures
-        if (tileType === 'water') {
-          updatedCounts.waterPlaced = (updatedCounts.waterPlaced ?? 0) + 1;
-          updateProgress('place_10_water_tiles', updatedCounts.waterPlaced);
-          if (updatedCounts.waterPlaced >= 1) useCreatureStore.getState().discoverCreature('004'); // Dolphio
-          if (updatedCounts.waterPlaced >= 5) useCreatureStore.getState().discoverCreature('005'); // Divero
-          if (updatedCounts.waterPlaced >= 10) {
-            useCreatureStore.getState().discoverCreature('006'); // Flippur
-            toast({
-              title: 'Achievement Unlocked!',
-              description: "Water Shaper: You've placed 10 water tiles!",
-              duration: 5000
-            });
-          }
-        }
-
-        // Mountain tile placement achievements and creatures (add more if needed)
-        if (tileType === 'mountain') {
-          updatedCounts.mountainPlaced = (updatedCounts.mountainPlaced ?? 0) + 1;
-          updateProgress('place_10_mountain_tiles', updatedCounts.mountainPlaced);
-          // Add similar unlocks for mountain placement if needed
-        }
-
-        // Add checks for other placed tile types if needed
-
-        return updatedCounts;
-      });
-
       // Show toast notification with save status
       if (saveStatus === 'saved') {
         toast({
@@ -2577,7 +2540,7 @@ const handleTileSelection = (tile: InventoryItem | null) => {
               htmlFor="inventory-switch"
               className="text-sm font-medium cursor-pointer select-none"
             >
-              Inventory (press 'i')
+              Inventory (press &apos;i&apos;)
             </label>
           </div>
           {/* Minimap Switch (UI only, no logic) */}
@@ -2705,85 +2668,81 @@ const handleTileSelection = (tile: InventoryItem | null) => {
       </div>
 
       {/* Main Content */}
-      <div className="flex gap-4">
-        {/* Map Grid */}
-        <div className="flex-1">
-                <MapGrid
-                  grid={grid}
-                  character={characterPosition}
-                  onCharacterMove={handleCharacterMove}
-                  onTileClick={handleTileClick}
-                  selectedTile={selectedTile}
-                  onGridUpdate={handleGridUpdate}
-                  isMovementMode={movementMode}
-                  onDiscovery={(message) => {
-                    toast({
-                      title: "Discovery",
-                      description: message
-                    });
-                  }}
-                  onTilePlaced={(x, y) => {
-                    const placedTile = grid?.[y]?.[x];
-                    if(placedTile) {
-                      logger.info(`Tile placed on grid: ${placedTile.type} at ${placedTile.x},${placedTile.y}`, 'TilePlaced');
-                    } else {
-                      logger.warning(`onTilePlaced triggered for invalid position ${x},${y}`, 'TilePlaced');
-                    }
-                  }}
-                  onGoldUpdate={handleGoldUpdate}
-                  onHover={handleHoverTile}
-                  onHoverEnd={() => setHoveredTile(null)}
-                  hoveredTile={hoveredTile}
-                  onDeleteTile={(x, y) => {
-                    if (grid && grid[y]) {
-                      const tileType = grid[y][x]?.type;
-                      if (tileType) {
-                        handleTileDelete(x, y);
-                      }
-                    }
-                  }}
-                  gridRotation={gridRotation}
-                  setHoveredTile={setHoveredTile}
-                  horsePos={isHorsePresent ? horsePosition : null}
-                  sheepPos={sheepPosition}
-                  eaglePos={eaglePosition}
-                  penguinPos={isPenguinPresent ? penguinPosition : null}
-                />
-                </div>
-          </div>
-
-      {/* Tile Inventory Slide-over */}
-      <Sheet open={showInventory} onOpenChange={setShowInventory}>
-        <SheetContent className="w-[400px] sm:w-[540px] p-0">
-          <div className="h-full bg-background">
+      <div className="w-screen h-screen flex">
+        {/* Map Grid fills available space */}
+        <div className="flex-1 w-full h-full">
+          <MapGrid
+            grid={grid}
+            character={characterPosition}
+            onCharacterMove={handleCharacterMove}
+            onTileClick={handleTileClick}
+            selectedTile={selectedTile}
+            onGridUpdate={handleGridUpdate}
+            isMovementMode={movementMode}
+            onDiscovery={(message) => {
+              toast({
+                title: "Discovery",
+                description: message
+              });
+            }}
+            onTilePlaced={(x, y) => {
+              const placedTile = grid?.[y]?.[x];
+              if(placedTile) {
+                logger.info(`Tile placed on grid: ${placedTile.type} at ${placedTile.x},${placedTile.y}`, 'TilePlaced');
+              } else {
+                logger.warning(`onTilePlaced triggered for invalid position ${x},${y}`, 'TilePlaced');
+              }
+            }}
+            onGoldUpdate={handleGoldUpdate}
+            onHover={handleHoverTile}
+            onHoverEnd={() => setHoveredTile(null)}
+            hoveredTile={hoveredTile}
+            onDeleteTile={(x, y) => {
+              if (grid && grid[y]) {
+                const tileType = grid[y][x]?.type;
+                if (tileType) {
+                  handleTileDelete(x, y);
+                }
+              }
+            }}
+            gridRotation={gridRotation}
+            setHoveredTile={setHoveredTile}
+            horsePos={isHorsePresent ? horsePosition : null}
+            sheepPos={sheepPosition}
+            eaglePos={eaglePosition}
+            penguinPos={isPenguinPresent ? penguinPosition : null}
+          />
+        </div>
+        {/* Tile Inventory Sheet Overlay */}
+        <Sheet open={showInventory} onOpenChange={setShowInventory}>
+          <SheetContent className="w-[400px] sm:w-[540px] p-0">
             <TileInventory
-               // Convert the inventory object into an array of InventoryItem
-              tiles={Object.values(inventory)} // Pass InventoryItem[]
-              selectedTile={selectedTile} // Pass SelectedInventoryItem | null
-              onSelectTile={handleTileSelection} // This function expects InventoryItem | null
-              onUpdateTiles={handleInventoryUpdate} // This function expects InventoryItem[]
-/>
-              </div>
-        </SheetContent>
-      </Sheet>
+              tiles={Object.values(inventory)}
+              selectedTile={selectedTile}
+              onSelectTile={handleTileSelection}
+              onUpdateTiles={handleInventoryUpdate}
+            />
+          </SheetContent>
+        </Sheet>
+      </div>
 
       {/* Event Dialog */}
       {currentEvent && (
         <Dialog open={true} onOpenChange={() => setCurrentEvent(null)}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{currentEvent.title}</DialogTitle>
-              <DialogDescription>{currentEvent.description}</DialogDescription>
+              <DialogTitle>{currentEvent?.title ?? ''}</DialogTitle>
+              <DialogDescription>{currentEvent?.description ?? ''}</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4">
-              {currentEvent.choices.map((choice: string, index: number) => (
-            <Button
+              {currentEvent?.choices?.map((choice: string, index: number) => (
+                <Button
                   key={index}
                   onClick={() => handleEventChoice(choice)}
                   className={index === 0 ? "" : "bg-secondary"}
                 >
                   {choice}
-              </Button>
+                </Button>
               ))}
             </div>
           </DialogContent>
@@ -2794,15 +2753,15 @@ const handleTileSelection = (tile: InventoryItem | null) => {
       {showLocationModal && currentLocation && (
         <Dialog open={true} onOpenChange={() => setShowLocationModal(false)}>
           <DialogContent>
-          <DialogHeader>
-              <DialogTitle>{currentLocation.name}</DialogTitle>
-              <DialogDescription>{currentLocation.description}</DialogDescription>
-          </DialogHeader>
+            <DialogHeader>
+              <DialogTitle>{currentLocation?.name ?? ''}</DialogTitle>
+              <DialogDescription>{currentLocation?.description ?? ''}</DialogDescription>
+            </DialogHeader>
             <DialogFooter>
-              <Button onClick={handleVisitLocation}>Visit</Button> {/* Call handleVisitLocation without arguments */}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              <Button onClick={handleVisitLocation}>Visit</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
 
       {minimapSwitch && (

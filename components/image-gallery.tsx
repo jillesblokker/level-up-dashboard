@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader } from 'lucide-react';
+import Image from 'next/image';
 
 interface ImageGalleryProps {
   folderPath?: string;
@@ -94,10 +95,12 @@ export function ImageGallery({ folderPath = 'images' }: ImageGalleryProps) {
           <Card key={image.name} className="overflow-hidden">
             <CardHeader className="p-0">
               <div className="aspect-square w-full relative overflow-hidden bg-muted">
-                <img
-                  src={image.url}
-                  alt={image.description || image.name}
+                <Image
+                  src={typeof image.url === 'string' ? image.url : ''}
+                  alt={typeof image.description === 'string' ? image.description : image.name}
                   className="object-cover w-full h-full"
+                  width={400}
+                  height={300}
                 />
               </div>
             </CardHeader>

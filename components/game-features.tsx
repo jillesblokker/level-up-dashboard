@@ -1,39 +1,24 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { 
-  Achievement, 
-  Challenge, 
-  Collectible, 
-  LeaderboardEntry,
-  replayability 
-} from '@/lib/replayability';
-import { animations } from '@/lib/animations';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { Toggle } from '@/components/ui/toggle';
 import { CreatureCard } from '@/components/creature-card';
 import { useCreatureStore } from '@/stores/creatureStore';
 import Image from 'next/image';
-import { Toggle } from '@/components/ui/toggle';
+import { 
+  Achievement, 
+  replayability 
+} from '@/lib/replayability';
+import { useSearchParams } from 'next/navigation';
 
 export function GameFeatures() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const initialTab = (searchParams && searchParams.get('tab')) || 'achievements';
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const [activeTab] = useState(initialTab);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
-  const [collectibles, setCollectibles] = useState<Collectible[]>([]);
-  const [leaderboards, setLeaderboards] = useState<Record<string, LeaderboardEntry[]>>({});
   const { creatures, isCreatureDiscovered } = useCreatureStore();
-  const [challengesLoading, setChallengesLoading] = useState(true);
-  const [challengesError, setChallengesError] = useState<string | null>(null);
-  const [leaderboardsLoading, setLeaderboardsLoading] = useState(true);
-  const [leaderboardsError, setLeaderboardsError] = useState<string | null>(null);
   const [achievementsLoading, setAchievementsLoading] = useState(true);
   const [achievementsError, setAchievementsError] = useState<string | null>(null);
   const dataLoadedRef = useRef(false);
@@ -52,36 +37,14 @@ export function GameFeatures() {
         setAchievements(loadedAchievements);
         setAchievementsLoading(false);
 
-        // Load challenges
-        setChallengesLoading(true);
-        const loadedChallenges = await replayability.getChallenges();
-        setChallenges(loadedChallenges);
-        setChallengesLoading(false);
-
-        // Load leaderboards
-        setLeaderboardsLoading(true);
-        const categories = ['quests', 'achievements', 'collectibles', 'challenges'];
-        const leaderboardData: Record<string, LeaderboardEntry[]> = {};
-        for (const category of categories) {
-          leaderboardData[category] = await replayability.getLeaderboard(category);
-        }
-        setLeaderboards(leaderboardData);
-        setLeaderboardsLoading(false);
-
         dataLoadedRef.current = true;
         console.debug('[GameFeatures] Data loaded', {
           achievements: loadedAchievements,
-          challenges: loadedChallenges,
-          leaderboards: leaderboardData,
         });
       } catch (error) {
         console.error('Error loading game data:', error);
         setAchievementsError('Failed to load achievements');
-        setChallengesError('Failed to load challenges');
-        setLeaderboardsError('Failed to load leaderboards');
         setAchievementsLoading(false);
-        setChallengesLoading(false);
-        setLeaderboardsLoading(false);
       }
     };
 
@@ -92,26 +55,8 @@ export function GameFeatures() {
     console.debug('[GameFeatures] activeTab changed:', activeTab);
   }, [activeTab]);
 
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    // Animate tab change
-    const tabContent = document.getElementById(`${value}-content`);
-    if (tabContent) {
-      animations.animate(tabContent, {
-        type: 'fade',
-        duration: 300,
-        timing: 'ease-out'
-      });
-    }
-    // Update URL query param for deep linking
-    const params = new URLSearchParams(window.location.search);
-    params.set('tab', value);
-    router.replace(`/game-center?${params.toString()}`);
-  };
-
   // Card 000 rendering as a variable, not an IIFE
   const card000 = creatures.find(c => c.id === '000');
-  const achievement000 = achievements.find(a => a.id === '000');
   const discovered000 = isCreatureDiscovered('000');
   const card000Node = card000 ? (
     <div className="flex justify-center mb-8">

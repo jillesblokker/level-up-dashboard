@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { getAggregatedKingdomData } from "@/lib/kingdom-events"
 import { useRouter } from "next/navigation"
+import Image from 'next/image'
 
 // Time period types
 type TimePeriod = 'today' | 'weekly' | 'yearly'
@@ -34,10 +35,12 @@ function EmptyState() {
       aria-label="kingdom-stats-empty-state-section"
     >
       {/* Placeholder image */}
-      <img
+      <Image
         src="/images/quests-header.jpg"
         alt="Empty kingdom stats placeholder"
         className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none"
+        width={400}
+        height={300}
         aria-hidden="true"
       />
       {/* Overlay for readability */}

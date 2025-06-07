@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 import { uploadImage } from "@/lib/image-utils";
+import Image from 'next/image';
 
 interface ImageUploadProps {
   onImageUploaded: (imageUrl: string) => void;
@@ -40,22 +41,24 @@ export function ImageUpload({
       setPreviewUrl(localPreview);
       
       // Upload the image
-      const uploadedUrl = await uploadImage(file, imageId);
-      
-      if (uploadedUrl) {
-        onImageUploaded(uploadedUrl);
-        toast({
-          title: "Image Uploaded",
-          description: "Your image has been successfully uploaded.",
-          variant: "default",
-        });
-      } else {
-        setPreviewUrl(initialImage); // Revert to previous image
-        toast({
-          title: "Upload Failed",
-          description: "There was a problem uploading your image.",
-          variant: "destructive",
-        });
+      if (file instanceof File) {
+        const uploadedUrl = await uploadImage(file, imageId);
+        
+        if (uploadedUrl) {
+          onImageUploaded(uploadedUrl);
+          toast({
+            title: "Image Uploaded",
+            description: "Your image has been successfully uploaded.",
+            variant: "default",
+          });
+        } else {
+          setPreviewUrl(initialImage); // Revert to previous image
+          toast({
+            title: "Upload Failed",
+            description: "There was a problem uploading your image.",
+            variant: "destructive",
+          });
+        }
       }
     } catch (error) {
       console.error("Image upload error:", error);
@@ -104,10 +107,13 @@ export function ImageUpload({
       <div className={`${aspectRatio} w-full bg-gray-800 rounded-lg overflow-hidden border border-gray-700`}>
         {previewUrl ? (
           <div className="relative h-full">
-            <img
-              src={previewUrl}
-              alt="Uploaded image"
+            <Image
+              src={typeof previewUrl === 'string' ? previewUrl : ''}
+              alt="Preview"
+              title="Preview image"
               className="w-full h-full object-cover"
+              width={400}
+              height={300}
             />
             <Button
               size="sm"
