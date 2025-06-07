@@ -8,6 +8,7 @@ datasource db {
   url      = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
   relationMode = "prisma"
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model Account {

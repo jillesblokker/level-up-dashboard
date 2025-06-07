@@ -16,7 +16,7 @@
     "db:migrate": "./db-migrate.sh",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
-    "vercel-build": "prisma generate && prisma db push --accept-data-loss && next build"
+    "vercel-build": "prisma generate && prisma migrate reset --force && next build"
   },
   "dependencies": {
     "@auth/core": "0.34.2",
