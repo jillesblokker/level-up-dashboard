@@ -39,6 +39,10 @@ const creatures = [
   { id: "101", name: "Drakon", description: "A legendary dragon awakened by great achievements.", unlockHint: "Complete 100 quests" },
   { id: "102", name: "Fireon", description: "A mighty dragon drawn to exceptional accomplishments.", unlockHint: "Complete 500 quests" },
   { id: "103", name: "Valerion", description: "The supreme dragon lord, master of all realms.", unlockHint: "Complete 1000 quests" },
+  // Milestone Achievements
+  { id: "104", name: "Shello", description: "A wise turtle that appears when you dream big.", unlockHint: "Dream big" },
+  { id: "105", name: "Turtoisy", description: "A legendary turtle that celebrates your greatest achievements.", unlockHint: "Great achievement" },
+  { id: "106", name: "Turtlo", description: "The world turtle, symbol of ultimate accomplishment.", unlockHint: "World achievement" },
 ];
 
 export default function HintsPage() {

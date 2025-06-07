@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { getAggregatedKingdomData } from "@/lib/kingdom-events"
+import { useRouter } from "next/navigation"
 
 // Time period types
 type TimePeriod = 'today' | 'weekly' | 'yearly'
@@ -26,6 +27,7 @@ interface GraphData {
 
 // Empty state component
 function EmptyState() {
+  const router = useRouter();
   return (
     <section
       className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden"
@@ -53,7 +55,7 @@ function EmptyState() {
           aria-label="Start your first quest"
           tabIndex={0}
           role="button"
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          onClick={() => router.push('/quests')}
         >
           Start Your First Quest
         </button>

@@ -18,6 +18,17 @@ import { useGoldStore } from '@/stores/goldStore'
 export default function ShopPage() {
   const params = useParams()
   const { gold, updateGold } = useGoldStore()
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Simulate data loading
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [])
+
   if (!params) {
     return (
       <div className="container py-10" role="main" aria-label="shop-error-section">
@@ -34,16 +45,6 @@ export default function ShopPage() {
   }
 
   const cityName = params['cityName'] as string
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    // Simulate data loading
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 500)
-
-    return () => clearTimeout(timer)
-  }, [])
 
   // Define shop items with cost between 40 and 100 gold
   const shopItems = [

@@ -1,0 +1,20 @@
+# Ignore backup and temp files
+*.bak
+*.swp
+*.tmp
+*.log
+.DS_Store
+
+# Ignore local dev/test files
+node_modules/
+coverage/
+.vscode/
+.env.local
+.env.development
+.env.test
+*.local.js
+*.local.ts
+
+# Ignore legacy Next.js pages if not used
+pages/
+pages.bak/ 

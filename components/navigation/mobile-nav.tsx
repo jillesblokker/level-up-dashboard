@@ -117,12 +117,12 @@ export function MobileNav({ onSaveMap, tabs, activeTab, onTabChange }: MobileNav
   }, [])
   
   const mainNavItems = [
-    { href: "/", label: "Kingdom", icon: Crown },
-    { href: "/realm", label: "Realm", icon: MapIcon },
-    { href: "/character", label: "Character", icon: User },
+    { href: "/kingdom", label: "Kingdom", icon: Crown },
     { href: "/quests", label: "Quests", icon: Compass },
+    { href: "/realm", label: "Realm", icon: MapIcon },
+    { href: "/achievements", label: "Achievements", icon: Trophy },
+    { href: "/character", label: "Character", icon: User },
     { href: "/guildhall", label: "Guildhall", icon: Building },
-    { href: "/game-center", label: "Game Center", icon: Gamepad },
   ]
 
   const accountItems = [

@@ -2,10 +2,19 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: [
-      'uunfpqrauivviygysjzj.supabase.co',
-      'img.clerk.com',
-      'images.clerk.dev'
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'uunfpqrauivviygysjzj.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'img.clerk.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.clerk.dev',
+      },
     ],
   },
   experimental: {

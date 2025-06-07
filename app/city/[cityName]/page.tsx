@@ -14,8 +14,6 @@ import { getCityData, type CityData, type CityLocation } from "@/lib/city-data"
 
 export default function CityPage() {
   const params = useParams()
-  const cityName = params ? (params['cityName'] as string) : ''
-  const cityData = getCityData(cityName)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -40,6 +38,9 @@ export default function CityPage() {
       </div>
     )
   }
+
+  const cityName = params['cityName'] as string
+  const cityData = getCityData(cityName)
 
   if (!cityData) {
     return (

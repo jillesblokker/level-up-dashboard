@@ -745,7 +745,7 @@ export default function RealmPage() {
   // State declarations
   const [inventory, setInventory] = useLocalStorage<Partial<Record<TileType, InventoryItem>>>("tile-inventory", initialTileInventory)
   const [showScrollMessage, setShowScrollMessage] = useState(false)
-  const [characterPosition, setCharacterPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [characterPosition, setCharacterPosition] = useState<{ x: number; y: number }>({ x: 2, y: 0 });
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [selectedTile, setSelectedTile] = useState<SelectedInventoryItem | null>(null)
   const [grid, setGrid] = useState<Tile[][]>([]);
@@ -794,7 +794,7 @@ export default function RealmPage() {
   const [horsePosition, setHorsePosition] = useState<{ x: number; y: number }>({ x: 10, y: 3 });
   const [sheepPosition, setSheepPosition] = useState<{ x: number; y: number }>({ x: 2, y: 4 });
 
-  const supabase = useSupabaseClientWithToken();
+  const { supabase, isLoading: isSupabaseLoading, error: supabaseError } = useSupabaseClientWithToken();
 
   // Initialize grid
   const initializeGrid = async () => {
@@ -1405,117 +1405,57 @@ export default function RealmPage() {
     }
   }
 
-  // Fix the handleTileClick function to handle undefined cases
-  const handleTileClick = async (x: number, y: number) => {
-    if (!selectedTile || !selectedTile.type) {
-      logger.warning('No tile selected or invalid tile type', 'TileClick');
-      return;
+  // Update tile counts for placed tiles and handle achievements/creatures
+setTileCounts(prevCounts => {
+  const updatedCounts = { ...prevCounts };
+
+  // Forest tile placement achievements and creatures
+  if (tileType === 'forest') {
+    updatedCounts.forestPlaced = (updatedCounts.forestPlaced ?? 0) + 1;
+    updateProgress('place_10_forest_tiles', updatedCounts.forestPlaced);
+    if (updatedCounts.forestPlaced >= 1) {
+      useCreatureStore.getState().discoverCreature('007'); // Leaf
     }
-
-    const tileType = selectedTile.type;
-    const gridRow = grid[y];
-
-    if (!gridRow || !gridRow[x]) {
-      logger.warning(`Invalid grid coordinates for tile placement: y=${y}, x=${x}`, 'TileClick');
-      return;
+    if (updatedCounts.forestPlaced >= 5) {
+      useCreatureStore.getState().discoverCreature('008'); // Oaky
     }
-
-    // Prevent placing a tile on a non-empty tile
-    if (gridRow[x].type !== 'empty') {
+    if (updatedCounts.forestPlaced >= 10) {
+      useCreatureStore.getState().discoverCreature('009'); // Seqoio
       toast({
-        title: "Cannot Place Tile",
-        description: "You can only place tiles on empty spaces.",
-        variant: "destructive"
+        title: 'Achievement Unlocked!',
+        description: "Forest Planter: You've placed 10 forest tiles!",
+        duration: 5000
       });
-      logger.warning(`Attempted to place tile on non-empty tile at ${x},${y}`, 'TileClick');
-      return;
     }
+  }
 
-    const newTile: Tile = {
-      id: `tile-${x}-${y}-${Date.now()}`,
-      type: tileType as TileType, // Cast to TileType
-      name: selectedTile.name || `${tileType.charAt(0).toUpperCase() + tileType.slice(1)} Tile`, // Provide fallback name
-      description: selectedTile.description || `A ${tileType} tile`, // Provide fallback description
-      connections: selectedTile.connections || [],
-      rotation: selectedTile.rotation || 0 as 0 | 90 | 180 | 270,
-      revealed: true,
-      isVisited: false,
-      x,
-      y,
-      ariaLabel: selectedTile.ariaLabel || `${tileType} tile at position ${x},${y}`,
-      image: selectedTile.image || `/images/tiles/${tileType}-tile.png`,
-      isMainTile: selectedTile.isMainTile ?? false, // Provide default
-      isTown: selectedTile.isTown ?? false, // Provide default
-      cityName: selectedTile.cityName, // Keep optional
-      cityX: selectedTile.cityX,
-      cityY: selectedTile.cityY,
-      citySize: selectedTile.citySize,
-      bigMysteryX: selectedTile.bigMysteryX,
-      bigMysteryY: selectedTile.bigMysteryY,
-      tileSize: selectedTile.tileSize,
-      cost: selectedTile.cost ?? 0, // Provide default
-      quantity: selectedTile.quantity ?? 1, // Provide default
-    };
-
-    const newGrid = [...grid];
-    if (newGrid[y]) {
-      newGrid[y][x] = newTile;
-      setGrid(newGrid);
-
-      // IMMEDIATE SAVE: Save the grid right after placing the tile
-      logger.info(`Tile placed at ${x},${y}, triggering immediate save`, 'TilePlacement');
-      const numericGrid = newGrid.map(row => row.map(tile => 0)); // Placeholder: replace with actual numeric conversion if needed
-      await saveGridImmediately(numericGrid);
-
-       // Decrement quantity in inventory
-       setInventory(prevInventory => {
-        const updatedInventory = { ...prevInventory };
-        const item = updatedInventory[tileType];
-        if (item && item.quantity > 0) {
-          item.quantity -= 1;
-        } else {
-           logger.warning(`Attempted to decrement quantity for ${tileType} but quantity is already 0 or item not found`, 'TileClick');
-        }
-        return updatedInventory;
+  // Water tile placement achievements and creatures
+  if (tileType === 'water') {
+    updatedCounts.waterPlaced = (updatedCounts.waterPlaced ?? 0) + 1;
+    updateProgress('place_10_water_tiles', updatedCounts.waterPlaced);
+    if (updatedCounts.waterPlaced >= 1) useCreatureStore.getState().discoverCreature('004'); // Dolphio
+    if (updatedCounts.waterPlaced >= 5) useCreatureStore.getState().discoverCreature('005'); // Divero
+    if (updatedCounts.waterPlaced >= 10) {
+      useCreatureStore.getState().discoverCreature('006'); // Flippur
+      toast({
+        title: 'Achievement Unlocked!',
+        description: "Water Shaper: You've placed 10 water tiles!",
+        duration: 5000
       });
-
-      // Update tile counts for placed tiles
-      setTileCounts(prevCounts => {
-        const updatedCounts = { ...prevCounts };
-        // Ensure keys exist before incrementing and use nullish coalescing
-        if (tileType === 'forest') updatedCounts.forestPlaced = (updatedCounts.forestPlaced ?? 0) + 1;
-        if (tileType === 'water') updatedCounts.waterPlaced = (updatedCounts.waterPlaced ?? 0) + 1;
-        if (tileType === 'mountain') updatedCounts.mountainPlaced = (updatedCounts.mountainPlaced ?? 0) + 1; // Ensure this is included
-        // Add checks for other placed tile types if needed
-        return updatedCounts;
-      });
-
-       // Show toast notification with save status
-       if (saveStatus === 'saved') {
-         toast({
-           title: 'Tile Placed & Saved ✓',
-           description: `A ${newTile.name} has been placed at ${x}, ${y} and saved successfully.`,
-           duration: 2000
-         });
-       } else if (saveStatus === 'error') {
-         toast({
-           title: 'Tile Placed (Save Error)',
-           description: `A ${newTile.name} has been placed at ${x}, ${y} but save failed. Saved locally instead.`,
-           duration: 3000,
-           variant: "destructive"
-         });
-       } else {
-         toast({
-           title: 'Tile Placed',
-           description: `A ${newTile.name} has been placed at ${x}, ${y}.`,
-           duration: 2000
-         });
-       }
-
-    } else {
-       logger.warning(`Cannot update grid at position y=${y}, x=${x} - row is undefined`, 'TileClick');
     }
-  };
+  }
+
+  // Mountain tile placement achievements and creatures (add more if needed)
+  if (tileType === 'mountain') {
+    updatedCounts.mountainPlaced = (updatedCounts.mountainPlaced ?? 0) + 1;
+    updateProgress('place_10_mountain_tiles', updatedCounts.mountainPlaced);
+    // Add similar unlocks for mountain placement if needed
+  }
+
+  // Add checks for other placed tile types if needed
+
+  return updatedCounts;
+});
 
   // 1. Create handleCharacterMove in RealmPage
   const handleCharacterMove = useCallback((newX: number, newY: number) => {
@@ -1822,7 +1762,7 @@ export default function RealmPage() {
       });
 
       // Reset other states
-      setCharacterPosition({ x: 1, y: 1 });
+      setCharacterPosition({ x: 2, y: 0 });
       setTileCounts({
         forestPlaced: 0,
         forestDestroyed: 0,
@@ -2389,6 +2329,159 @@ const handleTileSelection = (tile: InventoryItem | null) => {
       </div>
     );
   }
+
+  // Place this inside the RealmPage component, at the top level (not nested in another function)
+  const handleTileClick = async (x: number, y: number) => {
+    if (!selectedTile || !selectedTile.type) {
+      logger.warning('No tile selected or invalid tile type', 'TileClick');
+      return;
+    }
+
+    const tileType = selectedTile.type;
+    const gridRow = grid[y];
+
+    if (!gridRow || !gridRow[x]) {
+      logger.warning(`Invalid grid coordinates for tile placement: y=${y}, x=${x}`, 'TileClick');
+      return;
+    }
+
+    // Prevent placing a tile on a non-empty tile
+    if (gridRow[x].type !== 'empty') {
+      toast({
+        title: "Cannot Place Tile",
+        description: "You can only place tiles on empty spaces.",
+        variant: "destructive"
+      });
+      logger.warning(`Attempted to place tile on non-empty tile at ${x},${y}`, 'TileClick');
+      return;
+    }
+
+    const newTile: Tile = {
+      id: `tile-${x}-${y}-${Date.now()}`,
+      type: tileType as TileType,
+      name: selectedTile.name || `${tileType.charAt(0).toUpperCase() + tileType.slice(1)} Tile`,
+      description: selectedTile.description || `A ${tileType} tile`,
+      connections: selectedTile.connections || [],
+      rotation: selectedTile.rotation || 0 as 0 | 90 | 180 | 270,
+      revealed: true,
+      isVisited: false,
+      x,
+      y,
+      ariaLabel: selectedTile.ariaLabel || `${tileType} tile at position ${x},${y}`,
+      image: selectedTile.image || `/images/tiles/${tileType}-tile.png`,
+      isMainTile: selectedTile.isMainTile ?? false,
+      isTown: selectedTile.isTown ?? false,
+      cityName: selectedTile.cityName,
+      cityX: selectedTile.cityX,
+      cityY: selectedTile.cityY,
+      citySize: selectedTile.citySize,
+      bigMysteryX: selectedTile.bigMysteryX,
+      bigMysteryY: selectedTile.bigMysteryY,
+      tileSize: selectedTile.tileSize,
+      cost: selectedTile.cost ?? 0,
+      quantity: selectedTile.quantity ?? 1,
+    };
+
+    const newGrid = [...grid];
+    if (newGrid[y]) {
+      newGrid[y][x] = newTile;
+      setGrid(newGrid);
+
+      // IMMEDIATE SAVE: Save the grid right after placing the tile
+      logger.info(`Tile placed at ${x},${y}, triggering immediate save`, 'TilePlacement');
+      const numericGrid = newGrid.map(row => row.map(tile => 0)); // Placeholder: replace with actual numeric conversion if needed
+      await saveGridImmediately(numericGrid);
+
+      // Decrement quantity in inventory
+      setInventory(prevInventory => {
+        const updatedInventory = { ...prevInventory };
+        const item = updatedInventory[tileType];
+        if (item && item.quantity > 0) {
+          item.quantity -= 1;
+        } else {
+          logger.warning(`Attempted to decrement quantity for ${tileType} but quantity is already 0 or item not found`, 'TileClick');
+        }
+        return updatedInventory;
+      });
+
+      // Update tile counts for placed tiles and handle achievements/creatures
+      setTileCounts(prevCounts => {
+        const updatedCounts = { ...prevCounts };
+
+        // Forest tile placement achievements and creatures
+        if (tileType === 'forest') {
+          updatedCounts.forestPlaced = (updatedCounts.forestPlaced ?? 0) + 1;
+          updateProgress('place_10_forest_tiles', updatedCounts.forestPlaced);
+          if (updatedCounts.forestPlaced >= 1) {
+            useCreatureStore.getState().discoverCreature('007'); // Leaf
+          }
+          if (updatedCounts.forestPlaced >= 5) {
+            useCreatureStore.getState().discoverCreature('008'); // Oaky
+          }
+          if (updatedCounts.forestPlaced >= 10) {
+            useCreatureStore.getState().discoverCreature('009'); // Seqoio
+            toast({
+              title: 'Achievement Unlocked!',
+              description: "Forest Planter: You've placed 10 forest tiles!",
+              duration: 5000
+            });
+          }
+        }
+
+        // Water tile placement achievements and creatures
+        if (tileType === 'water') {
+          updatedCounts.waterPlaced = (updatedCounts.waterPlaced ?? 0) + 1;
+          updateProgress('place_10_water_tiles', updatedCounts.waterPlaced);
+          if (updatedCounts.waterPlaced >= 1) useCreatureStore.getState().discoverCreature('004'); // Dolphio
+          if (updatedCounts.waterPlaced >= 5) useCreatureStore.getState().discoverCreature('005'); // Divero
+          if (updatedCounts.waterPlaced >= 10) {
+            useCreatureStore.getState().discoverCreature('006'); // Flippur
+            toast({
+              title: 'Achievement Unlocked!',
+              description: "Water Shaper: You've placed 10 water tiles!",
+              duration: 5000
+            });
+          }
+        }
+
+        // Mountain tile placement achievements and creatures (add more if needed)
+        if (tileType === 'mountain') {
+          updatedCounts.mountainPlaced = (updatedCounts.mountainPlaced ?? 0) + 1;
+          updateProgress('place_10_mountain_tiles', updatedCounts.mountainPlaced);
+          // Add similar unlocks for mountain placement if needed
+        }
+
+        // Add checks for other placed tile types if needed
+
+        return updatedCounts;
+      });
+
+      // Show toast notification with save status
+      if (saveStatus === 'saved') {
+        toast({
+          title: 'Tile Placed & Saved ✓',
+          description: `A ${newTile.name} has been placed at ${x}, ${y} and saved successfully.`,
+          duration: 2000
+        });
+      } else if (saveStatus === 'error') {
+        toast({
+          title: 'Tile Placed (Save Error)',
+          description: `A ${newTile.name} has been placed at ${x}, ${y} but save failed. Saved locally instead.`,
+          duration: 3000,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: 'Tile Placed',
+          description: `A ${newTile.name} has been placed at ${x}, ${y}.`,
+          duration: 2000
+        });
+      }
+
+    } else {
+      logger.warning(`Cannot update grid at position y=${y}, x=${x} - row is undefined`, 'TileClick');
+    }
+  };
 
   return (
     <div className="relative min-h-screen bg-background p-4">

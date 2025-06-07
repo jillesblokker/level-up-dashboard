@@ -2,16 +2,41 @@ import React from 'react';
 
 export default function RequirementsPage() {
   const requirements = [
-    'User should be able to add daily quests and easily check them off to track his habits.',
-    'Quest give you gold and exp.',
-    'Gold can be used to buy tiles.',
-    'Tiles can be placed on the realm map.',
-    'The user can move his character on the realm map.',
-    'When user character moves into a mystery tile there are a few events (Discovered: a city, a town, a dungeon, a monster encounter, a grass tile basically the empty version of finding nothing, or a treasure chest with a random gift like 25-250 gold the higher the more rare the outcome of a lot of gold.',
-    'When you discover a town or city is should have an auto name in the medieval rpg style.',
-    'In a city you can visit different buildings (Tavern, Castle, Merchant, temple and the stable.',
-    'In a town you only have the buildings tavern stable and merchant.',
-    'For each building you have a separate page where you can buy stuff.',
+    // Quests & Progression
+    'Users can add, edit, and check off daily quests to track habits.',
+    'Completing quests awards gold and experience.',
+    'New quest types can be created and managed.',
+
+    // Realm & Map
+    'Gold can be used to buy and place tiles on the realm map.',
+    'The user can move their character on the map.',
+    'Mystery tiles trigger events: city, town, dungeon, monster, empty, or treasure.',
+
+    // Towns & Cities
+    'Towns and cities are auto-named in a medieval RPG style.',
+    'Cities have buildings: Tavern, Castle, Merchant, Temple, Stable.',
+    'Towns have: Tavern, Stable, Merchant.',
+
+    // Buildings & Shops
+    'Each building has a dedicated page for buying items.',
+
+    // Achievements & Milestones
+    'Users unlock achievements for actions (e.g., placing/destroying tiles, completing milestones).',
+    'Milestones can be checked off, tracked, and synced.',
+    'Achievement 104: Dream big (hint: complete a major milestone).',
+    'Achievement 105: Great achievement (hint: complete all default milestones).',
+    'Achievement 106: ??? (hint: check off a hidden milestone).',
+
+    // Accessibility & UX
+    'All interactive elements have ARIA labels and follow accessibility rules.',
+    'Cards, grids, and sections use semantic HTML and ARIA attributes.',
+
+    // State Management & Persistence
+    'Local storage fallback for offline progress.',
+    'Supabase sync for persistent data.',
+
+    // Log Center
+    'All logs are viewable in a centralized log center accessible from the account menu.',
   ];
 
   return (

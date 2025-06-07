@@ -401,6 +401,39 @@ const initialCreatures: Creature[] = [
       type: 'Dragon'
     },
     requirement: 'Complete 1000 quests'
+  },
+  {
+    id: '104',
+    number: '#104',
+    name: 'Shello',
+    description: 'A cheerful turtle that appears when you complete your first milestone.',
+    image: '/images/creatures/104.png',
+    category: 'milestone',
+    discovered: false,
+    stats: { hp: 70, attack: 12, defense: 20, speed: 8, type: 'Water' },
+    requirement: 'Complete your first milestone'
+  },
+  {
+    id: '105',
+    number: '#105',
+    name: 'Turtoisy',
+    description: 'A wise turtle that appears after completing 5 milestones.',
+    image: '/images/creatures/105.png',
+    category: 'milestone',
+    discovered: false,
+    stats: { hp: 90, attack: 15, defense: 28, speed: 7, type: 'Water' },
+    requirement: 'Complete 5 milestones'
+  },
+  {
+    id: '106',
+    number: '#106',
+    name: 'Turtlo',
+    description: 'A legendary turtle that appears after completing 10 milestones.',
+    image: '/images/creatures/106.png',
+    category: 'milestone',
+    discovered: false,
+    stats: { hp: 120, attack: 20, defense: 40, speed: 6, type: 'Water' },
+    requirement: 'Complete 10 milestones'
   }
 ];
 

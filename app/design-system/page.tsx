@@ -14,12 +14,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState } from "react"
 import { useGradient } from '@/app/providers/gradient-provider'
-import { HeaderSection } from "../../components/HeaderSection"
-import { CreatureCard } from "../../components/creature-card"
+import { HeaderSection } from "@/components/HeaderSection"
+import { CreatureCard } from "@/components/creature-card"
 import { Toggle } from "@/components/ui/toggle"
 import { Switch } from "@/components/ui/switch"
-import { Minimap } from "../../components/Minimap"
-import QuestCard from "../../components/quest-card"
+import { Minimap } from "@/components/Minimap"
+import QuestCard from "@/components/quest-card"
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip"
@@ -37,6 +37,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { TileVisual } from "@/components/tile-visual"
+import { MapGrid } from "@/components/map-grid"
+import { TownView } from "@/components/town-view"
+// import { LogCenter } from "@/components/LogCenter" // Commented out, not found
 
 type ColorItem = {
   name: string
@@ -315,8 +319,10 @@ export default function DesignSystemPage() {
                         </div>
                       </div>
                       <div className="mt-2">
-                        <Label className="text-sm text-gray-400">Direction</Label>
+                        <Label htmlFor="gradient-direction-select" className="text-sm text-gray-400">Direction</Label>
                         <select
+                          id="gradient-direction-select"
+                          title="Gradient Direction"
                           value={gradient.direction}
                           onChange={(e) => handleGradientChange(index, 'direction', e.target.value)}
                           className="w-full mt-1 bg-gray-900 border border-gray-800 rounded-md text-white p-2"
@@ -340,8 +346,10 @@ export default function DesignSystemPage() {
                       </div>
                       <div className="grid grid-cols-3 gap-4">
                         <div>
-                          <Label className="text-sm text-gray-400">Size</Label>
+                          <Label htmlFor={`typography-size-select-${index}`} className="text-sm text-gray-400">Size</Label>
                           <select
+                            id={`typography-size-select-${index}`}
+                            title="Typography Size"
                             value={type.fontSize}
                             onChange={(e) => handleTypographyChange(index, 'fontSize', e.target.value)}
                             className="w-full mt-1 bg-gray-900 border border-gray-800 rounded-md text-white p-2"
@@ -357,8 +365,10 @@ export default function DesignSystemPage() {
                           </select>
                         </div>
                         <div>
-                          <Label className="text-sm text-gray-400">Weight</Label>
+                          <Label htmlFor={`typography-weight-select-${index}`} className="text-sm text-gray-400">Weight</Label>
                           <select
+                            id={`typography-weight-select-${index}`}
+                            title="Typography Weight"
                             value={type.fontWeight}
                             onChange={(e) => handleTypographyChange(index, 'fontWeight', e.target.value)}
                             className="w-full mt-1 bg-gray-900 border border-gray-800 rounded-md text-white p-2"
@@ -370,8 +380,10 @@ export default function DesignSystemPage() {
                           </select>
                         </div>
                         <div>
-                          <Label className="text-sm text-gray-400">Font</Label>
+                          <Label htmlFor={`typography-font-select-${index}`} className="text-sm text-gray-400">Font</Label>
                           <select
+                            id={`typography-font-select-${index}`}
+                            title="Typography Font"
                             value={type.fontFamily}
                             onChange={(e) => handleTypographyChange(index, 'fontFamily', e.target.value)}
                             className="w-full mt-1 bg-gray-900 border border-gray-800 rounded-md text-white p-2"
@@ -407,17 +419,83 @@ export default function DesignSystemPage() {
                     </div>
 
                     <div className="p-4 rounded-lg bg-gray-900/50">
-                      <p className="text-sm font-medium mb-2 text-white">Buttons</p>
-                      <div className="flex flex-wrap gap-2 mb-2">
-                        <Button variant="default">Primary</Button>
-                        <Button variant="secondary">Secondary</Button>
-                        <Button variant="outline">Outline</Button>
-                        <Button variant="ghost">Ghost</Button>
-                        <Button className="bg-amber-600 hover:bg-amber-700 text-white">Amber</Button>
-                        <Button className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white">Amber Gradient</Button>
+                      <p className="text-sm font-medium mb-2 text-white">TileVisual</p>
+                      <div className="mb-2">
+                        <TileVisual
+                          tile={{
+                            id: 'tile-1',
+                            type: 'forest',
+                            name: 'Forest Tile',
+                            description: 'A lush forest tile.',
+                            connections: [],
+                            rotation: 0,
+                            revealed: true,
+                            isVisited: false,
+                            ariaLabel: 'Forest tile',
+                            x: 0,
+                            y: 0,
+                            image: '/images/tiles/forest-tile.png'
+                          }}
+                          isSelected={false}
+                          isHovered={false}
+                          isCharacterPresent={false}
+                          onClick={() => {}}
+                          onHover={() => {}}
+                          onHoverEnd={() => {}}
+                        />
                       </div>
                       <p className="text-sm text-gray-400 mt-2">
-                        <strong>Button</strong> components are used for all interactive actions. Use the appropriate variant for the context: primary for main actions, secondary for less prominent actions, outline for bordered buttons, ghost for minimal buttons. The <strong>Amber</strong> and <strong>Amber Gradient</strong> buttons are used for special actions and call-to-action areas throughout the app.
+                        <strong>TileVisual</strong> displays tile visuals with proper accessibility attributes. Used for rendering tiles in the realm and map views, with support for selection, hover states, and character presence.
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-gray-900/50">
+                      <p className="text-sm font-medium mb-2 text-white">MapGrid</p>
+                      <div className="mb-2">
+                        <MapGrid
+                          onDiscovery={() => {}}
+                          selectedTile={null}
+                          onTilePlaced={() => {}}
+                          grid={[
+                            [{ type: 'empty' }, { type: 'forest' }, { type: 'water' }],
+                            [{ type: 'mountain' }, { type: 'ice' }, { type: 'empty' }]
+                          ]}
+                          character={{ x: 1, y: 1 }}
+                          onCharacterMove={() => {}}
+                          onTileClick={() => {}}
+                          onGridUpdate={() => {}}
+                          onGoldUpdate={() => {}}
+                          onExperienceUpdate={() => {}}
+                          onHover={() => {}}
+                          onHoverEnd={() => {}}
+                          onRotateTile={() => {}}
+                          onDeleteTile={() => {}}
+                          isMovementMode={false}
+                          gridRotation={0}
+                          hoveredTile={null}
+                          setHoveredTile={() => {}}
+                          horsePos={null}
+                          sheepPos={null}
+                          eaglePos={null}
+                          penguinPos={null}
+                        />
+                      </div>
+                      <p className="text-sm text-gray-400 mt-2">
+                        <strong>MapGrid</strong> renders the interactive grid for the realm map. The main grid component for the realm, handling tile placement, character movement, and interactions.
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-gray-900/50">
+                      <p className="text-sm font-medium mb-2 text-white">TownView</p>
+                      <div className="mb-2">
+                        <TownView
+                          name="Medieval Town"
+                          isTown={true}
+                          onReturn={() => {}}
+                        />
+                      </div>
+                      <p className="text-sm text-gray-400 mt-2">
+                        <strong>TownView</strong> displays town-specific content and buildings. Used for rendering town-specific views, including buildings and interactive elements.
                       </p>
                     </div>
 
@@ -447,35 +525,6 @@ export default function DesignSystemPage() {
                     </div>
 
                     <div className="p-4 rounded-lg bg-gray-900/50">
-                      <p className="text-sm font-medium mb-2 text-white">Toggle & Switch</p>
-                      <div className="flex flex-wrap gap-4 mb-2">
-                        <Toggle aria-label="Toggle Example">Toggle</Toggle>
-                        <Switch aria-label="Switch Example" />
-                      </div>
-                      <p className="text-sm text-gray-400 mt-2">
-                        <strong>Toggle</strong> and <strong>Switch</strong> components are used for binary on/off settings and preferences throughout the app.
-                      </p>
-                    </div>
-
-                    <div className="p-4 rounded-lg bg-gray-900/50">
-                      <p className="text-sm font-medium mb-2 text-white">Card</p>
-                      <div className="mb-2" style={{ maxWidth: 320 }}>
-                        <Card>
-                          <CardHeader>
-                            <CardTitle>Card Title</CardTitle>
-                            <CardDescription>This is a simple card component.</CardDescription>
-                          </CardHeader>
-                          <CardContent>
-                            <p className="text-gray-300">Cards are used for grouping related content and actions in a visually distinct container.</p>
-                          </CardContent>
-                        </Card>
-                      </div>
-                      <p className="text-sm text-gray-400 mt-2">
-                        <strong>Card</strong> is a flexible container used for grouping content, forms, or actions. Use it for dashboards, modals, and feature sections.
-                      </p>
-                    </div>
-
-                    <div className="p-4 rounded-lg bg-gray-900/50">
                       <p className="text-sm font-medium mb-2 text-white">QuestCard</p>
                       <div className="flex gap-4 mb-2">
                         <div style={{ width: 180 }}>
@@ -495,8 +544,8 @@ export default function DesignSystemPage() {
                       <div className="mb-2">
                         <Minimap
                           grid={[
-                            [ { type: 'empty' }, { type: 'forest' }, { type: 'water' } ],
-                            [ { type: 'mountain' }, { type: 'ice' }, { type: 'empty' } ]
+                            [{ type: 'empty' }, { type: 'forest' }, { type: 'water' }],
+                            [{ type: 'mountain' }, { type: 'ice' }, { type: 'empty' }]
                           ]}
                           playerPosition={{ x: 1, y: 1 }}
                           playerDirection={0}
@@ -514,336 +563,14 @@ export default function DesignSystemPage() {
                       </p>
                     </div>
 
-                    <div className="p-4 rounded-lg bg-gray-900/50 space-y-8">
-                      <p className="text-sm font-medium mb-2 text-white">UI Primitives & Overlays</p>
-                      {/* Dialog Preview */}
-                      <Card className="mb-4">
-                        <CardHeader>
-                          <CardTitle>Dialog</CardTitle>
-                          <CardDescription>Modal overlays for forms and confirmations</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="outline">Open Dialog</Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogTitle>Dialog Title</DialogTitle>
-                              <DialogDescription>This is a dialog. Use for confirmations, forms, or important info.</DialogDescription>
-                            </DialogContent>
-                          </Dialog>
-                        </CardContent>
-                      </Card>
-                      {/* Alert Preview */}
-                      <Card className="mb-4">
-                        <CardHeader>
-                          <CardTitle>Alert</CardTitle>
-                          <CardDescription>Inline alerts for feedback and warnings</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <Alert>
-                            <AlertTitle>Warning</AlertTitle>
-                            <AlertDescription>This is an alert. Use for warnings, errors, or important feedback.</AlertDescription>
-                          </Alert>
-                        </CardContent>
-                      </Card>
-                      {/* Tabs Preview */}
-                      <Card className="mb-4">
-                        <CardHeader>
-                          <CardTitle>Tabs</CardTitle>
-                          <CardDescription>Tabbed navigation for content sections</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <Tabs defaultValue="tab1">
-                            <TabsList>
-                              <TabsTrigger value="tab1">Tab 1</TabsTrigger>
-                              <TabsTrigger value="tab2">Tab 2</TabsTrigger>
-                            </TabsList>
-                            <TabsContent value="tab1">Content for Tab 1</TabsContent>
-                            <TabsContent value="tab2">Content for Tab 2</TabsContent>
-                          </Tabs>
-                        </CardContent>
-                      </Card>
-                      {/* Tooltip Preview */}
-                      <Card className="mb-4">
-                        <CardHeader>
-                          <CardTitle>Tooltip</CardTitle>
-                          <CardDescription>Hover/focus tooltips for extra info</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button variant="outline">Hover me</Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Tooltip content goes here.</TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </CardContent>
-                      </Card>
-                      {/* Progress Preview */}
-                      <Card className="mb-4">
-                        <CardHeader>
-                          <CardTitle>Progress</CardTitle>
-                          <CardDescription>Progress bars for loading and completion</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <Progress value={60} className="w-64" />
-                          <p className="text-xs text-gray-400 mt-2">Progress bars show loading or completion status for tasks and achievements.</p>
-                        </CardContent>
-                      </Card>
-                      {/* Sheet Preview */}
-                      <Card className="mb-4">
-                        <CardHeader>
-                          <CardTitle>Sheet</CardTitle>
-                          <CardDescription>Slide-in panels for menus and sidebars</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <Sheet>
-                            <SheetTrigger asChild>
-                              <Button variant="outline">Open Sheet</Button>
-                            </SheetTrigger>
-                            <SheetContent>
-                              <SheetHeader>
-                                <SheetTitle>Sheet Title</SheetTitle>
-                                <SheetDescription>This is a sheet. Use for menus, sidebars, or additional content.</SheetDescription>
-                              </SheetHeader>
-                              <div className="mt-4">Sheet content goes here.</div>
-                            </SheetContent>
-                          </Sheet>
-                        </CardContent>
-                      </Card>
-                      {/* Drawer Preview */}
-                      <Card className="mb-4">
-                        <CardHeader>
-                          <CardTitle>Drawer</CardTitle>
-                          <CardDescription>Persistent or temporary side panels</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <Drawer>
-                            <DrawerTrigger asChild>
-                              <Button variant="outline">Open Drawer</Button>
-                            </DrawerTrigger>
-                            <DrawerContent>
-                              <div className="p-4">Drawer content goes here.</div>
-                            </DrawerContent>
-                          </Drawer>
-                        </CardContent>
-                      </Card>
-                      {/* Accordion Preview */}
-                      <Card className="mb-4">
-                        <CardHeader>
-                          <CardTitle>Accordion</CardTitle>
-                          <CardDescription>Expand/collapse content sections</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <Accordion type="single" collapsible>
-                            <AccordionItem value="item-1">
-                              <AccordionTrigger>Section 1</AccordionTrigger>
-                              <AccordionContent>Content for section 1.</AccordionContent>
-                            </AccordionItem>
-                            <AccordionItem value="item-2">
-                              <AccordionTrigger>Section 2</AccordionTrigger>
-                              <AccordionContent>Content for section 2.</AccordionContent>
-                            </AccordionItem>
-                          </Accordion>
-                        </CardContent>
-                      </Card>
-                      {/* Badge Preview */}
-                      <Card className="mb-4">
-                        <CardHeader>
-                          <CardTitle>Badge</CardTitle>
-                          <CardDescription>Status and label indicators</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex gap-2 flex-wrap mb-2">
-                            <Badge>Default</Badge>
-                            <Badge variant="secondary">Secondary</Badge>
-                            <Badge variant="outline">Outline</Badge>
-                            <Badge variant="destructive">Destructive</Badge>
-                          </div>
-                          <p className="text-xs text-gray-400">Badges are used for status, categories, and labels.</p>
-                        </CardContent>
-                      </Card>
-                      {/* Skeleton Preview */}
-                      <Card className="mb-4">
-                        <CardHeader>
-                          <CardTitle>Skeleton</CardTitle>
-                          <CardDescription>Loading placeholders</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex flex-col gap-2 w-48">
-                            <Skeleton className="h-6 w-32" />
-                            <Skeleton className="h-4 w-24" />
-                            <Skeleton className="h-8 w-full" />
-                          </div>
-                          <p className="text-xs text-gray-400 mt-2">Skeletons are used to indicate loading content.</p>
-                        </CardContent>
-                      </Card>
-                      {/* Popover Preview */}
-                      <Card className="mb-4">
-                        <CardHeader>
-                          <CardTitle>Popover</CardTitle>
-                          <CardDescription>Floating content overlays</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button variant="outline">Open Popover</Button>
-                            </PopoverTrigger>
-                            <PopoverContent>Popover content goes here.</PopoverContent>
-                          </Popover>
-                        </CardContent>
-                      </Card>
-                      {/* Slider Preview */}
-                      <Card className="mb-4">
-                        <CardHeader>
-                          <CardTitle>Slider</CardTitle>
-                          <CardDescription>Range and value selection</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <Slider defaultValue={[50]} max={100} step={1} className="w-64" />
-                          <p className="text-xs text-gray-400 mt-2">Sliders are used for selecting a value or range.</p>
-                        </CardContent>
-                      </Card>
-                      {/* Pagination Preview */}
-                      <Card className="mb-4">
-                        <CardHeader>
-                          <CardTitle>Pagination</CardTitle>
-                          <CardDescription>Page navigation controls</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <Pagination>
-                            <PaginationContent>
-                              <PaginationItem>
-                                <PaginationPrevious href="#" />
-                              </PaginationItem>
-                              <PaginationItem>
-                                <PaginationLink href="#">1</PaginationLink>
-                              </PaginationItem>
-                              <PaginationItem>
-                                <PaginationLink href="#" isActive>2</PaginationLink>
-                              </PaginationItem>
-                              <PaginationItem>
-                                <PaginationLink href="#">3</PaginationLink>
-                              </PaginationItem>
-                              <PaginationItem>
-                                <PaginationEllipsis />
-                              </PaginationItem>
-                              <PaginationItem>
-                                <PaginationLink href="#">5</PaginationLink>
-                              </PaginationItem>
-                              <PaginationItem>
-                                <PaginationNext href="#" />
-                              </PaginationItem>
-                            </PaginationContent>
-                          </Pagination>
-                          <p className="text-xs text-gray-400 mt-2">Pagination is used for navigating between pages of content.</p>
-                        </CardContent>
-                      </Card>
-                      {/* Table Preview */}
-                      <Card className="mb-4">
-                        <CardHeader>
-                          <CardTitle>Table</CardTitle>
-                          <CardDescription>Data display and manipulation</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Role</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              <TableRow>
-                                <TableCell>Alice</TableCell>
-                                <TableCell><Badge>Active</Badge></TableCell>
-                                <TableCell>Admin</TableCell>
-                              </TableRow>
-                              <TableRow>
-                                <TableCell>Bob</TableCell>
-                                <TableCell><Badge variant="secondary">Inactive</Badge></TableCell>
-                                <TableCell>User</TableCell>
-                              </TableRow>
-                            </TableBody>
-                          </Table>
-                          <p className="text-xs text-gray-400 mt-2">Tables are used for displaying and managing data.</p>
-                        </CardContent>
-                      </Card>
-                      {/* Calendar Preview */}
-                      <Card className="mb-4">
-                        <CardHeader>
-                          <CardTitle>Calendar</CardTitle>
-                          <CardDescription>Date selection and display</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <Calendar mode="single" selected={new Date()} onSelect={() => {}} className="rounded-md border" />
-                          <p className="text-xs text-gray-400 mt-2">Calendars are used for picking and displaying dates.</p>
-                        </CardContent>
-                      </Card>
-                      {/* Radio/Checkbox/Toggle/Switch Preview */}
-                      <Card className="mb-4">
-                        <CardHeader>
-                          <CardTitle>Form Controls</CardTitle>
-                          <CardDescription>Radio, Checkbox, Toggle, Switch</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex flex-col gap-4">
-                            <RadioGroup defaultValue="option1" className="flex gap-4">
-                              <RadioGroupItem value="option1" id="r1" />
-                              <label htmlFor="r1" className="text-gray-300">Option 1</label>
-                              <RadioGroupItem value="option2" id="r2" />
-                              <label htmlFor="r2" className="text-gray-300">Option 2</label>
-                            </RadioGroup>
-                            <div className="flex items-center gap-2">
-                              <Checkbox id="c1" />
-                              <label htmlFor="c1" className="text-gray-300">Checkbox</label>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Toggle aria-label="Toggle Example">Toggle</Toggle>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Switch aria-label="Switch Example" />
-                              <span className="text-gray-300">Switch</span>
-                            </div>
-                          </div>
-                          <p className="text-xs text-gray-400 mt-2">Form controls for selecting options and toggling settings.</p>
-                        </CardContent>
-                      </Card>
-                      {/* Input/Select/Textarea Preview */}
-                      <Card className="mb-4">
-                        <CardHeader>
-                          <CardTitle>Form Fields</CardTitle>
-                          <CardDescription>Input, Select, Textarea</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex flex-col gap-4 w-64">
-                            <div>
-                              <label htmlFor="input1" className="text-gray-300 text-sm mb-1 block">Input</label>
-                              <Input id="input1" placeholder="Type here..." />
-                            </div>
-                            <div>
-                              <label htmlFor="select1" className="text-gray-300 text-sm mb-1 block">Select</label>
-                              <Select>
-                                <SelectTrigger id="select1">
-                                  <SelectValue placeholder="Select an option" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="a">Option A</SelectItem>
-                                  <SelectItem value="b">Option B</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div>
-                              <label htmlFor="textarea1" className="text-gray-300 text-sm mb-1 block">Textarea</label>
-                              <Textarea id="textarea1" placeholder="Write something..." />
-                            </div>
-                          </div>
-                          <p className="text-xs text-gray-400 mt-2">Form fields for user input and selection.</p>
-                        </CardContent>
-                      </Card>
+                    <div className="p-4 rounded-lg bg-gray-900/50">
+                      <p className="text-sm font-medium mb-2 text-white">Toast Notifications</p>
+                      <div className="mb-2">
+                        <Button onClick={showToastExample}>Show Toast</Button>
+                      </div>
+                      <p className="text-sm text-gray-400 mt-2">
+                        <strong>Toast Notifications</strong> provide user feedback for actions and events. Used throughout the app for notifications and alerts.
+                      </p>
                     </div>
                   </div>
                 </div>

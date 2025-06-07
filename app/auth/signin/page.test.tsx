@@ -3,6 +3,7 @@ import SignIn from './page'
 import { signIn } from 'next-auth/react'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { skipAuth } from '@/app/actions/auth'
+import * as nextNavigation from 'next/navigation'
 
 // Mock next-auth and auth actions
 vi.mock('next-auth/react')
@@ -64,8 +65,8 @@ describe('SignIn Page', () => {
 
   it('displays error message when there is an error', () => {
     const errorMessage = 'Unable to connect to GitHub. Please try again.'
-    const useSearchParamsMock = vi.fn(() => new URLSearchParams({ error: 'OAuthCallback' }))
-    vi.spyOn(require('next/navigation'), 'useSearchParams').mockImplementation(useSearchParamsMock)
+    const useSearchParamsMock = vi.fn(() => ({ get: () => 'OAuthCallback' } as unknown as ReturnType<typeof nextNavigation.useSearchParams>));
+    vi.spyOn(nextNavigation, 'useSearchParams').mockImplementation(useSearchParamsMock)
 
     render(<SignIn />)
 

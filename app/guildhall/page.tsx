@@ -37,7 +37,6 @@ export default function GuildhallPage() {
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [coverImage, setCoverImage] = useState(() => {
     if (typeof window !== 'undefined') {
-      // @ts-ignore
       return window.headerImages?.guildhall || "/images/guildhall-header.jpg"
     }
     return "/images/guildhall-header.jpg"
@@ -76,7 +75,6 @@ export default function GuildhallPage() {
         localStorage.setItem("guildhall-header-image", compressedImage)
         // Update global state
         if (typeof window !== 'undefined') {
-          // @ts-ignore
           window.headerImages.guildhall = compressedImage
         }
       } catch (storageError) {

@@ -13,13 +13,13 @@ interface TownViewProps {
 export function TownView({ name, isTown, onReturn }: TownViewProps) {
   // Placeholder images using a placeholder service
   const buildingImages = {
-    townHall: `https://placehold.co/600x400/878787/FFF?text=Town+Hall`,
-    marketplace: `https://placehold.co/600x400/976534/FFF?text=Marketplace`,
-    inn: `https://placehold.co/600x400/654321/FFF?text=Inn`,
-    blacksmith: `https://placehold.co/600x400/443322/FFF?text=Blacksmith`,
-    castle: `https://placehold.co/600x400/887766/FFF?text=Castle`,
-    cathedral: `https://placehold.co/600x400/998877/FFF?text=Cathedral`,
-    mageTower: `https://placehold.co/600x400/334455/FFF?text=Mage+Tower`,
+    townHall: "/images/placeholders/location-placeholder.svg",
+    marketplace: "/images/placeholders/location-placeholder.svg",
+    inn: "/images/placeholders/location-placeholder.svg",
+    blacksmith: "/images/placeholders/location-placeholder.svg",
+    castle: "/images/placeholders/location-placeholder.svg",
+    cathedral: "/images/placeholders/location-placeholder.svg",
+    mageTower: "/images/placeholders/location-placeholder.svg",
   }
 
   return (

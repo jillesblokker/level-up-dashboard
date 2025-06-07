@@ -194,14 +194,16 @@ export default function CityLocationPage() {
       name: item.name,
       type: item.type as any,
       description: item.description,
-      quantity: 1
+      quantity: 1,
+      image: getItemImagePath(item)
     })
     addToKingdomInventory({
       id: item.id,
       name: item.name,
       type: item.type as any,
       description: item.description,
-      quantity: 1
+      quantity: 1,
+      image: getItemImagePath(item)
     })
 
     // Dispatch update event

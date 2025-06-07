@@ -1,22 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/components/providers";
+import { useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { updateUserMetadata } from "@/lib/supabase/client";
+import { updateUserMetadata, UserMetadata } from "@/lib/supabase/client";
 import { useRouter } from 'next/navigation';
+import Image from "next/image";
 
 export default function ProfilePage() {
-  const { session, isLoading } = useAuth();
+  const { user, isLoaded } = useUser();
   const [isUploading, setIsUploading] = useState(false);
-  const [displayName, setDisplayName] = useState(session?.user?.user_metadata?.user_name || session?.user?.email || "");
-  const [avatarBgColor, setAvatarBgColor] = useState(session?.user?.user_metadata?.avatar_bg_color || "#1f2937");
-  const [avatarTextColor, setAvatarTextColor] = useState(session?.user?.user_metadata?.avatar_text_color || "#ffffff");
+  const [displayName, setDisplayName] = useState(user?.username || user?.emailAddresses[0]?.emailAddress || "");
+  const [avatarBgColor, setAvatarBgColor] = useState(user?.publicMetadata?.['avatar_bg_color'] as string || "#1f2937");
+  const [avatarTextColor, setAvatarTextColor] = useState(user?.publicMetadata?.['avatar_text_color'] as string || "#ffffff");
   const [isSaving, setIsSaving] = useState(false);
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,15 +73,16 @@ export default function ProfilePage() {
   };
 
   const handleSaveProfile = async () => {
-    if (!session?.user) return;
+    if (!user) return;
 
     try {
       setIsSaving(true);
-      await updateUserMetadata({
+      const metadata: UserMetadata = {
         user_name: displayName,
         avatar_bg_color: avatarBgColor,
         avatar_text_color: avatarTextColor,
-      });
+      };
+      await updateUserMetadata(user.id, metadata);
       
       // Force a page reload to ensure all components get the updated metadata
       window.location.reload();
@@ -94,7 +96,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (isLoading) {
+  if (!isLoaded) {
     return (
       <div className="container max-w-2xl py-8">
         <Card className="p-6" aria-label="profile-loading-card">
@@ -104,15 +106,16 @@ export default function ProfilePage() {
     );
   }
 
-  if (!session?.user) {
+  if (!user) {
     return (
       <div className="container max-w-2xl py-16 flex flex-col items-center justify-center">
         <div className="relative w-full max-w-md h-64 flex flex-col items-center justify-center text-center rounded-lg overflow-hidden mb-8">
           {/* Placeholder image */}
-          <img
+          <Image
             src="/images/placeholders/item-placeholder.svg"
             alt="Profile placeholder"
-            className="absolute inset-0 w-full h-full object-cover opacity-70 pointer-events-none"
+            fill
+            className="object-cover opacity-70 pointer-events-none"
             aria-hidden="true"
           />
           {/* Overlay for readability */}
@@ -142,13 +145,13 @@ export default function ProfilePage() {
               aria-label="profile-avatar"
             >
               <AvatarImage 
-                src={session.user.user_metadata?.avatar_url || ""} 
-                alt={displayName || session.user.email || ""} 
+                src={user.imageUrl || ""} 
+                alt={displayName || user.emailAddresses[0]?.emailAddress || ""} 
               />
               <AvatarFallback 
                 style={{ color: avatarTextColor }}
               >
-                {displayName?.[0]?.toUpperCase() || session.user.email?.[0]?.toUpperCase() || "?"}
+                {displayName?.[0]?.toUpperCase() || user.emailAddresses[0]?.emailAddress?.[0]?.toUpperCase() || "?"}
               </AvatarFallback>
             </Avatar>
             <div className="space-y-2">
@@ -225,22 +228,11 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              value={session.user?.email || ""}
-              disabled
-              className="max-w-md"
-              aria-label="email-input"
-            />
-          </div>
-
           <Button
             onClick={handleSaveProfile}
             disabled={isSaving}
-            className="mt-4"
-            aria-label="save-profile-button"
+            className="w-full"
+            aria-label="Save profile changes"
           >
             {isSaving ? "Saving..." : "Save Changes"}
           </Button>
