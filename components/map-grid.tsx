@@ -263,7 +263,7 @@ export function MapGrid({
                   {horsePos && horsePos.x === x && horsePos.y === y && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <Image
-                        src="/images/Animales/horse.png"
+                        src="/images/Animals/horse.png"
                         alt="Horse"
                         width={32}
                         height={32}
@@ -274,7 +274,7 @@ export function MapGrid({
                   {sheepPos && sheepPos.x === x && sheepPos.y === y && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <Image
-                        src="/images/Animales/sheep.png"
+                        src="/images/Animals/sheep.png"
                         alt="Sheep"
                         width={32}
                         height={32}
@@ -285,7 +285,7 @@ export function MapGrid({
                   {eaglePos && eaglePos.x === x && eaglePos.y === y && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <Image
-                        src="/images/Animales/eagle.png"
+                        src="/images/Animals/eagle.png"
                         alt="Eagle"
                         width={32}
                         height={32}
@@ -296,7 +296,7 @@ export function MapGrid({
                   {penguinPos && penguinPos.x === x && penguinPos.y === y && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <Image
-                        src="/images/Animales/penguin.png"
+                        src="/images/Animals/penguin.png"
                         alt="Penguin"
                         width={32}
                         height={32}

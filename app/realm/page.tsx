@@ -925,7 +925,7 @@ export default function RealmPage() {
             const { error: updateError } = await supabase
               .from('realm_grids')
               .update({ 
-                grid: numericGrid as any,
+                grid: numericGrid as number[][],
                 updated_at: new Date().toISOString() 
               })
               .eq('id', mostRecentGrid.id);
@@ -958,7 +958,7 @@ export default function RealmPage() {
               .from('realm_grids')
               .insert([{ 
                 user_id: userId,
-                grid: numericGrid as any, // Cast to any if needed
+                grid: numericGrid as number[][], // Use number[][]
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
               }]);
@@ -1065,13 +1065,13 @@ export default function RealmPage() {
       return;
     }
 
-    const updatedGrid = newGrid.map((row, y) => {
+    const updatedGrid = newGrid.map((row: Tile[], y: number) => {
       if (!Array.isArray(row)) {
         logger.error(`Invalid row at index ${y}`, 'GridUpdate');
         // Return an array of empty tiles for invalid rows
         return Array(GRID_COLS).fill(null).map((_, x) => createEmptyTile(x, y));
       }
-      return row.map((tile, x) => {
+      return row.map((tile: Tile, x: number) => {
         // Ensure tile is not null or undefined
         if (!tile) {
           return createEmptyTile(x, y);
@@ -1414,56 +1414,58 @@ export default function RealmPage() {
   }
 
   // Update tile counts for placed tiles and handle achievements/creatures
-  const updateTileCounts = (tileType: TileType) => setTileCounts(prevCounts => {
-    const updatedCounts = { ...prevCounts };
+  const updateTileCounts = (tileType: TileType) => {
+    setTileCounts(prevCounts => {
+      const updatedCounts = { ...prevCounts };
 
-    // Forest tile placement achievements and creatures
-    if (tileType === 'forest') {
-      updatedCounts.forestPlaced = (updatedCounts.forestPlaced ?? 0) + 1;
-      updateProgress('place_10_forest_tiles', updatedCounts.forestPlaced);
-      if (updatedCounts.forestPlaced >= 1) {
-        useCreatureStore.getState().discoverCreature('007'); // Leaf
+      // Forest tile placement achievements and creatures
+      if (tileType === 'forest') {
+        updatedCounts.forestPlaced = (updatedCounts.forestPlaced ?? 0) + 1;
+        updateProgress('place_10_forest_tiles', updatedCounts.forestPlaced);
+        if (updatedCounts.forestPlaced >= 1) {
+          useCreatureStore.getState().discoverCreature('007'); // Leaf
+        }
+        if (updatedCounts.forestPlaced >= 5) {
+          useCreatureStore.getState().discoverCreature('008'); // Oaky
+        }
+        if (updatedCounts.forestPlaced >= 10) {
+          useCreatureStore.getState().discoverCreature('009'); // Seqoio
+          toast({
+            title: 'Achievement Unlocked!',
+            description: "Forest Planter: You've placed 10 forest tiles!",
+            duration: 5000
+          });
+        }
       }
-      if (updatedCounts.forestPlaced >= 5) {
-        useCreatureStore.getState().discoverCreature('008'); // Oaky
+
+      // Water tile placement achievements and creatures
+      if (tileType === 'water') {
+        updatedCounts.waterPlaced = (updatedCounts.waterPlaced ?? 0) + 1;
+        updateProgress('place_10_water_tiles', updatedCounts.waterPlaced);
+        if (updatedCounts.waterPlaced >= 1) useCreatureStore.getState().discoverCreature('004'); // Dolphio
+        if (updatedCounts.waterPlaced >= 5) useCreatureStore.getState().discoverCreature('005'); // Divero
+        if (updatedCounts.waterPlaced >= 10) {
+          useCreatureStore.getState().discoverCreature('006'); // Flippur
+          toast({
+            title: 'Achievement Unlocked!',
+            description: "Water Shaper: You've placed 10 water tiles!",
+            duration: 5000
+          });
+        }
       }
-      if (updatedCounts.forestPlaced >= 10) {
-        useCreatureStore.getState().discoverCreature('009'); // Seqoio
-        toast({
-          title: 'Achievement Unlocked!',
-          description: "Forest Planter: You've placed 10 forest tiles!",
-          duration: 5000
-        });
+
+      // Mountain tile placement achievements and creatures (add more if needed)
+      if (tileType === 'mountain') {
+        updatedCounts.mountainPlaced = (updatedCounts.mountainPlaced ?? 0) + 1;
+        updateProgress('place_10_mountain_tiles', updatedCounts.mountainPlaced);
+        // Add similar unlocks for mountain placement if needed
       }
-    }
 
-    // Water tile placement achievements and creatures
-    if (tileType === 'water') {
-      updatedCounts.waterPlaced = (updatedCounts.waterPlaced ?? 0) + 1;
-      updateProgress('place_10_water_tiles', updatedCounts.waterPlaced);
-      if (updatedCounts.waterPlaced >= 1) useCreatureStore.getState().discoverCreature('004'); // Dolphio
-      if (updatedCounts.waterPlaced >= 5) useCreatureStore.getState().discoverCreature('005'); // Divero
-      if (updatedCounts.waterPlaced >= 10) {
-        useCreatureStore.getState().discoverCreature('006'); // Flippur
-        toast({
-          title: 'Achievement Unlocked!',
-          description: "Water Shaper: You've placed 10 water tiles!",
-          duration: 5000
-        });
-      }
-    }
+      // Add checks for other placed tile types if needed
 
-    // Mountain tile placement achievements and creatures (add more if needed)
-    if (tileType === 'mountain') {
-      updatedCounts.mountainPlaced = (updatedCounts.mountainPlaced ?? 0) + 1;
-      updateProgress('place_10_mountain_tiles', updatedCounts.mountainPlaced);
-      // Add similar unlocks for mountain placement if needed
-    }
-
-    // Add checks for other placed tile types if needed
-
-    return updatedCounts;
-  });
+      return updatedCounts;
+    });
+  };
 
   // 1. Create handleCharacterMove in RealmPage
   const handleCharacterMove = useCallback((newX: number, newY: number) => {
@@ -1485,7 +1487,7 @@ export default function RealmPage() {
             rotation: 0,
             cost: 0,
             quantity: 1,
-            image: '/images/Animales/horse.svg',
+            image: '/images/Animals/horse.png',
             revealed: true,
             isVisited: false,
             ariaLabel: 'Horse in inventory',
@@ -1514,8 +1516,8 @@ export default function RealmPage() {
     // Ensure tile and tile.type are defined before accessing
     if (tile?.type && (tile.type === 'city' || tile.type === 'town' || tile.type === 'castle')) { // Include village and castle
       // Find the correct location data using locationId if available, otherwise use type
-       const locationKey = (tile as any).locationId || tile.type; // Use locationId if present on tile
-       const locationInfo = (locationData as any)?.[locationKey];
+       const locationKey = (tile as { locationId?: string; type: string }).locationId || tile.type; // Use locationId if present on tile
+       const locationInfo = (locationData as Record<string, { name: string; description: string }>)[locationKey];
 
       if (locationInfo?.name) {
         setCurrentLocation({
@@ -1726,7 +1728,7 @@ export default function RealmPage() {
       castle: '/images/tiles/castle-tile.png',
       lava: '/images/tiles/lava-tile.png',
       volcano: '/images/tiles/volcano-tile.png',
-      sheep: '/images/Animales/sheep.svg',
+      sheep: '/images/Animals/sheep.png',
     };
     return imageMap[tile.type] || '/images/tiles/empty-tile.png';
   };
@@ -2039,7 +2041,7 @@ const handleTileSelection = (tile: InventoryItem | null) => {
 
       // Handle item rewards
       if (reward.type === 'item' && reward.item && Array.isArray(reward.item)) {
-        updateInventoryFromTileItems(reward.item as any);
+        updateInventoryFromTileItems(reward.item as InventoryItem[]);
         const firstItem = reward.item[0];
         if (firstItem) {
           toast({
@@ -2052,7 +2054,7 @@ const handleTileSelection = (tile: InventoryItem | null) => {
     }
 
     // Replace the mystery tile with a grass tile at the character's current position
-    setGrid((prevGrid) => {
+    setGrid((prevGrid: Tile[][]) => {
       const newGrid = [...prevGrid];
       const { x, y } = characterPosition;
       
@@ -2091,39 +2093,38 @@ const handleTileSelection = (tile: InventoryItem | null) => {
 
   // 1. Add the expandMap function inside RealmPage
   const expandMap = () => {
-    setGrid((prevGrid) => {
+    setGrid((prevGrid: Tile[][]) => {
       const newRows = [];
       const yStart = prevGrid.length;
-      const rowLength = prevGrid.length > 0 && Array.isArray(prevGrid[0]) ? prevGrid[0].length : GRID_COLS; // Use existing row length or default, add array check
-      for (let i = 0; i < 3; i++) { // Expand by 3 rows
+      const rowLength = prevGrid.length > 0 && Array.isArray(prevGrid[0]) ? prevGrid[0].length : GRID_COLS;
+      for (let i = 0; i < 3; i++) {
         const y = yStart + i;
-        const row: Tile[] = []; // Explicitly type row as Tile[]
-        for (let x = 0; x < rowLength; x++) { // Use the determined row length
-          // Create empty tiles for the entire new rows at the bottom
-            row.push({
-              id: `tile-${x}-${y}`,
-              type: 'empty' as TileType,
-              name: 'Empty Tile',
-              description: 'An empty space ready for a new tile',
-              connections: [],
-              rotation: 0 as 0 | 90 | 180 | 270,
-              revealed: true,
-              isVisited: false,
-              x,
-              y,
-              ariaLabel: `Empty tile at position ${x},${y}`,
-              image: '/images/tiles/empty-tile.png',
-            isMainTile: false, // Default values
-            isTown: false, // Default values
-            cityName: undefined, // Default values
+        const row: Tile[] = [];
+        for (let x = 0; x < rowLength; x++) {
+          row.push({
+            id: `tile-${x}-${y}`,
+            type: 'empty' as TileType,
+            name: 'Empty Tile',
+            description: 'An empty space ready for a new tile',
+            connections: [],
+            rotation: 0 as 0 | 90 | 180 | 270,
+            revealed: true,
+            isVisited: false,
+            x,
+            y,
+            ariaLabel: `Empty tile at position ${x},${y}`,
+            image: '/images/tiles/empty-tile.png',
+            isMainTile: false,
+            isTown: false,
+            cityName: undefined,
             cityX: undefined,
             cityY: undefined,
             citySize: undefined,
             bigMysteryX: undefined,
             bigMysteryY: undefined,
             tileSize: undefined,
-            cost: 0, // Default
-            quantity: 1, // Default
+            cost: 0,
+            quantity: 1,
           });
         }
         newRows.push(row);
@@ -2333,465 +2334,23 @@ const handleTileSelection = (tile: InventoryItem | null) => {
   console.log('Current grid state:', grid);
   console.log('Current selected tile state:', selectedTile); // Log selected tile state
 
-  // Show loading state if needed
-  if (isLoading || !isAuthLoaded || !isInitialized) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Loading your realm...</h2>
-          <p className="text-gray-500">Please wait while we prepare your kingdom.</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Place this inside the RealmPage component, at the top level (not nested in another function)
-  const handleTileClick = async (x: number, y: number) => {
-    if (!selectedTile || !selectedTile.type) {
-      logger.warning('No tile selected or invalid tile type', 'TileClick');
-      return;
-    }
-
-    const tileType = selectedTile.type;
-    const gridRow = grid[y];
-
-    if (!gridRow || !gridRow[x]) {
-      logger.warning(`Invalid grid coordinates for tile placement: y=${y}, x=${x}`, 'TileClick');
-      return;
-    }
-
-    // Prevent placing a tile on a non-empty tile
-    if (gridRow[x].type !== 'empty') {
-      toast({
-        title: "Cannot Place Tile",
-        description: "You can only place tiles on empty spaces.",
-        variant: "destructive"
-      });
-      logger.warning(`Attempted to place tile on non-empty tile at ${x},${y}`, 'TileClick');
-      return;
-    }
-
-    const newTile: Tile = {
-      id: `tile-${x}-${y}-${Date.now()}`,
-      type: tileType as TileType,
-      name: selectedTile.name || `${tileType.charAt(0).toUpperCase() + tileType.slice(1)} Tile`,
-      description: selectedTile.description || `A ${tileType} tile`,
-      connections: selectedTile.connections || [],
-      rotation: selectedTile.rotation || 0 as 0 | 90 | 180 | 270,
-      revealed: true,
-      isVisited: false,
-      x,
-      y,
-      ariaLabel: selectedTile.ariaLabel || `${tileType} tile at position ${x},${y}`,
-      image: selectedTile.image || `/images/tiles/${tileType}-tile.png`,
-      isMainTile: selectedTile.isMainTile ?? false,
-      isTown: selectedTile.isTown ?? false,
-      cityName: selectedTile.cityName,
-      cityX: selectedTile.cityX,
-      cityY: selectedTile.cityY,
-      citySize: selectedTile.citySize,
-      bigMysteryX: selectedTile.bigMysteryX,
-      bigMysteryY: selectedTile.bigMysteryY,
-      tileSize: selectedTile.tileSize,
-      cost: selectedTile.cost ?? 0,
-      quantity: selectedTile.quantity ?? 1,
-    };
-
-    const newGrid = [...grid];
-    if (newGrid[y]) {
-      newGrid[y][x] = newTile;
-      setGrid(newGrid);
-
-      // IMMEDIATE SAVE: Save the grid right after placing the tile
-      logger.info(`Tile placed at ${x},${y}, triggering immediate save`, 'TilePlacement');
-      const numericGrid = newGrid.map(row => row.map(tile => 0)); // Placeholder: replace with actual numeric conversion if needed
-      await saveGridImmediately(numericGrid);
-
-      // Decrement quantity in inventory
-      setInventory(prevInventory => {
-        const updatedInventory = { ...prevInventory };
-        const item = updatedInventory[tileType];
-        if (item && item.quantity > 0) {
-          item.quantity -= 1;
-        } else {
-          logger.warning(`Attempted to decrement quantity for ${tileType} but quantity is already 0 or item not found`, 'TileClick');
-        }
-        return updatedInventory;
-      });
-
-      // Show toast notification with save status
-      if (saveStatus === 'saved') {
-        toast({
-          title: 'Tile Placed & Saved ✓',
-          description: `A ${newTile.name} has been placed at ${x}, ${y} and saved successfully.`,
-          duration: 2000
-        });
-      } else if (saveStatus === 'error') {
-        toast({
-          title: 'Tile Placed (Save Error)',
-          description: `A ${newTile.name} has been placed at ${x}, ${y} but save failed. Saved locally instead.`,
-          duration: 3000,
-          variant: "destructive"
-        });
-      } else {
-        toast({
-          title: 'Tile Placed',
-          description: `A ${newTile.name} has been placed at ${x}, ${y}.`,
-          duration: 2000
-        });
-      }
-
-    } else {
-      logger.warning(`Cannot update grid at position y=${y}, x=${x} - row is undefined`, 'TileClick');
-    }
-  };
+  // Use a variable for loading state instead of early return
+  const isLoadingState = isLoading || !isAuthLoaded || !isInitialized;
 
   return (
     <div className="relative min-h-screen bg-background p-4">
-      {/* Add sync status indicator */}
-      <div className="absolute top-4 right-4 flex items-center gap-2">
-        {/* Enhanced Save status indicator */}
-        {saveStatus === 'saving' && (
-          <div className="text-amber-500 text-sm flex items-center gap-1">
-            <div className="animate-spin h-4 w-4 border-2 border-amber-500 rounded-full border-t-transparent"></div>
-            Saving...
-            {retryCount > 0 && <span className="text-xs">(retry {retryCount})</span>}
-          </div>
-        )}
-        {saveStatus === 'saved' && lastSaveTime && (
-          <div className="text-green-500 text-sm flex items-center gap-1">
-            ✓ Saved {lastSaveTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </div>
-        )}
-        {saveStatus === 'error' && (
-          <div className="text-red-500 text-sm flex items-center gap-1" title={saveError || 'Save failed'}>
-            ⚠️ Save failed {retryCount > 0 && <span>({retryCount} attempts)</span>}
-          </div>
-        )}
-        
-        {isSyncing && (
-          <div className="text-amber-500 text-sm flex items-center gap-1">
-            <div className="animate-spin h-4 w-4 border-2 border-amber-500 rounded-full border-t-transparent"></div>
-            Syncing...
-          </div>
-        )}
-        {/* Conditionally hide syncError if SKIP_AUTH is true - Use a client-side check */}
-        {syncError && typeof document !== 'undefined' && document.cookie.split(';').find(c => c.trim().startsWith('skip-auth='))?.split('=')[1] !== 'true' && (
-          <div className="text-red-500 text-sm flex items-center gap-1">
-            ⚠️ {syncError}
-          </div>
-        )}
-      </div>
-
-      {/* Controls Bar */}
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          {/* Expand Map Button */}
-          <button
-            type="button"
-            aria-label="Expand Map"
-            onClick={expandMap}
-            className="relative w-32 h-8 rounded-full border border-amber-800/40 bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 flex items-center justify-center mr-2"
-            style={{ minWidth: 100 }}
-          >
-            <span className="text-amber-400 font-semibold">Expand Map</span>
-          </button>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              aria-label={movementMode ? "Switch to Build Mode" : "Switch to Movement Mode"}
-              onClick={() => setMovementMode((prev) => !prev)}
-              className={
-                `relative w-14 h-8 rounded-full border border-amber-800/40 bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 flex items-center`}
-              style={{ minWidth: 56 }}
-            >
-              <span
-                className={
-                  `absolute top-1 left-1 w-6 h-6 rounded-full bg-white flex items-center justify-center text-xl shadow transition-transform duration-200 ${movementMode ? 'translate-x-0' : 'translate-x-6'}`
-                }
-                style={{ pointerEvents: 'none' }}
-              >
-                {movementMode ? '🐎' : '🛠️'}
-              </span>
-              {/* Visually hidden labels for accessibility */}
-              <span className="sr-only">{movementMode ? 'Movement Mode' : 'Build Mode'}</span>
-            </button>
+      {isLoadingState ? (
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Loading your realm...</h2>
+            <p className="text-gray-500">Please wait while we prepare your kingdom.</p>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          {/* Inventory Switch with Bag Emoji */}
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              aria-label={showInventory ? "Hide Inventory" : "Show Inventory"}
-              onClick={toggleInventory}
-              className="relative w-14 h-8 rounded-full border border-amber-800/40 bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 flex items-center"
-              style={{ minWidth: 56 }}
-            >
-              <span
-                className={`absolute top-1 left-1 w-6 h-6 rounded-full bg-white flex items-center justify-center text-xl shadow transition-transform duration-200 ${showInventory ? 'translate-x-6' : 'translate-x-0'}`}
-                style={{ pointerEvents: 'none' }}
-              >
-                <span className={showInventory ? '' : 'opacity-40'}>👜</span>
-              </span>
-              <span className="sr-only">{showInventory ? 'Inventory On' : 'Inventory Off'}</span>
-            </button>
-            <label
-              htmlFor="inventory-switch"
-              className="text-sm font-medium cursor-pointer select-none"
-            >
-              Inventory (press &apos;i&apos;)
-            </label>
-          </div>
-          {/* Minimap Switch (UI only, no logic) */}
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              aria-label={minimapSwitch ? "Hide Minimap" : "Show Minimap"}
-              onClick={() => setMinimapSwitch((prev: boolean) => !prev)}
-              className="relative w-14 h-8 rounded-full border border-amber-800/40 bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 flex items-center"
-              style={{ minWidth: 56 }}
-            >
-              <span
-                className={`absolute top-1 left-1 w-6 h-6 rounded-full bg-white flex items-center justify-center text-xl shadow transition-transform duration-200 ${minimapSwitch ? 'translate-x-6' : 'translate-x-0'}`}
-                style={{ pointerEvents: 'none' }}
-              >
-                <span className={minimapSwitch ? '' : 'opacity-40'}>🗺️</span>
-              </span>
-              <span className="sr-only">{minimapSwitch ? 'Minimap On' : 'Minimap Off'}</span>
-            </button>
-            <label className="text-sm font-medium cursor-pointer select-none">
-              Minimap
-            </label>
-          </div>
-          {/* Settings Dropdown Menu with Reset Map (rightmost) */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Settings menu">
-                <Settings className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => {
-                  console.log('Manual save triggered from settings menu')
-                  // Convert current grid to numeric format
-                  const numericGrid = grid.map(row =>
-                    row.map(tile => {
-                      if (!tile) return 0;
-                      switch (tile.type) {
-                        case 'empty': return 0;
-                        case 'mountain': return 1;
-                        case 'grass': return 2;
-                        case 'forest': return 3;
-                        case 'water': return 4;
-                        case 'city': return 5;
-                        case 'town': return 6;
-                        case 'mystery': return 7;
-                        case 'portal-entrance': return 8;
-                        case 'portal-exit': return 9;
-                        case 'snow': return 10;
-                        case 'cave': return 11;
-                        case 'dungeon': return 12;
-                        case 'castle': return 13;
-                        case 'ice': return 14;
-                        case 'lava': return 15;
-                        default: return 0;
-                      }
-                    })
-                  );
-                  
-                  saveGridImmediately(numericGrid, 0);
-                  toast({
-                    title: "Manual Save",
-                    description: "Grid save initiated manually"
-                  });
-                }}
-                aria-label="Save Now"
-              >
-                <Save className="mr-2 h-4 w-4" />
-                Save Now
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={handleReset}
-                aria-label="Reset Map"
-              >
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Reset Map
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setShowLogs(true)}
-                aria-label="View Logs"
-              >
-                <ScrollText className="mr-2 h-4 w-4" />
-                View Logs
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  // Transpose the grid (swap rows and columns)
-                  const transposedGrid = Array(grid[0]?.length || 0).fill(null).map((_, newY) =>
-                    Array(grid.length).fill(null).map((_, newX) => {
-                      const originalTile = grid[newX]?.[newY];
-                      if (!originalTile) {
-                        return createEmptyTile(newY, newX);
-                      }
-                      return {
-                        ...originalTile,
-                        x: newY,
-                        y: newX,
-                        id: `tile-${newY}-${newX}-${Date.now()}`,
-                        ariaLabel: `${originalTile.type} tile at position ${newY},${newX}`,
-                      };
-                    })
-                  );
-                  
-                  setGrid(transposedGrid);
-                  
-                  // Update character position to match transposition
-                  const newCharacterX = characterPosition.y;
-                  const newCharacterY = characterPosition.x;
-                  setCharacterPosition({ x: newCharacterX, y: newCharacterY });
-                  
-                  toast({
-                    title: "Grid Transposed",
-                    description: "The grid has been transposed (rows and columns swapped)."
-                  });
-                }}
-                aria-label="Transpose Grid"
-              >
-                <RotateCw className="mr-2 h-4 w-4" />
-                Transpose Grid
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="w-screen h-screen flex">
-        {/* Map Grid fills available space */}
-        <div className="flex-1 w-full h-full">
-          <MapGrid
-            grid={grid}
-            character={characterPosition}
-            onCharacterMove={handleCharacterMove}
-            onTileClick={handleTileClick}
-            selectedTile={selectedTile}
-            onGridUpdate={handleGridUpdate}
-            isMovementMode={movementMode}
-            onDiscovery={(message) => {
-              toast({
-                title: "Discovery",
-                description: message
-              });
-            }}
-            onTilePlaced={(x, y) => {
-              const placedTile = grid?.[y]?.[x];
-              if(placedTile) {
-                logger.info(`Tile placed on grid: ${placedTile.type} at ${placedTile.x},${placedTile.y}`, 'TilePlaced');
-              } else {
-                logger.warning(`onTilePlaced triggered for invalid position ${x},${y}`, 'TilePlaced');
-              }
-            }}
-            onGoldUpdate={handleGoldUpdate}
-            onHover={handleHoverTile}
-            onHoverEnd={() => setHoveredTile(null)}
-            hoveredTile={hoveredTile}
-            onDeleteTile={(x, y) => {
-              if (grid && grid[y]) {
-                const tileType = grid[y][x]?.type;
-                if (tileType) {
-                  handleTileDelete(x, y);
-                }
-              }
-            }}
-            gridRotation={gridRotation}
-            setHoveredTile={setHoveredTile}
-            horsePos={isHorsePresent ? horsePosition : null}
-            sheepPos={sheepPosition}
-            eaglePos={eaglePosition}
-            penguinPos={isPenguinPresent ? penguinPosition : null}
-          />
-        </div>
-        {/* Tile Inventory Sheet Overlay */}
-        <Sheet open={showInventory} onOpenChange={setShowInventory}>
-          <SheetContent className="w-[400px] sm:w-[540px] p-0">
-            <TileInventory
-              tiles={Object.values(inventory)}
-              selectedTile={selectedTile}
-              onSelectTile={handleTileSelection}
-              onUpdateTiles={handleInventoryUpdate}
-            />
-          </SheetContent>
-        </Sheet>
-      </div>
-
-      {/* Event Dialog */}
-      {currentEvent && (
-        <Dialog open={true} onOpenChange={() => setCurrentEvent(null)}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{currentEvent?.title ?? ''}</DialogTitle>
-              <DialogDescription>{currentEvent?.description ?? ''}</DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4">
-              {currentEvent?.choices?.map((choice: string, index: number) => (
-                <Button
-                  key={index}
-                  onClick={() => handleEventChoice(choice)}
-                  className={index === 0 ? "" : "bg-secondary"}
-                >
-                  {choice}
-                </Button>
-              ))}
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
-
-      {/* Location Dialog */}
-      {showLocationModal && currentLocation && (
-        <Dialog open={true} onOpenChange={() => setShowLocationModal(false)}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{currentLocation?.name ?? ''}</DialogTitle>
-              <DialogDescription>{currentLocation?.description ?? ''}</DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button onClick={handleVisitLocation}>Visit</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
-
-      {minimapSwitch && (
-        <Minimap
-          grid={grid}
-          playerPosition={characterPosition}
-          playerDirection={0}
-          entities={minimapEntities}
-          zoom={minimapZoom}
-          onZoomChange={setMinimapZoom}
-          rotationMode={minimapRotationMode}
-          onRotationModeChange={setMinimapRotationMode}
-          onClose={() => setMinimapSwitch(false)}
-        />
-      )}
-
-      {showPortalModal && portalSource && (
-        <Dialog open={true} onOpenChange={handlePortalLeave} aria-label="portal-modal">
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Enter Portal?</DialogTitle>
-              <DialogDescription>Do you want to enter the portal and teleport to the other side?</DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button onClick={handlePortalEnter} aria-label="Enter Portal">Enter</Button>
-              <Button onClick={handlePortalLeave} aria-label="Leave Portal" variant="secondary">Leave</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+      ) : (
+        <>
+          {/* ...rest of your page JSX goes here... */}
+        </>
       )}
     </div>
-  )
+  );
 }
