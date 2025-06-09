@@ -55,6 +55,7 @@ export function MapGrid({
 }: MapGridProps) {
   const { toast } = useToast();
   const [currentEvent, setCurrentEvent] = useState<GameEvent | null>(null);
+  const [eventOutcome, setEventOutcome] = useState<MysteryEventOutcome | null>(null);
 
   // Defensive fallback for character
   const safeCharacter = character && typeof character.x === 'number' && typeof character.y === 'number' ? character : { x: 0, y: 0 };
@@ -74,14 +75,22 @@ export function MapGrid({
     if (!currentEvent) return;
 
     if (currentEvent.type === 'mystery') {
-      console.log(`Chose: ${choice}. Outcome:`, currentEvent.outcomes?.[choice]);
       const outcome = currentEvent.outcomes?.[choice];
-      if (outcome && outcome.reward) {
-        console.log('Handling mystery event reward:', outcome.reward);
+      if (outcome) {
+        setEventOutcome(outcome);
+        // Optionally, handle rewards here if needed
       }
     }
+  };
 
+  const handleAcknowledgeOutcome = () => {
     setCurrentEvent(null);
+    setEventOutcome(null);
+    // Call a callback or dispatch an event to parent to trigger tile replacement if needed
+    // (In your main page, this should trigger the tile replacement logic)
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('mystery-event-completed'));
+    }
   };
 
   const translateCoordinates = (x: number, y: number, currentGrid: Tile[][], rotation: number) => {
@@ -419,17 +428,24 @@ export function MapGrid({
               <DialogTitle>{currentEvent.title}</DialogTitle>
               <DialogDescription>{currentEvent.description}</DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              {currentEvent.choices.map((choice, index) => (
-                <Button
-                  key={index}
-                  variant={index === 0 ? "default" : "secondary"}
-                  onClick={() => handleEventChoice(choice)}
-                >
-                  {choice}
-                </Button>
-              ))}
-            </div>
+            {eventOutcome ? (
+              <div className="grid gap-4 py-4">
+                <div className="text-lg font-semibold text-center">{eventOutcome.message}</div>
+                <Button onClick={handleAcknowledgeOutcome} className="mx-auto mt-4">OK</Button>
+              </div>
+            ) : (
+              <div className="grid gap-4 py-4">
+                {currentEvent.choices.map((choice, index) => (
+                  <Button
+                    key={index}
+                    variant={index === 0 ? "default" : "secondary"}
+                    onClick={() => handleEventChoice(choice)}
+                  >
+                    {choice}
+                  </Button>
+                ))}
+              </div>
+            )}
           </DialogContent>
         </Dialog>
       )}

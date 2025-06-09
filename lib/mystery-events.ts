@@ -91,11 +91,16 @@ const treasureEvents: MysteryEvent[] = [
     outcomes: {
       'Open the chest carefully': {
         message: 'You successfully open the chest and find valuable treasures!',
-        reward: {
-          type: 'gold',
-          amount: getRandomInt(30, 50),
-          message: 'You found a pile of ancient gold coins!'
-        }
+        reward: (() => {
+          const roll = getRandomInt(1, 3);
+          if (roll === 1) {
+            return { type: 'gold', amount: getRandomInt(30, 50), message: 'You found a pile of ancient gold coins!' };
+          } else if (roll === 2) {
+            return { type: 'experience', amount: getRandomInt(20, 40), message: 'You gained wisdom from deciphering the runes!' };
+          } else {
+            return { type: 'item', item: [{ id: 'ancient-artifact', name: 'Ancient Artifact', description: 'A mysterious artifact from the chest.', quantity: 1, type: 'artifact', category: 'artifact' }], message: 'You found an ancient artifact!' };
+          }
+        })()
       },
       'Leave it alone': {
         message: 'You decide to leave the chest untouched.',
@@ -250,32 +255,35 @@ const riddleEvents: MysteryEvent[] = [
     ],
     outcomes: {
       'A Map': {
-        message: 'Correct! The answer is "A Map".',
+        message: 'Correct! The answer is "A Map". You are rewarded for your wisdom!',
         reward: {
           type: 'gold',
           amount: getRandomInt(30, 50),
-          message: 'Your wisdom has earned you gold!'
+          message: 'You gained gold and experience!'
         }
       },
       'A Globe': {
-        message: 'That is incorrect. The answer was "A Map".',
+        message: 'Incorrect. The answer was "A Map". You lose some gold for your mistake.',
         reward: {
-          type: 'nothing',
-          message: 'Better luck next time...'
+          type: 'gold',
+          amount: -10,
+          message: 'You lost 10 gold.'
         }
       },
       'A Painting': {
-        message: 'That is incorrect. The answer was "A Map".',
+        message: 'Incorrect. The answer was "A Map". You lose some gold for your mistake.',
         reward: {
-          type: 'nothing',
-          message: 'Better luck next time...'
+          type: 'gold',
+          amount: -10,
+          message: 'You lost 10 gold.'
         }
       },
       'A Book': {
-        message: 'That is incorrect. The answer was "A Map".',
+        message: 'Incorrect. The answer was "A Map". You lose some gold for your mistake.',
         reward: {
-          type: 'nothing',
-          message: 'Better luck next time...'
+          type: 'gold',
+          amount: -10,
+          message: 'You lost 10 gold.'
         }
       }
     }
@@ -382,7 +390,8 @@ export function generateMysteryEvent(): MysteryEvent {
     ...artifactEvents,
     ...riddleEvents
   ];
-  return getRandomElement(possibleEvents) ?? possibleEvents[0];
+  const event = getRandomElement(possibleEvents);
+  return (event ? event : possibleEvents[0]) as MysteryEvent;
 }
 
 export const handleEventOutcome = (event: MysteryEvent, choice: string) => {

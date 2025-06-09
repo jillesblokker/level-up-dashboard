@@ -1985,6 +1985,45 @@ const handleTileSelection = (tile: InventoryItem | null) => {
   }, [inventory, setInventory, toast]);
 
 
+  // Listen for mystery event completion to replace tile
+  React.useEffect(() => {
+    const handleMysteryEventCompleted = () => {
+      setGrid((prevGrid: Tile[][]) => {
+        const newGrid = [...prevGrid];
+        const { x, y } = characterPosition;
+        if (newGrid[y] && newGrid[y][x]) {
+          const currentTile = newGrid[y][x];
+          if (currentTile) {
+            const newTile = {
+              ...currentTile,
+              type: 'grass' as TileType,
+              name: 'Grass Tile',
+              description: 'A lush grass tile',
+              image: '/images/tiles/grass-tile.png',
+              isVisited: true,
+              ariaLabel: `Grass tile at position ${x},${y}`,
+              isMainTile: false,
+              isTown: false,
+              cityName: undefined,
+              cityX: undefined,
+              cityY: undefined,
+              citySize: undefined,
+              bigMysteryX: undefined,
+              bigMysteryY: undefined,
+              tileSize: undefined,
+              cost: 0,
+              quantity: 1
+            };
+            newGrid[y][x] = newTile;
+          }
+        }
+        return newGrid;
+      });
+    };
+    window.addEventListener('mystery-event-completed', handleMysteryEventCompleted);
+    return () => window.removeEventListener('mystery-event-completed', handleMysteryEventCompleted);
+  }, [characterPosition]);
+
   // Update the handleEventChoice function
   const handleEventChoice = async (choice: string) => {
     if (!currentEvent) {
@@ -2012,11 +2051,19 @@ const handleTileSelection = (tile: InventoryItem | null) => {
         const goldAmount = typeof reward.amount === 'number' ? reward.amount : parseInt(String(reward.amount));
         if (!isNaN(goldAmount)) {
           handleGoldUpdate(goldAmount);
-          toast({
-            title: "Gold Gained!",
-            description: `You gained ${goldAmount} gold pieces.`,
-            duration: 3000
-          });
+          if (goldAmount > 0) {
+            toast({
+              title: "Gold Gained!",
+              description: `You gained ${goldAmount} gold pieces.`,
+              duration: 3000
+            });
+          } else if (goldAmount < 0) {
+            toast({
+              title: "Gold Lost!",
+              description: `You lost ${Math.abs(goldAmount)} gold pieces.`,
+              duration: 3000
+            });
+          }
         } else {
           console.warn('Invalid gold reward amount:', reward.amount);
         }
@@ -2037,9 +2084,22 @@ const handleTileSelection = (tile: InventoryItem | null) => {
         }
       }
 
-      // Handle item rewards
+      // Handle item rewards (add artifacts to kingdom inventory)
       if (reward.type === 'item' && reward.item && Array.isArray(reward.item)) {
         updateInventoryFromTileItems(reward.item as InventoryItem[]);
+        // Add artifacts to kingdom inventory
+        reward.item.forEach(item => {
+          if (item.type === 'artifact') {
+            addToKingdomInventory({
+              id: item.id,
+              name: item.name,
+              type: 'artifact',
+              quantity: item.quantity || 1,
+              description: item.description || '',
+              category: item.category || 'artifact',
+            });
+          }
+        });
         const firstItem = reward.item[0];
         if (firstItem) {
           toast({
@@ -2049,43 +2109,40 @@ const handleTileSelection = (tile: InventoryItem | null) => {
           });
         }
       }
+      // Handle direct artifact reward
+      if (reward.type === 'artifact' && reward.artifactId) {
+        addToKingdomInventory({
+          id: reward.artifactId,
+          name: 'Artifact',
+          type: 'artifact',
+          quantity: 1,
+          description: reward.message || 'A mysterious artifact.',
+          category: 'artifact',
+        });
+        toast({
+          title: "Artifact Found!",
+          description: `You found an artifact!`,
+          duration: 3000
+        });
+      }
     }
 
-    // Replace the mystery tile with a grass tile at the character's current position
-    setGrid((prevGrid: Tile[][]) => {
-      const newGrid = [...prevGrid];
-      const { x, y } = characterPosition;
-      
-      if (newGrid[y] && newGrid[y][x]) {
-        const currentTile = newGrid[y][x];
-        if (currentTile) {
-          const newTile = {
-            ...currentTile,
-            type: 'grass' as TileType,
-            name: 'Grass Tile',
-            description: 'A lush grass tile',
-            image: '/images/tiles/grass-tile.png',
-            isVisited: true,
-            ariaLabel: `Grass tile at position ${x},${y}`,
-            isMainTile: false,
-            isTown: false,
-            cityName: undefined,
-            cityX: undefined,
-            cityY: undefined,
-            citySize: undefined,
-            bigMysteryX: undefined,
-            bigMysteryY: undefined,
-            tileSize: undefined,
-            cost: 0,
-            quantity: 1
-          };
-          newGrid[y][x] = newTile;
-        }
-      }
-      return newGrid;
-    });
+    // If riddle and wrong answer, deduct 10 exp
+    if (
+      currentEvent.type === 'riddle' &&
+      outcome &&
+      ((outcome.reward && outcome.reward.type === 'gold' && outcome.reward.amount && outcome.reward.amount < 0) ||
+        (outcome.message && outcome.message.toLowerCase().includes('incorrect')))
+    ) {
+      handleExperienceUpdate(-10);
+      toast({
+        title: "Experience Lost!",
+        description: 'You lost 10 experience points for a wrong answer.',
+        duration: 3000
+      });
+    }
 
-    // Clear the current event
+    // Do NOT replace the tile here; it will be handled by the event listener above
     setCurrentEvent(null);
   };
 
