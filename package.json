@@ -88,8 +88,8 @@
     "@testing-library/jest-dom": "6.6.3",
     "@testing-library/react": "16.3.0",
     "@types/node": "22.15.21",
-    "@types/react": "^18.2.64",
-    "@types/react-dom": "^18.2.0",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
     "@types/testing-library__jest-dom": "5.14.9",
     "@typescript-eslint/eslint-plugin": "8.33.1",
     "@typescript-eslint/parser": "8.33.1",
@@ -103,6 +103,5 @@
     "typescript": "^5.3.3",
     "vitest": "3.1.2"
   },
-  "prisma": {
-  }
+  "prisma": {}
 }

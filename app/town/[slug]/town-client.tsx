@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Building, ShoppingBag, Swords, Home } from "lucide-react"
+import Link from "next/link"
 
 interface TownData {
   name: string
@@ -25,25 +26,25 @@ const defaultTownData: TownData = {
   description: "A peaceful town nestled by the river. Known for its friendly inhabitants and local crafts.",
   locations: [
     {
-      id: 'marketplace',
+      id: 'kingdom-marketplace',
       name: 'Marketplace',
       description: 'Buy and sell goods at the local market.',
       icon: 'ShoppingBag',
       image: '/images/locations/kingdom-marketplace.png'
     },
     {
-      id: 'inn',
+      id: 'the-dragons-rest',
       name: "The Dragon's Rest",
       description: 'Rest and recover while listening to local gossip.',
       icon: 'Home',
-      image: '/images/locations/The-dragon\'s-rest-tavern.png'
+      image: '/images/locations/the-dragons-rest-tavern.png'
     },
     {
-      id: 'blacksmith',
-      name: "Ember's Anvil",
-      description: 'Purchase weapons and armor from the local smith.',
+      id: 'royal-stables',
+      name: "Royal Stables",
+      description: 'Purchase horses and mounts for your journey.',
       icon: 'Swords',
-      image: '/images/locations/embers-anvil.png'
+      image: '/images/locations/royal-stables.png'
     }
   ]
 }
@@ -58,34 +59,12 @@ export default function TownClient({ slug }: Props) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Get town data from localStorage
-    const savedGrid = localStorage.getItem("realm-grid")
-    if (savedGrid) {
-      const grid = JSON.parse(savedGrid)
-      // Find the town in the grid
-      let foundTown = false
-      for (let y = 0; y < grid.length; y++) {
-        for (let x = 0; x < grid[y].length; x++) {
-          if (grid[y][x].type === 'town') {
-            // Use default town data since we don't store individual town data yet
-            setTownData(defaultTownData)
-            foundTown = true
-            break
-          }
-        }
-        if (foundTown) break
-      }
-      if (!foundTown) {
-        router.push('/realm')
-      }
-    } else {
-      router.push('/realm')
-    }
-    setIsLoading(false)
-  }, [slug, router])
+    setTownData(defaultTownData);
+    setIsLoading(false);
+  }, [slug]);
 
   const handleVisitLocation = (locationId: string) => {
-    router.push(`/town/${slug}/${locationId}`)
+    router.push(`/town/${slug}/${locationId}`);
   }
 
   if (isLoading) {
@@ -115,52 +94,58 @@ export default function TownClient({ slug }: Props) {
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
+      {/* Cover image banner */}
       <div className="relative w-full h-[300px] rounded-lg overflow-hidden border-2 border-amber-800/20 mb-8">
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(/images/locations/town.png)` }}
+          aria-label="town-cover-image"
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-amber-900/30 to-black/70">
           <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-            <h2 className="text-3xl font-bold mb-2 font-serif">Welcome to {townData.name}</h2>
-            <p className="text-lg text-gray-300">{townData.description}</p>
+            <h2 className="text-4xl font-bold mb-2 font-serif text-amber-500 drop-shadow-lg">{townData.name}</h2>
+            <p className="text-lg text-gray-300 max-w-2xl text-center">{townData.description}</p>
           </div>
         </div>
       </div>
 
-      <main className="flex-1 p-4 md:p-6 space-y-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight font-serif text-white">{townData.name}</h1>
-            <p className="text-gray-300">{townData.description}</p>
-          </div>
-          <Button 
-            onClick={() => router.push('/realm')}
-            variant="outline"
-            className="border-amber-800/20 text-amber-500"
-            aria-label="Back to Realm"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-            Back to Realm
-          </Button>
-        </div>
+      <div className="flex justify-end mb-6">
+        <Button 
+          onClick={() => window.location.href = '/realm'}
+          variant="outline"
+          className="border-amber-800/20 text-amber-500"
+          aria-label="Back to Realm"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
+          Back to Realm
+        </Button>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" aria-label="town-locations-grid">
+      <main className="flex-1 p-4 md:p-6 space-y-6">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="town-locations-grid">
           {townData.locations.map((location) => (
-            <div 
+            <Link
               key={location.id}
-              className="bg-black border border-amber-800/20 rounded-lg p-4 cursor-pointer hover:bg-amber-900/10 transition-colors"
-              onClick={() => handleVisitLocation(location.id)}
-              role="article"
-              aria-label={`${location.name}-card`}
+              href={`/town/${slug}/${location.id}`}
+              aria-label={`Enter ${location.name}`}
+              className="block"
             >
-              <div className="flex items-start mb-3">
-                <div className="mr-3">{getIcon(location.icon)}</div>
-                <div>
-                  <h3 className="text-xl font-medievalsharp text-white">{location.name}</h3>
-                  <p className="text-gray-400">{location.description}</p>
-                </div>
-              </div>
-              <Button className="w-full bg-amber-700 hover:bg-amber-600">
-                Visit Location
-              </Button>
-            </div>
+              <Card className="overflow-hidden bg-black border border-amber-800/20 hover:border-amber-500 transition-colors cursor-pointer rounded-lg">
+                <div
+                  className="h-48 bg-cover bg-center mb-3 rounded-lg overflow-hidden"
+                  style={{ backgroundImage: `url(${location.image})` }}
+                  aria-label={`${location.name}-image`}
+                />
+                <CardHeader className="pb-2 flex-row items-start gap-3">
+                  <div className="mr-3" aria-hidden="true">{getIcon(location.icon)}</div>
+                  <div>
+                    <CardTitle className="text-xl font-medievalsharp text-white mb-1">{location.name}</CardTitle>
+                    <CardDescription className="text-gray-400">{location.description}</CardDescription>
+                  </div>
+                </CardHeader>
+                <CardContent />
+              </Card>
+            </Link>
           ))}
         </div>
       </main>

@@ -9,7 +9,6 @@ export function SpecialTile({ className, ariaLabel, onClick }: SpecialTileProps)
     <div 
       className={`w-full h-full relative ${className || ""}`} 
       aria-label={ariaLabel || "Special tile"} 
-      role="img"
       onClick={onClick}
     >
       <svg viewBox="0 0 64 64" className="w-full h-full">

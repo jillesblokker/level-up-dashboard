@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from 'react'
 import { useState } from "react"
 import { HelpCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -27,6 +28,10 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
     onClose(dontShowAgain, disableAll)
     setDontShowAgain(false)
     setDisableAll(false)
+  }
+
+  const handleCheckboxChange = (checked: boolean) => {
+    // ... existing code ...
   }
 
   return (
@@ -67,7 +72,7 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
             </ul>
           </div>
 
-          <p>Let&apos;s get started!</p>
+          <p>It&apos;s time to start your journey!</p>
         </div>
 
         <DialogFooter className="flex-col sm:flex-row gap-2">
@@ -75,10 +80,10 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
             <Checkbox
               id="dont-show"
               checked={dontShowAgain}
-              onCheckedChange={(checked) => setDontShowAgain(checked === true)}
+              onCheckedChange={(checked: boolean) => setDontShowAgain(checked === true)}
             />
             <label htmlFor="dont-show" className="text-sm cursor-pointer">
-              Don't show this guide again
+              Don&apos;t show this guide again
             </label>
           </div>
 
@@ -87,7 +92,7 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
               <Checkbox
                 id="disable-all"
                 checked={disableAll}
-                onCheckedChange={(checked) => setDisableAll(checked === true)}
+                onCheckedChange={(checked: boolean) => setDisableAll(checked === true)}
               />
               <label htmlFor="disable-all" className="text-sm cursor-pointer">
                 Disable all onboarding guides

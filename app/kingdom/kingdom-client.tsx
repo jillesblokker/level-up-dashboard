@@ -82,7 +82,7 @@ export function KingdomClient({ session }: { session: Session | null }) {
           >
             <CardHeader>
               <CardTitle className="text-amber-500">Kingdom Statistics</CardTitle>
-              <CardDescription className="text-gray-400">Track your realm's growth</CardDescription>
+              <CardDescription className="text-gray-400">Track your realm&apos;s growth</CardDescription>
             </CardHeader>
             <CardContent>
               <KingdomStatsGraph />

@@ -406,7 +406,7 @@ export default function NotificationsPage() {
                   <div className="text-center py-12 bg-gray-900/50 rounded-lg border border-gray-800">
                     <Bell className="mx-auto h-12 w-12 text-gray-700 mb-4" />
                     <h3 className="text-lg font-medium mb-2">No Notifications</h3>
-                    <p className="text-muted-foreground">You're all caught up!</p>
+                    <p className="text-muted-foreground">You&apos;re all caught up!</p>
                   </div>
                 )}
               </TabsContent>

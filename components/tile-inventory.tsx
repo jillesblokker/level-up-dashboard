@@ -27,7 +27,10 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     
     const quantity = buyQuantities[tile.type] || 1
     const totalCost = tile.cost * quantity
-    const currentGold = parseInt(localStorage.getItem('character-gold') || '1000')
+    // Read gold from character-stats
+    const savedStats = localStorage.getItem('character-stats')
+    const stats = savedStats ? JSON.parse(savedStats) : { gold: 1000 }
+    const currentGold = stats.gold || 0
 
     if (currentGold < totalCost) {
       toast(
@@ -36,12 +39,11 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
       return
     }
 
-    // Update gold in localStorage and dispatch event
+    // Update gold in character-stats and dispatch event
     const newGold = currentGold - totalCost
-    localStorage.setItem('character-gold', newGold.toString())
-    window.dispatchEvent(new CustomEvent('character-gold-update', {
-      detail: { gold: newGold }
-    }))
+    const newStats = { ...stats, gold: newGold }
+    localStorage.setItem('character-stats', JSON.stringify(newStats))
+    window.dispatchEvent(new Event('character-stats-update'))
 
     // Update tiles
     const newTiles = tiles.map(item => 

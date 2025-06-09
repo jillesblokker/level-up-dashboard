@@ -681,7 +681,7 @@ export default function RivalsPage() {
                   <div className="col-span-2 text-center py-12 bg-amber-50/30 dark:bg-amber-900/10 rounded-lg border border-amber-200 dark:border-amber-800">
                     <Shield className="mx-auto h-12 w-12 text-amber-500 opacity-50 mb-4" />
                     <h3 className="text-lg font-medium mb-2">No Pending Requests</h3>
-                    <p className="text-muted-foreground">You don't have any rival requests at the moment.</p>
+                    <p className="text-muted-foreground">You don&apos;t have any rival requests at the moment.</p>
                   </div>
                 )}
               </div>

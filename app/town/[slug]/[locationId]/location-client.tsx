@@ -98,16 +98,20 @@ export default function LocationClient({ slug, locationId }: Props) {
   }, [])
 
   const location = locationData[locationId]
+  useEffect(() => {
+    if (!location) {
+      router.push(`/town/${slug}`)
+    }
+  }, [location, router, slug])
   if (!location) {
-    router.push(`/town/${slug}`)
     return null
   }
 
   const locationImage = locationId === "the-dragons-rest"
-    ? "/images/locations/The-dragon's-rest-tavern.png"
+    ? "/images/locations/the-dragons-rest-tavern.png"
     : locationId === "royal-stables"
       ? "/images/locations/royal-stables.png"
-      : `/images/locations/${location.name.toLowerCase().replace(/\s+/g, '-')}.png`;
+      : `/images/locations/${location.name.toLowerCase().replace(/\s+/g, '-').replace(/'/g, '')}.png`;
 
   const handlePurchase = (item: LocationItem) => {
     if (gold < item.price) {
@@ -168,7 +172,6 @@ export default function LocationClient({ slug, locationId }: Props) {
             <Button variant="outline" size="icon" onClick={() => router.push(`/town/${slug}`)}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h1 className="text-2xl font-bold">{location.name}</h1>
           </div>
 
           <Card className="mb-6">

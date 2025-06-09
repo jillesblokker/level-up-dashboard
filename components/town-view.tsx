@@ -147,12 +147,12 @@ export function TownView({ name, isTown, onReturn }: TownViewProps) {
                   <div className="relative aspect-video rounded-lg overflow-hidden">
                     <Image
                       src={buildingImages.mageTower}
-                      alt="Mage's Tower"
+                      alt="Mage&apos;s Tower"
                       fill
                       className="object-cover"
                     />
                   </div>
-                  <p className="font-medium">Mage's Tower</p>
+                  <p className="font-medium">Mage&apos;s Tower</p>
                 </div>
               </>
             )}

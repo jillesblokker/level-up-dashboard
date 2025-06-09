@@ -19,6 +19,8 @@ interface MapGridProps extends BaseMapGridProps {
   sheepPos?: { x: number; y: number } | null;
   eaglePos?: { x: number; y: number } | null;
   penguinPos?: { x: number; y: number } | null;
+  isHorsePresent?: boolean;
+  isPenguinPresent?: boolean;
 }
 
 interface GameEvent {
@@ -47,10 +49,15 @@ export function MapGrid({
   horsePos = null,
   sheepPos = null,
   eaglePos = null,
-  penguinPos = null
+  penguinPos = null,
+  isHorsePresent = false,
+  isPenguinPresent = false
 }: MapGridProps) {
   const { toast } = useToast();
   const [currentEvent, setCurrentEvent] = useState<GameEvent | null>(null);
+
+  // Defensive fallback for character
+  const safeCharacter = character && typeof character.x === 'number' && typeof character.y === 'number' ? character : { x: 0, y: 0 };
 
   const handleMysteryTile = () => {
     const event = generateMysteryEvent();
@@ -133,7 +140,7 @@ export function MapGrid({
 
   const isValidMovementTarget = (x: number, y: number) => {
     const originalTarget = translateCoordinates(x, y, grid, -gridRotation);
-    const originalCharacter = translateCoordinates(character.x, character.y, grid, -gridRotation);
+    const originalCharacter = translateCoordinates(safeCharacter.x, safeCharacter.y, grid, -gridRotation);
 
     if (originalTarget.x < 0 || originalTarget.y < 0 || originalTarget.y >= grid.length || !grid[0] || originalTarget.x >= grid[0].length) {
       console.log('Invalid: Out of bounds after translation', { x, y, originalTarget, gridSize: { rows: grid.length, cols: grid[0]?.length ?? 0 } });
@@ -192,7 +199,7 @@ export function MapGrid({
             description: `Cannot move to ${targetTile.type} tiles.`,
             variant: 'destructive'
           });
-        } else if (!isPathClear(character.x, character.y, originalTargetCheck.x, originalTargetCheck.y)) {
+        } else if (!isPathClear(safeCharacter.x, safeCharacter.y, originalTargetCheck.x, originalTargetCheck.y)) {
           toast({
             title: 'Invalid Move',
             description: 'Path is blocked in original grid',
@@ -205,8 +212,71 @@ export function MapGrid({
 
     onCharacterMove(originalTarget.x, originalTarget.y);
     const movedToTile = grid[originalTarget.y]?.[originalTarget.x];
-    if (movedToTile && movedToTile.type === 'mystery' && !movedToTile.isVisited) {
-      handleMysteryTile();
+    
+    if (movedToTile) {
+      // Handle all special tile interactions
+      switch (movedToTile.type) {
+        case 'mystery':
+          if (!movedToTile.isVisited) {
+            handleMysteryTile();
+          }
+          break;
+        case 'portal-entrance':
+          toast({
+            title: 'Portal',
+            description: 'Would you like to enter the portal?',
+            action: (
+              <Button onClick={() => onTileClick?.(originalTarget.x, originalTarget.y)}>
+                Enter
+              </Button>
+            )
+          });
+          break;
+        case 'portal-exit':
+          toast({
+            title: 'Portal Exit',
+            description: 'Would you like to exit the portal?',
+            action: (
+              <Button onClick={() => onTileClick?.(originalTarget.x, originalTarget.y)}>
+                Exit
+              </Button>
+            )
+          });
+          break;
+        case 'dungeon':
+          toast({
+            title: 'Enter Dungeon',
+            description: 'Would you like to enter the dungeon?',
+            action: (
+              <Button onClick={() => onTileClick?.(originalTarget.x, originalTarget.y)}>
+                Enter
+              </Button>
+            )
+          });
+          break;
+        case 'cave':
+          toast({
+            title: 'Enter Cave',
+            description: 'Would you like to enter the cave?',
+            action: (
+              <Button onClick={() => onTileClick?.(originalTarget.x, originalTarget.y)}>
+                Enter
+              </Button>
+            )
+          });
+          break;
+        case 'castle':
+          toast({
+            title: 'Enter Castle',
+            description: 'Would you like to enter the castle?',
+            action: (
+              <Button onClick={() => onTileClick?.(originalTarget.x, originalTarget.y)}>
+                Enter
+              </Button>
+            )
+          });
+          break;
+      }
     }
   };
 
@@ -241,71 +311,103 @@ export function MapGrid({
               role="row"
               aria-label={`map-row-${y}`}
             >
-              {row.map((tile: Tile, x: number) => (
-                <div
-                  key={`${x}-${y}`}
-                  className={cn(
-                    "relative w-full h-full aspect-square min-w-[32px] min-h-[32px]",
-                    isMovementMode && isValidMovementTarget(x, y) && "cursor-pointer"
-                  )}
-                  role="gridcell"
-                  aria-label={`tile-${tile.type}-${x}-${y}`}
-                  onClick={() => handleTileClick(tile, x, y)}
-                  onMouseEnter={() => handleTileHover(tile, x, y)}
-                  onMouseLeave={handleTileLeave}
-                >
-                  <TileVisual
-                    tile={tile}
-                    isSelected={selectedTile?.x === x && selectedTile?.y === y}
-                    isHovered={hoveredTile?.row === y && hoveredTile?.col === x}
-                    isCharacterPresent={character.x === x && character.y === y}
-                  />
-                  {horsePos && horsePos.x === x && horsePos.y === y && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Image
-                        src="/images/Animals/horse.png"
-                        alt="Horse"
-                        width={32}
-                        height={32}
-                        className="z-10"
-                      />
-                    </div>
-                  )}
-                  {sheepPos && sheepPos.x === x && sheepPos.y === y && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Image
-                        src="/images/Animals/sheep.png"
-                        alt="Sheep"
-                        width={32}
-                        height={32}
-                        className="z-10"
-                      />
-                    </div>
-                  )}
-                  {eaglePos && eaglePos.x === x && eaglePos.y === y && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Image
-                        src="/images/Animals/eagle.png"
-                        alt="Eagle"
-                        width={32}
-                        height={32}
-                        className="z-10"
-                      />
-                    </div>
-                  )}
-                  {penguinPos && penguinPos.x === x && penguinPos.y === y && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Image
-                        src="/images/Animals/penguin.png"
-                        alt="Penguin"
-                        width={32}
-                        height={32}
-                        className="z-10"
-                      />
-                    </div>
-                  )}
-                </div>
-              ))}
+              {row.map((tile: Tile, x: number) => {
+                if (!tile) {
+                  return (
+                    <div key={`${x}-${y}`} className="relative w-full h-full aspect-square min-w-[32px] min-h-[32px] bg-gray-800" />
+                  );
+                }
+                const isValidTarget = isMovementMode && isValidMovementTarget(x, y);
+                return (
+                  <div
+                    key={`${x}-${y}`}
+                    className={cn(
+                      "relative w-full h-full aspect-square min-w-[32px] min-h-[32px]",
+                      isValidTarget && "cursor-pointer hover:ring-2 hover:ring-white"
+                    )}
+                    role="gridcell"
+                    aria-label={`tile-${tile.type}-${x}-${y}`}
+                    onClick={() => handleTileClick(tile, x, y)}
+                    onMouseEnter={() => handleTileHover(tile, x, y)}
+                    onMouseLeave={handleTileLeave}
+                  >
+                    {/* Character image at character position, only on valid tiles */}
+                    {safeCharacter.x === x && safeCharacter.y === y && !['mountain', 'water', 'lava', 'volcano', 'empty'].includes(tile.type) && (
+                      <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
+                        <Image
+                          src="/images/character/character.png"
+                          alt="Character"
+                          width={40}
+                          height={40}
+                          className="object-contain"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>⚠️</span>'); }}
+                          priority
+                        />
+                      </div>
+                    )}
+                    {/* Animal overlays using block/flex approach for visibility */}
+                    {/* Ensure the following PNGs exist in /public/images/Animals/ and are named exactly: horse.png, sheep.png, eagle.png, penguin.png */}
+                    {horsePos && horsePos.x === x && horsePos.y === y && isHorsePresent && (
+                      <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
+                        <Image
+                          src="/images/Animals/horse.png"
+                          alt="Horse"
+                          width={40}
+                          height={40}
+                          className="object-contain"
+                          onError={(e) => { console.error('Failed to load horse.png'); e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐴</span>'); }}
+                          priority
+                        />
+                      </div>
+                    )}
+                    {sheepPos && sheepPos.x === x && sheepPos.y === y && (
+                      <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
+                        <Image
+                          src="/images/Animals/sheep.png"
+                          alt="Sheep"
+                          width={40}
+                          height={40}
+                          className="object-contain"
+                          onError={(e) => { console.error('Failed to load sheep.png'); e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐑</span>'); }}
+                          priority
+                        />
+                      </div>
+                    )}
+                    {eaglePos && eaglePos.x === x && eaglePos.y === y && (
+                      <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
+                        <Image
+                          src="/images/Animals/eagle.png"
+                          alt="Eagle"
+                          width={40}
+                          height={40}
+                          className="object-contain"
+                          onError={(e) => { console.error('Failed to load eagle.png'); e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🦅</span>'); }}
+                          priority
+                        />
+                      </div>
+                    )}
+                    {penguinPos && penguinPos.x === x && penguinPos.y === y && isPenguinPresent && (
+                      <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
+                        <Image
+                          src="/images/Animals/penguin.png"
+                          alt="Penguin"
+                          width={40}
+                          height={40}
+                          className="object-contain"
+                          onError={(e) => { console.error('Failed to load penguin.png'); e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐧</span>'); }}
+                          priority
+                        />
+                      </div>
+                    )}
+                    <TileVisual
+                      tile={tile}
+                      isSelected={selectedTile?.x === x && selectedTile?.y === y}
+                      isHovered={hoveredTile?.row === y && hoveredTile?.col === x}
+                      isCharacterPresent={safeCharacter.x === x && safeCharacter.y === y}
+                    />
+                  </div>
+                );
+              })}
             </div>
           ))}
         </div>

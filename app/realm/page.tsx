@@ -47,6 +47,7 @@ import { createEventNotification } from "@/lib/notifications"
 import { useUser } from '@clerk/nextjs'
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@/types/supabase';
+import React from "react"
 
 // Types
 interface Position {
@@ -736,6 +737,17 @@ async function saveCharacterPosition(supabase: SupabaseClient<Database>, userId:
   }
 }
 
+// Utility to sanitize the grid before rendering
+function sanitizeGrid(grid) {
+  return Array.isArray(grid)
+    ? grid.map((row, y) =>
+        Array.isArray(row)
+          ? row.map((tile, x) => tile || createEmptyTile(x, y))
+          : Array(GRID_COLS).fill(null).map((_, x) => createEmptyTile(x, y))
+      )
+    : createBaseGrid(INITIAL_ROWS, GRID_COLS);
+}
+
 export default function RealmPage() {
   const { toast } = useToast()
   const router = useRouter()
@@ -751,7 +763,9 @@ export default function RealmPage() {
   // State declarations
   const [inventory, setInventory] = useLocalStorage<Partial<Record<TileType, InventoryItem>>>("tile-inventory", initialTileInventory)
   const [showScrollMessage, setShowScrollMessage] = useState(false)
-  const [characterPosition, setCharacterPosition] = useState<{ x: number; y: number }>({ x: 2, y: 0 });
+  // Ensure characterPosition is always a valid object
+  const defaultCharacterPosition = { x: 2, y: 0 };
+  const [characterPosition, setCharacterPosition] = useState<{ x: number; y: number }>(defaultCharacterPosition);
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [selectedTile, setSelectedTile] = useState<SelectedInventoryItem | null>(null)
   const [grid, setGrid] = useState<Tile[][]>([]);
@@ -801,6 +815,9 @@ export default function RealmPage() {
   const [sheepPosition, setSheepPosition] = useState<{ x: number; y: number }>({ x: 2, y: 4 });
 
   const { supabase, isLoading: isSupabaseLoading, error: supabaseError } = useSupabaseClientWithToken();
+
+  // Track last modal-triggered position
+  const [lastModalPosition, setLastModalPosition] = useState<{x: number, y: number} | null>(null);
 
   // Initialize grid
   const initializeGrid = async () => {
@@ -1467,79 +1484,124 @@ export default function RealmPage() {
     });
   };
 
-  // 1. Create handleCharacterMove in RealmPage
-  const handleCharacterMove = useCallback((newX: number, newY: number) => {
-    setCharacterPosition({ x: newX, y: newY });
-    // Check if player moves onto the horse location and horse is present
-    if (isHorsePresent && newX === 10 && newY === 3) {
-      // Add horse to inventory
-      setInventory(prevInventory => {
-        const updatedInventory = { ...prevInventory };
-        if (updatedInventory['horse']) {
-          updatedInventory['horse'].quantity += 1;
-        } else {
-          updatedInventory['horse'] = {
-            id: 'horse-1',
-            type: 'horse' as TileType,
-            name: 'Horse',
-            description: 'A loyal horse for your adventures.',
-            connections: [],
-            rotation: 0,
-            cost: 0,
-            quantity: 1,
-            image: '/images/Animals/horse.png',
-            revealed: true,
-            isVisited: false,
-            ariaLabel: 'Horse in inventory',
-            x: 0,
-            y: 0,
-            isMainTile: false,
-            isTown: false,
-            cityName: undefined,
-          };
-        }
-        return updatedInventory;
-      });
-      setIsHorsePresent(false);
-      toast({
-        title: 'You found a horse!',
-        description: 'The horse has been added to your inventory.',
-        duration: 3000
-      });
-      console.log("[Notification] Adding horse found event notification");
-      createEventNotification('Horse Found!', 'You found a horse on the map and it has been added to your inventory!');
-      console.log("[Notification] Horse event notification added");
+  // Add isPathClear function
+  const isPathClear = (startX: number, startY: number, endX: number, endY: number): boolean => {
+    // Simple path checking - can be expanded for more complex pathfinding
+    const dx = Math.abs(endX - startX);
+    const dy = Math.abs(endY - startY);
+    
+    // If moving diagonally, check both adjacent tiles
+    if (dx === 1 && dy === 1) {
+      const tile1 = grid[startY]?.[endX];
+      const tile2 = grid[endY]?.[startX];
+      return !tile1 || !tile2 || 
+        (!['mountain', 'water', 'lava', 'volcano'].includes(tile1.type) && 
+         !['mountain', 'water', 'lava', 'volcano'].includes(tile2.type));
     }
-    // Safely access the tile
-    const tile = grid?.[newY]?.[newX];
-    logger.info(`Character moved to ${newX},${newY}. Tile type: ${tile?.type}`, 'CharacterMove');
-    // Ensure tile and tile.type are defined before accessing
-    if (tile?.type && (tile.type === 'city' || tile.type === 'town' || tile.type === 'castle')) { // Include village and castle
-      // Find the correct location data using locationId if available, otherwise use type
-       const locationKey = (tile as { locationId?: string; type: string }).locationId || tile.type; // Use locationId if present on tile
-       const locationInfo = (locationData as Record<string, { name: string; description: string }>)[locationKey];
+    
+    // For straight movement, just check the target tile
+    return true;
+  };
 
+  const handleCharacterMove = useCallback((newX: number, newY: number) => {
+    // Validate coordinates
+    if (newX < 0 || newY < 0 || newY >= grid.length || !grid[0] || newX >= grid[0].length) {
+      toast({
+        title: "Cannot Move",
+        description: "You cannot move outside the map boundaries!",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const targetTile = grid[newY]?.[newX];
+    if (!targetTile || targetTile.type === 'empty') {
+      toast({
+        title: "Cannot Move",
+        description: "You cannot move onto an empty tile!",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check if the tile is a valid movement target
+    if (['mountain', 'water', 'lava', 'volcano'].includes(targetTile.type)) {
+      toast({
+        title: "Cannot Move",
+        description: `You cannot move onto ${targetTile.type} tiles!`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check if path is clear
+    if (!isPathClear(characterPosition.x, characterPosition.y, newX, newY)) {
+      toast({
+        title: "Cannot Move",
+        description: "Path is blocked!",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Update character position
+    setCharacterPosition({ x: newX, y: newY });
+
+    // Only trigger modal if position is new
+    if ((targetTile.type === 'city' || targetTile.type === 'town') && (!lastModalPosition || lastModalPosition.x !== newX || lastModalPosition.y !== newY)) {
+      const locationKey = (targetTile as { locationId?: string }).locationId || targetTile.type;
+      const locationInfo = (locationData as Record<string, { name: string; description: string }>)[locationKey];
       if (locationInfo?.name) {
         setCurrentLocation({
-          type: tile.type,
+          type: targetTile.type,
           name: locationInfo.name,
           description: locationInfo.description || ''
         });
         setShowLocationModal(true);
+        setLastModalPosition({x: newX, y: newY});
       }
-    } else if (tile?.type === 'portal-entrance' || tile?.type === 'portal-exit') {
-      setPortalSource({ x: newX, y: newY, type: tile.type });
-      setShowPortalModal(true);
+    } else if (targetTile.type !== 'city' && targetTile.type !== 'town') {
+      setLastModalPosition(null);
     }
+
+    // Handle special tile interactions
+    if (targetTile.type === 'portal-entrance' || targetTile.type === 'portal-exit') {
+      setPortalSource({ x: newX, y: newY, type: targetTile.type });
+      setShowPortalModal(true);
+    } else if (targetTile.type === 'dungeon') {
+      localStorage.setItem('current-dungeon', JSON.stringify({ position: { x: newX, y: newY }, type: 'dungeon' }));
+      router.push('/dungeon');
+    } else if (targetTile.type === 'mystery' && !targetTile.isVisited) {
+      const mysteryEvent = generateMysteryEvent();
+      setCurrentEvent(mysteryEvent);
+      const newGrid = [...grid];
+      if (newGrid[newY] && Array.isArray(newGrid[newY])) {
+        const updatedMysteryTile: Tile = {
+          ...targetTile,
+          isVisited: true,
+          cityName: targetTile.cityName,
+          cityX: targetTile.cityX,
+          cityY: targetTile.cityY,
+          citySize: targetTile.citySize,
+          bigMysteryX: targetTile.bigMysteryX,
+          bigMysteryY: targetTile.bigMysteryY,
+          tileSize: targetTile.tileSize,
+        };
+        newGrid[newY][newX] = updatedMysteryTile;
+        setGrid(newGrid);
+      }
+    }
+
+    // Save position to Supabase and localStorage
     if (supabase && userId) {
       saveCharacterPosition(supabase, userId, { x: newX, y: newY });
     }
     if (typeof window !== 'undefined') {
       localStorage.setItem('character-position', JSON.stringify({ x: newX, y: newY }));
     }
-  }, [setCharacterPosition, grid, locationData, isHorsePresent, setInventory, setIsHorsePresent, toast, supabase, userId]);
+  }, [setCharacterPosition, grid, locationData, toast, supabase, userId, setCurrentLocation, setShowLocationModal, setPortalSource, setShowPortalModal, router, setCurrentEvent, setGrid, characterPosition, lastModalPosition]);
 
-  // 2. Use handleCharacterMove in keyboard navigation
+  // Update keyboard navigation to use handleCharacterMove
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const { x, y } = characterPosition;
@@ -1561,74 +1623,12 @@ export default function RealmPage() {
         default:
           return;
       }
-      // Safely access targetTile
-      const targetTile = grid?.[newY]?.[newX];
-      if (!targetTile || targetTile.type === 'empty') {
-        toast({
-          title: "Cannot Move",
-          description: "You cannot move onto an empty tile!",
-          variant: "destructive"
-        });
-        return;
-      }
-      if (newX !== x || newY !== y) {
-        handleCharacterMove(newX, newY);
-        // Safely access clickedTile
-        const clickedTile = grid?.[newY]?.[newX];
-        logger.info(`Checking for mystery event on tile type: ${clickedTile?.type}, movement mode: ${movementMode}, isVisited: ${clickedTile?.isVisited}`, 'MysteryEventCheck');
-        if (movementMode && clickedTile?.type === "mystery" && !clickedTile.isVisited) {
-          logger.info('Triggering mystery event', 'MysteryEventTrigger');
-          const mysteryEvent = generateMysteryEvent();
-          setCurrentEvent(mysteryEvent);
-          const newGrid = [...grid];
-          // Ensure newGrid[newY] exists before accessing newGrid[newY][newX]
-          if (newGrid[newY] && Array.isArray(newGrid[newY])) {
-            // Create a new tile object to avoid modifying state directly and ensure type consistency
-             const updatedMysteryTile: Tile = {
-               ...(clickedTile as Tile), // Start with existing tile properties
-               isVisited: true, // Update isVisited property
-                // Include optional properties with undefined default if missing on clickedTile
-               cityName: clickedTile.cityName,
-               cityX: clickedTile.cityX,
-               cityY: clickedTile.cityY,
-               citySize: clickedTile.citySize,
-               bigMysteryX: clickedTile.bigMysteryX,
-               bigMysteryY: clickedTile.bigMysteryY,
-               tileSize: clickedTile.tileSize,
-             };
-            // Update the tile with visited status
-            const gridRow = newGrid[newY] as Tile[] | undefined; // Add type assertion for the row
-            if (gridRow !== undefined) { // Check if row exists
-              const gridCell = gridRow[newX] as Tile | undefined; // Add type assertion for the cell
-              if (gridCell !== undefined) { // Check if column exists in the row
-                gridRow[newX] = updatedMysteryTile;
-                setGrid(newGrid); // Update the grid state
-          } else {
-                logger.warning(`Cannot update grid at position y=${newY}, x=${newX} - column is undefined`, 'MysteryEventTrigger');
-              }
-            } else {
-              logger.warning(`Cannot update grid at position y=${newY} - row is undefined`, 'MysteryEventTrigger');
-            }
-          } else {
-            logger.warning(`Cannot update grid at position y=${newY}, x=${newX} - invalid grid structure`, 'MysteryEventTrigger');
-          }
-        } else if (movementMode && clickedTile?.type === "dungeon") {
-          // Store dungeon position and navigate to dungeon page
-          localStorage.setItem("current-dungeon", JSON.stringify({
-            position: { x: newX, y: newY },
-            type: "dungeon"
-          }));
-          router.push("/dungeon");
-        } else if (movementMode && clickedTile?.type === "grass") {
-           // Log when character moves onto a grass tile
-           logger.info(`Character moved onto a grass tile at ${newX},${newY}. Modal should not appear.`, 'CharacterMove');
-           // Ensure no modal logic is triggered here for grass tiles
-        }
-      }
+      handleCharacterMove(newX, newY);
     };
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [characterPosition, grid, handleCharacterMove, movementMode, toast, router]);
+  }, [characterPosition, grid, handleCharacterMove]);
 
   // Handle inventory updates - used by TileInventory component
   const handleInventoryUpdate = useCallback((updatedTiles: InventoryItem[]) => { // Explicitly type as InventoryItem[] and wrap in useCallback
@@ -1683,26 +1683,24 @@ export default function RealmPage() {
     });
   }, [setInventory]);
 
-  // Handle location visit
-  const handleVisitLocation = useCallback(() => { // Removed 'location: Tile' parameter
+  // Add the handleVisitLocation function
+  const handleVisitLocation = useCallback(() => {
     if (!currentLocation || !router) return;
 
-    const locationName = currentLocation.name; // Use currentLocation from state
-    const locationType = currentLocation.type; // Get the location type (city, town, village, castle)
+    const locationName = currentLocation.name;
+    const locationType = currentLocation.type;
     const locationSlug = locationName.toLowerCase().replace(/\s+/g, '-');
     
-    // Route to the appropriate directory based on location type
     if (locationType === 'city' || locationType === 'castle') {
       router.push(`/city/${locationSlug}`);
     } else if (locationType === 'town') {
       router.push(`/town/${locationSlug}`);
     } else {
-      // Fallback to generic location route
       router.push(`/locations/${locationSlug}`);
     }
     
-    setShowLocationModal(false); // Close modal after navigating
-  }, [currentLocation, router]);
+    setShowLocationModal(false);
+  }, [currentLocation, router, setShowLocationModal]);
 
   // Fix the image rendering for empty tiles
   const getTileImage = (tile: Tile | undefined) => {
@@ -1779,7 +1777,7 @@ export default function RealmPage() {
       });
 
       // Reset other states
-      setCharacterPosition({ x: 2, y: 0 });
+      setCharacterPosition(defaultCharacterPosition);
       setTileCounts({
         forestPlaced: 0,
         forestDestroyed: 0,
@@ -2337,6 +2335,60 @@ const handleTileSelection = (tile: InventoryItem | null) => {
   // Use a variable for loading state instead of early return
   const isLoadingState = isLoading || !isAuthLoaded || !isInitialized;
 
+  // Fallback: ensure grid and inventory are always set to defaults if empty/invalid
+  React.useEffect(() => {
+    // Fallback for grid
+    if ((!Array.isArray(grid) || grid.length === 0 || !Array.isArray(grid[0]) || grid[0].length === 0) && !isLoading) {
+      setGrid(createBaseGrid(INITIAL_ROWS, GRID_COLS));
+    }
+    // Fallback for inventory: only set if it's not an object or is empty
+    if (
+      !inventory ||
+      Array.isArray(inventory) ||
+      typeof inventory !== 'object' ||
+      Object.keys(inventory).length === 0
+    ) {
+      setInventory(initialTileInventory);
+    }
+  }, [grid, inventory, isLoading]);
+
+  // DEBUG: Show real grid state and fallback if empty
+  console.log('REAL GRID STATE:', grid);
+
+  // DEBUG: Log animal positions and presence flags
+  console.log('horsePos:', horsePosition, 'isHorsePresent:', isHorsePresent);
+  console.log('sheepPos:', sheepPosition);
+  console.log('eaglePos:', eaglePosition);
+  console.log('penguinPos:', penguinPosition, 'isPenguinPresent:', isPenguinPresent);
+
+  // TEMP: Force horse to visible position for testing
+  const debugHorsePos = { x: 2, y: 0 };
+  const debugIsHorsePresent = true;
+
+  // Add the location modal
+  const LocationModal = () => {
+    if (!currentLocation) return null;
+
+    return (
+      <Dialog open={showLocationModal} onOpenChange={setShowLocationModal}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>{currentLocation.name}</DialogTitle>
+            <DialogDescription>{currentLocation.description}</DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-4">
+            <Button variant="outline" onClick={() => setShowLocationModal(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleVisitLocation}>
+              Enter
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  };
+
   return (
     <div className="relative min-h-screen bg-background p-4">
       {isLoadingState ? (
@@ -2348,7 +2400,135 @@ const handleTileSelection = (tile: InventoryItem | null) => {
         </div>
       ) : (
         <>
-          {/* ...rest of your page JSX goes here... */}
+          {/* --- UI controls (settings, toggles, etc.) above the grid --- */}
+          <div className="flex gap-4 mb-4 items-center">
+            <Button onClick={expandMap} variant="secondary">Expand Map</Button>
+            <Button onClick={toggleInventory} variant="secondary">Inventory (press 'i')</Button>
+            <Switch checked={minimapSwitch} onCheckedChange={setMinimapSwitch}>Minimap</Switch>
+            <Button onClick={() => setIsFullscreen(!isFullscreen)} variant="ghost">
+              <Settings className="w-5 h-5" />
+            </Button>
+            {/* Movement/Build mode toggles */}
+            <Switch checked={movementMode} onCheckedChange={setMovementMode} aria-label="Toggle Movement Mode">
+              {movementMode ? 'Movement Mode' : 'Build Mode'}
+            </Switch>
+          </div>
+          {/* --- Debug overlay for character position --- */}
+          <div className="fixed top-2 left-2 z-50 bg-black bg-opacity-70 text-white px-3 py-1 rounded shadow text-xs pointer-events-none">
+            Char Pos: x={characterPosition.x}, y={characterPosition.y}
+          </div>
+          {/* --- Render the grid --- */}
+          <div className="my-8">
+            {(!Array.isArray(grid) || grid.length === 0 || !Array.isArray(grid[0]) || grid[0].length === 0) ? (
+              <div>
+                <h2>No grid data found. Showing fallback.</h2>
+              </div>
+            ) : (
+              <MapGrid
+                grid={sanitizeGrid(grid)}
+                character={characterPosition || defaultCharacterPosition}
+                onCharacterMove={handleCharacterMove}
+                onTileClick={(x, y) => {
+                  if (!movementMode && selectedTile) {
+                    // Place tile from inventory
+                    const newGrid = grid.map(row => row.slice());
+                    const tileToPlace = { ...selectedTile, x, y };
+                    newGrid[y][x] = tileToPlace;
+                    setGrid(newGrid);
+                    // Decrement inventory
+                    const updatedInventory = { ...inventory };
+                    if (updatedInventory[tileToPlace.type] && updatedInventory[tileToPlace.type].quantity > 0) {
+                      updatedInventory[tileToPlace.type].quantity -= 1;
+                      setInventory(updatedInventory);
+                    }
+                    // Do NOT deselect the tile after placement, so user can place multiple tiles
+                    // setSelectedTile(null);
+                  }
+                }}
+                selectedTile={selectedTile}
+                isMovementMode={movementMode}
+                onGridUpdate={setGrid}
+                hoveredTile={hoveredTile}
+                setHoveredTile={setHoveredTile}
+                gridRotation={gridRotation}
+                minimapEntities={minimapEntities}
+                minimapZoom={minimapZoom}
+                minimapRotationMode={minimapRotationMode}
+                onTileDelete={handleTileDelete}
+                onReset={handleReset}
+                showScrollMessage={showScrollMessage}
+                setShowScrollMessage={setShowScrollMessage}
+                inventory={inventory}
+                onInventoryUpdate={handleInventoryUpdate}
+                onVisitLocation={handleVisitLocation}
+                onEventChoice={handleEventChoice}
+                currentEvent={currentEvent}
+                setCurrentEvent={setCurrentEvent}
+                showLocationModal={showLocationModal}
+                setShowLocationModal={setShowLocationModal}
+                currentLocation={currentLocation}
+                setCurrentLocation={setCurrentLocation}
+                isSyncing={isSyncing}
+                syncError={syncError}
+                saveStatus={saveStatus}
+                lastSaveTime={lastSaveTime}
+                saveError={saveError}
+                retryCount={retryCount}
+                tileCounts={tileCounts}
+                setTileCounts={setTileCounts}
+                onGoldUpdate={handleGoldUpdate}
+                onExperienceUpdate={handleExperienceUpdate}
+                onQuestCompletion={handleQuestCompletion}
+                onExpandMap={expandMap}
+                horsePosition={debugHorsePos}
+                sheepPosition={sheepPosition}
+                eaglePosition={eaglePosition}
+                penguinPosition={penguinPosition}
+                isHorsePresent={debugIsHorsePresent}
+                isPenguinPresent={isPenguinPresent}
+                portalSource={portalSource}
+                setPortalSource={setPortalSource}
+                showPortalModal={showPortalModal}
+                setShowPortalModal={setShowPortalModal}
+              />
+            )}
+          </div>
+          {/* --- Tile Inventory Side Drawer Overlay (shop) --- */}
+          {showInventory && (
+            <>
+              {/* Background overlay for click-to-close */}
+              <div className="fixed inset-0 z-40 bg-black bg-opacity-60" onClick={toggleInventory} aria-label="Close Inventory Overlay" />
+              {/* Side drawer */}
+              <aside className="fixed top-0 right-0 z-50 h-full w-full max-w-md bg-white dark:bg-gray-900 shadow-lg flex flex-col" role="dialog" aria-modal="true" aria-label="Tile Inventory Shop">
+                <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+                  <span className="text-lg font-semibold">Tile Inventory</span>
+                  <Button variant="ghost" onClick={toggleInventory} aria-label="Close Inventory">✕</Button>
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  <TileInventory
+                    tiles={Object.values(inventory) as InventoryItem[]}
+                    selectedTile={selectedTile}
+                    onSelectTile={handleTileSelection}
+                    onUpdateTiles={handleInventoryUpdate}
+                  />
+                </div>
+              </aside>
+            </>
+          )}
+          {/* --- Minimap Overlay --- */}
+          {minimapSwitch && (
+            <Minimap
+              grid={grid}
+              playerPosition={characterPosition}
+              entities={minimapEntities}
+              zoom={minimapZoom}
+              onZoomChange={setMinimapZoom}
+              rotationMode={minimapRotationMode}
+              onRotationModeChange={setMinimapRotationMode}
+              onClose={() => setMinimapSwitch(false)}
+            />
+          )}
+          <LocationModal />
         </>
       )}
     </div>

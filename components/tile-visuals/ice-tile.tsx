@@ -6,7 +6,7 @@ interface IceTileProps {
 
 export function IceTile({ className, ariaLabel, onClick }: IceTileProps) {
   return (
-    <div className={`w-full h-full relative ${className || ""}`} aria-label={ariaLabel || "Ice tile"} role="img" onClick={onClick}>
+    <div className={`w-full h-full relative ${className || ""}`} aria-label={ariaLabel || "Ice tile"} onClick={onClick}>
       <svg viewBox="0 0 64 64" className="w-full h-full">
         {/* Base ice color - light blue */}
         <rect width="64" height="64" fill="#B3E5FC" />

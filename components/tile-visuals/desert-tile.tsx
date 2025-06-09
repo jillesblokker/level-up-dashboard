@@ -9,7 +9,6 @@ export function DesertTile({ className, ariaLabel, onClick }: DesertTileProps) {
     <div 
       className={`w-full h-full relative ${className || ""}`} 
       aria-label={ariaLabel || "Desert tile"} 
-      role="img"
       onClick={onClick}
     >
       <svg viewBox="0 0 64 64" className="w-full h-full">

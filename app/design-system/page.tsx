@@ -590,7 +590,7 @@ export default function DesignSystemPage() {
                         />
                       </div>
                       <p className="text-sm text-gray-400 mt-2">
-                        <strong>Minimap</strong> provides a compact, interactive overview of the current map area, showing the character's position and tile types. Used in the main realm and exploration pages.
+                        <strong>Minimap</strong> provides a compact, interactive overview of the current map area, showing the character&apos;s position and tile types. Used in the main realm and exploration pages.
                       </p>
                     </div>
 

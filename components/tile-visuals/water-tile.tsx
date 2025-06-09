@@ -6,7 +6,7 @@ interface WaterTileProps {
 
 export function WaterTile({ className, ariaLabel, onClick }: WaterTileProps) {
   return (
-    <div className={`w-full h-full relative ${className || ""}`} aria-label={ariaLabel || "Water tile"} role="img" onClick={onClick}>
+    <div className={`w-full h-full relative ${className || ""}`} aria-label={ariaLabel || "Water tile"} onClick={onClick}>
       <svg viewBox="0 0 64 64" className="w-full h-full">
         {/* Base water color */}
         <rect width="64" height="64" fill="#4a80f5" />

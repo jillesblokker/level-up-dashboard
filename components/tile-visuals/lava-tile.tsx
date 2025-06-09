@@ -5,7 +5,7 @@ interface LavaTileProps {
 
 export function LavaTile({ className, ariaLabel }: LavaTileProps) {
   return (
-    <div className={`w-full h-full relative ${className || ""}`} aria-label={ariaLabel || "Lava tile"} role="img">
+    <div className={`w-full h-full relative ${className || ""}`} aria-label={ariaLabel || "Lava tile"}>
       <svg viewBox="0 0 64 64" className="w-full h-full">
         {/* Base lava color - bright orange */}
         <rect width="64" height="64" fill="#FF5722" />

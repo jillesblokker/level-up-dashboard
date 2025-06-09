@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { MessageCircle, Sword, Bell, User, Search, Upload, Edit, X } from "lucide-react"
+import { MessageCircle, Sword, Bell, User, Search, Upload, Edit, X, Users } from "lucide-react"
 import Image from "next/image"
 import { compressImage } from "@/lib/image-utils"
 import { toast } from "@/components/ui/use-toast"

@@ -11,7 +11,6 @@ export function SnowTile({ onClick, className, ariaLabel = "Snow tile" }: SnowTi
     <div
       className={`w-full h-full relative cursor-pointer ${className || ""}`}
       onClick={onClick}
-      role="button"
       aria-label={ariaLabel}
     >
       {/* White background */}
