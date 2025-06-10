@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { LoginForm } from '@/components/auth/login-form';
+import Image from 'next/image';
 
 export const metadata: Metadata = {
   title: 'Login',
@@ -8,41 +9,32 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <div className="container relative h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-      <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
-        <div className="absolute inset-0 bg-zinc-900" />
-        <div className="relative z-20 flex items-center text-lg font-medium">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="mr-2 h-6 w-6"
-          >
-            <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
-          </svg>
-          Level Up Dashboard
+    <div className="relative min-h-screen flex flex-col lg:flex-row">
+      {/* Medieval Cover Image Section */}
+      <div className="relative flex-1 hidden lg:flex flex-col justify-between bg-black border-r-2 border-amber-800/40">
+        <Image
+          src="/images/realm-header.jpg"
+          alt="Realm Cover"
+          fill
+          className="object-cover object-center opacity-90"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-amber-900/60" />
+        <div className="relative z-10 flex items-center p-10 text-3xl font-medieval text-amber-500 drop-shadow-lg">
+          <span className="logo">Thrivehaven</span>
         </div>
-        <div className="relative z-20 mt-auto">
+        <div className="relative z-10 p-10 text-white text-lg font-serif italic">
           <blockquote className="space-y-2">
-            <p className="text-lg">
-              &ldquo;Level up your life, one quest at a time.&rdquo;
-            </p>
+            <p>&ldquo;Level up your life, one quest at a time.&rdquo;</p>
           </blockquote>
         </div>
       </div>
-      <div className="lg:p-8">
-        <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-          <div className="flex flex-col space-y-2 text-center">
-            <h1 className="text-2xl font-semibold tracking-tight">
-              Welcome back
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Enter your credentials to continue
-            </p>
+      {/* Login Form Section */}
+      <div className="flex-1 flex items-center justify-center bg-black">
+        <div className="w-full max-w-md p-8 rounded-lg shadow-lg bg-black/80 border border-amber-800/30">
+          <div className="flex flex-col space-y-2 text-center mb-6">
+            <h1 className="text-3xl font-medieval text-amber-500 drop-shadow">Welcome back</h1>
+            <p className="text-md text-amber-200">Enter your credentials to continue</p>
           </div>
           <LoginForm />
         </div>

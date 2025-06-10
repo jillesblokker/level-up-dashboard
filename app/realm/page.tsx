@@ -11,7 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar } from "@/components/ui/avatar"
 import { useToast } from "@/components/ui/use-toast"
 import { getCharacterName } from "@/lib/toast-utils"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useRouter } from "next/navigation"
 // Import necessary types from '@/types/tiles'
 import { Tile, ConnectionDirection, TileType, InventoryItem, SelectedInventoryItem } from '@/types/tiles'
@@ -2446,6 +2446,10 @@ const handleTileSelection = (tile: InventoryItem | null) => {
     );
   };
 
+  const [showSettings, setShowSettings] = useState(false)
+  const [showGridCoordinates, setShowGridCoordinates] = useState(false)
+  const [autoSave, setAutoSave] = useState(true)
+  
   return (
     <div className="relative min-h-screen bg-background p-4">
       {isLoadingState ? (
@@ -2457,22 +2461,66 @@ const handleTileSelection = (tile: InventoryItem | null) => {
         </div>
       ) : (
         <>
-          {/* --- UI controls (settings, toggles, etc.) above the grid --- */}
           <div className="flex gap-4 mb-4 items-center">
             <Button onClick={expandMap} variant="secondary">Expand Map</Button>
-            <Button onClick={toggleInventory} variant="secondary">Inventory (press 'i')</Button>
-            <Switch checked={minimapSwitch} onCheckedChange={setMinimapSwitch}>Minimap</Switch>
-            <Button onClick={() => setIsFullscreen(!isFullscreen)} variant="ghost">
-              <Settings className="w-5 h-5" />
+            <Button 
+              onClick={toggleInventory} 
+              variant={showInventory ? "default" : "secondary"}
+              className="flex items-center gap-2"
+            >
+              <span>🪙</span>
+              <span>Inventory</span>
             </Button>
-            {/* Movement/Build mode toggles */}
-            <Switch checked={movementMode} onCheckedChange={setMovementMode} aria-label="Toggle Movement Mode">
-              {movementMode ? 'Movement Mode' : 'Build Mode'}
-            </Switch>
-          </div>
-          {/* --- Debug overlay for character position --- */}
-          <div className="fixed top-2 left-2 z-50 bg-black bg-opacity-70 text-white px-3 py-1 rounded shadow text-xs pointer-events-none">
-            Char Pos: x={characterPosition.x}, y={characterPosition.y}
+            <Button 
+              onClick={() => setMinimapSwitch(!minimapSwitch)} 
+              variant={minimapSwitch ? "default" : "secondary"}
+              className="flex items-center gap-2"
+            >
+              <span>🗺️</span>
+              <span>Minimap</span>
+            </Button>
+            {/* Movement/Build Mode Toggle Switch */}
+            <button
+              type="button"
+              aria-label="Toggle Movement/Build Mode"
+              className={`relative w-14 h-8 flex items-center rounded-full transition-colors duration-300 focus:outline-none ${movementMode ? 'bg-amber-600' : 'bg-gray-700'}`}
+              onClick={() => setMovementMode(!movementMode)}
+            >
+              <span
+                className={`absolute left-1 top-1 w-6 h-6 flex items-center justify-center rounded-full bg-white shadow transition-transform duration-300 ${movementMode ? 'translate-x-6' : ''}`}
+              >
+                {movementMode ? '🐴' : '🛠️'}
+              </span>
+            </button>
+            <Dialog open={showSettings} onOpenChange={setShowSettings}>
+              <DialogTrigger asChild>
+                <Button variant="ghost" aria-label="Open Settings">
+                  <Settings className="w-5 h-5" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Realm Settings</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span>Fullscreen Mode</span>
+                    <Switch checked={isFullscreen} onCheckedChange={setIsFullscreen} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Show Grid Coordinates</span>
+                    <Switch checked={showGridCoordinates} onCheckedChange={setShowGridCoordinates} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Auto-save</span>
+                    <Switch checked={autoSave} onCheckedChange={setAutoSave} />
+                  </div>
+                  <Button variant="destructive" onClick={handleReset} className="w-full">
+                    Reset Realm
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
           {/* --- Render the grid --- */}
           <div className="my-8">
@@ -2557,8 +2605,7 @@ const handleTileSelection = (tile: InventoryItem | null) => {
               <div className="fixed inset-0 z-40 bg-black bg-opacity-60" onClick={toggleInventory} aria-label="Close Inventory Overlay" />
               {/* Side drawer */}
               <aside className="fixed top-0 right-0 z-50 h-full w-full max-w-md bg-white dark:bg-gray-900 shadow-lg flex flex-col" role="dialog" aria-modal="true" aria-label="Tile Inventory Shop">
-                <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
-                  <span className="text-lg font-semibold">Tile Inventory</span>
+                <div className="flex items-center justify-end p-4 border-b border-gray-200 dark:border-gray-800">
                   <Button variant="ghost" onClick={toggleInventory} aria-label="Close Inventory">✕</Button>
                 </div>
                 <div className="flex-1 overflow-y-auto">
