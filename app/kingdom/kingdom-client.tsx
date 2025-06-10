@@ -18,25 +18,25 @@ export function KingdomClient({ session }: { session: Session | null }) {
   const [coverImage, setCoverImage] = useState("/images/kingdom-header.jpg")
   const [inventory, setInventory] = useState<InventoryItem[]>([])
 
-  // Load inventory on mount
+  // Load inventory from localStorage on mount
   useEffect(() => {
     const loadInventory = () => {
-      // Start with default items
       const savedInventory = localStorage.getItem('kingdom-inventory')
-      if (savedInventory) {
+      if (savedInventory && savedInventory !== '[]') {
         setInventory(JSON.parse(savedInventory))
       } else {
         setInventory(defaultInventoryItems)
-        localStorage.setItem('kingdom-inventory', JSON.stringify(defaultInventoryItems))
       }
     }
-    
     loadInventory()
-    
-    // Listen for inventory updates
     window.addEventListener('character-inventory-update', loadInventory)
     return () => window.removeEventListener('character-inventory-update', loadInventory)
   }, [])
+
+  // Whenever inventory changes, update localStorage
+  useEffect(() => {
+    localStorage.setItem('kingdom-inventory', JSON.stringify(inventory))
+  }, [inventory])
 
   // Load saved image from localStorage if available
   useEffect(() => {

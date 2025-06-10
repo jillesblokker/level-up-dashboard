@@ -83,6 +83,12 @@ export function UserNav({ session }: { session: Session | null }) {
               <span>Server Checks</span>
             </DropdownMenuItem>
           </Link>
+          <Link href="/stored-data">
+            <DropdownMenuItem className="cursor-pointer" aria-label="Stored Data">
+              <ClipboardCheck className="mr-2 h-4 w-4" />
+              <span>Stored Data</span>
+            </DropdownMenuItem>
+          </Link>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <form action={logout}>

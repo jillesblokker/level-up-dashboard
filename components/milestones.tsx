@@ -73,6 +73,13 @@ export function Milestones() {
     target: 1,
   });
   const { toast } = useToast();
+  const [checkedMilestones, setCheckedMilestones] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('checked-milestones') || '[]');
+    } catch {
+      return [];
+    }
+  });
 
   useEffect(() => {
     if (!userId || !supabase || isSupabaseLoading) {
@@ -173,6 +180,20 @@ export function Milestones() {
     fetchMilestones();
   }, [userId, supabase, isSupabaseLoading, supabaseError, newQuestCategory, toast]);
 
+  // When milestones are loaded, sync checkedMilestones with completed milestones
+  useEffect(() => {
+    if (milestones && milestones.length > 0) {
+      const completedIds = milestones.filter(m => m.completed).map(m => m.id);
+      setCheckedMilestones(completedIds);
+      localStorage.setItem('checked-milestones', JSON.stringify(completedIds));
+    }
+  }, [milestones]);
+
+  // When checkedMilestones changes, update localStorage
+  useEffect(() => {
+    localStorage.setItem('checked-milestones', JSON.stringify(checkedMilestones));
+  }, [checkedMilestones]);
+
   const handleAddMilestone = async () => {
     if (!userId || !newMilestone.name || !newQuestCategory || !supabase) {
       toast({
@@ -261,6 +282,7 @@ export function Milestones() {
     }
   };
 
+  // Update milestone completion and checkedMilestones together
   const handleToggleCompletion = async (id: string, completed: boolean) => {
     // Check if the id is a valid database id (UUID or cuid)
     const isDbId = /^[a-z0-9]{20,}$|^[0-9a-fA-F-]{36}$/.test(id);
@@ -272,6 +294,11 @@ export function Milestones() {
         title: !completed ? "Milestone Completed" : "Milestone Uncompleted",
         description: !completed ? "Great job completing this milestone!" : "Milestone marked as incomplete.",
       });
+      setCheckedMilestones(prev =>
+        !completed
+          ? [...prev, id]
+          : prev.filter(mid => mid !== id)
+      );
       return;
     }
     if (!userId || !supabase) {
@@ -292,6 +319,11 @@ export function Milestones() {
         title: updatedQuest.completed ? "Milestone Completed" : "Milestone Uncompleted",
         description: updatedQuest.completed ? "Great job completing this milestone!" : "Milestone marked as incomplete.",
       });
+      setCheckedMilestones(prev =>
+        !updatedQuest.completed
+          ? [...prev, id]
+          : prev.filter(mid => mid !== id)
+      );
     } catch (err) {
       console.error('Failed to toggle milestone completion:', err);
       toast({
@@ -353,6 +385,11 @@ export function Milestones() {
                         ? 'This milestone was checked off locally and will sync when online.'
                         : 'This milestone was deleted locally.',
                     });
+                    setCheckedMilestones(prev =>
+                      action === 'toggle'
+                        ? [...prev, `local-${category.key}`]
+                        : prev.filter(mid => mid !== `local-${category.key}`)
+                    );
                     return;
                   }
                   try {
@@ -392,6 +429,12 @@ export function Milestones() {
                       title: action === 'toggle' ? 'Milestone Created' : 'Milestone Deleted',
                       description: action === 'toggle' ? 'Your milestone has been created and marked as complete!' : 'The milestone has been removed.',
                     });
+
+                    setCheckedMilestones(prev =>
+                      action === 'toggle'
+                        ? [...prev, newQuest.id]
+                        : prev.filter(mid => mid !== newQuest.id)
+                    );
                   } catch (err) {
                     console.error('Failed to update milestone:', err);
                     toast({

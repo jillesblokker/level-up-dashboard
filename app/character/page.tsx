@@ -173,6 +173,48 @@ export default function CharacterPage() {
     };
   }, []);
 
+  // Load perks from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedPerks = localStorage.getItem("character-perks");
+      if (savedPerks) {
+        setPerks(JSON.parse(savedPerks));
+      }
+    } catch (error) {
+      console.error("Error loading perks from localStorage:", error);
+    }
+  }, []);
+
+  // Whenever perks change, update localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem("character-perks", JSON.stringify(perks));
+    } catch (error) {
+      console.error("Error saving perks to localStorage:", error);
+    }
+  }, [perks]);
+
+  // Load titles from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedTitles = localStorage.getItem("titles");
+      if (savedTitles) {
+        setTitles(JSON.parse(savedTitles));
+      }
+    } catch (error) {
+      console.error("Error loading titles from localStorage:", error);
+    }
+  }, []);
+
+  // Whenever titles change, update localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem("titles", JSON.stringify(titles));
+    } catch (error) {
+      console.error("Error saving titles to localStorage:", error);
+    }
+  }, [titles]);
+
   // Titles
   const [titles, setTitles] = useState<Title[]>([
     {

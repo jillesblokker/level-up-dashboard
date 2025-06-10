@@ -90,6 +90,7 @@ export class ReplayabilityManager {
     this.collectibles = new Map();
     this.leaderboards = new Map();
     this.initializeFeatures();
+    this.loadAchievementsFromStorage();
   }
 
   public static getInstance(): ReplayabilityManager {
@@ -191,6 +192,25 @@ export class ReplayabilityManager {
     });
   }
 
+  private loadAchievementsFromStorage() {
+    try {
+      const unlocked = JSON.parse(localStorage.getItem('achievements') || '[]');
+      unlocked.forEach((id: string) => {
+        const achievement = this.achievements.get(id);
+        if (achievement) {
+          achievement.isUnlocked = true;
+        }
+      });
+    } catch {}
+  }
+
+  private saveAchievementsToStorage() {
+    try {
+      const unlocked = Array.from(this.achievements.values()).filter(a => a.isUnlocked).map(a => a.id);
+      localStorage.setItem('achievements', JSON.stringify(unlocked));
+    } catch {}
+  }
+
   // Achievement Methods
   public getAchievements(): Achievement[] {
     return Array.from(this.achievements.values());
@@ -218,6 +238,7 @@ export class ReplayabilityManager {
     if (achievement && !achievement.isUnlocked) {
       achievement.isUnlocked = true;
       achievement.unlockDate = new Date();
+      this.saveAchievementsToStorage();
       // Emit achievement unlocked event
       window.dispatchEvent(new CustomEvent('achievement:unlocked', {
         detail: achievement

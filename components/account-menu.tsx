@@ -49,6 +49,11 @@ const AccountMenu = () => {
             Monitoring
           </Link>
         </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/account/stored-data" aria-label="Stored Data page">
+            Stored Data
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <button

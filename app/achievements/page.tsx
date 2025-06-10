@@ -65,6 +65,25 @@ export default function Page() {
 
   const firstCreature = creatures[0];
 
+  // Add localStorage persistence for unlocked achievements
+  useEffect(() => {
+    // On mount, load unlocked achievement IDs from localStorage
+    try {
+      const unlocked = JSON.parse(localStorage.getItem('achievements') || '[]');
+      setAchievements(prev =>
+        prev.map(a => ({ ...a, isUnlocked: unlocked.includes(a.id) ? true : a.isUnlocked }))
+      );
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    // Whenever achievements change, update localStorage
+    try {
+      const unlocked = achievements.filter(a => a.isUnlocked).map(a => a.id);
+      localStorage.setItem('achievements', JSON.stringify(unlocked));
+    } catch {}
+  }, [achievements]);
+
   return (
     <>
       <HeaderSection

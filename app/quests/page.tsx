@@ -33,6 +33,7 @@ import { KnowledgeModal } from "@/components/category-modals/knowledge-modal"
 import { ConditionModal } from "@/components/category-modals/condition-modal"
 import { NutritionModal } from "@/components/category-modals/nutrition-modal"
 import { Milestones } from '@/components/milestones'
+import { notificationService } from "@/lib/notification-service"
 
 // Add logging function
 const logQuestAction = async (action: string, questId: string, details: Record<string, unknown>, userId: string) => {
@@ -69,72 +70,72 @@ export default function QuestsPage() {
   const [isAddQuestModalOpen, setIsAddQuestModalOpen] = useState(false)
   const [currentCategory, setCurrentCategory] = useState<string | null>(null)
 
-  // Helper to insert all default quests for a user into Supabase
-  const insertDefaultQuestsToSupabase = async (userId: string) => {
-    if (!supabase.supabase) {
-      console.error('Supabase client not initialized');
-      return;
-    }
+  const [checkedQuests, setCheckedQuests] = useState<string[]>(() => {
     try {
-      await Promise.all(
-        defaultQuests.map(q =>
-          QuestService.createQuest(supabase.supabase!, {
-            ...q,
-            userId,
-            completed: false,
-            progress: 0,
-            isNew: true,
-            isAI: false,
-            rewards: {
-              ...q.rewards,
-              items: q.rewards.items || []
-            },
-            deadline: q.deadline || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-          })
-        )
-      );
-    } catch (err) {
-      console.error('Failed to insert default quests:', err);
+      return JSON.parse(localStorage.getItem('checked-quests') || '[]');
+    } catch {
+      return [];
     }
-  };
+  });
 
-  // Fetch from Supabase on refresh or login
-  const fetchQuests = async () => {
-    if (!supabase.supabase || !userId) {
-      setQuests(defaultQuests);
-      setLoading(false);
-      setIsQuestsLoaded(true);
-      return;
-    }
-    setLoading(true);
-    try {
-      let questsFromDb = await QuestService.getQuests(supabase.supabase!, userId);
-      if (!questsFromDb || questsFromDb.length === 0) {
-        // Insert default quests for this user
-        await insertDefaultQuestsToSupabase(userId);
-        // Fetch again
-        questsFromDb = await QuestService.getQuests(supabase.supabase!, userId);
-      }
-      setQuests(questsFromDb && questsFromDb.length > 0 ? questsFromDb : defaultQuests);
-      setError(null);
-    } catch (err) {
-      // Always show default quests if error
-      setQuests(defaultQuests);
-      setError(null); // Don't show error message, just fallback
-    } finally {
-      setLoading(false);
-      setIsQuestsLoaded(true);
-    }
-  };
+  // Add offline mode state
+  const [offlineMode, setOfflineMode] = useState(false);
 
-  // On mount or when user changes, show default quests, then fetch from Supabase
+  // Load quests: try Supabase, else fallback to localStorage
   useEffect(() => {
-    setQuests(defaultQuests);
-    setLoading(true);
-    setIsQuestsLoaded(false);
-    fetchQuests();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]);
+    const loadQuests = async () => {
+      if (!supabase.supabase || !userId) {
+        setOfflineMode(true);
+        // Load quests from localStorage or use defaultQuests if none
+        const localQuests = JSON.parse(localStorage.getItem('quests') || '[]');
+        setQuests(localQuests.length > 0 ? localQuests : defaultQuests);
+        return;
+      }
+      setOfflineMode(false);
+      try {
+        const loadedQuests = await QuestService.getQuests(supabase.supabase!);
+        if (loadedQuests && loadedQuests.length > 0) {
+          const hasChanges = JSON.stringify(loadedQuests) !== JSON.stringify(quests);
+          if (hasChanges) {
+            setQuests(loadedQuests);
+            localStorage.setItem('quests', JSON.stringify(loadedQuests));
+          }
+        }
+      } catch (error: any) {
+        setOfflineMode(true);
+        const localQuests = JSON.parse(localStorage.getItem('quests') || '[]');
+        setQuests(localQuests.length > 0 ? localQuests : defaultQuests);
+        console.error('Error loading quests:', error);
+      }
+    };
+    loadQuests();
+  }, [supabase.supabase, userId]);
+
+  // On initial load and when quests change, always merge checked state from localStorage
+  useEffect(() => {
+    if (!quests || quests.length === 0) return;
+    const storedIds = JSON.parse(localStorage.getItem('checked-quests') || '[]');
+    const completedIds = quests.filter(q => q.completed).map(q => q.id);
+    const mergedIds = Array.from(new Set([...completedIds, ...storedIds]));
+    const hasChanges = JSON.stringify(mergedIds) !== JSON.stringify(checkedQuests);
+    if (hasChanges) {
+      setCheckedQuests(mergedIds);
+    }
+  }, [quests]);
+
+  // Save quests to localStorage in offline mode when they change
+  useEffect(() => {
+    if (offlineMode) {
+      localStorage.setItem('quests', JSON.stringify(quests));
+    }
+  }, [quests, offlineMode]);
+
+  // Save checkedQuests to localStorage in offline mode when they change
+  useEffect(() => {
+    if (offlineMode) {
+      localStorage.setItem('checked-quests', JSON.stringify(checkedQuests));
+    }
+  }, [checkedQuests, offlineMode]);
 
   // Update quest progress
   const updateQuestProgress = async (questId: string, newProgress: number) => {
@@ -220,54 +221,97 @@ export default function QuestsPage() {
 
   // Toggle quest completion
   const handleQuestToggle = async (questId: string) => {
-    if (!supabase.supabase || !userId) {
-      console.error('No userId or supabase client. Cannot update quest.');
-      toast({
-        title: "Error",
-        description: "Please sign in to update quests.",
-        variant: "destructive"
+    if (offlineMode) {
+      // Update local state only
+      setCheckedQuests(prev => {
+        const newChecked = prev.includes(questId)
+          ? prev.filter(id => id !== questId)
+          : [...prev, questId];
+        localStorage.setItem('checked-quests', JSON.stringify(newChecked));
+        return newChecked;
       });
+      setQuests(prevQuests =>
+        prevQuests.map(q =>
+          q.id === questId ? { ...q, completed: !q.completed } : q
+        )
+      );
+      localStorage.setItem('quests', JSON.stringify(
+        quests.map(q =>
+          q.id === questId ? { ...q, completed: !q.completed } : q
+        )
+      ));
+      // Emit quest completion event for kingdom stats if quest is now completed
+      const quest = quests.find(q => q.id === questId);
+      if (quest && !quest.completed) {
+        emitQuestCompletedWithRewards(
+          quest.title,
+          quest.rewards?.gold || 0,
+          quest.rewards?.xp || 0,
+          'quests-page'
+        );
+      }
+      return;
+    }
+    const quest = quests.find(q => q.id === questId);
+    if (!quest) return;
+
+    // Check if we're in offline mode (no Supabase client or no user ID)
+    const isOfflineMode = !supabase.supabase || !userId;
+
+    // Calculate new states
+    const newCheckedState = checkedQuests.includes(questId)
+      ? checkedQuests.filter(id => id !== questId)
+      : [...checkedQuests, questId];
+    
+    const newCompletedState = !quest.completed;
+
+    // Update local state first for immediate UI feedback
+    setCheckedQuests(newCheckedState);
+    localStorage.setItem('checked-quests', JSON.stringify(newCheckedState));
+
+    // Update quest state without triggering a re-render
+    const updatedQuests = quests.map(q =>
+      q.id === questId ? { ...q, completed: newCompletedState } : q
+    );
+    setQuests(updatedQuests);
+
+    // If we're in offline mode, stop here
+    if (isOfflineMode) {
       return;
     }
 
     try {
-      const quest = quests.find(q => q.id === questId);
-      if (!quest) return;
-
-      // If the id is not a valid database id (e.g., it's a slug like 'plank'), just update local state
-      if (!quest.id.startsWith('quest_')) {
-        setQuests(prevQuests =>
-          prevQuests.map(q =>
-            q.id === questId ? { ...q, completed: !q.completed } : q
-          )
-        );
-        return;
-      }
-
       // Log the toggle action
       await logQuestAction('quest_toggle', questId, {
         previousState: quest.completed,
-        newState: !quest.completed
+        newState: newCompletedState
       }, userId);
 
       // Update in Supabase
-      const updatedQuest = await QuestService.updateQuest(supabase.supabase!, questId, { completed: !quest.completed });
-
-      // Update local state
-      setQuests(prevQuests =>
-        prevQuests.map(q =>
-          q.id === questId ? updatedQuest : q
-        )
-      );
-
-      // Show toast
-      toast({
-        title: "Quest Updated",
-        description: `${updatedQuest.title} has been ${updatedQuest.completed ? 'completed' : 'reopened'}.`,
-        duration: 2000
+      const updatedQuest = await QuestService.updateQuest(supabase.supabase!, questId, { 
+        completed: newCompletedState 
       });
+
+      // Only update local state if the server update was successful
+      if (updatedQuest) {
+        setQuests(prevQuests =>
+          prevQuests.map(q =>
+            q.id === questId ? updatedQuest : q
+          )
+        );
+      }
+
+      // After updating quest in Supabase and local state, emit event if completed
+      if (quest && !quest.completed && newCompletedState) {
+        emitQuestCompletedWithRewards(
+          quest.title,
+          quest.rewards?.gold || 0,
+          quest.rewards?.xp || 0,
+          'quests-page'
+        );
+      }
     } catch (err) {
-      console.error('Failed to toggle quest:', err);
+      console.error('Failed to sync with server:', err);
     }
   };
 
@@ -410,6 +454,18 @@ export default function QuestsPage() {
     }
   };
 
+  // Remove persistent offline mode banners from UI
+  // Add offline mode notification to log center instead
+  useEffect(() => {
+    if (offlineMode) {
+      notificationService.addNotification(
+        "Offline Mode",
+        "All changes are saved locally and will not sync to the server.",
+        "warning"
+      );
+    }
+  }, [offlineMode]);
+
   return (
     <div className="pt-16 min-h-screen bg-black text-white">
       <HeaderSection
@@ -503,7 +559,6 @@ export default function QuestsPage() {
               onClick={() => {
                 setError(null);
                 setLoading(true);
-                fetchQuests();
               }}
               className="mt-4"
               variant="outline"

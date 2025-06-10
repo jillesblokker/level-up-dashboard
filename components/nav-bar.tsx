@@ -160,7 +160,9 @@ export function NavBar({ goldBalance, session }: NavBarProps) {
               <span className="text-sm font-medium">{characterStats.gold}</span>
             </div>
           </div>
-          <NotificationCenter />
+          <div className="relative">
+            <NotificationCenter />
+          </div>
           <UserNav session={session as unknown as Session | null} />
         </div>
       </div>

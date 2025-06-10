@@ -2509,6 +2509,27 @@ const handleTileSelection = (tile: InventoryItem | null) => {
     setShowHorseCaughtModal(false);
     setCaughtHorse(null);
   };
+
+  // Load tile inventory from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedTileInventory = localStorage.getItem('tile-inventory');
+      if (savedTileInventory) {
+        setInventory(JSON.parse(savedTileInventory));
+      }
+    } catch (error) {
+      console.error('Error loading tile inventory from localStorage:', error);
+    }
+  }, []);
+
+  // Whenever tile inventory changes, update localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('tile-inventory', JSON.stringify(inventory));
+    } catch (error) {
+      console.error('Error saving tile inventory to localStorage:', error);
+    }
+  }, [inventory]);
   
   return (
     <div className="relative min-h-screen bg-background p-4">
