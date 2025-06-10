@@ -91,6 +91,14 @@ export function NotificationCenter() {
               >
                 <div className="flex items-start gap-3">
                   <div className="flex-1 min-w-0">
+                    {notification.image && (
+                      <img
+                        src={notification.image}
+                        alt={notification.title + ' image'}
+                        aria-label="notification-image"
+                        className="w-16 h-16 object-cover rounded-md mb-2 border border-amber-800/40"
+                      />
+                    )}
                     <div className="flex items-center justify-between">
                       <h4 className="font-medium text-sm">{notification.title}</h4>
                       <span className="text-xs text-muted-foreground">{new Date(notification.timestamp).toLocaleString()}</span>

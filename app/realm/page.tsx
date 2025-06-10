@@ -2418,10 +2418,6 @@ const handleTileSelection = (tile: InventoryItem | null) => {
   console.log('eaglePos:', eaglePosition);
   console.log('penguinPos:', penguinPosition, 'isPenguinPresent:', isPenguinPresent);
 
-  // TEMP: Force horse to visible position for testing
-  const debugHorsePos = { x: 2, y: 0 };
-  const debugIsHorsePresent = true;
-
   // Add the location modal
   const LocationModal = () => {
     if (!currentLocation) return null;
@@ -2449,6 +2445,70 @@ const handleTileSelection = (tile: InventoryItem | null) => {
   const [showSettings, setShowSettings] = useState(false)
   const [showGridCoordinates, setShowGridCoordinates] = useState(false)
   const [autoSave, setAutoSave] = useState(true)
+  
+  useEffect(() => {
+    const handleHorseCaught = () => {
+      setIsHorsePresent(false);
+    };
+    window.addEventListener('horse-caught', handleHorseCaught);
+    return () => window.removeEventListener('horse-caught', handleHorseCaught);
+  }, []);
+  
+  const [showHorseCaughtModal, setShowHorseCaughtModal] = useState(false);
+  const [caughtHorse, setCaughtHorse] = useState(null);
+
+  useEffect(() => {
+    const handleHorseCaught = (event) => {
+      setIsHorsePresent(false);
+      // If a horse is provided in the event, use it; otherwise, pick a random one
+      let horse = event?.detail?.horse;
+      if (!horse) {
+        const horses = [
+          {
+            id: 'swift-horse',
+            name: 'Sally Swift Horse',
+            description: 'Fast and agile.',
+            type: 'creature',
+            emoji: '🐎',
+            image: '/images/items/horse/horse-stelony.png',
+          },
+          {
+            id: 'endurance-horse',
+            name: 'Buster Endurance Horse',
+            description: 'Can travel long distances.',
+            type: 'creature',
+            emoji: '🐴',
+            image: '/images/items/horse/horse-perony.png',
+          },
+          {
+            id: 'war-horse',
+            name: 'Shadow War Horse',
+            description: 'Strong and brave.',
+            type: 'creature',
+            emoji: '🦄',
+            image: '/images/items/horse/horse-felony.png',
+          },
+        ];
+        horse = horses[Math.floor(Math.random() * horses.length)];
+      }
+      setCaughtHorse(horse);
+      setShowHorseCaughtModal(true);
+    };
+    window.addEventListener('horse-caught', handleHorseCaught);
+    return () => window.removeEventListener('horse-caught', handleHorseCaught);
+  }, []);
+
+  // Function to handle modal OK
+  const handleHorseCaughtOk = () => {
+    if (caughtHorse) {
+      // Add to notification center/logs (replace with your log system if needed)
+      window.dispatchEvent(new CustomEvent('log-center', { detail: { section: 'Creatures', message: `You caught a wild stallion: ${caughtHorse.name}` } }));
+      // Add to kingdom inventory
+      addToKingdomInventory(caughtHorse);
+    }
+    setShowHorseCaughtModal(false);
+    setCaughtHorse(null);
+  };
   
   return (
     <div className="relative min-h-screen bg-background p-4">
@@ -2585,11 +2645,11 @@ const handleTileSelection = (tile: InventoryItem | null) => {
                 onExperienceUpdate={handleExperienceUpdate}
                 onQuestCompletion={handleQuestCompletion}
                 onExpandMap={expandMap}
-                horsePosition={debugHorsePos}
-                sheepPosition={sheepPosition}
-                eaglePosition={eaglePosition}
-                penguinPosition={penguinPosition}
-                isHorsePresent={debugIsHorsePresent}
+                horsePos={horsePosition}
+                sheepPos={sheepPosition}
+                eaglePos={eaglePosition}
+                penguinPos={penguinPosition}
+                isHorsePresent={isHorsePresent}
                 isPenguinPresent={isPenguinPresent}
                 portalSource={portalSource}
                 setPortalSource={setPortalSource}
@@ -2633,6 +2693,20 @@ const handleTileSelection = (tile: InventoryItem | null) => {
             />
           )}
           <LocationModal />
+          {showHorseCaughtModal && caughtHorse && (
+            <Dialog open={showHorseCaughtModal} onOpenChange={setShowHorseCaughtModal}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Horse Caught!</DialogTitle>
+                </DialogHeader>
+                <div className="text-center text-lg mb-4">You caught a wild stallion: <b>{caughtHorse.name}</b></div>
+                <div className="flex justify-center mb-4">
+                  <img src={caughtHorse.image} alt={caughtHorse.name} width={96} height={96} />
+                </div>
+                <Button onClick={handleHorseCaughtOk} className="w-full">OK</Button>
+              </DialogContent>
+            </Dialog>
+          )}
         </>
       )}
     </div>

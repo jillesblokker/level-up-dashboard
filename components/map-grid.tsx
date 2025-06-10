@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { generateMysteryEvent, MysteryEventOutcome } from '@/lib/mystery-events'
 import { MapGridProps as BaseMapGridProps } from '@/types/tiles';
 import Image from 'next/image';
+import { addToKingdomInventory } from '@/lib/inventory-manager';
 
 interface MapGridProps extends BaseMapGridProps {
   onExperienceUpdate?: (amount: number) => void;
@@ -297,6 +298,53 @@ export function MapGrid({
     }
   };
 
+  useEffect(() => {
+    if (
+      horsePos &&
+      safeCharacter.x === horsePos.x &&
+      safeCharacter.y === horsePos.y &&
+      isHorsePresent
+    ) {
+      // Remove horse from map
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('horse-caught'));
+      }
+      // Add a random horse to the kingdom inventory
+      const horses = [
+        {
+          id: 'swift-horse',
+          name: 'Sally Swift Horse',
+          description: 'Fast and agile.',
+          type: 'creature',
+          emoji: '🐎',
+          image: '/images/items/horse/horse-stelony.png',
+        },
+        {
+          id: 'endurance-horse',
+          name: 'Buster Endurance Horse',
+          description: 'Can travel long distances.',
+          type: 'creature',
+          emoji: '🐴',
+          image: '/images/items/horse/horse-perony.png',
+        },
+        {
+          id: 'war-horse',
+          name: 'Shadow War Horse',
+          description: 'Strong and brave.',
+          type: 'creature',
+          emoji: '🦄',
+          image: '/images/items/horse/horse-felony.png',
+        },
+      ];
+      const randomHorse = horses[Math.floor(Math.random() * horses.length)];
+      addToKingdomInventory(randomHorse);
+      // Show notification
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('toast', { detail: { title: 'Horse Caught!', description: `You caught a horse: ${randomHorse.name}` } }));
+      }
+    }
+  }, [horsePos, safeCharacter, isHorsePresent]);
+
   if (grid.length === 0) {
     return <div>Loading map...</div>;
   }
@@ -361,8 +409,8 @@ export function MapGrid({
                         <Image
                           src="/images/Animals/horse.png"
                           alt="Horse"
-                          width={40}
-                          height={40}
+                          width={256}
+                          height={256}
                           className="object-contain"
                           onError={(e) => { console.error('Failed to load horse.png'); e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐴</span>'); }}
                           priority
@@ -374,8 +422,8 @@ export function MapGrid({
                         <Image
                           src="/images/Animals/sheep.png"
                           alt="Sheep"
-                          width={40}
-                          height={40}
+                          width={256}
+                          height={256}
                           className="object-contain"
                           onError={(e) => { console.error('Failed to load sheep.png'); e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐑</span>'); }}
                           priority
@@ -387,8 +435,8 @@ export function MapGrid({
                         <Image
                           src="/images/Animals/eagle.png"
                           alt="Eagle"
-                          width={40}
-                          height={40}
+                          width={256}
+                          height={256}
                           className="object-contain"
                           onError={(e) => { console.error('Failed to load eagle.png'); e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🦅</span>'); }}
                           priority
@@ -400,8 +448,8 @@ export function MapGrid({
                         <Image
                           src="/images/Animals/penguin.png"
                           alt="Penguin"
-                          width={40}
-                          height={40}
+                          width={256}
+                          height={256}
                           className="object-contain"
                           onError={(e) => { console.error('Failed to load penguin.png'); e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐧</span>'); }}
                           priority

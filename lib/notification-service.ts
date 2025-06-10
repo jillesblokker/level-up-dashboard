@@ -7,10 +7,8 @@ export interface NotificationData {
   type: "achievement" | "quest" | "friend" | "system" | "success" | "warning" | "danger" | "info" | "discovery" | "event" | "levelup"
   read: boolean
   timestamp: string
-  action?: {
-    label: string
-    href: string
-  }
+  action?: { label: string; href: string } | undefined
+  image?: string | undefined
 }
 
 class NotificationService {
@@ -65,7 +63,8 @@ class NotificationService {
     title: string,
     message: string,
     type: NotificationData["type"],
-    action?: { label: string; href: string }
+    action?: { label: string; href: string },
+    image?: string
   ) {
     const notification: NotificationData = {
       id: Date.now().toString(),
@@ -74,7 +73,8 @@ class NotificationService {
       type,
       read: false,
       timestamp: new Date().toISOString(),
-      action,
+      ...(action !== undefined ? { action } : {}),
+      ...(image !== undefined ? { image } : {}),
     }
 
     this.notifications.unshift(notification)
