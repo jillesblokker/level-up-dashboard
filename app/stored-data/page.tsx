@@ -84,6 +84,7 @@ function summarizeData(key: string, value: any) {
       return <div>Value: {String(value)}</div>;
     }
   } catch {
+    // Error handling intentionally left empty to avoid breaking the UI if summarizeData fails
     return <span>Invalid data structure.</span>;
   }
 }
