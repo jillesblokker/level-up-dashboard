@@ -28,6 +28,7 @@ class NotificationService {
   public static getInstance(): NotificationService {
     if (typeof window === 'undefined') {
       return {
+        notifications: [],
         addNotification: () => {},
         addQuestCompletion: () => {},
         addAchievement: () => {},
@@ -37,6 +38,8 @@ class NotificationService {
         deleteNotification: () => {},
         getNotifications: () => [],
         getUnreadCount: () => 0,
+        saveNotifications: () => {},
+        dispatchNotificationEvent: () => {},
       } as NotificationService
     }
     

@@ -112,7 +112,7 @@ export class ImageManager {
           // Update any loaded images with saved descriptions
           this.images.forEach(image => {
             if (this.descriptions[image.name]) {
-              image.description = this.descriptions[image.name];
+              image.description = this.descriptions[image.name] || '';
             }
           });
         } catch (e) {

@@ -112,7 +112,7 @@ export async function measureOperation<T>(
       table,
       duration,
       timestamp: new Date(),
-      userId
+      userId: userId || ''
     });
 
     return result;
@@ -124,7 +124,7 @@ export async function measureOperation<T>(
       table,
       duration,
       timestamp: new Date(),
-      userId,
+      userId: userId || '',
       error: error instanceof Error ? error.message : 'Unknown error'
     });
 

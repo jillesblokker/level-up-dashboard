@@ -54,7 +54,7 @@ export function LocationClient({ location }: LocationClientProps) {
     if (goldBalance < item.price) {
       toast({
         title: "Insufficient Gold",
-        description: "You don't have enough gold to purchase this item.",
+        description: "You don&rsquo;t have enough gold to purchase this item.",
         variant: "destructive"
       })
       return

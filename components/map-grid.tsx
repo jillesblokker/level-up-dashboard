@@ -336,10 +336,9 @@ export function MapGrid({
           image: '/images/items/horse/horse-felony.png',
         },
       ];
-      const randomHorse = horses[Math.floor(Math.random() * horses.length)];
-      addToKingdomInventory(randomHorse);
-      // Show notification
-      if (typeof window !== 'undefined') {
+      const randomHorse = { ...horses[Math.floor(Math.random() * horses.length)], quantity: 1 };
+      if (randomHorse) {
+        addToKingdomInventory(randomHorse);
         window.dispatchEvent(new CustomEvent('toast', { detail: { title: 'Horse Caught!', description: `You caught a horse: ${randomHorse.name}` } }));
       }
     }

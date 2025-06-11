@@ -376,13 +376,6 @@ const riddleEvents: MysteryEvent[] = [
   }
 ]
 
-const allEvents = [
-  ...treasureEvents,
-  ...scrollEvents,
-  ...artifactEvents,
-  ...riddleEvents
-]
-
 export function generateMysteryEvent(): MysteryEvent {
   const possibleEvents: MysteryEvent[] = [
     ...treasureEvents,
@@ -532,27 +525,6 @@ const scrolls: ScrollItem[] = [
     category: 'crafting'
   }
 ];
-
-// Check if player has required items
-const checkRequiredItems = (event: MysteryEvent) => {
-  if (!event.requiredItems || event.requiredItems.length === 0) return true
-  const inventory = getInventory()
-  return event.requiredItems.every(item => inventory.some(i => i.id === item))
-}
-
-// Update the artifact reward
-const artifactReward: MysteryEventReward = {
-  type: 'item',
-  item: [{
-    id: 'mysterious-artifact',
-    name: 'Mysterious Artifact',
-    description: 'An ancient artifact of unknown origin.',
-    quantity: 1,
-    type: 'artifact',
-    category: 'artifact'
-  }],
-  message: 'You found a mysterious artifact!'
-};
 
 // Helper function to check required items
 export const hasRequiredItems = (event: MysteryEvent, inventory: { id: string }[]): boolean => {

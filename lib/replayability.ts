@@ -1,5 +1,3 @@
-import { BaseEvent } from './game-events';
-
 // Replayability Types
 export type ReplayabilityFeature = 
   | 'dailyQuests' 

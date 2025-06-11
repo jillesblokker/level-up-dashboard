@@ -1,5 +1,4 @@
 import { toast } from "@/components/ui/use-toast"
-import { ToastActionElement, ToastProps } from "@/components/ui/toast"
 
 type MessageType = 'tilePlaced' | 'movement' | 'combat' | 'discovery' | 'levelUp' | 'achievement' | 'error' | 'questComplete';
 

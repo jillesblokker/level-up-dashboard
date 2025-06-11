@@ -130,10 +130,12 @@ export class MapGenerator {
     const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
     for (const [dx, dy] of directions) {
-      const newX = x + dx;
-      const newY = y + dy;
+      const newX = x + (dx || 0);
+      const newY = y + (dy || 0);
       if (newX >= 0 && newX < this.config.width && newY >= 0 && newY < grid.length) {
-        adjacent.push(grid[newY][newX]);
+        if (grid[newY] && grid[newY][newX]) {
+          adjacent.push(grid[newY][newX]);
+        }
       } else {
         adjacent.push(null);
       }
@@ -145,10 +147,15 @@ export class MapGenerator {
   private createTile(x: number, y: number, type: TileType): Tile {
     return {
       id: `tile-${y}-${x}`,
-      type,
+      type: type || 'default',
       connections: [],
       rotation: 0,
-      revealed: true
+      revealed: true,
+      name: '',
+      description: '',
+      isVisited: false,
+      x,
+      y
     };
   }
 }

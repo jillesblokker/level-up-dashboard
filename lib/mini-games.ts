@@ -112,9 +112,9 @@ export class MiniGamesManager {
       timeLimit: event.timeLimit,
       score: 0,
       isComplete: false,
-      grid: this.generatePuzzleGrid(event.difficulty),
+      grid: this.generatePuzzleGrid(),
       moves: 0,
-      targetPattern: this.generateTargetPattern(event.difficulty)
+      targetPattern: this.generateTargetPattern()
     };
   }
 
@@ -127,7 +127,7 @@ export class MiniGamesManager {
       timeLimit: event.timeLimit,
       score: 0,
       isComplete: false,
-      cards: this.generateMemoryCards(pairs),
+      cards: this.generateMemoryCards(),
       pairsFound: 0,
       totalPairs: pairs
     };
@@ -141,7 +141,7 @@ export class MiniGamesManager {
       timeLimit: event.timeLimit,
       score: 0,
       isComplete: false,
-      targets: this.generateTargets(event.difficulty),
+      targets: this.generateTargets(),
       accuracy: 0,
       averageReactionTime: 0
     };
@@ -155,7 +155,7 @@ export class MiniGamesManager {
       timeLimit: event.timeLimit,
       score: 0,
       isComplete: false,
-      board: this.generateStrategyBoard(event.difficulty),
+      board: this.generateStrategyBoard(),
       moves: 0,
       maxMoves: this.getMaxMoves(event.difficulty)
     };
@@ -177,27 +177,27 @@ export class MiniGamesManager {
     }
   }
 
-  private generatePuzzleGrid(difficulty: Difficulty): number[][] {
+  private generatePuzzleGrid(): number[][] {
     // Implement puzzle grid generation based on difficulty
     return [];
   }
 
-  private generateTargetPattern(difficulty: Difficulty): number[][] {
+  private generateTargetPattern(): number[][] {
     // Implement target pattern generation based on difficulty
     return [];
   }
 
-  private generateMemoryCards(pairs: number): MemoryGame['cards'] {
+  private generateMemoryCards(): MemoryGame['cards'] {
     // Implement memory card generation
     return [];
   }
 
-  private generateTargets(difficulty: Difficulty): ReactionGame['targets'] {
+  private generateTargets(): ReactionGame['targets'] {
     // Implement target generation based on difficulty
     return [];
   }
 
-  private generateStrategyBoard(difficulty: Difficulty): StrategyGame['board'] {
+  private generateStrategyBoard(): StrategyGame['board'] {
     // Implement strategy board generation based on difficulty
     return [];
   }

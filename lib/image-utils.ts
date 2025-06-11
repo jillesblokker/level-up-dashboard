@@ -48,11 +48,13 @@ export async function uploadImage(file: File, imageId: string): Promise<string |
           }
           
           // Save image to database
-          await db.images.put({
-            id: imageId,
-            dataUrl,
-            dateModified: new Date().toISOString()
-          });
+          if (db) {
+            await db.images.put({
+              id: imageId,
+              dataUrl,
+              dateModified: new Date().toISOString()
+            });
+          }
           
           resolve(dataUrl);
         } catch (error) {
@@ -81,7 +83,7 @@ export async function uploadImage(file: File, imageId: string): Promise<string |
 // Get an image from IndexedDB by its ID
 export async function getImage(imageId: string): Promise<string | null> {
   try {
-    const image = await db.images.get(imageId);
+    const image = db ? await db.images.get(imageId) : null;
     return image?.dataUrl || null;
   } catch (error) {
     console.error("Error retrieving image:", error);

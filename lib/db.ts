@@ -198,7 +198,7 @@ export async function update<T>(
 ): Promise<number> {
   if (!db) throw new Error('Database not initialized');
   try {
-    return await table.update(id, changes);
+    return await table.update(id, changes || {});
   } catch (error) {
     console.error(`Failed to update item ${id}:`, error);
     throw error;

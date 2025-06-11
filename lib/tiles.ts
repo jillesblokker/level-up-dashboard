@@ -11,7 +11,6 @@ export function getTileName(type: TileType): string {
     town: 'Town',
     dungeon: 'Dungeon',
     castle: 'Castle',
-    bridge: 'Bridge',
     road: 'Road',
     port: 'Port'
   };
@@ -22,15 +21,14 @@ export function getDefaultConnections(type: TileType): string[] {
   const defaultConnections: Record<TileType, string[]> = {
     empty: [],
     grass: ['grass', 'road', 'town', 'city', 'castle', 'dungeon'],
-    water: ['water', 'port', 'bridge'],
+    water: ['water', 'port'],
     mountain: ['mountain', 'dungeon'],
     forest: ['forest', 'road', 'dungeon'],
     city: ['road', 'grass'],
     town: ['road', 'grass'],
     dungeon: ['mountain', 'forest', 'grass'],
     castle: ['road', 'grass'],
-    bridge: ['road', 'water'],
-    road: ['road', 'grass', 'town', 'city', 'castle', 'bridge'],
+    road: ['road', 'grass', 'town', 'city', 'castle'],
     port: ['water', 'road']
   };
   return defaultConnections[type] || [];

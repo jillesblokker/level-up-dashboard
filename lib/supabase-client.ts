@@ -1,5 +1,4 @@
 import { createBrowserClient } from '@supabase/ssr'
-import { TileType } from '@/types/tiles'
 import { Database } from '@/types/supabase'
 import { PostgrestError } from '@supabase/supabase-js'
 

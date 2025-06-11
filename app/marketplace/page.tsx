@@ -133,7 +133,7 @@ export default function MarketplacePage() {
     } else {
       toast({
         title: "Insufficient Gold",
-        description: "You don't have enough gold to purchase this tile.",
+        description: "You don&rsquo;t have enough gold to purchase this tile.",
         variant: "destructive",
       })
     }

@@ -7,12 +7,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
-import { TileType, TileItem } from '@/types/tiles'
+import { TileType } from '@/types/tiles'
 import { toast } from 'sonner'
 import Image from "next/image"
 
 // Extend TileItem to include x and y coordinates
-interface ExtendedTileItem extends TileItem {
+interface ExtendedTileItem {
+  id: string;
+  type: TileType;
+  name: string;
+  quantity: number;
+  cost: number;
+  description: string;
+  connections: string[];
   x?: number;
   y?: number;
 }
@@ -59,12 +66,12 @@ export function TileEditor({ tiles, onUpdateTiles, onSelectTile }: TileEditorPro
         if (parts.length < 5) return null
         
         return {
-          id: `${parts[0].trim()}-${Date.now()}`,
-          type: parts[0].trim() as TileType,
-          name: parts[1].trim(),
-          quantity: parseInt(parts[2].trim()) || 0,
-          cost: parseInt(parts[3].trim()) || 0,
-          description: parts[4].trim(),
+          id: `${parts[0]?.trim() || ''}-${Date.now()}`,
+          type: (parts[0]?.trim() || '') as TileType,
+          name: parts[1]?.trim() || '',
+          quantity: parseInt(parts[2]?.trim() || '0') || 0,
+          cost: parseInt(parts[3]?.trim() || '0') || 0,
+          description: parts[4]?.trim() || '',
           connections: [],
           x: 0,
           y: 0
@@ -104,7 +111,7 @@ export function TileEditor({ tiles, onUpdateTiles, onSelectTile }: TileEditorPro
   const handleQuantityChange = (index: number, value: string) => {
     const quantity = parseInt(value) || 0
     const newTiles = [...parsedTiles]
-    newTiles[index] = { ...newTiles[index], quantity }
+    newTiles[index] = { ...newTiles[index], quantity: quantity || 0 }
     setParsedTiles(newTiles)
     
     // Also update the markdown

@@ -17,7 +17,7 @@ export default function RequireSignIn() {
         <h2 className="text-2xl font-medieval text-amber-500 drop-shadow mb-4 text-center">
           Welcome to the world of Thrivehaven.<br />
           <span className="text-base font-normal text-amber-200 block mt-4">
-            It's time to join the cause and work your way up from squire to king. Become stronger, smarter, and achieve amazing milestones. Level up by mastering habits. The only thing left is to sign in to enter the realm.
+            It&apos;s time to join the cause and work your way up from squire to king. Become stronger, smarter, and achieve amazing milestones. Level up by mastering habits. The only thing left is to sign in to enter the realm.
           </span>
         </h2>
         <SignInButton>

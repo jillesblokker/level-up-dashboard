@@ -14,6 +14,14 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface Task {
   id: string
@@ -22,6 +30,7 @@ interface Task {
   category: string
   gold: number
   xp: number
+  priority: string
 }
 
 interface DailyTasksProps {
@@ -49,6 +58,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
           category: "strength",
           gold: 20,
           xp: 50,
+          priority: "medium",
         },
         {
           id: "2",
@@ -57,6 +67,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
           category: "condition",
           gold: 30,
           xp: 75,
+          priority: "medium",
         },
         {
           id: "3",
@@ -65,6 +76,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
           category: "knowledge",
           gold: 15,
           xp: 40,
+          priority: "medium",
         },
         {
           id: "4",
@@ -73,6 +85,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
           category: "nutrition",
           gold: 10,
           xp: 30,
+          priority: "medium",
         },
         {
           id: "5",
@@ -81,6 +94,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
           category: "mental",
           gold: 25,
           xp: 60,
+          priority: "medium",
         },
         {
           id: "6",
@@ -89,6 +103,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
           category: "strength",
           gold: 15,
           xp: 35,
+          priority: "medium",
         },
         {
           id: "7",
@@ -97,6 +112,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
           category: "nutrition",
           gold: 20,
           xp: 45,
+          priority: "medium",
         },
         {
           id: "8",
@@ -105,6 +121,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
           category: "knowledge",
           gold: 35,
           xp: 80,
+          priority: "medium",
         },
       ]
       setTasks(defaultTasks)
@@ -147,6 +164,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
       category: newTaskCategory,
       gold: Math.floor(Math.random() * 30) + 10, // Random gold between 10-40
       xp: Math.floor(Math.random() * 50) + 25, // Random XP between 25-75
+      priority: "medium",
     }
 
     setTasks((prevTasks) => [...prevTasks, newTask])
@@ -221,6 +239,17 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
     }
   }
 
+  const handlePriorityChange = (taskId: string, value: string) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) => {
+        if (task.id === taskId) {
+          return { ...task, priority: value }
+        }
+        return task
+      }),
+    )
+  }
+
   return (
     <>
       <div className="space-y-4">
@@ -247,30 +276,31 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
                   {getCategoryName(category)}
                 </CardTitle>
                 <CardDescription className="text-white/90">
-                  {tasksByCategory[category].filter((t) => t.completed).length} of {tasksByCategory[category].length}{" "}
+                  {tasksByCategory[category] ? tasksByCategory[category].filter((t) => t.completed).length : 0} of {tasksByCategory[category] ? tasksByCategory[category].length : 0}{" "}
                   completed
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-4">
                 <ul className="space-y-2">
-                  {tasksByCategory[category].map((task) => (
+                  {tasksByCategory[category] ? tasksByCategory[category].map((task) => (
                     <li key={task.id} className="flex items-start gap-2">
                       <button
                         onClick={() => handleTaskToggle(task.id)}
-                        className={`flex-shrink-0 w-5 h-5 mt-0.5 rounded-full border-2 ${
-                          task.completed
-                            ? "bg-amber-600 border-amber-600 text-white"
-                            : "border-amber-600 text-transparent hover:border-amber-500"
-                        } flex items-center justify-center`}
+                        className="flex items-center gap-2 text-left"
+                        aria-label={`Toggle task: ${task.title}`}
                       >
-                        {task.completed && <Check className="h-3 w-3" />}
+                        <Checkbox
+                          checked={task.completed}
+                          onCheckedChange={() => handleTaskToggle(task.id)}
+                          className="mt-1"
+                        />
+                        <span className={`flex-1 text-sm ${task.completed ? "line-through text-gray-500" : "text-white"}`}>
+                          {task.title}
+                          <div className="text-xs text-amber-400/90 mt-1">
+                            Reward: {task.gold} gold, {task.xp} XP
+                          </div>
+                        </span>
                       </button>
-                      <span className={`flex-1 text-sm ${task.completed ? "line-through text-gray-500" : "text-white"}`}>
-                        {task.title}
-                        <div className="text-xs text-amber-400/90 mt-1">
-                          Reward: {task.gold} gold, {task.xp} XP
-                        </div>
-                      </span>
                       <button
                         onClick={() => handleDeleteTask(task.id)}
                         className="text-gray-500 hover:text-white"
@@ -278,7 +308,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
                         <X className="h-4 w-4" />
                       </button>
                     </li>
-                  ))}
+                  )) : null}
                 </ul>
               </CardContent>
 
@@ -334,6 +364,26 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
                 <option value="nutrition">Vitality</option>
                 <option value="mental">Spirit</option>
               </select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="task-priority">Priority</Label>
+              <Select
+                value={tasks.find(t => t.id === newTaskId)?.priority || "medium"}
+                onValueChange={(value) => {
+                  // Handle priority change
+                }}
+                aria-label={`Set priority for task: ${newTaskTitle}`}
+              >
+                <SelectTrigger className="w-[100px]">
+                  <SelectValue placeholder="Priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

@@ -146,7 +146,7 @@ function CustomTooltip({ active, payload, label }: TooltipProps) {
               {label}
             </span>
             <span className="font-bold">
-              {payload[0].value}
+              {payload[0]?.value || 0}
             </span>
           </div>
         </div>

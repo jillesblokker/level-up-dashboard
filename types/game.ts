@@ -1,4 +1,4 @@
-import { Database } from './supabase'
+// Removed unused import
 
 export interface Position {
   x: number;

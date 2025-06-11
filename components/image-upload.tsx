@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { Upload, X, Image as ImageIcon } from "lucide-react";
+import { Upload, X } from "lucide-react";
 import { uploadImage } from "@/lib/image-utils";
 import Image from 'next/image';
 
@@ -37,7 +37,7 @@ export function ImageUpload({
       setIsUploading(true);
       
       // Create a preview
-      const localPreview = URL.createObjectURL(file);
+      const localPreview = file ? URL.createObjectURL(file) : '';
       setPreviewUrl(localPreview);
       
       // Upload the image
