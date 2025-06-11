@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
 import { calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress, CharacterStats } from "@/types/character"
+import { storageService } from '@/lib/storage-service'
 
 // Character progression types
 interface Title {
@@ -38,184 +39,6 @@ interface Perk {
 }
 
 export default function CharacterPage() {
-  const [characterStats, setCharacterStats] = useState<CharacterStats>({
-    level: 1,
-    experience: 0,
-    experienceToNextLevel: 100,
-    gold: 1000,
-    titles: {
-      equipped: "Novice Adventurer",
-      unlocked: 5,
-      total: 20
-    },
-    perks: {
-      active: 3,
-      total: 10
-    }
-  });
-
-  const [isHovering, setIsHovering] = useState(false)
-  const [showUploadModal, setShowUploadModal] = useState(false)
-  const [coverImage, setCoverImage] = useState(() => {
-    if (typeof window !== 'undefined' && window.headerImages) {
-      return window.headerImages.character || "/images/character-header.jpg"
-    }
-    return "/images/character-header.jpg"
-  })
-  const [isUploading, setIsUploading] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
-  // Load character stats from localStorage on component mount
-  useEffect(() => {
-    const loadCharacterStats = () => {
-      try {
-        const savedStats = localStorage.getItem("character-stats");
-        if (savedStats) {
-          const stats = JSON.parse(savedStats) as CharacterStats;
-          // Initialize with default gold if not set
-          if (typeof stats.gold === 'undefined') {
-            stats.gold = 1000;
-            localStorage.setItem("character-stats", JSON.stringify(stats));
-          }
-          setCharacterStats({
-            ...stats,
-            level: calculateLevelFromExperience(stats.experience),
-            experienceToNextLevel: calculateExperienceForLevel(calculateLevelFromExperience(stats.experience))
-          });
-        } else {
-          // If no stats exist, create initial stats
-          const initialStats: CharacterStats = {
-            level: 1,
-            experience: 0,
-            experienceToNextLevel: 100,
-            gold: 1000,
-            titles: {
-              equipped: "Novice Adventurer",
-              unlocked: 5,
-              total: 20
-            },
-            perks: {
-              active: 3,
-              total: 10
-            }
-          };
-          localStorage.setItem("character-stats", JSON.stringify(initialStats));
-          setCharacterStats(initialStats);
-        }
-      } catch (error) {
-        console.error("Error loading character stats:", error);
-      }
-    };
-
-    const loadPerks = () => {
-      try {
-        const savedPerks = localStorage.getItem("character-perks");
-        if (savedPerks) {
-          setPerks(JSON.parse(savedPerks));
-        } else {
-          // Initialize perks in localStorage
-          localStorage.setItem("character-perks", JSON.stringify(perks));
-        }
-      } catch (error) {
-        console.error("Error loading perks:", error);
-      }
-    };
-
-    loadCharacterStats();
-    loadPerks();
-
-    // Listen for character stats updates
-    const handleStatsUpdate = () => loadCharacterStats();
-    window.addEventListener("character-stats-update", handleStatsUpdate);
-    
-    // Listen for achievement completion to unlock perks
-    const handleAchievementComplete = (event: CustomEvent) => {
-      const { achievementId } = event.detail;
-      
-      // Map achievements to perks
-      const achievementPerkMap: { [key: string]: string } = {
-        'defeat_100_monsters': 'p1', // Strength Mastery
-        'win_50_battles': 'p1',
-        'learn_20_spells': 'p4', // Quick Learner
-        'read_30_scrolls': 'p4',
-        'visit_all_regions': 'p3', // Gold Finder
-        'discover_secret_locations': 'p3',
-        'complete_50_quests': 'p2', // Endurance Training
-        'max_reputation': 'p2',
-        'craft_legendary': 'p5', // Nutritional Expert
-        'craft_100_items': 'p5',
-        'collect_all_creatures': 'p6', // Rest Master
-        'collect_rare_items': 'p6'
-      };
-
-      const perkId = achievementPerkMap[achievementId];
-      if (perkId) {
-        setPerks(currentPerks => {
-          const updatedPerks = currentPerks.map(perk => 
-            perk.id === perkId ? { ...perk, unlocked: true } : perk
-          );
-          localStorage.setItem("character-perks", JSON.stringify(updatedPerks));
-          return updatedPerks;
-        });
-
-        toast({
-          title: "Perk Unlocked!",
-          description: `You've unlocked a new perk through your achievements!`,
-        });
-      }
-    };
-
-    window.addEventListener("achievement-complete", handleAchievementComplete as EventListener);
-    
-    return () => {
-      window.removeEventListener("character-stats-update", handleStatsUpdate);
-      window.removeEventListener("achievement-complete", handleAchievementComplete as EventListener);
-    };
-  }, []);
-
-  // Load perks from localStorage on mount
-  useEffect(() => {
-    try {
-      const savedPerks = localStorage.getItem("character-perks");
-      if (savedPerks) {
-        setPerks(JSON.parse(savedPerks));
-      }
-    } catch (error) {
-      console.error("Error loading perks from localStorage:", error);
-    }
-  }, []);
-
-  // Whenever perks change, update localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem("character-perks", JSON.stringify(perks));
-    } catch (error) {
-      console.error("Error saving perks to localStorage:", error);
-    }
-  }, [perks]);
-
-  // Load titles from localStorage on mount
-  useEffect(() => {
-    try {
-      const savedTitles = localStorage.getItem("titles");
-      if (savedTitles) {
-        setTitles(JSON.parse(savedTitles));
-      }
-    } catch (error) {
-      console.error("Error loading titles from localStorage:", error);
-    }
-  }, []);
-
-  // Whenever titles change, update localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem("titles", JSON.stringify(titles));
-    } catch (error) {
-      console.error("Error saving titles to localStorage:", error);
-    }
-  }, [titles]);
-
-  // Titles
   const [titles, setTitles] = useState<Title[]>([
     {
       id: "t1",
@@ -279,7 +102,6 @@ export default function CharacterPage() {
     },
   ])
 
-  // Perks
   const [perks, setPerks] = useState<Perk[]>([
     {
       id: "p1",
@@ -349,6 +171,218 @@ export default function CharacterPage() {
     },
   ])
 
+  const [characterStats, setCharacterStats] = useState<CharacterStats>({
+    level: 1,
+    experience: 0,
+    experienceToNextLevel: 100,
+    gold: 1000,
+    titles: {
+      equipped: "Novice Adventurer",
+      unlocked: 5,
+      total: 20
+    },
+    perks: {
+      active: 3,
+      total: 10
+    }
+  });
+
+  const [isHovering, setIsHovering] = useState(false)
+  const [showUploadModal, setShowUploadModal] = useState(false)
+  const [coverImage, setCoverImage] = useState(() => {
+    if (typeof window !== 'undefined' && window.headerImages) {
+      return window.headerImages.character || "/images/character-header.jpg"
+    }
+    return "/images/character-header.jpg"
+  })
+  const [isUploading, setIsUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Load character stats and perks from storageService on component mount
+  useEffect(() => {
+    const loadCharacterStats = () => {
+      try {
+        const defaultStats: CharacterStats = {
+          level: 1,
+          experience: 0,
+          experienceToNextLevel: 100,
+          gold: 1000,
+          titles: {
+            equipped: "Novice Adventurer",
+            unlocked: 5,
+            total: 20
+          },
+          perks: {
+            active: 3,
+            total: 10
+          }
+        };
+        const savedStats = storageService.get<CharacterStats>("character-stats", defaultStats);
+        if (savedStats) {
+          // Initialize with default gold if not set
+          if (typeof savedStats.gold === 'undefined') {
+            savedStats.gold = 1000;
+            storageService.set("character-stats", savedStats);
+          }
+          setCharacterStats({
+            ...savedStats,
+            level: calculateLevelFromExperience(savedStats.experience),
+            experienceToNextLevel: calculateExperienceForLevel(calculateLevelFromExperience(savedStats.experience))
+          });
+        } else {
+          storageService.set("character-stats", defaultStats);
+          setCharacterStats(defaultStats);
+        }
+      } catch (error) {
+        console.error("Error loading character stats:", error);
+      }
+    };
+
+    const loadPerks = () => {
+      try {
+        const defaultPerks: Perk[] = [
+          {
+            id: "p1",
+            name: "Strength Mastery",
+            description: "Increases XP gained from strength activities.",
+            category: "Might",
+            effect: "+10% XP from Might activities per level",
+            level: 2,
+            maxLevel: 5,
+            unlocked: true,
+            equipped: true,
+          },
+          {
+            id: "p2",
+            name: "Endurance Training",
+            description: "Increases XP gained from cardio activities.",
+            category: "Endurance",
+            effect: "+10% XP from Endurance activities per level",
+            level: 1,
+            maxLevel: 5,
+            unlocked: true,
+            equipped: true,
+          },
+          {
+            id: "p3",
+            name: "Gold Finder",
+            description: "Increases gold earned from all activities.",
+            category: "General",
+            effect: "+5% gold from all activities per level",
+            level: 3,
+            maxLevel: 5,
+            unlocked: true,
+            equipped: true,
+          },
+          {
+            id: "p4",
+            name: "Quick Learner",
+            description: "Increases XP gained from knowledge activities.",
+            category: "Wisdom",
+            effect: "+10% XP from Wisdom activities per level",
+            level: 0,
+            maxLevel: 5,
+            unlocked: true,
+            equipped: false,
+          },
+          {
+            id: "p5",
+            name: "Nutritional Expert",
+            description: "Increases benefits from tracking nutrition.",
+            category: "Vitality",
+            effect: "+15% XP from Vitality activities per level",
+            level: 0,
+            maxLevel: 3,
+            unlocked: true,
+            equipped: false,
+          },
+          {
+            id: "p6",
+            name: "Rest Master",
+            description: "Improves recovery and sleep tracking benefits.",
+            category: "Resilience",
+            effect: "+10% XP from Resilience activities per level",
+            level: 0,
+            maxLevel: 3,
+            unlocked: false,
+            equipped: false,
+          },
+        ];
+        const savedPerks = storageService.get<Perk[]>("character-perks", defaultPerks);
+        if (savedPerks) {
+          setPerks(savedPerks);
+        } else {
+          // Initialize perks in storageService
+          storageService.set("character-perks", defaultPerks);
+        }
+      } catch (error) {
+        console.error("Error loading perks:", error);
+      }
+    };
+
+    loadCharacterStats();
+    loadPerks();
+
+    // Listen for character stats updates
+    const handleStatsUpdate = () => loadCharacterStats();
+    window.addEventListener("character-stats-update", handleStatsUpdate);
+    
+    // Listen for achievement completion to unlock perks
+    const handleAchievementComplete = (event: CustomEvent) => {
+      const { achievementId } = event.detail;
+      
+      // Map achievements to perks
+      const achievementPerkMap: { [key: string]: string } = {
+        'defeat_100_monsters': 'p1', // Strength Mastery
+        'win_50_battles': 'p1',
+        'learn_20_spells': 'p4', // Quick Learner
+        'read_30_scrolls': 'p4',
+        'visit_all_regions': 'p3', // Gold Finder
+        'discover_secret_locations': 'p3',
+        'complete_50_quests': 'p2', // Endurance Training
+        'max_reputation': 'p2',
+        'craft_legendary': 'p5', // Nutritional Expert
+        'craft_100_items': 'p5',
+        'collect_all_creatures': 'p6', // Rest Master
+        'collect_rare_items': 'p6'
+      };
+
+      const perkId = achievementPerkMap[achievementId];
+      if (perkId) {
+        setPerks(currentPerks => {
+          const updatedPerks = currentPerks.map(perk => 
+            perk.id === perkId ? { ...perk, unlocked: true } : perk
+          );
+          storageService.set("character-perks", updatedPerks);
+          return updatedPerks;
+        });
+
+        toast({
+          title: "Perk Unlocked!",
+          description: `You've unlocked a new perk through your achievements!`,
+        });
+      }
+    };
+
+    window.addEventListener("achievement-complete", handleAchievementComplete as EventListener);
+    
+    return () => {
+      window.removeEventListener("character-stats-update", handleStatsUpdate);
+      window.removeEventListener("achievement-complete", handleAchievementComplete as EventListener);
+    };
+  }, []);
+
+  // Load titles from localStorage on mount
+  useEffect(() => {
+    const savedTitles = storageService.get("titles", []);
+    setTitles(Array.isArray(savedTitles) ? savedTitles : []);
+  }, []);
+
+  // Whenever titles change, update localStorage
+  useEffect(() => {
+    storageService.set("titles", titles);
+  }, [titles]);
+
   // Function to equip a title
   const equipTitle = (titleId: string) => {
     setTitles((prev) =>
@@ -369,7 +403,7 @@ export default function CharacterPage() {
             equipped: title.name
           }
         };
-        localStorage.setItem("character-stats", JSON.stringify(newStats));
+        storageService.set("character-stats", newStats);
         return newStats;
       });
 
@@ -390,7 +424,7 @@ export default function CharacterPage() {
       // Unequipping is always allowed
       setPerks((prev) => {
         const updatedPerks = prev.map((p) => (p.id === perkId ? { ...p, equipped: false } : p));
-        localStorage.setItem("character-perks", JSON.stringify(updatedPerks));
+        storageService.set("character-perks", updatedPerks);
         return updatedPerks;
       });
 
@@ -407,7 +441,7 @@ export default function CharacterPage() {
         if (equippedPerksCount < 3) {
           setPerks((prev) => {
             const updatedPerks = prev.map((p) => (p.id === perkId ? { ...p, equipped: true } : p));
-            localStorage.setItem("character-perks", JSON.stringify(updatedPerks));
+            storageService.set("character-perks", updatedPerks);
             return updatedPerks;
           });
 
@@ -452,7 +486,7 @@ export default function CharacterPage() {
       if (characterStats.gold >= upgradeCost) {
         setPerks((prev) => {
           const updatedPerks = prev.map((p) => (p.id === perkId ? { ...p, level: p.level + 1 } : p));
-          localStorage.setItem("character-perks", JSON.stringify(updatedPerks));
+          storageService.set("character-perks", updatedPerks);
           return updatedPerks;
         });
 
@@ -461,7 +495,7 @@ export default function CharacterPage() {
             ...prev,
             gold: prev.gold - upgradeCost
           };
-          localStorage.setItem("character-stats", JSON.stringify(newStats));
+          storageService.set("character-stats", newStats);
           return newStats;
         });
 
@@ -649,7 +683,7 @@ export default function CharacterPage() {
             </TabsList>
             <TabsContent value="titles">
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {titles.map((title) => (
+                {Array.isArray(titles) ? titles.map((title) => (
                   <Card
                     key={title.id}
                     className={`medieval-card ${
@@ -709,7 +743,7 @@ export default function CharacterPage() {
                       )}
                     </CardFooter>
                   </Card>
-                ))}
+                )) : null}
               </div>
             </TabsContent>
             <TabsContent value="perks">

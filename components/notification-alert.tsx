@@ -1,9 +1,17 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { X, Bell, Check } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Badge } from "@/components/ui/badge"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { storageService } from '@/lib/storage-service'
 
 interface Notification {
   id: string
@@ -20,10 +28,8 @@ export function NotificationAlert() {
 
   // Load notifications from localStorage
   useEffect(() => {
-    const storedNotifications = localStorage.getItem("notifications")
-    if (storedNotifications) {
-      setNotifications(JSON.parse(storedNotifications))
-    }
+    const storedNotifications = storageService.get<Notification[]>('notifications', [])
+    setNotifications(storedNotifications)
 
     // Listen for new notifications
     const handleNewNotification = (event: CustomEvent) => {
@@ -39,7 +45,7 @@ export function NotificationAlert() {
 
   // Save notifications to localStorage when they change
   useEffect(() => {
-    localStorage.setItem("notifications", JSON.stringify(notifications))
+    storageService.set('notifications', notifications)
   }, [notifications])
 
   const markAsRead = (id: string) => {
@@ -95,81 +101,72 @@ export function NotificationAlert() {
     return date.toLocaleDateString()
   }
 
-  const unreadCount = notifications.filter((n) => !n.read).length
-
   return (
-    <div className="relative">
-      <Button variant="ghost" size="icon" onClick={() => setShowNotifications(!showNotifications)} className="relative">
-        <Bell className="h-5 w-5" />
-        {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-            {unreadCount}
-          </span>
-        )}
-        <span className="sr-only">Notifications</span>
-      </Button>
-
-      {showNotifications && (
-        <Card className="absolute right-0 mt-2 w-80 max-h-[80vh] overflow-auto z-50 bg-black border-amber-800/20">
-          <div className="p-4 border-b border-amber-800/20 flex items-center justify-between">
-            <h3 className="font-medium">Notifications</h3>
-            <div className="flex gap-2">
-              {unreadCount > 0 && (
-                <Button variant="ghost" size="sm" onClick={markAllAsRead} className="h-8 px-2 text-xs">
-                  <Check className="h-3 w-3 mr-1" />
-                  Mark all read
-                </Button>
-              )}
-              <Button variant="ghost" size="icon" onClick={() => setShowNotifications(false)} className="h-6 w-6">
-                <X className="h-4 w-4" />
-                <span className="sr-only">Close</span>
-              </Button>
+    <DropdownMenu open={showNotifications} onOpenChange={setShowNotifications}>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" className="relative" aria-label="Notifications">
+          <Bell className="h-5 w-5" />
+          {notifications.filter((n) => !n.read).length > 0 && (
+            <Badge
+              variant="destructive"
+              className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 flex items-center justify-center"
+              aria-label={`${notifications.filter((n) => !n.read).length} unread notifications`}
+            >
+              {notifications.filter((n) => !n.read).length}
+            </Badge>
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-80" aria-label="Notifications menu">
+        <div className="flex items-center justify-between p-2">
+          <h4 className="font-medium">Notifications</h4>
+          {notifications.length > 0 && (
+            <Button variant="ghost" size="sm" onClick={markAllAsRead} aria-label="Mark all notifications as read">
+              Mark all as read
+            </Button>
+          )}
+        </div>
+        <ScrollArea className="h-[300px]" aria-label="Notifications scroll area">
+          {notifications.length === 0 ? (
+            <div className="p-4 text-center text-sm text-muted-foreground">
+              No notifications
             </div>
-          </div>
-
-          <div className="divide-y divide-amber-800/10">
-            {notifications.length === 0 ? (
-              <div className="p-4 text-center text-muted-foreground">No notifications</div>
-            ) : (
-              notifications.map((notification) => (
-                <div key={notification.id} className={`p-3 relative ${notification.read ? "opacity-70" : ""}`}>
-                  <div className="flex items-start gap-3">
-                    <div className={`w-2 h-2 mt-1.5 rounded-full ${getTypeColor(notification.type)}`} />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-medium text-sm">{notification.title}</h4>
-                        <span className="text-xs text-muted-foreground">{formatTime(notification.timestamp)}</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-1">{notification.message}</p>
-                    </div>
+          ) : (
+            notifications.map((notification) => (
+              <DropdownMenuItem
+                key={notification.id}
+                className="flex flex-col items-start p-4 gap-2"
+                onSelect={(e) => {
+                  e.preventDefault()
+                  markAsRead(notification.id)
+                }}
+              >
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2">
+                    <div className={`h-2 w-2 rounded-full ${getTypeColor(notification.type)}`} />
+                    <span className="font-medium">{notification.title}</span>
                   </div>
-                  <div className="mt-2 flex justify-end gap-2">
-                    {!notification.read && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => markAsRead(notification.id)}
-                        className="h-7 px-2 text-xs"
-                      >
-                        Mark as read
-                      </Button>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deleteNotification(notification.id)}
-                      className="h-7 px-2 text-xs text-red-500 hover:text-red-600"
-                    >
-                      Delete
-                    </Button>
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      deleteNotification(notification.id)
+                    }}
+                    aria-label={`Delete notification: ${notification.title}`}
+                  >
+                    ×
+                  </Button>
                 </div>
-              ))
-            )}
-          </div>
-        </Card>
-      )}
-    </div>
+                <p className="text-sm text-muted-foreground">{notification.message}</p>
+                <span className="text-xs text-muted-foreground">{formatTime(notification.timestamp)}</span>
+              </DropdownMenuItem>
+            ))
+          )}
+        </ScrollArea>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 

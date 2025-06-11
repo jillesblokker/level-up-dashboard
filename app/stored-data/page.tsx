@@ -1,52 +1,63 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { defaultInventoryItems } from "app/lib/default-inventory";
+import { storageService } from '@/lib/storage-service';
+import { toast } from 'sonner';
+import { formatBytes } from '@/lib/utils';
 
-const STORAGE_KEYS = [
-  { key: "checked-quests", label: "Checked Quests" },
-  { key: "checked-milestones", label: "Checked Milestones" },
-  { key: "tilemap", label: "Tilemap" },
-  { key: "kingdom-inventory", label: "Kingdom Inventory" },
-  { key: "achievements", label: "Achievements Unlocked" },
-  { key: "titles", label: "Titles Gained/Set" },
-  { key: "perks", label: "Perks Gained/Set" },
-];
+interface StoredData {
+  key: string;
+  value: any;
+  size: number;
+  lastUpdated: string;
+  version: string;
+}
 
-function getStoredData() {
-  return STORAGE_KEYS.map(({ key, label }) => {
+function getStoredData(): StoredData[] {
+  return storageService.getAllKeys().map((key) => {
     let value = null;
-    let lastUpdated = null;
+    let lastUpdated = 'Unknown';
+    let version = 'Unknown';
     try {
-      value = localStorage.getItem(key);
+      const storedItem = storageService.get<any>(key, null);
       // For kingdom-inventory, if missing or empty, use defaultInventoryItems
-      if (key === "kingdom-inventory" && (!value || value === "[]")) {
-        value = JSON.stringify(defaultInventoryItems);
+      if (key === "kingdom-inventory" && (!storedItem || storedItem === "[]")) {
+        value = defaultInventoryItems;
+      } else {
+        value = storedItem;
       }
       // Try to get a last updated timestamp if present in the object
-      if (value) {
-        const parsed = JSON.parse(value);
-        if (parsed && typeof parsed === "object" && parsed.lastUpdated) {
-          lastUpdated = parsed.lastUpdated;
-        }
+      if (value && typeof value === "object" && 'lastUpdated' in value) {
+        lastUpdated = value.lastUpdated;
       }
-    } catch {}
-    return { key, label, value, lastUpdated };
+      if (value && typeof value === "object" && 'version' in value) {
+        version = value.version;
+      }
+    } catch (error) {
+      // Error handling intentionally left empty to avoid breaking the UI if stored data fails to load
+    }
+    return { 
+      key, 
+      value, 
+      size: JSON.stringify(value).length,
+      lastUpdated,
+      version
+    };
   });
 }
 
 function summarizeData(key: string, value: any) {
   if (!value) return null;
   try {
-    const parsed = JSON.parse(value);
-    if (Array.isArray(parsed)) {
-      if (parsed.length === 0) return <span>No entries.</span>;
-      if (typeof parsed[0] === "object" && parsed[0] !== null) {
-        const fields = Object.keys(parsed[0]);
+    if (Array.isArray(value)) {
+      if (value.length === 0) return <span>No entries.</span>;
+      if (typeof value[0] === "object" && value[0] !== null) {
+        const fields = Object.keys(value[0]);
         return (
           <table className="min-w-[300px] text-xs border mb-2" aria-label={`${key}-summary-table`}>
             <thead>
@@ -55,7 +66,7 @@ function summarizeData(key: string, value: any) {
               </tr>
             </thead>
             <tbody>
-              {parsed.slice(0, 3).map((row, i) => (
+              {value.slice(0, 3).map((row, i) => (
                 <tr key={i}>
                   {fields.map(f => <td key={f} className="px-2 py-1 border-b">{String(row[f])}</td>)}
                 </tr>
@@ -64,100 +75,314 @@ function summarizeData(key: string, value: any) {
           </table>
         );
       } else {
-        return <div>Entries: {parsed.slice(0, 5).join(", ")}{parsed.length > 5 ? "..." : ""}</div>;
+        return <div>Entries: {value.slice(0, 5).join(", ")}{value.length > 5 ? "..." : ""}</div>;
       }
-    } else if (typeof parsed === "object" && parsed !== null) {
-      const keys = Object.keys(parsed);
+    } else if (typeof value === "object" && value !== null) {
+      const keys = Object.keys(value);
       return <div>Fields: {keys.join(", ")}</div>;
     } else {
-      return <div>Value: {String(parsed)}</div>;
+      return <div>Value: {String(value)}</div>;
     }
   } catch {
-    return <span>Invalid JSON or not structured data.</span>;
+    return <span>Invalid data structure.</span>;
   }
 }
 
 function getLastUpdated(value: any) {
-  try {
-    const parsed = JSON.parse(value);
-    if (parsed && typeof parsed === "object" && parsed.lastUpdated) {
-      return new Date(parsed.lastUpdated).toLocaleString();
-    }
-  } catch {}
+  if (value && typeof value === "object" && value.lastUpdated) {
+    return new Date(value.lastUpdated).toLocaleString();
+  }
   return null;
 }
 
 export default function StoredDataPage() {
-  const [data, setData] = useState(() => getStoredData());
-  const [storageAvailable, setStorageAvailable] = useState(true);
+  const [storedData, setStoredData] = useState<StoredData[]>([]);
+  const [storageInfo, setStorageInfo] = useState<{ total: number; used: number; remaining: number }>({ total: 0, used: 0, remaining: 0 });
+  const [storageStats, setStorageStats] = useState<{ 
+    totalItems: number; 
+    totalSize: number; 
+    averageItemSize: number; 
+    oldestItem: string | null; 
+    newestItem: string | null; 
+  }>({
+    totalItems: 0,
+    totalSize: 0,
+    averageItemSize: 0,
+    oldestItem: null,
+    newestItem: null
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState<'key' | 'size' | 'lastUpdated'>('key');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
-  // Load data on mount and on storage events
-  useEffect(() => {
-    function loadData() {
+  const refreshData = () => {
+    setIsLoading(true);
+    try {
+      const keys = storageService.getAllKeys();
+      const data = keys.map(key => {
+        const item = storageService.get<any>(key, null);
+        if (item && typeof item === 'object' && 'value' in item) {
+          return {
+            key,
+            value: item.value,
+            size: JSON.stringify(item).length,
+            lastUpdated: item.lastUpdated || 'Unknown',
+            version: item.version || 'Unknown'
+          };
+        }
+        return {
+          key,
+          value: item,
+          size: JSON.stringify(item).length,
+          lastUpdated: 'Unknown',
+          version: 'Unknown'
+        };
+      });
+      setStoredData(data);
+      setStorageInfo(storageService.getStorageInfo());
+      setStorageStats(storageService.getStats());
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+      toast.error('Failed to refresh data');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleClear = () => {
+    if (window.confirm('Are you sure you want to clear all stored data? This cannot be undone.')) {
       try {
-        setData(getStoredData());
-        setStorageAvailable(true);
-      } catch {
-        setStorageAvailable(false);
+        storageService.clear();
+        refreshData();
+        toast.success('All stored data cleared');
+      } catch (error) {
+        console.error('Error clearing data:', error);
+        toast.error('Failed to clear data');
       }
     }
-    loadData();
-    window.addEventListener("storage", loadData);
-    return () => window.removeEventListener("storage", loadData);
-  }, []);
+  };
 
-  const refresh = () => {
+  const handleBackup = () => {
     try {
-      setData(getStoredData());
-      setStorageAvailable(true);
-    } catch {
-      setStorageAvailable(false);
+      const backup = storageService.backup();
+      const blob = new Blob([backup], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `storage-backup-${new Date().toISOString()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success('Backup created successfully');
+    } catch (error) {
+      console.error('Error creating backup:', error);
+      toast.error('Failed to create backup');
     }
   };
 
-  const handleCopy = (value: string | null) => {
-    if (value) navigator.clipboard.writeText(value);
+  const handleRestore = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const backup = event.target?.result as string;
+            if (storageService.restore(backup)) {
+              refreshData();
+              toast.success('Backup restored successfully');
+            } else {
+              toast.error('Failed to restore backup');
+            }
+          } catch (error) {
+            console.error('Error restoring backup:', error);
+            toast.error('Failed to restore backup');
+          }
+        };
+        reader.readAsText(file);
+      }
+    };
+    input.click();
   };
 
-  const handleClear = (key: string) => {
-    localStorage.removeItem(key);
-    refresh();
-  };
+  const filteredAndSortedData = storedData
+    .filter(item => 
+      item.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      JSON.stringify(item.value).toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      const multiplier = sortOrder === 'asc' ? 1 : -1;
+      switch (sortBy) {
+        case 'key':
+          return multiplier * a.key.localeCompare(b.key);
+        case 'size':
+          return multiplier * (a.size - b.size);
+        case 'lastUpdated':
+          return multiplier * (new Date(a.lastUpdated).getTime() - new Date(b.lastUpdated).getTime());
+        default:
+          return 0;
+      }
+    });
+
+  useEffect(() => {
+    refreshData();
+  }, []);
 
   return (
-    <main className="container mx-auto p-4" aria-label="stored-data-section">
-      <h1 className="text-2xl font-bold mb-4">Stored Data</h1>
-      {!storageAvailable && (
-        <div className="mb-4 p-2 bg-red-900 text-red-200 rounded" aria-label="storage-warning">
-          Warning: localStorage is not available or accessible. Data may not be saved or loaded correctly. Try disabling privacy features or using a different browser.
-        </div>
-      )}
-      <Button onClick={refresh} className="mb-4" aria-label="refresh-stored-data">Refresh</Button>
-      <Card className="p-4" aria-label="stored-data-card">
-        <ScrollArea className="h-[600px]" aria-label="stored-data-scroll-area">
-          <div className="space-y-8">
-            {data.map(({ key, label, value }) => (
-              <section key={key} aria-label={`${label}-section`}>
-                <div className="flex items-center gap-2 mb-2">
-                  <h2 className="text-lg font-semibold">{label}</h2>
-                  <Badge>{key}</Badge>
-                  <Button size="sm" variant="outline" onClick={() => handleCopy(value)} aria-label={`copy-${key}`}>Copy</Button>
-                  <Button size="sm" variant="destructive" onClick={() => handleClear(key)} aria-label={`clear-${key}`}>Clear</Button>
-                  {value && getLastUpdated(value) && (
-                    <span className="ml-2 text-xs text-muted-foreground">Last updated: {getLastUpdated(value)}</span>
+    <main className="container mx-auto p-4 space-y-4" aria-label="stored-data-main">
+      <section aria-label="storage-info-section">
+        <Card aria-label="storage-info-card">
+          <CardHeader>
+            <CardTitle>Storage Information</CardTitle>
+            <CardDescription>Current storage usage and limits</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span>Total Storage:</span>
+                  <span>{formatBytes(storageInfo.total)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Used Storage:</span>
+                  <span>{formatBytes(storageInfo.used)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Remaining Storage:</span>
+                  <span>{formatBytes(storageInfo.remaining)}</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div
+                    className="bg-blue-600 h-2.5 rounded-full"
+                    style={{ width: `${(storageInfo.used / storageInfo.total) * 100}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="pt-4 border-t">
+                <h3 className="text-lg font-semibold mb-2">Storage Statistics</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Total Items</p>
+                    <p className="text-lg font-medium">{storageStats.totalItems}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Total Size</p>
+                    <p className="text-lg font-medium">{formatBytes(storageStats.totalSize)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Average Item Size</p>
+                    <p className="text-lg font-medium">{formatBytes(storageStats.averageItemSize)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Storage Version</p>
+                    <p className="text-lg font-medium">{storageService.get<string>('storage-version', '1.0.0')}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t">
+                <h3 className="text-lg font-semibold mb-2">Item Timeline</h3>
+                <div className="space-y-2">
+                  <div>
+                    <p className="text-sm text-gray-500">Oldest Item</p>
+                    <p className="text-lg font-medium">{storageStats.oldestItem || 'None'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Newest Item</p>
+                    <p className="text-lg font-medium">{storageStats.newestItem || 'None'}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      <section aria-label="stored-data-section">
+        <Card aria-label="stored-data-card">
+          <CardHeader>
+            <CardTitle>Stored Data</CardTitle>
+            <CardDescription>All data currently stored in localStorage</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex gap-2">
+                <Button onClick={refreshData} disabled={isLoading} aria-label="refresh-data-button">
+                  {isLoading ? 'Refreshing...' : 'Refresh'}
+                </Button>
+                <Button onClick={handleBackup} aria-label="backup-data-button">
+                  Backup
+                </Button>
+                <Button onClick={handleRestore} aria-label="restore-data-button">
+                  Restore
+                </Button>
+                <Button onClick={handleClear} variant="destructive" aria-label="clear-data-button">
+                  Clear All
+                </Button>
+              </div>
+
+              <div className="flex gap-4 items-center">
+                <input
+                  type="text"
+                  placeholder="Search data..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="flex-1 px-3 py-2 border rounded-md"
+                  aria-label="search-data-input"
+                />
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as 'key' | 'size' | 'lastUpdated')}
+                  className="px-3 py-2 border rounded-md"
+                  aria-label="sort-by-select"
+                >
+                  <option value="key">Sort by Key</option>
+                  <option value="size">Sort by Size</option>
+                  <option value="lastUpdated">Sort by Last Updated</option>
+                </select>
+                <Button
+                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                  variant="outline"
+                  aria-label="toggle-sort-order-button"
+                >
+                  {sortOrder === 'asc' ? '↑' : '↓'}
+                </Button>
+              </div>
+
+              <ScrollArea className="h-[600px] rounded-md border p-4" aria-label="stored-data-scroll-area">
+                <div className="space-y-4">
+                  {filteredAndSortedData.map((item) => (
+                    <Card key={item.key} aria-label={`stored-item-${item.key}-card`}>
+                      <CardHeader>
+                        <CardTitle className="text-sm font-mono">{item.key}</CardTitle>
+                        <CardDescription>
+                          Size: {formatBytes(item.size)} | Last Updated: {item.lastUpdated === 'Unknown' ? 'Unknown' : new Date(item.lastUpdated).toLocaleString()} | Version: {item.version}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <pre className="text-sm overflow-x-auto">
+                          {JSON.stringify(item.value, null, 2)}
+                        </pre>
+                      </CardContent>
+                    </Card>
+                  ))}
+                  {filteredAndSortedData.length === 0 && (
+                    <div className="text-center text-gray-500 py-8">
+                      {searchTerm ? 'No matching data found' : 'No data stored'}
+                    </div>
                   )}
                 </div>
-                <div className="mb-2">
-                  {value ? summarizeData(key, value) : <span>No data stored.</span>}
-                </div>
-                <pre className="bg-black/60 rounded p-2 text-xs text-white overflow-x-auto max-w-full" aria-label={`${label}-data`}>
-                  {value || "<empty>"}
-                </pre>
-              </section>
-            ))}
-          </div>
-        </ScrollArea>
-      </Card>
+              </ScrollArea>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
     </main>
   );
 } 

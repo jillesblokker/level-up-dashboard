@@ -114,7 +114,7 @@ export function ImageGallery({ folderPath = 'images' }: ImageGalleryProps) {
                   <Textarea
                     placeholder="Enter a description"
                     value={newDescription}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewDescription(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewDescription(e.target.value)}
                     rows={3}
                     className="resize-none text-sm"
                   />

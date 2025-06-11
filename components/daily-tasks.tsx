@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
+import { storageService } from '@/lib/storage-service'
 
 interface Task {
   id: string
@@ -45,9 +46,9 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
 
   // Load tasks from localStorage
   useEffect(() => {
-    const savedTasks = localStorage.getItem("daily-tasks")
-    if (savedTasks) {
-      setTasks(JSON.parse(savedTasks))
+    const savedTasks = storageService.get<Task[]>('daily-tasks', [])
+    if (savedTasks.length > 0) {
+      setTasks(savedTasks)
     } else {
       // Default tasks
       const defaultTasks = [
@@ -125,14 +126,14 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
         },
       ]
       setTasks(defaultTasks)
-      localStorage.setItem("daily-tasks", JSON.stringify(defaultTasks))
+      storageService.set('daily-tasks', defaultTasks)
     }
   }, [])
 
   // Save tasks to localStorage whenever they change
   useEffect(() => {
     if (tasks.length > 0) {
-      localStorage.setItem("daily-tasks", JSON.stringify(tasks))
+      storageService.set('daily-tasks', tasks)
     }
   }, [tasks])
 

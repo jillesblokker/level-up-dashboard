@@ -73,7 +73,9 @@ export default function Page() {
       setAchievements(prev =>
         prev.map(a => ({ ...a, isUnlocked: unlocked.includes(a.id) ? true : a.isUnlocked }))
       );
-    } catch {}
+    } catch (error) {
+      // Error handling intentionally left empty to avoid breaking the UI if achievement loading fails
+    }
   }, []);
 
   useEffect(() => {
@@ -81,7 +83,9 @@ export default function Page() {
     try {
       const unlocked = achievements.filter(a => a.isUnlocked).map(a => a.id);
       localStorage.setItem('achievements', JSON.stringify(unlocked));
-    } catch {}
+    } catch (error) {
+      // Error handling intentionally left empty to avoid breaking the UI if achievement update fails
+    }
   }, [achievements]);
 
   return (

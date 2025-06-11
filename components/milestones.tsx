@@ -20,6 +20,7 @@ import { useAuth } from "@clerk/nextjs"
 import { SupabaseClient } from "@supabase/supabase-js"
 import { Database } from "@/types/supabase"
 import { useToast } from "@/components/ui/use-toast"
+import { storageService } from '@/lib/storage-service'
 
 interface Milestone {
   id: string;
@@ -74,11 +75,7 @@ export function Milestones() {
   });
   const { toast } = useToast();
   const [checkedMilestones, setCheckedMilestones] = useState<string[]>(() => {
-    try {
-      return JSON.parse(localStorage.getItem('checked-milestones') || '[]');
-    } catch {
-      return [];
-    }
+    return storageService.get<string[]>('checked-milestones', []);
   });
 
   useEffect(() => {
@@ -185,13 +182,13 @@ export function Milestones() {
     if (milestones && milestones.length > 0) {
       const completedIds = milestones.filter(m => m.completed).map(m => m.id);
       setCheckedMilestones(completedIds);
-      localStorage.setItem('checked-milestones', JSON.stringify(completedIds));
+      storageService.set('checked-milestones', completedIds);
     }
   }, [milestones]);
 
   // When checkedMilestones changes, update localStorage
   useEffect(() => {
-    localStorage.setItem('checked-milestones', JSON.stringify(checkedMilestones));
+    storageService.set('checked-milestones', checkedMilestones);
   }, [checkedMilestones]);
 
   const handleAddMilestone = async () => {

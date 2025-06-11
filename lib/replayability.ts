@@ -199,14 +199,18 @@ export class ReplayabilityManager {
           achievement.isUnlocked = true;
         }
       });
-    } catch {}
+    } catch (error) {
+      // Error handling intentionally left empty to avoid breaking the UI if replayability fails
+    }
   }
 
   private saveAchievementsToStorage() {
     try {
       const unlocked = Array.from(this.achievements.values()).filter(a => a.isUnlocked).map(a => a.id);
       localStorage.setItem('achievements', JSON.stringify(unlocked));
-    } catch {}
+    } catch (error) {
+      // Error handling intentionally left empty to avoid breaking the UI if replayability fails
+    }
   }
 
   // Achievement Methods

@@ -814,7 +814,7 @@ export default function RealmPage() {
   const [horsePosition, setHorsePosition] = useState<{ x: number; y: number }>({ x: 10, y: 3 });
   const [sheepPosition, setSheepPosition] = useState<{ x: number; y: number }>({ x: 2, y: 4 });
 
-  const { supabase, isLoading: isSupabaseLoading, error: supabaseError } = useSupabaseClientWithToken();
+  const { supabase } = useSupabaseClientWithToken();
 
   // Track last modal-triggered position
   const [lastModalPosition, setLastModalPosition] = useState<{x: number, y: number} | null>(null);
@@ -2742,6 +2742,37 @@ const handleTileSelection = (tile: InventoryItem | null) => {
                   <img src={caughtHorse.image} alt={caughtHorse.name} width={96} height={96} />
                 </div>
                 <Button onClick={handleHorseCaughtOk} className="w-full">OK</Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {showPortalModal && portalSource && (
+            <Dialog open={showPortalModal} onOpenChange={setShowPortalModal}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Portal</DialogTitle>
+                  <DialogDescription>
+                    {portalSource.type === 'portal-entrance'
+                      ? 'Do you want to enter the portal?'
+                      : 'Do you want to exit the portal?'}
+                  </DialogDescription>
+                </DialogHeader>
+                <Button
+                  autoFocus
+                  onClick={handlePortalEnter}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') handlePortalEnter();
+                  }}
+                  className="w-full"
+                >
+                  Enter Portal
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={handlePortalLeave}
+                  className="w-full mt-2"
+                >
+                  Cancel
+                </Button>
               </DialogContent>
             </Dialog>
           )}

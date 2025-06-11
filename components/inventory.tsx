@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { getInventory, InventoryItem } from "@/lib/inventory-manager"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { storageService } from '@/lib/storage-service'
 
 // Emoji mappings for different item types and specific items
 const typeEmojis: Record<string, string> = {
@@ -74,7 +75,8 @@ export function Inventory() {
   useEffect(() => {
     // Load inventory from localStorage
     const loadInventory = () => {
-      setInventory(getInventory())
+      const savedInventory = storageService.get<InventoryItem[]>('kingdom-inventory', [])
+      setInventory(savedInventory)
     }
 
     loadInventory()

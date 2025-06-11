@@ -139,7 +139,7 @@ export function KnowledgeWorkoutForm({ onSubmit }: KnowledgeWorkoutFormProps) {
           id="details"
           placeholder="Add details about what you learned"
           value={details}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDetails(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDetails(e.target.value)}
           className="h-24"
         />
       </div>

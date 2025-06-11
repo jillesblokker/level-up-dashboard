@@ -7,10 +7,12 @@ type ToasterProps = React.ComponentProps<typeof Sonner>
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme()
+  // Only allow valid theme values
+  const validTheme = theme === "light" || theme === "dark" || theme === "system" ? theme : "light"
 
   return (
     <Sonner
-      theme={theme || "light"}
+      theme={validTheme}
       className="toaster group"
       toastOptions={{
         classNames: {

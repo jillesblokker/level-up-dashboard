@@ -14,6 +14,7 @@ import { toast } from "@/components/ui/use-toast"
 import { cn } from "@/lib/utils"
 import { supabase } from '@/lib/supabase/client'
 import { emitQuestCompletedWithRewards } from "@/lib/kingdom-events"
+import { storageService } from '@/lib/storage-service'
 
 // Quest item definitions with icons and categories
 interface QuestItem {
@@ -99,8 +100,8 @@ export function DailyQuests() {
       completed: false
     }))
     setQuestItems(updatedQuests)
-    localStorage.setItem('daily-quests', JSON.stringify(updatedQuests))
-    localStorage.setItem('last-quest-reset', getCurrentCETDate())
+    storageService.set('daily-quests', updatedQuests)
+    storageService.set('last-quest-reset', getCurrentCETDate())
     toast({
       title: "Daily Reset",
       description: "All quests have been reset for the new day.",
@@ -112,7 +113,7 @@ export function DailyQuests() {
   useEffect(() => {
     const checkForReset = () => {
       const currentDate = getCurrentCETDate()
-      const savedResetDate = localStorage.getItem('last-quest-reset')
+      const savedResetDate = storageService.get<string>('last-quest-reset', '')
       if (!savedResetDate || savedResetDate !== currentDate) {
         resetQuests()
       }
@@ -127,19 +128,13 @@ export function DailyQuests() {
   useEffect(() => {
     const loadDailyQuests = () => {
       try {
-        const savedQuests = localStorage.getItem('daily-quests')
-        if (savedQuests) {
-          const parsedQuests = JSON.parse(savedQuests)
-          if (Array.isArray(parsedQuests) && parsedQuests.length > 0) {
-            setQuestItems(parsedQuests)
-            console.log('Loaded daily quests from localStorage:', parsedQuests.length)
-          } else {
-            setQuestItems(defaultQuestItems)
-            console.log('Using default daily quests - invalid saved data')
-          }
+        const savedQuests = storageService.get('daily-quests', [])
+        if (Array.isArray(savedQuests) && savedQuests.length > 0) {
+          setQuestItems(savedQuests)
+          console.log('Loaded daily quests from localStorage:', savedQuests.length)
         } else {
           setQuestItems(defaultQuestItems)
-          console.log('Using default daily quests - no saved data')
+          console.log('Using default daily quests - invalid saved data')
         }
       } catch (error) {
         console.error('Error loading daily quests:', error)
@@ -163,7 +158,7 @@ export function DailyQuests() {
     
     // IMMEDIATE SAVE: Save daily quests to localStorage
     try {
-      localStorage.setItem('daily-quests', JSON.stringify(updatedQuests))
+      storageService.set('daily-quests', updatedQuests)
       console.log('=== DAILY QUEST SAVE SUCCESSFUL ===', { questId, timestamp: new Date() })
     } catch (error) {
       console.error('=== DAILY QUEST SAVE FAILED ===', error)
@@ -207,7 +202,7 @@ export function DailyQuests() {
     setNewQuestGold(25)
     setNewQuestFrequency("")
     setIsDialogOpen(false)
-    localStorage.setItem('daily-quests', JSON.stringify([...questItems, newQuest]))
+    storageService.set('daily-quests', [...questItems, newQuest])
   }
 
   // Filter quests by category
