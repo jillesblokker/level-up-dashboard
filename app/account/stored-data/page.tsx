@@ -21,7 +21,9 @@ function getStoredData() {
     let value = null;
     try {
       value = localStorage.getItem(key);
-    } catch {}
+    } catch (error) {
+      // Error handling intentionally left empty to avoid breaking the UI if stored data fails to load
+    }
     return { key, label, value };
   });
 }

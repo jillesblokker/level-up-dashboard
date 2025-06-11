@@ -53,18 +53,18 @@ export function NotificationCenter() {
     setUnreadCount(notificationService.getUnreadCount())
   }
 
-  // Only show high-level notifications
-  const highLevelTypes = ["achievement", "quest", "discovery", "event", "levelup"]
-  const filteredNotifications = notifications.filter(n => highLevelTypes.includes(n.type))
+  // Only show high-level notifications for the badge
+  const highLevelTypes = ["achievement", "quest", "discovery", "event", "levelup"];
+  const filteredUnreadCount = notifications.filter(n => highLevelTypes.includes(n.type) && !n.read).length;
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" aria-label="Open notification center">
           <Bell className="h-5 w-5" />
-          {unreadCount > 0 && (
+          {filteredUnreadCount > 0 && (
             <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-              {unreadCount}
+              {filteredUnreadCount}
             </span>
           )}
           <span className="sr-only">Notifications</span>
@@ -76,17 +76,17 @@ export function NotificationCenter() {
         </SheetHeader>
         <div className="flex justify-between items-center mb-2">
           <span className="text-xs text-muted-foreground">Realm & Achievement Events</span>
-          {unreadCount > 0 && (
+          {filteredUnreadCount > 0 && (
             <Button variant="ghost" size="sm" onClick={handleMarkAllAsRead} className="h-8 px-2 text-xs">
               Mark all read
             </Button>
           )}
         </div>
         <div className="divide-y divide-amber-800/10 max-h-[80vh] overflow-auto">
-          {filteredNotifications.length === 0 ? (
+          {notifications.length === 0 ? (
             <div className="p-4 text-center text-muted-foreground">No notifications</div>
           ) : (
-            filteredNotifications.map((notification) => (
+            notifications.map((notification) => (
               <div key={notification.id} className={cn("p-3 relative", notification.read ? "opacity-70" : "")}
               >
                 <div className="flex items-start gap-3">
