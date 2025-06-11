@@ -210,8 +210,8 @@ export default function RivalsPage() {
       description: `A ${newChallengeDuration}-day challenge in ${newChallengeCategory}.`,
       category: newChallengeCategory,
       duration: newChallengeDuration,
-      startDate: startDate.toISOString().split("T")[0],
-      endDate: endDate.toISOString().split("T")[0],
+      startDate: startDate?.toISOString().split("T")[0] || "",
+      endDate: endDate?.toISOString().split("T")[0] || "",
       rivalId: selectedRival.id,
       rivalName: selectedRival.name,
       progress: {

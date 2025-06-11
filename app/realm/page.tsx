@@ -559,7 +559,7 @@ const processLoadedGrid = (loadedGrid: unknown): Tile[][] => {
         quantity: c['quantity'] ?? 1,
         isMainTile: c['isMainTile'] ?? false,
         isTown: c['isTown'] ?? false,
-        cityName: c['cityName'],
+        cityName: c['cityName'] || '',
         cityX: c['cityX'],
         cityY: c['cityY'],
         citySize: c['citySize'],
@@ -615,7 +615,7 @@ const mergeTilesIntoGrid = (baseGrid: Tile[][], savedTiles: Tile[]): Tile[][] =>
              // Provide default values or ensure they are correctly merged
             isMainTile: tile.isMainTile ?? existingTile.isMainTile ?? false,
             isTown: tile.isTown ?? existingTile.isTown ?? false,
-            cityName: tile.cityName ?? existingTile.cityName, // Keep optional nature
+            cityName: (tile.cityName ?? existingTile.cityName) || '',
             cityX: tile.cityX ?? existingTile.cityX,
             cityY: tile.cityY ?? existingTile.cityY,
             citySize: tile.citySize ?? existingTile.citySize,
@@ -2086,7 +2086,33 @@ const handleTileSelection = (tile: InventoryItem | null) => {
 
       // Handle item rewards (add artifacts to kingdom inventory)
       if (reward.type === 'item' && reward.item && Array.isArray(reward.item)) {
-        updateInventoryFromTileItems(reward.item as InventoryItem[]);
+        // Map general inventory items to tile inventory items
+        const tileItems = reward.item.map(item => ({
+          id: item.id || `${item.type}-auto-${Date.now()}`,
+          type: (item.type as TileType) || 'empty',
+          name: item.name || item.type,
+          description: item.description || `A ${item.type} item`,
+          connections: [],
+          rotation: 0,
+          revealed: true,
+          isVisited: false,
+          x: 0,
+          y: 0,
+          ariaLabel: item.name ? `${item.name} in inventory` : `${item.type} in inventory`,
+          image: item.image || `/images/tiles/${item.type}-tile.png`,
+          cost: 0,
+          quantity: item.quantity || 1,
+          isMainTile: false,
+          isTown: false,
+          cityName: '',
+          cityX: undefined,
+          cityY: undefined,
+          citySize: undefined,
+          bigMysteryX: undefined,
+          bigMysteryY: undefined,
+          tileSize: undefined,
+        }));
+        updateInventoryFromTileItems(tileItems);
         // Add artifacts to kingdom inventory
         reward.item.forEach(item => {
           if (item.type === 'artifact') {
@@ -2108,22 +2134,6 @@ const handleTileSelection = (tile: InventoryItem | null) => {
             duration: 3000
           });
         }
-      }
-      // Handle direct artifact reward
-      if (reward.type === 'artifact' && reward.artifactId) {
-        addToKingdomInventory({
-          id: reward.artifactId,
-          name: 'Artifact',
-          type: 'artifact',
-          quantity: 1,
-          description: reward.message || 'A mysterious artifact.',
-          category: 'artifact',
-        });
-        toast({
-          title: "Artifact Found!",
-          description: `You found an artifact!`,
-          duration: 3000
-        });
       }
     }
 
@@ -2455,7 +2465,14 @@ const handleTileSelection = (tile: InventoryItem | null) => {
   }, []);
   
   const [showHorseCaughtModal, setShowHorseCaughtModal] = useState(false);
-  const [caughtHorse, setCaughtHorse] = useState(null);
+  const [caughtHorse, setCaughtHorse] = useState<{
+    id: string;
+    name: string;
+    description: string;
+    type: string;
+    emoji: string;
+    image: string;
+  } | null>(null);
 
   useEffect(() => {
     const handleHorseCaught = (event) => {
@@ -2623,7 +2640,7 @@ const handleTileSelection = (tile: InventoryItem | null) => {
                     setGrid(newGrid);
                     // Decrement inventory
                     const updatedInventory = { ...inventory };
-                    if (updatedInventory[tileToPlace.type] && updatedInventory[tileToPlace.type].quantity > 0) {
+                    if (updatedInventory && tileToPlace && updatedInventory[tileToPlace.type] && updatedInventory[tileToPlace.type].quantity > 0) {
                       updatedInventory[tileToPlace.type].quantity -= 1;
                       setInventory(updatedInventory);
                     }

@@ -396,8 +396,8 @@ export function CommunityComponent() {
       description: `A ${newChallengeDuration}-day challenge in ${newChallengeCategory}.`,
       category: newChallengeCategory,
       duration: newChallengeDuration,
-      startDate: startDate.toISOString().split("T")[0],
-      endDate: endDate.toISOString().split("T")[0],
+      startDate: startDate?.toISOString().split("T")[0] || "",
+      endDate: endDate?.toISOString().split("T")[0] || "",
       rivalId: selectedRival.id,
       rivalName: selectedRival.name,
       progress: {
@@ -752,18 +752,18 @@ export function CommunityComponent() {
                             <div className="text-right">
                               <p className="font-medium">{challenge.rivalName}</p>
                               {(() => {
-                                const rival = rivals.find((r) => r.id === challenge.rivalId);
+                                const foundRival = rivals.find((r) => r.id === challenge.rivalId);
                                 return (
                                   <Progress value={challenge.progress.rival} className="h-2 w-20" />
                                 );
                               })()}
                             </div>
                             {(() => {
-                              const rival = rivals.find((r) => r.id === challenge.rivalId);
+                              const foundRival = rivals.find((r) => r.id === challenge.rivalId);
                               return (
                                 <Image
-                                  src={safeString(rival?.avatar)}
-                                  alt={safeString(rival?.name)}
+                                  src={safeString(foundRival?.avatar)}
+                                  alt={safeString(foundRival?.name)}
                                   className="w-10 h-10 rounded-full border-2 border-blue-500"
                                   width={40}
                                   height={40}
@@ -881,18 +881,18 @@ export function CommunityComponent() {
                             <div className="text-right">
                               <p className="font-medium">{challenge.rivalName}</p>
                               {(() => {
-                                const rival = rivals.find((r) => r.id === challenge.rivalId);
+                                const foundRival = rivals.find((r) => r.id === challenge.rivalId);
                                 return (
                                   <Progress value={challenge.progress.rival} className="h-2 w-20" />
                                 );
                               })()}
                             </div>
                             {(() => {
-                              const rival = rivals.find((r) => r.id === challenge.rivalId);
+                              const foundRival = rivals.find((r) => r.id === challenge.rivalId);
                               return (
                                 <Image
-                                  src={safeString(rival?.avatar)}
-                                  alt={safeString(rival?.name)}
+                                  src={safeString(foundRival?.avatar)}
+                                  alt={safeString(foundRival?.name)}
                                   className="w-10 h-10 rounded-full border-2 border-blue-500"
                                   width={40}
                                   height={40}
@@ -914,9 +914,14 @@ export function CommunityComponent() {
                         <Button
                           className="w-full"
                           variant="outline"
-                          onClick={() =>
-                            openNewChallengeDialog(rivals.find((r) => r.id === challenge.rivalId) || rivals[0])
-                          }
+                          onClick={() => {
+                            const foundRival = rivals.find((r) => r.id === challenge.rivalId);
+                            if (foundRival) {
+                              openNewChallengeDialog(foundRival);
+                            } else if (rivals[0]) {
+                              openNewChallengeDialog(rivals[0]);
+                            }
+                          }}
                         >
                           Challenge Again
                         </Button>
