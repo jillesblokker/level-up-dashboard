@@ -78,18 +78,6 @@ export function MainNav() {
               Character
             </Link>
           </NavigationMenuItem>
-          <NavigationMenuItem>
-            <Link
-              href="/guildhall"
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-foreground/80 px-3 py-2",
-                pathname?.startsWith("/guildhall") ? "text-foreground" : "text-foreground/60"
-              )}
-              aria-label="Navigate to Guildhall"
-            >
-              Guildhall
-            </Link>
-          </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
     </div>

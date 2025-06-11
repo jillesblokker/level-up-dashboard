@@ -231,7 +231,7 @@ export default function MessagingPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold tracking-tight font-serif text-white">Messages</h1>
-            <p className="text-gray-300">Chat with your allies and rivals</p>
+            <p className="text-gray-300">Chat with your allies</p>
           </div>
           <Link href="/community">
             <Button variant="outline" className="border-amber-800/20 hover:bg-amber-900/20 text-white">

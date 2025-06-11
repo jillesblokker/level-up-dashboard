@@ -94,7 +94,7 @@ export default function NotificationsPage() {
       },
       {
         id: "n6",
-        title: "New Rival Challenge",
+        title: "New Challenge",
         message: "Sarah has challenged you to a 'Push-up Challenge'!",
         type: "friend",
         read: false,

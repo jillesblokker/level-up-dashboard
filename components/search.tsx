@@ -85,12 +85,6 @@ export function Search() {
               <SearchIcon className="mr-2 h-4 w-4" />
               Achievements
             </CommandItem>
-            <CommandItem
-              onSelect={() => runCommand(() => router.push("/guildhall"))}
-            >
-              <SearchIcon className="mr-2 h-4 w-4" />
-              Guildhall
-            </CommandItem>
           </CommandGroup>
         </CommandList>
       </CommandDialog>

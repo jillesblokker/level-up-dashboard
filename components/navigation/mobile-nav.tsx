@@ -117,7 +117,6 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     { href: "/realm", label: "Realm", icon: MapIcon },
     { href: "/achievements", label: "Achievements", icon: Trophy },
     { href: "/character", label: "Character", icon: User },
-    { href: "/guildhall", label: "Guildhall", icon: Building },
   ]
 
   const accountItems = [
