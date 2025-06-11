@@ -129,7 +129,7 @@ export function KnowledgeWorkoutForm({ onSubmit }: KnowledgeWorkoutFormProps) {
           min="1"
           placeholder={`Enter ${getAmountLabel().toLowerCase()}`}
           value={amount || ""}
-          onChange={(e) => setAmount(Number.parseInt(e.target.value) || 0)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAmount(Number.parseInt(e.target.value) || 0)}
         />
       </div>
 
@@ -139,7 +139,7 @@ export function KnowledgeWorkoutForm({ onSubmit }: KnowledgeWorkoutFormProps) {
           id="details"
           placeholder="Add details about what you learned"
           value={details}
-          onChange={(e) => setDetails(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDetails(e.target.value)}
           className="h-24"
         />
       </div>

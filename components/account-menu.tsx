@@ -69,7 +69,7 @@ const AccountMenu = () => {
               // Clerk sign out (if signed in)
               try {
                 await signOut();
-              } catch (e) {
+              } catch (e: unknown) {
                 // Ignore errors if not signed in
               }
               window.location.href = "/auth/signin";

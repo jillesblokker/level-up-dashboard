@@ -344,7 +344,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
               <Input
                 id="task-title"
                 value={newTaskTitle}
-                onChange={(e) => setNewTaskTitle(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewTaskTitle(e.target.value)}
                 placeholder="Enter quest description..."
                 className="bg-gray-900 border-amber-800/20"
               />
@@ -355,7 +355,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
               <select
                 id="task-category"
                 value={newTaskCategory}
-                onChange={(e) => setNewTaskCategory(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewTaskCategory(e.target.value)}
                 className="w-full px-3 py-2 bg-gray-900 border border-amber-800/20 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
               >
                 <option value="strength">Might</option>

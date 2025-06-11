@@ -611,7 +611,7 @@ export default function QuestsPage() {
                             setCurrentCategory(category)
                             setIsAddQuestModalOpen(true)
                           }}
-                          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setCurrentCategory(category); setIsAddQuestModalOpen(true); } }}
+                          onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setCurrentCategory(category); setIsAddQuestModalOpen(true); } }}
                         >
                           <div className="flex justify-center items-center h-full">
                             <PlusCircle className="h-8 w-8 text-amber-500" />
@@ -673,7 +673,7 @@ function QuestCard({
       tabIndex={0}
       aria-label={`${quest.title} quest card`}
       onClick={handleCardClick}
-      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle(); } }}
+      onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle(); } }}
     >
       <div className="flex justify-between items-start mb-2">
         <div className="flex-1 pr-2">
@@ -706,7 +706,7 @@ function QuestCard({
             variant="ghost"
             size="icon"
             className="h-5 w-5 text-red-500"
-            onClick={(e) => { e.stopPropagation(); onDelete(); }}
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); onDelete(); }}
             aria-label={`Delete ${quest.title} quest`}
           >
             <Trash2 className="h-4 w-4" />

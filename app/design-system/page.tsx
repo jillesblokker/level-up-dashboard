@@ -214,13 +214,13 @@ export default function DesignSystemPage() {
                         <Input
                           type="color"
                           value={color.value!}
-                          onChange={(e) => handleColorChange(index, e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleColorChange(index, e.target.value)}
                           className="w-16 h-8"
                         />
                         <Input
                           type="text"
                           value={color.value!}
-                          onChange={(e) => handleColorChange(index, e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleColorChange(index, e.target.value)}
                           className="w-32"
                         />
                       </div>
@@ -248,13 +248,13 @@ export default function DesignSystemPage() {
                             <Input
                               type="color"
                               value={gradient.startColor!}
-                              onChange={(e) => handleGradientChange(index, 'startColor', e.target.value)}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleGradientChange(index, 'startColor', e.target.value)}
                               className="w-16 h-8"
                             />
                             <Input
                               type="text"
                               value={gradient.startColor!}
-                              onChange={(e) => handleGradientChange(index, 'startColor', e.target.value)}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleGradientChange(index, 'startColor', e.target.value)}
                               className="w-32"
                             />
                           </div>
@@ -265,13 +265,13 @@ export default function DesignSystemPage() {
                             <Input
                               type="color"
                               value={gradient.endColor! === 'transparent' ? '#ffffff' : gradient.endColor!}
-                              onChange={(e) => handleGradientChange(index, 'endColor', e.target.value)}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleGradientChange(index, 'endColor', e.target.value)}
                               className="w-16 h-8"
                             />
                             <Input
                               type="text"
                               value={gradient.endColor!}
-                              onChange={(e) => handleGradientChange(index, 'endColor', e.target.value)}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleGradientChange(index, 'endColor', e.target.value)}
                               className="w-32"
                             />
                           </div>
@@ -283,7 +283,7 @@ export default function DesignSystemPage() {
                           id="gradient-direction-select"
                           title="Gradient Direction"
                           value={gradient.direction!}
-                          onChange={(e) => handleGradientChange(index, 'direction', e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleGradientChange(index, 'direction', e.target.value)}
                           className="w-full mt-1 bg-gray-900 border border-gray-800 rounded-md text-white p-2"
                         >
                           <option value="to-r">Horizontal</option>
@@ -310,7 +310,7 @@ export default function DesignSystemPage() {
                             id={`typography-size-select-${index}`}
                             title="Typography Size"
                             value={type.fontSize!}
-                            onChange={(e) => handleTypographyChange(index, 'fontSize', e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleTypographyChange(index, 'fontSize', e.target.value)}
                             className="w-full mt-1 bg-gray-900 border border-gray-800 rounded-md text-white p-2"
                           >
                             <option value="text-xs">Extra Small</option>
@@ -329,7 +329,7 @@ export default function DesignSystemPage() {
                             id={`typography-weight-select-${index}`}
                             title="Typography Weight"
                             value={type.fontWeight!}
-                            onChange={(e) => handleTypographyChange(index, 'fontWeight', e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleTypographyChange(index, 'fontWeight', e.target.value)}
                             className="w-full mt-1 bg-gray-900 border border-gray-800 rounded-md text-white p-2"
                           >
                             <option value="font-normal">Normal</option>
@@ -344,7 +344,7 @@ export default function DesignSystemPage() {
                             id={`typography-family-select-${index}`}
                             title="Typography Family"
                             value={type.fontFamily!}
-                            onChange={(e) => handleTypographyChange(index, 'fontFamily', e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleTypographyChange(index, 'fontFamily', e.target.value)}
                             className="w-full mt-1 bg-gray-900 border border-gray-800 rounded-md text-white p-2"
                           >
                             <option value="font-sans">Sans-Serif</option>

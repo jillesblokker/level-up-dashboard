@@ -251,7 +251,7 @@ export default function MessagingPage() {
                   placeholder="Search messages..."
                   className="pl-8 bg-gray-900 border-amber-800/20 text-white placeholder:text-gray-400"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
                 />
               </div>
             </CardHeader>
@@ -371,7 +371,7 @@ export default function MessagingPage() {
                     <Input
                       placeholder="Type a message..."
                       value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewMessage(e.target.value)}
                       className="flex-1 bg-gray-900 border-amber-800/20 text-white placeholder:text-gray-400"
                     />
                     <Button variant="ghost" type="button" size="icon" className="text-white hover:bg-amber-900/20">

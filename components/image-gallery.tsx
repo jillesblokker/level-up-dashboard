@@ -82,7 +82,7 @@ export function ImageGallery({ folderPath = 'images' }: ImageGalleryProps) {
           type="text"
           placeholder="Search images..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
           className="max-w-md"
         />
         <div className="text-sm text-muted-foreground">
@@ -114,7 +114,7 @@ export function ImageGallery({ folderPath = 'images' }: ImageGalleryProps) {
                   <Textarea
                     placeholder="Enter a description"
                     value={newDescription}
-                    onChange={(e) => setNewDescription(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewDescription(e.target.value)}
                     rows={3}
                     className="resize-none text-sm"
                   />

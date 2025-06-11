@@ -84,7 +84,7 @@ export function ConditionWorkoutForm({ onSubmit }: ConditionWorkoutFormProps) {
           min="1"
           placeholder="Enter duration in minutes"
           value={duration || ""}
-          onChange={(e) => setDuration(Number.parseInt(e.target.value) || 0)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDuration(Number.parseInt(e.target.value) || 0)}
         />
       </div>
 
@@ -103,7 +103,7 @@ export function ConditionWorkoutForm({ onSubmit }: ConditionWorkoutFormProps) {
             step="0.1"
             placeholder="Enter distance in km"
             value={distance || ""}
-            onChange={(e) => setDistance(Number.parseFloat(e.target.value) || 0)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDistance(Number.parseFloat(e.target.value) || 0)}
           />
         </div>
       )}

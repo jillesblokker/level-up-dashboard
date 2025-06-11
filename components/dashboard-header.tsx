@@ -82,7 +82,7 @@ export function DashboardHeader({ backgroundImage }: DashboardHeaderProps) {
               <Input
                 placeholder="Enter image URL"
                 value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setImageUrl(e.target.value)}
                 className="border-amber-800/20"
               />
             </div>

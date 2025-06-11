@@ -55,7 +55,7 @@ export function KingdomClient({ session }: { session: Session | null }) {
         onImageUpload={(file) => {
           // handleImageUpload logic here
           const reader = new FileReader();
-          reader.onload = (event) => {
+          reader.onload = (event: ProgressEvent<FileReader>) => {
             const result = event.target?.result as string;
             setCoverImage(result);
             localStorage.setItem("kingdom-header-image", result);
@@ -125,7 +125,7 @@ export function KingdomClient({ session }: { session: Session | null }) {
                               fill
                               className="object-contain rounded"
                               aria-label={`${item.name}-image`}
-                              onError={(e) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
+                              onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
                             />
                           </div>
                           <div className="flex flex-col items-center">

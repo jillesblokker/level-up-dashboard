@@ -520,7 +520,7 @@ export function CommunityComponent() {
                   placeholder="Search community..."
                   className="pl-8 border-amber-800/20"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
                 />
               </div>
               <Button className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white">
@@ -1186,7 +1186,7 @@ export function CommunityComponent() {
                   id="challenge-name"
                   placeholder="e.g., Push-up Challenge"
                   value={newChallengeName}
-                  onChange={(e) => setNewChallengeName(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewChallengeName(e.target.value)}
                   className="border-amber-800/20"
                 />
               </div>
@@ -1199,7 +1199,7 @@ export function CommunityComponent() {
                   id="challenge-category"
                   className="w-full px-3 py-2 border border-amber-800/20 rounded-md bg-background"
                   value={newChallengeCategory}
-                  onChange={(e) => setNewChallengeCategory(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setNewChallengeCategory(e.target.value)}
                 >
                   <option value="Might">Might</option>
                   <option value="Endurance">Endurance</option>
@@ -1218,7 +1218,7 @@ export function CommunityComponent() {
                   id="challenge-duration"
                   className="w-full px-3 py-2 border border-amber-800/20 rounded-md bg-background"
                   value={newChallengeDuration}
-                  onChange={(e) => setNewChallengeDuration(Number.parseInt(e.target.value))}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setNewChallengeDuration(Number.parseInt(e.target.value))}
                 >
                   <option value="3">3 days</option>
                   <option value="7">7 days</option>

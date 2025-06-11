@@ -111,7 +111,7 @@ export function Inventory() {
       <CardContent>
         <Tabs defaultValue="all" onValueChange={setSelectedType}>
           <TabsList className="mb-4">
-            {types.map(type => (
+            {types.map((type: string) => (
               <TabsTrigger key={type} value={type} className="capitalize">
                 {type !== "all" ? `${typeEmojis[type.toLowerCase()] || "🔮"} ${type}` : "All Items"}
               </TabsTrigger>

@@ -451,7 +451,7 @@ export function Milestones() {
                     role="region"
                     aria-label={`${fakeMilestone.name} milestone card`}
                     onClick={() => adoptDefaultMilestone('toggle')}
-                    onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); adoptDefaultMilestone('toggle'); } }}
+                    onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); adoptDefaultMilestone('toggle'); } }}
                   >
                     <CardHeader>
                       <CardTitle className="text-amber-500 flex items-center justify-between">
@@ -462,7 +462,7 @@ export function Milestones() {
                           aria-label={`Mark ${fakeMilestone.name} as complete`}
                           className="h-5 w-5 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white data-[state=checked]:border-amber-500 mt-1"
                           tabIndex={-1}
-                          onClick={e => e.stopPropagation()}
+                          onClick={(e: React.MouseEvent<HTMLButtonElement>) => e.stopPropagation()}
                         />
                       </CardTitle>
                       <CardDescription>{defaultCard.description}</CardDescription>
@@ -474,7 +474,7 @@ export function Milestones() {
                           variant="ghost"
                           size="icon"
                           className="h-5 w-5 text-red-500"
-                          onClick={e => { e.stopPropagation(); adoptDefaultMilestone('delete'); }}
+                          onClick={(e: React.MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); adoptDefaultMilestone('delete'); }}
                           aria-label={`Delete ${fakeMilestone.name} milestone`}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -507,7 +507,7 @@ export function Milestones() {
                 setNewQuestCategory(category.key)
                 setIsDialogOpen(true)
               }}
-              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setNewQuestCategory(category.key); setIsDialogOpen(true); } }}
+              onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setNewQuestCategory(category.key); setIsDialogOpen(true); } }}
             >
               <div className="flex justify-center items-center h-full">
                 <PlusCircle className="h-8 w-8 text-amber-500" />
@@ -530,7 +530,7 @@ export function Milestones() {
               <Input
                 id="name"
                 value={newMilestone.name}
-                onChange={(e) => setNewMilestone({ ...newMilestone, name: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewMilestone({ ...newMilestone, name: e.target.value })}
                 placeholder="Enter milestone name"
               />
             </div>
@@ -540,7 +540,7 @@ export function Milestones() {
                 id="experience"
                 type="number"
                 value={newMilestone.experience}
-                onChange={(e) => setNewMilestone({ ...newMilestone, experience: Number(e.target.value) })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewMilestone({ ...newMilestone, experience: Number(e.target.value) })}
                 placeholder="Enter experience points"
               />
             </div>
@@ -550,7 +550,7 @@ export function Milestones() {
                 id="gold"
                 type="number"
                 value={newMilestone.gold}
-                onChange={(e) => setNewMilestone({ ...newMilestone, gold: Number(e.target.value) })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewMilestone({ ...newMilestone, gold: Number(e.target.value) })}
                 placeholder="Enter gold amount"
               />
             </div>
@@ -560,7 +560,7 @@ export function Milestones() {
                 id="target"
                 type="number"
                 value={newMilestone.target}
-                onChange={(e) => setNewMilestone({ ...newMilestone, target: Number(e.target.value) })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewMilestone({ ...newMilestone, target: Number(e.target.value) })}
                 placeholder="Enter target value"
               />
             </div>
@@ -622,7 +622,7 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress }: { milestone: M
       tabIndex={0}
       role="region"
       aria-label={`${milestone.name} milestone card`}
-      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCompletion(); } }}
+      onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCompletion(); } }}
     >
       <CardHeader>
         <CardTitle className="text-amber-500 flex items-center justify-between">
@@ -633,7 +633,7 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress }: { milestone: M
             aria-label={`Mark ${milestone.name} as ${completed ? 'incomplete' : 'complete'}`}
             className="h-5 w-5 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white data-[state=checked]:border-amber-500 mt-1"
             tabIndex={-1}
-            onClick={e => e.stopPropagation()}
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => e.stopPropagation()}
             disabled={isUpdating}
           />
         </CardTitle>
@@ -646,7 +646,7 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress }: { milestone: M
             variant="ghost"
             size="icon"
             className="h-5 w-5 text-red-500"
-            onClick={(e) => { e.stopPropagation(); onDelete(milestone.id); }}
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); onDelete(milestone.id); }}
             aria-label={`Delete ${milestone.name} milestone`}
             disabled={isUpdating}
           >

@@ -172,7 +172,7 @@ export default function FriendsPage() {
                 placeholder="Search friends..."
                 className="pl-8 bg-gray-900 border-amber-800/20 text-white placeholder:text-gray-400"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
               />
             </div>
             <Button className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white">

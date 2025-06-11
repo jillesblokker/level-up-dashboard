@@ -53,7 +53,7 @@ export function StrengthWorkoutForm({ onSubmit }: StrengthWorkoutFormProps) {
           min="1"
           placeholder="Enter number of reps"
           value={reps || ""}
-          onChange={(e) => setReps(Number.parseInt(e.target.value) || 0)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setReps(Number.parseInt(e.target.value) || 0)}
         />
       </div>
 

@@ -94,7 +94,7 @@ export function NutritionWorkoutForm({ onSubmit }: NutritionWorkoutFormProps) {
           id="description"
           placeholder="Describe what you ate/drank"
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDescription(e.target.value)}
         />
       </div>
 
@@ -113,7 +113,7 @@ export function NutritionWorkoutForm({ onSubmit }: NutritionWorkoutFormProps) {
               min="0"
               placeholder="0"
               value={protein || ""}
-              onChange={(e) => setProtein(Number.parseInt(e.target.value) || 0)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProtein(Number.parseInt(e.target.value) || 0)}
             />
           </div>
           <div className="space-y-2">
@@ -124,7 +124,7 @@ export function NutritionWorkoutForm({ onSubmit }: NutritionWorkoutFormProps) {
               min="0"
               placeholder="0"
               value={carbs || ""}
-              onChange={(e) => setCarbs(Number.parseInt(e.target.value) || 0)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCarbs(Number.parseInt(e.target.value) || 0)}
             />
           </div>
           <div className="space-y-2">
@@ -135,7 +135,7 @@ export function NutritionWorkoutForm({ onSubmit }: NutritionWorkoutFormProps) {
               min="0"
               placeholder="0"
               value={fat || ""}
-              onChange={(e) => setFat(Number.parseInt(e.target.value) || 0)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFat(Number.parseInt(e.target.value) || 0)}
             />
           </div>
         </div>

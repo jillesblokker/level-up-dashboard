@@ -258,7 +258,7 @@ export default function NotificationsPage() {
                       placeholder="Search notifications..."
                       className="pl-8 bg-gray-900 border-amber-800/20"
                       value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
                     />
                   </div>
                 </div>
@@ -373,7 +373,7 @@ export default function NotificationsPage() {
                                   variant="ghost"
                                   size="icon"
                                   className="h-8 w-8 text-red-500 hover:text-red-700"
-                                  onClick={(e) => {
+                                  onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                                     e.stopPropagation()
                                     deleteNotification(notification.id)
                                   }}
@@ -436,7 +436,7 @@ export default function NotificationsPage() {
                                     variant="ghost"
                                     size="icon"
                                     className="h-8 w-8 text-red-500 hover:text-red-700"
-                                    onClick={(e) => {
+                                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                                       e.stopPropagation()
                                       deleteNotification(notification.id)
                                     }}

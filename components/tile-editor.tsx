@@ -161,7 +161,7 @@ export function TileEditor({ tiles, onUpdateTiles, onSelectTile }: TileEditorPro
                           id={`quantity-${index}`}
                           type="number"
                           value={tile.quantity}
-                          onChange={(e) => handleQuantityChange(index, e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleQuantityChange(index, e.target.value)}
                           className="w-20 h-8"
                           min="0"
                           aria-label={`Set quantity for ${tile.name}`}

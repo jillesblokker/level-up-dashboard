@@ -111,14 +111,14 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                       type="number"
                       min="1"
                       value={buyQuantities[tile.type] || 1}
-                      onChange={(e) => handleQuantityChange(tile.type, e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleQuantityChange(tile.type, e.target.value)}
                       className="w-20 h-8"
                     />
                     <Button
                       variant="outline"
                       size="sm"
                       className="flex-1"
-                      onClick={(e) => handleBuyTile(tile, e)}
+                      onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleBuyTile(tile, e)}
                     >
                       Buy
                     </Button>

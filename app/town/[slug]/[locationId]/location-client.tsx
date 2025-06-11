@@ -202,7 +202,7 @@ export default function LocationClient({ slug, locationId }: Props) {
                               className="object-contain"
                               sizes="(max-width: 768px) 100vw, 33vw"
                               aria-label={`${horse.name}-image`}
-                              onError={(e) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
+                              onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
                             />
                           </div>
                           <CardHeader>
@@ -280,7 +280,7 @@ export default function LocationClient({ slug, locationId }: Props) {
                               className="object-contain"
                               sizes="(max-width: 768px) 100vw, 33vw"
                               aria-label={`${item.name}-image`}
-                              onError={(e) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
+                              onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
                             />
                           </div>
                           <CardHeader>
@@ -326,7 +326,7 @@ export default function LocationClient({ slug, locationId }: Props) {
                               className="object-contain"
                               sizes="(max-width: 768px) 100vw, 33vw"
                               aria-label={`${item.name}-image`}
-                              onError={(e) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
+                              onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
                             />
                           </div>
                           <CardHeader>

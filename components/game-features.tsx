@@ -128,7 +128,7 @@ export function GameFeatures() {
                 .filter(c => c.id !== '000')
                 .slice()
                 .sort((a, b) => Number(!isDiscovered(a.id)) - Number(!isDiscovered(b.id)))
-                .map(creature => {
+                .map((creature: Creature) => {
                   const achievement = achievements.find(a => a.id === creature.id);
                   const discovered = isDiscovered(creature.id);
                   return (

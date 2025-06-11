@@ -307,7 +307,7 @@ export function DungeonChallenge({ difficulty, onComplete }: DungeonChallengePro
             role="gridcell"
             aria-label={card.flipped || card.matched ? `${card.type} card` : "Unflipped card"}
             tabIndex={0}
-            onKeyDown={(e) => {
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 handleCardClick(card.id)
               }

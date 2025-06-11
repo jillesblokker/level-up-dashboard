@@ -2475,7 +2475,7 @@ const handleTileSelection = (tile: InventoryItem | null) => {
   } | null>(null);
 
   useEffect(() => {
-    const handleHorseCaught = (event) => {
+    const handleHorseCaught = (event: React.MouseEvent<HTMLButtonElement>) => {
       setIsHorsePresent(false);
       // If a horse is provided in the event, use it; otherwise, pick a random one
       let horse = event?.detail?.horse;

@@ -396,7 +396,7 @@ export function MapGrid({
                           width={40}
                           height={40}
                           className="object-contain"
-                          onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>⚠️</span>'); }}
+                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>⚠️</span>'); }}
                           priority
                         />
                       </div>
@@ -411,7 +411,7 @@ export function MapGrid({
                           width={256}
                           height={256}
                           className="object-contain"
-                          onError={(e) => { console.error('Failed to load horse.png'); e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐴</span>'); }}
+                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { console.error('Failed to load horse.png'); e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐴</span>'); }}
                           priority
                         />
                       </div>
@@ -424,7 +424,7 @@ export function MapGrid({
                           width={256}
                           height={256}
                           className="object-contain"
-                          onError={(e) => { console.error('Failed to load sheep.png'); e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐑</span>'); }}
+                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { console.error('Failed to load sheep.png'); e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐑</span>'); }}
                           priority
                         />
                       </div>
@@ -437,7 +437,7 @@ export function MapGrid({
                           width={256}
                           height={256}
                           className="object-contain"
-                          onError={(e) => { console.error('Failed to load eagle.png'); e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🦅</span>'); }}
+                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { console.error('Failed to load eagle.png'); e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🦅</span>'); }}
                           priority
                         />
                       </div>
@@ -450,7 +450,7 @@ export function MapGrid({
                           width={256}
                           height={256}
                           className="object-contain"
-                          onError={(e) => { console.error('Failed to load penguin.png'); e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐧</span>'); }}
+                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { console.error('Failed to load penguin.png'); e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐧</span>'); }}
                           priority
                         />
                       </div>

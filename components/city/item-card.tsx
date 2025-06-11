@@ -77,7 +77,7 @@ export function ItemCard({ item, onPurchase }: ItemCardProps) {
               className="object-contain w-full h-full bg-black"
               sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
               aria-label={`${item.name}-image`}
-              onError={(e) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
+              onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
             />
           ) : (
             <Image
