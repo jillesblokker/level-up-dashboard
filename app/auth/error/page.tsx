@@ -1,12 +1,13 @@
 "use client"
 
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { AlertCircle } from 'lucide-react'
 
-export default function AuthError({
-  searchParams,
-}: {
-  searchParams: { error?: string }
-}) {
+export default function AuthError() {
+  const searchParams = useSearchParams();
+  const error = searchParams?.get("error") || "default";
+
   const errorMessages: { [key: string]: string } = {
     missing_params: 'Missing required parameters for authentication.',
     state_mismatch: 'Invalid state parameter. Please try again.',
@@ -16,7 +17,6 @@ export default function AuthError({
     default: 'An unknown error occurred. Please try again.',
   }
 
-  const error = searchParams.error || 'default'
   const errorMessage = errorMessages[error] || errorMessages['default']
 
   return (
@@ -28,13 +28,13 @@ export default function AuthError({
           </div>
           <h1 className="mt-3 text-2xl font-semibold text-gray-900">Authentication Error</h1>
           <p className="mt-2 text-gray-600">{errorMessage}</p>
-          <div className="mt-6">
-            <a
-              href="/"
-              className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Return Home
-            </a>
+          <div className="mt-6 space-x-4">
+            <Link href="/" className="text-blue-500 hover:text-blue-700 underline">
+              Go Home
+            </Link>
+            <Link href="/auth/signin" className="text-blue-500 hover:text-blue-700 underline">
+              Try Again
+            </Link>
           </div>
         </div>
       </div>
