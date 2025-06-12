@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 import type React from "react"
 import { usePathname } from "next/navigation"
 import { ThemeProvider } from "@/components/theme-provider"
