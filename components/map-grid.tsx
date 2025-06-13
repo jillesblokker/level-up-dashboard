@@ -7,10 +7,11 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Tile } from "@/types/tiles";
 import { TileVisual } from "@/components/tile-visual";
 import { cn } from "@/lib/utils";
-import { generateMysteryEvent, MysteryEventOutcome } from '@/lib/mystery-events'
+import { generateMysteryEvent, MysteryEvent, MysteryEventOutcome } from '@/lib/mystery-events'
 import { MapGridProps as BaseMapGridProps } from '@/types/tiles';
 import Image from 'next/image';
 import { addToKingdomInventory } from '@/lib/inventory-manager';
+import { showScrollToast } from "@/lib/toast-utils"
 
 interface MapGridProps extends BaseMapGridProps {
   onExperienceUpdate?: (amount: number) => void;
@@ -22,17 +23,6 @@ interface MapGridProps extends BaseMapGridProps {
   penguinPos?: { x: number; y: number } | null;
   isHorsePresent?: boolean;
   isPenguinPresent?: boolean;
-}
-
-interface GameEvent {
-  type: 'mystery' | 'battle';
-  title: string;
-  description: string;
-  choices: string[];
-  enemyName?: string;
-  enemyLevel?: number;
-  outcomes?: Record<string, MysteryEventOutcome>;
-  requiredItems?: string[];
 }
 
 export function MapGrid({ 
@@ -55,7 +45,7 @@ export function MapGrid({
   isPenguinPresent = false
 }: MapGridProps) {
   const { toast } = useToast();
-  const [currentEvent, setCurrentEvent] = useState<GameEvent | null>(null);
+  const [currentEvent, setCurrentEvent] = useState<MysteryEvent | null>(null);
   const [eventOutcome, setEventOutcome] = useState<MysteryEventOutcome | null>(null);
 
   // Defensive fallback for character
@@ -307,39 +297,42 @@ export function MapGrid({
     ) {
       // Remove horse from map
       if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('horse-caught'));
-      }
-      // Add a random horse to the kingdom inventory
-      const horses = [
-        {
-          id: 'swift-horse',
-          name: 'Sally Swift Horse',
-          description: 'Fast and agile.',
-          type: 'creature',
-          emoji: '🐎',
-          image: '/images/items/horse/horse-stelony.png',
-        },
-        {
-          id: 'endurance-horse',
-          name: 'Buster Endurance Horse',
-          description: 'Can travel long distances.',
-          type: 'creature',
-          emoji: '🐴',
-          image: '/images/items/horse/horse-perony.png',
-        },
-        {
-          id: 'war-horse',
-          name: 'Shadow War Horse',
-          description: 'Strong and brave.',
-          type: 'creature',
-          emoji: '🦄',
-          image: '/images/items/horse/horse-felony.png',
-        },
-      ];
-      const randomHorse = { ...horses[Math.floor(Math.random() * horses.length)], quantity: 1 };
-      if (randomHorse) {
-        addToKingdomInventory(randomHorse);
-        window.dispatchEvent(new CustomEvent('toast', { detail: { title: 'Horse Caught!', description: `You caught a horse: ${randomHorse.name}` } }));
+        const horses = [
+          {
+            id: 'swift-horse',
+            name: 'Sally Swift Horse',
+            description: 'Fast and agile.',
+            type: 'creature',
+            emoji: '🐎',
+            image: '/images/items/horse/horse-stelony.png',
+          },
+          {
+            id: 'endurance-horse',
+            name: 'Buster Endurance Horse',
+            description: 'Can travel long distances.',
+            type: 'creature',
+            emoji: '🐴',
+            image: '/images/items/horse/horse-perony.png',
+          },
+          {
+            id: 'war-horse',
+            name: 'Shadow War Horse',
+            description: 'Strong and brave.',
+            type: 'creature',
+            emoji: '🦄',
+            image: '/images/items/horse/horse-felony.png',
+          },
+        ];
+        const randomHorse = { ...horses[Math.floor(Math.random() * horses.length)], quantity: 1 };
+        if (randomHorse) {
+          // Dispatch the horse-caught event with the horse data
+          window.dispatchEvent(new CustomEvent('horse-caught', { 
+            detail: { horse: randomHorse }
+          }));
+          
+          // Show the toast notification using the correct function
+          showScrollToast(toast, 'Horse Caught!', `You caught a horse: ${randomHorse.name}`);
+        }
       }
     }
   }, [horsePos, safeCharacter, isHorsePresent]);

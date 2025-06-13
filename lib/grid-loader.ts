@@ -1,5 +1,35 @@
-import { TileType } from '@/types/tiles'
+import { TileType, Tile } from '@/types/tiles'
+export async function loadAndProcessInitialGrid(): Promise<Tile[][]> {
+  try {
+    // Try to load from localStorage first
+    if (typeof window !== 'undefined') {
+      const savedGrid = localStorage.getItem('grid');
+      if (savedGrid) {
+        return JSON.parse(savedGrid);
+      }
+    }
 
+    // If no saved grid, load the initial grid from CSV or fallback
+    const gridData = await loadInitialGrid();
+    // Convert numeric grid to Tile grid
+    const tileGrid: Tile[][] = gridData.grid.map((row, y) =>
+      row.map((numeric, x) => createTileFromNumeric(numeric, x, y))
+    );
+
+    // Save the processed grid
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('grid', JSON.stringify(tileGrid));
+    }
+
+    return tileGrid;
+  } catch (error) {
+    console.error('Error in loadAndProcessInitialGrid:', error);
+    // Return a basic grid if there's an error
+    return Array(7).fill(null).map((_, y) =>
+      Array(13).fill(null).map((_, x) => createTileFromNumeric(2, x, y)) // 2 is grass
+    );
+  }
+}
 // Map numeric values to TileType
 export const numericToTileType: { [key: number]: TileType } = {
   0: 'empty',
@@ -29,6 +59,39 @@ export interface GridData {
 
 // Assuming the expected grid width is 13 columns based on existing components
 const EXPECTED_GRID_COLS = 13;
+const INITIAL_ROWS = 7;
+
+const defaultTile = (type: TileType): Tile => ({
+  id: type,
+  name: type.charAt(0).toUpperCase() + type.slice(1),
+  description: `${type.charAt(0).toUpperCase() + type.slice(1)} tile`,
+  type,
+  connections: [],
+  rotation: 0,
+  revealed: true,
+  isVisited: false,
+  x: 0,
+  y: 0,
+  ariaLabel: `${type} tile`,
+  image: `/tiles/${type}.png`,
+  cost: 0,
+  quantity: 0
+});
+
+const createBaseGrid = (): Tile[][] => {
+  const grid: Tile[][] = [];
+  for (let y = 0; y < INITIAL_ROWS; y++) {
+    const row: Tile[] = [];
+    for (let x = 0; x < EXPECTED_GRID_COLS; x++) {
+      // Create a default grass tile
+      row.push(defaultTile('grass'));
+    }
+    grid.push(row);
+  }
+  return grid;
+};
+
+
 
 export async function loadInitialGrid(): Promise<GridData> {
   try {

@@ -1,3 +1,9 @@
+declare global {
+  interface Window {
+    workbox: any;
+  }
+}
+
 export function registerServiceWorker() {
   if (typeof window !== 'undefined' && 'serviceWorker' in navigator && window.workbox !== undefined) {
     // Register the service worker
@@ -9,5 +15,11 @@ export function registerServiceWorker() {
       .catch((err) => {
         console.error('Service Worker registration failed:', err);
       });
+  }
+}
+
+export function registerSW() {
+  if (typeof window !== 'undefined' && 'serviceWorker' in navigator && window.workbox !== undefined) {
+    window.workbox.register();
   }
 } 

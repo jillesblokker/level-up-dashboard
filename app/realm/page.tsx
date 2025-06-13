@@ -14,7 +14,7 @@ import { getCharacterName } from "@/lib/toast-utils"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useRouter } from "next/navigation"
 // Import necessary types from '@/types/tiles'
-import { Tile, ConnectionDirection, TileType, InventoryItem, SelectedInventoryItem } from '@/types/tiles'
+import { Tile, ConnectionDirection, TileType, InventoryItem as TileInventoryItem, SelectedInventoryItem } from '@/types/tiles'
 import { useCreatureStore } from "@/stores/creatureStore"
 import {
   DropdownMenu,
@@ -30,14 +30,14 @@ import { Switch } from "@/components/ui/switch"
 import { generateMysteryEvent, handleEventOutcome, getScrollById } from "@/lib/mystery-events"
 import { MysteryEvent } from '@/lib/mystery-events'
 import { MysteryEventType, MysteryEventReward } from '@/lib/mystery-events' // Import MysteryEventReward
-import { addToInventory, addToKingdomInventory } from "@/lib/inventory-manager"
+import { InventoryItem, addToInventory, addToKingdomInventory } from "@/lib/inventory-manager"
 import { TileEditor } from '@/components/tile-editor'
 import { createTilePlacement, getTilePlacements } from '@/lib/api'
 import { nanoid } from 'nanoid'
 import { Minimap } from "@/components/Minimap"
 import { MinimapEntity, MinimapRotationMode } from "@/types/minimap"
 import { useAchievementStore } from '@/stores/achievementStore'
-import { loadInitialGrid, createTileFromNumeric, numericToTileType } from "@/lib/grid-loader"
+import { loadAndProcessInitialGrid, loadInitialGrid, createTileFromNumeric, numericToTileType } from "@/lib/grid-loader"
 import { getLatestGrid, uploadGridData, updateGridData, subscribeToGridChanges, createQuestCompletion, getQuestCompletions } from '@/lib/api'
 import { useAuthContext } from '@/components/providers'
 import Link from "next/link"
@@ -48,6 +48,9 @@ import { useUser } from '@clerk/nextjs'
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@/types/supabase';
 import React from "react"
+import { toast } from "@/components/ui/use-toast"
+import { showScrollToast } from "@/lib/toast-utils"
+import { addNotification } from "@/lib/notification-log"
 
 // Types
 interface Position {
@@ -77,676 +80,73 @@ interface Logger {
 
 // Constants
 const GRID_COLS = 13
+const GRID_ROWS = 20 // Add this constant
 const INITIAL_ROWS = 7
 const ZOOM_LEVELS = [0.5, 1, 1.5, 2]
 const AUTOSAVE_INTERVAL = 30000 // 30 seconds
 
 // Initial state
-const initialTileInventory: Partial<Record<TileType, InventoryItem>> = ({
-  grass: {
-    id: 'grass-1',
-    type: 'grass',
-    name: "Grass",
-    description: "Basic grassland tile",
-    connections: [],
-    rotation: 0,
-    cost: 20,
-    quantity: 50,
-    image: '/images/tiles/grass-tile.png',
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "Grass tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: false,
-    cityName: undefined,
-  },
-  water: {
-    id: 'water-1',
-    type: 'water',
-    name: "Water",
-    description: "Water tile",
-    connections: [],
-    rotation: 0,
-    cost: 30,
-    quantity: 30,
-    image: '/images/tiles/water-tile.png',
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "Water tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: false,
-    cityName: undefined, // Added optional properties
-  },
-  mountain: {
-    id: 'mountain-1',
-    type: 'mountain',
-    name: "Mountain",
-    description: "Mountain tile",
-    connections: [],
-    rotation: 0,
-    cost: 40,
-    quantity: 20,
-    image: '/images/tiles/mountain-tile.png',
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "Mountain tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: false,
-    cityName: undefined, // Added optional properties
-  },
-  forest: {
-    id: 'forest-1',
-    type: 'forest',
-    name: "Forest",
-    description: "Forest tile",
-    connections: [],
-    rotation: 0,
-    cost: 35,
-    quantity: 25,
-    image: '/images/tiles/forest-tile.png',
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "Forest tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: false,
-    cityName: undefined, // Added optional properties
-  },
-  desert: {
-    id: 'desert-1',
-    type: 'desert',
-    name: "Desert",
-    description: "Desert tile",
-    connections: [],
-    rotation: 0,
-    cost: 25,
-    quantity: 40,
-    image: '/images/tiles/desert-tile.png',
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "Desert tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: false,
-    cityName: undefined, // Added optional properties
-  },
-  ice: {
-    id: 'ice-1',
-    type: 'ice',
-    name: "Ice",
-    description: "Ice tile",
-    connections: [],
-    rotation: 0,
-    cost: 45,
-    quantity: 15,
-    image: '/images/tiles/ice-tile.png',
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "Ice tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: false,
-    cityName: undefined, // Added optional properties
-  },
-  mystery: {
-    id: 'mystery-1',
-    type: 'mystery',
-    name: "Mystery",
-    description: "Mystery tile",
-    connections: [],
-    rotation: 0,
-    cost: 50,
-    quantity: 10,
-    image: '/images/tiles/mystery-tile.png',
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "Mystery tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: false,
-    cityName: undefined, // Added optional properties
-  },
-  city: {
-    id: 'city-1',
-    type: 'city',
-    name: "City",
-    description: "City tile",
-    connections: [],
-    rotation: 0,
-    cost: 100,
-    quantity: 5,
-    image: '/images/tiles/city-tile.png',
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "City tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: true,
-    cityName: undefined, // Added optional properties
-  },
-  town: {
-    id: 'town-1',
-    type: 'town',
-    name: "Town",
-    description: "Town tile",
-    connections: [],
-    rotation: 0,
-    cost: 75,
-    quantity: 8,
-    image: '/images/tiles/town-tile.png',
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "Town tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: true,
-    cityName: undefined, // Added optional properties
-  },
-  empty: {
-    id: 'empty-1',
-    type: 'empty',
-    name: "Empty",
-    description: "Empty tile",
-    connections: [],
-    rotation: 0,
-    cost: 0,
-    quantity: 999,
-    image: '/images/tiles/empty-tile.png',
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "Empty tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: false,
-    cityName: undefined, // Added optional properties
-  },
-  snow: {
-    id: 'snow-1',
-    type: 'snow',
-    name: "Snow",
-    description: "Snow tile",
-    connections: [],
-    rotation: 0,
-    cost: 35,
-    quantity: 20,
-    image: '/images/tiles/ice-tile.png', // Use ice as fallback
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "Snow tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: false,
-    cityName: undefined, // Added optional properties
-  },
-  cave: {
-    id: 'cave-1',
-    type: 'cave',
-    name: "Cave",
-    description: "Cave tile",
-    connections: [],
-    rotation: 0,
-    cost: 45,
-    quantity: 15,
-    image: '/images/tiles/cave-tile.png',
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "Cave tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: false,
-    cityName: undefined, // Added optional properties
-  },
-  dungeon: {
-    id: 'dungeon-1',
-    type: 'dungeon',
-    name: "Dungeon",
-    description: "Dungeon tile",
-    connections: [],
-    rotation: 0,
-    cost: 80,
-    quantity: 8,
-    image: '/images/tiles/dungeon-tile.png',
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "Dungeon tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: false,
-    cityName: undefined, // Added optional properties
-  },
-  castle: {
-    id: 'castle-1',
-    type: 'castle',
-    name: "Castle",
-    description: "Castle tile",
-    connections: [],
-    rotation: 0,
-    cost: 150,
-    quantity: 3,
-    image: '/images/tiles/castle-tile.png',
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "Castle tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: true,
-    cityName: undefined, // Added optional properties
-  },
-  lava: {
-    id: 'lava-1',
-    type: 'lava',
-    name: "Lava",
-    description: "A dangerous lava tile that cannot be entered",
-    connections: [],
-    rotation: 0,
-    cost: 60,
-    quantity: 10,
-    image: '/images/tiles/lava-tile.png',
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "Lava tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: false,
-    cityName: undefined,
-  },
-  volcano: {
-    id: 'volcano-1',
-    type: 'volcano',
-    name: "Volcano",
-    description: "A dangerous volcano tile that cannot be entered",
-    connections: [],
-    rotation: 0,
-    cost: 80,
-    quantity: 5,
-    image: '/images/tiles/volcano-tile.png',
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "Volcano tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: false,
-    cityName: undefined,
-  },
-  'portal-entrance': {
-    id: 'portal-entrance-1',
-    type: 'portal-entrance',
-    name: "Portal Entrance",
-    description: "Entrance portal tile",
-    connections: [],
-    rotation: 0,
-    cost: 200,
-    quantity: 1,
-    image: '/images/tiles/portal-entrance-tile.png',
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "Portal entrance tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: false,
-    cityName: undefined,
-  },
-  'portal-exit': {
-    id: 'portal-exit-1',
-    type: 'portal-exit',
-    name: "Portal Exit",
-    description: "Exit portal tile",
-    connections: [],
-    rotation: 0,
-    cost: 200,
-    quantity: 1,
-    image: '/images/tiles/portal-exit-tile.png',
-    revealed: true,
-    isVisited: false,
-    ariaLabel: "Portal exit tile in inventory",
-    x: 0,
-    y: 0,
-    isMainTile: false,
-    isTown: false,
-    cityName: undefined,
-  },
-});
-
-// Add location data
-const locationData = {
-  city: {
-    name: "Grand Citadel",
-    description: "A magnificent city with towering spires and bustling markets. The heart of commerce and culture in the realm.",
-    locationId: "grand-citadel"
-  },
-  town: {
-    name: "Riverside Haven",
-    description: "A peaceful town nestled by the river. Known for its friendly inhabitants and local crafts.",
-    locationId: "riverside-haven"
-  },
-  castle: { // Added castle location data
-    name: "Skyreach Castle",
-    description: "An ancient castle atop a high peak.",
-    locationId: "skyreach-castle"
-  },
-}
-
-// Function to create base grid with consistent dimensions
-const createBaseGrid = (rows: number, cols: number): Tile[][] => {
-  return Array(rows).fill(null).map((_, y) =>
-    Array(cols).fill(null).map((_, x) => ({
-      id: `tile-${x}-${y}`,
-      type: 'empty' as TileType,
-      name: 'Empty Tile',
-      description: 'An empty space ready for a new tile',
-      connections: [],
-      rotation: 0 as 0 | 90 | 180 | 270,
-      revealed: true,
-      isVisited: false,
-      x,
-      y,
-      ariaLabel: `Empty tile at position ${x},${y}`,
-      image: '/images/tiles/empty-tile.png',
-      isMainTile: false, // Default values
-      isTown: false, // Default values
-      cityName: undefined, // Default values
-      cityX: undefined,
-      cityY: undefined,
-      citySize: undefined,
-      bigMysteryX: undefined,
-      bigMysteryY: undefined,
-      tileSize: undefined,
-    }))
-  );
-};
-
-
-// Fix the findTilePosition function to handle undefined cases
-const findTilePosition = (grid: Tile[][], type: TileType): Position | null => {
-  if (!grid || !Array.isArray(grid)) {
-    return null;
-  }
-
-  for (let y = 0; y < grid.length; y++) {
-    const row = grid[y];
-    if (!row || !Array.isArray(row)) continue;
-
-    for (let x = 0; x < row.length; x++) {
-      const tile = row[x];
-      // Add null/undefined check for tile
-      if (tile && tile.type === type) {
-        return { x, y };
-      }
-    }
-  }
-  return null;
-};
-
-// Helper function to create an empty tile
-const createEmptyTile = (x: number, y: number): Tile => ({
-  id: `tile-${x}-${y}-${Date.now()}`,
-  type: 'empty',
-  name: 'Empty Tile',
-  description: 'An empty space ready for a new tile',
+const defaultTile = (type: TileType): Tile => ({
+  id: type,
+  name: type.charAt(0).toUpperCase() + type.slice(1),
+  description: `${type.charAt(0).toUpperCase() + type.slice(1)} tile`,
+  type,
   connections: [],
   rotation: 0,
   revealed: true,
   isVisited: false,
-  x,
-  y,
-  ariaLabel: `Empty tile at position ${x},${y}`,
-  image: '/images/tiles/empty-tile.png',
-  isMainTile: false, // Default values
-  isTown: false, // Default values
-  cityName: undefined, // Default values
-  cityX: undefined,
-  cityY: undefined,
-  citySize: undefined,
-  bigMysteryX: undefined,
-  bigMysteryY: undefined,
-  tileSize: undefined,
+  x: 0,
+  y: 0,
+  ariaLabel: `${type} tile`,
+  image: `/tiles/${type}.png`,
+  cost: 0,
+  quantity: 0
 });
 
-// Fix the processLoadedGrid function to handle undefined cases - Keep only one definition
-const processLoadedGrid = (loadedGrid: unknown): Tile[][] => {
-  if (!Array.isArray(loadedGrid)) {
-    logger.error('Invalid grid data format', 'GridInit');
-    return createBaseGrid(INITIAL_ROWS, GRID_COLS);
-  }
+const allTileTypes: TileType[] = [
+  'empty', 'mountain', 'grass', 'forest', 'water', 'city', 'town', 'mystery', 'portal', 'portal-entrance',
+  'portal-exit', 'snow', 'cave', 'dungeon', 'castle', 'ice', 'desert', 'lava', 'volcano', 'sheep', 'horse'
+];
 
-  return loadedGrid.map((row: unknown, y: number) => {
-    if (!Array.isArray(row)) {
-      // If a row is not an array, fill it with empty tiles
-      return Array(GRID_COLS).fill(null).map((_, x) => createEmptyTile(x, y));
-    }
+const initialInventory: Record<TileType, Tile> = Object.fromEntries(
+  allTileTypes.map(type => [type, defaultTile(type)])
+) as Record<TileType, Tile>;
 
-    return row.map((cell: unknown, x: number) => {
-      if (typeof cell !== 'object' || cell === null) {
-        // If cell is not an object, return an empty tile
-        return createEmptyTile(x, y);
-      }
-      const c = cell as Record<string, any>;
-      const tileType = c['type'] || 'empty';
-      const baseTile: Tile = {
-        id: c['id'] || `tile-${x}-${y}-${Date.now()}`,
-        type: tileType,
-        name: c['name'] || 'Empty Tile',
-        description: c['description'] || 'An empty space ready for a new tile',
-        connections: c['connections'] || [],
-        rotation: c['rotation'] || 0,
-        revealed: c['revealed'] ?? true,
-        isVisited: c['isVisited'] ?? false,
-        x: c['x'] ?? x,
-        y: c['y'] ?? y,
-        ariaLabel: c['ariaLabel'] || `${tileType} tile at position ${x},${y}`,
-        image: c['image'] || `/images/tiles/${tileType}-tile.png`,
-        cost: c['cost'] ?? 0,
-        quantity: c['quantity'] ?? 1,
-        isMainTile: c['isMainTile'] ?? false,
-        isTown: c['isTown'] ?? false,
-        cityName: c['cityName'] || '',
-        cityX: c['cityX'],
-        cityY: c['cityY'],
-        citySize: c['citySize'],
-        bigMysteryX: c['bigMysteryX'],
-        bigMysteryY: c['bigMysteryY'],
-        tileSize: c['tileSize'],
-      };
-      return baseTile;
-    });
-  });
+// Add this above RealmPage or near other constants
+type LocationInfo = { name: string; description: string };
+const realmLocationData: Record<string, LocationInfo> = {
+  'Grand Citadel': {
+    name: 'Grand Citadel',
+    description: 'A majestic fortress city that serves as the capital.'
+  },
+  'Town 6-6': {
+    name: 'Kingdom Marketplace',
+    description: 'A bustling marketplace where traders from all corners gather.'
+  },
+  'Town 3-3': {
+    name: 'Royal Stables',
+    description: 'Fine steeds and mounts for your journeys.'
+  },
+  'Town 6-3': {
+    name: "Ember's Forge",
+    description: 'Master blacksmith crafting weapons and armor.'
+  },
+  // Add more as needed
 };
 
-
-// Fix the mergeTilesIntoGrid function to handle undefined cases
-const mergeTilesIntoGrid = (baseGrid: Tile[][], savedTiles: Tile[]): Tile[][] => {
-  if (!baseGrid || baseGrid.length === 0 || !Array.isArray(baseGrid[0]) || baseGrid[0].length === 0) {
-    logger.error('Base grid is empty or has empty rows', 'GridInit');
-    return baseGrid;
-  }
-
-  // Create a deep copy of the base grid
-  const mergedGrid = baseGrid.map(row => [...row]);
-  logger.info('Initial merged grid (copy of base grid)', 'GridInit');
-
-  savedTiles.forEach(tile => {
-    // Add more robust checks for tile data
-    if (!tile || typeof tile !== 'object' || !('x' in tile) || typeof tile.x !== 'number' || !('y' in tile) || typeof tile.y !== 'number' || !('type' in tile) || typeof tile.type !== 'string') {
-      logger.warning('Invalid tile data received for merging', 'GridInit');
-      return;
+// Add these functions before RealmPage
+const createBaseGrid = (): Tile[][] => {
+  const grid: Tile[][] = [];
+  for (let y = 0; y < INITIAL_ROWS; y++) {
+    const row: Tile[] = [];
+    for (let x = 0; x < GRID_COLS; x++) {
+      // Create a default grass tile
+      row.push(defaultTile('grass'));
     }
-
-    logger.info(`Processing tile at x:${tile.x}, y:${tile.y} with type:${tile.type}`, 'GridInit');
-    // Ensure the target position exists in the mergedGrid
-    // Refined check for safety
-    if (tile.y >= 0 && tile.y < mergedGrid.length) {
-      const row = mergedGrid[tile.y];
-      if (row && tile.x >= 0 && tile.x < row.length) { // Check row existence and bounds for x
-        const existingTile = row[tile.x];
-        if (existingTile !== undefined) { // Check if the tile position is defined in the base grid
-          const updatedTile: Tile = { // Explicitly type as Tile
-            ...existingTile,
-            ...tile,
-            id: tile.id || `tile-${tile.x}-${tile.y}-${Date.now()}`, // Ensure ID is unique, prefer existing
-            ariaLabel: tile.ariaLabel || `${tile.type} tile at position ${tile.x},${tile.y}`,
-            // Ensure connections is an array and other properties are handled
-            connections: (Array.isArray(tile.connections) && tile.connections.length > 0) ? tile.connections : existingTile.connections || [],
-            rotation: tile.rotation !== undefined ? tile.rotation : existingTile.rotation || 0 as 0 | 90 | 180 | 270,
-            revealed: tile.revealed !== undefined ? tile.revealed : existingTile.revealed || false,
-            isVisited: tile.isVisited !== undefined ? tile.isVisited : existingTile.isVisited || false,
-            name: tile.name || existingTile.name || `${tile.type.charAt(0).toUpperCase() + tile.type.slice(1)} Tile`,
-            description: tile.description || existingTile.description || `A ${tile.type} tile`,
-            image: tile.image || existingTile.image || `/images/tiles/${tile.type}-tile.png`,
-             // Provide default values or ensure they are correctly merged
-            isMainTile: tile.isMainTile ?? existingTile.isMainTile ?? false,
-            isTown: tile.isTown ?? existingTile.isTown ?? false,
-            cityName: (tile.cityName ?? existingTile.cityName) || '',
-            cityX: tile.cityX ?? existingTile.cityX,
-            cityY: tile.cityY ?? existingTile.cityY,
-            citySize: tile.citySize ?? existingTile.citySize,
-            bigMysteryX: tile.bigMysteryX ?? existingTile.bigMysteryX,
-            bigMysteryY: tile.bigMysteryY ?? existingTile.bigMysteryY,
-            tileSize: tile.tileSize ?? existingTile.tileSize,
-             cost: tile.cost ?? existingTile.cost ?? 0, // Provide default for cost
-             quantity: tile.quantity ?? existingTile.quantity ?? 1, // Provide default for quantity
-
-          };
-          row[tile.x] = updatedTile;
-        } else {
-             logger.warning(`Existing tile is undefined at position y=${tile.y}, x=${tile.x}`, 'GridInit');
-        }
-      } else {
-         logger.warning(`Invalid x position ${tile.x} for row ${tile.y}`, 'GridInit');
-      }
-    } else {
-      logger.warning(`Tile y position out of bounds: y=${tile.y}, max y=${mergedGrid.length - 1}`, 'GridInit');
-    }
-  });
-  return mergedGrid;
+    grid.push(row);
+  }
+  return grid;
 };
-
-// New function to load and process the initial grid
-const loadAndProcessInitialGrid = async (): Promise<Tile[][]> => {
-  console.log('Loading and processing initial grid...');
-  const initialGridData = await loadInitialGrid();
-
-  if (!initialGridData || !initialGridData.grid) {
-    console.error('Failed to load initial grid data from loadInitialGrid');
-    // Fallback to a base empty grid if initial load fails
-    return createBaseGrid(INITIAL_ROWS, GRID_COLS);
-  }
-
-  console.log('Initial grid data loaded from loadInitialGrid:', initialGridData);
-  
-  // Image mapping for tile types
-  const getImageForTileType = (tileType: string): string => {
-    const tileImages: Record<string, string> = {
-      'empty': '/images/tiles/empty-tile.png',
-      'grass': '/images/tiles/grass-tile.png',
-      'forest': '/images/tiles/forest-tile.png',
-      'water': '/images/tiles/water-tile.png',
-      'mountain': '/images/tiles/mountain-tile.png',
-      'desert': '/images/tiles/desert-tile.png',
-      'city': '/images/tiles/city-tile.png',
-      'town': '/images/tiles/town-tile.png',
-      'mystery': '/images/tiles/mystery-tile.png',
-      'ice': '/images/tiles/ice-tile.png',
-      'portal-entrance': '/images/tiles/portal-entrance-tile.png',
-      'portal-exit': '/images/tiles/portal-exit-tile.png',
-      'snow': '/images/tiles/ice-tile.png',
-      'cave': '/images/tiles/cave-tile.png',
-      'dungeon': '/images/tiles/dungeon-tile.png',
-      'castle': '/images/tiles/castle-tile.png',
-    };
-    return tileImages[tileType] || '/images/tiles/empty-tile.png';
-  };
-  
-  // Convert numeric grid to Tile[][]
-  const loadedGrid = initialGridData.grid.map((row: number[], y: number) => row.map((cell: number, x: number) => {
-    const tileType = numericToTileType[cell] || 'empty';
-    return {
-      id: `tile-${x}-${y}-${Date.now()}`,
-      type: tileType,
-      name: `${tileType.charAt(0).toUpperCase() + tileType.slice(1)} Tile`,
-      description: `A ${tileType} tile`,
-      connections: [],
-      rotation: 0 as 0 | 90 | 180 | 270,
-      revealed: true,
-      isVisited: false,
-      x,
-      y,
-      ariaLabel: `${tileType} tile at position ${x},${y}`,
-      image: getImageForTileType(tileType),
-      isMainTile: false, // Provide default for properties from ExtendedTileProperties
-      isTown: false,
-      cityName: undefined, // Make optional
-      cityX: undefined,
-      cityY: undefined,
-      citySize: undefined,
-      bigMysteryX: undefined,
-      bigMysteryY: undefined,
-      tileSize: undefined,
-      cost: 0, // Provide default
-      quantity: 1, // Provide default
-    } as Tile; // Explicitly cast to Tile
-  }));
-  console.log('Processed initial grid:', loadedGrid);
-  return loadedGrid;
-};
-
-// Add this near the top of the file, after imports
-const isBrowser = typeof window !== 'undefined';
-
-// Add helper to load/save character position from Supabase
-async function loadCharacterPosition(supabase: SupabaseClient<Database>, userId: string): Promise<{ x: number; y: number } | null> {
-  try {
-    const { data, error } = await supabase
-      .from('character_positions')
-      .select('x, y')
-      .eq('user_id', userId)
-      .single();
-    if (error || !data) return null;
-    return { x: data.x, y: data.y };
-  } catch {
-    return null;
-  }
-}
-
-async function saveCharacterPosition(supabase: SupabaseClient<Database>, userId: string, pos: { x: number; y: number }) {
-  try {
-    await supabase
-      .from('character_positions')
-      .upsert({ user_id: userId, x: pos.x, y: pos.y }, { onConflict: 'user_id' });
-  } catch (error) {
-    logger.error(`Error saving character position: ${error}`, 'CharacterPosition');
-  }
-}
-
-// Utility to sanitize the grid before rendering
-function sanitizeGrid(grid) {
-  return Array.isArray(grid)
-    ? grid.map((row, y) =>
-        Array.isArray(row)
-          ? row.map((tile, x) => tile || createEmptyTile(x, y))
-          : Array(GRID_COLS).fill(null).map((_, x) => createEmptyTile(x, y))
-      )
-    : createBaseGrid(INITIAL_ROWS, GRID_COLS);
-}
 
 export default function RealmPage() {
   const { toast } = useToast()
@@ -754,14 +154,13 @@ export default function RealmPage() {
   const { handleUnlock } = useCreatureUnlock()
   const gridRef = useRef<HTMLDivElement>(null)
   const { updateProgress } = useAchievementStore()
-  const creatureStore = useCreatureStore()
   const { user, isLoaded: isAuthLoaded } = useUser();
   const userId = user?.id;
   const isGuest = !user;
   const subscriptionRef = useRef<any>(null)
 
   // State declarations
-  const [inventory, setInventory] = useLocalStorage<Partial<Record<TileType, InventoryItem>>>("tile-inventory", initialTileInventory)
+  const [inventory, setInventory] = useState<Record<TileType, Tile>>(initialInventory);
   const [showScrollMessage, setShowScrollMessage] = useState(false)
   // Ensure characterPosition is always a valid object
   const defaultCharacterPosition = { x: 2, y: 0 };
@@ -774,7 +173,7 @@ export default function RealmPage() {
   const [isInitialized, setIsInitialized] = useState(false)
   const [currentEvent, setCurrentEvent] = useState<MysteryEvent | null>(null)
   const [showLocationModal, setShowLocationModal] = useState(false)
-  const [currentLocation, setCurrentLocation] = useState<{ type: string; name: string; description: string } | null>(null)
+  const [currentLocation, setCurrentLocation] = useState<{ x: number; y: number; name: string; description: string } | null>(null)
   const [zoomLevel, setZoomLevel] = useState(1)
   const [movementMode, setMovementMode] = useState(true)
   const [hoveredTile, setHoveredTile] = useState<{ row: number; col: number } | null>(null)
@@ -1549,13 +948,14 @@ export default function RealmPage() {
 
     // Only trigger modal if position is new
     if ((targetTile.type === 'city' || targetTile.type === 'town') && (!lastModalPosition || lastModalPosition.x !== newX || lastModalPosition.y !== newY)) {
-      const locationKey = (targetTile as { locationId?: string }).locationId || targetTile.type;
-      const locationInfo = (locationData as Record<string, { name: string; description: string }>)[locationKey];
+      const locationKey = targetTile.cityName || targetTile.type;
+      const locationInfo = realmLocationData[locationKey];
       if (locationInfo?.name) {
         setCurrentLocation({
-          type: targetTile.type,
+          x: newX,
+          y: newY,
           name: locationInfo.name,
-          description: locationInfo.description || ''
+          description: locationInfo.description,
         });
         setShowLocationModal(true);
         setLastModalPosition({x: newX, y: newY});
@@ -1599,7 +999,7 @@ export default function RealmPage() {
     if (typeof window !== 'undefined') {
       localStorage.setItem('character-position', JSON.stringify({ x: newX, y: newY }));
     }
-  }, [setCharacterPosition, grid, locationData, toast, supabase, userId, setCurrentLocation, setShowLocationModal, setPortalSource, setShowPortalModal, router, setCurrentEvent, setGrid, characterPosition, lastModalPosition]);
+  }, [setCharacterPosition, grid, toast, supabase, userId, setCurrentLocation, setShowLocationModal, setPortalSource, setShowPortalModal, router, setCurrentEvent, setGrid, characterPosition, lastModalPosition]);
 
   // Update keyboard navigation to use handleCharacterMove
   useEffect(() => {
@@ -1631,112 +1031,14 @@ export default function RealmPage() {
   }, [characterPosition, grid, handleCharacterMove]);
 
   // Handle inventory updates - used by TileInventory component
-  const handleInventoryUpdate = useCallback((updatedTiles: InventoryItem[]) => { // Explicitly type as InventoryItem[] and wrap in useCallback
-     // Ensure updatedTiles is an array of valid InventoryItem objects
-    if (!Array.isArray(updatedTiles)) {
-        logger.error('Invalid data received for inventory update (handleInventoryUpdate)', 'InventoryUpdate');
-        return;
-    }
-
-    const validatedTiles = updatedTiles.map(item => {
-       // Add validation and provide default values for required properties
-        return {
-            id: item.id || `${item.type}-auto`,
-            type: item.type,
-            name: item.name || item.type,
-            description: item.description || `A ${item.type} item`,
-            connections: item.connections || [],
-            rotation: item.rotation || 0,
-            revealed: item.revealed ?? true,
-            isVisited: item.isVisited ?? false,
-            ariaLabel: item.ariaLabel || `${item.name || item.type} in inventory`,
-            image: item.image || `/images/tiles/${item.type}-tile.png`,
-            cost: item.cost ?? 0, // Provide default for cost
-            quantity: item.quantity ?? 0, // Provide default for quantity
-            x: item.x ?? 0, // Provide default for x and y if missing
-            y: item.y ?? 0,
-             // Include optional properties with default undefined if missing
-            isMainTile: item.isMainTile ?? false, // Provide default
-            isTown: item.isTown ?? false, // Provide default
-            cityName: item.cityName,
-            cityX: item.cityX,
-            cityY: item.cityY,
-            citySize: item.citySize,
-            bigMysteryX: item.bigMysteryX,
-            bigMysteryY: item.bigMysteryY,
-            tileSize: item.tileSize,
-        } as InventoryItem; // Explicitly cast to InventoryItem
-    });
-
-
-    setInventory(prevInventory => {
-      const newInventory = { ...prevInventory };
-      validatedTiles.forEach(tile => {
-        // Ensure tile.type is a valid key for newInventory
-        if (tile.type in newInventory) {
-           newInventory[tile.type] = tile;
-        } else {
-           logger.warning(`Attempted to update inventory for unknown tile type: ${tile.type}`, 'InventoryUpdate');
-      }
-    });
-      return newInventory;
-    });
-  }, [setInventory]);
-
-  // Add the handleVisitLocation function
-  const handleVisitLocation = useCallback(() => {
-    if (!currentLocation || !router) return;
-
-    const locationName = currentLocation.name;
-    const locationType = currentLocation.type;
-    const locationSlug = locationName.toLowerCase().replace(/\s+/g, '-');
-    
-    if (locationType === 'city' || locationType === 'castle') {
-      router.push(`/city/${locationSlug}`);
-    } else if (locationType === 'town') {
-      router.push(`/town/${locationSlug}`);
-    } else {
-      router.push(`/locations/${locationSlug}`);
-    }
-    
-    setShowLocationModal(false);
-  }, [currentLocation, router, setShowLocationModal]);
-
-  // Fix the image rendering for empty tiles
-  const getTileImage = (tile: Tile | undefined) => {
-    if (!tile || tile.type === 'empty') {
-      return '/images/tiles/empty-tile.png';
-    }
-    const imageMap: Record<string, string> = {
-      empty: '/images/tiles/empty-tile.png',
-      grass: '/images/tiles/grass-tile.png',
-      water: '/images/tiles/water-tile.png',
-      mountain: '/images/tiles/mountain-tile.png',
-      forest: '/images/tiles/forest-tile.png',
-      desert: '/images/tiles/desert-tile.png',
-      ice: '/images/tiles/ice-tile.png',
-      mystery: '/images/tiles/mystery-tile.png',
-      city: '/images/tiles/city-tile.png',
-      town: '/images/tiles/town-tile.png',
-      'portal-entrance': '/images/tiles/portal-entrance-tile.png',
-      'portal-exit': '/images/tiles/portal-exit-tile.png',
-      snow: '/images/tiles/ice-tile.png',
-      cave: '/images/tiles/cave-tile.png',
-      dungeon: '/images/tiles/dungeon-tile.png',
-      castle: '/images/tiles/castle-tile.png',
-      lava: '/images/tiles/lava-tile.png',
-      volcano: '/images/tiles/volcano-tile.png',
-      sheep: '/images/Animals/sheep.png',
-    };
-    return imageMap[tile.type] || '/images/tiles/empty-tile.png';
+  const handleInventoryUpdate = (updatedInventory: Record<TileType, Tile>) => {
+    setInventory(updatedInventory);
   };
 
-  const getTileName = (tile: Tile | undefined) => {
-    if (!tile || tile.type === 'empty') {
-      return 'Empty Tile';
-    }
-    // Use optional chaining when accessing inventory properties
-    return inventory[tile.type]?.name || 'Unknown Tile';
+  // Add the handleVisitLocation function
+  const handleVisitLocation = (location: { x: number; y: number; name: string }) => {
+    const desc = realmLocationData[location.name]?.description || '';
+    setCurrentLocation({ ...location, description: desc });
   };
 
   // Show scroll message
@@ -1787,7 +1089,7 @@ export default function RealmPage() {
         mountainDestroyed: 0,
         icePlaced: 0
       });
-      setInventory(initialTileInventory); // Reset inventory to initial state
+      setInventory(initialInventory); // Reset inventory to initial state
       localStorage.removeItem('character-position');
       localStorage.removeItem('tile-counts');
       localStorage.removeItem('tile-inventory');
@@ -1813,7 +1115,7 @@ export default function RealmPage() {
   };
 
   // Correct the handleTileSelection function to use InventoryItem and map to SelectedInventoryItem
-const handleTileSelection = (tile: InventoryItem | null) => {
+const handleTileSelection = (tile: TileInventoryItem | null) => {
   if (!tile) {
     setSelectedTile(null);
     return;
@@ -1909,7 +1211,7 @@ const handleTileSelection = (tile: InventoryItem | null) => {
   // Fix the updateInventoryFromTileItems function to handle type mismatches and use InventoryItem
    // This function seems intended to update the local inventory state from a list of items,
    // likely from an event outcome or similar.
-  const updateInventoryFromTileItems = useCallback((tileItems: InventoryItem[]) => { // Explicitly type as InventoryItem[] and wrap in useCallback
+  const updateInventoryFromTileItems = useCallback((tileItems: TileInventoryItem[]) => { // Explicitly type as InventoryItem[] and wrap in useCallback
     const newInventory = { ...inventory };
 
     tileItems.forEach(item => { // Renamed tile to item for clarity
@@ -2026,134 +1328,23 @@ const handleTileSelection = (tile: InventoryItem | null) => {
 
   // Update the handleEventChoice function
   const handleEventChoice = async (choice: string) => {
-    if (!currentEvent) {
-      console.warn('No current event to handle');
-      return;
-    }
-
-    const outcome = currentEvent.outcomes?.[choice];
-    if (!outcome || !outcome.message) {
-      console.warn(`No valid outcome found for choice: ${choice}`, outcome);
-      return;
-    }
-
-    // Show outcome message
-    toast({
-      title: outcome.message,
-      description: outcome.message
-    });
-
-    // Apply rewards
-    const reward = outcome.reward as MysteryEventReward | undefined;
-    if (reward && typeof reward === 'object') {
-      // Handle gold reward
-      if (reward.type === 'gold' && reward.amount !== undefined) {
-        const goldAmount = typeof reward.amount === 'number' ? reward.amount : parseInt(String(reward.amount));
-        if (!isNaN(goldAmount)) {
-          handleGoldUpdate(goldAmount);
-          if (goldAmount > 0) {
-            toast({
-              title: "Gold Gained!",
-              description: `You gained ${goldAmount} gold pieces.`,
-              duration: 3000
-            });
-          } else if (goldAmount < 0) {
-            toast({
-              title: "Gold Lost!",
-              description: `You lost ${Math.abs(goldAmount)} gold pieces.`,
-              duration: 3000
-            });
-          }
-        } else {
-          console.warn('Invalid gold reward amount:', reward.amount);
+    if (currentEvent) {
+      const outcome = currentEvent.outcomes?.[choice];
+      if (outcome && outcome.reward) {
+        if (outcome.reward.type === 'gold' && outcome.reward.amount) {
+          handleGoldUpdate(outcome.reward.amount);
         }
-      }
-
-      // Handle experience reward
-      if (reward.type === 'experience' && reward.amount !== undefined) {
-        const expAmount = typeof reward.amount === 'number' ? reward.amount : parseInt(String(reward.amount));
-        if (!isNaN(expAmount)) {
-          handleExperienceUpdate(expAmount);
-          toast({
-            title: "Experience Gained!",
-            description: `You gained ${expAmount} experience points!`,
-            duration: 3000
-          });
-        } else {
-          console.warn('Invalid experience reward amount:', reward.amount);
+        if (outcome.reward.type === 'experience' && outcome.reward.amount) {
+          handleExperienceUpdate(outcome.reward.amount);
         }
-      }
-
-      // Handle item rewards (add artifacts to kingdom inventory)
-      if (reward.type === 'item' && reward.item && Array.isArray(reward.item)) {
-        // Map general inventory items to tile inventory items
-        const tileItems = reward.item.map(item => ({
-          id: item.id || `${item.type}-auto-${Date.now()}`,
-          type: (item.type as TileType) || 'empty',
-          name: item.name || item.type,
-          description: item.description || `A ${item.type} item`,
-          connections: [],
-          rotation: 0,
-          revealed: true,
-          isVisited: false,
-          x: 0,
-          y: 0,
-          ariaLabel: item.name ? `${item.name} in inventory` : `${item.type} in inventory`,
-          image: item.image || `/images/tiles/${item.type}-tile.png`,
-          cost: 0,
-          quantity: item.quantity || 1,
-          isMainTile: false,
-          isTown: false,
-          cityName: '',
-          cityX: undefined,
-          cityY: undefined,
-          citySize: undefined,
-          bigMysteryX: undefined,
-          bigMysteryY: undefined,
-          tileSize: undefined,
-        }));
-        updateInventoryFromTileItems(tileItems);
-        // Add artifacts to kingdom inventory
-        reward.item.forEach(item => {
-          if (item.type === 'artifact') {
-            addToKingdomInventory({
-              id: item.id,
-              name: item.name,
-              type: 'artifact',
-              quantity: item.quantity || 1,
-              description: item.description || '',
-              category: item.category || 'artifact',
-            });
-          }
-        });
-        const firstItem = reward.item[0];
-        if (firstItem) {
-          toast({
-            title: "Item Found!",
-            description: `You found ${firstItem.name}`,
-            duration: 3000
+        if (outcome.reward.type === 'item' && outcome.reward.item) {
+          outcome.reward.item.forEach(item => {
+            addToKingdomInventory(item);
           });
         }
       }
+      setCurrentEvent(null);
     }
-
-    // If riddle and wrong answer, deduct 10 exp
-    if (
-      currentEvent.type === 'riddle' &&
-      outcome &&
-      ((outcome.reward && outcome.reward.type === 'gold' && outcome.reward.amount && outcome.reward.amount < 0) ||
-        (outcome.message && outcome.message.toLowerCase().includes('incorrect')))
-    ) {
-      handleExperienceUpdate(-10);
-      toast({
-        title: "Experience Lost!",
-        description: 'You lost 10 experience points for a wrong answer.',
-        duration: 3000
-      });
-    }
-
-    // Do NOT replace the tile here; it will be handled by the event listener above
-    setCurrentEvent(null);
   };
 
   // 1. Add the expandMap function inside RealmPage
@@ -2406,7 +1597,7 @@ const handleTileSelection = (tile: InventoryItem | null) => {
   React.useEffect(() => {
     // Fallback for grid
     if ((!Array.isArray(grid) || grid.length === 0 || !Array.isArray(grid[0]) || grid[0].length === 0) && !isLoading) {
-      setGrid(createBaseGrid(INITIAL_ROWS, GRID_COLS));
+      setGrid(createBaseGrid());
     }
     // Fallback for inventory: only set if it's not an object or is empty
     if (
@@ -2415,7 +1606,7 @@ const handleTileSelection = (tile: InventoryItem | null) => {
       typeof inventory !== 'object' ||
       Object.keys(inventory).length === 0
     ) {
-      setInventory(initialTileInventory);
+      setInventory(initialInventory);
     }
   }, [grid, inventory, isLoading]);
 
@@ -2443,7 +1634,7 @@ const handleTileSelection = (tile: InventoryItem | null) => {
             <Button variant="outline" onClick={() => setShowLocationModal(false)}>
               Cancel
             </Button>
-            <Button onClick={handleVisitLocation}>
+            <Button onClick={() => handleVisitLocation(currentLocation)}>
               Enter
             </Button>
           </div>
@@ -2465,67 +1656,33 @@ const handleTileSelection = (tile: InventoryItem | null) => {
   }, []);
   
   const [showHorseCaughtModal, setShowHorseCaughtModal] = useState(false);
-  const [caughtHorse, setCaughtHorse] = useState<{
-    id: string;
-    name: string;
-    description: string;
-    type: string;
-    emoji: string;
-    image: string;
-  } | null>(null);
+  const [caughtHorse, setCaughtHorse] = useState<InventoryItem | null>(null);
 
-  useEffect(() => {
-    const handleHorseCaught = (event: React.MouseEvent<HTMLButtonElement>) => {
-      setIsHorsePresent(false);
-      // If a horse is provided in the event, use it; otherwise, pick a random one
-      let horse = event?.detail?.horse;
-      if (!horse) {
-        const horses = [
-          {
-            id: 'swift-horse',
-            name: 'Sally Swift Horse',
-            description: 'Fast and agile.',
-            type: 'creature',
-            emoji: '🐎',
-            image: '/images/items/horse/horse-stelony.png',
-          },
-          {
-            id: 'endurance-horse',
-            name: 'Buster Endurance Horse',
-            description: 'Can travel long distances.',
-            type: 'creature',
-            emoji: '🐴',
-            image: '/images/items/horse/horse-perony.png',
-          },
-          {
-            id: 'war-horse',
-            name: 'Shadow War Horse',
-            description: 'Strong and brave.',
-            type: 'creature',
-            emoji: '🦄',
-            image: '/images/items/horse/horse-felony.png',
-          },
-        ];
-        horse = horses[Math.floor(Math.random() * horses.length)];
-      }
-      setCaughtHorse(horse);
-      setShowHorseCaughtModal(true);
-    };
-    window.addEventListener('horse-caught', handleHorseCaught);
-    return () => window.removeEventListener('horse-caught', handleHorseCaught);
-  }, []);
-
-  // Function to handle modal OK
-  const handleHorseCaughtOk = () => {
-    if (caughtHorse) {
-      // Add to notification center/logs (replace with your log system if needed)
-      window.dispatchEvent(new CustomEvent('log-center', { detail: { section: 'Creatures', message: `You caught a wild stallion: ${caughtHorse.name}` } }));
-      // Add to kingdom inventory
-      addToKingdomInventory(caughtHorse);
+  // Update the horse-caught event handler type
+  interface HorseCaughtEvent {
+    detail: {
+      horse: InventoryItem;
     }
-    setShowHorseCaughtModal(false);
-    setCaughtHorse(null);
+  }
+
+  // Update the event handler
+  const handleHorseCaught = (event: HorseCaughtEvent) => {
+    const caughtHorse: InventoryItem = event.detail.horse;
+    setCaughtHorse(caughtHorse);
+    setShowHorseCaughtModal(true);
   };
+
+  // Update the event listener
+  useEffect(() => {
+    const handleHorseCaughtEvent = (event: Event) => {
+      if ('detail' in event) {
+        handleHorseCaught(event as HorseCaughtEvent);
+      }
+    };
+
+    window.addEventListener('horse-caught', handleHorseCaughtEvent);
+    return () => window.removeEventListener('horse-caught', handleHorseCaughtEvent);
+  }, []);
 
   // Load tile inventory from localStorage on mount
   useEffect(() => {
@@ -2548,6 +1705,36 @@ const handleTileSelection = (tile: InventoryItem | null) => {
     }
   }, [inventory]);
   
+  // Add the missing handleHorseCaughtOk function
+  const handleHorseCaughtOk = () => {
+    if (caughtHorse) {
+      // Ensure caughtHorse has all required InventoryItem properties
+      const horseToAdd: InventoryItem = {
+        id: caughtHorse.id,
+        name: caughtHorse.name,
+        description: caughtHorse.description || '',
+        type: caughtHorse.type,
+        emoji: caughtHorse.emoji || '',
+        image: caughtHorse.image || '',
+        quantity: caughtHorse.quantity || 1,
+      };
+      addToKingdomInventory(horseToAdd);
+      toast({
+        title: 'Horse Added!',
+        description: `${caughtHorse.name} has been added to your kingdom inventory.`,
+        variant: "default",
+        className: "scroll-toast"
+      });
+      addNotification({
+        type: 'creature',
+        title: 'Horse Caught!',
+        description: `${caughtHorse.name} has been added to your kingdom inventory.`
+      });
+      setShowHorseCaughtModal(false);
+      setCaughtHorse(null);
+    }
+  };
+
   return (
     <div className="relative min-h-screen bg-background p-4">
       {isLoadingState ? (
@@ -2628,24 +1815,29 @@ const handleTileSelection = (tile: InventoryItem | null) => {
               </div>
             ) : (
               <MapGrid
-                grid={sanitizeGrid(grid)}
+                grid={grid}
                 character={characterPosition || defaultCharacterPosition}
                 onCharacterMove={handleCharacterMove}
                 onTileClick={(x, y) => {
                   if (!movementMode && selectedTile) {
-                    // Place tile from inventory
                     const newGrid = grid.map(row => row.slice());
-                    const tileToPlace = { ...selectedTile, x, y };
-                    newGrid[y][x] = tileToPlace;
-                    setGrid(newGrid);
-                    // Decrement inventory
-                    const updatedInventory = { ...inventory };
-                    if (updatedInventory && tileToPlace && updatedInventory[tileToPlace.type] && updatedInventory[tileToPlace.type].quantity > 0) {
-                      updatedInventory[tileToPlace.type].quantity -= 1;
-                      setInventory(updatedInventory);
+                    if (newGrid[y]) {
+                      const tileToPlace = { ...selectedTile, x, y };
+                      newGrid[y][x] = tileToPlace;
+                      setGrid(newGrid);
+                      // Decrement inventory
+                      const updatedInventory = { ...inventory };
+                      if (
+                        updatedInventory &&
+                        tileToPlace &&
+                        updatedInventory[tileToPlace.type] &&
+                        typeof updatedInventory[tileToPlace.type].quantity === 'number' &&
+                        updatedInventory[tileToPlace.type].quantity > 0
+                      ) {
+                        updatedInventory[tileToPlace.type].quantity -= 1;
+                        setInventory(updatedInventory);
+                      }
                     }
-                    // Do NOT deselect the tile after placement, so user can place multiple tiles
-                    // setSelectedTile(null);
                   }
                 }}
                 selectedTile={selectedTile}
@@ -2670,11 +1862,18 @@ const handleTileSelection = (tile: InventoryItem | null) => {
                 showLocationModal={showLocationModal}
                 setShowLocationModal={setShowLocationModal}
                 currentLocation={currentLocation}
-                setCurrentLocation={setCurrentLocation}
+                setCurrentLocation={(loc) => {
+                  if (loc && !('description' in loc)) {
+                    const desc = realmLocationData[loc.name]?.description || '';
+                    setCurrentLocation({ ...loc, description: desc });
+                  } else {
+                    setCurrentLocation(loc as any);
+                  }
+                }}
                 isSyncing={isSyncing}
                 syncError={syncError}
-                saveStatus={saveStatus}
-                lastSaveTime={lastSaveTime}
+                saveStatus={saveStatus === 'saved' ? 'success' : saveStatus}
+                lastSaveTime={lastSaveTime ? (typeof lastSaveTime === 'string' ? lastSaveTime : lastSaveTime.toISOString()) : null}
                 saveError={saveError}
                 retryCount={retryCount}
                 tileCounts={tileCounts}
@@ -2682,7 +1881,6 @@ const handleTileSelection = (tile: InventoryItem | null) => {
                 onGoldUpdate={handleGoldUpdate}
                 onExperienceUpdate={handleExperienceUpdate}
                 onQuestCompletion={handleQuestCompletion}
-                onExpandMap={expandMap}
                 horsePos={horsePosition}
                 sheepPos={sheepPosition}
                 eaglePos={eaglePosition}
@@ -2708,10 +1906,17 @@ const handleTileSelection = (tile: InventoryItem | null) => {
                 </div>
                 <div className="flex-1 overflow-y-auto">
                   <TileInventory
-                    tiles={Object.values(inventory) as InventoryItem[]}
+                    tiles={Object.values(inventory) as TileInventoryItem[]}
                     selectedTile={selectedTile}
                     onSelectTile={handleTileSelection}
-                    onUpdateTiles={handleInventoryUpdate}
+                    onUpdateTiles={(tiles) => {
+                      // Convert InventoryItem[] to Record<TileType, Tile>
+                      const record: Record<TileType, Tile> = { ...inventory };
+                      tiles.forEach(tile => {
+                        record[tile.type] = tile as Tile;
+                      });
+                      setInventory(record);
+                    }}
                   />
                 </div>
               </aside>

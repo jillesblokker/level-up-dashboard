@@ -43,6 +43,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
   const [showAddTask, setShowAddTask] = useState(false)
   const [newTaskTitle, setNewTaskTitle] = useState("")
   const [newTaskCategory, setNewTaskCategory] = useState("strength")
+  const [newTaskPriority, setNewTaskPriority] = useState("medium")
 
   // Load tasks from localStorage
   useEffect(() => {
@@ -165,7 +166,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
       category: newTaskCategory,
       gold: Math.floor(Math.random() * 30) + 10, // Random gold between 10-40
       xp: Math.floor(Math.random() * 50) + 25, // Random XP between 25-75
-      priority: "medium",
+      priority: newTaskPriority,
     }
 
     setTasks((prevTasks) => [...prevTasks, newTask])
@@ -178,12 +179,18 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
   }
 
   // Group tasks by category
-  const tasksByCategory: Record<string, Task[]> = {}
+  const tasksByCategory: Record<string, Task[]> = {
+    strength: [],
+    condition: [],
+    knowledge: [],
+    nutrition: [],
+    mental: []
+  }
   tasks.forEach((task) => {
-    if (!tasksByCategory[task.category]) {
-      tasksByCategory[task.category] = []
+    const category = task.category as keyof typeof tasksByCategory;
+    if (category in tasksByCategory) {
+      tasksByCategory[category].push(task);
     }
-    tasksByCategory[task.category].push(task)
   })
 
   // Get category display name
@@ -250,6 +257,15 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
       }),
     )
   }
+
+  // Add categories constant
+  const categories = {
+    strength: 'Might',
+    condition: 'Endurance',
+    knowledge: 'Wisdom',
+    nutrition: 'Vitality',
+    mental: 'Spirit'
+  } as const;
 
   return (
     <>
@@ -355,8 +371,9 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
               <Label htmlFor="task-category">Category</Label>
               <select
                 id="task-category"
+                aria-label="Task Category"
                 value={newTaskCategory}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewTaskCategory(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setNewTaskCategory(e.target.value)}
                 className="w-full px-3 py-2 bg-gray-900 border border-amber-800/20 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
               >
                 <option value="strength">Might</option>
@@ -369,22 +386,17 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
 
             <div className="space-y-2">
               <Label htmlFor="task-priority">Priority</Label>
-              <Select
-                value={tasks.find(t => t.id === newTaskId)?.priority || "medium"}
-                onValueChange={(value) => {
-                  // Handle priority change
-                }}
-                aria-label={`Set priority for task: ${newTaskTitle}`}
+              <select
+                id="task-priority"
+                aria-label="Task Priority"
+                value={newTaskPriority}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setNewTaskPriority(e.target.value)}
+                className="w-full px-3 py-2 bg-gray-900 border border-amber-800/20 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
               >
-                <SelectTrigger className="w-[100px]">
-                  <SelectValue placeholder="Priority" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
-                </SelectContent>
-              </Select>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
             </div>
           </div>
 
@@ -394,9 +406,11 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
             </Button>
             <Button
               onClick={handleAddTask}
-              className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900"
+              aria-label="Add Task"
+              title="Add Task"
+              className="w-full"
             >
-              Add Quest
+              Add Task
             </Button>
           </DialogFooter>
         </DialogContent>

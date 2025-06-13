@@ -1,5 +1,8 @@
 // types/tiles.ts
 
+import { MinimapEntity, MinimapRotationMode } from '@/types/minimap';
+import { MysteryEvent } from '@/lib/mystery-events';
+
 export type TileType = 
   | 'empty'
   | 'mountain'
@@ -87,19 +90,48 @@ export type SelectedInventoryItem = InventoryItem;
 export interface MapGridProps {
   grid: Tile[][];
   character: { x: number; y: number };
-  onCharacterMove: (newX: number, newY: number) => void;
+  onCharacterMove: (x: number, y: number) => void;
   onTileClick: (x: number, y: number) => void;
-  selectedTile: SelectedInventoryItem | null;
-  onGridUpdate: (newGrid: Tile[][]) => void;
-  isMovementMode: boolean;
-  onDiscovery: (message: string) => void;
-  onTilePlaced: (x: number, y: number) => void;
-  onGoldUpdate: (amount: number) => void;
-  onHover: (x: number, y: number) => void;
-  onHoverEnd: () => void;
-  hoveredTile: { row: number; col: number } | null;
-  onDeleteTile: (x: number, y: number) => void;
-  gridRotation: number;
+  selectedTile?: Tile | null;
+  isMovementMode?: boolean;
+  onGridUpdate?: (grid: Tile[][]) => void;
+  hoveredTile?: { row: number; col: number } | null;
+  setHoveredTile: (tile: { row: number; col: number } | null) => void;
+  gridRotation?: number;
+  minimapEntities?: MinimapEntity[];
+  minimapZoom?: number;
+  minimapRotationMode?: MinimapRotationMode;
+  onTileDelete?: (x: number, y: number) => void;
+  onReset?: () => void;
+  showScrollMessage?: boolean;
+  setShowScrollMessage?: (show: boolean) => void;
+  inventory?: Record<TileType, Tile>;
+  onInventoryUpdate?: (inventory: Record<TileType, Tile>) => void;
+  onVisitLocation?: (location: { x: number; y: number; name: string }) => void;
+  onEventChoice?: (choice: string) => void;
+  currentEvent?: MysteryEvent | null;
+  setCurrentEvent?: (event: MysteryEvent | null) => void;
+  showLocationModal?: boolean;
+  setShowLocationModal?: (show: boolean) => void;
+  currentLocation?: { x: number; y: number; name: string } | null;
+  setCurrentLocation?: (location: { x: number; y: number; name: string } | null) => void;
+  isSyncing?: boolean;
+  syncError?: string | null;
+  saveStatus?: 'idle' | 'saving' | 'success' | 'error';
+  lastSaveTime?: string | null;
+  saveError?: string | null;
+  retryCount?: number;
+  tileCounts?: TileCounts;
+  setTileCounts?: (counts: TileCounts) => void;
+  onGoldUpdate?: (amount: number) => void;
+  onExperienceUpdate?: (amount: number) => void;
+  onRotateTile?: (x: number, y: number) => void;
+  horsePos?: { x: number; y: number } | null;
+  sheepPos?: { x: number; y: number } | null;
+  eaglePos?: { x: number; y: number } | null;
+  penguinPos?: { x: number; y: number } | null;
+  isHorsePresent?: boolean;
+  isPenguinPresent?: boolean;
 }
 
 export type GridCoordinates = { x: number; y: number };
@@ -108,6 +140,16 @@ export type GridPosition = { row: number; col: number };
 
 // Define the structure of the raw grid data expected from Supabase (if it's numeric)
 export type NumericGrid = number[][];
+
+export interface TileCounts {
+  forestPlaced: number;
+  forestDestroyed: number;
+  waterPlaced: number;
+  mountainPlaced: number;
+  mountainDestroyed: number;
+  icePlaced: number;
+  waterDestroyed: number;
+}
 
 // You might also have other types here, keep them as is.
 // Example:

@@ -8,6 +8,7 @@ export interface InventoryItem {
   category?: string
   description?: string
   emoji?: string
+  image?: string
 }
 
 const INVENTORY_KEY = 'character-inventory'

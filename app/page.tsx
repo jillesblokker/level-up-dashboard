@@ -1,6 +1,6 @@
-import { KingdomClient } from "./kingdom/kingdom-client"
-import { cookies } from 'next/headers'
 import { auth } from '@clerk/nextjs/server'
+import { KingdomClient } from './kingdom/kingdom-client'
+import { cookies } from 'next/headers'
 
 export default async function HomePage() {
   // Check for guest mode
@@ -9,11 +9,22 @@ export default async function HomePage() {
   const { userId } = await auth()
 
   // Only redirect to sign in if not guest and not signed in
-  if (!userId && !skipAuth) {
-    // Only redirect if not guest
-    return <div>Redirecting to sign in...</div>
+  if (!skipAuth && !userId) {
+    return null
   }
 
-  return <KingdomClient session={userId ? { user: { id: userId } } : null} />
+  return <KingdomClient session={userId ? { 
+    user: { 
+      id: userId,
+      app_metadata: {},
+      user_metadata: {},
+      aud: '',
+      created_at: '0'
+    },
+    access_token: '',
+    refresh_token: '',
+    expires_in: 0,
+    token_type: 'bearer'
+  } : null} />
 }
 

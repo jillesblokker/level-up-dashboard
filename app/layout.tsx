@@ -1,7 +1,7 @@
 import "./globals.css"
 import "@/styles/medieval-theme.css"
 import { Inter as FontSans } from "next/font/google"
-import { Providers } from "@/components/providers"
+import { Providers } from "../components/providers"
 import { Toaster } from "@/components/ui/toaster"
 import { cn } from "@/lib/utils"
 import type { Metadata, Viewport } from "next"
