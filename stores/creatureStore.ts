@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { grantAchievementRewards } from '@/lib/achievement-rewards';
 
 export interface Creature {
   id: string;
@@ -437,28 +438,34 @@ const initialCreatures: Creature[] = [
   }
 ];
 
-export const useCreatureStore = create(
-  persist<CreatureStore>(
+export const useCreatureStore = create<CreatureStore>()(
+  persist(
     (set, get) => ({
       creatures: initialCreatures,
-      discoveredCreatures: ['000'],
-      discoverCreature: (creatureId) => {
-        set((state) => ({
-          creatures: state.creatures.map((creature) =>
-            creature.id === creatureId ? { ...creature, discovered: true } : creature
-          ),
-          discoveredCreatures: [...state.discoveredCreatures, creatureId],
-        }));
+      discoveredCreatures: [],
+      discoverCreature: (creatureId: string) => {
+        const creature = get().getCreature(creatureId);
+        if (creature && !get().isCreatureDiscovered(creatureId)) {
+          set((state) => ({
+            discoveredCreatures: [...state.discoveredCreatures, creatureId],
+            creatures: state.creatures.map((c) =>
+              c.id === creatureId ? { ...c, discovered: true } : c
+            ),
+          }));
+          
+          // Grant achievement rewards
+          grantAchievementRewards(creatureId, creature.name);
+        }
       },
-      getCreature: (creatureId) => {
+      getCreature: (creatureId: string) => {
         return get().creatures.find((creature) => creature.id === creatureId);
       },
-      isCreatureDiscovered: (creatureId) => {
+      isCreatureDiscovered: (creatureId: string) => {
         return get().discoveredCreatures.includes(creatureId);
       },
     }),
     {
-      name: 'creature-storage',
+      name: 'creature-store',
     }
   )
 ); 

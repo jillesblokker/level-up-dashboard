@@ -1,8 +1,7 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { Edit, X, Upload, Award, Sword } from "lucide-react"
-import Link from "next/link"
+import { useState, useEffect, useRef, useCallback } from "react"
+import { Edit, X, Upload, Sword, Lock, Brain, Crown, Castle as CastleIcon, Hammer, Heart } from "lucide-react"
 import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
@@ -11,8 +10,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
-import { calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress, CharacterStats } from "@/types/character"
+import { calculateLevelProgress, CharacterStats } from "@/types/character"
 import { storageService } from '@/lib/storage-service'
+import { getTitleProgress, TITLES } from '@/lib/title-manager'
+import { getStrengths, calculateStrengthProgress, Strength } from '@/lib/strength-manager'
 
 // Character progression types
 interface Title {
@@ -36,7 +37,22 @@ interface Perk {
   maxLevel: number
   unlocked: boolean
   equipped: boolean
+  active: boolean
+  lastActivated?: string // ISO date string
+  expiresAt?: string // ISO date string
+  upgradeCost: number // Gold cost to upgrade
+  activationCost: number // Gold cost to activate
+  requiredLevel: number
 }
+
+const categoryMeta = {
+  might: { icon: Sword, iconClass: 'text-red-500' },
+  knowledge: { icon: Brain, iconClass: 'text-blue-500' },
+  honor: { icon: Crown, iconClass: 'text-yellow-500' },
+  castle: { icon: CastleIcon, iconClass: 'text-purple-500' },
+  craft: { icon: Hammer, iconClass: 'text-amber-500' },
+  vitality: { icon: Heart, iconClass: 'text-green-500' },
+};
 
 export default function CharacterPage() {
   const [titles, setTitles] = useState<Title[]>([
@@ -102,72 +118,98 @@ export default function CharacterPage() {
     },
   ])
 
+  const [strengths, setStrengths] = useState<Strength[]>(getStrengths())
+
   const [perks, setPerks] = useState<Perk[]>([
     {
-      id: "p1",
-      name: "Strength Mastery",
-      description: "Increases XP gained from strength activities.",
-      category: "Might",
-      effect: "+10% XP from Might activities per level",
-      level: 2,
-      maxLevel: 5,
-      unlocked: true,
-      equipped: true,
-    },
-    {
-      id: "p2",
-      name: "Endurance Training",
-      description: "Increases XP gained from cardio activities.",
-      category: "Endurance",
-      effect: "+10% XP from Endurance activities per level",
-      level: 1,
-      maxLevel: 5,
-      unlocked: true,
-      equipped: true,
-    },
-    {
-      id: "p3",
-      name: "Gold Finder",
-      description: "Increases gold earned from all activities.",
-      category: "General",
-      effect: "+5% gold from all activities per level",
-      level: 3,
-      maxLevel: 5,
-      unlocked: true,
-      equipped: true,
-    },
-    {
-      id: "p4",
-      name: "Quick Learner",
-      description: "Increases XP gained from knowledge activities.",
-      category: "Wisdom",
-      effect: "+10% XP from Wisdom activities per level",
+      id: "perk-might",
+      name: "Might Mastery",
+      description: "Increase XP and gold from Might quests and milestones.",
+      category: "might",
+      effect: "+10% XP & gold from Might activities per level",
       level: 0,
       maxLevel: 5,
-      unlocked: true,
-      equipped: false,
-    },
-    {
-      id: "p5",
-      name: "Nutritional Expert",
-      description: "Increases benefits from tracking nutrition.",
-      category: "Vitality",
-      effect: "+15% XP from Vitality activities per level",
-      level: 0,
-      maxLevel: 3,
-      unlocked: true,
-      equipped: false,
-    },
-    {
-      id: "p6",
-      name: "Rest Master",
-      description: "Improves recovery and sleep tracking benefits.",
-      category: "Resilience",
-      effect: "+10% XP from Resilience activities per level",
-      level: 0,
-      maxLevel: 3,
       unlocked: false,
       equipped: false,
+      active: false,
+      upgradeCost: 100,
+      activationCost: 50,
+      requiredLevel: 20,
+    },
+    {
+      id: "perk-knowledge",
+      name: "Knowledge Seeker",
+      description: "Increase XP and gold from Knowledge quests and milestones.",
+      category: "knowledge",
+      effect: "+10% XP & gold from Knowledge activities per level",
+      level: 0,
+      maxLevel: 5,
+      unlocked: false,
+      equipped: false,
+      active: false,
+      upgradeCost: 100,
+      activationCost: 50,
+      requiredLevel: 25,
+    },
+    {
+      id: "perk-honor",
+      name: "Honor Guard",
+      description: "Increase XP and gold from Honor quests and milestones.",
+      category: "honor",
+      effect: "+10% XP & gold from Honor activities per level",
+      level: 0,
+      maxLevel: 5,
+      unlocked: false,
+      equipped: false,
+      active: false,
+      upgradeCost: 100,
+      activationCost: 50,
+      requiredLevel: 30,
+    },
+    {
+      id: "perk-castle",
+      name: "Castle Steward",
+      description: "Increase XP and gold from Castle quests and milestones.",
+      category: "castle",
+      effect: "+10% XP & gold from Castle activities per level",
+      level: 0,
+      maxLevel: 5,
+      unlocked: false,
+      equipped: false,
+      active: false,
+      upgradeCost: 100,
+      activationCost: 50,
+      requiredLevel: 35,
+    },
+    {
+      id: "perk-craft",
+      name: "Craft Artisan",
+      description: "Increase XP and gold from Craft quests and milestones.",
+      category: "craft",
+      effect: "+10% XP & gold from Craft activities per level",
+      level: 0,
+      maxLevel: 5,
+      unlocked: false,
+      equipped: false,
+      active: false,
+      upgradeCost: 100,
+      activationCost: 50,
+      requiredLevel: 40,
+    },
+    {
+      id: "perk-vitality",
+      name: "Vitality Sage",
+      description: "Increase XP and gold from Vitality quests and milestones.",
+      category: "vitality",
+      effect: "+10% XP & gold from Vitality activities per level",
+      level: 0,
+      maxLevel: 5,
+      unlocked: false,
+      equipped: false,
+      active: false,
+      upgradeCost: 100,
+      activationCost: 50,
+      requiredLevel: 45,
     },
   ])
 
@@ -178,12 +220,12 @@ export default function CharacterPage() {
     gold: 1000,
     titles: {
       equipped: "Novice Adventurer",
-      unlocked: 5,
-      total: 20
+      unlocked: 1,
+      total: 6
     },
     perks: {
-      active: 3,
-      total: 10
+      active: 0,
+      total: 6
     }
   });
 
@@ -198,179 +240,87 @@ export default function CharacterPage() {
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Load character stats and perks from storageService on component mount
+  // Check and unlock perks based on character level
+  const checkAndUnlockPerks = useCallback((level: number) => {
+    setPerks(prevPerks => {
+      const updatedPerks = prevPerks.map(perk => ({
+        ...perk,
+        unlocked: perk.requiredLevel ? level >= perk.requiredLevel : perk.unlocked
+      }));
+      
+      // Save updated perks to localStorage for database
+      localStorage.setItem('character-perks', JSON.stringify(updatedPerks));
+      
+      return updatedPerks;
+    });
+  }, []);
+
+  // Check for perk unlocks when character level changes
+  useEffect(() => {
+    checkAndUnlockPerks(characterStats.level);
+  }, [characterStats.level, checkAndUnlockPerks]);
+
+  // Load character stats and perks from localStorage
   useEffect(() => {
     const loadCharacterStats = () => {
       try {
-        const defaultStats: CharacterStats = {
+        const savedStats = localStorage.getItem('character-stats')
+        if (savedStats) {
+          const stats = JSON.parse(savedStats)
+          setCharacterStats(stats)
+        }
+      } catch (error) {
+        console.error('Error loading character stats:', error)
+        // Set default stats if loading fails
+        setCharacterStats({
           level: 1,
           experience: 0,
           experienceToNextLevel: 100,
           gold: 1000,
           titles: {
             equipped: "Novice Adventurer",
-            unlocked: 5,
-            total: 20
+            unlocked: 1,
+            total: 6
           },
           perks: {
-            active: 3,
-            total: 10
+            active: 0,
+            total: 6
           }
-        };
-        const savedStats = storageService.get<CharacterStats>("character-stats", defaultStats);
-        if (savedStats) {
-          // Initialize with default gold if not set
-          if (typeof savedStats.gold === 'undefined') {
-            savedStats.gold = 1000;
-            storageService.set("character-stats", savedStats);
-          }
-          setCharacterStats({
-            ...savedStats,
-            level: calculateLevelFromExperience(savedStats.experience),
-            experienceToNextLevel: calculateExperienceForLevel(calculateLevelFromExperience(savedStats.experience))
-          });
-        } else {
-          storageService.set("character-stats", defaultStats);
-          setCharacterStats(defaultStats);
-        }
-      } catch (error) {
-        console.error("Error loading character stats:", error);
+        })
       }
-    };
+    }
 
     const loadPerks = () => {
       try {
-        const defaultPerks: Perk[] = [
-          {
-            id: "p1",
-            name: "Strength Mastery",
-            description: "Increases XP gained from strength activities.",
-            category: "Might",
-            effect: "+10% XP from Might activities per level",
-            level: 2,
-            maxLevel: 5,
-            unlocked: true,
-            equipped: true,
-          },
-          {
-            id: "p2",
-            name: "Endurance Training",
-            description: "Increases XP gained from cardio activities.",
-            category: "Endurance",
-            effect: "+10% XP from Endurance activities per level",
-            level: 1,
-            maxLevel: 5,
-            unlocked: true,
-            equipped: true,
-          },
-          {
-            id: "p3",
-            name: "Gold Finder",
-            description: "Increases gold earned from all activities.",
-            category: "General",
-            effect: "+5% gold from all activities per level",
-            level: 3,
-            maxLevel: 5,
-            unlocked: true,
-            equipped: true,
-          },
-          {
-            id: "p4",
-            name: "Quick Learner",
-            description: "Increases XP gained from knowledge activities.",
-            category: "Wisdom",
-            effect: "+10% XP from Wisdom activities per level",
-            level: 0,
-            maxLevel: 5,
-            unlocked: true,
-            equipped: false,
-          },
-          {
-            id: "p5",
-            name: "Nutritional Expert",
-            description: "Increases benefits from tracking nutrition.",
-            category: "Vitality",
-            effect: "+15% XP from Vitality activities per level",
-            level: 0,
-            maxLevel: 3,
-            unlocked: true,
-            equipped: false,
-          },
-          {
-            id: "p6",
-            name: "Rest Master",
-            description: "Improves recovery and sleep tracking benefits.",
-            category: "Resilience",
-            effect: "+10% XP from Resilience activities per level",
-            level: 0,
-            maxLevel: 3,
-            unlocked: false,
-            equipped: false,
-          },
-        ];
-        const savedPerks = storageService.get<Perk[]>("character-perks", defaultPerks);
+        const savedPerks = localStorage.getItem('character-perks')
         if (savedPerks) {
-          setPerks(savedPerks);
-        } else {
-          // Initialize perks in storageService
-          storageService.set("character-perks", defaultPerks);
+          const parsedPerks = JSON.parse(savedPerks)
+          setPerks(parsedPerks)
         }
       } catch (error) {
-        console.error("Error loading perks:", error);
+        console.error('Error loading perks:', error)
       }
-    };
+    }
 
-    loadCharacterStats();
-    loadPerks();
+    const loadStrengths = () => {
+      setStrengths(getStrengths())
+    }
 
-    // Listen for character stats updates
-    const handleStatsUpdate = () => loadCharacterStats();
-    window.addEventListener("character-stats-update", handleStatsUpdate);
-    
-    // Listen for achievement completion to unlock perks
-    const handleAchievementComplete = (event: CustomEvent) => {
-      const { achievementId } = event.detail;
-      
-      // Map achievements to perks
-      const achievementPerkMap: { [key: string]: string } = {
-        'defeat_100_monsters': 'p1', // Strength Mastery
-        'win_50_battles': 'p1',
-        'learn_20_spells': 'p4', // Quick Learner
-        'read_30_scrolls': 'p4',
-        'visit_all_regions': 'p3', // Gold Finder
-        'discover_secret_locations': 'p3',
-        'complete_50_quests': 'p2', // Endurance Training
-        'max_reputation': 'p2',
-        'craft_legendary': 'p5', // Nutritional Expert
-        'craft_100_items': 'p5',
-        'collect_all_creatures': 'p6', // Rest Master
-        'collect_rare_items': 'p6'
-      };
+    loadCharacterStats()
+    loadPerks()
+    loadStrengths()
 
-      const perkId = achievementPerkMap[achievementId];
-      if (perkId) {
-        setPerks(currentPerks => {
-          const updatedPerks = currentPerks.map(perk => 
-            perk.id === perkId ? { ...perk, unlocked: true } : perk
-          );
-          storageService.set("character-perks", updatedPerks);
-          return updatedPerks;
-        });
-
-        toast({
-          title: "Perk Unlocked!",
-          description: `You've unlocked a new perk through your achievements!`,
-        });
-      }
-    };
-
-    window.addEventListener("achievement-complete", handleAchievementComplete as EventListener);
+    // Listen for updates
+    window.addEventListener('character-stats-update', loadCharacterStats)
+    window.addEventListener('character-perks-update', loadPerks)
+    window.addEventListener('character-strengths-update', loadStrengths)
     
     return () => {
-      window.removeEventListener("character-stats-update", handleStatsUpdate);
-      window.removeEventListener("achievement-complete", handleAchievementComplete as EventListener);
-    };
-  }, []);
+      window.removeEventListener('character-stats-update', loadCharacterStats)
+      window.removeEventListener('character-perks-update', loadPerks)
+      window.removeEventListener('character-strengths-update', loadStrengths)
+    }
+  }, [])
 
   // Load titles from localStorage on mount
   useEffect(() => {
@@ -383,141 +333,205 @@ export default function CharacterPage() {
     storageService.set("titles", titles);
   }, [titles]);
 
-  // Function to equip a title
-  const equipTitle = (titleId: string) => {
-    setTitles((prev) =>
-      prev.map((title) => ({
-        ...title,
-        equipped: title.id === titleId,
-      })),
-    )
+  // Helper function to check if perk can be activated (weekly cooldown)
+  const canActivatePerk = (perk: Perk): boolean => {
+    if (!perk.unlocked || perk.active) return false;
+    
+    if (!perk.lastActivated) return true;
+    
+    const lastActivated = new Date(perk.lastActivated);
+    const now = new Date();
+    const weekInMs = 7 * 24 * 60 * 60 * 1000;
+    
+    return (now.getTime() - lastActivated.getTime()) >= weekInMs;
+  };
 
-    const title = titles.find((t) => t.id === titleId)
-    if (title) {
-      // Update characterStats with the new equipped title
-      setCharacterStats((prev) => {
-        const newStats = {
-          ...prev,
-          titles: {
-            ...prev.titles,
-            equipped: title.name
-          }
-        };
-        storageService.set("character-stats", newStats);
-        return newStats;
-      });
+  // Helper function to check if perk is expired
+  const isPerkExpired = (perk: Perk): boolean => {
+    if (!perk.expiresAt) return false;
+    return new Date() > new Date(perk.expiresAt);
+  };
 
+  // Helper function to get time until perk expires
+  const getTimeUntilExpiry = (perk: Perk): string => {
+    if (!perk.active || !perk.expiresAt) return "";
+    
+    const expiresAt = new Date(perk.expiresAt);
+    const now = new Date();
+    const timeRemaining = expiresAt.getTime() - now.getTime();
+    
+    if (timeRemaining <= 0) return "Expired";
+    
+    const hours = Math.floor(timeRemaining / (60 * 60 * 1000));
+    const minutes = Math.floor((timeRemaining % (60 * 60 * 1000)) / (60 * 1000));
+    
+    return `${hours}h ${minutes}m remaining`;
+  };
+
+  // Activate perk
+  const activatePerk = (perkId: string) => {
+    const perk = perks.find(p => p.id === perkId);
+    if (!perk) return;
+
+    if (!perk.unlocked) {
       toast({
-        title: "Title Equipped",
-        description: `You are now known as "${title.name}"`,
-      })
+        title: "Perk Locked",
+        description: `This perk requires level ${perk.requiredLevel} to unlock.`,
+        variant: "destructive"
+      });
+      return;
     }
-  }
 
-  // Function to equip/unequip a perk
-  const togglePerk = (perkId: string) => {
-    // Check if we're trying to equip or unequip
-    const perk = perks.find((p) => p.id === perkId)
-    if (!perk) return
-
-    if (perk.equipped) {
-      // Unequipping is always allowed
-      setPerks((prev) => {
-        const updatedPerks = prev.map((p) => (p.id === perkId ? { ...p, equipped: false } : p));
-        storageService.set("character-perks", updatedPerks);
-        return updatedPerks;
-      });
-
+    if (!canActivatePerk(perk)) {
       toast({
-        title: "Perk Unequipped",
-        description: `"${perk.name}" has been unequipped.`,
+        title: "Cannot Activate",
+        description: "This perk can only be activated once per week.",
+        variant: "destructive"
       });
-    } else {
-      // Check if perk is unlocked and has levels
-      if (perk.unlocked && perk.level > 0) {
-        // Check if we have reached the maximum number of equipped perks (3)
-        const equippedPerksCount = perks.filter((p) => p.equipped).length;
+      return;
+    }
 
-        if (equippedPerksCount < 3) {
-          setPerks((prev) => {
-            const updatedPerks = prev.map((p) => (p.id === perkId ? { ...p, equipped: true } : p));
-            storageService.set("character-perks", updatedPerks);
-            return updatedPerks;
-          });
+    if (characterStats.gold < perk.activationCost) {
+      toast({
+        title: "Insufficient Gold",
+        description: `You need ${perk.activationCost} gold to activate this perk.`,
+        variant: "destructive"
+      });
+      return;
+    }
 
-          toast({
-            title: "Perk Equipped",
-            description: `"${perk.name}" has been equipped.`,
-          });
-        } else {
-          toast({
-            title: "Maximum Perks Reached",
-            description: "You can only equip 3 perks at a time. Unequip one first.",
-            variant: "destructive",
-          });
-        }
-      } else if (!perk.unlocked) {
-        toast({
-          title: "Perk Locked",
-          description: "Complete more achievements to unlock this perk.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Perk Level Too Low",
-          description: "Upgrade this perk to level 1 or higher to equip it.",
-          variant: "destructive",
-        });
-      }
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours
+
+    const updatedPerks = perks.map(p => 
+      p.id === perkId 
+        ? { 
+            ...p, 
+            active: true, 
+            lastActivated: now.toISOString(),
+            expiresAt: expiresAt.toISOString()
+          } as Perk
+        : p
+    );
+    
+    setPerks(updatedPerks);
+    
+    // Update character stats (deduct gold)
+    const newStats = {
+      ...characterStats,
+      gold: characterStats.gold - perk.activationCost
+    };
+    setCharacterStats(newStats);
+    storageService.set("character-stats", newStats);
+    
+    // Save perks to localStorage for database
+    localStorage.setItem('character-perks', JSON.stringify(updatedPerks));
+    
+    toast({
+      title: "Perk Activated",
+      description: `${perk.name} is now active for 24 hours!`,
+    });
+  };
+
+  // Deactivate perk
+  const deactivatePerk = (perkId: string) => {
+    const updatedPerks = perks.map(p => 
+      p.id === perkId 
+        ? { ...p, active: false, expiresAt: undefined as string | undefined } as Perk
+        : p
+    );
+    
+    setPerks(updatedPerks);
+    
+    // Save perks to localStorage for database
+    localStorage.setItem('character-perks', JSON.stringify(updatedPerks));
+    
+    const perk = perks.find(p => p.id === perkId);
+    if (perk) {
+      toast({
+        title: "Perk Deactivated",
+        description: `${perk.name} has been deactivated.`,
+      });
     }
   };
 
-  // Function to upgrade a perk
+  // Upgrade perk
   const upgradePerk = (perkId: string) => {
-    const perk = perks.find((p) => p.id === perkId)
-    if (!perk) return
+    const perk = perks.find(p => p.id === perkId);
+    if (!perk) return;
 
-    // Check if perk can be upgraded
-    if (perk.level < perk.maxLevel) {
-      // Calculate upgrade cost (100 gold per level, increasing)
-      const upgradeCost = 100 * (perk.level + 1)
-
-      // Check if user has enough gold
-      if (characterStats.gold >= upgradeCost) {
-        setPerks((prev) => {
-          const updatedPerks = prev.map((p) => (p.id === perkId ? { ...p, level: p.level + 1 } : p));
-          storageService.set("character-perks", updatedPerks);
-          return updatedPerks;
-        });
-
-        setCharacterStats((prev) => {
-          const newStats = {
-            ...prev,
-            gold: prev.gold - upgradeCost
-          };
-          storageService.set("character-stats", newStats);
-          return newStats;
-        });
-
-        toast({
-          title: "Perk Upgraded",
-          description: `"${perk.name}" upgraded to level ${perk.level + 1}.`,
-        });
-      } else {
-        toast({
-          title: "Not Enough Gold",
-          description: `You need ${upgradeCost} gold to upgrade this perk.`,
-          variant: "destructive",
-        });
-      }
-    } else {
+    if (!perk.unlocked) {
       toast({
-        title: "Maximum Level Reached",
-        description: "This perk is already at its maximum level.",
-        variant: "destructive",
+        title: "Perk Locked",
+        description: `This perk requires level ${perk.requiredLevel} to unlock.`,
+        variant: "destructive"
       });
+      return;
     }
+
+    if (perk.level >= perk.maxLevel) {
+      toast({
+        title: "Max Level Reached",
+        description: "This perk is already at maximum level.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (characterStats.gold < perk.upgradeCost) {
+      toast({
+        title: "Insufficient Gold",
+        description: `You need ${perk.upgradeCost} gold to upgrade this perk.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const updatedPerks = perks.map(p => 
+      p.id === perkId 
+        ? { ...p, level: p.level + 1 } as Perk
+        : p
+    );
+    
+    setPerks(updatedPerks);
+    
+    // Update character stats (deduct gold)
+    const newStats = {
+      ...characterStats,
+      gold: characterStats.gold - perk.upgradeCost
+    };
+    setCharacterStats(newStats);
+    storageService.set("character-stats", newStats);
+    
+    // Save perks to localStorage for database
+    localStorage.setItem('character-perks', JSON.stringify(updatedPerks));
+    
+    toast({
+      title: "Perk Upgraded",
+      description: `${perk.name} is now level ${perk.level + 1}!`,
+    });
   };
+
+  // Check for expired perks on component mount and periodically
+  useEffect(() => {
+    const checkExpiredPerks = () => {
+      const updatedPerks = perks.map(perk => {
+        if (perk.active && isPerkExpired(perk)) {
+          return { ...perk, active: false, expiresAt: undefined as string | undefined } as Perk;
+        }
+        return perk;
+      });
+      
+      if (JSON.stringify(updatedPerks) !== JSON.stringify(perks)) {
+        setPerks(updatedPerks);
+      }
+    };
+    
+    checkExpiredPerks();
+    const interval = setInterval(checkExpiredPerks, 60000); // Check every minute
+    
+    return () => clearInterval(interval);
+  }, [perks]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -641,238 +655,344 @@ export default function CharacterPage() {
       {/* Main Content */}
       <div className="container mx-auto px-4 sm:px-6 py-8">
         <div className="grid gap-6">
-          {/* Character Overview */}
+          {/* Combined Character Overview & Active Bonuses */}
           <Card className="medieval-card">
             <CardHeader>
               <CardTitle className="font-serif">Character Overview</CardTitle>
-              <CardDescription>Your current progress and active bonuses</CardDescription>
+              <CardDescription>Your current progress, title, and active bonuses</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-6 md:grid-cols-3">
-                <div className="space-y-2">
-                  <h3 className="text-lg font-medium">Level {characterStats.level}</h3>
-                  <Progress value={calculateLevelProgress(characterStats.experience) * 100} className="h-2" />
-                  <p className="text-sm text-muted-foreground">
-                    {Math.floor(characterStats.experience)} / {characterStats.experienceToNextLevel} XP to Level {characterStats.level + 1}
-                  </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Left: Level, XP, Title */}
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-medium">Level {characterStats.level}</h3>
+                    <Progress value={calculateLevelProgress(characterStats.experience) * 100} className="h-2" />
+                    <p className="text-sm text-muted-foreground">
+                      {Math.floor(characterStats.experience)} / {characterStats.experienceToNextLevel} XP to Level {characterStats.level + 1}
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-medium">Title</h3>
+                    {(() => {
+                      const titleInfo = getTitleProgress(characterStats.level);
+                      return (
+                        <>
+                          <p className="text-lg font-bold text-amber-600">{titleInfo.current.name}</p>
+                          <p className="text-sm text-muted-foreground">{titleInfo.current.description}</p>
+                          {titleInfo.next && (
+                            <div className="mt-2">
+                              <p className="text-xs text-muted-foreground">Next: {titleInfo.next.name} (Level {titleInfo.next.level})</p>
+                              <Progress value={titleInfo.progress} className="h-1 mt-1" />
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
                 </div>
-
-                <div className="space-y-2">
-                  <h3 className="text-lg font-medium">Titles</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {characterStats.titles?.unlocked ?? 0} / {characterStats.titles?.total ?? 10} Unlocked
-                  </p>
-                  <p className="text-sm">Currently equipped: {characterStats.titles?.equipped || "None"}</p>
-                </div>
-
-                <div className="space-y-2">
-                  <h3 className="text-lg font-medium">Perks</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {characterStats.perks?.active ?? 0} / {characterStats.perks?.total ?? 5} Active
-                  </p>
+                {/* Right: Active Bonuses */}
+                <div>
+                  <h3 className="text-lg font-medium mb-2">Active Bonuses</h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    {perks.filter((p) => p.active && p.unlocked).length === 0 && (
+                      <Card className="bg-black/50 border-amber-800/30 h-full min-h-[200px] flex items-center justify-center">
+                        <CardContent className="pt-6 flex items-center justify-center h-full">
+                          <p className="text-center text-muted-foreground">No active perks. Activate perks to gain bonuses.</p>
+                        </CardContent>
+                      </Card>
+                    )}
+                    {perks
+                      .filter((p) => p.active && p.unlocked)
+                      .map((perk) => (
+                        <Card 
+                          key={perk.id} 
+                          className="bg-black/50 border-amber-800/30"
+                          aria-label={`active-bonus-${perk.id}`}
+                        >
+                          <CardHeader className="pb-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                {(() => {
+                                  const meta = categoryMeta[perk.category as keyof typeof categoryMeta];
+                                  if (meta) {
+                                    const Icon = meta.icon;
+                                    return <Icon className={`h-5 w-5 shrink-0 ${meta.iconClass}`} />;
+                                  }
+                                  return null;
+                                })()}
+                                <CardTitle className="text-base font-medium">{perk.name}</CardTitle>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => deactivatePerk(perk.id)}
+                                className="h-6 w-6 p-0 text-red-400 hover:text-red-300"
+                                aria-label={`Deactivate ${perk.name}`}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-2">
+                              <Badge className="bg-purple-500 hover:bg-purple-600">Level {perk.level}</Badge>
+                              <p className="text-sm text-muted-foreground">
+                                {perk.effect.replace("per level", `(${perk.level * 10}% total)`)}
+                              </p>
+                              <p className="text-xs text-amber-400">
+                                {getTimeUntilExpiry(perk)}
+                              </p>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Titles and Perks */}
-          <Tabs defaultValue="titles" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="titles">Titles</TabsTrigger>
-              <TabsTrigger value="perks">Perks</TabsTrigger>
-            </TabsList>
-            <TabsContent value="titles">
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {Array.isArray(titles) ? titles.map((title) => (
-                  <Card
-                    key={title.id}
-                    className={`medieval-card ${
-                      !title.unlocked
-                        ? "opacity-60"
-                        : title.equipped
-                          ? "border-amber-500 bg-amber-50/30 dark:bg-amber-900/20"
-                          : ""
-                    }`}
-                  >
-                    <CardHeader className="pb-2">
-                      <div className="flex justify-between">
-                        <CardTitle className="font-serif">{title.name}</CardTitle>
-                        <Badge
-                          className={
-                            title.rarity === "common"
-                              ? "bg-gray-500"
-                              : title.rarity === "uncommon"
-                                ? "bg-green-500"
-                                : title.rarity === "rare"
-                                  ? "bg-blue-500"
-                                  : title.rarity === "epic"
-                                    ? "bg-purple-500"
-                                    : "bg-amber-500"
-                          }
-                        >
-                          {title.rarity.charAt(0).toUpperCase() + title.rarity.slice(1)}
-                        </Badge>
-                      </div>
-                      <CardDescription>{title.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="pb-2">
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Badge variant="outline" className="mr-2">
-                          {title.category}
-                        </Badge>
-                        <span>{title.requirement}</span>
-                      </div>
-                    </CardContent>
-                    <CardFooter>
-                      {title.unlocked ? (
-                        <Button
-                          className={`w-full ${
-                            title.equipped
-                              ? "bg-amber-200 hover:bg-amber-300 text-amber-900"
-                              : "bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white"
+          <div className="flex justify-center">
+            <Tabs defaultValue="titles" className="w-auto">
+              <TabsList className="grid w-auto grid-cols-3">
+                <TabsTrigger value="titles">Titles</TabsTrigger>
+                <TabsTrigger value="perks">Perks</TabsTrigger>
+                <TabsTrigger value="strengths">Strengths</TabsTrigger>
+              </TabsList>
+              <TabsContent value="titles" className="mt-6">
+                <div className="max-w-6xl mx-auto w-full">
+                  <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                    {TITLES.map((title) => {
+                      const isUnlocked = characterStats.level >= title.level;
+                      const isCurrent = characterStats.level === title.level;
+                      const rarity = title.level <= 20 ? "common" : 
+                                    title.level <= 40 ? "uncommon" : 
+                                    title.level <= 60 ? "rare" : 
+                                    title.level <= 80 ? "epic" : 
+                                    title.level <= 90 ? "legendary" : "mythic";
+                      
+                      return (
+                        <Card
+                          key={title.id}
+                          className={`medieval-card w-full ${
+                            !isUnlocked
+                              ? "opacity-60"
+                              : isCurrent
+                                ? "border-amber-500 bg-amber-50/30 dark:bg-amber-900/20"
+                                : ""
                           }`}
-                          onClick={() => equipTitle(title.id)}
-                          disabled={title.equipped}
                         >
-                          {title.equipped ? "Currently Equipped" : "Equip Title"}
-                        </Button>
-                      ) : (
-                        <Button className="w-full" variant="outline" disabled>
-                          Locked
-                        </Button>
-                      )}
-                    </CardFooter>
-                  </Card>
-                )) : null}
-              </div>
-            </TabsContent>
-            <TabsContent value="perks">
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {perks.map((perk) => (
-                  <Card
-                    key={perk.id}
-                    className={`medieval-card ${
-                      !perk.unlocked
-                        ? "opacity-60"
-                        : perk.equipped
-                          ? "border-purple-500 bg-purple-50/30 dark:bg-purple-900/20"
-                          : ""
-                    }`}
-                  >
-                    <CardHeader className="pb-2">
-                      <div className="flex justify-between">
-                        <CardTitle className="font-serif">{perk.name}</CardTitle>
-                        <Badge className="bg-purple-500 hover:bg-purple-600">Level {perk.level}</Badge>
-                      </div>
-                      <CardDescription>{perk.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="pb-2">
-                      <div className="space-y-2">
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <Badge variant="outline" className="mr-2">
-                            {perk.category}
-                          </Badge>
-                          <span>{perk.effect}</span>
-                        </div>
-
-                        <Progress value={(perk.level / perk.maxLevel) * 100} className="h-2" />
-                      </div>
-                    </CardContent>
-                    <CardFooter>
-                      <div className="w-full flex gap-2">
-                        {perk.unlocked ? (
-                          <>
-                            <Button
-                              className={`flex-1 ${
-                                perk.equipped
-                                  ? "bg-purple-200 hover:bg-purple-300 text-purple-900"
-                                  : perk.level > 0
-                                    ? "bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white"
-                                    : "bg-gray-300 text-gray-700"
-                              }`}
-                              onClick={() => togglePerk(perk.id)}
-                              disabled={!perk.unlocked || (perk.level === 0 && !perk.equipped)}
+                          <CardHeader className="pb-2">
+                            <div className="flex justify-between">
+                              <CardTitle className="font-serif">{title.name}</CardTitle>
+                              <Badge
+                                className={
+                                  rarity === "common"
+                                    ? "bg-gray-500"
+                                    : rarity === "uncommon"
+                                      ? "bg-green-500"
+                                      : rarity === "rare"
+                                        ? "bg-blue-500"
+                                        : rarity === "epic"
+                                          ? "bg-purple-500"
+                                          : rarity === "legendary"
+                                            ? "bg-amber-500"
+                                            : "bg-red-500"
+                                }
+                              >
+                                {rarity.charAt(0).toUpperCase() + rarity.slice(1)}
+                              </Badge>
+                            </div>
+                            <CardDescription>{title.description}</CardDescription>
+                          </CardHeader>
+                          <CardContent className="pb-2">
+                            <div className="flex items-center text-sm text-muted-foreground">
+                              <Badge variant="outline" className="mr-2">
+                                Level {title.level}
+                              </Badge>
+                              <span>{isUnlocked ? "Unlocked" : `Requires Level ${title.level}`}</span>
+                            </div>
+                          </CardContent>
+                          <CardFooter>
+                            {isUnlocked ? (
+                              <Button
+                                className={`w-full ${
+                                  isCurrent
+                                    ? "bg-amber-200 hover:bg-amber-300 text-amber-900"
+                                    : "bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white"
+                                }`}
+                                disabled={isCurrent}
+                              >
+                                {isCurrent ? "Current Title" : "Achieved"}
+                              </Button>
+                            ) : (
+                              <Button className="w-full" variant="outline" disabled>
+                                Locked
+                              </Button>
+                            )}
+                          </CardFooter>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </div>
+              </TabsContent>
+              <TabsContent value="perks" className="mt-6">
+                <div className="max-w-6xl mx-auto w-full">
+                  <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                    {perks.map((perk) => (
+                      <Card
+                        key={perk.id}
+                        className={`medieval-card w-full ${
+                          !perk.unlocked
+                            ? "opacity-60 border-gray-500"
+                            : perk.active
+                              ? "border-purple-500 bg-purple-50/30 dark:bg-purple-900/20"
+                              : ""
+                        }`}
+                      >
+                        <CardHeader className="pb-2">
+                          <div className="flex justify-between">
+                            <div className="flex items-center gap-2">
+                              {(() => {
+                                const meta = categoryMeta[perk.category as keyof typeof categoryMeta];
+                                if (meta) {
+                                  const Icon = meta.icon;
+                                  return <Icon className={`h-5 w-5 shrink-0 ${meta.iconClass}`} />;
+                                }
+                                return null;
+                              })()}
+                              <CardTitle className="font-serif">{perk.name}</CardTitle>
+                            </div>
+                            <Badge 
+                              variant={perk.unlocked ? "default" : "secondary"}
+                              className={perk.unlocked ? "" : "bg-gray-500"}
                             >
-                              {perk.equipped ? "Unequip" : "Equip"}
-                            </Button>
-
-                            <Button
-                              variant="outline"
-                              onClick={() => upgradePerk(perk.id)}
-                              disabled={perk.level >= perk.maxLevel}
-                              className="flex-1"
-                            >
-                              {perk.level < perk.maxLevel ? `Upgrade (${100 * (perk.level + 1)} Gold)` : "Max Level"}
-                            </Button>
-                          </>
-                        ) : (
-                          <Button className="w-full" variant="outline" disabled>
-                            Locked
-                          </Button>
-                        )}
-                      </div>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
-
-          {/* Active Bonuses */}
-          <Card className="medieval-card mt-6">
-            <CardHeader>
-              <CardTitle className="font-serif">Active Bonuses</CardTitle>
-              <CardDescription>Your currently active perks and their effects</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {perks
-                  .filter((p) => p.equipped && p.level > 0)
-                  .map((perk) => (
-                    <Card 
-                      key={perk.id} 
-                      className="bg-black/50 border-amber-800/30"
-                      aria-label={`active-bonus-${perk.id}`}
-                    >
-                      <CardHeader className="pb-2">
-                        <div className="flex items-center gap-2">
-                          <Award className="h-5 w-5 text-purple-500 shrink-0" />
-                          <CardTitle className="text-base font-medium">{perk.name}</CardTitle>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2">
-                          <Badge className="bg-purple-500 hover:bg-purple-600">Level {perk.level}</Badge>
-                          <p className="text-sm text-muted-foreground">
-                            {perk.effect.replace("per level", `(${perk.level * 10}% total)`)}
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-
-                {perks.filter((p) => p.equipped && p.level > 0).length === 0 && (
-                  <Card className="col-span-full bg-black/50 border-amber-800/30">
-                    <CardContent className="pt-6">
-                      <p className="text-center text-muted-foreground">No active perks. Equip perks to gain bonuses.</p>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button 
-                className="w-full" 
-                variant="default"
-                asChild
-              >
-                <Link href="/quests">
-                  <Sword className="mr-2 h-4 w-4" />
-                  Complete Quests to Earn More
-                </Link>
-              </Button>
-            </CardFooter>
-          </Card>
+                              {perk.unlocked ? `Level ${perk.level}/${perk.maxLevel}` : `Level ${perk.requiredLevel}+`}
+                            </Badge>
+                          </div>
+                          <CardDescription className="text-sm">
+                            {perk.description}
+                          </CardDescription>
+                          {!perk.unlocked && (
+                            <div className="mt-2 text-amber-500 font-medium">
+                              Requires Level {perk.requiredLevel}
+                            </div>
+                          )}
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <div className="space-y-2">
+                            <p className="text-sm font-medium">{perk.effect}</p>
+                            <div className="flex justify-between text-xs text-muted-foreground">
+                              <span>Category: {perk.category}</span>
+                              <span>Cost: {perk.activationCost} gold</span>
+                            </div>
+                          </div>
+                          
+                          {perk.unlocked ? (
+                            <div className="space-y-2">
+                              {perk.active ? (
+                                <div className="space-y-2">
+                                  <Badge className="bg-green-500 hover:bg-green-600">Active</Badge>
+                                  <p className="text-xs text-amber-400">
+                                    {getTimeUntilExpiry(perk)}
+                                  </p>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => deactivatePerk(perk.id)}
+                                    className="w-full"
+                                  >
+                                    Deactivate
+                                  </Button>
+                                </div>
+                              ) : (
+                                <div className="space-y-2">
+                                  <Button
+                                    onClick={() => activatePerk(perk.id)}
+                                    disabled={!canActivatePerk(perk) || characterStats.gold < perk.activationCost}
+                                    className="w-full"
+                                  >
+                                    Activate ({perk.activationCost} gold)
+                                  </Button>
+                                  {perk.level < perk.maxLevel && (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => upgradePerk(perk.id)}
+                                      disabled={characterStats.gold < perk.upgradeCost}
+                                      className="w-full"
+                                    >
+                                      Upgrade ({perk.upgradeCost} gold)
+                                    </Button>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="text-center py-4">
+                              <Lock className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                              <p className="text-sm text-gray-500">
+                                Reach Level {perk.requiredLevel} to unlock
+                              </p>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              </TabsContent>
+              <TabsContent value="strengths" className="mt-6">
+                <div className="max-w-6xl mx-auto w-full">
+                  <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                    {strengths.map((strength) => (
+                      <Card
+                        key={strength.id}
+                        className="medieval-card w-full"
+                      >
+                        <CardHeader className="pb-2">
+                          <div className="flex justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="text-2xl">{strength.icon}</span>
+                              <CardTitle className="font-serif">{strength.name}</CardTitle>
+                            </div>
+                            <Badge className={strength.color.replace('text-', 'bg-')}>
+                              Level {strength.level}
+                            </Badge>
+                          </div>
+                          <CardDescription className="text-sm">
+                            {strength.description}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span>Experience</span>
+                              <span>{strength.experience} / {strength.experienceToNextLevel}</span>
+                            </div>
+                            <Progress value={calculateStrengthProgress(strength)} className="h-2" />
+                            <p className="text-xs text-muted-foreground">
+                              {strength.experienceToNextLevel - strength.experience} XP to Level {strength.level + 1}
+                            </p>
+                          </div>
+                        </CardContent>
+                        <CardFooter className="pt-2">
+                          <div className="w-full text-center">
+                            <Badge variant="outline" className="w-full justify-center">
+                              {strength.category.charAt(0).toUpperCase() + strength.category.slice(1)} Mastery
+                            </Badge>
+                          </div>
+                        </CardFooter>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </div>
     </div>

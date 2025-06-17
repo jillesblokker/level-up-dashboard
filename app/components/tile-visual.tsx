@@ -4,12 +4,6 @@ import React from 'react'
 import Image from 'next/image'
 import { cn } from "@/lib/utils"
 import { Tile } from '@/types/tiles'
-import { RoadTile } from "./tile-visuals/road-tile";
-import { CornerRoadTile } from "./tile-visuals/corner-road-tile";
-import { CrossroadTile } from "./tile-visuals/crossroad-tile";
-import { IntersectionTile } from "./tile-visuals/intersection-tile";
-import { TJunctionTile } from "./tile-visuals/t-junction-tile";
-import { DeadEndTile } from "./tile-visuals/dead-end-tile";
 import { SpecialTile } from "./tile-visuals/special-tile";
 import { SnowTile } from "./tile-visuals/snow-tile";
 import { MysteryTile } from "./tile-visuals/mystery-tile";
@@ -73,7 +67,7 @@ export function TileVisual({
 
   // For grass tile, use the GrassTile component
   if (tile.type === 'grass') {
-    return <GrassTile rotation={tile.rotation} className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
+    return <GrassTile className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
   }
 
   // For tiles that use images
@@ -89,7 +83,6 @@ export function TileVisual({
           className
         )}
         style={{ transform: `rotate(${tile.rotation || 0}deg)` }}
-        aria-live={isCharacterPresent ? "polite" : "off"}
       >
         {tile.description && (
           <div id={`tile-description-${tile.id}`} className="sr-only">
@@ -137,18 +130,6 @@ export function TileVisual({
 
   // For other tile types that use components
   switch (tile.type) {
-    case "road":
-      return <RoadTile rotation={tile.rotation} className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
-    case "corner":
-      return <CornerRoadTile rotation={tile.rotation} className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
-    case "crossroad":
-      return <CrossroadTile rotation={tile.rotation} className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
-    case "intersection":
-      return <IntersectionTile className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
-    case "t-junction":
-      return <TJunctionTile rotation={tile.rotation} className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
-    case "dead-end":
-      return <DeadEndTile rotation={tile.rotation} className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
     case "special":
       return <SpecialTile className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
     case "snow":
@@ -161,47 +142,9 @@ export function TileVisual({
       return <DungeonTile className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
     case "monster":
       return <MonsterTile className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
+    case "grass":
+      return <GrassTile className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
     default:
-      return (
-        <div 
-          className={cn(
-            "w-full h-full bg-amber-900/10",
-            isSelected && "ring-2 ring-amber-500",
-            isHovered && "brightness-110",
-            className
-          )}
-          style={{ transform: `rotate(${tile.rotation || 0}deg)` }}
-          onClick={onClick}
-          onMouseEnter={onHover}
-          onMouseLeave={onHoverEnd}
-          role="button"
-          aria-label={`${tile.type} tile${isSelected ? ' - selected' : ''}${isCharacterPresent ? ' - character present' : ''}`}
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              onClick?.();
-            }
-          }}
-        >
-          {isCharacterPresent && (
-            <div 
-              className="absolute inset-0 flex items-center justify-center"
-              aria-label="Character location"
-            >
-              <div className="w-3/4 h-3/4 relative">
-                <Image
-                  src="/images/character/character.png"
-                  alt="Character"
-                  fill
-                  sizes="(max-width: 768px) 25vw, (max-width: 1200px) 20vw, 15vw"
-                  className="object-contain"
-                  priority={true}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-      );
+      return <div className={className} aria-label={tile.ariaLabel}>Unknown Tile</div>;
   }
 } 

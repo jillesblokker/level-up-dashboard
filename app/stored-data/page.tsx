@@ -154,9 +154,17 @@ export default function StoredDataPage() {
   const handleClear = () => {
     if (window.confirm('Are you sure you want to clear all stored data? This cannot be undone.')) {
       try {
+        // Clear all storage
         storageService.clear();
-        refreshData();
-        toast.success('All stored data cleared');
+        window.localStorage.clear();
+        window.sessionStorage.clear();
+        // Dispatch a global event for all tabs/components
+        window.dispatchEvent(new Event('app-reset'));
+        // Show toast and reload after a short delay
+        toast.success('All stored data cleared. Reloading...');
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
       } catch (error) {
         console.error('Error clearing data:', error);
         toast.error('Failed to clear data');

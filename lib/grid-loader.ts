@@ -165,6 +165,22 @@ export function convertNumericToTileType(numeric: number): TileType {
 
 export function createTileFromNumeric(numeric: number, x: number, y: number) {
   const type = convertNumericToTileType(numeric)
+  let cityName: string | undefined = undefined;
+  if (type === 'city') {
+    // Assign a unique name for the first city, fallback to City x-y
+    if (x === 3 && y === 1) {
+      cityName = 'Grand Citadel';
+    } else {
+      cityName = `City ${x}-${y}`;
+    }
+  } else if (type === 'town') {
+    // Assign a unique name for the first town, fallback to Town x-y
+    if (x === 7 && y === 4) {
+      cityName = 'Kingdom Marketplace';
+    } else {
+      cityName = `Town ${x}-${y}`;
+    }
+  }
   return {
     id: `tile-${x}-${y}`,
     type,
@@ -180,7 +196,7 @@ export function createTileFromNumeric(numeric: number, x: number, y: number) {
     image: `/images/tiles/${type}-tile.png`,
     isMainTile: false,
     isTown: false,
-    cityName: undefined,
+    cityName,
     cityX: undefined,
     cityY: undefined,
     citySize: undefined,

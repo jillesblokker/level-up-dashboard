@@ -15,8 +15,10 @@ export function GrassTile({ className, ariaLabel, onClick }: GrassTileProps) {
       )}
       aria-label={ariaLabel || "Grass tile"}
       onClick={onClick}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); } : undefined}
     >
-      <div className="absolute inset-0">
+      <div className="absolute inset-0" aria-hidden="true">
         {Array.from({ length: 4 }).map((_, i) => (
           Array.from({ length: 4 }).map((_, j) => (
             <div

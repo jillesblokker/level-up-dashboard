@@ -77,46 +77,6 @@ export function TileCard({ tile, owned, onPurchase }: TileCardProps) {
             <div className="absolute top-1/3 right-1/4 w-1/5 h-1/5 bg-amber-600/50 rounded-full"></div>
           </div>
         )
-      case "road":
-        return (
-          <div className="w-full h-full bg-gray-800 flex items-center justify-center relative">
-            {/* Base ground */}
-            <div className="w-full h-full bg-gray-700"></div>
-            {/* Road */}
-            <div className="w-full h-1/3 bg-amber-900 absolute top-1/3"></div>
-            {/* Road details */}
-            <div className="absolute top-[45%] left-1/4 w-1/6 h-[2px] bg-amber-700"></div>
-            <div className="absolute top-[45%] right-1/4 w-1/6 h-[2px] bg-amber-700"></div>
-            <div className="absolute top-[55%] left-1/3 w-1/6 h-[2px] bg-amber-700"></div>
-            <div className="absolute top-[55%] right-1/3 w-1/6 h-[2px] bg-amber-700"></div>
-          </div>
-        )
-      case "crossroad":
-        return (
-          <div className="w-full h-full bg-gray-800 flex items-center justify-center relative">
-            {/* Base ground */}
-            <div className="w-full h-full bg-gray-700"></div>
-            {/* Horizontal road */}
-            <div className="w-full h-1/3 bg-amber-900 absolute top-1/3"></div>
-            {/* Vertical road */}
-            <div className="h-full w-1/3 bg-amber-900 absolute left-1/3"></div>
-            {/* Center intersection */}
-            <div className="w-1/3 h-1/3 bg-amber-800 absolute top-1/3 left-1/3"></div>
-          </div>
-        )
-      case "corner-road":
-        return (
-          <div className="w-full h-full bg-gray-800 flex items-center justify-center relative">
-            {/* Base ground */}
-            <div className="w-full h-full bg-gray-700"></div>
-            {/* Horizontal road */}
-            <div className="w-2/3 h-1/3 bg-amber-900 absolute top-1/3 left-0"></div>
-            {/* Vertical road */}
-            <div className="h-2/3 w-1/3 bg-amber-900 absolute left-1/3 bottom-0"></div>
-            {/* Corner piece */}
-            <div className="w-1/3 h-1/3 bg-amber-800 absolute top-1/3 left-1/3 rounded-br-xl"></div>
-          </div>
-        )
       case "special":
         return (
           <div className="w-full h-full bg-purple-900 flex items-center justify-center relative">
@@ -132,8 +92,8 @@ export function TileCard({ tile, owned, onPurchase }: TileCardProps) {
         )
       default:
         return (
-          <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-            <div className="w-3/4 h-3/4 bg-gray-700 rounded-sm"></div>
+          <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+            <span className="text-gray-700">Unknown</span>
           </div>
         )
     }

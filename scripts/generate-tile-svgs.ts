@@ -13,10 +13,6 @@ import { SnowTile } from '../components/tile-visuals/snow-tile';
 import { IceTile } from '../components/tile-visuals/ice-tile';
 import { LavaTile } from '../components/tile-visuals/lava-tile';
 import { SwampTile } from '../components/tile-visuals/swamp-tile';
-import { RoadTile } from '../components/tile-visuals/road-tile';
-import { CrossroadTile } from '../components/tile-visuals/crossroad-tile';
-import { IntersectionTile } from '../components/tile-visuals/intersection-tile';
-import { CornerRoadTile } from '../components/tile-visuals/corner-road-tile';
 import { CityTile } from '../components/tile-visuals/city-tile';
 import { TownTile } from '../components/tile-visuals/town-tile';
 import { SpecialTile } from '../components/tile-visuals/special-tile';
@@ -31,10 +27,6 @@ const tileComponents = {
   ice: () => React.createElement(IceTile),
   lava: () => React.createElement(LavaTile),
   swamp: () => React.createElement(SwampTile),
-  road: () => React.createElement(RoadTile),
-  crossroad: () => React.createElement(CrossroadTile),
-  intersection: () => React.createElement(IntersectionTile),
-  cornerRoad: () => React.createElement(CornerRoadTile),
   city: () => React.createElement(CityTile),
   town: () => React.createElement(TownTile),
   special: () => React.createElement(SpecialTile),

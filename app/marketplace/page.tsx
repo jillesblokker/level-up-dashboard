@@ -62,36 +62,6 @@ const tiles = [
     rarity: "common",
   },
   {
-    id: "road-1",
-    name: "Road",
-    description: "A horizontal road connecting tiles.",
-    price: 60,
-    image: "/placeholder.svg?height=100&width=100",
-    type: "road",
-    connections: ["left", "right"],
-    rarity: "common",
-  },
-  {
-    id: "crossroad-1",
-    name: "Crossroad",
-    description: "A crossroad connecting in all directions.",
-    price: 90,
-    image: "/placeholder.svg?height=100&width=100",
-    type: "crossroad",
-    connections: ["left", "right", "top", "bottom"],
-    rarity: "uncommon",
-  },
-  {
-    id: "corner-road-1",
-    name: "Corner Road",
-    description: "A road that turns at a 90-degree angle.",
-    price: 70,
-    image: "/placeholder.svg?height=100&width=100",
-    type: "corner-road",
-    connections: ["left", "bottom"],
-    rarity: "common",
-  },
-  {
     id: "special-1",
     name: "Ancient Temple",
     description: "A mysterious temple from a forgotten era.",
@@ -170,8 +140,8 @@ export default function MarketplacePage() {
             <TabsList className="bg-gray-900 border-amber-800/20">
               <TabsTrigger value="all">All Tiles</TabsTrigger>
               <TabsTrigger value="terrain">Terrain</TabsTrigger>
-              <TabsTrigger value="roads">Roads</TabsTrigger>
               <TabsTrigger value="special">Special</TabsTrigger>
+              <TabsTrigger value="mystery">Mystery</TabsTrigger>
             </TabsList>
           </div>
 
@@ -198,10 +168,10 @@ export default function MarketplacePage() {
             </div>
           </TabsContent>
 
-          <TabsContent value="roads" className="space-y-4">
+          <TabsContent value="special" className="space-y-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 marketplace-grid">
               {tiles
-                .filter((tile) => ["road", "crossroad", "corner-road"].includes(tile.type))
+                .filter((tile) => ["special"].includes(tile.type))
                 .map((tile) => (
                   <TileCard
                     key={tile.id}
@@ -213,10 +183,10 @@ export default function MarketplacePage() {
             </div>
           </TabsContent>
 
-          <TabsContent value="special" className="space-y-4">
+          <TabsContent value="mystery" className="space-y-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 marketplace-grid">
               {tiles
-                .filter((tile) => ["special", "mystery"].includes(tile.type))
+                .filter((tile) => ["mystery"].includes(tile.type))
                 .map((tile) => (
                   <TileCard
                     key={tile.id}

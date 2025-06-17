@@ -26,10 +26,6 @@ export function TownTile({ className, ariaLabel, onClick }: TownTileProps) {
           <path d="M55 54C57 49 60 52 58 56Z" />
         </g>
 
-        {/* Road */}
-        <path d="M0 40L64 40" stroke="#B8860B" strokeWidth="4" />
-        <path d="M32 0L32 64" stroke="#B8860B" strokeWidth="4" />
-
         {/* Buildings - Top Left Quarter */}
         <g>
           {/* Timber house */}

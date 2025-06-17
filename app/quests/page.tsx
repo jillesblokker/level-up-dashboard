@@ -6,6 +6,8 @@ import Link from "next/link"
 import { toast } from "@/components/ui/use-toast"
 import { showScrollToast } from "@/lib/toast-utils"
 import { emitQuestCompletedWithRewards } from "@/lib/kingdom-events"
+import { gainGold } from "@/lib/gold-manager"
+import { gainExperience } from "@/lib/experience-manager"
 import { logger } from "@/lib/logger"
 import { QuestService } from '@/lib/quest-service'
 import { Quest } from '@/lib/quest-types'
@@ -168,22 +170,32 @@ export default function QuestsPage() {
 
       // If quest is completed, give rewards
       if (newProgress >= 100 && !updatedQuest.completed) {
+        console.log('🎯 Quest completed! Awarding rewards...', {
+          questTitle: updatedQuest.title,
+          goldReward: updatedQuest.rewards.gold,
+          xpReward: updatedQuest.rewards.xp
+        });
+
         // Log quest completion
         await logQuestAction('quest_completed', questId, {
           rewards: updatedQuest.rewards,
           completionTime: new Date().toISOString()
         }, userId);
 
-        // Add gold to balance
-        setGoldBalance(prev => {
-          const newBalance = prev + updatedQuest.rewards.gold;
-          localStorage.setItem("levelup-gold-balance", newBalance.toString());
-          return newBalance;
-        });
+        // Use proper gainGold and gainExperience functions
+        console.log('💰 Awarding gold...');
+        gainGold(updatedQuest.rewards.gold, `quest-${updatedQuest.title}`);
+        
+        console.log('⭐ Awarding experience...');
+        gainExperience(updatedQuest.rewards.xp, `quest-${updatedQuest.title}`, 'general');
+
+        // Force immediate UI update by dispatching character stats update event
+        console.log('🔄 Dispatching character stats update event...');
+        window.dispatchEvent(new Event("character-stats-update"));
 
         // Show completion toast
         const completionMessage = 
-          `You&apos;ve completed: ${updatedQuest.title}\n` +
+          `You've completed: ${updatedQuest.title}\n` +
           `+${updatedQuest.rewards.xp} XP\n` +
           `+${updatedQuest.rewards.gold} Gold` +
           (updatedQuest.rewards.items ? `\nItems: ${updatedQuest.rewards.items.join(", ")}` : '');
@@ -194,13 +206,15 @@ export default function QuestsPage() {
           completionMessage
         );
 
-        // Emit quest completed event
+        // Emit quest completed event for kingdom tracking
         emitQuestCompletedWithRewards(
           updatedQuest.title, 
           updatedQuest.rewards.gold, 
-          updatedQuest.rewards.xp, 
-          'quests-page'
+          updatedQuest.rewards.xp,
+          'quests'
         );
+
+        console.log('✅ Quest completion rewards awarded successfully!');
       } else if (newProgress < 100) {
         // Show progress update toast
         toast({
@@ -240,9 +254,17 @@ export default function QuestsPage() {
           q.id === questId ? { ...q, completed: !q.completed } : q
         )
       ));
-      // Emit quest completion event for kingdom stats if quest is now completed
+      // Award rewards if quest is now completed
       const quest = quests.find(q => q.id === questId);
       if (quest && !quest.completed) {
+        // Use proper gainGold and gainExperience functions
+        gainGold(quest.rewards?.gold || 0, `quest-${quest.title}`);
+        gainExperience(quest.rewards?.xp || 0, `quest-${quest.title}`, 'general');
+        
+        // Force immediate UI update
+        window.dispatchEvent(new Event("character-stats-update"));
+        
+        // Emit quest completion event for kingdom stats
         emitQuestCompletedWithRewards(
           quest.title,
           quest.rewards?.gold || 0,
@@ -274,6 +296,16 @@ export default function QuestsPage() {
       q.id === questId ? { ...q, completed: newCompletedState } : q
     );
     setQuests(updatedQuests);
+
+    // Award rewards if quest is now completed
+    if (quest && !quest.completed && newCompletedState) {
+      // Use proper gainGold and gainExperience functions
+      gainGold(quest.rewards?.gold || 0, `quest-${quest.title}`);
+      gainExperience(quest.rewards?.xp || 0, `quest-${quest.title}`, 'general');
+      
+      // Force immediate UI update
+      window.dispatchEvent(new Event("character-stats-update"));
+    }
 
     // If we're in offline mode, stop here
     if (isOfflineMode) {

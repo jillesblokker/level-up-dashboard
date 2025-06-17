@@ -24,7 +24,11 @@ export type TileType =
   | 'lava'
   | 'volcano'
   | 'sheep'
-  | 'horse';
+  | 'horse'
+  | 'special'
+  | 'swamp'
+  | 'treasure'
+  | 'monster';
 
 export type ConnectionDirection = 'north' | 'east' | 'south' | 'west';
 
@@ -125,6 +129,7 @@ export interface MapGridProps {
   setTileCounts?: (counts: TileCounts) => void;
   onGoldUpdate?: (amount: number) => void;
   onExperienceUpdate?: (amount: number) => void;
+  onQuestCompletion?: () => void;
   onRotateTile?: (x: number, y: number) => void;
   horsePos?: { x: number; y: number } | null;
   sheepPos?: { x: number; y: number } | null;
@@ -132,6 +137,10 @@ export interface MapGridProps {
   penguinPos?: { x: number; y: number } | null;
   isHorsePresent?: boolean;
   isPenguinPresent?: boolean;
+  portalSource?: { x: number; y: number; type: TileType } | null;
+  setPortalSource?: (source: { x: number; y: number; type: TileType } | null) => void;
+  showPortalModal?: boolean;
+  setShowPortalModal?: (show: boolean) => void;
 }
 
 export type GridCoordinates = { x: number; y: number };

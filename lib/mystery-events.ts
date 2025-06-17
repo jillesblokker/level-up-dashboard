@@ -3,6 +3,8 @@ import { toast } from "@/components/ui/use-toast";
 import { addToInventory, getInventory, InventoryItem } from "@/lib/inventory-manager"
 import { emitGoldGained, emitExperienceGained } from "./kingdom-events"
 import { createEventNotification } from "@/lib/notifications"
+import { gainGold } from "@/lib/gold-manager"
+import { gainExperience } from "@/lib/experience-manager"
 
 export type MysteryEventType = 'treasure' | 'quest' | 'trade' | 'blessing' | 'curse' | 'riddle'
 
@@ -411,44 +413,39 @@ export const handleEventOutcome = (event: MysteryEvent, choice: string) => {
     });
   }
 
+  let experienceGained = 0;
+  let goldGained = 0;
+
   if (reward.type === 'gold' && reward.amount) {
-    const currentGold = parseInt(localStorage.getItem('character-gold') || '0');
-    const newGold = currentGold + reward.amount;
-    localStorage.setItem('character-gold', newGold.toString());
-    
-    // Dispatch event to update UI
-    const goldUpdateEvent = new CustomEvent('character-gold-update', {
-      detail: { gold: newGold }
-    });
-    window.dispatchEvent(goldUpdateEvent);
-    
-    // Show toast with gold gained
-    toast({
-      title: "Gold Gained!",
-      description: `You gained ${reward.amount} gold pieces.`,
-      duration: 3000
-    });
-
-    emitGoldGained(reward.amount, 'mystery-events');
-
+    goldGained = reward.amount;
+    // Use the proper gainGold function
+    gainGold(reward.amount, 'mystery-events');
     createEventNotification('Treasure Found!', `You opened a treasure chest and gained ${reward.amount} gold!`);
   }
   
   if (reward.type === 'item' && reward.item && reward.item.length > 0) {
+    // Always give experience for finding items
+    experienceGained = 25;
+    gainExperience(experienceGained, 'mystery-events', 'general');
+    
     reward.item.forEach(item => addToInventory(item));
     const firstItem = reward.item[0];
     if (firstItem) {
       toast({
         title: "Item Found!",
-        description: `You found ${firstItem.name}`,
+        description: `You found ${firstItem.name} and gained ${experienceGained} XP!`,
         duration: 3000
       });
 
-      createEventNotification('Artifact Found', `You found a mysterious artifact!`);
+      createEventNotification('Artifact Found', `You found a mysterious artifact and gained ${experienceGained} XP!`);
     }
   }
   
   if (reward.type === 'scroll' && reward.scroll) {
+    // Always give experience for finding scrolls
+    experienceGained = 25;
+    gainExperience(experienceGained, 'mystery-events', 'general');
+    
     addToInventory({
       type: 'scroll',
       name: reward.scroll.name,
@@ -460,28 +457,27 @@ export const handleEventOutcome = (event: MysteryEvent, choice: string) => {
     
     toast({
       title: "Scroll Discovered!",
-      description: `You found ${reward.scroll.name}!`,
+      description: `You found ${reward.scroll.name} and gained ${experienceGained} XP!`,
       duration: 3000
     });
 
-    createEventNotification('Scroll Discovered!', `You found ${reward.scroll.name}!`);
+    createEventNotification('Scroll Discovered!', `You found ${reward.scroll.name} and gained ${experienceGained} XP!`);
   }
 
   if (reward.type === 'experience' && reward.amount) {
-    const expUpdateEvent = new CustomEvent('character-exp-update', {
-      detail: { experience: reward.amount }
-    });
-    window.dispatchEvent(expUpdateEvent);
-    
-    toast({
-      title: "Experience Gained!",
-      description: `You gained ${reward.amount} experience points!`,
-      duration: 3000
-    });
-
-    emitExperienceGained(reward.amount, 'mystery-events');
-
+    experienceGained = reward.amount;
+    // Use the proper gainExperience function
+    gainExperience(reward.amount, 'mystery-events', 'general');
     createEventNotification('Ancient Shrine', `You prayed at the shrine and gained ${reward.amount} XP!`);
+  }
+
+  // Show combined reward message if multiple rewards
+  if (goldGained > 0 && experienceGained > 0) {
+    toast({
+      title: "Rewards Gained!",
+      description: `+${goldGained} Gold\n+${experienceGained} XP`,
+      duration: 4000
+    });
   }
 };
 

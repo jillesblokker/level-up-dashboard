@@ -11,8 +11,22 @@ export function getTileName(type: TileType): string {
     town: 'Town',
     dungeon: 'Dungeon',
     castle: 'Castle',
-    road: 'Road',
-    port: 'Port'
+    special: 'Special',
+    snow: 'Snow',
+    desert: 'Desert',
+    ice: 'Ice',
+    lava: 'Lava',
+    swamp: 'Swamp',
+    mystery: 'Mystery',
+    treasure: 'Treasure',
+    monster: 'Monster',
+    portal: 'Portal',
+    'portal-entrance': 'Portal Entrance',
+    'portal-exit': 'Portal Exit',
+    cave: 'Cave',
+    volcano: 'Volcano',
+    sheep: 'Sheep',
+    horse: 'Horse',
   };
   return tileNames[type] || 'Unknown';
 }
@@ -20,16 +34,30 @@ export function getTileName(type: TileType): string {
 export function getDefaultConnections(type: TileType): string[] {
   const defaultConnections: Record<TileType, string[]> = {
     empty: [],
-    grass: ['grass', 'road', 'town', 'city', 'castle', 'dungeon'],
-    water: ['water', 'port'],
+    grass: ['grass', 'town', 'city', 'castle', 'dungeon'],
+    water: ['water'],
     mountain: ['mountain', 'dungeon'],
-    forest: ['forest', 'road', 'dungeon'],
-    city: ['road', 'grass'],
-    town: ['road', 'grass'],
+    forest: ['forest', 'dungeon'],
+    city: ['grass'],
+    town: ['grass'],
     dungeon: ['mountain', 'forest', 'grass'],
-    castle: ['road', 'grass'],
-    road: ['road', 'grass', 'town', 'city', 'castle'],
-    port: ['water', 'road']
+    castle: ['grass'],
+    special: [],
+    snow: [],
+    desert: [],
+    ice: [],
+    lava: [],
+    swamp: [],
+    mystery: [],
+    treasure: [],
+    monster: [],
+    portal: [],
+    'portal-entrance': [],
+    'portal-exit': [],
+    cave: ['mountain', 'grass'],
+    volcano: ['lava', 'mountain'],
+    sheep: ['grass'],
+    horse: ['grass'],
   };
   return defaultConnections[type] || [];
 } 

@@ -63,6 +63,7 @@ export default function CityPage() {
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${cityData.coverImage})` }}
           aria-label="city-cover-image"
+          role="img"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-amber-900/30 to-black/70">
           <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
@@ -98,6 +99,7 @@ export default function CityPage() {
                   className="h-48 bg-cover bg-center" 
                   style={{ backgroundImage: `url(${location.image})` }}
                   aria-label={`${location.name}-image`}
+                  role="img"
                 />
                 <CardHeader>
                   <CardTitle className="text-white">{location.name}</CardTitle>

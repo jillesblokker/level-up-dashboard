@@ -1,25 +1,13 @@
 import { toast } from "@/components/ui/use-toast";
 import { CharacterStats } from "@/types/character";
+import { emitGoldGained } from "@/lib/kingdom-events";
+import { getCharacterStats, updateCharacterStats } from "@/lib/character-stats-manager";
+import { createGoldGainedNotification } from "@/lib/notifications";
 
 export function gainGold(amount: number, source: string) {
   try {
-    // Get current stats
-    const savedStats = localStorage.getItem("character-stats");
-    const currentStats = savedStats ? JSON.parse(savedStats) as CharacterStats : {
-      level: 1,
-      experience: 0,
-      experienceToNextLevel: 100,
-      gold: 0,
-      titles: {
-        equipped: "",
-        unlocked: 0,
-        total: 10
-      },
-      perks: {
-        active: 0,
-        total: 5
-      }
-    };
+    // Get current stats using the character stats manager
+    const currentStats = getCharacterStats();
 
     // Add gold to stats
     const newStats = {
@@ -27,8 +15,14 @@ export function gainGold(amount: number, source: string) {
       gold: currentStats.gold + amount
     };
 
-    // Save to localStorage
-    localStorage.setItem("character-stats", JSON.stringify(newStats));
+    // Update stats using the character stats manager
+    updateCharacterStats(newStats);
+
+    // Emit kingdom event for tracking weekly progress
+    emitGoldGained(amount, source);
+
+    // Create notification for gold gained
+    createGoldGainedNotification(amount, source);
 
     // Dispatch gold gain event for perk bonuses
     const goldGainEvent = new CustomEvent("gold-gain", {
@@ -41,9 +35,6 @@ export function gainGold(amount: number, source: string) {
       title: "Gold Gained!",
       description: `+${amount} gold from ${source}`,
     });
-
-    // Dispatch event to notify components
-    window.dispatchEvent(new Event("character-stats-update"));
 
     return newStats;
   } catch (error) {

@@ -6,8 +6,14 @@ interface ForestTileProps {
 
 export function ForestTile({ className, ariaLabel, onClick }: ForestTileProps) {
   return (
-    <div className={`w-full h-full relative ${className || ""}`} aria-label={ariaLabel || "Forest tile"} role="img" onClick={onClick}>
-      <svg viewBox="0 0 100 100" className="w-full h-full">
+    <div 
+      className={`w-full h-full relative ${className || ""}`} 
+      aria-label={ariaLabel || "Forest tile"} 
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); } : undefined}
+      onClick={onClick}
+    >
+      <svg viewBox="0 0 100 100" className="w-full h-full" aria-hidden="true">
         {/* Dark green background */}
         <rect width="100" height="100" fill="#2d6a1e" />
 

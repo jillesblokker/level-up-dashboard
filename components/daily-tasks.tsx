@@ -321,6 +321,8 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
                       <button
                         onClick={() => handleDeleteTask(task.id)}
                         className="text-gray-500 hover:text-white"
+                        aria-label={`Delete task: ${task.title}`}
+                        title={`Delete task: ${task.title}`}
                       >
                         <X className="h-4 w-4" />
                       </button>

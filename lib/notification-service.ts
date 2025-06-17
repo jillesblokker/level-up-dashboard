@@ -28,7 +28,6 @@ class NotificationService {
   public static getInstance(): NotificationService {
     if (typeof window === 'undefined') {
       return {
-        notifications: [],
         addNotification: () => {},
         addQuestCompletion: () => {},
         addAchievement: () => {},
@@ -40,7 +39,7 @@ class NotificationService {
         getUnreadCount: () => 0,
         saveNotifications: () => {},
         dispatchNotificationEvent: () => {},
-      } as NotificationService
+      } as unknown as NotificationService
     }
     
     if (!NotificationService.instance) {
@@ -70,7 +69,7 @@ class NotificationService {
     image?: string
   ) {
     const notification: NotificationData = {
-      id: Date.now().toString(),
+      id: Date.now().toString() + '-' + Math.random().toString(36).slice(2, 10),
       title,
       message,
       type,

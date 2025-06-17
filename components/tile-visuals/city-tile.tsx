@@ -21,12 +21,14 @@ export function CityTile({ className, ariaLabel, onClick, isMainTile, citySize }
         className
       )}
       onClick={onClick}
-      aria-label={ariaLabel}
+      aria-label={ariaLabel || "city-tile"}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); } : undefined}
     >
       <Building2 className={cn(
         "text-blue-400",
         isMainTile && citySize === 2 ? "w-12 h-12" : "w-8 h-8"
-      )} />
+      )} aria-hidden="true" />
     </div>
   );
 }

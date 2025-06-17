@@ -113,6 +113,7 @@ export default function StablesPage() {
                 className="h-48 bg-cover bg-center" 
                 style={{ backgroundImage: `url(${horse.image})` }}
                 aria-label={`${horse.name}-image`}
+                role="img"
               />
               <CardHeader>
                 <CardTitle>{horse.name}</CardTitle>

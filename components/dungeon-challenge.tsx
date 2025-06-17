@@ -293,7 +293,7 @@ export function DungeonChallenge({ difficulty, onComplete }: DungeonChallengePro
       <div 
         className="grid grid-cols-3 md:grid-cols-4 gap-4"
         aria-label="Memory card grid"
-        role="grid"
+        role="application"
       >
         {cards.map((card) => (
           <div
@@ -304,7 +304,6 @@ export function DungeonChallenge({ difficulty, onComplete }: DungeonChallengePro
               ${card.flipped || card.matched ? "rotate-y-180" : ""}
               ${gameOver ? "pointer-events-none" : ""}
             `}
-            role="gridcell"
             aria-label={card.flipped || card.matched ? `${card.type} card` : "Unflipped card"}
             tabIndex={0}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {

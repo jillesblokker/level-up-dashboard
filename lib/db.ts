@@ -198,7 +198,7 @@ export async function update<T>(
 ): Promise<number> {
   if (!db) throw new Error('Database not initialized');
   try {
-    return await table.update(id, changes || {});
+    return await table.update(id, changes as any);
   } catch (error) {
     console.error(`Failed to update item ${id}:`, error);
     throw error;
@@ -229,9 +229,6 @@ export async function initializeDatabase() {
         { id: "forest", name: "Forest", description: "Dense woodland", cost: 15, type: "forest", connections: [], rotation: 0, quantity: 30 },
         { id: "water", name: "Water", description: "Water body", cost: 20, type: "water", connections: [], rotation: 0, quantity: 20 },
         { id: "desert", name: "Desert", description: "Arid terrain", cost: 10, type: "desert", connections: [], rotation: 0, quantity: 25 },
-        { id: "road", name: "Road", description: "Straight road", cost: 8, type: "road", connections: ["left", "right"], rotation: 0, quantity: 40 },
-        { id: "corner-road", name: "Corner Road", description: "Corner road", cost: 12, type: "corner-road", connections: ["left", "up"], rotation: 0, quantity: 30 },
-        { id: "crossroad", name: "Crossroad", description: "Four-way road", cost: 25, type: "crossroad", connections: ["left", "right", "up", "down"], rotation: 0, quantity: 20 },
       ];
 
       // Clear existing data first

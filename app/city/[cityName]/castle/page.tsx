@@ -101,6 +101,7 @@ export default function CastlePage() {
                 className="h-48 bg-cover bg-center" 
                 style={{ backgroundImage: `url(${room.image})` }}
                 aria-label={`${room.name}-image`}
+                role="img"
               />
               <CardHeader>
                 <CardTitle>{room.name}</CardTitle>

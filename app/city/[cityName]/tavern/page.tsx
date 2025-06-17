@@ -98,6 +98,7 @@ export default function TavernPage() {
                 className="h-48 bg-cover bg-center" 
                 style={{ backgroundImage: `url(${item.image})` }}
                 aria-label={`${item.name}-image`}
+                role="img"
               />
               <CardHeader>
                 <CardTitle>{item.name}</CardTitle>

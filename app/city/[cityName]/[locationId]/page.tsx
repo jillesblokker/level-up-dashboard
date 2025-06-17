@@ -9,7 +9,6 @@ import { useToast } from "@/components/ui/use-toast"
 import { addToInventory, getInventory, addToKingdomInventory } from "@/lib/inventory-manager"
 import { HeaderSection } from "@/components/HeaderSection"
 import Image from "next/image"
-import { TileType } from '@/types/tiles'
 
 interface LocationItem {
   id: string
@@ -102,32 +101,44 @@ const locationData: Record<string, any> = {
 }
 
 // Helper function for item image mapping
-function getItemImagePath(item: LocationItem | undefined): string {
-  if (!item) return "/images/items/placeholder.jpg";
+function getItemImagePath(item: LocationItem): string {
+  if (item.name === "Iron Sword") return "/images/items/sword/sword-irony.png";
+  if (item.name === "Steel Sword") return "/images/items/sword/sword-sunblade.png";
   if (item.name === "Health Potion") return "/images/items/potion/potion-health.png";
-  if (item.name === "Mana Potion") return "/images/items/potion/potion-gold.png";
-  if (item.name === "Antidote") return "/images/items/potion/potion-exp.png";
-  if (item.name === "Ancient Artifact") {
-    const variations: string[] = [
-      "/images/items/artifact/crown/artifact-crowny.png",
-      "/images/items/artifact/ring/artifact-ringo.png",
-      "/images/items/artifact/scepter/artifact-staffy.png"
-    ];
-    let idx = 0;
-    if (item.id && typeof item.id === 'string') {
-      const mod = item.id.length % variations.length;
-      idx = isNaN(mod) ? 0 : mod;
-    }
-    return typeof variations[idx] === 'string' ? variations[idx] : variations[0];
-  }
+  if (item.name === "Mana Potion") return "/images/items/potion/potion-exp.png";
+  if (item.name === "Gold Potion") return "/images/items/potion/potion-gold.png";
+  if (item.name === "Leather Armor") return "/images/items/armor/armor-normalo.png";
+  if (item.name === "Chain Mail") return "/images/items/armor/armor-darko.png";
+  if (item.name === "Plate Armor") return "/images/items/armor/armor-blanko.png";
+  if (item.name === "Wooden Shield") return "/images/items/shield/shield-defecto.png";
+  if (item.name === "Iron Shield") return "/images/items/shield/shield-blockado.png";
+  if (item.name === "Steel Shield") return "/images/items/shield/shield-reflecto.png";
+  if (item.name === "Sally Swift Horse") return "/images/items/horse/horse-stelony.png";
+  if (item.name === "Buster Endurance Horse") return "/images/items/horse/horse-perony.png";
+  if (item.name === "Shadow War Horse") return "/images/items/horse/horse-felony.png";
+  if (item.name === "Crown") return "/images/items/artifact/crown/artifact-crowny.png";
+  if (item.name === "Ring") return "/images/items/artifact/ring/artifact-ringo.png";
+  if (item.name === "Scepter") return "/images/items/artifact/scepter/artifact-staffy.png";
+  if (item.name === "Scroll of Memory") return "/images/items/scroll/scroll-memento.png";
+  if (item.name === "Scroll of Perkament") return "/images/items/scroll/scroll-perkamento.png";
+  if (item.name === "Scroll of Scrolly") return "/images/items/scroll/scroll-scrolly.png";
+  if (item.name === "Tome of Knowledge") return "/images/items/scroll/scroll-perkamento.png";
   if (item.name === "Magic Scroll") return "/images/items/scroll/scroll-scrolly.png";
-  if (item.name === "Tome of Knowledge" || item.type === "book") return "/images/items/scroll/scroll-perkamento.png";
-  if (item.id === "sword") return "/images/items/sword/sword-twig.png";
-  if (item.id === "shield") return "/images/items/shield/shield-reflecto.png";
-  if (item.id === "armor-set") return "/images/items/armor/armor-normalo.png";
-  if (item.type === "artifact") return "/images/items/artifact/crown/artifact-crowny.png";
-  if (item.type === "scroll") return "/images/items/scroll/scroll-scrolly.png";
-  return "/images/items/placeholder.jpg";
+  
+  // Handle variations for items with multiple images
+  const variations = [
+    "/images/items/sword/sword-irony.png",
+    "/images/items/sword/sword-sunblade.png",
+    "/images/items/sword/sword-twig.png"
+  ];
+  let idx = 0;
+  if (item.id && typeof item.id === 'string') {
+    const mod = item.id.length % variations.length;
+    idx = isNaN(mod) ? 0 : mod;
+  }
+  // Ensure idx is within bounds
+  idx = Math.max(0, Math.min(idx, variations.length - 1));
+  return variations[idx] || "/images/items/placeholder.jpg";
 }
 
 export default function CityLocationPage() {
@@ -135,6 +146,7 @@ export default function CityLocationPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [gold, setGold] = useState(0)
+  const [purchasedItems, setPurchasedItems] = useState<string[]>([])
 
   useEffect(() => {
     // Load character stats from localStorage
@@ -192,35 +204,31 @@ export default function CityLocationPage() {
     addToInventory({
       id: item.id,
       name: item.name,
-      type: item.type as TileType,
-      description: item.description,
+      type: item.type,
+      description: item.description || item.name,
       quantity: 1,
-      image: getItemImagePath(item),
-      connections: [],
-      rotation: 0,
-      revealed: true,
-      isVisited: false,
-      x: 0,
-      y: 0,
-      ariaLabel: item.name,
-      cost: item.price
+      image: item.image ? item.image : getItemImagePath(item) as string,
     })
-    addToKingdomInventory({
-      id: item.id,
-      name: item.name,
-      type: item.type as TileType,
-      description: item.description,
-      quantity: 1,
-      image: getItemImagePath(item),
-      connections: [],
-      rotation: 0,
-      revealed: true,
-      isVisited: false,
-      x: 0,
-      y: 0,
-      ariaLabel: item.name,
-      cost: item.price
-    })
+    // If the item is a horse/creature, ensure unique id and type
+    if (params.locationId === 'royal-stables' && item.type === 'creature') {
+      const { image, ...rest } = item;
+      addToKingdomInventory({
+        ...rest,
+        id: `horse-${item.id}-${Date.now()}`,
+        type: 'creature',
+        quantity: 1,
+        image: item.image ? item.image : getItemImagePath(item),
+      })
+    } else {
+      addToKingdomInventory({
+        id: item.id,
+        name: item.name,
+        type: item.type,
+        description: item.description || item.name,
+        quantity: 1,
+        image: item.image ? item.image : getItemImagePath(item),
+      })
+    }
 
     // Dispatch update event
     window.dispatchEvent(new Event("character-stats-update"))
@@ -229,6 +237,8 @@ export default function CityLocationPage() {
       title: "Item Purchased!",
       description: `You have purchased ${item.name} for ${item.price} gold.`
     })
+
+    setPurchasedItems((prev) => [...prev, item.id])
   }
 
   const locationImage = params.locationId === "royal-stables"
@@ -265,10 +275,7 @@ export default function CityLocationPage() {
                 <h2 className="text-xl font-bold mb-4">Horses for Sale</h2>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {location.horses.map((horse: LocationItem & { movement: number }) => {
-                    let imagePath = "/images/items/placeholder.jpg";
-                    if (horse.name === "Sally Swift Horse") imagePath = "/images/items/horse/horse-stelony.png";
-                    if (horse.name === "Buster Endurance Horse") imagePath = "/images/items/horse/horse-perony.png";
-                    if (horse.name === "Shadow War Horse") imagePath = "/images/items/horse/horse-felony.png";
+                    const imagePath = horse.image ? horse.image : getItemImagePath(horse);
                     return (
                       <Card key={horse.id} className="flex flex-col">
                         <div className="w-full aspect-[4/3] relative bg-black">
@@ -294,9 +301,12 @@ export default function CityLocationPage() {
                           <Button
                             className="w-full"
                             onClick={() => handlePurchase(horse as LocationItem)}
-                            disabled={gold < horse.price}
+                            disabled={
+                              gold < horse.price ||
+                              (purchasedItems.includes(horse.id) && !['potion', 'health-potion', 'mana-potion', 'strength-potion'].includes(horse.id))
+                            }
                           >
-                            Purchase
+                            {purchasedItems.includes(horse.id) && !['potion', 'health-potion', 'mana-potion', 'strength-potion'].includes(horse.id) ? 'Purchased' : 'Purchase'}
                           </Button>
                         </CardContent>
                       </Card>
@@ -307,7 +317,7 @@ export default function CityLocationPage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                 {location.items && location.items.map((item: LocationItem) => {
-                  const imagePath = item.image || getItemImagePath(item);
+                  const imagePath = item.image ? item.image : getItemImagePath(item);
                   return (
                     <Card key={item.id} className="overflow-hidden">
                       <div className="w-full aspect-[4/3] relative bg-black">
@@ -333,9 +343,12 @@ export default function CityLocationPage() {
                         <Button
                           className="w-full"
                           onClick={() => handlePurchase(item)}
-                          disabled={gold < item.price}
+                          disabled={
+                            gold < item.price ||
+                            (purchasedItems.includes(item.id) && !['potion', 'health-potion', 'mana-potion', 'strength-potion'].includes(item.id))
+                          }
                         >
-                          Purchase
+                          {purchasedItems.includes(item.id) && !['potion', 'health-potion', 'mana-potion', 'strength-potion'].includes(item.id) ? 'Purchased' : 'Purchase'}
                         </Button>
                       </CardContent>
                     </Card>

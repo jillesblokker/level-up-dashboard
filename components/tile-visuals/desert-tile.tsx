@@ -10,8 +10,10 @@ export function DesertTile({ className, ariaLabel, onClick }: DesertTileProps) {
       className={`w-full h-full relative ${className || ""}`} 
       aria-label={ariaLabel || "Desert tile"} 
       onClick={onClick}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); } : undefined}
     >
-      <svg viewBox="0 0 64 64" className="w-full h-full">
+      <svg viewBox="0 0 64 64" className="w-full h-full" aria-hidden="true">
         {/* Sand-colored background */}
         <rect width="64" height="64" fill="#F4D03F" />
 

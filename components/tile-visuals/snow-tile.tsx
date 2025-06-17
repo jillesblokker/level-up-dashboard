@@ -12,12 +12,14 @@ export function SnowTile({ onClick, className, ariaLabel = "Snow tile" }: SnowTi
       className={`w-full h-full relative cursor-pointer ${className || ""}`}
       onClick={onClick}
       aria-label={ariaLabel}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); } : undefined}
     >
       {/* White background */}
-      <div className="absolute inset-0 bg-white"></div>
+      <div className="absolute inset-0 bg-white" aria-hidden="true"></div>
 
       {/* Snowflake pattern */}
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
         <svg viewBox="0 0 100 100" className="w-full h-full">
           {/* Main snowflake */}
           <g stroke="#e0e0e0" strokeWidth="2" fill="none">
@@ -61,7 +63,7 @@ export function SnowTile({ onClick, className, ariaLabel = "Snow tile" }: SnowTi
       </div>
 
       {/* Snow tile label */}
-      <div className="absolute bottom-0 left-0 right-0 bg-black/30 py-1 px-1 text-center">
+      <div className="absolute bottom-0 left-0 right-0 bg-black/30 py-1 px-1 text-center" aria-hidden="true">
         <span className="text-xs text-white truncate">Snow</span>
       </div>
     </div>

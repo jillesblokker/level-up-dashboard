@@ -9,6 +9,11 @@ import { HeaderSection } from "@/components/HeaderSection"
 import { InventoryItem, defaultInventoryItems } from "@/app/lib/default-inventory"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import type { Session } from '@supabase/supabase-js'
+import { getKingdomInventory } from "@/lib/inventory-manager"
+import type { InventoryItem as DefaultInventoryItem } from "@/app/lib/default-inventory"
+import type { InventoryItem as ManagerInventoryItem } from "@/lib/inventory-manager"
+
+type KingdomInventoryItem = (DefaultInventoryItem | ManagerInventoryItem) & { stats?: Record<string, number>, description?: string }
 
 interface WindowWithHeaderImages extends Window {
   headerImages?: Record<string, string>;
@@ -16,27 +21,27 @@ interface WindowWithHeaderImages extends Window {
 
 export function KingdomClient({ session }: { session: Session | null }) {
   const [coverImage, setCoverImage] = useState("/images/kingdom-header.jpg")
-  const [inventory, setInventory] = useState<InventoryItem[]>([])
+  const [inventory, setInventory] = useState<KingdomInventoryItem[]>([])
 
   // Load inventory from localStorage on mount
   useEffect(() => {
     const loadInventory = () => {
-      const savedInventory = localStorage.getItem('kingdom-inventory')
-      if (savedInventory && savedInventory !== '[]') {
-        setInventory(JSON.parse(savedInventory))
-      } else {
-        setInventory(defaultInventoryItems)
-      }
+      const loaded = getKingdomInventory();
+      // Normalize items to always have a 'stats' property and description
+      const normalized = (loaded && loaded.length > 0 ? loaded : defaultInventoryItems).map(item => ({
+        ...item,
+        stats: (item as any).stats || {},
+        description: (item as any).description || '',
+      }) as KingdomInventoryItem)
+      setInventory(normalized)
     }
     loadInventory()
-    window.addEventListener('character-inventory-update', loadInventory)
-    return () => window.removeEventListener('character-inventory-update', loadInventory)
+    const handleInventoryUpdate = () => {
+      loadInventory();
+    };
+    window.addEventListener('character-inventory-update', handleInventoryUpdate)
+    return () => window.removeEventListener('character-inventory-update', handleInventoryUpdate)
   }, [])
-
-  // Whenever inventory changes, update localStorage
-  useEffect(() => {
-    localStorage.setItem('kingdom-inventory', JSON.stringify(inventory))
-  }, [inventory])
 
   // Load saved image from localStorage if available
   useEffect(() => {

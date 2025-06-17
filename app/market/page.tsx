@@ -13,7 +13,7 @@ import { toast } from "@/components/ui/use-toast"
 import { OnboardingGuide } from "@/components/onboarding-guide"
 
 // Tile types
-type TileType = "grass" | "forest" | "water" | "mountain" | "road" | "crossroad" | "corner-road" | "desert" | "special"
+type TileType = "grass" | "forest" | "water" | "mountain" | "desert" | "special"
 
 interface Tile {
   id: string
@@ -22,7 +22,7 @@ interface Tile {
   description: string
   cost: number
   rarity: "common" | "uncommon" | "rare" | "epic"
-  category: "terrain" | "road" | "special"
+  category: "terrain" | "special"
   connections: string[]
 }
 
@@ -85,36 +85,6 @@ export default function MarketPage() {
       rarity: "uncommon",
       category: "terrain",
       connections: [],
-    },
-    {
-      id: "road-1",
-      type: "road",
-      name: "Road",
-      description: "A horizontal road connecting tiles.",
-      cost: 15,
-      rarity: "common",
-      category: "road",
-      connections: ["left", "right"],
-    },
-    {
-      id: "crossroad-1",
-      type: "crossroad",
-      name: "Crossroad",
-      description: "A crossroad connecting in all directions.",
-      cost: 25,
-      rarity: "uncommon",
-      category: "road",
-      connections: ["left", "right", "top", "bottom"],
-    },
-    {
-      id: "corner-road-1",
-      type: "corner-road",
-      name: "Corner Road",
-      description: "A road that turns at a 90-degree angle.",
-      cost: 20,
-      rarity: "common",
-      category: "road",
-      connections: ["left", "bottom"],
     },
     {
       id: "special-1",
@@ -310,13 +280,6 @@ export default function MarketPage() {
                       onClick={() => setSelectedCategory("terrain")}
                     >
                       Terrain
-                    </Badge>
-                    <Badge
-                      variant={selectedCategory === "road" ? "default" : "outline"}
-                      className="cursor-pointer"
-                      onClick={() => setSelectedCategory("road")}
-                    >
-                      Roads
                     </Badge>
                     <Badge
                       variant={selectedCategory === "special" ? "default" : "outline"}

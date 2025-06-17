@@ -6,8 +6,14 @@ interface IceTileProps {
 
 export function IceTile({ className, ariaLabel, onClick }: IceTileProps) {
   return (
-    <div className={`w-full h-full relative ${className || ""}`} aria-label={ariaLabel || "Ice tile"} onClick={onClick}>
-      <svg viewBox="0 0 64 64" className="w-full h-full">
+    <div 
+      className={`w-full h-full relative ${className || ""}`} 
+      aria-label={ariaLabel || "Ice tile"} 
+      onClick={onClick}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); } : undefined}
+    >
+      <svg viewBox="0 0 64 64" className="w-full h-full" aria-hidden="true">
         {/* Base ice color - light blue */}
         <rect width="64" height="64" fill="#B3E5FC" />
 

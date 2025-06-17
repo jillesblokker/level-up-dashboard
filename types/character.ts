@@ -19,26 +19,50 @@ export interface ExperienceGain {
   source: string;
 }
 
-// Experience required for each level (increases by 10% each level)
+export interface Perk {
+  id: string
+  name: string
+  description: string
+  category: string
+  effect: string
+  level: number
+  maxLevel: number
+  unlocked: boolean
+  equipped: boolean
+  active: boolean
+  upgradeCost: number // Gold cost to upgrade
+  activationCost: number // Gold cost to activate
+  requiredLevel: number // Level required to unlock this perk
+  lastActivated?: string // ISO string of last activation time
+  expiresAt?: string // ISO string of when perk expires
+}
+
+// Experience required for each level (increases by 15% each level)
 export const calculateExperienceForLevel = (level: number): number => {
-  // Base experience is 100
+  // Base experience is 100 for level 1
   const baseExperience = 100;
-  // Calculate total experience needed with 10% increase per level
-  return Math.round(baseExperience * Math.pow(1.1, level - 1));
+  // Calculate experience needed for this specific level with 15% increase per level
+  return Math.round(baseExperience * Math.pow(1.15, level - 1));
+};
+
+// Calculate total experience needed to reach a specific level
+export const calculateTotalExperienceForLevel = (level: number): number => {
+  let totalExp = 0;
+  for (let i = 1; i <= level; i++) {
+    totalExp += calculateExperienceForLevel(i);
+  }
+  return totalExp;
 };
 
 // Calculate level from total experience
 export const calculateLevelFromExperience = (experience: number): number => {
   if (experience < 100) return 1;
   
-  // Find the level where total experience is less than next level requirement
   let level = 1;
   let totalExpNeeded = 0;
   
   while (true) {
-    const nextLevelExp = calculateExperienceForLevel(level);
-    totalExpNeeded += nextLevelExp;
-    
+    totalExpNeeded += calculateExperienceForLevel(level);
     if (experience < totalExpNeeded) {
       return level;
     }
@@ -46,16 +70,15 @@ export const calculateLevelFromExperience = (experience: number): number => {
   }
 };
 
-// Calculate progress to next level (0-1)
+// Calculate progress to next level (0-100 for percentage display)
 export const calculateLevelProgress = (experience: number): number => {
   const currentLevel = calculateLevelFromExperience(experience);
   
   // If experience is 0, return 0 progress
   if (experience === 0) return 0;
   
+  // Calculate total experience needed for previous levels
   let expForPreviousLevels = 0;
-  
-  // Calculate experience needed for previous levels
   for (let i = 1; i < currentLevel; i++) {
     expForPreviousLevels += calculateExperienceForLevel(i);
   }
@@ -63,19 +86,21 @@ export const calculateLevelProgress = (experience: number): number => {
   // Calculate experience needed for current level
   const expForCurrentLevel = calculateExperienceForLevel(currentLevel);
   
-  // Calculate progress within current level
-  const progressInCurrentLevel = experience - expForPreviousLevels;
+  // Calculate experience gained in current level
+  const expInCurrentLevel = experience - expForPreviousLevels;
   
-  // Return progress as a percentage (0-1)
-  return Math.max(0, Math.min(1, progressInCurrentLevel / expForCurrentLevel));
+  // Calculate progress as percentage (0-100)
+  const progressPercentage = (expInCurrentLevel / expForCurrentLevel) * 100;
+  
+  return Math.max(0, Math.min(100, progressPercentage));
 };
 
 // Calculate experience needed for next level
 export const calculateExperienceToNextLevel = (experience: number): number => {
   const currentLevel = calculateLevelFromExperience(experience);
-  let expForPreviousLevels = 0;
   
-  // Calculate experience needed for previous levels
+  // Calculate total experience needed for previous levels
+  let expForPreviousLevels = 0;
   for (let i = 1; i < currentLevel; i++) {
     expForPreviousLevels += calculateExperienceForLevel(i);
   }
@@ -83,6 +108,33 @@ export const calculateExperienceToNextLevel = (experience: number): number => {
   // Calculate experience needed for current level
   const expForCurrentLevel = calculateExperienceForLevel(currentLevel);
   
-  // Return remaining experience needed
-  return expForCurrentLevel - (experience - expForPreviousLevels);
+  // Calculate experience gained in current level
+  const expInCurrentLevel = experience - expForPreviousLevels;
+  
+  // Return remaining experience needed for current level
+  return Math.max(0, expForCurrentLevel - expInCurrentLevel);
+};
+
+// Get experience breakdown for debugging
+export const getExperienceBreakdown = (experience: number) => {
+  const currentLevel = calculateLevelFromExperience(experience);
+  let expForPreviousLevels = 0;
+  
+  for (let i = 1; i < currentLevel; i++) {
+    expForPreviousLevels += calculateExperienceForLevel(i);
+  }
+  
+  const expForCurrentLevel = calculateExperienceForLevel(currentLevel);
+  const expInCurrentLevel = experience - expForPreviousLevels;
+  const progressPercentage = calculateLevelProgress(experience);
+  
+  return {
+    currentLevel,
+    totalExperience: experience,
+    experienceForCurrentLevel: expForCurrentLevel,
+    experienceInCurrentLevel: expInCurrentLevel,
+    experienceForPreviousLevels: expForPreviousLevels,
+    progressPercentage,
+    experienceToNextLevel: calculateExperienceToNextLevel(experience)
+  };
 }; 

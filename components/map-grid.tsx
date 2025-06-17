@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { generateMysteryEvent, MysteryEvent, MysteryEventOutcome } from '@/lib/mystery-events'
 import { MapGridProps as BaseMapGridProps } from '@/types/tiles';
 import Image from 'next/image';
-import { addToKingdomInventory } from '@/lib/inventory-manager';
+import { addToInventory } from '@/lib/inventory-manager';
 import { showScrollToast } from "@/lib/toast-utils"
 
 interface MapGridProps extends BaseMapGridProps {
@@ -23,6 +23,8 @@ interface MapGridProps extends BaseMapGridProps {
   penguinPos?: { x: number; y: number } | null;
   isHorsePresent?: boolean;
   isPenguinPresent?: boolean;
+  onHover?: (x: number, y: number) => void;
+  onHoverEnd?: () => void;
 }
 
 export function MapGrid({ 
@@ -34,7 +36,7 @@ export function MapGrid({
   onHover,
   onHoverEnd,
   isMovementMode = false,
-  gridRotation,
+  gridRotation = 0,
   hoveredTile,
   setHoveredTile,
   horsePos = null,
@@ -45,7 +47,7 @@ export function MapGrid({
   isPenguinPresent = false
 }: MapGridProps) {
   const { toast } = useToast();
-  const [currentEvent, setCurrentEvent] = useState<MysteryEvent | null>(null);
+  const [localCurrentEvent, setLocalCurrentEvent] = useState<MysteryEvent | null>(null);
   const [eventOutcome, setEventOutcome] = useState<MysteryEventOutcome | null>(null);
 
   // Defensive fallback for character
@@ -53,29 +55,20 @@ export function MapGrid({
 
   const handleMysteryTile = () => {
     const event = generateMysteryEvent();
-    setCurrentEvent({
-      type: 'mystery',
-      title: event.title,
-      description: event.description,
-      choices: event.choices,
-      outcomes: event.outcomes
-    });
+    setLocalCurrentEvent(event);
   };
 
   const handleEventChoice = (choice: string) => {
-    if (!currentEvent) return;
+    if (!localCurrentEvent) return;
 
-    if (currentEvent.type === 'mystery') {
-      const outcome = currentEvent.outcomes?.[choice];
-      if (outcome) {
-        setEventOutcome(outcome);
-        // Optionally, handle rewards here if needed
-      }
+    const outcome = localCurrentEvent.outcomes?.[choice];
+    if (outcome) {
+      setEventOutcome(outcome);
     }
   };
 
   const handleAcknowledgeOutcome = () => {
-    setCurrentEvent(null);
+    setLocalCurrentEvent(null);
     setEventOutcome(null);
     // Call a callback or dispatch an event to parent to trigger tile replacement if needed
     // (In your main page, this should trigger the tile replacement logic)
@@ -214,7 +207,7 @@ export function MapGrid({
     const movedToTile = grid[originalTarget.y]?.[originalTarget.x];
     
     if (movedToTile) {
-      // Handle all special tile interactions
+      // Handle special tile interactions that should be handled locally
       switch (movedToTile.type) {
         case 'mystery':
           if (!movedToTile.isVisited) {
@@ -222,59 +215,18 @@ export function MapGrid({
           }
           break;
         case 'portal-entrance':
-          toast({
-            title: 'Portal',
-            description: 'Would you like to enter the portal?',
-            action: (
-              <Button onClick={() => onTileClick?.(originalTarget.x, originalTarget.y)}>
-                Enter
-              </Button>
-            )
-          });
-          break;
         case 'portal-exit':
-          toast({
-            title: 'Portal Exit',
-            description: 'Would you like to exit the portal?',
-            action: (
-              <Button onClick={() => onTileClick?.(originalTarget.x, originalTarget.y)}>
-                Exit
-              </Button>
-            )
-          });
-          break;
         case 'dungeon':
-          toast({
-            title: 'Enter Dungeon',
-            description: 'Would you like to enter the dungeon?',
-            action: (
-              <Button onClick={() => onTileClick?.(originalTarget.x, originalTarget.y)}>
-                Enter
-              </Button>
-            )
-          });
-          break;
         case 'cave':
-          toast({
-            title: 'Enter Cave',
-            description: 'Would you like to enter the cave?',
-            action: (
-              <Button onClick={() => onTileClick?.(originalTarget.x, originalTarget.y)}>
-                Enter
-              </Button>
-            )
-          });
-          break;
         case 'castle':
-          toast({
-            title: 'Enter Castle',
-            description: 'Would you like to enter the castle?',
-            action: (
-              <Button onClick={() => onTileClick?.(originalTarget.x, originalTarget.y)}>
-                Enter
-              </Button>
-            )
-          });
+          // These interactions are handled by the parent component
+          // Just call onTileClick to trigger parent handlers
+          onTileClick?.(originalTarget.x, originalTarget.y);
+          break;
+        case 'city':
+        case 'town':
+          // City and town interactions are handled by the parent component
+          // The parent will show modals and handle location data
           break;
       }
     }
@@ -289,12 +241,14 @@ export function MapGrid({
   };
 
   useEffect(() => {
+    console.log('Horse catching useEffect triggered:', { horsePos, safeCharacter, isHorsePresent });
     if (
       horsePos &&
       safeCharacter.x === horsePos.x &&
       safeCharacter.y === horsePos.y &&
       isHorsePresent
     ) {
+      console.log('Horse caught! Character at horse position');
       // Remove horse from map
       if (typeof window !== 'undefined') {
         const horses = [
@@ -325,6 +279,7 @@ export function MapGrid({
         ];
         const randomHorse = { ...horses[Math.floor(Math.random() * horses.length)], quantity: 1 };
         if (randomHorse) {
+          console.log('Dispatching horse-caught event with:', randomHorse);
           // Dispatch the horse-caught event with the horse data
           window.dispatchEvent(new CustomEvent('horse-caught', { 
             detail: { horse: randomHorse }
@@ -344,20 +299,19 @@ export function MapGrid({
   return (
     <div
       className="relative w-full h-full overflow-hidden"
-      role="grid"
+      role="application"
       aria-label="map-grid"
     >
       <div 
         className="w-full h-full overflow-auto"
         aria-label="map-grid-scroll-area"
       >
-        <div role="rowgroup" aria-label="map-rows">
+        <div aria-label="map-rows">
           {grid.map((row: Tile[], y: number) => (
             <div
               key={y}
               className={`grid w-full`} 
               style={{ gridTemplateColumns: `repeat(${row.length}, minmax(32px, 1fr))` }}
-              role="row"
               aria-label={`map-row-${y}`}
             >
               {row.map((tile: Tile, x: number) => {
@@ -374,8 +328,7 @@ export function MapGrid({
                       "relative w-full h-full aspect-square min-w-[32px] min-h-[32px]",
                       isValidTarget && "cursor-pointer hover:ring-2 hover:ring-white"
                     )}
-                    role="gridcell"
-                    aria-label={`tile-${tile.type}-${x}-${y}`}
+                    aria-label={`${tile.type} tile at position ${x}, ${y}`}
                     onClick={() => handleTileClick(tile, x, y)}
                     onMouseEnter={() => handleTileHover(tile, x, y)}
                     onMouseLeave={handleTileLeave}
@@ -388,7 +341,7 @@ export function MapGrid({
                           alt="Character"
                           width={40}
                           height={40}
-                          className="object-contain"
+                          className="object-contain w-10 h-10"
                           onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>⚠️</span>'); }}
                           priority
                         />
@@ -461,12 +414,12 @@ export function MapGrid({
           ))}
         </div>
       </div>
-      {currentEvent && (
-        <Dialog open={!!currentEvent} onOpenChange={() => setCurrentEvent(null)}>
+      {localCurrentEvent && (
+        <Dialog open={!!localCurrentEvent} onOpenChange={() => setLocalCurrentEvent(null)}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{currentEvent.title}</DialogTitle>
-              <DialogDescription>{currentEvent.description}</DialogDescription>
+              <DialogTitle>{localCurrentEvent.title}</DialogTitle>
+              <DialogDescription>{localCurrentEvent.description}</DialogDescription>
             </DialogHeader>
             {eventOutcome ? (
               <div className="grid gap-4 py-4">
@@ -475,7 +428,7 @@ export function MapGrid({
               </div>
             ) : (
               <div className="grid gap-4 py-4">
-                {currentEvent.choices.map((choice, index) => (
+                {localCurrentEvent.choices.map((choice, index) => (
                   <Button
                     key={index}
                     variant={index === 0 ? "default" : "secondary"}

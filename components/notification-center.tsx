@@ -11,43 +11,73 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
-import { getNotifications, NotificationLogEntry, clearNotifications } from "@/lib/notification-log"
+import { notificationService, NotificationData } from "@/lib/notification-service"
 
 export function NotificationCenter() {
-  const [notifications, setNotifications] = useState<NotificationLogEntry[]>([])
+  const [notifications, setNotifications] = useState<NotificationData[]>([])
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
-    setNotifications(getNotifications())
-    // Listen for storage changes (in case another tab adds a notification)
-    const handleStorage = (e: StorageEvent) => {
-      if (e.key === 'notification-log') {
-        setNotifications(getNotifications())
-      }
+    setNotifications(notificationService.getNotifications())
+    
+    // Listen for new notifications
+    const handleNewNotification = () => {
+      setNotifications(notificationService.getNotifications())
     }
-    // Listen for custom event (same tab)
-    const handleLogUpdated = () => setNotifications(getNotifications());
-    window.addEventListener('storage', handleStorage)
-    window.addEventListener('notificationLogUpdated', handleLogUpdated)
+    
+    window.addEventListener('newNotification', handleNewNotification)
+    
     return () => {
-      window.removeEventListener('storage', handleStorage)
-      window.removeEventListener('notificationLogUpdated', handleLogUpdated)
+      window.removeEventListener('newNotification', handleNewNotification)
     }
   }, [])
 
   // Add a function to delete a notification by id
   const handleDelete = (id: string) => {
-    const updated = notifications.filter(n => n.id !== id);
-    localStorage.setItem('notification-log', JSON.stringify(updated));
-    setNotifications(updated);
-    window.dispatchEvent(new Event('notificationLogUpdated'));
+    notificationService.deleteNotification(id)
+    setNotifications(notificationService.getNotifications())
   };
+
+  // Add a function to mark notification as read
+  const handleMarkAsRead = (id: string) => {
+    notificationService.markAsRead(id)
+    setNotifications(notificationService.getNotifications())
+  };
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'achievement': return '🏆'
+      case 'quest': return '📜'
+      case 'levelup': return '🎉'
+      case 'success': return '✅'
+      case 'event': return '🎯'
+      case 'discovery': return '🔍'
+      default: return '📢'
+    }
+  }
+
+  const getNotificationColor = (type: string) => {
+    switch (type) {
+      case 'achievement': return 'text-yellow-500'
+      case 'quest': return 'text-blue-500'
+      case 'levelup': return 'text-green-500'
+      case 'success': return 'text-green-500'
+      case 'event': return 'text-purple-500'
+      case 'discovery': return 'text-orange-500'
+      default: return 'text-gray-500'
+    }
+  }
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Open notification center">
+        <Button variant="ghost" size="icon" aria-label="Open notification center" className="relative">
           <Bell className="h-5 w-5" />
+          {notificationService.getUnreadCount() > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              {notificationService.getUnreadCount()}
+            </span>
+          )}
           <span className="sr-only">Notifications</span>
         </Button>
       </SheetTrigger>
@@ -56,28 +86,66 @@ export function NotificationCenter() {
           <SheetTitle className="text-amber-500">Notifications</SheetTitle>
         </SheetHeader>
         <div className="flex justify-between items-center mb-2">
-          <span className="text-xs text-muted-foreground">Realm & Achievement Events</span>
+          <span className="text-xs text-muted-foreground">Game Events & Progress</span>
+          {notifications.length > 0 && (
+            <button
+              onClick={() => {
+                notificationService.markAllAsRead()
+                setNotifications(notificationService.getNotifications())
+              }}
+              className="text-xs text-amber-500 hover:text-amber-400"
+            >
+              Mark all read
+            </button>
+          )}
         </div>
         <div className="divide-y divide-amber-800/10 max-h-[80vh] overflow-auto">
           {notifications.length === 0 ? (
             <div className="p-4 text-center text-muted-foreground">No notifications</div>
           ) : (
             notifications.map((notification) => (
-              <div key={notification.id} className="p-3 relative">
+              <div key={notification.id} className={cn("p-3 relative", !notification.read && "bg-amber-900/10")}>
                 <div className="flex items-start gap-3">
+                  <div className="text-lg">{getNotificationIcon(notification.type)}</div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-medium text-sm">{notification.title}</h4>
-                      <span className="text-xs text-muted-foreground">{new Date(notification.timestamp).toLocaleString()}</span>
+                      <h4 className={cn("font-medium text-sm", getNotificationColor(notification.type))}>
+                        {notification.title}
+                      </h4>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(notification.timestamp).toLocaleString()}
+                      </span>
                       <button
-                        aria-label="Delete notification"
-                        className="ml-2 text-red-500 hover:text-red-700 text-xs"
                         onClick={() => handleDelete(notification.id)}
+                        className="text-red-500 hover:text-red-400 text-lg ml-2"
+                        aria-label="Delete notification"
                       >
-                        Delete
+                        🗑️
                       </button>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-1">{notification.description}</p>
+                    <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">
+                      {notification.message}
+                    </p>
+                    {notification.action && (
+                      <button
+                        onClick={() => {
+                          window.location.href = notification.action!.href
+                        }}
+                        className="text-xs text-amber-500 hover:text-amber-400 mt-2"
+                      >
+                        {notification.action.label} →
+                      </button>
+                    )}
+                    <div className="flex gap-2 mt-2">
+                      {!notification.read && (
+                        <button
+                          onClick={() => handleMarkAsRead(notification.id)}
+                          className="text-xs text-blue-500 hover:text-blue-400"
+                        >
+                          Mark read
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

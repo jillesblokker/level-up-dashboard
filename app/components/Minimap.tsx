@@ -104,7 +104,7 @@ export function Minimap({ gridSize, tileSize = 16, characterPosition, onPan }: M
       >
         <div
           ref={containerRef}
-          role="grid"
+          role="application"
           tabIndex={0}
           aria-label="Minimap grid"
           aria-description="Draggable minimap grid showing your current position and explored tiles. Use arrow keys or click and drag to navigate."
@@ -114,10 +114,6 @@ export function Minimap({ gridSize, tileSize = 16, characterPosition, onPan }: M
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
           className={`relative grid grid-cols-12 gap-[2px] p-2 cursor-grab ${isDragging ? 'cursor-grabbing' : ''}`}
-          style={{
-            width: `${gridSize}px`,
-            height: `${gridSize}px`,
-          }}
         >
           {/* Background grid - decorative */}
           <div 
@@ -134,7 +130,6 @@ export function Minimap({ gridSize, tileSize = 16, characterPosition, onPan }: M
 
           {/* Character marker */}
           <div
-            role="presentation"
             aria-label={`Character position: ${characterPosition.x}, ${characterPosition.y}`}
             className="absolute w-3 h-3 bg-amber-400 rounded-full shadow-md ring-2 ring-amber-200 animate-pulse character-marker"
             style={{

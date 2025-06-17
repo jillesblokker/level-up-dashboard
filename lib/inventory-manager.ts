@@ -24,6 +24,7 @@ export function getInventory(): InventoryItem[] {
     return JSON.parse(savedInventory)
   } catch (err) {
     console.error('Error parsing inventory:', err)
+    localStorage.removeItem(INVENTORY_KEY)
     return []
   }
 }
@@ -121,22 +122,32 @@ export function getKingdomInventory(): InventoryItem[] {
     return JSON.parse(savedInventory)
   } catch (err) {
     console.error('Error parsing kingdom inventory:', err)
+    localStorage.removeItem(KINGDOM_INVENTORY_KEY)
     return []
   }
 }
 
 export function addToKingdomInventory(item: InventoryItem) {
-  if (typeof window === 'undefined') return
+  console.log('addToKingdomInventory called with item:', item);
+  if (typeof window === 'undefined') {
+    console.log('Window is undefined, returning early');
+    return;
+  }
   
   const currentInventory = getKingdomInventory()
+  console.log('Current kingdom inventory:', currentInventory);
   const existingItem = currentInventory.find(i => i.id === item.id)
   
   if (existingItem) {
     existingItem.quantity += item.quantity
+    console.log('Updated existing item quantity:', existingItem.quantity);
   } else {
     currentInventory.push(item)
+    console.log('Added new item to kingdom inventory');
   }
   
   localStorage.setItem(KINGDOM_INVENTORY_KEY, JSON.stringify(currentInventory))
+  console.log('Saved kingdom inventory to localStorage');
   window.dispatchEvent(new Event('character-inventory-update'))
+  console.log('Dispatched character-inventory-update event');
 } 

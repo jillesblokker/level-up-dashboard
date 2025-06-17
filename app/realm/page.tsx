@@ -1,63 +1,35 @@
 "use client"
 
 import { useEffect, useState, useRef, useCallback } from "react"
-import Image from "next/image"
 import { useLocalStorage } from "@/lib/hooks/use-local-storage"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Avatar } from "@/components/ui/avatar"
 import { useToast } from "@/components/ui/use-toast"
-import { getCharacterName } from "@/lib/toast-utils"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useRouter } from "next/navigation"
 // Import necessary types from '@/types/tiles'
-import { Tile, ConnectionDirection, TileType, InventoryItem as TileInventoryItem, SelectedInventoryItem } from '@/types/tiles'
+import { Tile, TileType, InventoryItem as TileInventoryItem, SelectedInventoryItem } from '@/types/tiles'
 import { useCreatureStore } from "@/stores/creatureStore"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Settings, Trash2, RotateCw, RefreshCw, ScrollText, Save } from "lucide-react"
-import { useCreatureUnlock } from "@/lib/hooks/use-creature-unlock"
+import { Settings } from "lucide-react"
 import { MapGrid } from '../../components/map-grid'
 import { TileInventory } from '@/components/tile-inventory'
 import { Switch } from "@/components/ui/switch"
-import { generateMysteryEvent, handleEventOutcome, getScrollById } from "@/lib/mystery-events"
+import { generateMysteryEvent } from "@/lib/mystery-events"
 import { MysteryEvent } from '@/lib/mystery-events'
-import { MysteryEventType, MysteryEventReward } from '@/lib/mystery-events' // Import MysteryEventReward
-import { InventoryItem, addToInventory, addToKingdomInventory } from "@/lib/inventory-manager"
-import { TileEditor } from '@/components/tile-editor'
-import { createTilePlacement, getTilePlacements } from '@/lib/api'
-import { nanoid } from 'nanoid'
+import { InventoryItem, addToKingdomInventory, addToInventory } from "@/lib/inventory-manager"
 import { Minimap } from "@/components/Minimap"
 import { MinimapEntity, MinimapRotationMode } from "@/types/minimap"
 import { useAchievementStore } from '@/stores/achievementStore'
-import { loadAndProcessInitialGrid, loadInitialGrid, createTileFromNumeric, numericToTileType } from "@/lib/grid-loader"
-import { getLatestGrid, uploadGridData, updateGridData, subscribeToGridChanges, createQuestCompletion, getQuestCompletions } from '@/lib/api'
-import { useAuthContext } from '@/components/providers'
-import Link from "next/link"
+import { loadAndProcessInitialGrid, createTileFromNumeric } from "@/lib/grid-loader"
+import { createQuestCompletion } from '@/lib/api'
 import { logger } from "@/lib/logger"
 import { useSupabaseClientWithToken } from '@/lib/hooks/use-supabase-client'
-import { createEventNotification } from "@/lib/notifications"
 import { useUser } from '@clerk/nextjs'
-import { SupabaseClient } from '@supabase/supabase-js';
-import { Database } from '@/types/supabase';
 import React from "react"
-import { toast } from "@/components/ui/use-toast"
-import { showScrollToast } from "@/lib/toast-utils"
-import { addNotification } from "@/lib/notification-log"
+import { gainGold } from "@/lib/gold-manager"
+import { gainExperience } from "@/lib/experience-manager"
+import { notificationService } from "@/lib/notification-service"
 
 // Types
-interface Position {
-  x: number;
-  y: number;
-}
-
 interface TileCounts {
   forestPlaced: number;
   forestDestroyed: number;
@@ -68,21 +40,9 @@ interface TileCounts {
   waterDestroyed: number;
 }
 
-interface Logger {
-  log: (level: "error" | "warning" | "info", message: string, source: string) => void;
-  error: (message: string, source: string) => void;
-  warning: (message: string, source: string) => void;
-  warn: (message: string, source: string) => void;
-  info: (message: string, source: string) => void;
-  clear: () => void;
-}
-
-
 // Constants
 const GRID_COLS = 13
-const GRID_ROWS = 20 // Add this constant
 const INITIAL_ROWS = 7
-const ZOOM_LEVELS = [0.5, 1, 1.5, 2]
 const AUTOSAVE_INTERVAL = 30000 // 30 seconds
 
 // Initial state
@@ -148,11 +108,52 @@ const createBaseGrid = (): Tile[][] => {
   return grid;
 };
 
+// Add missing functions
+const processLoadedGrid = (fetchedGrid: number[][]): Tile[][] => {
+  return fetchedGrid.map((row, y) =>
+    row.map((numeric, x) => createTileFromNumeric(numeric, x, y))
+  );
+};
+
+const createEmptyTile = (x: number, y: number): Tile => ({
+  id: `empty-${x}-${y}`,
+  type: "empty" as TileType,
+  name: "Empty Tile",
+  description: "An empty space where a new tile can be placed",
+  connections: [],
+  rotation: 0,
+  revealed: true,
+  isVisited: false,
+  x,
+  y,
+  ariaLabel: `Empty tile at position ${x}, ${y}`,
+  image: "/images/tiles/empty-tile.png",
+  isMainTile: false,
+  isTown: false,
+  cityName: undefined,
+  cityX: undefined,
+  cityY: undefined,
+  citySize: undefined,
+  bigMysteryX: undefined,
+  bigMysteryY: undefined,
+  tileSize: undefined,
+  cost: 0,
+  quantity: 1,
+});
+
+const saveCharacterPosition = async (supabase: any, userId: string, position: { x: number; y: number }) => {
+  try {
+    // Save character position to Supabase if needed
+    // For now, just log the position
+    console.log('Saving character position:', position);
+  } catch (error) {
+    console.error('Error saving character position:', error);
+  }
+};
+
 export default function RealmPage() {
   const { toast } = useToast()
   const router = useRouter()
-  const { handleUnlock } = useCreatureUnlock()
-  const gridRef = useRef<HTMLDivElement>(null)
   const { updateProgress } = useAchievementStore()
   const { user, isLoaded: isAuthLoaded } = useUser();
   const userId = user?.id;
@@ -168,24 +169,20 @@ export default function RealmPage() {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [selectedTile, setSelectedTile] = useState<SelectedInventoryItem | null>(null)
   const [grid, setGrid] = useState<Tile[][]>([]);
-  const [gridRotation, setGridRotation] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [isInitialized, setIsInitialized] = useState(false)
   const [currentEvent, setCurrentEvent] = useState<MysteryEvent | null>(null)
   const [showLocationModal, setShowLocationModal] = useState(false)
   const [currentLocation, setCurrentLocation] = useState<{ x: number; y: number; name: string; description: string } | null>(null)
-  const [zoomLevel, setZoomLevel] = useState(1)
   const [movementMode, setMovementMode] = useState(true)
   const [hoveredTile, setHoveredTile] = useState<{ row: number; col: number } | null>(null)
   const [isSyncing, setIsSyncing] = useState(false)
   const [syncError, setSyncError] = useState<string | null>(null)
   const [showInventory, setShowInventory] = useState(false)
   const [minimapSwitch, setMinimapSwitch] = useState(false)
-  const [minimapEntities, setMinimapEntities] = useState<MinimapEntity[]>([])
   const [minimapZoom, setMinimapZoom] = useState(1)
   const [minimapRotationMode, setMinimapRotationMode] = useState<MinimapRotationMode>('static')
   const [questCompletedCount, setQuestCompletedCount] = useState(0)
-  const [showLogs, setShowLogs] = useState(false)
   const [tileCounts, setTileCounts] = useLocalStorage<TileCounts>("tile-counts", {
     forestPlaced: 0,
     forestDestroyed: 0,
@@ -391,7 +388,22 @@ export default function RealmPage() {
           logger.info('Backup saved to local storage', 'GridSave');
         } catch (error) {
           logger.error(`Error saving grid: ${error instanceof Error ? error.message : 'Unknown error'}`, 'GridSave');
-          setSyncError(error instanceof Error ? error.message : 'Failed to save grid');
+          
+          // Check if it's an authentication error
+          const errorMessage = error instanceof Error ? error.message : '';
+          const isAuthError = errorMessage.includes('Invalid API key') || 
+                             errorMessage.includes('401') || 
+                             errorMessage.includes('Unauthorized') ||
+                             errorMessage.includes('JWT');
+          
+          if (isAuthError) {
+            logger.info('Authentication error detected, falling back to localStorage only', 'GridSave');
+            // Save to localStorage as fallback
+            localStorage.setItem('grid', JSON.stringify(grid));
+            setSyncError('Authentication failed - using local storage only');
+          } else {
+            setSyncError(error instanceof Error ? error.message : 'Failed to save grid');
+          }
         } finally {
           setIsSyncing(false)
         }
@@ -610,7 +622,7 @@ export default function RealmPage() {
     } else {
       // Check if updatedInventory[tileType] is defined before accessing quantity
       const item = updatedInventory[tileType];
-      if (item) {
+      if (item && typeof item.quantity === 'number') {
          item.quantity += 1;
       } else {
         // This case should ideally not happen if updatedInventory[tileType] was checked above
@@ -903,6 +915,8 @@ export default function RealmPage() {
   };
 
   const handleCharacterMove = useCallback((newX: number, newY: number) => {
+    console.log('handleCharacterMove called with:', { newX, newY });
+    
     // Validate coordinates
     if (newX < 0 || newY < 0 || newY >= grid.length || !grid[0] || newX >= grid[0].length) {
       toast({
@@ -914,6 +928,8 @@ export default function RealmPage() {
     }
 
     const targetTile = grid[newY]?.[newX];
+    console.log('Target tile:', targetTile);
+    
     if (!targetTile || targetTile.type === 'empty') {
       toast({
         title: "Cannot Move",
@@ -945,33 +961,19 @@ export default function RealmPage() {
 
     // Update character position
     setCharacterPosition({ x: newX, y: newY });
-
-    // Only trigger modal if position is new
-    if ((targetTile.type === 'city' || targetTile.type === 'town') && (!lastModalPosition || lastModalPosition.x !== newX || lastModalPosition.y !== newY)) {
-      const locationKey = targetTile.cityName || targetTile.type;
-      const locationInfo = realmLocationData[locationKey];
-      if (locationInfo?.name) {
-        setCurrentLocation({
-          x: newX,
-          y: newY,
-          name: locationInfo.name,
-          description: locationInfo.description,
-        });
-        setShowLocationModal(true);
-        setLastModalPosition({x: newX, y: newY});
-      }
-    } else if (targetTile.type !== 'city' && targetTile.type !== 'town') {
-      setLastModalPosition(null);
-    }
+    console.log('Character position updated to:', { x: newX, y: newY });
 
     // Handle special tile interactions
     if (targetTile.type === 'portal-entrance' || targetTile.type === 'portal-exit') {
+      console.log('Portal interaction triggered');
       setPortalSource({ x: newX, y: newY, type: targetTile.type });
       setShowPortalModal(true);
     } else if (targetTile.type === 'dungeon') {
+      console.log('Dungeon interaction triggered');
       localStorage.setItem('current-dungeon', JSON.stringify({ position: { x: newX, y: newY }, type: 'dungeon' }));
       router.push('/dungeon');
     } else if (targetTile.type === 'mystery' && !targetTile.isVisited) {
+      console.log('Mystery interaction triggered');
       const mysteryEvent = generateMysteryEvent();
       setCurrentEvent(mysteryEvent);
       const newGrid = [...grid];
@@ -990,11 +992,47 @@ export default function RealmPage() {
         newGrid[newY][newX] = updatedMysteryTile;
         setGrid(newGrid);
       }
+    } else if ((targetTile.type === 'city' || targetTile.type === 'town') && (!lastModalPosition || lastModalPosition.x !== newX || lastModalPosition.y !== newY)) {
+      console.log('City/Town interaction triggered:', { type: targetTile.type, cityName: targetTile.cityName });
+      // Use tile type as fallback if cityName is undefined
+      const locationKey = targetTile.cityName || targetTile.type;
+      const locationInfo = realmLocationData[locationKey];
+      console.log('Location info found:', locationInfo);
+      if (locationInfo?.name) {
+        setCurrentLocation({
+          x: newX,
+          y: newY,
+          name: locationInfo.name,
+          description: locationInfo.description,
+        });
+        setShowLocationModal(true);
+        setLastModalPosition({x: newX, y: newY});
+        console.log('Location modal should be showing');
+      } else {
+        // Fallback for tiles without specific location data
+        const fallbackName = targetTile.type === 'city' ? 'Unknown City' : 'Unknown Town';
+        const fallbackDescription = `A ${targetTile.type} that you have discovered.`;
+        setCurrentLocation({
+          x: newX,
+          y: newY,
+          name: fallbackName,
+          description: fallbackDescription,
+        });
+        setShowLocationModal(true);
+        setLastModalPosition({x: newX, y: newY});
+        console.log('Fallback location modal should be showing');
+      }
+    } else if (targetTile.type !== 'city' && targetTile.type !== 'town') {
+      setLastModalPosition(null);
     }
 
     // Save position to Supabase and localStorage
     if (supabase && userId) {
-      saveCharacterPosition(supabase, userId, { x: newX, y: newY });
+      try {
+        saveCharacterPosition(supabase, userId, { x: newX, y: newY });
+      } catch (error) {
+        console.log('Supabase save failed, using localStorage only:', error);
+      }
     }
     if (typeof window !== 'undefined') {
       localStorage.setItem('character-position', JSON.stringify({ x: newX, y: newY }));
@@ -1199,13 +1237,11 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
 
   // Add these function declarations near the top of the RealmPage component
   const handleGoldUpdate = (amount: number) => {
-    // TODO: Implement gold update logic
-    console.log('Gold updated by:', amount);
+    gainGold(amount, 'realm-events');
   };
 
   const handleExperienceUpdate = (amount: number) => {
-    // TODO: Implement experience update logic
-    console.log('Experience updated by:', amount);
+    gainExperience(amount, 'realm-events', 'general');
   };
 
   // Fix the updateInventoryFromTileItems function to handle type mismatches and use InventoryItem
@@ -1339,7 +1375,17 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
         }
         if (outcome.reward.type === 'item' && outcome.reward.item) {
           outcome.reward.item.forEach(item => {
-            addToKingdomInventory(item);
+            // If the item is a horse, ensure it has a unique id and type 'creature'
+            if (item.name && item.name.toLowerCase().includes('horse')) {
+              addToKingdomInventory({
+                ...item,
+                id: `horse-${Date.now()}`,
+                type: 'creature',
+                quantity: 1,
+              });
+            } else {
+              addToKingdomInventory(item);
+            }
           });
         }
       }
@@ -1623,6 +1669,25 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
   const LocationModal = () => {
     if (!currentLocation) return null;
 
+    // Determine the route based on type and name
+    const isCity = currentLocation.name.toLowerCase().includes('city') || currentLocation.name.toLowerCase().includes('citadel');
+    const isTown = currentLocation.name.toLowerCase().includes('town');
+    // Fallback slug: use cityName if available, else coordinates
+    const slug = (grid[currentLocation.y]?.[currentLocation.x]?.cityName || `city-${currentLocation.x}-${currentLocation.y}`).replace(/\s+/g, '-').toLowerCase();
+    const townSlug = (grid[currentLocation.y]?.[currentLocation.x]?.cityName || `town-${currentLocation.x}-${currentLocation.y}`).replace(/\s+/g, '-').toLowerCase();
+
+    const handleEnter = () => {
+      if (isCity) {
+        router.push(`/city/${slug}`);
+      } else if (isTown) {
+        router.push(`/town/${townSlug}`);
+      } else {
+        // Fallback: go to city page
+        router.push(`/city/${slug}`);
+      }
+      setShowLocationModal(false);
+    };
+
     return (
       <Dialog open={showLocationModal} onOpenChange={setShowLocationModal}>
         <DialogContent className="sm:max-w-[425px]">
@@ -1634,7 +1699,7 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
             <Button variant="outline" onClick={() => setShowLocationModal(false)}>
               Cancel
             </Button>
-            <Button onClick={() => handleVisitLocation(currentLocation)}>
+            <Button onClick={handleEnter}>
               Enter
             </Button>
           </div>
@@ -1667,14 +1732,17 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
 
   // Update the event handler
   const handleHorseCaught = (event: HorseCaughtEvent) => {
+    console.log('Horse caught event received:', event);
     const caughtHorse: InventoryItem = event.detail.horse;
     setCaughtHorse(caughtHorse);
     setShowHorseCaughtModal(true);
+    console.log('Horse modal should be showing');
   };
 
   // Update the event listener
   useEffect(() => {
     const handleHorseCaughtEvent = (event: Event) => {
+      console.log('Horse caught event listener triggered:', event);
       if ('detail' in event) {
         handleHorseCaught(event as HorseCaughtEvent);
       }
@@ -1707,32 +1775,75 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
   
   // Add the missing handleHorseCaughtOk function
   const handleHorseCaughtOk = () => {
+    console.log('handleHorseCaughtOk called with caughtHorse:', caughtHorse);
     if (caughtHorse) {
-      // Ensure caughtHorse has all required InventoryItem properties
+      // Always give experience for catching a horse
+      const experienceReward = 25;
+      gainExperience(experienceReward, 'horse-caught', 'general');
+      
+      // Ensure caughtHorse has all required InventoryItem properties and a unique id
       const horseToAdd: InventoryItem = {
-        id: caughtHorse.id,
+        id: caughtHorse.id || `horse-${Date.now()}`,
         name: caughtHorse.name,
         description: caughtHorse.description || '',
-        type: caughtHorse.type,
-        emoji: caughtHorse.emoji || '',
-        image: caughtHorse.image || '',
+        type: 'creature', // Ensure type is 'creature' for kingdom inventory
+        emoji: caughtHorse.emoji || '🐎',
+        image: caughtHorse.image || '/images/Animals/horse.png',
         quantity: caughtHorse.quantity || 1,
       };
+      
+      console.log('Adding horse to kingdom inventory:', horseToAdd);
+      
+      // Add to kingdom inventory
       addToKingdomInventory(horseToAdd);
+      
+      // Also add to regular inventory for consistency
+      addToInventory(horseToAdd);
+      
+      window.dispatchEvent(new Event('character-inventory-update'));
+      
+      console.log('Horse added to inventories');
+      
       toast({
         title: 'Horse Added!',
-        description: `${caughtHorse.name} has been added to your kingdom inventory.`,
+        description: `${caughtHorse.name} has been added to your kingdom inventory and you gained ${experienceReward} XP!`,
         variant: "default",
         className: "scroll-toast"
       });
-      addNotification({
-        type: 'creature',
-        title: 'Horse Caught!',
-        description: `${caughtHorse.name} has been added to your kingdom inventory.`
-      });
+      
+      notificationService.addNotification(
+        'Horse Caught! 🐎',
+        `${caughtHorse.name} has been added to your kingdom inventory and you gained ${experienceReward} XP!`,
+        'discovery',
+        {
+          label: 'View Kingdom',
+          href: '/kingdom',
+        }
+      );
+      
       setShowHorseCaughtModal(false);
       setCaughtHorse(null);
     }
+  };
+
+  // Mystery Event Modal
+  const MysteryEventModal = () => {
+    if (!currentEvent) return null;
+    return (
+      <Dialog open={!!currentEvent} onOpenChange={() => setCurrentEvent(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>{currentEvent.title || 'Mysterious Event'}</DialogTitle>
+            <DialogDescription>{currentEvent.description}</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-2 mt-4">
+            {currentEvent.choices && Object.entries(currentEvent.choices).map(([choice, label]) => (
+              <Button key={choice} onClick={() => handleEventChoice(choice)} aria-label={`Choose ${label}`}>{label}</Button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
   };
 
   return (
@@ -1819,7 +1930,7 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
                 character={characterPosition || defaultCharacterPosition}
                 onCharacterMove={handleCharacterMove}
                 onTileClick={(x, y) => {
-                  if (!movementMode && selectedTile) {
+                  if (!movementMode && selectedTile && inventory) {
                     const newGrid = grid.map(row => row.slice());
                     if (newGrid[y]) {
                       const tileToPlace = { ...selectedTile, x, y };
@@ -1827,14 +1938,15 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
                       setGrid(newGrid);
                       // Decrement inventory
                       const updatedInventory = { ...inventory };
+                      const inventoryItem = updatedInventory[tileToPlace.type];
                       if (
                         updatedInventory &&
                         tileToPlace &&
-                        updatedInventory[tileToPlace.type] &&
-                        typeof updatedInventory[tileToPlace.type].quantity === 'number' &&
-                        updatedInventory[tileToPlace.type].quantity > 0
+                        inventoryItem &&
+                        typeof inventoryItem.quantity === 'number' &&
+                        inventoryItem.quantity > 0
                       ) {
-                        updatedInventory[tileToPlace.type].quantity -= 1;
+                        inventoryItem.quantity -= 1;
                         setInventory(updatedInventory);
                       }
                     }
@@ -1845,8 +1957,6 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
                 onGridUpdate={setGrid}
                 hoveredTile={hoveredTile}
                 setHoveredTile={setHoveredTile}
-                gridRotation={gridRotation}
-                minimapEntities={minimapEntities}
                 minimapZoom={minimapZoom}
                 minimapRotationMode={minimapRotationMode}
                 onTileDelete={handleTileDelete}
@@ -1927,7 +2037,7 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
             <Minimap
               grid={grid}
               playerPosition={characterPosition}
-              entities={minimapEntities}
+              entities={[]}
               zoom={minimapZoom}
               onZoomChange={setMinimapZoom}
               rotationMode={minimapRotationMode}
@@ -1936,6 +2046,7 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
             />
           )}
           <LocationModal />
+          <MysteryEventModal />
           {showHorseCaughtModal && caughtHorse && (
             <Dialog open={showHorseCaughtModal} onOpenChange={setShowHorseCaughtModal}>
               <DialogContent>

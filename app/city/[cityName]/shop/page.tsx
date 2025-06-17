@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
 import { useGoldStore } from '@/stores/goldStore'
+import { addToKingdomInventory } from '@/lib/inventory-manager'
 
 export default function ShopPage() {
   const params = useParams()
@@ -135,6 +136,7 @@ export default function ShopPage() {
                   className="h-48 bg-cover bg-center"
                   style={{ backgroundImage: `url(${item.image})` }}
                   aria-label={`${item.name}-image`}
+                  role="img"
                 />
               ) : (
                 <div
@@ -166,6 +168,17 @@ Current gold: ${gold}`,
                       return
                     }
                     updateGold(-item.price)
+                    // Add to kingdom inventory
+                    addToKingdomInventory({
+                      id: item.id,
+                      name: item.name,
+                      description: item.description,
+                      type: 'item',
+                      quantity: 1,
+                      image: item.image,
+                      emoji: item.emoji
+                    })
+                    window.dispatchEvent(new Event('character-inventory-update'))
                     toast({
                       title: "Purchase successful",
                       description: `You purchased ${item.name} for ${item.price} gold.`,

@@ -10,6 +10,7 @@ import { Progress } from "@/components/ui/progress"
 import { NotificationCenter } from "@/components/notification-center"
 import { UserNav } from "@/components/user-nav"
 import { calculateLevelFromExperience, calculateExperienceForLevel, calculateLevelProgress } from "@/types/character"
+import { initializeCharacterStats, getCharacterStats } from "@/lib/character-stats-manager"
 
 interface CustomSession {
   user?: {
@@ -100,19 +101,20 @@ export function NavBar({ goldBalance, session }: NavBarProps) {
   }, [])
 
   useEffect(() => {
-    // Load character stats from localStorage
+    // Initialize character stats and load them
     const loadCharacterStats = () => {
       try {
-        const savedStats = localStorage.getItem("character-stats")
-        if (savedStats) {
-          const stats = JSON.parse(savedStats)
-          const currentLevel = calculateLevelFromExperience(stats.experience)
-          setCharacterStats({
-            ...stats,
-            level: currentLevel,
-            experienceToNextLevel: calculateExperienceForLevel(currentLevel)
-          })
-        }
+        // Initialize character stats if they don't exist
+        initializeCharacterStats()
+        
+        // Get current stats
+        const stats = getCharacterStats()
+        const currentLevel = calculateLevelFromExperience(stats.experience)
+        setCharacterStats({
+          ...stats,
+          level: currentLevel,
+          experienceToNextLevel: calculateExperienceForLevel(currentLevel)
+        })
       } catch (error) {
         console.error("Error loading character stats:", error)
       }

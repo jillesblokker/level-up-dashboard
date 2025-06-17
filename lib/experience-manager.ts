@@ -1,7 +1,11 @@
 import { toast } from "@/components/ui/use-toast"
 import { showScrollToast } from "@/lib/toast-utils"
-import { calculateLevelFromExperience, calculateExperienceForLevel, CharacterStats } from "@/types/character"
-import { createLevelUpNotification } from "@/lib/notifications"
+import { calculateLevelFromExperience, calculateExperienceForLevel, calculateExperienceToNextLevel, CharacterStats } from "@/types/character"
+import { createLevelUpNotification, createExperienceGainedNotification } from "@/lib/notifications"
+import { emitExperienceGained } from "@/lib/kingdom-events"
+import { getCharacterStats, updateCharacterStats } from "@/lib/character-stats-manager"
+import { getCurrentTitle, getNextTitle } from "@/lib/title-manager"
+import { notificationService } from "@/lib/notification-service"
 
 interface Perk {
   id: string;
@@ -70,23 +74,8 @@ function calculatePerkBonus(baseAmount: number, category: string, equippedPerks:
 
 export function gainExperience(amount: number, source: string, category: string = 'general') {
   try {
-    // Get current stats
-    const savedStats = localStorage.getItem("character-stats")
-    const currentStats = savedStats ? JSON.parse(savedStats) as CharacterStats : {
-      level: 1,
-      experience: 0,
-      experienceToNextLevel: 100,
-      gold: 1000,
-      titles: {
-        equipped: "",
-        unlocked: 0,
-        total: 10
-      },
-      perks: {
-        active: 0,
-        total: 5
-      }
-    }
+    // Get current stats using the character stats manager
+    const currentStats = getCharacterStats()
 
     // Get equipped perks and calculate bonus
     const equippedPerks = getEquippedPerks()
@@ -96,22 +85,45 @@ export function gainExperience(amount: number, source: string, category: string 
     // Calculate new stats
     const newExperience = currentStats.experience + totalAmount
     const newLevel = calculateLevelFromExperience(newExperience)
+    const newExperienceToNextLevel = calculateExperienceToNextLevel(newExperience)
+    
     const newStats: CharacterStats = {
       ...currentStats,
       experience: newExperience,
       level: newLevel,
-      experienceToNextLevel: calculateExperienceForLevel(newLevel)
+      experienceToNextLevel: newExperienceToNextLevel
     }
 
-    // Save to localStorage
-    localStorage.setItem("character-stats", JSON.stringify(newStats))
+    // Update stats using the character stats manager
+    updateCharacterStats(newStats)
 
-    // Dispatch event to notify components
-    window.dispatchEvent(new Event("character-stats-update"))
+    // Emit kingdom event for tracking weekly progress
+    emitExperienceGained(totalAmount, source)
 
-    // Show toast notifications
+    // Create notification for experience gained
+    createExperienceGainedNotification(amount, source, perkBonus)
+
+    // Check for level up and title unlocks
     if (newLevel > currentStats.level) {
       createLevelUpNotification(currentStats.level, newLevel);
+      
+      // Check for new title unlock
+      const oldTitle = getCurrentTitle(currentStats.level);
+      const newTitle = getCurrentTitle(newLevel);
+      
+      if (newTitle.id !== oldTitle.id) {
+        // New title unlocked!
+        notificationService.addNotification(
+          "New Title Unlocked! 👑",
+          `Congratulations! You are now a ${newTitle.name}! ${newTitle.description}`,
+          "achievement",
+          {
+            label: "View Character",
+            href: "/character",
+          }
+        );
+      }
+      
       toast({
         title: "Level Up!",
         description: `You've reached level ${newLevel}!`,

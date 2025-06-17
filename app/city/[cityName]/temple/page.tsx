@@ -101,6 +101,7 @@ export default function TemplePage() {
                 className="h-48 bg-cover bg-center" 
                 style={{ backgroundImage: `url(${blessing.image})` }}
                 aria-label={`${blessing.name}-image`}
+                role="img"
               />
               <CardHeader>
                 <CardTitle>{blessing.name}</CardTitle>

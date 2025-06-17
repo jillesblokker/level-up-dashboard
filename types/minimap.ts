@@ -1,6 +1,6 @@
 import { Tile } from './tiles';
 
-export type MinimapRotationMode = 'fixed' | 'dynamic' | 'static';
+export type MinimapRotationMode = 'static' | 'dynamic';
 
 export interface MinimapEntity {
   type: string;

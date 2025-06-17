@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,11 @@ const STORAGE_KEYS = [
   { key: "achievements", label: "Achievements Unlocked" },
   { key: "titles", label: "Titles Gained/Set" },
   { key: "perks", label: "Perks Gained/Set" },
+  { key: "character-stats", label: "Character Stats" },
+  { key: "kingdom-time-series-data", label: "Kingdom Time Series Data" },
+  { key: "tile-counts", label: "Tile Counts" },
+  { key: "tile-inventory", label: "Tile Inventory" },
+  { key: "grid", label: "Realm Grid" },
 ];
 
 function getStoredData() {
@@ -71,6 +76,22 @@ function summarizeData(key: string, value: any) {
 
 export default function StoredDataPage() {
   const [data, setData] = useState(() => getStoredData());
+  const [characterStats, setCharacterStats] = useState<any>(null)
+  const [characterTitles, setCharacterTitles] = useState<any>(null)
+  const [characterPerks, setCharacterPerks] = useState<any>(null)
+  const [characterStrengths, setCharacterStrengths] = useState<any>(null)
+  const [achievements, setAchievements] = useState<any>(null)
+  const [creatures, setCreatures] = useState<any>(null)
+  const [gold, setGold] = useState<any>(null)
+  const [inventory, setInventory] = useState<any>(null)
+  const [kingdomInventory, setKingdomInventory] = useState<any>(null)
+  const [realmGrid, setRealmGrid] = useState<any>(null)
+  const [tileCounts, setTileCounts] = useState<any>(null)
+  const [tileInventory, setTileInventory] = useState<any>(null)
+  const [questProgress, setQuestProgress] = useState<any>(null)
+  const [questCompletions, setQuestCompletions] = useState<any>(null)
+  const [notifications, setNotifications] = useState<any>(null)
+  const [logs, setLogs] = useState<any>(null)
 
   const refresh = () => setData(getStoredData());
 
@@ -82,6 +103,54 @@ export default function StoredDataPage() {
     localStorage.removeItem(key);
     refresh();
   };
+
+  useEffect(() => {
+    // Load character strengths data
+    try {
+      const strengthsData = localStorage.getItem('character-strengths');
+      if (strengthsData) {
+        setCharacterStrengths(JSON.parse(strengthsData));
+      }
+    } catch (error) {
+      console.error('Error loading character strengths:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Load character perks data
+    try {
+      const perksData = localStorage.getItem('character-perks');
+      if (perksData) {
+        setCharacterPerks(JSON.parse(perksData));
+      }
+    } catch (error) {
+      console.error('Error loading character perks:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Load character stats data
+    try {
+      const statsData = localStorage.getItem('character-stats');
+      if (statsData) {
+        setCharacterStats(JSON.parse(statsData));
+      }
+    } catch (error) {
+      console.error('Error loading character stats:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Load character titles data
+    try {
+      const titlesData = localStorage.getItem('character-titles');
+      if (titlesData) {
+        setCharacterTitles(JSON.parse(titlesData));
+      }
+    } catch (error) {
+      console.error('Error loading character titles:', error);
+    }
+  }, []);
 
   return (
     <main className="container mx-auto p-4" aria-label="stored-data-section">
@@ -108,6 +177,50 @@ export default function StoredDataPage() {
             ))}
           </div>
         </ScrollArea>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Character Stats</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <pre className="text-xs overflow-auto max-h-96">
+            {characterStats ? JSON.stringify(characterStats, null, 2) : 'No data found'}
+          </pre>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Character Titles</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <pre className="text-xs overflow-auto max-h-96">
+            {characterTitles ? JSON.stringify(characterTitles, null, 2) : 'No data found'}
+          </pre>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Character Perks</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <pre className="text-xs overflow-auto max-h-96">
+            {characterPerks ? JSON.stringify(characterPerks, null, 2) : 'No data found'}
+          </pre>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Character Strengths</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <pre className="text-xs overflow-auto max-h-96">
+            {characterStrengths ? JSON.stringify(characterStrengths, null, 2) : 'No data found'}
+          </pre>
+        </CardContent>
       </Card>
     </main>
   );

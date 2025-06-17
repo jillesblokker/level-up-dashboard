@@ -17,8 +17,10 @@ export function MountainTile({ className, ariaLabel, onClick, rotation = 0 }: Mo
       style={{ transform: `rotate(${rotation}deg)` }}
       aria-label={ariaLabel || "Mountain tile"} 
       onClick={onClick}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); } : undefined}
     >
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
         <div 
           className="w-3/4 h-3/4"
           style={{
