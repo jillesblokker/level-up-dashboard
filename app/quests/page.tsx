@@ -160,12 +160,6 @@ export default function QuestsPage() {
 
       // If quest is completed, give rewards
       if (newProgress >= 100 && !updatedQuest.completed) {
-        console.log('🎯 Quest completed! Awarding rewards...', {
-          questTitle: updatedQuest.title,
-          goldReward: updatedQuest.rewards.gold,
-          xpReward: updatedQuest.rewards.xp
-        });
-
         // Log quest completion
         await logQuestAction('quest_completed', questId, {
           rewards: updatedQuest.rewards,
@@ -173,14 +167,11 @@ export default function QuestsPage() {
         }, userId);
 
         // Use proper gainGold and gainExperience functions
-        console.log('💰 Awarding gold...');
         gainGold(updatedQuest.rewards.gold, `quest-${updatedQuest.title}`);
         
-        console.log('⭐ Awarding experience...');
         gainExperience(updatedQuest.rewards.xp, `quest-${updatedQuest.title}`, 'general');
 
         // Force immediate UI update by dispatching character stats update event
-        console.log('🔄 Dispatching character stats update event...');
         window.dispatchEvent(new Event("character-stats-update"));
 
         // Show completion toast
@@ -203,8 +194,6 @@ export default function QuestsPage() {
           updatedQuest.rewards.xp,
           'quests'
         );
-
-        console.log('✅ Quest completion rewards awarded successfully!');
       } else if (newProgress < 100) {
         // Show progress update toast
         toast({
@@ -342,7 +331,6 @@ export default function QuestsPage() {
     const savedGold = localStorage.getItem("levelup-gold-balance");
     if (savedGold) {
       // Gold balance is now managed by the gold manager
-      console.log('Gold balance loaded from localStorage:', savedGold);
     }
   }, []);
 

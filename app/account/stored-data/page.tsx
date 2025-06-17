@@ -5,9 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { storageService } from '@/lib/storage-service';
-import { toast } from 'sonner';
-import { formatBytes } from '@/lib/utils';
 
 const STORAGE_KEYS = [
   { key: "checked-quests", label: "Checked Quests" },
