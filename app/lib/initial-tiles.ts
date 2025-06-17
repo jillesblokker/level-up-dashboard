@@ -1,60 +1,132 @@
-import { InventoryTile, TileType } from "@/types/tiles";
+import { InventoryItem, TileType } from "@/types/tiles";
 
-export const initialTiles: InventoryTile[] = [
+export const initialTiles: InventoryItem[] = [
   {
     id: "grass-1",
     type: "grass",
     name: "Grass Tile",
-    count: 10,
-    cost: 100
+    description: "A lush grass tile",
+    connections: [],
+    rotation: 0,
+    revealed: true,
+    isVisited: false,
+    x: 0,
+    y: 0,
+    ariaLabel: "Grass tile",
+    image: "/images/tiles/grass-tile.png",
+    cost: 100,
+    quantity: 10
   },
   {
     id: "water-1",
     type: "water",
     name: "Water Tile",
-    count: 10,
-    cost: 100
+    description: "A body of water",
+    connections: [],
+    rotation: 0,
+    revealed: true,
+    isVisited: false,
+    x: 0,
+    y: 0,
+    ariaLabel: "Water tile",
+    image: "/images/tiles/water-tile.png",
+    cost: 100,
+    quantity: 10
   },
   {
     id: "forest-1",
     type: "forest",
     name: "Forest Tile",
-    count: 10,
-    cost: 100
+    description: "A dense forest area",
+    connections: [],
+    rotation: 0,
+    revealed: true,
+    isVisited: false,
+    x: 0,
+    y: 0,
+    ariaLabel: "Forest tile",
+    image: "/images/tiles/forest-tile.png",
+    cost: 100,
+    quantity: 10
   },
   {
     id: "mountain-1",
     type: "mountain",
     name: "Mountain Tile",
-    count: 10,
-    cost: 100
+    description: "A towering mountain peak",
+    connections: [],
+    rotation: 0,
+    revealed: true,
+    isVisited: false,
+    x: 0,
+    y: 0,
+    ariaLabel: "Mountain tile",
+    image: "/images/tiles/mountain-tile.png",
+    cost: 100,
+    quantity: 10
   },
   {
     id: "desert-1",
     type: "desert",
     name: "Desert Tile",
-    count: 10,
-    cost: 100
+    description: "A hot desert",
+    connections: [],
+    rotation: 0,
+    revealed: true,
+    isVisited: false,
+    x: 0,
+    y: 0,
+    ariaLabel: "Desert tile",
+    image: "/images/tiles/desert-tile.png",
+    cost: 100,
+    quantity: 10
   },
   {
     id: "ice-1",
     type: "ice",
     name: "Ice Tile",
-    count: 10,
-    cost: 100
+    description: "A frozen ice tile",
+    connections: [],
+    rotation: 0,
+    revealed: true,
+    isVisited: false,
+    x: 0,
+    y: 0,
+    ariaLabel: "Ice tile",
+    image: "/images/tiles/ice-tile.png",
+    cost: 100,
+    quantity: 10
   },
   {
     id: "town-1",
     type: "town",
     name: "Town Tile",
-    count: 5,
-    cost: 200
+    description: "A small town",
+    connections: [],
+    rotation: 0,
+    revealed: true,
+    isVisited: false,
+    x: 0,
+    y: 0,
+    ariaLabel: "Town tile",
+    image: "/images/tiles/town-tile.png",
+    cost: 200,
+    quantity: 5
   },
   {
     id: "city-1",
     type: "city",
     name: "City Tile",
-    count: 3,
-    cost: 300
+    description: "A bustling city",
+    connections: [],
+    rotation: 0,
+    revealed: true,
+    isVisited: false,
+    x: 0,
+    y: 0,
+    ariaLabel: "City tile",
+    image: "/images/tiles/city-tile.png",
+    cost: 300,
+    quantity: 3
   }
 ]; 

@@ -1,41 +1,42 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { ArrowLeft, Award, Calendar, CheckCircle, Clock, Coins, Sword, Trophy, XCircle, PlusCircle, Upload, Edit, X, Save, Settings, RefreshCw, Trash2 } from "lucide-react"
-import Link from "next/link"
-import { toast } from "@/components/ui/use-toast"
-import { showScrollToast } from "@/lib/toast-utils"
-import { emitQuestCompletedWithRewards } from "@/lib/kingdom-events"
-import { gainGold } from "@/lib/gold-manager"
-import { gainExperience } from "@/lib/experience-manager"
-import { logger } from "@/lib/logger"
-import { QuestService } from '@/lib/quest-service'
-import { Quest } from '@/lib/quest-types'
-import { useUser } from "@clerk/nextjs"
+import React, { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { Checkbox } from "@/components/ui/checkbox"
-import { HeaderSection } from "@/components/HeaderSection"
+import { useSupabaseClientWithToken } from '@/lib/hooks/use-supabase-client'
+import { useUser } from '@clerk/nextjs'
+import { QuestService } from '@/lib/quest-service'
+import { Quest } from '@/lib/quest-types'
+import { gainGold } from '@/lib/gold-manager'
+import { gainExperience } from '@/lib/experience-manager'
+import { showScrollToast } from '@/lib/toast-utils'
+import { emitQuestCompletedWithRewards } from "@/lib/kingdom-events"
+import { useToast } from '@/components/ui/use-toast'
+import { ArrowLeft, Award, Calendar, CheckCircle, Clock, Coins, Sword, Trophy, XCircle, PlusCircle, Upload, Edit, X, Save, Settings, RefreshCw, Trash2 } from "lucide-react"
+import Link from "next/link"
+import { logger } from "@/lib/logger"
+import { useRouter } from "next/navigation"
+import { Loader2 } from "lucide-react"
+import { defaultQuests } from '@/lib/quest-sample-data'
+import { notificationService } from "@/lib/notification-service"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { useToast } from "@/components/ui/use-toast"
-import { useRouter } from "next/navigation"
-import { Loader2 } from "lucide-react"
-import { defaultQuests } from '@/lib/quest-sample-data'
-import { useSupabaseClientWithToken } from '@/lib/hooks/use-supabase-client'
+import { Checkbox } from "@/components/ui/checkbox"
+import { HeaderSection } from "@/components/HeaderSection"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Milestones } from '@/components/milestones'
 import { KnowledgeModal } from "@/components/category-modals/knowledge-modal"
 import { ConditionModal } from "@/components/category-modals/condition-modal"
 import { NutritionModal } from "@/components/category-modals/nutrition-modal"
-import { Milestones } from '@/components/milestones'
-import { notificationService } from "@/lib/notification-service"
 
 // Add logging function
 const logQuestAction = async (action: string, questId: string, details: Record<string, unknown>, userId: string) => {
@@ -55,17 +56,10 @@ const logQuestAction = async (action: string, questId: string, details: Record<s
 export default function QuestsPage() {
   const { user } = useUser();
   const userId = user?.id;
-  const [goldBalance, setGoldBalance] = useState(1000)
+  const { toast } = useToast();
   const [quests, setQuests] = useState<Quest[]>(defaultQuests)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [isQuestsLoaded, setIsQuestsLoaded] = useState(false)
-  
-  // Add save status state
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
-  const [lastSaveTime, setLastSaveTime] = useState<Date | null>(null)
-  const [saveError, setSaveError] = useState<string | null>(null)
-  const [retryCount, setRetryCount] = useState(0)
 
   const supabase = useSupabaseClientWithToken();
 
@@ -95,7 +89,7 @@ export default function QuestsPage() {
       }
       setOfflineMode(false);
       try {
-        const loadedQuests = await QuestService.getQuests(supabase.supabase!);
+        const loadedQuests = await QuestService.getQuests(supabase.supabase!, userId);
         if (loadedQuests && loadedQuests.length > 0) {
           const hasChanges = JSON.stringify(loadedQuests) !== JSON.stringify(quests);
           if (hasChanges) {
@@ -351,7 +345,8 @@ export default function QuestsPage() {
   useEffect(() => {
     const savedGold = localStorage.getItem("levelup-gold-balance");
     if (savedGold) {
-      setGoldBalance(Number.parseInt(savedGold, 10));
+      // Gold balance is now managed by the gold manager
+      console.log('Gold balance loaded from localStorage:', savedGold);
     }
   }, []);
 

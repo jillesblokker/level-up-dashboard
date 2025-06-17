@@ -76,7 +76,12 @@ export const TITLES: Title[] = [
 
 export function getCurrentTitle(level: number): Title {
   // Find the highest title the player has earned
-  let currentTitle: Title = TITLES[0]; // Default to Squire
+  let currentTitle: Title = TITLES[0] || {
+    id: 'squire',
+    name: 'Squire',
+    level: 0,
+    description: 'A young noble in training, beginning their journey.'
+  };
   
   for (const title of TITLES) {
     if (level >= title.level) {
@@ -100,7 +105,7 @@ export function getNextTitle(level: number): Title | null {
 
 export function getTitleProgress(level: number): { current: Title; next: Title | null; progress: number } {
   const current = getCurrentTitle(level);
-  const next: Title | null = getNextTitle(level);
+  const next = getNextTitle(level);
   
   let progress = 0;
   if (next) {

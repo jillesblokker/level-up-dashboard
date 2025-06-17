@@ -145,17 +145,105 @@ export class MapGenerator {
   }
 
   private createTile(x: number, y: number, type: TileType): Tile {
+    const tileNames = {
+      empty: 'Empty Tile',
+      mountain: 'Mountain Tile',
+      grass: 'Grass Tile',
+      forest: 'Forest Tile',
+      water: 'Water Tile',
+      city: 'City Tile',
+      town: 'Town Tile',
+      mystery: 'Mystery Tile',
+      portal: 'Portal Tile',
+      'portal-entrance': 'Portal Entrance',
+      'portal-exit': 'Portal Exit',
+      snow: 'Snow Tile',
+      cave: 'Cave Tile',
+      dungeon: 'Dungeon Tile',
+      castle: 'Castle Tile',
+      ice: 'Ice Tile',
+      desert: 'Desert Tile',
+      lava: 'Lava Tile',
+      volcano: 'Volcano Tile',
+      sheep: 'Sheep Tile',
+      horse: 'Horse Tile',
+      special: 'Special Tile',
+      swamp: 'Swamp Tile',
+      treasure: 'Treasure Tile',
+      monster: 'Monster Tile'
+    };
+
+    const tileDescriptions = {
+      empty: 'An empty space where a new tile can be placed',
+      mountain: 'A towering mountain peak',
+      grass: 'A lush grass tile',
+      forest: 'A dense forest area',
+      water: 'A body of water',
+      city: 'A bustling city',
+      town: 'A small town',
+      mystery: 'A mysterious location',
+      portal: 'A magical portal',
+      'portal-entrance': 'An entrance to a portal',
+      'portal-exit': 'An exit from a portal',
+      snow: 'A snowy landscape',
+      cave: 'A dark cave',
+      dungeon: 'A dangerous dungeon',
+      castle: 'A majestic castle',
+      ice: 'A frozen ice tile',
+      desert: 'A hot desert',
+      lava: 'Molten lava',
+      volcano: 'An active volcano',
+      sheep: 'A sheep grazing area',
+      horse: 'A horse stable',
+      special: 'A special tile',
+      swamp: 'A murky swamp',
+      treasure: 'A treasure location',
+      monster: 'A monster lair'
+    };
+
+    const tileImages = {
+      empty: '/images/tiles/empty-tile.png',
+      mountain: '/images/tiles/mountain-tile.png',
+      grass: '/images/tiles/grass-tile.png',
+      forest: '/images/tiles/forest-tile.png',
+      water: '/images/tiles/water-tile.png',
+      city: '/images/tiles/city-tile.png',
+      town: '/images/tiles/town-tile.png',
+      mystery: '/images/tiles/mystery-tile.png',
+      portal: '/images/tiles/portal-tile.png',
+      'portal-entrance': '/images/tiles/portal-entrance-tile.png',
+      'portal-exit': '/images/tiles/portal-exit-tile.png',
+      snow: '/images/tiles/snow-tile.png',
+      cave: '/images/tiles/cave-tile.png',
+      dungeon: '/images/tiles/dungeon-tile.png',
+      castle: '/images/tiles/castle-tile.png',
+      ice: '/images/tiles/ice-tile.png',
+      desert: '/images/tiles/desert-tile.png',
+      lava: '/images/tiles/lava-tile.png',
+      volcano: '/images/tiles/volcano-tile.png',
+      sheep: '/images/tiles/sheep-tile.png',
+      horse: '/images/tiles/horse-tile.png',
+      special: '/images/tiles/special-tile.png',
+      swamp: '/images/tiles/swamp-tile.png',
+      treasure: '/images/tiles/treasure-tile.png',
+      monster: '/images/tiles/monster-tile.png'
+    };
+
     return {
       id: `tile-${y}-${x}`,
-      type: type || 'default',
+      type: type,
       connections: [],
       rotation: 0,
       revealed: true,
-      name: '',
-      description: '',
+      name: tileNames[type] || `${type} tile`,
+      description: tileDescriptions[type] || `A ${type} tile`,
       isVisited: false,
       x,
-      y
+      y,
+      ariaLabel: `${tileNames[type] || type} at position ${x}, ${y}`,
+      image: tileImages[type] || `/images/tiles/${type}-tile.png`,
+      cost: 0,
+      quantity: 1
     };
   }
 }

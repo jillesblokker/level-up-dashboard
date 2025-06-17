@@ -67,7 +67,7 @@ export function TileVisual({
 
   // For grass tile, use the GrassTile component
   if (tile.type === 'grass') {
-    return <GrassTile className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
+    return <GrassTile {...(className && { className })} {...(onClick && { onClick })} ariaLabel={tile.ariaLabel} />;
   }
 
   // For tiles that use images
@@ -131,20 +131,18 @@ export function TileVisual({
   // For other tile types that use components
   switch (tile.type) {
     case "special":
-      return <SpecialTile className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
+      return <SpecialTile {...(className && { className })} {...(onClick && { onClick })} ariaLabel={tile.ariaLabel} />;
     case "snow":
-      return <SnowTile className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
+      return <SnowTile {...(className && { className })} {...(onClick && { onClick })} ariaLabel={tile.ariaLabel} />;
     case "mystery":
-      return <MysteryTile className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
+      return <MysteryTile {...(className && { className })} {...(onClick && { onClick })} ariaLabel={tile.ariaLabel} />;
     case "treasure":
-      return <TreasureTile className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
+      return <TreasureTile {...(className && { className })} {...(onClick && { onClick })} ariaLabel={tile.ariaLabel} />;
     case "dungeon":
-      return <DungeonTile className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
+      return <DungeonTile {...(className && { className })} {...(onClick && { onClick })} ariaLabel={tile.ariaLabel} />;
     case "monster":
-      return <MonsterTile className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
-    case "grass":
-      return <GrassTile className={className} ariaLabel={tile.ariaLabel} onClick={onClick} />;
+      return <MonsterTile {...(className && { className })} {...(onClick && { onClick })} ariaLabel={tile.ariaLabel} />;
     default:
-      return <div className={className} aria-label={tile.ariaLabel}>Unknown Tile</div>;
+      return <div {...(className && { className })} aria-label={tile.ariaLabel}>Unknown Tile</div>;
   }
 } 
