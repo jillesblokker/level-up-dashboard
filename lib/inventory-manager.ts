@@ -1,5 +1,3 @@
-import { showScrollToast } from "@/lib/toast-utils"
-
 export interface InventoryItem {
   name: string
   quantity: number

@@ -5,7 +5,8 @@ import { redirect } from 'next/navigation'
 
 export async function skipAuth() {
   // Set a cookie to indicate logged out mode
-  cookies().set('skip-auth', 'true', {
+  const cookieStore = await cookies()
+  cookieStore.set('skip-auth', 'true', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
@@ -18,7 +19,7 @@ export async function skipAuth() {
 }
 
 export async function logout() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   
   // Clear both types of auth cookies
   cookieStore.delete('skip-auth')

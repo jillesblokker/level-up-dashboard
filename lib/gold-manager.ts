@@ -1,5 +1,4 @@
 import { toast } from "@/components/ui/use-toast";
-import { CharacterStats } from "@/types/character";
 import { emitGoldGained } from "@/lib/kingdom-events";
 import { getCharacterStats, updateCharacterStats } from "@/lib/character-stats-manager";
 import { createGoldGainedNotification } from "@/lib/notifications";

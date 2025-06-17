@@ -3,12 +3,6 @@
 import React from "react";
 import { MinimapProps } from "@/types/minimap";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tile } from "@/types/tiles";
-import { MinimapRotationMode } from "@/types/minimap";
-import { X, ZoomIn, ZoomOut, RotateCw } from "lucide-react";
 
 const TILE_SIZE = 10; // px per tile at zoom=1
 const MIN_ZOOM = 0.5;
@@ -24,9 +18,12 @@ const ENTITY_ICONS: Record<string, string> = {
 export const Minimap: React.FC<MinimapProps> = ({
   grid,
   playerPosition,
+  playerDirection = 0,
   entities,
   zoom,
   onZoomChange,
+  rotationMode = 'static',
+  onRotationModeChange,
   className,
   onClose,
 }) => {
@@ -37,14 +34,6 @@ export const Minimap: React.FC<MinimapProps> = ({
   const cols = grid?.[0]?.length || 0;
   const mapWidth = cols * TILE_SIZE * zoom;
   const mapHeight = rows * TILE_SIZE * zoom;
-
-  // Controls height (estimate, or measure)
-  const controlsHeight = 44; // px (approx height of controls row)
-  const padding = 16; // px (top+bottom, left+right)
-
-  // Container size: grid + controls + padding
-  const containerWidth = mapWidth + padding;
-  const containerHeight = mapHeight + controlsHeight + padding;
 
   // If no grid data, show a placeholder
   if (!grid || grid.length === 0 || !grid[0] || grid[0].length === 0) {

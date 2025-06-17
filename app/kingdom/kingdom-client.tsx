@@ -3,10 +3,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { KingdomStatsGraph } from "@/components/kingdom-stats-graph"
 import Image from "next/image"
-import { useState, useRef, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { Badge } from "@/components/ui/badge"
 import { HeaderSection } from "@/components/HeaderSection"
-import { InventoryItem, defaultInventoryItems } from "@/app/lib/default-inventory"
+import { defaultInventoryItems } from "@/app/lib/default-inventory"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import type { Session } from '@supabase/supabase-js'
 import { getKingdomInventory } from "@/lib/inventory-manager"

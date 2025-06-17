@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import Link from "next/link"
+import { useState, useEffect } from "react"
 import { MainNav } from "@/components/main-nav"
 import { MobileNav } from "@/components/navigation/mobile-nav"
 import { Session } from '@supabase/supabase-js'
@@ -21,7 +20,7 @@ interface CustomSession {
 }
 
 interface NavBarProps {
-  goldBalance: number;
+  goldBalance?: number;
   session?: CustomSession | null | undefined;
 }
 
@@ -38,47 +37,7 @@ interface Notification {
   };
 }
 
-// Fixed timestamps for initial notifications to prevent hydration mismatch
-const INITIAL_NOTIFICATIONS: Notification[] = [
-  {
-    id: "n1",
-    title: "Achievement Unlocked!",
-    message: "You've earned the 'Early Riser' achievement for completing 5 tasks before 9 AM.",
-    type: "achievement",
-    read: false,
-    timestamp: "2024-03-20T09:00:00.000Z",
-    action: {
-      label: "View Achievement",
-      href: "/character",
-    },
-  },
-  {
-    id: "n2",
-    title: "Quest Completed",
-    message: "You've successfully completed the 'Strength Foundation' quest and earned 50 gold!",
-    type: "quest",
-    read: false,
-    timestamp: "2024-03-20T08:00:00.000Z",
-    action: {
-      label: "View Rewards",
-      href: "/quests",
-    },
-  },
-  {
-    id: "n3",
-    title: "Friend Request",
-    message: "Michael Chen has sent you a friend request.",
-    type: "friend",
-    read: true,
-    timestamp: "2024-03-19T09:00:00.000Z",
-    action: {
-      label: "View Request",
-      href: "/guildhall",
-    },
-  },
-]
-
-export function NavBar({ goldBalance, session }: NavBarProps) {
+export function NavBar({ goldBalance = 0, session }: NavBarProps) {
   const [isClient, setIsClient] = useState(false)
   const [characterStats, setCharacterStats] = useState({
     level: 1,

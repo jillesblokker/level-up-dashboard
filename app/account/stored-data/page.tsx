@@ -1,26 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useUser } from "@clerk/nextjs";
-import { useToast } from "@/components/ui/use-toast";
-
-interface DataSummary {
-  totalQuests: number;
-  totalAchievements: number;
-  totalCreatures: number;
-  totalGold: number;
-  totalInventory: number;
-  totalKingdomInventory: number;
-  totalRealmGrid: number;
-  totalTileCounts: number;
-  totalTileInventory: number;
-  totalQuestProgress: number;
-  totalQuestCompletions: number;
-}
+import { storageService } from '@/lib/storage-service';
+import { toast } from 'sonner';
+import { formatBytes } from '@/lib/utils';
 
 const STORAGE_KEYS = [
   { key: "checked-quests", label: "Checked Quests" },
@@ -91,41 +78,11 @@ function summarizeData(key: string, value: any) {
 }
 
 export default function StoredDataPage() {
-  const { user } = useUser();
-  const userId = user?.id;
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [dataSummary, setDataSummary] = useState<DataSummary>({
-    totalQuests: 0,
-    totalAchievements: 0,
-    totalCreatures: 0,
-    totalGold: 0,
-    totalInventory: 0,
-    totalKingdomInventory: 0,
-    totalRealmGrid: 0,
-    totalTileCounts: 0,
-    totalTileInventory: 0,
-    totalQuestProgress: 0,
-    totalQuestCompletions: 0
-  });
   const [data, setData] = useState(() => getStoredData());
   const [characterStats, setCharacterStats] = useState<any>(null)
   const [characterTitles, setCharacterTitles] = useState<any>(null)
   const [characterPerks, setCharacterPerks] = useState<any>(null)
   const [characterStrengths, setCharacterStrengths] = useState<any>(null)
-  const [achievements, setAchievements] = useState<any>(null)
-  const [creatures, setCreatures] = useState<any>(null)
-  const [gold, setGold] = useState<any>(null)
-  const [inventory, setInventory] = useState<any>(null)
-  const [kingdomInventory, setKingdomInventory] = useState<any>(null)
-  const [realmGrid, setRealmGrid] = useState<any>(null)
-  const [tileCounts, setTileCounts] = useState<any>(null)
-  const [tileInventory, setTileInventory] = useState<any>(null)
-  const [questProgress, setQuestProgress] = useState<any>(null)
-  const [questCompletions, setQuestCompletions] = useState<any>(null)
-  const [notifications, setNotifications] = useState<any>(null)
-  const [logs, setLogs] = useState<any>(null)
 
   const refresh = () => setData(getStoredData());
 

@@ -1,17 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Check, Plus, X, Shield, Heart, Book, Apple, Brain, Sword } from "lucide-react"
+import { Plus, X, Shield, Heart, Book, Apple, Brain, Sword } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { emitQuestCompletedWithRewards } from "@/lib/kingdom-events"
-import { toast } from "@/components/ui/use-toast"
-import { cn } from "@/lib/utils"
 import { storageService } from '@/lib/storage-service'
 
 interface Task {
@@ -179,7 +175,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
   tasks.forEach((task) => {
     const category = task.category as keyof typeof tasksByCategory;
     if (category in tasksByCategory) {
-      tasksByCategory[category].push(task);
+      tasksByCategory[category]?.push(task);
     }
   })
 
@@ -236,26 +232,6 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
         return "bg-amber-900 border-t-2 border-amber-600"
     }
   }
-
-  const handlePriorityChange = (taskId: string, value: string) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) => {
-        if (task.id === taskId) {
-          return { ...task, priority: value }
-        }
-        return task
-      }),
-    )
-  }
-
-  // Add categories constant
-  const categories = {
-    strength: 'Might',
-    condition: 'Endurance',
-    knowledge: 'Wisdom',
-    nutrition: 'Vitality',
-    mental: 'Spirit'
-  } as const;
 
   return (
     <>

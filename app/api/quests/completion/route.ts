@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import prisma from '@/lib/prisma';
+import getPrismaClient from '@/lib/prisma';
 
 // Create a new quest completion
 export async function POST(request: Request) {
@@ -13,6 +13,7 @@ export async function POST(request: Request) {
     const data = await request.json();
     const { category, questName } = data;
 
+    const prisma = getPrismaClient();
     const user = await prisma.user.findUnique({
       where: { email: session.user.email }
     });
@@ -45,6 +46,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const prisma = getPrismaClient();
     const user = await prisma.user.findUnique({
       where: { email: session.user.email }
     });

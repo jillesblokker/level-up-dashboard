@@ -2,16 +2,6 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
-type CookieOptions = {
-  path?: string;
-  expires?: Date | string;
-  maxAge?: number;
-  domain?: string;
-  secure?: boolean;
-  httpOnly?: boolean;
-  sameSite?: "strict" | "lax" | "none";
-};
-
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')

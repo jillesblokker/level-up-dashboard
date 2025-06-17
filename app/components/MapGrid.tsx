@@ -1,18 +1,12 @@
-import { useEffect, useRef, useState } from "react";
-import { Minimap } from "./Minimap";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { Tile } from "@/types/tiles";
 
-export interface MapGridProps {
+interface MapGridProps {
   grid: Tile[][];
-  character: { x: number; y: number };
+  playerPosition: { x: number; y: number };
   onTileClick: (x: number, y: number) => void;
-  onHover: (tile: { row: number; col: number }) => void;
-  onHoverEnd: () => void;
-  hoveredTile: { row: number; col: number } | null;
-  onHoverTile: (tile: { row: number; col: number } | null) => void;
-  zoomLevel: number;
-  showMinimap: boolean;
+  className?: string;
 }
 
 const getTileImage = (tileType: string) => {
@@ -50,33 +44,19 @@ const getTileImage = (tileType: string) => {
   }
 };
 
-const MapGrid: React.FC<MapGridProps> = ({
-  grid,
-  character,
-  onTileClick,
-  onHover,
-  onHoverEnd,
-  hoveredTile,
-  onHoverTile,
-  zoomLevel,
-  showMinimap
-}) => {
+export function MapGrid({ grid, playerPosition, onTileClick }: MapGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
-  const [viewportOffset, setViewportOffset] = useState({ x: 0, y: 0 });
 
   const handlePan = (dx: number, dy: number) => {
     if (!gridRef.current) return;
 
-    const tileSize = 64 * zoomLevel;
+    const tileSize = 64;
     const containerWidth = gridRef.current.clientWidth;
     const containerHeight = gridRef.current.clientHeight;
 
     // Calculate the new scroll position
-    const newX = (character.x * tileSize - containerWidth / 2) + dx;
-    const newY = (character.y * tileSize - containerHeight / 2) + dy;
-
-    // Update viewport offset
-    setViewportOffset({ x: newX, y: newY });
+    const newX = (playerPosition.x * tileSize - containerWidth / 2) + dx;
+    const newY = (playerPosition.y * tileSize - containerHeight / 2) + dy;
 
     // Scroll the grid container
     gridRef.current.scrollTo({
@@ -91,17 +71,13 @@ const MapGrid: React.FC<MapGridProps> = ({
     if (gridRef.current) {
       handlePan(0, 0);
     }
-  }, [character.x, character.y]);
+  }, [playerPosition.x, playerPosition.y]);
 
   return (
     <div className="relative w-full h-[calc(100vh-8rem)] overflow-hidden rounded-lg border border-amber-800/20" aria-label="map-container">
       <div
         ref={gridRef}
         className="absolute inset-0 overflow-auto map-grid-scroll"
-        style={{
-          transform: `scale(${zoomLevel})`,
-          transformOrigin: '0 0',
-        }}
         aria-label="map-grid-scroll-area"
       >
         <div 
@@ -132,8 +108,6 @@ const MapGrid: React.FC<MapGridProps> = ({
                     gridRow: y + 1
                   }}
                   onClick={() => onTileClick(x, y)}
-                  onMouseEnter={() => onHover({ row: y, col: x })}
-                  onMouseLeave={onHoverEnd}
                   role="gridcell"
                   aria-label={`${tile.type} tile at position ${x},${y}`}
                 >
@@ -145,7 +119,7 @@ const MapGrid: React.FC<MapGridProps> = ({
                     className="tile-image"
                     priority
                   />
-                  {character.x === x && character.y === y && (
+                  {playerPosition.x === x && playerPosition.y === y && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <Image
                         src="/images/character.png"
@@ -163,16 +137,8 @@ const MapGrid: React.FC<MapGridProps> = ({
           ))}
         </div>
       </div>
-      {showMinimap && (
-        <Minimap
-          gridSize={grid.length}
-          characterPosition={character}
-          onPan={(dx, dy) => handlePan(dx, dy)}
-          tileSize={8}
-        />
-      )}
     </div>
   );
-};
+}
 
 export default MapGrid; 

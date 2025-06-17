@@ -51,47 +51,14 @@ export const numericToTileType: { [key: number]: TileType } = {
   16: 'volcano'
 }
 
+// Assuming the expected grid width is 13 columns based on existing components
+const EXPECTED_GRID_COLS = 13;
+
 export interface GridData {
   grid: number[][]
   rows: number
   columns: number
 }
-
-// Assuming the expected grid width is 13 columns based on existing components
-const EXPECTED_GRID_COLS = 13;
-const INITIAL_ROWS = 7;
-
-const defaultTile = (type: TileType): Tile => ({
-  id: type,
-  name: type.charAt(0).toUpperCase() + type.slice(1),
-  description: `${type.charAt(0).toUpperCase() + type.slice(1)} tile`,
-  type,
-  connections: [],
-  rotation: 0,
-  revealed: true,
-  isVisited: false,
-  x: 0,
-  y: 0,
-  ariaLabel: `${type} tile`,
-  image: `/tiles/${type}.png`,
-  cost: 0,
-  quantity: 0
-});
-
-const createBaseGrid = (): Tile[][] => {
-  const grid: Tile[][] = [];
-  for (let y = 0; y < INITIAL_ROWS; y++) {
-    const row: Tile[] = [];
-    for (let x = 0; x < EXPECTED_GRID_COLS; x++) {
-      // Create a default grass tile
-      row.push(defaultTile('grass'));
-    }
-    grid.push(row);
-  }
-  return grid;
-};
-
-
 
 export async function loadInitialGrid(): Promise<GridData> {
   try {

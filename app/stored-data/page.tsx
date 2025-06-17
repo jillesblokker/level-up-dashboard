@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { defaultInventoryItems } from "app/lib/default-inventory";
 import { storageService } from '@/lib/storage-service';
 import { toast } from 'sonner';
 import { formatBytes } from '@/lib/utils';
@@ -16,84 +14,6 @@ interface StoredData {
   size: number;
   lastUpdated: string;
   version: string;
-}
-
-function getStoredData(): StoredData[] {
-  return storageService.getAllKeys().map((key) => {
-    let value = null;
-    let lastUpdated = 'Unknown';
-    let version = 'Unknown';
-    try {
-      const storedItem = storageService.get<any>(key, null);
-      // For kingdom-inventory, if missing or empty, use defaultInventoryItems
-      if (key === "kingdom-inventory" && (!storedItem || storedItem === "[]")) {
-        value = defaultInventoryItems;
-      } else {
-        value = storedItem;
-      }
-      // Try to get a last updated timestamp if present in the object
-      if (value && typeof value === "object" && 'lastUpdated' in value) {
-        lastUpdated = value.lastUpdated;
-      }
-      if (value && typeof value === "object" && 'version' in value) {
-        version = value.version;
-      }
-    } catch (error) {
-      // Error handling intentionally left empty to avoid breaking the UI if stored data fails to load
-    }
-    return { 
-      key, 
-      value, 
-      size: JSON.stringify(value).length,
-      lastUpdated,
-      version
-    };
-  });
-}
-
-function summarizeData(key: string, value: any) {
-  if (!value) return null;
-  try {
-    if (Array.isArray(value)) {
-      if (value.length === 0) return <span>No entries.</span>;
-      if (typeof value[0] === "object" && value[0] !== null) {
-        const fields = Object.keys(value[0]);
-        return (
-          <table className="min-w-[300px] text-xs border mb-2" aria-label={`${key}-summary-table`}>
-            <thead>
-              <tr>
-                {fields.map(f => <th key={f} className="px-2 py-1 border-b">{f}</th>)}
-              </tr>
-            </thead>
-            <tbody>
-              {value.slice(0, 3).map((row, i) => (
-                <tr key={i}>
-                  {fields.map(f => <td key={f} className="px-2 py-1 border-b">{String(row[f])}</td>)}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        );
-      } else {
-        return <div>Entries: {value.slice(0, 5).join(", ")}{value.length > 5 ? "..." : ""}</div>;
-      }
-    } else if (typeof value === "object" && value !== null) {
-      const keys = Object.keys(value);
-      return <div>Fields: {keys.join(", ")}</div>;
-    } else {
-      return <div>Value: {String(value)}</div>;
-    }
-  } catch {
-    // Error handling intentionally left empty to avoid breaking the UI if summarizeData fails
-    return <span>Invalid data structure.</span>;
-  }
-}
-
-function getLastUpdated(value: any) {
-  if (value && typeof value === "object" && value.lastUpdated) {
-    return new Date(value.lastUpdated).toLocaleString();
-  }
-  return null;
 }
 
 export default function StoredDataPage() {

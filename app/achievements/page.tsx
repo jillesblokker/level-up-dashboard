@@ -151,7 +151,7 @@ export default function Page() {
                   </div>
                 )}
                 {isDiscovered(firstCreature.id) && firstCreature.requirement && (
-                  <div className="mt-4 text-base text-gray-700" aria-label={`creature-card-${firstCreature.id}-requirement`}>
+                  <div className="mt-4 text-base text-white" aria-label={`creature-card-${firstCreature.id}-requirement`}>
                     <span>Requirement: {firstCreature.requirement}</span>
                   </div>
                 )}
@@ -206,7 +206,7 @@ export default function Page() {
                     </div>
                   )}
                   {discovered && creature.requirement && (
-                    <div className="mt-4 text-base text-gray-700" aria-label={`creature-card-${creature.id}-requirement`}>
+                    <div className="mt-4 text-base text-white" aria-label={`creature-card-${creature.id}-requirement`}>
                       <span>Requirement: {creature.requirement}</span>
                     </div>
                   )}

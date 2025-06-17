@@ -109,7 +109,7 @@ class NotificationService {
     })
   }
 
-  public addAchievement(achievementName: string, description: string, rewards: { gold: number; experience: number }) {
+  public addAchievement(description: string, rewards: { gold: number; experience: number }) {
     const message = `${description}\n+${rewards.experience} XP\n+${rewards.gold} Gold`
 
     this.addNotification("Achievement Unlocked!", message, "achievement", {

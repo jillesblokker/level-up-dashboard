@@ -1,6 +1,6 @@
 import { getRandomElement, getRandomInt } from '@/lib/utils'
 import { toast } from "@/components/ui/use-toast";
-import { addToInventory, getInventory, InventoryItem } from "@/lib/inventory-manager"
+import { addToInventory, InventoryItem } from "@/lib/inventory-manager"
 import { emitGoldGained, emitExperienceGained } from "./kingdom-events"
 import { createEventNotification } from "@/lib/notifications"
 import { gainGold } from "@/lib/gold-manager"

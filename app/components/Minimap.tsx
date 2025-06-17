@@ -7,12 +7,11 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface MinimapProps {
   gridSize: number;
-  tileSize?: number;
   characterPosition: Position;
   onPan?: (dx: number, dy: number) => void;
 }
 
-export function Minimap({ gridSize, tileSize = 16, characterPosition, onPan }: MinimapProps) {
+export function Minimap({ gridSize, characterPosition, onPan }: MinimapProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);

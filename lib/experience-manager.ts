@@ -1,10 +1,9 @@
 import { toast } from "@/components/ui/use-toast"
-import { showScrollToast } from "@/lib/toast-utils"
-import { calculateLevelFromExperience, calculateExperienceForLevel, calculateExperienceToNextLevel, CharacterStats } from "@/types/character"
+import { calculateLevelFromExperience, calculateExperienceToNextLevel, CharacterStats } from "@/types/character"
 import { createLevelUpNotification, createExperienceGainedNotification } from "@/lib/notifications"
 import { emitExperienceGained } from "@/lib/kingdom-events"
 import { getCharacterStats, updateCharacterStats } from "@/lib/character-stats-manager"
-import { getCurrentTitle, getNextTitle } from "@/lib/title-manager"
+import { getCurrentTitle } from "@/lib/title-manager"
 import { notificationService } from "@/lib/notification-service"
 
 interface Perk {

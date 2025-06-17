@@ -71,7 +71,7 @@ function testActualFunctions() {
         const progressPercentage = (expInCurrentLevel / expForCurrentLevel) * 100;
         
         console.log(`XP: ${exp} | Level: ${level} | Progress: ${progressPercentage.toFixed(1)}%`);
-      }
+      });
     } else {
       console.log('No character stats found in localStorage');
     }

@@ -32,7 +32,7 @@ export function createEventNotification(title: string, message: string) {
   )
 }
 
-export function createLevelUpNotification(fromLevel: number, toLevel: number) {
+export function createLevelUpNotification(toLevel: number) {
   notificationService.addNotification(
     "Level Up! 🎉",
     `Congratulations! You've reached Level ${toLevel}! Your journey continues...`,

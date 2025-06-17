@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/auth';
-import prisma from '@/lib/prisma';
+import getPrismaClient from '@/lib/prisma';
 import { GridCell } from '@/types/grid';
 
 // Validation schemas
@@ -33,7 +33,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const realmMap = await prisma.realmMap.findUnique({
+    const realmMap = await getPrismaClient().realmMap.findUnique({
       where: { userId: session.user.id },
     });
 
@@ -58,7 +58,7 @@ export async function PUT(request: Request) {
     const body = await request.json();
     const grid = gridSchema.parse(body.grid);
 
-    await prisma.realmMap.upsert({
+    await getPrismaClient().realmMap.upsert({
       where: { userId: session.user.id },
       create: {
         userId: session.user.id,
@@ -83,7 +83,7 @@ export async function POST() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const realmMap = await prisma.realmMap.findUnique({
+    const realmMap = await getPrismaClient().realmMap.findUnique({
       where: { userId: session.user.id },
     });
 

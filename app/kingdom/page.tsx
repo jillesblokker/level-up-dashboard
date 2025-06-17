@@ -3,16 +3,6 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { auth } from '@clerk/nextjs/server'
 
-type CookieOptions = {
-  path?: string;
-  expires?: Date | string;
-  maxAge?: number;
-  domain?: string;
-  secure?: boolean;
-  httpOnly?: boolean;
-  sameSite?: "strict" | "lax" | "none";
-};
-
 export default async function KingdomPage() {
   let session = null;
   try {

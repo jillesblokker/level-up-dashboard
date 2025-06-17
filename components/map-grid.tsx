@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import { generateMysteryEvent, MysteryEvent, MysteryEventOutcome } from '@/lib/mystery-events'
 import { MapGridProps as BaseMapGridProps } from '@/types/tiles';
 import Image from 'next/image';
-import { addToInventory } from '@/lib/inventory-manager';
 import { showScrollToast } from "@/lib/toast-utils"
 
 interface MapGridProps extends BaseMapGridProps {

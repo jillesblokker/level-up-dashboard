@@ -372,43 +372,6 @@ export default function QuestsPage() {
     fetchQuestCompletions();
   }, [supabase.supabase, userId]);
 
-  // When saving quest completion:
-  const handleQuestCheck = async (questId: string, checked: boolean) => {
-    if (!supabase.supabase || !userId) {
-      console.error('No userId or supabase client. Cannot update quest.');
-      toast({
-        title: "Error",
-        description: "Please sign in to update quests.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      const quest = quests.find(q => q.id === questId);
-      if (!quest) return;
-
-      // Log the check action
-      await logQuestAction('quest_check', questId, {
-        checked,
-        previousState: quest.completed,
-        newState: checked
-      }, userId);
-
-      // Update in Supabase
-      const updatedQuest = await QuestService.updateQuest(supabase.supabase!, questId, { completed: checked });
-
-      // Update local state
-      setQuests(prevQuests =>
-        prevQuests.map(q =>
-          q.id === questId ? updatedQuest : q
-        )
-      );
-    } catch (err) {
-      console.error('Failed to update quest:', err);
-    }
-  };
-
   const handleAddQuest = async (activity: string, amount: number, details?: string) => {
     if (!supabase.supabase || !userId) {
       console.error('No userId or supabase client. Cannot add quest.');
@@ -664,7 +627,7 @@ export default function QuestsPage() {
         ) : currentCategory === 'condition' ? (
           <ConditionModal open={true} onOpenChange={setIsAddQuestModalOpen} onSubmit={(activity, duration, distance) => handleAddQuest(activity, duration, distance?.toString())} />
         ) : currentCategory === 'nutrition' ? (
-          <NutritionModal open={true} onOpenChange={setIsAddQuestModalOpen} onSubmit={(mealType, description, macros) => handleAddQuest(mealType, 0, description)} />
+          <NutritionModal open={true} onOpenChange={setIsAddQuestModalOpen} onSubmit={(mealType, description) => handleAddQuest(mealType, 0, description)} />
         ) : null
       )}
     </div>
@@ -752,12 +715,4 @@ function QuestCard({
       </div>
     </Card>
   );
-}
-
-// Helper function to calculate days remaining
-function getDaysRemaining(deadline: string): number {
-  const today = new Date();
-  const deadlineDate = new Date(deadline);
-  const diffTime = deadlineDate.getTime() - today.getTime();
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }

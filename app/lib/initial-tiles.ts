@@ -1,4 +1,4 @@
-import { InventoryItem, TileType } from "@/types/tiles";
+import { InventoryItem } from "@/types/tiles";
 
 export const initialTiles: InventoryItem[] = [
   {

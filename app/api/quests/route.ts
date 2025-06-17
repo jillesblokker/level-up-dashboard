@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import prisma from '@/lib/prisma';
+import getPrismaClient from '@/lib/prisma';
 import { z } from 'zod';
 import { QuestResponse } from '@/types/quest';
 
@@ -39,7 +39,7 @@ export async function GET(request: Request) {
       }
     }
 
-    const questCompletions = await prisma.questCompletion.findMany({
+    const questCompletions = await getPrismaClient().questCompletion.findMany({
       where: {
         user: {
           email: session.user.email
@@ -91,7 +91,7 @@ export async function POST(request: Request) {
     
     const { name, category } = result.data;
 
-    const user = await prisma.user.findUnique({
+    const user = await getPrismaClient().user.findUnique({
       where: { email: session.user.email }
     });
 
@@ -100,7 +100,7 @@ export async function POST(request: Request) {
     }
 
     // Create the quest completion
-    const questCompletion = await prisma.questCompletion.create({
+    const questCompletion = await getPrismaClient().questCompletion.create({
       data: {
         userId: user.id,
         category,
@@ -142,7 +142,7 @@ export async function PUT(request: Request) {
     
     const { questName, completed } = result.data;
 
-    const user = await prisma.user.findUnique({
+    const user = await getPrismaClient().user.findUnique({
       where: { email: session.user.email }
     });
 
@@ -150,7 +150,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const questCompletion = await prisma.questCompletion.findFirst({
+    const questCompletion = await getPrismaClient().questCompletion.findFirst({
       where: {
         userId: user.id,
         questName
@@ -162,7 +162,7 @@ export async function PUT(request: Request) {
     }
 
     // Update the completion status
-    const updatedCompletion = await prisma.questCompletion.update({
+    const updatedCompletion = await getPrismaClient().questCompletion.update({
       where: { id: questCompletion.id },
       data: {
         completed,
@@ -184,7 +184,7 @@ export async function PUT(request: Request) {
         updatedAt: Date;
       };
 
-      const [character] = await prisma.$queryRaw<CharacterRecord[]>`
+      const [character] = await getPrismaClient().$queryRaw<CharacterRecord[]>`
         SELECT * FROM "Character"
         WHERE "userId" = ${user.id}
         LIMIT 1
@@ -196,7 +196,7 @@ export async function PUT(request: Request) {
           gold: 25
         } as const;
 
-        await prisma.$executeRaw`
+        await getPrismaClient().$executeRaw`
           UPDATE "Character"
           SET 
             exp = exp + ${defaultRewards.experience},
@@ -232,7 +232,7 @@ export async function PATCH() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const questCompletions = await prisma.questCompletion.findMany({
+    const questCompletions = await getPrismaClient().questCompletion.findMany({
       where: {
         user: {
           email: session.user.email

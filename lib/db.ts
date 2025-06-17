@@ -289,28 +289,6 @@ export async function initializeDatabase() {
   }
 }
 
-// Helper function to determine initial tile type based on position
-function determineInitialTileType(x: number, y: number): string {
-  // Create a natural-looking map with mountains, water, and grassland
-  if (x === 0 || y === 0 || x === 9 || y === 9) {
-    return 'mountain'; // Border mountains
-  }
-  
-  if ((x === 3 || x === 4) && (y === 3 || y === 4)) {
-    return 'water'; // Small lake
-  }
-  
-  if (x === 5 && y === 5) {
-    return 'castle'; // Center is the castle
-  }
-  
-  // Random distribution of other terrain types
-  const rand = Math.random();
-  if (rand < 0.6) return 'grass';
-  if (rand < 0.8) return 'forest';
-  return 'mountain';
-}
-
 export async function getTileInventory() {
   if (!db) return [];
   try {

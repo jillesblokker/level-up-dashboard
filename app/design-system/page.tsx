@@ -15,6 +15,7 @@ import QuestCard from "@/components/quest-card"
 import { TileVisual } from "@/components/tile-visual"
 import { MapGrid } from "@/components/map-grid"
 import { TownView } from "@/components/town-view"
+import { TileType } from '@/types/tiles'
 
 type ColorItem = {
   name: string
@@ -51,11 +52,11 @@ type TypographyItem = {
 
 const mockTile = {
   id: 'tile-empty',
-  type: 'empty',
+  type: 'empty' as TileType,
   name: 'Empty Tile',
   description: 'An empty tile.',
   connections: [],
-  rotation: 0,
+  rotation: 0 as 0 | 90 | 180 | 270,
   revealed: true,
   isVisited: false,
   ariaLabel: 'Empty tile',
@@ -150,31 +151,36 @@ export default function DesignSystemPage() {
   ])
 
   const handleColorChange = (index: number, newValue: string) => {
+    if (!colors[index]) return;
     const newColors = [...colors]
-    newColors[index].value = newValue
+    newColors[index]!.value = newValue
     setColors(newColors)
   }
 
   const handleGradientChange = (index: number, type: 'startColor' | 'endColor' | 'direction', newValue: string) => {
+    if (!gradients[index]) return;
     const newGradients = [...gradients]
-    newGradients[index][type] = newValue
+    newGradients[index]![type] = newValue
     setGradients(newGradients)
 
     // Update global gradient if changing the Card Gradient
     if (index === 0) {
       if (type === 'startColor' || type === 'endColor') {
+        const g0 = gradients[0];
+        if (!g0) return;
         updateGradient(
-          type === 'startColor' ? newValue : gradients[0].startColor,
-          type === 'endColor' ? newValue : gradients[0].endColor
+          type === 'startColor' ? newValue : g0.startColor,
+          type === 'endColor' ? newValue : g0.endColor
         )
       }
     }
   }
 
   const handleTypographyChange = (index: number, type: 'fontSize' | 'fontWeight' | 'fontFamily', newValue: string) => {
+    if (!typography[index]) return;
     const newTypography = [...typography]
-    newTypography[index][type] = newValue
-    newTypography[index].class = `${newTypography[index].fontSize} ${newTypography[index].fontWeight} ${newTypography[index].fontFamily}`
+    newTypography[index]![type] = newValue
+    newTypography[index]!.class = `${newTypography[index]!.fontSize} ${newTypography[index]!.fontWeight} ${newTypography[index]!.fontFamily}`
     setTypography(newTypography)
   }
 
@@ -206,20 +212,20 @@ export default function DesignSystemPage() {
               <TabsContent value="colors" className="space-y-4">
                 {colors.map((color: ColorItem, index) => (
                   <div key={index} className="flex items-center gap-4">
-                    <div className={`w-16 h-16 rounded-lg ${color.class!}`} style={{ backgroundColor: color.value! }} />
+                    <div className={`w-16 h-16 rounded-lg ${color.class ?? ''}`} style={{ backgroundColor: color.value ?? '' }} />
                     <div className="flex-1">
-                      <h3 className="text-white font-medium">{color.name!}</h3>
-                      <p className="text-gray-400 text-sm mb-2">{color.description!}</p>
+                      <h3 className="text-white font-medium">{color.name ?? ''}</h3>
+                      <p className="text-gray-400 text-sm mb-2">{color.description ?? ''}</p>
                       <div className="flex items-center gap-2">
                         <Input
                           type="color"
-                          value={color.value!}
+                          value={color.value ?? ''}
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleColorChange(index, e.target.value)}
                           className="w-16 h-8"
                         />
                         <Input
                           type="text"
-                          value={color.value!}
+                          value={color.value ?? ''}
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleColorChange(index, e.target.value)}
                           className="w-32"
                         />
@@ -235,25 +241,25 @@ export default function DesignSystemPage() {
                     <div 
                       className={`w-32 h-16 rounded-lg`} 
                       style={{ 
-                        background: `linear-gradient(${gradient.direction! === 'to-b' ? '180deg' : '90deg'}, ${gradient.startColor!}, ${gradient.endColor!})` 
+                        background: `linear-gradient(${gradient.direction === 'to-b' ? '180deg' : '90deg'}, ${gradient.startColor}, ${gradient.endColor})` 
                       }} 
                     />
                     <div className="flex-1">
-                      <h3 className="text-white font-medium">{gradient.name!}</h3>
-                      <p className="text-gray-400 text-sm mb-2">{gradient.description!}</p>
+                      <h3 className="text-white font-medium">{gradient.name}</h3>
+                      <p className="text-gray-400 text-sm mb-2">{gradient.description}</p>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <Label className="text-sm text-gray-400">Start Color</Label>
                           <div className="flex items-center gap-2">
                             <Input
                               type="color"
-                              value={gradient.startColor!}
+                              value={gradient.startColor}
                               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleGradientChange(index, 'startColor', e.target.value)}
                               className="w-16 h-8"
                             />
                             <Input
                               type="text"
-                              value={gradient.startColor!}
+                              value={gradient.startColor}
                               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleGradientChange(index, 'startColor', e.target.value)}
                               className="w-32"
                             />
@@ -264,13 +270,13 @@ export default function DesignSystemPage() {
                           <div className="flex items-center gap-2">
                             <Input
                               type="color"
-                              value={gradient.endColor! === 'transparent' ? '#ffffff' : gradient.endColor!}
+                              value={gradient.endColor === 'transparent' ? '#ffffff' : gradient.endColor}
                               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleGradientChange(index, 'endColor', e.target.value)}
                               className="w-16 h-8"
                             />
                             <Input
                               type="text"
-                              value={gradient.endColor!}
+                              value={gradient.endColor}
                               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleGradientChange(index, 'endColor', e.target.value)}
                               className="w-32"
                             />
@@ -282,8 +288,8 @@ export default function DesignSystemPage() {
                         <select
                           id="gradient-direction-select"
                           title="Gradient Direction"
-                          value={gradient.direction!}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleGradientChange(index, 'direction', e.target.value)}
+                          value={gradient.direction}
+                          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleGradientChange(index, 'direction', e.target.value)}
                           className="w-full mt-1 bg-gray-900 border border-gray-800 rounded-md text-white p-2"
                         >
                           <option value="to-r">Horizontal</option>
@@ -300,8 +306,8 @@ export default function DesignSystemPage() {
                   <div key={index} className="space-y-4">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="text-white font-medium">{type.name!}</h3>
-                        <p className={`${type.class!} text-white mt-2`}>{type.example!}</p>
+                        <h3 className="text-white font-medium">{type.name}</h3>
+                        <p className={`${type.class} text-white mt-2`}>{type.example}</p>
                       </div>
                       <div className="grid grid-cols-3 gap-4">
                         <div>
@@ -309,8 +315,8 @@ export default function DesignSystemPage() {
                           <select
                             id={`typography-size-select-${index}`}
                             title="Typography Size"
-                            value={type.fontSize!}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleTypographyChange(index, 'fontSize', e.target.value)}
+                            value={type.fontSize}
+                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleTypographyChange(index, 'fontSize', e.target.value)}
                             className="w-full mt-1 bg-gray-900 border border-gray-800 rounded-md text-white p-2"
                           >
                             <option value="text-xs">Extra Small</option>
@@ -328,8 +334,8 @@ export default function DesignSystemPage() {
                           <select
                             id={`typography-weight-select-${index}`}
                             title="Typography Weight"
-                            value={type.fontWeight!}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleTypographyChange(index, 'fontWeight', e.target.value)}
+                            value={type.fontWeight}
+                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleTypographyChange(index, 'fontWeight', e.target.value)}
                             className="w-full mt-1 bg-gray-900 border border-gray-800 rounded-md text-white p-2"
                           >
                             <option value="font-normal">Normal</option>
@@ -343,8 +349,8 @@ export default function DesignSystemPage() {
                           <select
                             id={`typography-family-select-${index}`}
                             title="Typography Family"
-                            value={type.fontFamily!}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleTypographyChange(index, 'fontFamily', e.target.value)}
+                            value={type.fontFamily}
+                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleTypographyChange(index, 'fontFamily', e.target.value)}
                             className="w-full mt-1 bg-gray-900 border border-gray-800 rounded-md text-white p-2"
                           >
                             <option value="font-sans">Sans-Serif</option>
@@ -383,11 +389,11 @@ export default function DesignSystemPage() {
                         <TileVisual
                           tile={{
                             id: 'tile-1',
-                            type: 'forest',
+                            type: 'forest' as TileType,
                             name: 'Forest Tile',
                             description: 'A lush forest tile.',
                             connections: [],
-                            rotation: 0,
+                            rotation: 0 as 0 | 90 | 180 | 270,
                             revealed: true,
                             isVisited: false,
                             ariaLabel: 'Forest tile',
@@ -412,49 +418,49 @@ export default function DesignSystemPage() {
                       <p className="text-sm font-medium mb-2 text-white">MapGrid</p>
                       <div className="mb-2">
                         <MapGrid
-                          onDiscovery={() => {}}
                           selectedTile={null}
-                          onTilePlaced={() => {}}
-                          grid={[
-                            [
-                              { ...mockTile },
-                              {
-                                ...mockTile,
-                                id: 'tile-forest',
-                                type: 'forest',
-                                name: 'Forest Tile',
-                                description: 'A lush forest tile.',
-                                image: '/images/tiles/forest-tile.png'
-                              },
-                              {
-                                ...mockTile,
-                                id: 'tile-water',
-                                type: 'water',
-                                name: 'Water Tile',
-                                description: 'A water tile.',
-                                image: '/images/tiles/water-tile.png'
-                              }
-                            ],
-                            [
-                              {
-                                ...mockTile,
-                                id: 'tile-mountain',
-                                type: 'mountain',
-                                name: 'Mountain Tile',
-                                description: 'A mountain tile.',
-                                image: '/images/tiles/mountain-tile.png'
-                              },
-                              {
-                                ...mockTile,
-                                id: 'tile-ice',
-                                type: 'ice',
-                                name: 'Ice Tile',
-                                description: 'An ice tile.',
-                                image: '/images/tiles/ice-tile.png'
-                              },
-                              { ...mockTile }
-                            ]
-                          ]}
+                          grid={[ [
+                            { ...mockTile },
+                            {
+                              ...mockTile,
+                              id: 'tile-forest',
+                              type: 'forest' as TileType,
+                              name: 'Forest Tile',
+                              description: 'A lush forest tile.',
+                              image: '/images/tiles/forest-tile.png',
+                              rotation: 0 as 0 | 90 | 180 | 270
+                            },
+                            {
+                              ...mockTile,
+                              id: 'tile-water',
+                              type: 'water' as TileType,
+                              name: 'Water Tile',
+                              description: 'A water tile.',
+                              image: '/images/tiles/water-tile.png',
+                              rotation: 0 as 0 | 90 | 180 | 270
+                            }
+                          ],
+                          [
+                            {
+                              ...mockTile,
+                              id: 'tile-mountain',
+                              type: 'mountain' as TileType,
+                              name: 'Mountain Tile',
+                              description: 'A mountain tile.',
+                              image: '/images/tiles/mountain-tile.png',
+                              rotation: 0 as 0 | 90 | 180 | 270
+                            },
+                            {
+                              ...mockTile,
+                              id: 'tile-ice',
+                              type: 'ice' as TileType,
+                              name: 'Ice Tile',
+                              description: 'An ice tile.',
+                              image: '/images/tiles/ice-tile.png',
+                              rotation: 0 as 0 | 90 | 180 | 270
+                            },
+                            { ...mockTile }
+                          ] ]}
                           character={{ x: 1, y: 1 }}
                           onCharacterMove={() => {}}
                           onTileClick={() => {}}
@@ -464,7 +470,6 @@ export default function DesignSystemPage() {
                           onHover={() => {}}
                           onHoverEnd={() => {}}
                           onRotateTile={() => {}}
-                          onDeleteTile={() => {}}
                           isMovementMode={false}
                           gridRotation={0}
                           hoveredTile={null}
@@ -544,36 +549,40 @@ export default function DesignSystemPage() {
                               {
                                 ...mockTile,
                                 id: 'tile-forest',
-                                type: 'forest',
+                                type: 'forest' as TileType,
                                 name: 'Forest Tile',
                                 description: 'A lush forest tile.',
-                                image: '/images/tiles/forest-tile.png'
+                                image: '/images/tiles/forest-tile.png',
+                                rotation: 0 as 0 | 90 | 180 | 270
                               },
                               {
                                 ...mockTile,
                                 id: 'tile-water',
-                                type: 'water',
+                                type: 'water' as TileType,
                                 name: 'Water Tile',
                                 description: 'A water tile.',
-                                image: '/images/tiles/water-tile.png'
+                                image: '/images/tiles/water-tile.png',
+                                rotation: 0 as 0 | 90 | 180 | 270
                               }
                             ],
                             [
                               {
                                 ...mockTile,
                                 id: 'tile-mountain',
-                                type: 'mountain',
+                                type: 'mountain' as TileType,
                                 name: 'Mountain Tile',
                                 description: 'A mountain tile.',
-                                image: '/images/tiles/mountain-tile.png'
+                                image: '/images/tiles/mountain-tile.png',
+                                rotation: 0 as 0 | 90 | 180 | 270
                               },
                               {
                                 ...mockTile,
                                 id: 'tile-ice',
-                                type: 'ice',
+                                type: 'ice' as TileType,
                                 name: 'Ice Tile',
                                 description: 'An ice tile.',
-                                image: '/images/tiles/ice-tile.png'
+                                image: '/images/tiles/ice-tile.png',
+                                rotation: 0 as 0 | 90 | 180 | 270
                               },
                               { ...mockTile }
                             ]

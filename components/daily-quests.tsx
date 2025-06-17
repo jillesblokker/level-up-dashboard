@@ -32,12 +32,11 @@ export function DailyQuests() {
   const getCurrentCETDate = (): string => {
     const now = new Date()
     const cetDate = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Amsterdam" }))
-    return cetDate.toISOString().split('T')[0]
+    return cetDate.toISOString().split('T')[0] || ''
   }
 
   // State for quest items
   const [questItems, setQuestItems] = useState<QuestItem[]>([])
-  const [isLoaded, setIsLoaded] = useState(false)
 
   // State for new quest dialog
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -136,8 +135,6 @@ export function DailyQuests() {
       } catch (error) {
         console.error('Error loading daily quests:', error)
         setQuestItems(defaultQuestItems)
-      } finally {
-        setIsLoaded(true)
       }
     }
     loadDailyQuests()
@@ -189,7 +186,7 @@ export function DailyQuests() {
         experience: newQuestExperience,
         gold: newQuestGold
       },
-      ...(newQuestFrequency.trim() && { frequency: newQuestFrequency.trim() })
+      ...(newQuestFrequency.trim() ? { frequency: newQuestFrequency.trim() } : {})
     }
 
     setQuestItems([...questItems, newQuest])
