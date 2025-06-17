@@ -5,6 +5,22 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useUser } from "@clerk/nextjs";
+import { useToast } from "@/components/ui/use-toast";
+
+interface DataSummary {
+  totalQuests: number;
+  totalAchievements: number;
+  totalCreatures: number;
+  totalGold: number;
+  totalInventory: number;
+  totalKingdomInventory: number;
+  totalRealmGrid: number;
+  totalTileCounts: number;
+  totalTileInventory: number;
+  totalQuestProgress: number;
+  totalQuestCompletions: number;
+}
 
 const STORAGE_KEYS = [
   { key: "checked-quests", label: "Checked Quests" },
@@ -75,6 +91,24 @@ function summarizeData(key: string, value: any) {
 }
 
 export default function StoredDataPage() {
+  const { user } = useUser();
+  const userId = user?.id;
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [dataSummary, setDataSummary] = useState<DataSummary>({
+    totalQuests: 0,
+    totalAchievements: 0,
+    totalCreatures: 0,
+    totalGold: 0,
+    totalInventory: 0,
+    totalKingdomInventory: 0,
+    totalRealmGrid: 0,
+    totalTileCounts: 0,
+    totalTileInventory: 0,
+    totalQuestProgress: 0,
+    totalQuestCompletions: 0
+  });
   const [data, setData] = useState(() => getStoredData());
   const [characterStats, setCharacterStats] = useState<any>(null)
   const [characterTitles, setCharacterTitles] = useState<any>(null)

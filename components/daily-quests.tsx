@@ -8,12 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { gainExperience } from '@/lib/experience-manager'
+import { emitQuestCompletedWithRewards } from "@/lib/kingdom-events"
 import { toast } from "@/components/ui/use-toast"
 import { cn } from "@/lib/utils"
-import { supabase } from '@/lib/supabase/client'
-import { emitQuestCompletedWithRewards } from "@/lib/kingdom-events"
 import { storageService } from '@/lib/storage-service'
 
 // Quest item definitions with icons and categories
@@ -27,7 +24,7 @@ interface QuestItem {
     experience: number
     gold: number
   }
-  frequency?: string | undefined
+  frequency?: string
 }
 
 export function DailyQuests() {
@@ -131,10 +128,10 @@ export function DailyQuests() {
         const savedQuests = storageService.get('daily-quests', [])
         if (Array.isArray(savedQuests) && savedQuests.length > 0) {
           setQuestItems(savedQuests)
-          console.log('Loaded daily quests from localStorage:', savedQuests.length)
+          console.info('Loaded daily quests from localStorage:', savedQuests.length)
         } else {
           setQuestItems(defaultQuestItems)
-          console.log('Using default daily quests - invalid saved data')
+          console.info('Using default daily quests - invalid saved data')
         }
       } catch (error) {
         console.error('Error loading daily quests:', error)
@@ -159,7 +156,7 @@ export function DailyQuests() {
     // IMMEDIATE SAVE: Save daily quests to localStorage
     try {
       storageService.set('daily-quests', updatedQuests)
-      console.log('=== DAILY QUEST SAVE SUCCESSFUL ===', { questId, timestamp: new Date() })
+      console.info('=== DAILY QUEST SAVE SUCCESSFUL ===', { questId, timestamp: new Date() })
     } catch (error) {
       console.error('=== DAILY QUEST SAVE FAILED ===', error)
     }
@@ -168,7 +165,7 @@ export function DailyQuests() {
     const toggledQuest = updatedQuests.find(q => q.id === questId)
     if (toggledQuest?.completed) {
       // Quest was just completed, could add toast notification here if needed
-      console.log(`Daily quest completed: ${toggledQuest.name}`)
+      console.info(`Daily quest completed: ${toggledQuest.name}`)
       emitQuestCompletedWithRewards(
         toggledQuest.name, 
         toggledQuest.rewards.gold, 
@@ -192,7 +189,7 @@ export function DailyQuests() {
         experience: newQuestExperience,
         gold: newQuestGold
       },
-      frequency: newQuestFrequency.trim() || undefined
+      ...(newQuestFrequency.trim() && { frequency: newQuestFrequency.trim() })
     }
 
     setQuestItems([...questItems, newQuest])

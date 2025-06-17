@@ -3,25 +3,15 @@
 import { useState, useEffect } from "react"
 import { Check, Plus, X, Shield, Heart, Book, Apple, Brain, Sword } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { emitQuestCompletedWithRewards } from "@/lib/kingdom-events"
+import { toast } from "@/components/ui/use-toast"
+import { cn } from "@/lib/utils"
 import { storageService } from '@/lib/storage-service'
 
 interface Task {
@@ -293,7 +283,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
                   {getCategoryName(category)}
                 </CardTitle>
                 <CardDescription className="text-white/90">
-                  {tasksByCategory[category] ? tasksByCategory[category].filter((t) => t.completed).length : 0} of {tasksByCategory[category] ? tasksByCategory[category].length : 0}{" "}
+                  {tasksByCategory[category]?.filter((t) => t.completed).length || 0} of {tasksByCategory[category]?.length || 0}{" "}
                   completed
                 </CardDescription>
               </CardHeader>

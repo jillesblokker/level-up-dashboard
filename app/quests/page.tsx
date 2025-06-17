@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { useSupabaseClientWithToken } from '@/lib/hooks/use-supabase-client'
@@ -14,10 +14,8 @@ import { gainExperience } from '@/lib/experience-manager'
 import { showScrollToast } from '@/lib/toast-utils'
 import { emitQuestCompletedWithRewards } from "@/lib/kingdom-events"
 import { useToast } from '@/components/ui/use-toast'
-import { ArrowLeft, Award, Calendar, CheckCircle, Clock, Coins, Sword, Trophy, XCircle, PlusCircle, Upload, Edit, X, Save, Settings, RefreshCw, Trash2 } from "lucide-react"
-import Link from "next/link"
+import { Award, Coins, PlusCircle, Save, Settings, RefreshCw, Trash2 } from "lucide-react"
 import { logger } from "@/lib/logger"
-import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
 import { defaultQuests } from '@/lib/quest-sample-data'
 import { notificationService } from "@/lib/notification-service"
@@ -25,8 +23,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -747,7 +743,7 @@ function QuestCard({
         </div>
         <Progress value={quest.completed ? 100 : quest.progress} className="h-1.5" aria-label={`Quest progress: ${quest.completed ? 100 : quest.progress}%`} />
         <div className="flex flex-wrap gap-2 text-xs text-white mt-1">
-          <span className="flex items-center gap-1"><Trophy className="h-3 w-3 text-amber-500" />{quest.rewards.xp} XP</span>
+          <span className="flex items-center gap-1"><Award className="h-3 w-3 text-amber-500" />{quest.rewards.xp} XP</span>
           <span className="flex items-center gap-1"><Coins className="h-3 w-3 text-yellow-500" />{quest.rewards.gold} Gold</span>
           {quest.rewards.items && quest.rewards.items.map((item: string, i: number) => (
             <span key={i} className="flex items-center gap-1"><Award className="h-3 w-3 text-purple-500" />{item}</span>

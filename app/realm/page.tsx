@@ -17,7 +17,7 @@ import { generateMysteryEvent } from "@/lib/mystery-events"
 import { MysteryEvent } from '@/lib/mystery-events'
 import { InventoryItem, addToKingdomInventory, addToInventory } from "@/lib/inventory-manager"
 import { Minimap } from "@/components/Minimap"
-import { MinimapEntity, MinimapRotationMode } from "@/types/minimap"
+import { MinimapRotationMode } from "@/types/minimap"
 import { useAchievementStore } from '@/stores/achievementStore'
 import { loadAndProcessInitialGrid, createTileFromNumeric } from "@/lib/grid-loader"
 import { createQuestCompletion } from '@/lib/api'

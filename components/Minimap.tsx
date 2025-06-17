@@ -1,8 +1,14 @@
 "use client"
 
-import React, { useRef, useLayoutEffect, useState } from "react";
+import React from "react";
 import { MinimapProps } from "@/types/minimap";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tile } from "@/types/tiles";
+import { MinimapRotationMode } from "@/types/minimap";
+import { X, ZoomIn, ZoomOut, RotateCw } from "lucide-react";
 
 const TILE_SIZE = 10; // px per tile at zoom=1
 const MIN_ZOOM = 0.5;
