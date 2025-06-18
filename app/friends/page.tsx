@@ -157,7 +157,7 @@ export default function FriendsPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <NavBar goldBalance={1000} session={undefined} />
+      <NavBar session={undefined} />
 
       <main className="flex-1 space-y-4 p-4 md:p-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">

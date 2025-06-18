@@ -14,7 +14,7 @@ export function AuthContent({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <NavBar goldBalance={0} session={userId ? { user: { id: userId } } : null} />
+      <NavBar session={userId ? { user: { id: userId } } : null} />
       <main className="flex-1">{children}</main>
     </>
   );
