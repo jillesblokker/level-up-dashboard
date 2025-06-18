@@ -138,7 +138,8 @@ export class StorageService {
       const parsed = JSON.parse(decompressed) as T;
       return this.validateData(parsed) ? parsed : defaultValue;
     } catch (error) {
-      console.error(`Error reading from localStorage: ${key}`, error);
+      console.warn(`Corrupted or invalid data detected for key '${key}'. Removing key and returning default.`, error);
+      this.remove(key);
       return defaultValue;
     }
   }
