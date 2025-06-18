@@ -570,7 +570,6 @@ export default function QuestsPage() {
                           <QuestCard
                             key={quest.id}
                             quest={quest}
-                            onProgressUpdate={(progress) => updateQuestProgress(quest.id, progress)}
                             onToggle={() => handleQuestToggle(quest.id)}
                             onDelete={() => handleDeleteQuest(quest.id)}
                           />
@@ -625,12 +624,10 @@ export default function QuestsPage() {
 // Quest Card Component
 function QuestCard({ 
   quest, 
-  onProgressUpdate,
   onToggle,
   onDelete
 }: { 
   quest: Quest; 
-  onProgressUpdate: (progress: number) => void;
   onToggle: () => void;
   onDelete: () => void;
 }) {
