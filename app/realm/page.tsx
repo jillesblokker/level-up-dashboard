@@ -159,7 +159,7 @@ const createEmptyTile = (x: number, y: number): Tile => ({
 // 4. Ensure proper error handling and fallback to local storage
 // ============================================================================
 
-const saveCharacterPosition = async (/* supabase: any, */ userId: string, position: { x: number; y: number }) => {
+const saveCharacterPosition = async (/* supabase: any, userId: string, */ position: { x: number; y: number }) => {
   try {
     // TODO: Uncomment when Supabase is working
     // Save character position to Supabase if needed
@@ -1094,7 +1094,7 @@ export default function RealmPage() {
     // Save position to Supabase and localStorage
     if (supabase && userId) {
       try {
-        saveCharacterPosition(userId, { x: newX, y: newY });
+        saveCharacterPosition({ x: newX, y: newY });
       } catch (error) {
         console.log('Supabase save failed, using localStorage only:', error);
       }
