@@ -4,9 +4,6 @@ import { GameState } from '../types/game';
 // Event Types
 export type EventType = 
   | 'mystery' 
-  | 'battle' 
-  | 'miniGame' 
-  | 'treasure' 
   | 'quest' 
   | 'achievement';
 
@@ -21,33 +18,6 @@ export interface BaseEvent {
     x: number;
     y: number;
   };
-}
-
-// Mini-game Event
-export interface MiniGameEvent extends BaseEvent {
-  type: 'miniGame';
-  gameType: 'puzzle' | 'memory' | 'reaction' | 'strategy';
-  difficulty: 'easy' | 'medium' | 'hard';
-  rewards: {
-    experience: number;
-    gold: number;
-    items?: string[];
-  };
-  timeLimit?: number;
-  requiredLevel?: number;
-}
-
-// Treasure Event
-export interface TreasureEvent extends BaseEvent {
-  type: 'treasure';
-  rarity: 'common' | 'rare' | 'epic' | 'legendary';
-  contents: {
-    gold: number;
-    experience: number;
-    items?: string[];
-  };
-  requiredKey?: string;
-  trapDifficulty?: number;
 }
 
 // Achievement Event
