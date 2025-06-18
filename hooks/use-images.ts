@@ -71,8 +71,10 @@ export function useImages(folderPath = 'images') {
     if (imageIndex >= 0) {
       // Update the image
       const updatedImages = [...images];
+      const currentImage = updatedImages[imageIndex];
       updatedImages[imageIndex] = {
-        ...updatedImages[imageIndex],
+        name: currentImage.name,
+        url: currentImage.url,
         description
       };
       

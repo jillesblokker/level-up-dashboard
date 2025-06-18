@@ -46,8 +46,8 @@ export class StorageService {
     if (startIndex !== -1 && endIndex !== -1) {
       for (let i = startIndex + 1; i <= endIndex; i++) {
         const version = versions[i];
-        const migration = this.MIGRATIONS[version];
-        if (migration) {
+        if (version && this.MIGRATIONS[version]) {
+          const migration = this.MIGRATIONS[version];
           // Apply migration to all items
           const keys = this.getAllKeys();
           keys.forEach(key => {
@@ -189,8 +189,11 @@ export class StorageService {
 
       // Remove oldest 20% of items
       const itemsToRemove = Math.ceil(sortedKeys.length * 0.2);
-      for (let i = 0; i < itemsToRemove; i++) {
-        this.storage.removeItem(sortedKeys[i].key);
+      for (let i = 0; i < itemsToRemove && i < sortedKeys.length; i++) {
+        const item = sortedKeys[i];
+        if (item) {
+          this.storage.removeItem(item.key);
+        }
       }
     } catch (error) {
       console.error('Error handling storage full:', error);
