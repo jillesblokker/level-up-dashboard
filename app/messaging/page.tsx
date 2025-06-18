@@ -49,8 +49,6 @@ export default function MessagingPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
-  const [showOnboarding, setShowOnboarding] = useState(false)
-  const [goldBalance, setGoldBalance] = useState(1000)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Load friends and messages data
@@ -157,12 +155,6 @@ export default function MessagingPage() {
 
     setMessages(sampleMessages)
 
-    // Load gold balance
-    const savedGold = localStorage.getItem("gold-balance")
-    if (savedGold) {
-      setGoldBalance(Number.parseInt(savedGold))
-    }
-
     // No onboarding needed
   }, [friendId])
 
@@ -170,16 +162,6 @@ export default function MessagingPage() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
-
-  const handleCloseOnboarding = (dontShowAgain: boolean, disableAll = false) => {
-    setShowOnboarding(false)
-    if (dontShowAgain) {
-      localStorage.setItem("messaging-onboarding-shown", "true")
-    }
-    if (disableAll) {
-      localStorage.setItem("all-onboarding-disabled", "true")
-    }
-  }
 
   // Filter friends based on search query
   const filteredFriends = friends.filter((friend) => friend.name.toLowerCase().includes(searchQuery.toLowerCase()))
