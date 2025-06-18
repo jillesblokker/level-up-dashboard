@@ -141,9 +141,33 @@ const createEmptyTile = (x: number, y: number): Tile => ({
   quantity: 1,
 });
 
-const saveCharacterPosition = async (supabase: any, userId: string, position: { x: number; y: number }) => {
+// ============================================================================
+// SUPABASE INTEGRATION - COMMENTED OUT FOR BARE BONE VERSION
+// ============================================================================
+// TODO: Reactivate when Supabase connection is working correctly
+// 
+// Supabase-related functions and integrations:
+// - saveCharacterPosition: Save character position to Supabase
+// - initializeGrid: Load grid from Supabase for authenticated users
+// - saveGrid: Save grid to Supabase for authenticated users
+// - syncGridWithSupabase: Real-time grid synchronization
+//
+// To reactivate:
+// 1. Uncomment the supabase parameter in saveCharacterPosition
+// 2. Uncomment the Supabase calls in initializeGrid useEffect
+// 3. Uncomment the Supabase save logic in the saveGrid useEffect
+// 4. Ensure proper error handling and fallback to local storage
+// ============================================================================
+
+const saveCharacterPosition = async (/* supabase: any, */ userId: string, position: { x: number; y: number }) => {
   try {
+    // TODO: Uncomment when Supabase is working
     // Save character position to Supabase if needed
+    // const { error } = await supabase
+    //   .from('character_positions')
+    //   .upsert({ user_id: userId, position: position })
+    // if (error) throw error;
+    
     // For now, just log the position
     console.log('Saving character position:', position);
   } catch (error) {
@@ -1070,7 +1094,7 @@ export default function RealmPage() {
     // Save position to Supabase and localStorage
     if (supabase && userId) {
       try {
-        saveCharacterPosition(supabase, userId, { x: newX, y: newY });
+        saveCharacterPosition(userId, { x: newX, y: newY });
       } catch (error) {
         console.log('Supabase save failed, using localStorage only:', error);
       }
