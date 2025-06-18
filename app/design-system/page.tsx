@@ -16,6 +16,7 @@ import { TileVisual } from "@/components/tile-visual"
 import { MapGrid } from "@/components/map-grid"
 import { TownView } from "@/components/town-view"
 import { TileType } from '@/types/tiles'
+import styles from './styles.module.css'
 
 type ColorItem = {
   name: string
@@ -31,14 +32,6 @@ type GradientItem = {
   startColor: string
   endColor: string
   direction: string
-}
-
-type FontItem = {
-  name: string
-  class: string
-  description: string
-  options: string[]
-  currentOption: string
 }
 
 type TypographyItem = {
@@ -95,23 +88,6 @@ export default function DesignSystemPage() {
       startColor: "#78350f33",
       endColor: "transparent",
       direction: "to-r"
-    },
-  ])
-
-  const [fonts, setFonts] = useState<FontItem[]>([
-    { 
-      name: "Primary", 
-      class: "font-sans", 
-      description: "Inter font for general text",
-      options: ["font-sans", "font-serif", "font-mono"],
-      currentOption: "font-sans"
-    },
-    { 
-      name: "Display", 
-      class: "font-serif", 
-      description: "Cinzel font for headings",
-      options: ["font-sans", "font-serif", "font-mono"],
-      currentOption: "font-serif"
     },
   ])
 
@@ -212,7 +188,7 @@ export default function DesignSystemPage() {
               <TabsContent value="colors" className="space-y-4">
                 {colors.map((color: ColorItem, index) => (
                   <div key={index} className="flex items-center gap-4">
-                    <div className={`w-16 h-16 rounded-lg ${color.class ?? ''}`} style={{ backgroundColor: color.value ?? '' }} />
+                    <div className={`${styles['colorBox']} ${styles[`preview-${color.name.toLowerCase()}`]}`} />
                     <div className="flex-1">
                       <h3 className="text-white font-medium">{color.name ?? ''}</h3>
                       <p className="text-gray-400 text-sm mb-2">{color.description ?? ''}</p>
@@ -238,12 +214,7 @@ export default function DesignSystemPage() {
               <TabsContent value="gradients" className="space-y-4">
                 {gradients.map((gradient: GradientItem, index) => (
                   <div key={index} className="flex items-center gap-4">
-                    <div 
-                      className={`w-32 h-16 rounded-lg`} 
-                      style={{ 
-                        background: `linear-gradient(${gradient.direction === 'to-b' ? '180deg' : '90deg'}, ${gradient.startColor}, ${gradient.endColor})` 
-                      }} 
-                    />
+                    <div className={`${styles['gradientBox']} ${styles[`preview-gradient${index+1}`]}`} />
                     <div className="flex-1">
                       <h3 className="text-white font-medium">{gradient.name}</h3>
                       <p className="text-gray-400 text-sm mb-2">{gradient.description}</p>
@@ -501,7 +472,7 @@ export default function DesignSystemPage() {
 
                     <div className="p-4 rounded-lg bg-gray-900/50">
                       <p className="text-sm font-medium mb-2 text-white">CreatureCard</p>
-                      <div className="mb-2" style={{ maxWidth: 180 }}>
+                      <div className={`mb-2 ${styles['creatureCardBox']}`}>
                         <CreatureCard
                           creature={{
                             id: '001',
@@ -527,10 +498,10 @@ export default function DesignSystemPage() {
                     <div className="p-4 rounded-lg bg-gray-900/50">
                       <p className="text-sm font-medium mb-2 text-white">QuestCard</p>
                       <div className="flex gap-4 mb-2">
-                        <div style={{ width: 180 }}>
+                        <div className={styles['questCardBox']}>
                           <QuestCard title="Defeat the Dragon" isSelected={false} />
                         </div>
-                        <div style={{ width: 180 }}>
+                        <div className={styles['questCardBox']}>
                           <QuestCard title="Rescue the Princess" isSelected={true} />
                         </div>
                       </div>
