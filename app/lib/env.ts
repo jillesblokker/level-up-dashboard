@@ -1,5 +1,3 @@
-import { z } from "zod"
-
 export const env = {
   GITHUB_CLIENT_ID: process.env['GITHUB_ID'],
   GITHUB_CLIENT_SECRET: process.env['GITHUB_SECRET'],
