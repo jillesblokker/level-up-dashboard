@@ -27,6 +27,7 @@ import React from "react"
 import { gainGold } from "@/lib/gold-manager"
 import { gainExperience } from "@/lib/experience-manager"
 import { notificationService } from "@/lib/notification-service"
+import { useRouter } from "next/navigation";
 
 // Types
 interface TileCounts {
@@ -157,6 +158,7 @@ export default function RealmPage() {
   const userId = user?.id;
   const isGuest = !user;
   const subscriptionRef = useRef<any>(null)
+  const router = useRouter();
 
   // State declarations
   const [inventory, setInventory] = useState<Record<TileType, Tile>>(initialInventory);
@@ -257,9 +259,50 @@ export default function RealmPage() {
 
   // Effect to initialize grid on mount or session/supabase change
   useEffect(() => {
-    if (!isAuthLoaded || !supabase) return;
+    // Always attempt to load grid, regardless of auth or supabase
+    const doInit = async () => {
+      let defaultGrid: Tile[][] = [];
+      try {
+        defaultGrid = await loadAndProcessInitialGrid();
+        // Only try Supabase if user is authenticated and supabase is available
+        if (userId && supabase) {
+          const { data: initialGridData, error: fetchError } = await supabase
+            .from('realm_grids')
+            .select('grid')
+            .eq('user_id', userId)
+            .order('updated_at', { ascending: false })
+            .limit(1)
+            .single();
+          if (fetchError || !initialGridData?.grid) {
+            logger.warning(`Supabase fetch error: ${fetchError?.message || 'No grid found'}, using default grid`, 'GridInit');
+            setGrid(defaultGrid);
+          } else {
+            const fetchedGrid = initialGridData.grid;
+            logger.info(`Fetched grid from Supabase: ${fetchedGrid ? 'found' : 'not found'}`, 'GridInit');
+            if (fetchedGrid && Array.isArray(fetchedGrid) && fetchedGrid.length > 0) {
+              const processedGrid = processLoadedGrid(fetchedGrid);
+              setGrid(processedGrid);
+              logger.info('Grid loaded from Supabase', 'GridInit');
+            } else {
+              setGrid(defaultGrid);
+              logger.info('Loaded default grid as fallback', 'GridInit');
+            }
+          }
+        } else {
+          // Not authenticated or no supabase: always use local/CSV/default grid
+          setGrid(defaultGrid);
+        }
+      } catch (err) {
+        logger.error(`Error loading grid: ${err}`, 'GridInit');
+        setGrid(defaultGrid);
+      } finally {
+        setIsLoading(false);
+        setIsInitialized(true);
+      }
+    };
     setIsLoading(true);
-    initializeGrid();
+    doInit();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, isAuthLoaded, supabase]);
 
   // Effect to save grid to database for authenticated users or local storage for anonymous users
@@ -1676,12 +1719,11 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
 
     const handleEnter = () => {
       if (isCity) {
-        // TODO: Navigate to city page
+        router.push(`/city/${slug}`);
       } else if (isTown) {
-        // TODO: Navigate to town page
+        router.push(`/town/${townSlug}`);
       } else {
-        // Fallback: go to city page
-        // TODO: Navigate to city page
+        router.push(`/city/${slug}`);
       }
       setShowLocationModal(false);
     };
