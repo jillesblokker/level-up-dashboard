@@ -11,7 +11,6 @@ import { QuestService } from '@/lib/quest-service'
 import { Quest } from '@/lib/quest-types'
 import { gainGold } from '@/lib/gold-manager'
 import { gainExperience } from '@/lib/experience-manager'
-import { showScrollToast } from '@/lib/toast-utils'
 import { emitQuestCompletedWithRewards } from "@/lib/kingdom-events"
 import { useToast } from '@/components/ui/use-toast'
 import { Award, Coins, PlusCircle, Save, Settings, RefreshCw, Trash2 } from "lucide-react"
