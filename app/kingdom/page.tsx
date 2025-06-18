@@ -1,7 +1,6 @@
 import { KingdomClient } from "./kingdom-client"
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { auth } from '@clerk/nextjs/server'
 
 export default async function KingdomPage() {
   let session = null;
