@@ -46,7 +46,7 @@ export function shuffleArray<T>(array: T[]): T[] {
   for (let i = newArray.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     if (newArray[i] !== undefined && newArray[j] !== undefined) {
-      [newArray[i], newArray[j]] = [newArray[j], newArray[i]]
+      [newArray[i]!, newArray[j]!] = [newArray[j]!, newArray[i]!]
     }
   }
   return newArray
