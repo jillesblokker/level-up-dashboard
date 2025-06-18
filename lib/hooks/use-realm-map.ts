@@ -7,12 +7,16 @@ function createInitialTile(x: number, y: number): Tile {
   return {
     id: `tile-${x}-${y}`,
     type: 'grass',
+    name: 'Grass',
+    description: 'A patch of grass',
     connections: [],
     rotation: 0,
     revealed: false,
-    isDiscovered: false,
+    isVisited: false,
     x,
-    y
+    y,
+    ariaLabel: 'Grass tile',
+    image: '/images/tiles/grass-tile.png'
   }
 }
 
