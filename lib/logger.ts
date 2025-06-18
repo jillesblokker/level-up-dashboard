@@ -92,7 +92,7 @@ class Logger {
       
       localStorage.setItem('app-logs', JSON.stringify(logsToStore));
     } catch (error) {
-      // If localStorage fails, continue without storing
+      // intentionally empty: localStorage failure is non-fatal
     }
   }
 
@@ -108,6 +108,7 @@ class Logger {
         }));
       }
     } catch (error) {
+      // intentionally empty: localStorage failure is non-fatal
     }
     return [];
   }
@@ -145,6 +146,7 @@ class Logger {
     try {
       localStorage.removeItem('app-logs');
     } catch (error) {
+      // intentionally empty: localStorage failure is non-fatal
     }
   }
 
@@ -183,7 +185,9 @@ export async function logQuestAction(
       });
 
     if (error) {
+      // intentionally empty: error handled elsewhere
     }
   } catch (error) {
+    // intentionally empty: error handled elsewhere
   }
 } 
