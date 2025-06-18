@@ -26,13 +26,11 @@ class Logger {
   // Log an informational message
   public info(message: string, source: string = 'Unknown', image?: string): void {
     this.addLog('info', message, source, image);
-    console.log(`[INFO] [${source}] ${message}`);
   }
 
   // Log a warning message
   public warning(message: string, source: string = 'Unknown', image?: string): void {
     this.addLog('warning', message, source, image);
-    console.warn(`[WARNING] [${source}] ${message}`);
   }
 
   // Alias for warning
@@ -43,7 +41,6 @@ class Logger {
   // Log an error message
   public error(message: string, source: string = 'Unknown', image?: string): void {
     this.addLog('error', message, source, image);
-    console.error(`[ERROR] [${source}] ${message}`);
   }
 
   // Generic log method
@@ -96,7 +93,6 @@ class Logger {
       localStorage.setItem('app-logs', JSON.stringify(logsToStore));
     } catch (error) {
       // If localStorage fails, continue without storing
-      console.warn('Failed to persist log to localStorage:', error);
     }
   }
 
@@ -112,7 +108,6 @@ class Logger {
         }));
       }
     } catch (error) {
-      console.warn('Failed to load logs from localStorage:', error);
     }
     return [];
   }
@@ -150,9 +145,7 @@ class Logger {
     try {
       localStorage.removeItem('app-logs');
     } catch (error) {
-      console.warn('Failed to clear logs from localStorage:', error);
     }
-    console.log('Logger cleared');
   }
 
   // Get recent logs (last N entries)
@@ -190,9 +183,7 @@ export async function logQuestAction(
       });
 
     if (error) {
-      console.error('Error logging quest action:', error);
     }
   } catch (error) {
-    console.error('Error in logQuestAction:', error);
   }
 } 

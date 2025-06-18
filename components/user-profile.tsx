@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,7 +16,6 @@ interface UserProfileProps {
 }
 
 export function UserProfile({ userId, userName, userEmail, userImage, isAdmin }: UserProfileProps) {
-  const router = useRouter();
   const { toast } = useToast();
   const [level, setLevel] = useState(1);
   const [experience, setExperience] = useState(0);
@@ -47,7 +45,6 @@ export function UserProfile({ userId, userName, userEmail, userImage, isAdmin }:
         description: "You have been signed out of your account",
         variant: "default",
       });
-      router.push("/");
     } catch (error) {
       console.error("Sign out error:", error);
       toast({

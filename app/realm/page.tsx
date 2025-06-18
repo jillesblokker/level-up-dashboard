@@ -5,7 +5,6 @@ import { useLocalStorage } from "@/lib/hooks/use-local-storage"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { useRouter } from "next/navigation"
 // Import necessary types from '@/types/tiles'
 import { Tile, TileType, InventoryItem as TileInventoryItem, SelectedInventoryItem } from '@/types/tiles'
 import { useCreatureStore } from "@/stores/creatureStore"
@@ -65,7 +64,7 @@ const defaultTile = (type: TileType): Tile => ({
 
 const allTileTypes: TileType[] = [
   'empty', 'mountain', 'grass', 'forest', 'water', 'city', 'town', 'mystery', 'portal', 'portal-entrance',
-  'portal-exit', 'snow', 'cave', 'dungeon', 'castle', 'ice', 'desert', 'lava', 'volcano', 'sheep', 'horse'
+  'portal-exit', 'snow', 'cave', 'dungeon', 'castle', 'ice', 'desert', 'lava', 'volcano' // removed 'sheep', 'horse'
 ];
 
 const initialInventory: Record<TileType, Tile> = Object.fromEntries(
@@ -153,7 +152,6 @@ const saveCharacterPosition = async (supabase: any, userId: string, position: { 
 
 export default function RealmPage() {
   const { toast } = useToast()
-  const router = useRouter()
   const { updateProgress } = useAchievementStore()
   const { user, isLoaded: isAuthLoaded } = useUser();
   const userId = user?.id;
@@ -971,7 +969,7 @@ export default function RealmPage() {
     } else if (targetTile.type === 'dungeon') {
       console.log('Dungeon interaction triggered');
       localStorage.setItem('current-dungeon', JSON.stringify({ position: { x: newX, y: newY }, type: 'dungeon' }));
-      router.push('/dungeon');
+      // TODO: Navigate to dungeon page
     } else if (targetTile.type === 'mystery' && !targetTile.isVisited) {
       console.log('Mystery interaction triggered');
       const mysteryEvent = generateMysteryEvent();
@@ -1037,7 +1035,7 @@ export default function RealmPage() {
     if (typeof window !== 'undefined') {
       localStorage.setItem('character-position', JSON.stringify({ x: newX, y: newY }));
     }
-  }, [setCharacterPosition, grid, toast, supabase, userId, setCurrentLocation, setShowLocationModal, setPortalSource, setShowPortalModal, router, setCurrentEvent, setGrid, characterPosition, lastModalPosition]);
+  }, [setCharacterPosition, grid, toast, supabase, userId, setCurrentLocation, setShowLocationModal, setPortalSource, setShowPortalModal, setCurrentEvent, setGrid, characterPosition, lastModalPosition]);
 
   // Update keyboard navigation to use handleCharacterMove
   useEffect(() => {
@@ -1678,12 +1676,12 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
 
     const handleEnter = () => {
       if (isCity) {
-        router.push(`/city/${slug}`);
+        // TODO: Navigate to city page
       } else if (isTown) {
-        router.push(`/town/${townSlug}`);
+        // TODO: Navigate to town page
       } else {
         // Fallback: go to city page
-        router.push(`/city/${slug}`);
+        // TODO: Navigate to city page
       }
       setShowLocationModal(false);
     };

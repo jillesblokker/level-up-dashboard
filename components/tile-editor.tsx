@@ -202,7 +202,6 @@ export function TileEditor({ tiles, onUpdateTiles, onSelectTile }: TileEditorPro
               onChange={handleMarkdownChange}
               className="w-full h-[500px] border rounded-md p-2 font-mono text-sm"
               aria-label="Markdown editor for tile data"
-              aria-description="Edit tile data using Markdown table format. Each row represents one tile type."
             />
             <Button 
               onClick={applyChanges}

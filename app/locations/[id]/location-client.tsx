@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
@@ -36,7 +35,6 @@ interface LocationClientProps {
 }
 
 export function LocationClient({ location }: LocationClientProps) {
-  const router = useRouter()
   const [goldBalance, setGoldBalance] = useState(0)
   const [purchasedItems, setPurchasedItems] = useState<string[]>([])
 

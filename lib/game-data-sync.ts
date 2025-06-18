@@ -1,5 +1,5 @@
 import { createBrowserClient } from '@supabase/ssr'
-import { Tile, InventoryItem, Character, Quest, GameState } from '../types/game'
+import { GameState } from '../types/game'
 
 export type GameData = GameState
 

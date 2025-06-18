@@ -18,12 +18,9 @@ const ENTITY_ICONS: Record<string, string> = {
 export const Minimap: React.FC<MinimapProps> = ({
   grid,
   playerPosition,
-  playerDirection = 0,
   entities,
   zoom,
   onZoomChange,
-  rotationMode = 'static',
-  onRotationModeChange,
   className,
   onClose,
 }) => {

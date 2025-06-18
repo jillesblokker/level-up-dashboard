@@ -20,8 +20,8 @@ export default function WorldMapPage() {
             <Link href="/castle">
               <Button className="bg-amber-600 hover:bg-amber-700 text-white">
                 Enter Castle
-                    </Button>
-                  </Link>
+              </Button>
+            </Link>
           </div>
         </section>
 
@@ -35,7 +35,7 @@ export default function WorldMapPage() {
             <Link href="/forest">
               <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
                 Enter Forest
-            </Button>
+              </Button>
             </Link>
           </div>
         </section>
@@ -51,8 +51,8 @@ export default function WorldMapPage() {
               <Button className="bg-stone-600 hover:bg-stone-700 text-white">
                 Climb Mountains
               </Button>
-        </Link>
-            </div>
+            </Link>
+          </div>
         </section>
 
         <section className="section village">
@@ -66,7 +66,7 @@ export default function WorldMapPage() {
               <Button className="bg-orange-600 hover:bg-orange-700 text-white">
                 Enter Village
               </Button>
-        </Link>
+            </Link>
           </div>
         </section>
 
@@ -81,7 +81,7 @@ export default function WorldMapPage() {
               <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                 Set Sail
               </Button>
-        </Link>
+            </Link>
           </div>
         </section>
 
@@ -96,8 +96,8 @@ export default function WorldMapPage() {
               <Button className="bg-purple-600 hover:bg-purple-700 text-white">
                 Enter Market
               </Button>
-        </Link>
-      </div>
+            </Link>
+          </div>
         </section>
       </main>
     </div>

@@ -14,7 +14,6 @@ interface ThemeProviderProps {
 export function ThemeProvider({
   children,
   defaultTheme = "dark",
-  ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = React.useState<Theme>(defaultTheme)
 
@@ -23,14 +22,6 @@ export function ThemeProvider({
     root.classList.remove("light", "dark")
     root.classList.add(theme)
   }, [theme])
-
-  const value = React.useMemo(
-    () => ({
-      theme,
-      setTheme: (theme: Theme) => setTheme(theme),
-    }),
-    [theme]
-  )
 
   return <>{children}</>
 }

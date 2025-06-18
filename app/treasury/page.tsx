@@ -8,7 +8,6 @@ import { NavBar } from "@/components/nav-bar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function TreasuryPage() {
-  const [goldBalance, setGoldBalance] = useState(1000)
   const [isChestOpen, setIsChestOpen] = useState(false)
   const [isCoinsAnimating, setIsCoinsAnimating] = useState(false)
 
@@ -117,7 +116,7 @@ export default function TreasuryPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{goldBalance}</div>
+                <div className="text-3xl font-bold">1000</div>
                 <p className="text-sm text-muted-foreground mt-2">Earned from quests and activities</p>
               </CardContent>
             </Card>
@@ -143,7 +142,7 @@ export default function TreasuryPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{goldBalance + 1200}</div>
+                <div className="text-3xl font-bold">1000 + 1200</div>
                 <p className="text-sm text-muted-foreground mt-2">Total value of gold, items, and property</p>
               </CardContent>
             </Card>

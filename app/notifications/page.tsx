@@ -29,8 +29,6 @@ export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedType, setSelectedType] = useState<string | null>(null)
-  const [showOnboarding, setShowOnboarding] = useState(false)
-  const [goldBalance, setGoldBalance] = useState(1000)
 
   // Load notifications data
   useEffect(() => {
@@ -119,25 +117,7 @@ export default function NotificationsPage() {
     ]
 
     setNotifications(sampleNotifications)
-
-    // Load gold balance
-    const savedGold = localStorage.getItem("gold-balance")
-    if (savedGold) {
-      setGoldBalance(Number.parseInt(savedGold))
-    }
-
-    // No onboarding needed
   }, [])
-
-  const handleCloseOnboarding = (dontShowAgain: boolean, disableAll = false) => {
-    setShowOnboarding(false)
-    if (dontShowAgain) {
-      localStorage.setItem("notifications-onboarding-shown", "true")
-    }
-    if (disableAll) {
-      localStorage.setItem("all-onboarding-disabled", "true")
-    }
-  }
 
   // Filter notifications based on search query and filters
   const filteredNotifications = notifications.filter((notification) => {

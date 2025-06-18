@@ -126,26 +126,17 @@ export function getKingdomInventory(): InventoryItem[] {
 }
 
 export function addToKingdomInventory(item: InventoryItem) {
-  console.log('addToKingdomInventory called with item:', item);
-  if (typeof window === 'undefined') {
-    console.log('Window is undefined, returning early');
-    return;
-  }
+  if (typeof window === 'undefined') return
   
   const currentInventory = getKingdomInventory()
-  console.log('Current kingdom inventory:', currentInventory);
   const existingItem = currentInventory.find(i => i.id === item.id)
   
   if (existingItem) {
     existingItem.quantity += item.quantity
-    console.log('Updated existing item quantity:', existingItem.quantity);
   } else {
     currentInventory.push(item)
-    console.log('Added new item to kingdom inventory');
   }
   
   localStorage.setItem(KINGDOM_INVENTORY_KEY, JSON.stringify(currentInventory))
-  console.log('Saved kingdom inventory to localStorage');
   window.dispatchEvent(new Event('character-inventory-update'))
-  console.log('Dispatched character-inventory-update event');
 } 

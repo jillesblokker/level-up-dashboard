@@ -102,6 +102,7 @@ export function ImageUpload({
         accept="image/*"
         className="hidden"
         disabled={isUploading}
+        aria-label="Upload image"
       />
       
       <div className={`${aspectRatio} w-full bg-gray-800 rounded-lg overflow-hidden border border-gray-700`}>

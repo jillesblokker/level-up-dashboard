@@ -9,10 +9,9 @@ interface CreatureCardProps {
   discovered: boolean;
   showCard: boolean;
   previewMode: boolean;
-  hideNameWhenUndiscovered?: boolean;
 }
 
-export function CreatureCard({ creature, discovered, showCard, previewMode, hideNameWhenUndiscovered }: CreatureCardProps) {
+export function CreatureCard({ creature, discovered, showCard, previewMode }: CreatureCardProps) {
   const [showStats, setShowStats] = useState(false);
   const [imageError, setImageError] = useState(false);
 

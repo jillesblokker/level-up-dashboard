@@ -1,4 +1,3 @@
-import { useRouter } from 'next/navigation';
 import {
   Dialog,
   DialogContent,
@@ -23,10 +22,7 @@ export function AchievementUnlockModal({
   creatureId,
   creatureName,
 }: AchievementUnlockModalProps) {
-  const router = useRouter();
-
   const handleViewAchievement = () => {
-    router.push('/achievements');
     onClose();
   };
 

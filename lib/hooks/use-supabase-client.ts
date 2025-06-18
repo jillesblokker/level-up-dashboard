@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { createSupabaseClientWithToken } from '@/lib/supabase-client';
-import { Database } from '@/types/supabase';
 
 export function useSupabaseClientWithToken() {
   const { getToken } = useAuth();

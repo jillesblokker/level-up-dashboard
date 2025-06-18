@@ -1,4 +1,4 @@
-import { Trophy, BookOpen, Sword, Dumbbell, Brain } from "lucide-react";
+import { BookOpen, Sword, Dumbbell, Brain } from "lucide-react";
 import React from "react";
 import { Achievement, ActivityLog, Stats } from "../types/game";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { db, initializeDatabase } from '@/lib/db';
+import { initializeDatabase } from '@/lib/db';
 import { useToast } from '@/components/ui/use-toast';
 
 type DbContextType = {

@@ -15,10 +15,9 @@ interface LeaderboardEntry {
 
 interface LeaderboardProps {
   entries: LeaderboardEntry[]
-  timeframe: "weekly" | "monthly" | "all-time"
 }
 
-export function Leaderboard({ entries, timeframe }: LeaderboardProps) {
+export function Leaderboard({ entries }: LeaderboardProps) {
   return (
     <div className="space-y-8">
       {entries.map((entry) => (

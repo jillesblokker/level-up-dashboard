@@ -10,7 +10,7 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command"
-import { Keyboard, Search as SearchIcon } from "lucide-react"
+import { Search as SearchIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function Search() {

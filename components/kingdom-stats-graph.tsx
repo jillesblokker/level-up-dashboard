@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ScrollText, Coins, Trophy, ChevronDown } from "lucide-react"
+import { ChevronDown } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { getAggregatedKingdomData } from "@/lib/kingdom-events"
-import { useRouter } from "next/navigation"
 import Image from 'next/image'
 
 // Time period types
@@ -28,7 +27,6 @@ interface GraphData {
 
 // Empty state component
 function EmptyState() {
-  const router = useRouter();
   return (
     <section
       className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden"
@@ -58,7 +56,6 @@ function EmptyState() {
           aria-label="Start your first quest"
           tabIndex={0}
           role="button"
-          onClick={() => router.push('/quests')}
         >
           Start Your First Quest
         </button>

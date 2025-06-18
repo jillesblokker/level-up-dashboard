@@ -6,11 +6,9 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
 import { Sword, Brain, Crown, Castle, Hammer, Heart, PlusCircle, Trash2 } from "lucide-react"
-import { cn } from "@/lib/utils"
 import { QuestService } from '@/lib/quest-service'
 import { useSupabaseClientWithToken } from '@/lib/hooks/use-supabase-client'
 import { useUser } from "@clerk/nextjs"

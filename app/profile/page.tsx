@@ -9,7 +9,6 @@ import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { updateUserMetadata, UserMetadata } from "@/lib/supabase/client";
-import { useRouter } from 'next/navigation';
 import Image from "next/image";
 
 export default function ProfilePage() {

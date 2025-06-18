@@ -1,12 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Sword } from "lucide-react";
 
 export default function NotFound() {
-  const router = useRouter();
-
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-black border-2 border-amber-800/50 rounded-lg p-8 text-center">
@@ -31,14 +28,12 @@ export default function NotFound() {
         
         <div className="space-y-3">
           <Button 
-            onClick={() => router.push('/')}
             className="w-full bg-amber-700 hover:bg-amber-600"
           >
             Return to Kingdom
           </Button>
           
           <Button 
-            onClick={() => router.back()}
             variant="outline"
             className="w-full border-amber-800/20 text-amber-500 hover:bg-amber-900/30"
           >

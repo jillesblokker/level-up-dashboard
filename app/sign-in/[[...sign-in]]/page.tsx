@@ -1,21 +1,13 @@
 "use client"
 
 import { SignIn } from "@clerk/nextjs";
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 
 export default function Page() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const { isSignedIn } = useAuth();
   const redirectUrl = searchParams?.get('redirect_url') || '/kingdom';
-
-  useEffect(() => {
-    if (isSignedIn) {
-      router.push(redirectUrl);
-    }
-  }, [isSignedIn, redirectUrl, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#000428] to-[#004e92]">

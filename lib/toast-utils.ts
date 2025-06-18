@@ -58,13 +58,6 @@ const messageTemplates: Record<MessageType, string[]> = {
   ],
 };
 
-// Get a random message for the given type
-function getRandomMessage(type: MessageType, name: string): string {
-  const messages = messageTemplates[type];
-  const message = messages[Math.floor(Math.random() * messages.length)]!;
-  return message.replace(/{name}/g, name);
-}
-
 // Show a scroll-styled toast with a medieval message
 export function showScrollToast(toastFn: typeof toast, title: string, description: string) {
   toastFn({
