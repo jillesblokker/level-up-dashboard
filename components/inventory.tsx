@@ -61,8 +61,9 @@ const itemEmojis: Record<string, string> = {
 // Function to get emoji for an item
 function getItemEmoji(item: InventoryItem): string {
   // First check for specific item emoji
-  if (itemEmojis[item.name]) {
-    return itemEmojis[item.name]
+  const itemName = item.name || ''
+  if (itemName && itemEmojis[itemName]) {
+    return itemEmojis[itemName]
   }
   // Fallback to type emoji
   return typeEmojis[item.type.toLowerCase()] || "🔮"
@@ -94,7 +95,7 @@ export function Inventory() {
     if (!acc[item.type]) {
       acc[item.type] = []
     }
-    acc[item.type].push(item)
+    acc[item.type]!.push(item)
     return acc
   }, {} as Record<string, InventoryItem[]>)
 

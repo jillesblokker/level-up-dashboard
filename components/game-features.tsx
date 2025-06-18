@@ -5,14 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Toggle } from '@/components/ui/toggle';
 import { CreatureCard } from '@/components/creature-card';
-import { useCreatureStore } from '@/stores/creatureStore';
+import { useCreatureStore, type Creature } from '@/stores/creatureStore';
 import Image from 'next/image';
 import { 
   Achievement, 
   replayability 
 } from '@/lib/replayability';
 import { useSearchParams } from 'next/navigation';
-import type { Creature } from '@/types/character'
 
 export function GameFeatures() {
   const searchParams = useSearchParams();

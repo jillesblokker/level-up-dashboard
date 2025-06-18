@@ -104,7 +104,7 @@ export function gainExperience(amount: number, source: string, category: string 
 
     // Check for level up and title unlocks
     if (newLevel > currentStats.level) {
-      createLevelUpNotification(currentStats.level, newLevel);
+      createLevelUpNotification(newLevel);
       
       // Check for new title unlock
       const oldTitle = getCurrentTitle(currentStats.level);

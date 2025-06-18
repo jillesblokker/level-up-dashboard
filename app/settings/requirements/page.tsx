@@ -179,7 +179,7 @@ export default function RequirementsPage() {
                   </h2>
                   <div className="space-y-4">
                     {category.id === "hints" ? null : (
-                      requirements[category.id].map((item, index) => (
+                      requirements[category.id]?.map((item, index) => (
                         <div key={index} className="flex gap-4">
                           <div className="flex-none w-8 h-8 rounded-full bg-amber-900/20 border border-amber-800/20 flex items-center justify-center text-amber-500">
                             {index + 1}

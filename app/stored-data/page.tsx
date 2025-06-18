@@ -16,6 +16,17 @@ interface StoredData {
   version: string;
 }
 
+// Utility to get a value from localStorage or return null
+function getStoredValue<T>(key: string): T | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const value = window.localStorage.getItem(key);
+    return value ? JSON.parse(value) : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function StoredDataPage() {
   const [storedData, setStoredData] = useState<StoredData[]>([]);
   const [storageInfo, setStorageInfo] = useState<{ total: number; used: number; remaining: number }>({ total: 0, used: 0, remaining: 0 });
@@ -36,6 +47,27 @@ export default function StoredDataPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'key' | 'size' | 'lastUpdated'>('key');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  // --- Key data types ---
+  const quests = getStoredValue<any>('quests'); // TODO: Replace with Supabase fetch
+  const gold = getStoredValue<number>('gold-balance'); // TODO: Replace with Supabase fetch
+  const exp = getStoredValue<number>('experience'); // TODO: Replace with Supabase fetch
+  const achievements = getStoredValue<any>('achievements'); // TODO: Replace with Supabase fetch
+  const grid = getStoredValue<any>('grid'); // TODO: Replace with Supabase fetch
+  const titles = getStoredValue<any>('titles'); // TODO: Replace with Supabase fetch
+  const perks = getStoredValue<any>('perks'); // TODO: Replace with Supabase fetch
+  const strengths = getStoredValue<any>('strengths'); // TODO: Replace with Supabase fetch
+  const characterPosition = getStoredValue<any>('character-position'); // TODO: Replace with Supabase fetch
+
+  // --- Supabase entities (TODO: fetch from Supabase) ---
+  // TODO: Fetch these from Supabase and display summary
+  // - Account
+  // - Item
+  // - QuestCompletion
+  // - Session
+  // - TilePlacement
+  // - User
+  // - VerificationToken
 
   const refreshData = () => {
     setIsLoading(true);
@@ -164,6 +196,50 @@ export default function StoredDataPage() {
 
   return (
     <main className="container mx-auto p-4 space-y-4" aria-label="stored-data-main">
+      {/* Key Data Types */}
+      <section aria-label="stored-data-summary-section">
+        <Card aria-label="stored-data-summary-card">
+          <CardHeader>
+            <CardTitle>Stored Data Summary</CardTitle>
+            <CardDescription>Key game data currently stored (localStorage or future Supabase)</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2" aria-label="stored-data-list">
+              <li><strong>Quests:</strong> {quests ? JSON.stringify(quests) : <em>None</em>} {/* TODO: Supabase integration */}</li>
+              <li><strong>Gold:</strong> {gold ?? <em>None</em>} {/* TODO: Supabase integration */}</li>
+              <li><strong>Experience:</strong> {exp ?? <em>None</em>} {/* TODO: Supabase integration */}</li>
+              <li><strong>Achievements:</strong> {achievements ? JSON.stringify(achievements) : <em>None</em>} {/* TODO: Supabase integration */}</li>
+              <li><strong>Grid:</strong> {grid ? '[Grid Data Present]' : <em>None</em>} {/* TODO: Supabase integration */}</li>
+              <li><strong>Titles:</strong> {titles ? JSON.stringify(titles) : <em>None</em>} {/* TODO: Supabase integration */}</li>
+              <li><strong>Perks:</strong> {perks ? JSON.stringify(perks) : <em>None</em>} {/* TODO: Supabase integration */}</li>
+              <li><strong>Strengths:</strong> {strengths ? JSON.stringify(strengths) : <em>None</em>} {/* TODO: Supabase integration */}</li>
+              <li><strong>Character Position:</strong> {characterPosition ? JSON.stringify(characterPosition) : <em>None</em>} {/* TODO: Supabase integration */}</li>
+            </ul>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Supabase Entities */}
+      <section aria-label="supabase-entities-section">
+        <Card aria-label="supabase-entities-card">
+          <CardHeader>
+            <CardTitle>Supabase Entities</CardTitle>
+            <CardDescription>These will be loaded from Supabase in the future</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2" aria-label="supabase-entities-list">
+              <li><strong>Account</strong> {/* TODO: Supabase integration */}</li>
+              <li><strong>Item</strong> {/* TODO: Supabase integration */}</li>
+              <li><strong>QuestCompletion</strong> {/* TODO: Supabase integration */}</li>
+              <li><strong>Session</strong> {/* TODO: Supabase integration */}</li>
+              <li><strong>TilePlacement</strong> {/* TODO: Supabase integration */}</li>
+              <li><strong>User</strong> {/* TODO: Supabase integration */}</li>
+              <li><strong>VerificationToken</strong> {/* TODO: Supabase integration */}</li>
+            </ul>
+          </CardContent>
+        </Card>
+      </section>
+
       <section aria-label="storage-info-section">
         <Card aria-label="storage-info-card">
           <CardHeader>

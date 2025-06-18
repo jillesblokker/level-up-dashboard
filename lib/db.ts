@@ -129,15 +129,18 @@ class LevelUpDatabase extends Dexie {
   }
 }
 
-// Conditionally define and export db based on environment
+// Declare db at module scope
+let db: LevelUpDatabase;
+
+// Conditionally initialize db based on environment
 if (typeof window !== "undefined") {
-  const db = new LevelUpDatabase();
+  db = new LevelUpDatabase();
   db.open().catch((error) => {
     console.error("Failed to open database:", error);
   });
 } else {
-  // On the server, export a dummy db object to silence errors
-  const db = {
+  // On the server, create a dummy db object to silence errors
+  db = {
     characters: {} as Table<Character>,
     images: {} as Table<Image>,
     quests: {} as Table<Quest>,
@@ -279,7 +282,11 @@ export async function initializeDatabase() {
     if (error instanceof Dexie.ConstraintError) {
       try {
         await db.delete();
-        const db = new LevelUpDatabase();
+        // Reinitialize the module-scoped db
+        if (typeof window !== "undefined") {
+          db = new LevelUpDatabase();
+          await db.open();
+        }
         await initializeDatabase();
       } catch (retryError) {
         console.error("Failed to recover from database error:", retryError);

@@ -111,7 +111,21 @@ export function TileEditor({ tiles, onUpdateTiles, onSelectTile }: TileEditorPro
   const handleQuantityChange = (index: number, value: string) => {
     const quantity = parseInt(value) || 0
     const newTiles = [...parsedTiles]
-    newTiles[index] = { ...newTiles[index], quantity: quantity || 0 }
+    const currentTile = newTiles[index]
+    
+    if (!currentTile) return
+    
+    newTiles[index] = { 
+      id: currentTile.id,
+      type: currentTile.type,
+      name: currentTile.name,
+      cost: currentTile.cost,
+      description: currentTile.description,
+      connections: currentTile.connections,
+      quantity: quantity || 0,
+      x: currentTile.x || 0,
+      y: currentTile.y || 0
+    }
     setParsedTiles(newTiles)
     
     // Also update the markdown
