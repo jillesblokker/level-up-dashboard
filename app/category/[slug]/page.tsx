@@ -100,7 +100,6 @@ export default function CategoryPage() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="category-items-grid">
           {categoryData.items.map((item) => (
             <Card key={item.id} className="overflow-hidden" aria-label={`${item.name}-card`}>
-              {/* eslint-disable-next-line react/no-inline-styles */}
               <div 
                 className="h-48 bg-cover bg-center" 
                 style={{ backgroundImage: `url(${item.image})` }}
