@@ -239,96 +239,6 @@ export default function RealmPage() {
   // Track last modal-triggered position
   const [lastModalPosition, setLastModalPosition] = useState<{x: number, y: number} | null>(null);
 
-  // Initialize grid
-  const initializeGrid = async () => {
-    let defaultGrid: Tile[][] = [];
-    try {
-      defaultGrid = await loadAndProcessInitialGrid();
-      if (!supabase) {
-        setGrid(defaultGrid);
-        setIsLoading(false);
-        setIsInitialized(true);
-        return;
-      }
-      const { data: initialGridData, error: fetchError } = await supabase
-        .from('realm_grids')
-        .select('grid')
-        .eq('user_id', userId)
-        .order('updated_at', { ascending: false })
-        .limit(1)
-        .single();
-      if (fetchError || !initialGridData?.grid) {
-        logger.warning(`Supabase fetch error: ${fetchError?.message || 'No grid found'}, using default grid`, 'GridInit');
-        setGrid(defaultGrid);
-      } else {
-        const fetchedGrid = initialGridData.grid;
-        logger.info(`Fetched grid from Supabase: ${fetchedGrid ? 'found' : 'not found'}`, 'GridInit');
-        if (fetchedGrid && Array.isArray(fetchedGrid) && fetchedGrid.length > 0) {
-          const processedGrid = processLoadedGrid(fetchedGrid);
-          setGrid(processedGrid);
-          logger.info('Grid loaded from Supabase', 'GridInit');
-        } else {
-          setGrid(defaultGrid);
-          logger.info('Loaded default grid as fallback', 'GridInit');
-        }
-      }
-    } catch (err) {
-      logger.error(`Error loading grid: ${err}`, 'GridInit');
-      setGrid(defaultGrid);
-    } finally {
-      setIsLoading(false);
-      setIsInitialized(true);
-    }
-  };
-
-  // Effect to initialize grid on mount or session/supabase change
-  useEffect(() => {
-    // Always attempt to load grid, regardless of auth or supabase
-    const doInit = async () => {
-      let defaultGrid: Tile[][] = [];
-      try {
-        defaultGrid = await loadAndProcessInitialGrid();
-        // Only try Supabase if user is authenticated and supabase is available
-        if (userId && supabase) {
-          const { data: initialGridData, error: fetchError } = await supabase
-            .from('realm_grids')
-            .select('grid')
-            .eq('user_id', userId)
-            .order('updated_at', { ascending: false })
-            .limit(1)
-            .single();
-          if (fetchError || !initialGridData?.grid) {
-            logger.warning(`Supabase fetch error: ${fetchError?.message || 'No grid found'}, using default grid`, 'GridInit');
-            setGrid(defaultGrid);
-          } else {
-            const fetchedGrid = initialGridData.grid;
-            logger.info(`Fetched grid from Supabase: ${fetchedGrid ? 'found' : 'not found'}`, 'GridInit');
-            if (fetchedGrid && Array.isArray(fetchedGrid) && fetchedGrid.length > 0) {
-              const processedGrid = processLoadedGrid(fetchedGrid);
-              setGrid(processedGrid);
-              logger.info('Grid loaded from Supabase', 'GridInit');
-            } else {
-              setGrid(defaultGrid);
-              logger.info('Loaded default grid as fallback', 'GridInit');
-            }
-          }
-        } else {
-          // Not authenticated or no supabase: always use local/CSV/default grid
-          setGrid(defaultGrid);
-        }
-      } catch (err) {
-        logger.error(`Error loading grid: ${err}`, 'GridInit');
-        setGrid(defaultGrid);
-      } finally {
-        setIsLoading(false);
-        setIsInitialized(true);
-      }
-    };
-    setIsLoading(true);
-    doInit();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId, isAuthLoaded, supabase]);
-
   // Effect to save grid to database for authenticated users or local storage for anonymous users
   useEffect(() => {
     if (!isInitialized) return
@@ -1909,6 +1819,22 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
       </Dialog>
     );
   };
+
+  // Defensive fallback: ensure grid is always initialized
+  useEffect(() => {
+    if (!Array.isArray(grid) || grid.length === 0 || !Array.isArray(grid[0]) || grid[0].length === 0) {
+      // Try to load the initial grid from CSV or fallback
+      loadAndProcessInitialGrid().then((initialGrid) => {
+        setGrid(initialGrid);
+        setIsInitialized(true);
+        setIsLoading(false);
+      }).catch(() => {
+        setGrid(createBaseGrid());
+        setIsInitialized(true);
+        setIsLoading(false);
+      });
+    }
+  }, [grid]);
 
   return (
     <div className="relative min-h-screen bg-background p-4">
