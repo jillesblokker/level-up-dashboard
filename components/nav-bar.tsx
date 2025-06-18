@@ -20,24 +20,10 @@ interface CustomSession {
 }
 
 interface NavBarProps {
-  goldBalance?: number;
   session?: CustomSession | null | undefined;
 }
 
-interface Notification {
-  id: string;
-  title: string;
-  message: string;
-  type: "achievement" | "quest" | "friend" | "system";
-  read: boolean;
-  timestamp: string;
-  action?: {
-    label: string;
-    href: string;
-  };
-}
-
-export function NavBar({ goldBalance = 0, session }: NavBarProps) {
+export function NavBar({ session }: NavBarProps) {
   const [isClient, setIsClient] = useState(false)
   const [characterStats, setCharacterStats] = useState({
     level: 1,
