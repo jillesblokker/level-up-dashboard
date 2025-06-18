@@ -12,6 +12,7 @@ import {
   replayability 
 } from '@/lib/replayability';
 import { useSearchParams } from 'next/navigation';
+import type { Creature } from '@/types/character'
 
 export function GameFeatures() {
   const searchParams = useSearchParams();

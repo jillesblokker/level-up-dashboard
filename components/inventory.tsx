@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { getInventory, InventoryItem } from "@/lib/inventory-manager"
+import { InventoryItem } from "@/lib/inventory-manager"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { storageService } from '@/lib/storage-service'
@@ -127,7 +127,7 @@ export function Inventory() {
                     <CardHeader>
                       <CardTitle className="text-lg flex items-center gap-2">
                         <span className="text-xl">{getItemEmoji(item)}</span>
-                        {item.name}
+                        {item.name ?? ''}
                       </CardTitle>
                       <CardDescription>{item.description}</CardDescription>
                     </CardHeader>
