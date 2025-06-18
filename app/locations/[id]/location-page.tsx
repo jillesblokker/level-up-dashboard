@@ -1,7 +1,6 @@
 "use client"
 
 import { locationDetails } from "./location-data"
-import type { LocationData } from "./location-data"
 import Image from 'next/image'
 
 export default function LocationPage({ id }: { id: string }) {
