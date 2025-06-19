@@ -313,8 +313,14 @@ export default function CharacterPage() {
         const perksObj = JSON.parse(localStorage.getItem('active-potion-perks') || '{}')
         const now = new Date()
         const perksArr = Object.entries(perksObj)
-          .map(([name, { effect, expiresAt }]) => ({ name, effect, expiresAt }))
-          .filter(perk => new Date(perk.expiresAt) > now)
+          .map(([name, value]) => {
+            if (typeof value === 'object' && value !== null && 'effect' in value && 'expiresAt' in value) {
+              const { effect, expiresAt } = value as { effect: string, expiresAt: string }
+              return { name, effect, expiresAt }
+            }
+            return null
+          })
+          .filter((perk): perk is { name: string, effect: string, expiresAt: string } => !!perk && new Date(perk.expiresAt) > now)
         setActivePotionPerks(perksArr)
       } catch (e) {
         setActivePotionPerks([])
