@@ -27,6 +27,7 @@ export interface QuestFilters {
   completed?: boolean;
   isNew?: boolean;
   isAI?: boolean;
+  difficulty?: 'easy' | 'medium' | 'hard' | 'epic';
 }
 
 export class QuestService {
@@ -42,12 +43,15 @@ export class QuestService {
 
     try {
       let query = supabase
-        .from('quests')
+        .from('quest_stats')
         .select('*')
-        .eq('userId', userId);
+        .eq('user_id', userId);
 
       if (filters.category) {
         query = query.eq('category', filters.category);
+      }
+      if (filters.difficulty) {
+        query = query.eq('difficulty', filters.difficulty);
       }
       if (typeof filters.completed === 'boolean') {
         query = query.eq('completed', filters.completed);
@@ -68,19 +72,19 @@ export class QuestService {
 
       return data.map(quest => ({
         id: quest.id,
-        title: quest.title,
+        title: quest.quest_name,
         description: quest.description,
         category: quest.category,
         difficulty: quest.difficulty as 'easy' | 'medium' | 'hard' | 'epic',
-        rewards: quest.rewards,
-        progress: quest.progress,
-        completed: quest.completed,
-        deadline: quest.deadline,
-        isNew: quest.isNew,
-        isAI: quest.isAI,
-        userId: quest.userId,
-        createdAt: quest.createdAt,
-        updatedAt: quest.updatedAt
+        rewards: quest.rewards || { xp: 0, gold: 0, items: [] },
+        progress: quest.progress ?? 0,
+        completed: quest.completed ?? false,
+        deadline: quest.date ?? "",
+        isNew: quest.isNew ?? false,
+        isAI: quest.isAI ?? false,
+        userId: quest.user_id,
+        createdAt: quest.created_at,
+        updatedAt: quest.updated_at
       }));
     } catch (error) {
       console.error('Error in getQuests:', error);
@@ -99,19 +103,16 @@ export class QuestService {
 
     try {
       const { data, error } = await supabase
-        .from('quests')
+        .from('quest_stats')
         .insert([{
-          title: quest.title,
+          quest_name: quest.title,
           description: quest.description,
           category: quest.category,
           difficulty: quest.difficulty,
           rewards: quest.rewards,
           progress: quest.progress,
           completed: quest.completed,
-          deadline: quest.deadline,
-          isNew: quest.isNew,
-          isAI: quest.isAI,
-          userId: quest.userId
+          user_id: quest.userId
         }])
         .select()
         .single();
@@ -127,19 +128,19 @@ export class QuestService {
 
       return {
         id: data.id,
-        title: data.title,
+        title: data.quest_name,
         description: data.description,
         category: data.category,
         difficulty: data.difficulty as 'easy' | 'medium' | 'hard' | 'epic',
         rewards: data.rewards,
         progress: data.progress,
         completed: data.completed,
-        deadline: data.deadline,
-        isNew: data.isNew,
-        isAI: data.isAI,
-        userId: data.userId,
-        createdAt: data.createdAt,
-        updatedAt: data.updatedAt
+        deadline: "",
+        isNew: false,
+        isAI: false,
+        userId: data.user_id,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
       };
     } catch (error) {
       console.error('Error in createQuest:', error);
@@ -158,9 +159,19 @@ export class QuestService {
     }
 
     try {
+      const updateData: any = {};
+      if (updates.title) updateData.quest_name = updates.title;
+      if (updates.description) updateData.description = updates.description;
+      if (updates.category) updateData.category = updates.category;
+      if (updates.difficulty) updateData.difficulty = updates.difficulty;
+      if (updates.rewards) updateData.rewards = updates.rewards;
+      if (updates.progress !== undefined) updateData.progress = updates.progress;
+      if (updates.completed !== undefined) updateData.completed = updates.completed;
+      if (updates.userId) updateData.user_id = updates.userId;
+
       const { data, error } = await supabase
-        .from('quests')
-        .update(updates)
+        .from('quest_stats')
+        .update(updateData)
         .eq('id', id)
         .select()
         .single();
@@ -176,19 +187,19 @@ export class QuestService {
 
       return {
         id: data.id,
-        title: data.title,
+        title: data.quest_name,
         description: data.description,
         category: data.category,
         difficulty: data.difficulty as 'easy' | 'medium' | 'hard' | 'epic',
         rewards: data.rewards,
         progress: data.progress,
         completed: data.completed,
-        deadline: data.deadline,
-        isNew: data.isNew,
-        isAI: data.isAI,
-        userId: data.userId,
-        createdAt: data.createdAt,
-        updatedAt: data.updatedAt
+        deadline: "",
+        isNew: false,
+        isAI: false,
+        userId: data.user_id,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
       };
     } catch (error) {
       console.error('Error in updateQuest:', error);
@@ -207,7 +218,7 @@ export class QuestService {
 
     try {
       const { error } = await supabase
-        .from('quests')
+        .from('quest_stats')
         .delete()
         .eq('id', id);
 
@@ -233,7 +244,7 @@ export class QuestService {
 
     try {
       const { data, error } = await supabase
-        .from('quests')
+        .from('quest_stats')
         .update({ completed })
         .eq('id', id)
         .select()
@@ -250,19 +261,19 @@ export class QuestService {
 
       return {
         id: data.id,
-        title: data.title,
+        title: data.quest_name,
         description: data.description,
         category: data.category,
         difficulty: data.difficulty as 'easy' | 'medium' | 'hard' | 'epic',
         rewards: data.rewards,
         progress: data.progress,
         completed: data.completed,
-        deadline: data.deadline,
-        isNew: data.isNew,
-        isAI: data.isAI,
-        userId: data.userId,
-        createdAt: data.createdAt,
-        updatedAt: data.updatedAt
+        deadline: "",
+        isNew: false,
+        isAI: false,
+        userId: data.user_id,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
       };
     } catch (error) {
       console.error('Error in toggleQuestCompletion:', error);
@@ -296,10 +307,10 @@ export class QuestService {
 
   static async checkQuest(supabase: SupabaseClient<Database>, questId: string, userId: string): Promise<void> {
     const { error } = await supabase
-      .from('QuestCompletion')
+      .from('quest_stats')
       .update({ completed: true, progress: 100 })
       .eq('id', questId)
-      .eq('userId', userId)
+      .eq('user_id', userId)
     if (error) {
       console.error('Error checking quest:', error)
       throw new Error(error.message)
@@ -308,10 +319,10 @@ export class QuestService {
 
   static async uncheckQuest(supabase: SupabaseClient<Database>, questId: string, userId: string): Promise<void> {
     const { error } = await supabase
-      .from('QuestCompletion')
+      .from('quest_stats')
       .update({ completed: false, progress: 0 })
       .eq('id', questId)
-      .eq('userId', userId)
+      .eq('user_id', userId)
     if (error) {
       console.error('Error unchecking quest:', error)
       throw new Error(error.message)
