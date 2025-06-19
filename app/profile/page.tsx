@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,12 @@ export default function ProfilePage() {
   const [avatarBgColor, setAvatarBgColor] = useState(user?.publicMetadata?.['avatar_bg_color'] as string || "#1f2937");
   const [avatarTextColor, setAvatarTextColor] = useState(user?.publicMetadata?.['avatar_text_color'] as string || "#ffffff");
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    // Log user and isLoaded for debugging
+    // eslint-disable-next-line no-console
+    console.log("[ProfilePage] Clerk user:", user, "isLoaded:", isLoaded);
+  }, [user, isLoaded]);
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -125,6 +131,7 @@ export default function ProfilePage() {
             <Button className="bg-gradient-to-r from-amber-500 to-amber-700 text-white font-bold rounded px-6 py-2 mt-2" aria-label="Sign in to profile" onClick={() => window.location.href = '/auth/signin'}>
               Sign In
             </Button>
+            <p className="text-red-400 mt-4">Error: Clerk user not found. Please ensure you are signed in and Clerk is initialized.</p>
           </div>
         </div>
       </div>
