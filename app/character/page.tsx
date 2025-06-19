@@ -239,6 +239,7 @@ export default function CharacterPage() {
   })
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [activePotionPerks, setActivePotionPerks] = useState<{ name: string, effect: string, expiresAt: string }[]>([])
 
   // Check and unlock perks based on character level
   const checkAndUnlockPerks = useCallback((level: number) => {
@@ -306,19 +307,36 @@ export default function CharacterPage() {
       setStrengths(getStrengths())
     }
 
+    // Load active potion perks
+    const loadActivePotionPerks = () => {
+      try {
+        const perksObj = JSON.parse(localStorage.getItem('active-potion-perks') || '{}')
+        const now = new Date()
+        const perksArr = Object.entries(perksObj)
+          .map(([name, { effect, expiresAt }]) => ({ name, effect, expiresAt }))
+          .filter(perk => new Date(perk.expiresAt) > now)
+        setActivePotionPerks(perksArr)
+      } catch (e) {
+        setActivePotionPerks([])
+      }
+    }
+
     loadCharacterStats()
     loadPerks()
     loadStrengths()
+    loadActivePotionPerks()
 
     // Listen for updates
     window.addEventListener('character-stats-update', loadCharacterStats)
     window.addEventListener('character-perks-update', loadPerks)
     window.addEventListener('character-strengths-update', loadStrengths)
+    window.addEventListener('character-inventory-update', loadActivePotionPerks)
     
     return () => {
       window.removeEventListener('character-stats-update', loadCharacterStats)
       window.removeEventListener('character-perks-update', loadPerks)
       window.removeEventListener('character-strengths-update', loadStrengths)
+      window.removeEventListener('character-inventory-update', loadActivePotionPerks)
     }
   }, [])
 
@@ -747,6 +765,31 @@ export default function CharacterPage() {
                           </CardContent>
                         </Card>
                       ))}
+                    {activePotionPerks.length > 0 && activePotionPerks.map((perk) => (
+                      <Card key={perk.name} className="bg-black/50 border-amber-800/30" aria-label={`active-bonus-potion-${perk.name}`}> 
+                        <CardHeader className="pb-2">
+                          <div className="flex items-center gap-2">
+                            <CardTitle className="text-base font-medium">{perk.name} (Potion Perk)</CardTitle>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            <p className="text-sm text-muted-foreground">{perk.effect}</p>
+                            <p className="text-xs text-amber-400">
+                              {(() => {
+                                const expires = new Date(perk.expiresAt)
+                                const now = new Date()
+                                const diff = expires.getTime() - now.getTime()
+                                if (diff <= 0) return "Expired"
+                                const hours = Math.floor(diff / (60 * 60 * 1000))
+                                const minutes = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000))
+                                return `${hours}h ${minutes}m remaining`
+                              })()}
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
                 </div>
               </div>
