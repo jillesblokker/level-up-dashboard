@@ -269,4 +269,28 @@ export class QuestService {
       throw error;
     }
   }
+
+  static async getCheckedQuests(
+    supabase: SupabaseClient<Database>,
+    userId: string
+  ): Promise<string[]> {
+    if (!supabase) {
+      console.error('Supabase client not initialized');
+      throw new Error('Supabase client not initialized');
+    }
+    try {
+      const { data, error } = await supabase
+        .from('checked_quests')
+        .select('quest_id')
+        .eq('user_id', userId);
+      if (error) {
+        console.error('Error fetching checked quests:', error);
+        throw new Error(`Error fetching checked quests: ${error.message}`);
+      }
+      return data ? data.map((row: { quest_id: string }) => row.quest_id) : [];
+    } catch (error) {
+      console.error('Error in getCheckedQuests:', error);
+      throw error;
+    }
+  }
 } 
