@@ -32,6 +32,7 @@ import { Milestones } from '@/components/milestones'
 import { KnowledgeModal } from "@/components/category-modals/knowledge-modal"
 import { ConditionModal } from "@/components/category-modals/condition-modal"
 import { NutritionModal } from "@/components/category-modals/nutrition-modal"
+import { useSupabaseSync } from '@/hooks/use-supabase-sync'
 
 // Add logging function
 const logQuestAction = async (action: string, questId: string, details: Record<string, unknown>, userId: string) => {
@@ -61,194 +62,143 @@ export default function QuestsPage() {
   const [isAddQuestModalOpen, setIsAddQuestModalOpen] = useState(false)
   const [currentCategory, setCurrentCategory] = useState<string | null>(null)
 
-  const [checkedQuests, setCheckedQuests] = useState<string[]>(() => {
-    try {
-      return JSON.parse(localStorage.getItem('checked-quests') || '[]');
-    } catch {
-      return [];
-    }
-  });
+  const [checkedQuests, setCheckedQuests] = useState<string[]>([])
 
-  // Add offline mode state
-  const [offlineMode, setOfflineMode] = useState(false);
+  // Use the Supabase sync hook
+  const { isSyncing, lastSync, isSignedIn } = useSupabaseSync()
+
+  // Load checked quests from Supabase/localStorage
+  useEffect(() => {
+    const loadCheckedQuests = async () => {
+      try {
+        const checked = await QuestService.getCheckedQuests()
+        setCheckedQuests(checked)
+      } catch (error) {
+        console.error('Error loading checked quests:', error)
+        // Fallback to localStorage
+        try {
+          const stored = JSON.parse(localStorage.getItem('checked-quests') || '[]')
+          setCheckedQuests(stored)
+        } catch {
+          setCheckedQuests([])
+        }
+      }
+    }
+
+    loadCheckedQuests()
+  }, [isSignedIn])
 
   // Load quests: try Supabase, else fallback to localStorage
   useEffect(() => {
     const loadQuests = async () => {
-      if (!supabase.supabase || !userId) {
-        setOfflineMode(true);
+      if (!isSignedIn) {
         // Load quests from localStorage or use defaultQuests if none
-        const localQuests = JSON.parse(localStorage.getItem('quests') || '[]');
-        setQuests(localQuests.length > 0 ? localQuests : defaultQuests);
-        return;
+        const localQuests = JSON.parse(localStorage.getItem('quests') || '[]')
+        setQuests(localQuests.length > 0 ? localQuests : defaultQuests)
+        return
       }
-      setOfflineMode(false);
+
       try {
-        const loadedQuests = await QuestService.getQuests(supabase.supabase!, userId);
-        if (loadedQuests && loadedQuests.length > 0) {
-          const hasChanges = JSON.stringify(loadedQuests) !== JSON.stringify(quests);
-          if (hasChanges) {
-            setQuests(loadedQuests);
-            localStorage.setItem('quests', JSON.stringify(loadedQuests));
-          }
-        }
+        // For now, use localStorage as primary source since we haven't migrated quest definitions
+        const localQuests = JSON.parse(localStorage.getItem('quests') || '[]')
+        setQuests(localQuests.length > 0 ? localQuests : defaultQuests)
       } catch (error: any) {
-        setOfflineMode(true);
-        const localQuests = JSON.parse(localStorage.getItem('quests') || '[]');
-        setQuests(localQuests.length > 0 ? localQuests : defaultQuests);
-        console.error('Error loading quests:', error);
+        const localQuests = JSON.parse(localStorage.getItem('quests') || '[]')
+        setQuests(localQuests.length > 0 ? localQuests : defaultQuests)
+        console.error('Error loading quests:', error)
       }
-    };
-    loadQuests();
-  }, [supabase.supabase, userId]);
+    }
+    loadQuests()
+  }, [isSignedIn])
 
-  // On initial load and when quests change, always merge checked state from localStorage
+  // On initial load and when quests change, always merge checked state
   useEffect(() => {
-    if (!quests || quests.length === 0) return;
-    const storedIds = JSON.parse(localStorage.getItem('checked-quests') || '[]');
-    const completedIds = quests.filter(q => q.completed).map(q => q.id);
-    const mergedIds = Array.from(new Set([...completedIds, ...storedIds]));
-    const hasChanges = JSON.stringify(mergedIds) !== JSON.stringify(checkedQuests);
+    if (!quests || quests.length === 0) return
+    const completedIds = quests.filter(q => q.completed).map(q => q.id)
+    const mergedIds = Array.from(new Set([...completedIds, ...checkedQuests]))
+    const hasChanges = JSON.stringify(mergedIds) !== JSON.stringify(checkedQuests)
     if (hasChanges) {
-      setCheckedQuests(mergedIds);
+      setCheckedQuests(mergedIds)
     }
-  }, [quests]);
+  }, [quests])
 
-  // Save quests to localStorage in offline mode when they change
+  // Save quests to localStorage when they change
   useEffect(() => {
-    if (offlineMode) {
-      localStorage.setItem('quests', JSON.stringify(quests));
+    if (!isSignedIn) {
+      localStorage.setItem('quests', JSON.stringify(quests))
     }
-  }, [quests, offlineMode]);
-
-  // Save checkedQuests to localStorage in offline mode when they change
-  useEffect(() => {
-    if (offlineMode) {
-      localStorage.setItem('checked-quests', JSON.stringify(checkedQuests));
-    }
-  }, [checkedQuests, offlineMode]);
+  }, [quests, isSignedIn])
 
   // Toggle quest completion
   const handleQuestToggle = async (questId: string) => {
-    if (offlineMode) {
-      // Update local state only
-      setCheckedQuests(prev => {
-        const newChecked = prev.includes(questId)
-          ? prev.filter(id => id !== questId)
-          : [...prev, questId];
-        localStorage.setItem('checked-quests', JSON.stringify(newChecked));
-        return newChecked;
-      });
-      setQuests(prevQuests =>
-        prevQuests.map(q =>
-          q.id === questId ? { ...q, completed: !q.completed } : q
-        )
-      );
-      localStorage.setItem('quests', JSON.stringify(
-        quests.map(q =>
-          q.id === questId ? { ...q, completed: !q.completed } : q
-        )
-      ));
-      // Award rewards if quest is now completed
-      const quest = quests.find(q => q.id === questId);
-      if (quest && !quest.completed) {
-        // Use proper gainGold and gainExperience functions
-        gainGold(quest.rewards?.gold || 0, `quest-${quest.title}`);
-        gainExperience(quest.rewards?.xp || 0, `quest-${quest.title}`, 'general');
-        
-        // Force immediate UI update
-        window.dispatchEvent(new Event("character-stats-update"));
-        
-        // Emit quest completion event for kingdom stats
-        emitQuestCompletedWithRewards(
-          quest.title,
-          quest.rewards?.gold || 0,
-          quest.rewards?.xp || 0,
-          'quests-page'
-        );
-      }
-      return;
-    }
-    const quest = quests.find(q => q.id === questId);
-    if (!quest) return;
-
-    // Check if we're in offline mode (no Supabase client or no user ID)
-    const isOfflineMode = !supabase.supabase || !userId;
+    const quest = quests.find(q => q.id === questId)
+    if (!quest) return
 
     // Calculate new states
     const newCheckedState = checkedQuests.includes(questId)
       ? checkedQuests.filter(id => id !== questId)
-      : [...checkedQuests, questId];
+      : [...checkedQuests, questId]
     
-    const newCompletedState = !quest.completed;
+    const newCompletedState = !quest.completed
 
     // Update local state first for immediate UI feedback
-    setCheckedQuests(newCheckedState);
-    localStorage.setItem('checked-quests', JSON.stringify(newCheckedState));
+    setCheckedQuests(newCheckedState)
 
     // Update quest state without triggering a re-render
     const updatedQuests = quests.map(q =>
       q.id === questId ? { ...q, completed: newCompletedState } : q
-    );
-    setQuests(updatedQuests);
+    )
+    setQuests(updatedQuests)
 
     // Award rewards if quest is now completed
     if (quest && !quest.completed && newCompletedState) {
-      // Use proper gainGold and gainExperience functions
-      gainGold(quest.rewards?.gold || 0, `quest-${quest.title}`);
-      gainExperience(quest.rewards?.xp || 0, `quest-${quest.title}`, 'general');
+      gainGold(quest.rewards?.gold || 0, `quest-${quest.title}`)
+      gainExperience(quest.rewards?.xp || 0, `quest-${quest.title}`, 'general')
       
       // Force immediate UI update
-      window.dispatchEvent(new Event("character-stats-update"));
-    }
-
-    // If we're in offline mode, stop here
-    if (isOfflineMode) {
-      return;
+      window.dispatchEvent(new Event("character-stats-update"))
+      
+      // Emit quest completion event for kingdom stats
+      emitQuestCompletedWithRewards(
+        quest.title,
+        quest.rewards?.gold || 0,
+        quest.rewards?.xp || 0,
+        'quests-page'
+      )
     }
 
     try {
-      // Log the toggle action
-      await logQuestAction('quest_toggle', questId, {
-        previousState: quest.completed,
-        newState: newCompletedState
-      }, userId);
-
-      // Update in Supabase
-      const updatedQuest = await QuestService.updateQuest(supabase.supabase!, questId, { 
-        completed: newCompletedState 
-      });
-
-      // Only update local state if the server update was successful
-      if (updatedQuest) {
-        setQuests(prevQuests =>
-          prevQuests.map(q =>
-            q.id === questId ? updatedQuest : q
-          )
-        );
+      // Update in Supabase/localStorage
+      if (newCompletedState) {
+        await QuestService.checkQuest(questId)
+      } else {
+        await QuestService.uncheckQuest(questId)
       }
 
-      // After updating quest in Supabase and local state, emit event if completed
-      if (quest && !quest.completed && newCompletedState) {
-        emitQuestCompletedWithRewards(
-          quest.title,
-          quest.rewards?.gold || 0,
-          quest.rewards?.xp || 0,
-          'quests-page'
-        );
+      // Log the toggle action
+      if (userId) {
+        await logQuestAction('quest_toggle', questId, {
+          previousState: quest.completed,
+          newState: newCompletedState
+        }, userId)
       }
     } catch (err) {
-      console.error('Failed to sync with server:', err);
+      console.error('Failed to sync quest state:', err)
+      toast({
+        title: "Sync Warning",
+        description: "Quest updated locally. Will sync when connection is restored.",
+        variant: "destructive"
+      })
     }
-  };
+  }
 
   // Load gold balance from localStorage
   useEffect(() => {
-    const savedGold = localStorage.getItem("levelup-gold-balance");
+    const savedGold = localStorage.getItem("levelup-gold-balance")
     if (savedGold) {
       // Gold balance is now managed by the gold manager
     }
-  }, []);
+  }, [])
 
   // Group quests by category
   const questsByCategory = quests.reduce((acc, quest) => {
@@ -347,14 +297,14 @@ export default function QuestsPage() {
   // Remove persistent offline mode banners from UI
   // Add offline mode notification to log center instead
   useEffect(() => {
-    if (offlineMode) {
+    if (!isSignedIn) {
       notificationService.addNotification(
         "Offline Mode",
         "All changes are saved locally and will not sync to the server.",
         "warning"
       );
     }
-  }, [offlineMode]);
+  }, [isSignedIn]);
 
   return (
     <div className="pt-16 min-h-screen bg-black text-white">

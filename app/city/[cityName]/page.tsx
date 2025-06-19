@@ -75,19 +75,17 @@ export default function CityPage() {
       <main className="flex-1 p-4 md:p-6 space-y-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight font-serif text-white">{cityData.name}</h1>
-            <p className="text-gray-300">{cityData.description}</p>
+            <Link href="/realm">
+              <Button 
+                variant="outline" 
+                className="border-amber-800/20 text-amber-500"
+                aria-label="Back to Realm"
+              >
+                <ChevronLeft className="mr-2 h-4 w-4" aria-hidden="true" />
+                Back to Realm
+              </Button>
+            </Link>
           </div>
-          <Link href="/realm">
-            <Button 
-              variant="outline" 
-              className="border-amber-800/20 text-amber-500"
-              aria-label="Back to Realm"
-            >
-              <ChevronLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-              Back to Realm
-            </Button>
-          </Link>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="city-locations-grid">

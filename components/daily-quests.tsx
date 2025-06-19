@@ -12,6 +12,8 @@ import { emitQuestCompletedWithRewards } from "@/lib/kingdom-events"
 import { toast } from "@/components/ui/use-toast"
 import { cn } from "@/lib/utils"
 import { storageService } from '@/lib/storage-service'
+import { DailyQuestsService } from '@/lib/supabase-services'
+import { useSupabaseSync } from '@/hooks/use-supabase-sync'
 
 // Quest item definitions with icons and categories
 interface QuestItem {
@@ -28,6 +30,9 @@ interface QuestItem {
 }
 
 export function DailyQuests() {
+  // Use the Supabase sync hook
+  const { isSignedIn } = useSupabaseSync()
+
   // Function to get current CET date
   const getCurrentCETDate = (): string => {
     const now = new Date()
@@ -90,14 +95,24 @@ export function DailyQuests() {
   ]
 
   // Function to reset quests
-  const resetQuests = () => {
+  const resetQuests = async () => {
     const updatedQuests = questItems.map(quest => ({
       ...quest,
       completed: false
     }))
     setQuestItems(updatedQuests)
-    storageService.set('daily-quests', updatedQuests)
-    storageService.set('last-quest-reset', getCurrentCETDate())
+    
+    // Save to both Supabase and localStorage
+    try {
+      if (isSignedIn) {
+        await DailyQuestsService.saveDailyQuests(updatedQuests)
+      }
+      storageService.set('daily-quests', updatedQuests)
+      storageService.set('last-quest-reset', getCurrentCETDate())
+    } catch (error) {
+      console.error('Failed to save reset quests:', error)
+    }
+    
     toast({
       title: "Daily Reset",
       description: "All quests have been reset for the new day.",
@@ -120,17 +135,31 @@ export function DailyQuests() {
     return () => clearInterval(interval)
   }, [questItems])
 
-  // Load daily quests from localStorage on component mount
+  // Load daily quests from Supabase/localStorage on component mount
   useEffect(() => {
-    const loadDailyQuests = () => {
+    const loadDailyQuests = async () => {
       try {
-        const savedQuests = storageService.get('daily-quests', [])
+        let savedQuests: QuestItem[] = []
+        
+        if (isSignedIn) {
+          // Try to load from Supabase first
+          try {
+            savedQuests = await DailyQuestsService.getDailyQuests()
+          } catch (error) {
+            console.warn('Failed to load from Supabase, falling back to localStorage:', error)
+            savedQuests = storageService.get('daily-quests', [])
+          }
+        } else {
+          // Load from localStorage only
+          savedQuests = storageService.get('daily-quests', [])
+        }
+        
         if (Array.isArray(savedQuests) && savedQuests.length > 0) {
           setQuestItems(savedQuests)
-          console.info('Loaded daily quests from localStorage:', savedQuests.length)
+          console.info('Loaded daily quests:', savedQuests.length)
         } else {
           setQuestItems(defaultQuestItems)
-          console.info('Using default daily quests - invalid saved data')
+          console.info('Using default daily quests - no saved data')
         }
       } catch (error) {
         console.error('Error loading daily quests:', error)
@@ -138,10 +167,10 @@ export function DailyQuests() {
       }
     }
     loadDailyQuests()
-  }, [])
+  }, [isSignedIn])
 
   // Toggle quest completion with immediate save
-  const toggleQuest = (questId: string) => {
+  const toggleQuest = async (questId: string) => {
     const updatedQuests = questItems.map(quest =>
       quest.id === questId
         ? { ...quest, completed: !quest.completed }
@@ -150,18 +179,25 @@ export function DailyQuests() {
     
     setQuestItems(updatedQuests)
     
-    // IMMEDIATE SAVE: Save daily quests to localStorage
+    // Save to both Supabase and localStorage
     try {
+      if (isSignedIn) {
+        await DailyQuestsService.saveDailyQuests(updatedQuests)
+      }
       storageService.set('daily-quests', updatedQuests)
       console.info('=== DAILY QUEST SAVE SUCCESSFUL ===', { questId, timestamp: new Date() })
     } catch (error) {
       console.error('=== DAILY QUEST SAVE FAILED ===', error)
+      toast({
+        title: "Save Warning",
+        description: "Quest updated locally. Will sync when connection is restored.",
+        variant: "destructive"
+      })
     }
     
     // Check if quest was completed and show notification
     const toggledQuest = updatedQuests.find(q => q.id === questId)
     if (toggledQuest?.completed) {
-      // Quest was just completed, could add toast notification here if needed
       console.info(`Daily quest completed: ${toggledQuest.name}`)
       emitQuestCompletedWithRewards(
         toggledQuest.name, 
@@ -173,7 +209,7 @@ export function DailyQuests() {
   }
 
   // Add new quest
-  const addNewQuest = () => {
+  const addNewQuest = async () => {
     if (newQuestName.trim() === "") return
 
     const newQuest: QuestItem = {
@@ -189,14 +225,25 @@ export function DailyQuests() {
       ...(newQuestFrequency.trim() ? { frequency: newQuestFrequency.trim() } : {})
     }
 
-    setQuestItems([...questItems, newQuest])
+    const updatedQuests = [...questItems, newQuest]
+    setQuestItems(updatedQuests)
+    
+    // Save to both Supabase and localStorage
+    try {
+      if (isSignedIn) {
+        await DailyQuestsService.saveDailyQuests(updatedQuests)
+      }
+      storageService.set('daily-quests', updatedQuests)
+    } catch (error) {
+      console.error('Failed to save new quest:', error)
+    }
+    
     setNewQuestName("")
     setNewQuestIcon("")
     setNewQuestExperience(50)
     setNewQuestGold(25)
     setNewQuestFrequency("")
     setIsDialogOpen(false)
-    storageService.set('daily-quests', [...questItems, newQuest])
   }
 
   // Filter quests by category

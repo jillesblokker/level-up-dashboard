@@ -18,6 +18,14 @@ interface LocationItem {
   type: "item" | "resource" | "creature" | "scroll" | "equipment" | "artifact" | "book"
   emoji?: string
   image?: string
+  movement?: number
+  attack?: number
+  defense?: number
+  stats?: {
+    movement?: number
+    attack?: number
+    defense?: number
+  }
 }
 
 const locationData: Record<string, any> = {
@@ -26,46 +34,179 @@ const locationData: Record<string, any> = {
     description: "A bustling marketplace where merchants sell their wares.",
     icon: ShoppingBag,
     items: [
-      { id: "health-potion", name: "Health Potion", description: "Restores 50 HP", price: 50, type: "item" },
-      { id: "mana-potion", name: "Mana Potion", description: "Restores 50 MP", price: 50, type: "item" },
-      { id: "antidote", name: "Antidote", description: "Cures poison", price: 75, type: "item" }
+      { 
+        id: "health-elixir", 
+        name: "Health Elixir", 
+        description: "A potent healing elixir brewed from rare herbs.", 
+        price: 50, 
+        type: "item",
+        emoji: "🧪",
+        image: "/images/items/potion/potion-health.png",
+        stats: { defense: 1 }
+      },
+      { 
+        id: "mana-crystal", 
+        name: "Mana Crystal", 
+        description: "A crystallized form of pure magical energy.", 
+        price: 75, 
+        type: "item",
+        emoji: "💎",
+        image: "/images/items/potion/potion-exp.png",
+        stats: { attack: 1 }
+      },
+      { 
+        id: "merchants-charm", 
+        name: "Merchant's Charm", 
+        description: "A lucky charm that brings fortune in trade.", 
+        price: 100, 
+        type: "artifact",
+        emoji: "🍀",
+        image: "/images/items/artifact/ring/artifact-ringo.png"
+      }
     ]
   },
   blacksmith: {
     name: "Blacksmith",
-    description: "A forge where weapons and armor are crafted.",
+    description: "A master forge where legendary weapons and armor are crafted.",
     icon: Swords,
     items: [
-      { id: "iron-sword", name: "Iron Sword", description: "A basic sword", price: 100, type: "item" },
-      { id: "steel-armor", name: "Steel Armor", description: "Sturdy armor", price: 200, type: "item" },
-      { id: "iron-shield", name: "Iron Shield", description: "A basic shield", price: 150, type: "item" }
+      { 
+        id: "sunforged-blade", 
+        name: "Sunforged Blade", 
+        description: "A blade forged in magical flames, gleaming with inner light.", 
+        price: 200, 
+        type: "equipment",
+        emoji: "⚔️",
+        image: "/images/items/sword/sword-sunblade.png",
+        stats: { attack: 4 }
+      },
+      { 
+        id: "shadowmail", 
+        name: "Shadowmail", 
+        description: "Dark, flexible armor that moves like silk but protects like steel.", 
+        price: 250, 
+        type: "equipment",
+        emoji: "🥋",
+        image: "/images/items/armor/armor-darko.png",
+        stats: { defense: 4 }
+      },
+      { 
+        id: "guardian-shield", 
+        name: "Guardian Shield", 
+        description: "An enchanted shield that seems to move on its own to protect its wielder.", 
+        price: 180, 
+        type: "equipment",
+        emoji: "🛡️",
+        image: "/images/items/shield/shield-blockado.png",
+        stats: { defense: 3 }
+      }
     ]
   },
   library: {
     name: "Library",
-    description: "A place of knowledge and learning.",
+    description: "An ancient repository of magical knowledge and forgotten lore.",
     icon: BookOpen,
     items: [
-      { id: "spell-book", name: "Spell Book", description: "Contains basic spells", price: 300, type: "item" },
-      { id: "skill-scroll", name: "Skill Scroll", description: "Teaches a new skill", price: 500, type: "scroll" }
+      { 
+        id: "tome-of-power", 
+        name: "Tome of Power", 
+        description: "Ancient writings containing powerful magical knowledge.", 
+        price: 300, 
+        type: "book",
+        emoji: "📚",
+        image: "/images/items/scroll/scroll-perkamento.png",
+        stats: { attack: 2 }
+      },
+      { 
+        id: "scroll-of-wisdom", 
+        name: "Scroll of Wisdom", 
+        description: "A mystical scroll that enhances the reader's understanding.", 
+        price: 250, 
+        type: "scroll",
+        emoji: "📜",
+        image: "/images/items/scroll/scroll-memento.png",
+        stats: { defense: 2 }
+      },
+      { 
+        id: "crystal-codex", 
+        name: "Crystal Codex", 
+        description: "A book bound in crystalline pages that shimmer with magic.", 
+        price: 400, 
+        type: "book",
+        emoji: "💠",
+        image: "/images/items/scroll/scroll-scrolly.png",
+        stats: { attack: 1, defense: 1 }
+      }
     ]
   },
   townhall: {
     name: "Town Hall",
-    description: "The center of city administration.",
+    description: "The administrative heart of the city, where important matters are decided.",
     icon: Building,
     items: [
-      { id: "city-pass", name: "City Pass", description: "Grants access to restricted areas", price: 1000, type: "item" },
-      { id: "trade-license", name: "Trade License", description: "Allows trading in the city", price: 750, type: "item" }
+      { 
+        id: "noble-signet", 
+        name: "Noble Signet", 
+        description: "A ring bearing the city's seal, granting special privileges.", 
+        price: 500, 
+        type: "artifact",
+        emoji: "💍",
+        image: "/images/items/artifact/ring/artifact-ringo.png"
+      },
+      { 
+        id: "royal-decree", 
+        name: "Royal Decree", 
+        description: "An official document granting special trading rights.", 
+        price: 750, 
+        type: "scroll",
+        emoji: "📜",
+        image: "/images/items/scroll/scroll-perkamento.png"
+      },
+      { 
+        id: "governors-medallion", 
+        name: "Governor's Medallion", 
+        description: "A symbol of authority in the city.", 
+        price: 1000, 
+        type: "artifact",
+        emoji: "🏅",
+        image: "/images/items/artifact/crown/artifact-crowny.png"
+      }
     ]
   },
   inn: {
     name: "Inn",
-    description: "A cozy place to rest and gather information.",
+    description: "A welcoming establishment offering rest, refreshment, and local gossip.",
     icon: Home,
     items: [
-      { id: "room-key", name: "Room Key", description: "Access to a private room", price: 50, type: "item" },
-      { id: "meal-token", name: "Meal Token", description: "Good for one meal", price: 25, type: "item" }
+      { 
+        id: "travelers-feast", 
+        name: "Traveler's Feast", 
+        description: "A hearty meal that restores vitality.", 
+        price: 30, 
+        type: "item",
+        emoji: "🍖",
+        image: "/images/items/potion/potion-health.png",
+        stats: { defense: 1 }
+      },
+      { 
+        id: "mystic-brew", 
+        name: "Mystic Brew", 
+        description: "A special drink that enhances magical abilities.", 
+        price: 45, 
+        type: "item",
+        emoji: "🍺",
+        image: "/images/items/potion/potion-exp.png",
+        stats: { attack: 1 }
+      },
+      { 
+        id: "restful-charm", 
+        name: "Restful Charm", 
+        description: "A magical trinket that ensures peaceful sleep.", 
+        price: 100, 
+        type: "artifact",
+        emoji: "💫",
+        image: "/images/items/artifact/ring/artifact-ringo.png"
+      }
     ]
   },
   "embers-anvil": {
@@ -73,9 +214,9 @@ const locationData: Record<string, any> = {
     description: "Buy equipment: sword, shield, and armor set.",
     icon: Swords,
     items: [
-      { id: "sword", name: "Sword", description: "A sharp blade for battle.", price: 120, type: "equipment", emoji: "⚔️", image: "/images/items/sword/sword-twig.png" },
-      { id: "shield", name: "Shield", description: "Protects you from attacks.", price: 100, type: "equipment", emoji: "🛡️", image: "/images/items/shield/shield-reflecto.png" },
-      { id: "armor-set", name: "Armor Set", description: "Full body protection.", price: 250, type: "equipment", emoji: "🥋", image: "/images/items/armor/armor-normalo.png" }
+      { id: "iron-sword", name: "Iron Sword", description: "A sturdy iron sword for battle.", price: 120, type: "equipment", emoji: "⚔️", image: "/images/items/sword/sword-irony.png", stats: { attack: 3 } },
+      { id: "steel-shield", name: "Steel Shield", description: "A strong steel shield for protection.", price: 100, type: "equipment", emoji: "🛡️", image: "/images/items/shield/shield-reflecto.png", stats: { defense: 2 } },
+      { id: "iron-armor", name: "Iron Armor", description: "Full body iron armor.", price: 250, type: "equipment", emoji: "🥋", image: "/images/items/armor/armor-darko.png", stats: { defense: 3 } }
     ]
   },
   "kingdom-marketplace": {
@@ -202,12 +343,14 @@ export default function CityLocationPage() {
 
     // Add item to inventory
     addToInventory({
-      id: item.id,
-      name: item.name,
-      type: item.type,
-      description: item.description || item.name,
+      ...item,
       quantity: 1,
       image: item.image ? item.image : getItemImagePath(item) as string,
+      stats: item.stats || {
+        ...(item.movement !== undefined ? { movement: item.movement } : {}),
+        ...(item.attack !== undefined ? { attack: item.attack } : {}),
+        ...(item.defense !== undefined ? { defense: item.defense } : {}),
+      },
     })
     // If the item is a horse/creature, ensure unique id and type
     if (params.locationId === 'royal-stables' && item.type === 'creature') {
@@ -218,15 +361,22 @@ export default function CityLocationPage() {
         type: 'creature',
         quantity: 1,
         image: item.image ? item.image : getItemImagePath(item),
+        stats: item.stats || {
+          ...(item.movement !== undefined ? { movement: item.movement } : {}),
+          ...(item.attack !== undefined ? { attack: item.attack } : {}),
+          ...(item.defense !== undefined ? { defense: item.defense } : {}),
+        },
       })
     } else {
       addToKingdomInventory({
-        id: item.id,
-        name: item.name,
-        type: item.type,
-        description: item.description || item.name,
+        ...item,
         quantity: 1,
         image: item.image ? item.image : getItemImagePath(item),
+        stats: item.stats || {
+          ...(item.movement !== undefined ? { movement: item.movement } : {}),
+          ...(item.attack !== undefined ? { attack: item.attack } : {}),
+          ...(item.defense !== undefined ? { defense: item.defense } : {}),
+        },
       })
     }
 
