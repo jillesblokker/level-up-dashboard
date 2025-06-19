@@ -33,7 +33,7 @@ export function HealthCheck() {
       const online = navigator.onLine
       
       // Check localStorage
-      const localStorage = (() => {
+      const localStorageAvailable = (() => {
         try {
           localStorage.setItem('health-check', 'test')
           localStorage.removeItem('health-check')
@@ -46,8 +46,8 @@ export function HealthCheck() {
       // Check Supabase
       const supabase = (() => {
         try {
-          const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-          const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+          const url = process.env['NEXT_PUBLIC_SUPABASE_URL']
+          const key = process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']
           return !!(url && key)
         } catch {
           return false
@@ -66,7 +66,7 @@ export function HealthCheck() {
       setStatus({
         online,
         supabase,
-        localStorage,
+        localStorage: localStorageAvailable,
         clerk,
         lastCheck: new Date()
       })

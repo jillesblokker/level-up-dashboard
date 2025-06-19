@@ -161,6 +161,7 @@ export const InventoryService = {
       async () => {
         const userId = getUserId()
         if (!userId) throw new Error('No user ID')
+        if (!supabase) throw new Error('Supabase client not initialized')
 
         const { data, error } = await supabase
           .from('inventory_items')
@@ -183,6 +184,7 @@ export const InventoryService = {
       async () => {
         const userId = getUserId()
         if (!userId) throw new Error('No user ID')
+        if (!supabase) throw new Error('Supabase client not initialized')
 
         const { error } = await supabase
           .from('inventory_items')
@@ -214,6 +216,7 @@ export const InventoryService = {
       async () => {
         const userId = getUserId()
         if (!userId) throw new Error('No user ID')
+        if (!supabase) throw new Error('Supabase client not initialized')
 
         const { data, error } = await supabase
           .from('inventory_items')
@@ -237,6 +240,7 @@ export const InventoryService = {
       async () => {
         const userId = getUserId()
         if (!userId) throw new Error('No user ID')
+        if (!supabase) throw new Error('Supabase client not initialized')
 
         const { data, error } = await supabase
           .from('inventory_items')
@@ -263,6 +267,7 @@ export const QuestService = {
       async () => {
         const userId = getUserId()
         if (!userId) throw new Error('No user ID')
+        if (!supabase) throw new Error('Supabase client not initialized')
 
         const { data, error } = await supabase
           .from('checked_quests')
@@ -285,6 +290,7 @@ export const QuestService = {
       async () => {
         const userId = getUserId()
         if (!userId) throw new Error('No user ID')
+        if (!supabase) throw new Error('Supabase client not initialized')
 
         const { error } = await supabase
           .from('checked_quests')
@@ -312,6 +318,7 @@ export const QuestService = {
       async () => {
         const userId = getUserId()
         if (!userId) throw new Error('No user ID')
+        if (!supabase) throw new Error('Supabase client not initialized')
 
         const { error } = await supabase
           .from('checked_quests')
@@ -335,6 +342,7 @@ export const QuestService = {
       async () => {
         const userId = getUserId()
         if (!userId) throw new Error('No user ID')
+        if (!supabase) throw new Error('Supabase client not initialized')
 
         const { data, error } = await supabase
           .from('quest_stats')
@@ -357,6 +365,7 @@ export const QuestService = {
       async () => {
         const userId = getUserId()
         if (!userId) throw new Error('No user ID')
+        if (!supabase) throw new Error('Supabase client not initialized')
 
         const { error } = await supabase
           .from('quest_stats')
@@ -391,6 +400,7 @@ export const DailyQuestsService = {
       async () => {
         const userId = getUserId()
         if (!userId) throw new Error('No user ID')
+        if (!supabase) throw new Error('Supabase client not initialized')
 
         const { data, error } = await supabase
           .from('game_settings')
@@ -415,6 +425,7 @@ export const DailyQuestsService = {
       async () => {
         const userId = getUserId()
         if (!userId) throw new Error('No user ID')
+        if (!supabase) throw new Error('Supabase client not initialized')
 
         const { error } = await supabase
           .from('game_settings')
@@ -442,6 +453,7 @@ export const GameSettingsService = {
       async () => {
         const userId = getUserId()
         if (!userId) throw new Error('No user ID')
+        if (!supabase) throw new Error('Supabase client not initialized')
 
         const { data, error } = await supabase
           .from('game_settings')
@@ -466,6 +478,7 @@ export const GameSettingsService = {
       async () => {
         const userId = getUserId()
         if (!userId) throw new Error('No user ID')
+        if (!supabase) throw new Error('Supabase client not initialized')
 
         const { error } = await supabase
           .from('game_settings')

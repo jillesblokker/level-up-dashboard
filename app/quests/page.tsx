@@ -71,7 +71,8 @@ export default function QuestsPage() {
   useEffect(() => {
     const loadCheckedQuests = async () => {
       try {
-        const checked = await QuestService.getCheckedQuests()
+        if (!supabase.supabase || !userId) return;
+        const checked = await QuestService.getCheckedQuests(supabase.supabase, userId)
         setCheckedQuests(checked)
       } catch (error) {
         console.error('Error loading checked quests:', error)
@@ -170,9 +171,13 @@ export default function QuestsPage() {
     try {
       // Update in Supabase/localStorage
       if (newCompletedState) {
-        await QuestService.checkQuest(questId)
+        if (supabase.supabase && userId) {
+          await QuestService.checkQuest(supabase.supabase, questId, userId)
+        }
       } else {
-        await QuestService.uncheckQuest(questId)
+        if (supabase.supabase && userId) {
+          await QuestService.uncheckQuest(supabase.supabase, questId, userId)
+        }
       }
 
       // Log the toggle action

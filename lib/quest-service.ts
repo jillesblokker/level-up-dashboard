@@ -293,4 +293,28 @@ export class QuestService {
       throw error;
     }
   }
+
+  static async checkQuest(supabase: SupabaseClient<Database>, questId: string, userId: string): Promise<void> {
+    const { error } = await supabase
+      .from('QuestCompletion')
+      .update({ completed: true, progress: 100 })
+      .eq('id', questId)
+      .eq('userId', userId)
+    if (error) {
+      console.error('Error checking quest:', error)
+      throw new Error(error.message)
+    }
+  }
+
+  static async uncheckQuest(supabase: SupabaseClient<Database>, questId: string, userId: string): Promise<void> {
+    const { error } = await supabase
+      .from('QuestCompletion')
+      .update({ completed: false, progress: 0 })
+      .eq('id', questId)
+      .eq('userId', userId)
+    if (error) {
+      console.error('Error unchecking quest:', error)
+      throw new Error(error.message)
+    }
+  }
 } 

@@ -7,8 +7,8 @@ import { AlertTriangle, RefreshCw } from 'lucide-react'
 
 interface ErrorBoundaryState {
   hasError: boolean
-  error?: Error
-  errorInfo?: React.ErrorInfo
+  error: Error | null
+  errorInfo: React.ErrorInfo | null
 }
 
 interface ErrorBoundaryProps {
@@ -19,11 +19,11 @@ interface ErrorBoundaryProps {
 export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props)
-    this.state = { hasError: false }
+    this.state = { hasError: false, error: null, errorInfo: null }
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error }
+    return { hasError: true, error, errorInfo: null }
   }
 
   override componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
@@ -39,10 +39,10 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   resetError = () => {
-    this.setState({ hasError: false, error: undefined, errorInfo: undefined })
+    this.setState({ hasError: false, error: null, errorInfo: null })
   }
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
         return <this.props.fallback error={this.state.error!} resetError={this.resetError} />

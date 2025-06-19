@@ -39,6 +39,7 @@ export function useSupabaseSync() {
 
       return () => clearInterval(interval)
     }
+    return undefined
   }, [isSignedIn, user?.id])
 
   // Sync on online/offline status change

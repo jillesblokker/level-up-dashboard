@@ -5,14 +5,14 @@ import { create } from 'zustand'
 interface LoadingState {
   isLoading: boolean
   message: string
-  progress?: number
+  progress: number | undefined
   operations: Map<string, boolean>
 }
 
 interface LoadingActions {
   startLoading: (message?: string) => void
   stopLoading: () => void
-  setProgress: (progress: number) => void
+  setProgress: (progress: number | undefined) => void
   startOperation: (operationId: string, message?: string) => void
   stopOperation: (operationId: string) => void
   isOperationRunning: (operationId: string) => boolean
@@ -32,7 +32,7 @@ export const useLoadingStore = create<LoadingState & LoadingActions>((set, get) 
     set({ isLoading: false, message: '', progress: undefined })
   },
 
-  setProgress: (progress: number) => {
+  setProgress: (progress: number | undefined) => {
     set({ progress })
   },
 
