@@ -26,7 +26,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     return { hasError: true, error }
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  override componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo)
     this.setState({ error, errorInfo })
     
@@ -57,7 +57,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                 <CardTitle>Something went wrong</CardTitle>
               </div>
               <CardDescription>
-                An unexpected error occurred. Don't worry, your data is safe.
+                An unexpected error occurred. Don&apos;t worry, your data is safe.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
