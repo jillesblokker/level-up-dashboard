@@ -348,6 +348,4 @@ export function getTotalStats(): { movement: number; attack: number; defense: nu
     }
     return total
   }, { movement: 0, attack: 0, defense: 0 })
-}
-
-export { getEquippedItems, getStoredItems, equipItem, unequipItem, getTotalStats }; 
+} 
