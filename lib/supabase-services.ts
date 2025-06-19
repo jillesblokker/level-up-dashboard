@@ -541,3 +541,129 @@ export const SyncService = {
     }
   }
 }
+
+// Real-time sync service for cross-device synchronization
+export const RealTimeSyncService = {
+  setupSubscriptions(supabase: any, userId: string, callbacks: {
+    onQuestChange?: (payload: any) => void;
+    onGridChange?: (payload: any) => void;
+    onCharacterStatsChange?: (payload: any) => void;
+    onInventoryChange?: (payload: any) => void;
+    onAchievementChange?: (payload: any) => void;
+  }) {
+    if (!supabase || !userId) return null;
+
+    console.log('Setting up comprehensive real-time sync subscriptions...');
+
+    const subscriptions: any[] = [];
+
+    // Quest changes
+    if (callbacks.onQuestChange) {
+      const questSubscription = supabase
+        .channel('quest-sync')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'checked_quests',
+            filter: `user_id=eq.${userId}`
+          },
+          callbacks.onQuestChange
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'quest_stats',
+            filter: `user_id=eq.${userId}`
+          },
+          callbacks.onQuestChange
+        )
+        .subscribe();
+      subscriptions.push(questSubscription);
+    }
+
+    // Grid changes
+    if (callbacks.onGridChange) {
+      const gridSubscription = supabase
+        .channel('grid-sync')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'realm_grids',
+            filter: `user_id=eq.${userId}`
+          },
+          callbacks.onGridChange
+        )
+        .subscribe();
+      subscriptions.push(gridSubscription);
+    }
+
+    // Character stats changes
+    if (callbacks.onCharacterStatsChange) {
+      const statsSubscription = supabase
+        .channel('character-stats-sync')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'character_stats',
+            filter: `user_id=eq.${userId}`
+          },
+          callbacks.onCharacterStatsChange
+        )
+        .subscribe();
+      subscriptions.push(statsSubscription);
+    }
+
+    // Inventory changes
+    if (callbacks.onInventoryChange) {
+      const inventorySubscription = supabase
+        .channel('inventory-sync')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'inventory_items',
+            filter: `user_id=eq.${userId}`
+          },
+          callbacks.onInventoryChange
+        )
+        .subscribe();
+      subscriptions.push(inventorySubscription);
+    }
+
+    // Achievement changes
+    if (callbacks.onAchievementChange) {
+      const achievementSubscription = supabase
+        .channel('achievement-sync')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'achievements',
+            filter: `user_id=eq.${userId}`
+          },
+          callbacks.onAchievementChange
+        )
+        .subscribe();
+      subscriptions.push(achievementSubscription);
+    }
+
+    return {
+      cleanup: () => {
+        console.log('Cleaning up real-time sync subscriptions...');
+        subscriptions.forEach(subscription => {
+          supabase.removeChannel(subscription);
+        });
+      }
+    };
+  }
+};

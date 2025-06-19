@@ -67,13 +67,60 @@ export default function QuestsPage() {
   // Use the Supabase sync hook
   const { isSyncing, lastSync, isSignedIn } = useSupabaseSync()
 
+  // Load quests: try Supabase, else fallback to localStorage
+  useEffect(() => {
+    const loadQuests = async () => {
+      if (!isSignedIn) {
+        // Load quests from localStorage or use defaultQuests if none
+        const localQuests = JSON.parse(localStorage.getItem('quests') || '[]')
+        setQuests(localQuests.length > 0 ? localQuests : defaultQuests)
+        return
+      }
+
+      try {
+        // Try to load from Supabase first
+        if (supabase.supabase && userId) {
+          console.log('Loading quests from Supabase...')
+          const supabaseQuests = await QuestService.getQuests(supabase.supabase, userId)
+          if (supabaseQuests && supabaseQuests.length > 0) {
+            console.log('Loaded quests from Supabase:', supabaseQuests.length)
+            setQuests(supabaseQuests)
+            // Save to localStorage as backup
+            localStorage.setItem('quests', JSON.stringify(supabaseQuests))
+            return
+          }
+        }
+        
+        // Fallback to localStorage
+        const localQuests = JSON.parse(localStorage.getItem('quests') || '[]')
+        setQuests(localQuests.length > 0 ? localQuests : defaultQuests)
+        console.log('Loaded quests from localStorage:', localQuests.length)
+      } catch (error: any) {
+        console.error('Error loading quests from Supabase, falling back to localStorage:', error)
+        const localQuests = JSON.parse(localStorage.getItem('quests') || '[]')
+        setQuests(localQuests.length > 0 ? localQuests : defaultQuests)
+      }
+    }
+    loadQuests()
+  }, [isSignedIn, supabase.supabase, userId])
+
   // Load checked quests from Supabase/localStorage
   useEffect(() => {
     const loadCheckedQuests = async () => {
       try {
-        if (!supabase.supabase || !userId) return;
-        const checked = await QuestService.getCheckedQuests(supabase.supabase, userId)
-        setCheckedQuests(checked)
+        if (supabase.supabase && userId && isSignedIn) {
+          console.log('Loading checked quests from Supabase...')
+          const checked = await QuestService.getCheckedQuests(supabase.supabase, userId)
+          console.log('Loaded checked quests from Supabase:', checked.length)
+          setCheckedQuests(checked)
+          // Save to localStorage as backup
+          localStorage.setItem('checked-quests', JSON.stringify(checked))
+        } else {
+          // Fallback to localStorage
+          const stored = JSON.parse(localStorage.getItem('checked-quests') || '[]')
+          setCheckedQuests(stored)
+          console.log('Loaded checked quests from localStorage:', stored.length)
+        }
       } catch (error) {
         console.error('Error loading checked quests:', error)
         // Fallback to localStorage
@@ -87,30 +134,7 @@ export default function QuestsPage() {
     }
 
     loadCheckedQuests()
-  }, [isSignedIn])
-
-  // Load quests: try Supabase, else fallback to localStorage
-  useEffect(() => {
-    const loadQuests = async () => {
-      if (!isSignedIn) {
-        // Load quests from localStorage or use defaultQuests if none
-        const localQuests = JSON.parse(localStorage.getItem('quests') || '[]')
-        setQuests(localQuests.length > 0 ? localQuests : defaultQuests)
-        return
-      }
-
-      try {
-        // For now, use localStorage as primary source since we haven't migrated quest definitions
-        const localQuests = JSON.parse(localStorage.getItem('quests') || '[]')
-        setQuests(localQuests.length > 0 ? localQuests : defaultQuests)
-      } catch (error: any) {
-        const localQuests = JSON.parse(localStorage.getItem('quests') || '[]')
-        setQuests(localQuests.length > 0 ? localQuests : defaultQuests)
-        console.error('Error loading quests:', error)
-      }
-    }
-    loadQuests()
-  }, [isSignedIn])
+  }, [isSignedIn, supabase.supabase, userId])
 
   // On initial load and when quests change, always merge checked state
   useEffect(() => {
@@ -135,50 +159,79 @@ export default function QuestsPage() {
     const quest = quests.find(q => q.id === questId)
     if (!quest) return
 
-    // Calculate new states
-    const newCheckedState = checkedQuests.includes(questId)
-      ? checkedQuests.filter(id => id !== questId)
-      : [...checkedQuests, questId]
-    
     const newCompletedState = !quest.completed
 
-    // Update local state first for immediate UI feedback
-    setCheckedQuests(newCheckedState)
-
-    // Update quest state without triggering a re-render
-    const updatedQuests = quests.map(q =>
-      q.id === questId ? { ...q, completed: newCompletedState } : q
-    )
-    setQuests(updatedQuests)
-
-    // Award rewards if quest is now completed
-    if (quest && !quest.completed && newCompletedState) {
-      gainGold(quest.rewards?.gold || 0, `quest-${quest.title}`)
-      gainExperience(quest.rewards?.xp || 0, `quest-${quest.title}`, 'general')
-      
-      // Force immediate UI update
-      window.dispatchEvent(new Event("character-stats-update"))
-      
-      // Emit quest completion event for kingdom stats
-      emitQuestCompletedWithRewards(
-        quest.title,
-        quest.rewards?.gold || 0,
-        quest.rewards?.xp || 0,
-        'quests-page'
+    // Update local state immediately for responsive UI
+    setQuests(prevQuests =>
+      prevQuests.map(q =>
+        q.id === questId ? { ...q, completed: newCompletedState } : q
       )
-    }
+    )
+
+    // Update checked quests list
+    setCheckedQuests(prev => {
+      if (newCompletedState) {
+        return prev.includes(questId) ? prev : [...prev, questId]
+      } else {
+        return prev.filter(id => id !== questId)
+      }
+    })
 
     try {
-      // Update in Supabase/localStorage
-      if (newCompletedState) {
-        if (supabase.supabase && userId) {
-          await QuestService.checkQuest(supabase.supabase, questId, userId)
+      // Save to Supabase for authenticated users
+      if (supabase.supabase && userId && isSignedIn) {
+        console.log('Saving quest completion to Supabase:', { questId, completed: newCompletedState })
+        
+        if (newCompletedState) {
+          // Add to checked_quests table
+          await supabase.supabase
+            .from('checked_quests')
+            .upsert({
+              user_id: userId,
+              quest_id: questId,
+              checked_at: new Date().toISOString()
+            })
+          
+          // Update quest_stats table
+          await supabase.supabase
+            .from('quest_stats')
+            .upsert({
+              user_id: userId,
+              quest_id: questId,
+              quest_name: quest.title,
+              category: quest.category,
+              completed: true,
+              completed_at: new Date().toISOString(),
+              progress: 100
+            })
+        } else {
+          // Remove from checked_quests table
+          await supabase.supabase
+            .from('checked_quests')
+            .delete()
+            .eq('user_id', userId)
+            .eq('quest_id', questId)
+          
+          // Update quest_stats table
+          await supabase.supabase
+            .from('quest_stats')
+            .upsert({
+              user_id: userId,
+              quest_id: questId,
+              quest_name: quest.title,
+              category: quest.category,
+              completed: false,
+              completed_at: null,
+              progress: 0
+            })
         }
-      } else {
-        if (supabase.supabase && userId) {
-          await QuestService.uncheckQuest(supabase.supabase, questId, userId)
-        }
+        
+        console.log('Successfully saved quest completion to Supabase')
       }
+
+      // Save to localStorage as backup
+      localStorage.setItem('checked-quests', JSON.stringify(checkedQuests))
+      localStorage.setItem('quests', JSON.stringify(quests))
 
       // Log the toggle action
       if (userId) {
@@ -187,6 +240,14 @@ export default function QuestsPage() {
           newState: newCompletedState
         }, userId)
       }
+
+      // Show success notification
+      toast({
+        title: newCompletedState ? "Quest Completed!" : "Quest Unchecked",
+        description: newCompletedState ? `"${quest.title}" has been completed!` : `"${quest.title}" has been unchecked.`,
+        duration: 2000
+      })
+
     } catch (err) {
       console.error('Failed to sync quest state:', err)
       toast({
@@ -310,6 +371,107 @@ export default function QuestsPage() {
       );
     }
   }, [isSignedIn]);
+
+  // Real-time subscription for quest changes
+  useEffect(() => {
+    if (!supabase.supabase || !userId || !isSignedIn) return;
+
+    console.log('Setting up real-time subscription for quest changes...');
+
+    // Subscribe to checked_quests changes
+    const checkedQuestsSubscription = supabase.supabase
+      .channel('checked-quests-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'checked_quests',
+          filter: `user_id=eq.${userId}`
+        },
+        (payload) => {
+          console.log('Real-time quest change received:', payload);
+          
+          if (payload.eventType === 'INSERT') {
+            // Quest was checked on another device
+            const questId = payload.new['quest_id'];
+            setCheckedQuests(prev => 
+              prev.includes(questId) ? prev : [...prev, questId]
+            );
+            setQuests(prevQuests =>
+              prevQuests.map(q =>
+                q.id === questId ? { ...q, completed: true } : q
+              )
+            );
+            
+            toast({
+              title: "Quest Updated",
+              description: "A quest was completed on another device.",
+              duration: 3000
+            });
+          } else if (payload.eventType === 'DELETE') {
+            // Quest was unchecked on another device
+            const questId = payload.old['quest_id'];
+            setCheckedQuests(prev => prev.filter(id => id !== questId));
+            setQuests(prevQuests =>
+              prevQuests.map(q =>
+                q.id === questId ? { ...q, completed: false } : q
+              )
+            );
+            
+            toast({
+              title: "Quest Updated",
+              description: "A quest was unchecked on another device.",
+              duration: 3000
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    // Subscribe to quest_stats changes
+    const questStatsSubscription = supabase.supabase
+      .channel('quest-stats-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'quest_stats',
+          filter: `user_id=eq.${userId}`
+        },
+        (payload) => {
+          console.log('Real-time quest stats change received:', payload);
+          
+          if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
+            // Quest stats were updated on another device
+            const questId = payload.new['quest_id'];
+            const completed = payload.new['completed'];
+            
+            setQuests(prevQuests =>
+              prevQuests.map(q =>
+                q.id === questId ? { ...q, completed, progress: payload.new['progress'] || 0 } : q
+              )
+            );
+            
+            setCheckedQuests(prev => {
+              if (completed) {
+                return prev.includes(questId) ? prev : [...prev, questId];
+              } else {
+                return prev.filter(id => id !== questId);
+              }
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('Cleaning up real-time subscriptions...');
+      supabase.supabase?.removeChannel(checkedQuestsSubscription);
+      supabase.supabase?.removeChannel(questStatsSubscription);
+    };
+  }, [supabase.supabase, userId, isSignedIn, toast]);
 
   return (
     <div className="pt-16 min-h-screen bg-black text-white">

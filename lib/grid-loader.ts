@@ -1,4 +1,70 @@
 import { TileType, Tile } from '@/types/tiles'
+
+// Add a new function that loads from Supabase first for authenticated users
+export async function loadGridWithSupabaseFallback(
+  supabase: any,
+  userId: string | null,
+  isGuest: boolean
+): Promise<Tile[][]> {
+  try {
+    // If user is authenticated, try to load from Supabase first
+    if (!isGuest && userId && supabase) {
+      console.log('Attempting to load grid from Supabase for authenticated user...');
+      try {
+        const { data: existingGrids, error: fetchError } = await supabase
+          .from('realm_grids')
+          .select('grid')
+          .eq('user_id', userId)
+          .order('updated_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (!fetchError && existingGrids?.grid) {
+          console.log('Successfully loaded grid from Supabase');
+          // Convert numeric grid back to Tile grid
+          const tileGrid: Tile[][] = existingGrids.grid.map((row: number[], y: number) =>
+            row.map((numeric: number, x: number) => createTileFromNumeric(numeric, x, y))
+          );
+          return tileGrid;
+        } else {
+          console.log('No grid found in Supabase, falling back to localStorage');
+        }
+      } catch (supabaseError) {
+        console.log('Error loading from Supabase, falling back to localStorage:', supabaseError);
+      }
+    }
+
+    // Fallback to localStorage
+    if (typeof window !== 'undefined') {
+      const savedGrid = localStorage.getItem('grid');
+      if (savedGrid) {
+        console.log('Loading grid from localStorage');
+        return JSON.parse(savedGrid);
+      }
+    }
+
+    // Final fallback to initial grid
+    console.log('No saved grid found, loading initial grid');
+    const gridData = await loadInitialGrid();
+    const tileGrid: Tile[][] = gridData.grid.map((row, y) =>
+      row.map((numeric, x) => createTileFromNumeric(numeric, x, y))
+    );
+
+    // Save the processed grid to localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('grid', JSON.stringify(tileGrid));
+    }
+
+    return tileGrid;
+  } catch (error) {
+    console.error('Error in loadGridWithSupabaseFallback:', error);
+    // Return a basic grid if there's an error
+    return Array(7).fill(null).map((_, y) =>
+      Array(13).fill(null).map((_, x) => createTileFromNumeric(2, x, y)) // 2 is grass
+    );
+  }
+}
+
 export async function loadAndProcessInitialGrid(): Promise<Tile[][]> {
   try {
     // Try to load from localStorage first
@@ -30,6 +96,7 @@ export async function loadAndProcessInitialGrid(): Promise<Tile[][]> {
     );
   }
 }
+
 // Map numeric values to TileType
 export const numericToTileType: { [key: number]: TileType } = {
   0: 'empty',

@@ -18,7 +18,7 @@ import { InventoryItem, addToKingdomInventory, addToInventory } from "@/lib/inve
 import { Minimap } from "@/components/Minimap"
 import { MinimapRotationMode } from "@/types/minimap"
 import { useAchievementStore } from '@/stores/achievementStore'
-import { loadAndProcessInitialGrid, createTileFromNumeric } from "@/lib/grid-loader"
+import { loadAndProcessInitialGrid, loadGridWithSupabaseFallback, createTileFromNumeric } from "@/lib/grid-loader"
 import { createQuestCompletion } from '@/lib/api'
 import { logger } from "@/lib/logger"
 import { useSupabaseClientWithToken } from '@/lib/hooks/use-supabase-client'
@@ -253,7 +253,7 @@ export default function RealmPage() {
         return // Exit if not skipping auth but no session is available
       }
 
-    if (isSkippingAuth) {
+      if (isSkippingAuth) {
         // Save to local storage for anonymous users
         logger.info('Saving grid to local storage...', 'GridSave')
         localStorage.setItem('grid', JSON.stringify(grid))
@@ -1082,8 +1082,28 @@ export default function RealmPage() {
     setIsLoading(true); // Indicate loading during reset
     try {
       console.log('Resetting grid, attempting to load initial grid...');
+      
+      // Clear Supabase data for authenticated users
+      if (!isGuest && userId && supabase) {
+        try {
+          console.log('Clearing Supabase grid data...');
+          const { error: deleteError } = await supabase
+            .from('realm_grids')
+            .delete()
+            .eq('user_id', userId);
+          
+          if (deleteError) {
+            console.warn('Warning: Could not clear Supabase grid data:', deleteError);
+          } else {
+            console.log('Successfully cleared Supabase grid data');
+          }
+        } catch (supabaseError) {
+          console.warn('Error clearing Supabase data:', supabaseError);
+        }
+      }
+      
       // Use the new function to load and process the initial grid
-      const loadedGrid = await loadAndProcessInitialGrid();
+      const loadedGrid = await loadGridWithSupabaseFallback(supabase, userId ?? null, isGuest);
       setGrid(loadedGrid);
       console.log('Grid reset to initial grid:', loadedGrid);
       toast({
@@ -1116,7 +1136,7 @@ export default function RealmPage() {
         variant: 'destructive',
       });
       // Ensure grid is set even on error, using the default initial grid
-      const loadedGrid = await loadAndProcessInitialGrid();
+      const loadedGrid = await loadGridWithSupabaseFallback(supabase, userId ?? null, isGuest);
       setGrid(loadedGrid);
     } finally {
       setIsLoading(false); // Stop loading
@@ -1823,8 +1843,8 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
   // Defensive fallback: ensure grid is always initialized
   useEffect(() => {
     if (!Array.isArray(grid) || grid.length === 0 || !Array.isArray(grid[0]) || grid[0].length === 0) {
-      // Try to load the initial grid from CSV or fallback
-      loadAndProcessInitialGrid().then((initialGrid) => {
+      // Try to load the grid from Supabase first, then localStorage, then initial grid
+      loadGridWithSupabaseFallback(supabase, userId ?? null, isGuest).then((initialGrid) => {
         setGrid(initialGrid);
         setIsInitialized(true);
         setIsLoading(false);
@@ -1834,7 +1854,54 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
         setIsLoading(false);
       });
     }
-  }, [grid]);
+  }, [grid, supabase, userId, isGuest]);
+
+  // Real-time subscription for realm grid changes
+  useEffect(() => {
+    if (!supabase || !userId || isGuest) return;
+
+    console.log('Setting up real-time subscription for realm grid changes...');
+
+    const gridSubscription = supabase
+      .channel('realm-grid-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'realm_grids',
+          filter: `user_id=eq.${userId}`
+        },
+        (payload) => {
+          console.log('Real-time grid change received:', payload);
+          
+          if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
+            // Grid was updated on another device
+            const numericGrid = payload.new['grid'];
+            if (numericGrid && Array.isArray(numericGrid)) {
+              // Convert numeric grid back to Tile grid
+              const tileGrid: Tile[][] = numericGrid.map((row: number[], y: number) =>
+                row.map((numeric: number, x: number) => createTileFromNumeric(numeric, x, y))
+              );
+              
+              setGrid(tileGrid);
+              
+              toast({
+                title: "Realm Updated",
+                description: "Your realm has been updated from another device.",
+                duration: 3000
+              });
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('Cleaning up realm grid real-time subscription...');
+      supabase.removeChannel(gridSubscription);
+    };
+  }, [supabase, userId, isGuest, toast]);
 
   return (
     <div className="relative min-h-screen bg-background p-4">
