@@ -284,9 +284,9 @@ export function equipItem(itemId: string): boolean {
   }
   
   // For equipment, check category restrictions
-  let equippedItems = getEquippedItems()
+  const equippedItems = getEquippedItems()
+  const updatedEquippedItems = [...equippedItems]
   const category = item.category
-  let updatedEquippedItems = [...equippedItems]
   if (category) {
     // Unequip any existing item of the same category
     const existingIndex = equippedItems.findIndex(i => i.category === category)
