@@ -1,5 +1,6 @@
 // Supabase services with localStorage fallback
 import { createClient } from '@supabase/supabase-js'
+import { RetryManager } from './retry-utils'
 
 // Types for our game data
 interface CharacterStats {
@@ -44,11 +45,17 @@ interface GameSettings {
   setting_value: any
 }
 
-// Supabase client
-const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL']!
-const supabaseAnonKey = process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']!
+// Supabase client with better error handling
+const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL']
+const supabaseAnonKey = process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.warn('Supabase environment variables not found. Sync will be disabled.')
+}
+
+const supabase = supabaseUrl && supabaseAnonKey 
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null
 
 // Utility to get user ID from Clerk
 function getUserId(): string | null {
@@ -62,25 +69,32 @@ function isOnline(): boolean {
   return typeof window !== 'undefined' && navigator.onLine
 }
 
-// Utility to handle Supabase errors and fallback to localStorage
+// Utility to check if Supabase is available
+function isSupabaseAvailable(): boolean {
+  return supabase !== null && isOnline() && getUserId() !== null
+}
+
+// Utility to handle Supabase errors and fallback to localStorage with retry
 async function withFallback<T>(
   supabaseOperation: () => Promise<T>,
   localStorageKey: string,
   localStorageOperation: () => T
 ): Promise<T> {
-  if (!isOnline() || !getUserId()) {
+  if (!isSupabaseAvailable()) {
     return localStorageOperation()
   }
 
+  const retryManager = RetryManager.getInstance()
+
   try {
-    const result = await supabaseOperation()
+    const result = await retryManager.retryDatabase(supabaseOperation)
     // Also update localStorage as backup
     if (typeof window !== 'undefined') {
       localStorage.setItem(localStorageKey, JSON.stringify(result))
     }
     return result
   } catch (error) {
-    console.warn('Supabase operation failed, falling back to localStorage:', error)
+    console.warn('Supabase operation failed after retries, falling back to localStorage:', error)
     return localStorageOperation()
   }
 }
@@ -91,7 +105,7 @@ export const CharacterStatsService = {
     return withFallback(
       async () => {
         const userId = getUserId()
-        if (!userId) throw new Error('No user ID')
+        if (!userId || !supabase) throw new Error('No user ID or Supabase client')
 
         const { data, error } = await supabase
           .from('character_stats')
@@ -114,7 +128,7 @@ export const CharacterStatsService = {
     return withFallback(
       async () => {
         const userId = getUserId()
-        if (!userId) throw new Error('No user ID')
+        if (!userId || !supabase) throw new Error('No user ID or Supabase client')
 
         const { data, error } = await supabase
           .from('character_stats')

@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { storageService } from '@/lib/storage-service';
 import { toast } from 'sonner';
 import { formatBytes } from '@/lib/utils';
+import { MigrationStatus } from '@/components/migration-status'
+import { HealthCheck } from '@/components/health-check'
 
 interface StoredData {
   key: string;
@@ -195,199 +197,212 @@ export default function StoredDataPage() {
   }, []);
 
   return (
-    <main className="container mx-auto p-4 space-y-4" aria-label="stored-data-main">
-      {/* Key Data Types */}
-      <section aria-label="stored-data-summary-section">
-        <Card aria-label="stored-data-summary-card">
-          <CardHeader>
-            <CardTitle>Stored Data Summary</CardTitle>
-            <CardDescription>Key game data currently stored (localStorage or future Supabase)</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2" aria-label="stored-data-list">
-              <li><strong>Quests:</strong> {quests ? JSON.stringify(quests) : <em>None</em>} {/* TODO: Supabase integration */}</li>
-              <li><strong>Gold:</strong> {gold ?? <em>None</em>} {/* TODO: Supabase integration */}</li>
-              <li><strong>Experience:</strong> {exp ?? <em>None</em>} {/* TODO: Supabase integration */}</li>
-              <li><strong>Achievements:</strong> {achievements ? JSON.stringify(achievements) : <em>None</em>} {/* TODO: Supabase integration */}</li>
-              <li><strong>Grid:</strong> {grid ? '[Grid Data Present]' : <em>None</em>} {/* TODO: Supabase integration */}</li>
-              <li><strong>Titles:</strong> {titles ? JSON.stringify(titles) : <em>None</em>} {/* TODO: Supabase integration */}</li>
-              <li><strong>Perks:</strong> {perks ? JSON.stringify(perks) : <em>None</em>} {/* TODO: Supabase integration */}</li>
-              <li><strong>Strengths:</strong> {strengths ? JSON.stringify(strengths) : <em>None</em>} {/* TODO: Supabase integration */}</li>
-              <li><strong>Character Position:</strong> {characterPosition ? JSON.stringify(characterPosition) : <em>None</em>} {/* TODO: Supabase integration */}</li>
-            </ul>
-          </CardContent>
-        </Card>
-      </section>
+    <div className="container mx-auto p-4 space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Stored Data</h1>
+      </div>
 
-      {/* Supabase Entities */}
-      <section aria-label="supabase-entities-section">
-        <Card aria-label="supabase-entities-card">
-          <CardHeader>
-            <CardTitle>Supabase Entities</CardTitle>
-            <CardDescription>These will be loaded from Supabase in the future</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2" aria-label="supabase-entities-list">
-              <li><strong>Account</strong> {/* TODO: Supabase integration */}</li>
-              <li><strong>Item</strong> {/* TODO: Supabase integration */}</li>
-              <li><strong>QuestCompletion</strong> {/* TODO: Supabase integration */}</li>
-              <li><strong>Session</strong> {/* TODO: Supabase integration */}</li>
-              <li><strong>TilePlacement</strong> {/* TODO: Supabase integration */}</li>
-              <li><strong>User</strong> {/* TODO: Supabase integration */}</li>
-              <li><strong>VerificationToken</strong> {/* TODO: Supabase integration */}</li>
-            </ul>
-          </CardContent>
-        </Card>
-      </section>
+      {/* System Status */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <HealthCheck />
+        <MigrationStatus />
+      </div>
 
-      <section aria-label="storage-info-section">
-        <Card aria-label="storage-info-card">
-          <CardHeader>
-            <CardTitle>Storage Information</CardTitle>
-            <CardDescription>Current storage usage and limits</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span>Total Storage:</span>
-                  <span>{formatBytes(storageInfo.total)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Used Storage:</span>
-                  <span>{formatBytes(storageInfo.used)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Remaining Storage:</span>
-                  <span>{formatBytes(storageInfo.remaining)}</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div
-                    className="bg-blue-600 h-2.5 rounded-full"
-                    style={{ width: `${(storageInfo.used / storageInfo.total) * 100}%` }}
-                  />
-                </div>
-              </div>
+      {/* Existing stored data content */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* Key Data Types */}
+        <section aria-label="stored-data-summary-section">
+          <Card aria-label="stored-data-summary-card">
+            <CardHeader>
+              <CardTitle>Stored Data Summary</CardTitle>
+              <CardDescription>Key game data currently stored (localStorage or future Supabase)</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2" aria-label="stored-data-list">
+                <li><strong>Quests:</strong> {quests ? JSON.stringify(quests) : <em>None</em>} {/* TODO: Supabase integration */}</li>
+                <li><strong>Gold:</strong> {gold ?? <em>None</em>} {/* TODO: Supabase integration */}</li>
+                <li><strong>Experience:</strong> {exp ?? <em>None</em>} {/* TODO: Supabase integration */}</li>
+                <li><strong>Achievements:</strong> {achievements ? JSON.stringify(achievements) : <em>None</em>} {/* TODO: Supabase integration */}</li>
+                <li><strong>Grid:</strong> {grid ? '[Grid Data Present]' : <em>None</em>} {/* TODO: Supabase integration */}</li>
+                <li><strong>Titles:</strong> {titles ? JSON.stringify(titles) : <em>None</em>} {/* TODO: Supabase integration */}</li>
+                <li><strong>Perks:</strong> {perks ? JSON.stringify(perks) : <em>None</em>} {/* TODO: Supabase integration */}</li>
+                <li><strong>Strengths:</strong> {strengths ? JSON.stringify(strengths) : <em>None</em>} {/* TODO: Supabase integration */}</li>
+                <li><strong>Character Position:</strong> {characterPosition ? JSON.stringify(characterPosition) : <em>None</em>} {/* TODO: Supabase integration */}</li>
+              </ul>
+            </CardContent>
+          </Card>
+        </section>
 
-              <div className="pt-4 border-t">
-                <h3 className="text-lg font-semibold mb-2">Storage Statistics</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-500">Total Items</p>
-                    <p className="text-lg font-medium">{storageStats.totalItems}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Total Size</p>
-                    <p className="text-lg font-medium">{formatBytes(storageStats.totalSize)}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Average Item Size</p>
-                    <p className="text-lg font-medium">{formatBytes(storageStats.averageItemSize)}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Storage Version</p>
-                    <p className="text-lg font-medium">{storageService.get<string>('storage-version', '1.0.0')}</p>
-                  </div>
-                </div>
-              </div>
+        {/* Supabase Entities */}
+        <section aria-label="supabase-entities-section">
+          <Card aria-label="supabase-entities-card">
+            <CardHeader>
+              <CardTitle>Supabase Entities</CardTitle>
+              <CardDescription>These will be loaded from Supabase in the future</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2" aria-label="supabase-entities-list">
+                <li><strong>Account</strong> {/* TODO: Supabase integration */}</li>
+                <li><strong>Item</strong> {/* TODO: Supabase integration */}</li>
+                <li><strong>QuestCompletion</strong> {/* TODO: Supabase integration */}</li>
+                <li><strong>Session</strong> {/* TODO: Supabase integration */}</li>
+                <li><strong>TilePlacement</strong> {/* TODO: Supabase integration */}</li>
+                <li><strong>User</strong> {/* TODO: Supabase integration */}</li>
+                <li><strong>VerificationToken</strong> {/* TODO: Supabase integration */}</li>
+              </ul>
+            </CardContent>
+          </Card>
+        </section>
 
-              <div className="pt-4 border-t">
-                <h3 className="text-lg font-semibold mb-2">Item Timeline</h3>
+        <section aria-label="storage-info-section">
+          <Card aria-label="storage-info-card">
+            <CardHeader>
+              <CardTitle>Storage Information</CardTitle>
+              <CardDescription>Current storage usage and limits</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
                 <div className="space-y-2">
-                  <div>
-                    <p className="text-sm text-gray-500">Oldest Item</p>
-                    <p className="text-lg font-medium">{storageStats.oldestItem || 'None'}</p>
+                  <div className="flex justify-between">
+                    <span>Total Storage:</span>
+                    <span>{formatBytes(storageInfo.total)}</span>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Newest Item</p>
-                    <p className="text-lg font-medium">{storageStats.newestItem || 'None'}</p>
+                  <div className="flex justify-between">
+                    <span>Used Storage:</span>
+                    <span>{formatBytes(storageInfo.used)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Remaining Storage:</span>
+                    <span>{formatBytes(storageInfo.remaining)}</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div
+                      className="bg-blue-600 h-2.5 rounded-full"
+                      style={{ width: `${(storageInfo.used / storageInfo.total) * 100}%` }}
+                    />
                   </div>
                 </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
 
-      <section aria-label="stored-data-section">
-        <Card aria-label="stored-data-card">
-          <CardHeader>
-            <CardTitle>Stored Data</CardTitle>
-            <CardDescription>All data currently stored in localStorage</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex gap-2">
-                <Button onClick={refreshData} disabled={isLoading} aria-label="refresh-data-button">
-                  {isLoading ? 'Refreshing...' : 'Refresh'}
-                </Button>
-                <Button onClick={handleBackup} aria-label="backup-data-button">
-                  Backup
-                </Button>
-                <Button onClick={handleRestore} aria-label="restore-data-button">
-                  Restore
-                </Button>
-                <Button onClick={handleClear} variant="destructive" aria-label="clear-data-button">
-                  Clear All
-                </Button>
-              </div>
-
-              <div className="flex gap-4 items-center">
-                <input
-                  type="text"
-                  placeholder="Search data..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="flex-1 px-3 py-2 border rounded-md"
-                  aria-label="search-data-input"
-                />
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as 'key' | 'size' | 'lastUpdated')}
-                  className="px-3 py-2 border rounded-md"
-                  aria-label="sort-by-select"
-                >
-                  <option value="key">Sort by Key</option>
-                  <option value="size">Sort by Size</option>
-                  <option value="lastUpdated">Sort by Last Updated</option>
-                </select>
-                <Button
-                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                  variant="outline"
-                  aria-label="toggle-sort-order-button"
-                >
-                  {sortOrder === 'asc' ? '↑' : '↓'}
-                </Button>
-              </div>
-
-              <ScrollArea className="h-[600px] rounded-md border p-4" aria-label="stored-data-scroll-area">
-                <div className="space-y-4">
-                  {filteredAndSortedData.map((item) => (
-                    <Card key={item.key} aria-label={`stored-item-${item.key}-card`}>
-                      <CardHeader>
-                        <CardTitle className="text-sm font-mono">{item.key}</CardTitle>
-                        <CardDescription>
-                          Size: {formatBytes(item.size)} | Last Updated: {item.lastUpdated === 'Unknown' ? 'Unknown' : new Date(item.lastUpdated).toLocaleString()} | Version: {item.version}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <pre className="text-sm overflow-x-auto">
-                          {JSON.stringify(item.value, null, 2)}
-                        </pre>
-                      </CardContent>
-                    </Card>
-                  ))}
-                  {filteredAndSortedData.length === 0 && (
-                    <div className="text-center text-gray-500 py-8">
-                      {searchTerm ? 'No matching data found' : 'No data stored'}
+                <div className="pt-4 border-t">
+                  <h3 className="text-lg font-semibold mb-2">Storage Statistics</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-500">Total Items</p>
+                      <p className="text-lg font-medium">{storageStats.totalItems}</p>
                     </div>
-                  )}
+                    <div>
+                      <p className="text-sm text-gray-500">Total Size</p>
+                      <p className="text-lg font-medium">{formatBytes(storageStats.totalSize)}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Average Item Size</p>
+                      <p className="text-lg font-medium">{formatBytes(storageStats.averageItemSize)}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Storage Version</p>
+                      <p className="text-lg font-medium">{storageService.get<string>('storage-version', '1.0.0')}</p>
+                    </div>
+                  </div>
                 </div>
-              </ScrollArea>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
-    </main>
+
+                <div className="pt-4 border-t">
+                  <h3 className="text-lg font-semibold mb-2">Item Timeline</h3>
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-sm text-gray-500">Oldest Item</p>
+                      <p className="text-lg font-medium">{storageStats.oldestItem || 'None'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Newest Item</p>
+                      <p className="text-lg font-medium">{storageStats.newestItem || 'None'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+
+        <section aria-label="stored-data-section">
+          <Card aria-label="stored-data-card">
+            <CardHeader>
+              <CardTitle>Stored Data</CardTitle>
+              <CardDescription>All data currently stored in localStorage</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex gap-2">
+                  <Button onClick={refreshData} disabled={isLoading} aria-label="refresh-data-button">
+                    {isLoading ? 'Refreshing...' : 'Refresh'}
+                  </Button>
+                  <Button onClick={handleBackup} aria-label="backup-data-button">
+                    Backup
+                  </Button>
+                  <Button onClick={handleRestore} aria-label="restore-data-button">
+                    Restore
+                  </Button>
+                  <Button onClick={handleClear} variant="destructive" aria-label="clear-data-button">
+                    Clear All
+                  </Button>
+                </div>
+
+                <div className="flex gap-4 items-center">
+                  <input
+                    type="text"
+                    placeholder="Search data..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="flex-1 px-3 py-2 border rounded-md"
+                    aria-label="search-data-input"
+                  />
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as 'key' | 'size' | 'lastUpdated')}
+                    className="px-3 py-2 border rounded-md"
+                    aria-label="sort-by-select"
+                  >
+                    <option value="key">Sort by Key</option>
+                    <option value="size">Sort by Size</option>
+                    <option value="lastUpdated">Sort by Last Updated</option>
+                  </select>
+                  <Button
+                    onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                    variant="outline"
+                    aria-label="toggle-sort-order-button"
+                  >
+                    {sortOrder === 'asc' ? '↑' : '↓'}
+                  </Button>
+                </div>
+
+                <ScrollArea className="h-[600px] rounded-md border p-4" aria-label="stored-data-scroll-area">
+                  <div className="space-y-4">
+                    {filteredAndSortedData.map((item) => (
+                      <Card key={item.key} aria-label={`stored-item-${item.key}-card`}>
+                        <CardHeader>
+                          <CardTitle className="text-sm font-mono">{item.key}</CardTitle>
+                          <CardDescription>
+                            Size: {formatBytes(item.size)} | Last Updated: {item.lastUpdated === 'Unknown' ? 'Unknown' : new Date(item.lastUpdated).toLocaleString()} | Version: {item.version}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <pre className="text-sm overflow-x-auto">
+                            {JSON.stringify(item.value, null, 2)}
+                          </pre>
+                        </CardContent>
+                      </Card>
+                    ))}
+                    {filteredAndSortedData.length === 0 && (
+                      <div className="text-center text-gray-500 py-8">
+                        {searchTerm ? 'No matching data found' : 'No data stored'}
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+      </div>
+    </div>
   );
 } 
