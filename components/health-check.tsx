@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Heart, Wifi, Database, AlertTriangle, CheckCircle, RefreshCw } from 'lucide-react'
-import { env } from '@/lib/env'
+import { clientEnv } from '@/lib/client-env'
 
 interface HealthStatus {
   online: boolean
@@ -47,8 +47,8 @@ export function HealthCheck() {
       // Check Supabase
       const supabase = (() => {
         try {
-          const url = env.NEXT_PUBLIC_SUPABASE_URL
-          const key = env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+          const url = clientEnv.NEXT_PUBLIC_SUPABASE_URL
+          const key = clientEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY
           return !!(url && key)
         } catch {
           return false
