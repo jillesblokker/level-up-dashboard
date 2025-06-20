@@ -31,7 +31,6 @@ import {
   loadGridFromLocalStorage,
   saveGridToSupabase,
   saveGridToLocalStorage,
-  convertNumericToTile,
 } from '@/lib/grid-persistence';
 import { createTileFromNumeric } from "@/lib/grid-loader"
 
@@ -132,46 +131,48 @@ const createEmptyTile = (x: number, y: number): Tile => ({
   isVisited: false,
   x,
   y,
-  ariaLabel: `Empty tile at position ${x}, ${y}`,
+  ariaLabel: `empty tile at position ${x},${y}`,
   image: "/images/tiles/empty-tile.png",
-  isMainTile: false,
-  isTown: false,
-  cityName: undefined,
-  cityX: undefined,
-  cityY: undefined,
-  citySize: undefined,
-  bigMysteryX: undefined,
-  bigMysteryY: undefined,
-  tileSize: undefined,
-  cost: 0,
-  quantity: 1,
 });
 
 export default function RealmPage() {
-  const { toast } = useToast()
-  const { updateProgress } = useAchievementStore()
   const { user, isLoaded: isAuthLoaded } = useUser();
   const userId = user?.id;
   const isGuest = !user;
-  const router = useRouter();
-
   const { supabase, getToken, isLoading: isSupabaseLoading } = useSupabase();
-
-  // State declarations
+  const [isLoading, setIsLoading] = useState(false);
+  const [grid, setGrid] = useState<Tile[][]>(createBaseGrid());
+  const { toast } = useToast();
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [inventory, setInventory] = useState<Record<TileType, Tile>>(initialInventory);
-  const [showScrollMessage, setShowScrollMessage] = useState(false)
-  // Ensure characterPosition is always a valid object
-  const defaultCharacterPosition = { x: 2, y: 0 };
-  const [characterPosition, setCharacterPosition] = useState<{ x: number; y: number }>(defaultCharacterPosition);
-  const [isFullscreen, setIsFullscreen] = useState(false)
-  const [selectedTile, setSelectedTile] = useState<SelectedInventoryItem | null>(null)
-  const [grid, setGrid] = useState<Tile[][]>([]);
-  const [isLoading, setIsLoading] = useState(true)
-  const [isInitialized, setIsInitialized] = useState(false)
-  const { supabase } = useSupabaseClientWithToken();
-
+  const [tileCounts, setTileCounts] = useState<TileCounts>({
+    forestPlaced: 0,
+    forestDestroyed: 0,
+    waterPlaced: 0,
+    mountainPlaced: 0,
+    mountainDestroyed: 0,
+    icePlaced: 0,
+    waterDestroyed: 0,
+  });
+  const updateProgress = (..._args: any[]) => {};
   // Track last modal-triggered position
   const [lastModalPosition, setLastModalPosition] = useState<{x: number, y: number} | null>(null);
+
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+const [saveError, setSaveError] = useState<string | null>(null);
+const [retryCount, setRetryCount] = useState(0);
+const [lastSaveTime, setLastSaveTime] = useState<Date | null>(null);
+const [characterPosition, setCharacterPosition] = useState({ x: 0, y: 0 });
+const [portalSource, setPortalSource] = useState<{ x: number; y: number; type: TileType } | null>(null);
+const [showPortalModal, setShowPortalModal] = useState(false);
+const [currentEvent, setCurrentEvent] = useState<MysteryEvent | null>(null);
+const [currentLocation, setCurrentLocation] = useState<{ x: number; y: number; name: string; description?: string } | null>(null);
+const [showLocationModal, setShowLocationModal] = useState(false);
+const [showScrollMessage, setShowScrollMessage] = useState(false);
+const [movementMode, setMovementMode] = useState<'normal' | 'portal'>('normal');
+const [defaultCharacterPosition] = useState({ x: 6, y: 3 });
 
   // Load initial grid data
   useEffect(() => {
@@ -232,7 +233,7 @@ export default function RealmPage() {
 
   // Effect to save grid to database for authenticated users or local storage for anonymous users
   useEffect(() => {
-    if (!isInitialized) return
+    if (isLoading) return;
 
     const skipAuthCookie = typeof document !== 'undefined' ? document.cookie.split(';').find(c => c.trim().startsWith('skip-auth=')) : null
     const isSkippingAuth = skipAuthCookie ? skipAuthCookie.split('=')[1] === 'true' : false
@@ -376,16 +377,16 @@ export default function RealmPage() {
       }
     }
 
-    // Save grid on initial load (after isInitialized is true) and at intervals
-    if (isInitialized) {
-        const saveTimeout = setTimeout(saveGrid, AUTOSAVE_INTERVAL);
-        return () => clearTimeout(saveTimeout);
+    // Save grid on initial load (after !isLoading is true) and at intervals
+    if (!isLoading) {
+      const saveTimeout = setTimeout(saveGrid, AUTOSAVE_INTERVAL);
+      return () => clearTimeout(saveTimeout);
     }
 
-    // Cleanup function for when isInitialized is false or component unmounts before initialization
+    // Cleanup function for when !isLoading is false or component unmounts before initialization
     return () => {};
 
-  }, [grid, isInitialized, userId, isGuest])
+  }, [grid, isLoading, userId, isGuest])
 
 
   // Effect for real-time subscription
@@ -441,10 +442,6 @@ export default function RealmPage() {
            };
        } else {
             // Cleanup function if not authenticated or supabase is undefined
-            if (subscriptionRef.current) {
-           subscriptionRef.current.unsubscribe();
-           subscriptionRef.current = null;
-       }
             console.log('No active Supabase grid subscription.');
             return () => {}; // Return empty cleanup function
        }
@@ -1003,7 +1000,7 @@ export default function RealmPage() {
     if (typeof window !== 'undefined') {
       localStorage.setItem('character-position', JSON.stringify({ x: newX, y: newY }));
     }
-  }, [setCharacterPosition, grid, toast, supabase, userId, setCurrentLocation, setShowLocationModal, setPortalSource, setShowPortalModal, setCurrentEvent, setGrid, characterPosition, lastModalPosition]);
+  }, [setCharacterPosition, grid, toast, supabase, userId, setCurrentLocation, setShowLocationModal, setPortalSource, setShowPortalModal, setCurrentEvent, setGrid, characterPosition, lastModalPosition, saveCharacterPosition]);
 
   // Update keyboard navigation to use handleCharacterMove
   useEffect(() => {
@@ -1623,7 +1620,7 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
   console.log('Current selected tile state:', selectedTile); // Log selected tile state
 
   // Use a variable for loading state instead of early return
-  const isLoadingState = isLoading || !isAuthLoaded || !isInitialized;
+  const isLoadingState = isLoading || !isAuthLoaded || !isLoading;
 
   // Fallback: ensure grid and inventory are always set to defaults if empty/invalid
   React.useEffect(() => {
@@ -1837,11 +1834,9 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
       // Try to load the grid from Supabase first, then localStorage, then initial grid
       loadGridWithSupabaseFallback(supabase, userId ?? null, isGuest).then((initialGrid) => {
         setGrid(initialGrid);
-        setIsInitialized(true);
         setIsLoading(false);
       }).catch(() => {
         setGrid(createBaseGrid());
-        setIsInitialized(true);
         setIsLoading(false);
       });
     }

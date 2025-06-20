@@ -11,7 +11,7 @@ import { HeaderSection } from '@/components/HeaderSection'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useUser } from '@clerk/nextjs'
 import { withToken } from '@/lib/supabase/client'
-import { Quest } from '@/types/game' // We defined this in types/game.ts
+import { Quest } from '@/lib/quest-types'
 
 // You would ideally move these to their own files, but since I can't create them,
 // they are here for now.
@@ -125,7 +125,7 @@ export default function QuestsPage() {
     }
   };
   
-  const categories = [...new Set(quests.map(q => q.category))];
+  const categories = Array.from(new Set(quests.map(q => q.category)));
 
   if (loading) {
     return <div className="text-center p-8">Loading Quests...</div>;

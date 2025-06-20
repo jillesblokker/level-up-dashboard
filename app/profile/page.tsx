@@ -10,9 +10,11 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { updateUserMetadata, UserMetadata } from "@/lib/supabase/client";
 import Image from "next/image";
+import { useSupabase } from "@/lib/hooks/useSupabase";
 
 export default function ProfilePage() {
   const { user, isLoaded } = useUser();
+  const { supabase } = useSupabase();
   const [isUploading, setIsUploading] = useState(false);
   const [displayName, setDisplayName] = useState(user?.username || user?.emailAddresses[0]?.emailAddress || "");
   const [avatarBgColor, setAvatarBgColor] = useState(user?.publicMetadata?.['avatar_bg_color'] as string || "#1f2937");
@@ -79,7 +81,10 @@ export default function ProfilePage() {
 
   const handleSaveProfile = async () => {
     if (!user) return;
-
+    if (!supabase) {
+      toast.error("Supabase client not ready. Please try again later.");
+      return;
+    }
     try {
       setIsSaving(true);
       const metadata: UserMetadata = {
@@ -87,11 +92,9 @@ export default function ProfilePage() {
         avatar_bg_color: avatarBgColor,
         avatar_text_color: avatarTextColor,
       };
-      await updateUserMetadata(user.id, metadata);
-      
+      await updateUserMetadata(supabase, metadata);
       // Force a page reload to ensure all components get the updated metadata
       window.location.reload();
-      
       toast.success("Profile updated successfully");
     } catch (error) {
       console.error("Error updating profile:", error);

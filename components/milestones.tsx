@@ -10,7 +10,7 @@ import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
 import { Sword, Brain, Crown, Castle, Hammer, Heart, PlusCircle, Trash2 } from "lucide-react"
 import { QuestService } from '@/lib/quest-service'
-import { useSupabaseClientWithToken } from '@/lib/hooks/use-supabase-client'
+import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useUser } from "@clerk/nextjs"
 import { defaultQuests } from '@/lib/quest-sample-data'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -53,7 +53,7 @@ const defaultMilestoneCards: Record<string, { title: string; description: string
 
 export function Milestones() {
   const { userId } = useAuth();
-  const { supabase, isLoading: isSupabaseLoading, error: supabaseError } = useSupabaseClientWithToken();
+  const { supabase, getToken, isLoading: isSupabaseLoading } = useSupabase();
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -569,7 +569,7 @@ export function Milestones() {
 
 function MilestoneCard({ milestone, onDelete, onUpdateProgress }: { milestone: Milestone; onDelete: (id: string) => void; onUpdateProgress: (id: string, completed: boolean) => void; }) {
   const { user } = useUser();
-  const { supabase } = useSupabaseClientWithToken();
+  const { supabase } = useSupabase();
   const [completed, setCompleted] = useState(milestone.completed);
   const [isUpdating, setIsUpdating] = useState(false);
 
