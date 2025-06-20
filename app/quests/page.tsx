@@ -192,7 +192,7 @@ export default function QuestsPage() {
       <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
         <HeaderSection
           title="Quests"
-          description="Embark on adventures, complete tasks, and earn rewards."
+          subtitle="Embark on adventures, complete tasks, and earn rewards."
         />
         {syncError && (
           <div className="bg-red-800 border border-red-600 text-white p-4 rounded-md mb-4 flex justify-between items-center">
