@@ -5,7 +5,6 @@ import { useLocalStorage } from "@/lib/hooks/use-local-storage"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-// Import necessary types from '@/types/tiles'
 import { Tile, TileType, InventoryItem as TileInventoryItem, SelectedInventoryItem } from '@/types/tiles'
 import { useCreatureStore } from "@/stores/creatureStore"
 import { Settings } from "lucide-react"
@@ -18,15 +17,23 @@ import { InventoryItem, addToKingdomInventory, addToInventory } from "@/lib/inve
 import { Minimap } from "@/components/Minimap"
 import { MinimapRotationMode } from "@/types/minimap"
 import { useAchievementStore } from '@/stores/achievementStore'
-import { loadAndProcessInitialGrid, loadGridWithSupabaseFallback, createTileFromNumeric } from "@/lib/grid-loader"
 import { logger } from "@/lib/logger"
-import { useSupabaseClientWithToken } from '@/lib/hooks/use-supabase-client'
 import { useUser } from '@clerk/nextjs'
 import React from "react"
 import { gainGold } from "@/lib/gold-manager"
 import { gainExperience } from "@/lib/experience-manager"
 import { notificationService } from "@/lib/notification-service"
 import { useRouter } from "next/navigation";
+import { useSupabase } from "@/lib/hooks/useSupabase";
+import { withToken } from "@/lib/supabase/client";
+import {
+  loadGridFromSupabase,
+  loadGridFromLocalStorage,
+  saveGridToSupabase,
+  saveGridToLocalStorage,
+  convertNumericToTile,
+} from '@/lib/grid-persistence';
+import { createTileFromNumeric } from "@/lib/grid-loader"
 
 // Types
 interface TileCounts {
@@ -140,48 +147,15 @@ const createEmptyTile = (x: number, y: number): Tile => ({
   quantity: 1,
 });
 
-// ============================================================================
-// SUPABASE INTEGRATION - COMMENTED OUT FOR BARE BONE VERSION
-// ============================================================================
-// TODO: Reactivate when Supabase connection is working correctly
-// 
-// Supabase-related functions and integrations:
-// - saveCharacterPosition: Save character position to Supabase
-// - initializeGrid: Load grid from Supabase for authenticated users
-// - saveGrid: Save grid to Supabase for authenticated users
-// - syncGridWithSupabase: Real-time grid synchronization
-//
-// To reactivate:
-// 1. Uncomment the supabase parameter in saveCharacterPosition
-// 2. Uncomment the Supabase calls in initializeGrid useEffect
-// 3. Uncomment the Supabase save logic in the saveGrid useEffect
-// 4. Ensure proper error handling and fallback to local storage
-// ============================================================================
-
-const saveCharacterPosition = async (/* supabase: any, userId: string, */ position: { x: number; y: number }) => {
-  try {
-    // TODO: Uncomment when Supabase is working
-    // Save character position to Supabase if needed
-    // const { error } = await supabase
-    //   .from('character_positions')
-    //   .upsert({ user_id: userId, position: position })
-    // if (error) throw error;
-    
-    // For now, just log the position
-    console.log('Saving character position:', position);
-  } catch (error) {
-    console.error('Error saving character position:', error);
-  }
-};
-
 export default function RealmPage() {
   const { toast } = useToast()
   const { updateProgress } = useAchievementStore()
   const { user, isLoaded: isAuthLoaded } = useUser();
   const userId = user?.id;
   const isGuest = !user;
-  const subscriptionRef = useRef<any>(null)
   const router = useRouter();
+
+  const { supabase, getToken, isLoading: isSupabaseLoading } = useSupabase();
 
   // State declarations
   const [inventory, setInventory] = useState<Record<TileType, Tile>>(initialInventory);
@@ -237,6 +211,63 @@ export default function RealmPage() {
 
   // Track last modal-triggered position
   const [lastModalPosition, setLastModalPosition] = useState<{x: number, y: number} | null>(null);
+
+  // Load initial grid data
+  useEffect(() => {
+    const initializeGrid = async () => {
+      if (!isAuthLoaded || isSupabaseLoading) {
+        return; // Wait until auth and Supabase are ready
+      }
+      setIsLoading(true);
+
+      let loadedGrid: Tile[][] | null = null;
+      if (supabase && userId && !isGuest) {
+        console.log("Authenticated user detected. Loading from Supabase...");
+        loadedGrid = await withToken(supabase, getToken, (client) => 
+          loadGridFromSupabase(client, userId)
+        );
+      }
+      
+      if (!loadedGrid) {
+        console.log("No grid from Supabase or user is a guest. Loading from localStorage...");
+        loadedGrid = await loadGridFromLocalStorage();
+      }
+
+      setGrid(loadedGrid);
+      setIsLoading(false);
+    };
+
+    initializeGrid();
+  }, [isAuthLoaded, isSupabaseLoading, userId, isGuest, supabase, getToken]);
+
+
+  // Autosave grid data
+  useEffect(() => {
+    if (isLoading || grid.length === 0) {
+      return; // Don't save while loading or if grid is empty
+    }
+
+    const handleSave = async () => {
+      if (supabase && userId && !isGuest) {
+        try {
+          await withToken(supabase, getToken, (client) => 
+            saveGridToSupabase(client, userId, grid)
+          );
+          toast({ title: "Realm Saved Online!", duration: 2000 });
+        } catch (e) {
+          console.error("Autosave to Supabase failed, saving to localStorage as fallback.", e);
+          await saveGridToLocalStorage(grid);
+          toast({ title: "Online save failed. Realm saved locally.", variant: "destructive", duration: 2000 });
+        }
+      } else {
+        await saveGridToLocalStorage(grid);
+        toast({ title: "Realm Saved Locally", duration: 2000 });
+      }
+    };
+
+    const intervalId = setInterval(handleSave, AUTOSAVE_INTERVAL);
+    return () => clearInterval(intervalId);
+  }, [grid, isLoading, supabase, userId, isGuest, getToken, toast]);
 
   // Effect to save grid to database for authenticated users or local storage for anonymous users
   useEffect(() => {
@@ -1902,6 +1933,10 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
     };
   }, [supabase, userId, isGuest, toast]);
 
+  if (isLoading) {
+    return <div className="flex justify-center items-center h-screen">Loading Your Realm...</div>;
+  }
+  
   return (
     <div className="relative min-h-screen bg-background p-4">
       {isLoadingState ? (

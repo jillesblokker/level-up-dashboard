@@ -132,4 +132,26 @@ export type SupabaseRealtimePayload<T = unknown> = {
   new: T
   old: T
   errors: null | SupabaseError[]
+}
+
+export interface GameData {
+  // ... existing properties
+}
+
+export interface Quest {
+  id: string;
+  title: string;
+  description: string;
+  category: 'might' | 'knowledge' | 'honor' | 'castle' | 'craft' | 'vitality';
+  difficulty: 'easy' | 'medium' | 'hard';
+  rewards: {
+    xp: number;
+    gold: number;
+    items?: string[];
+  };
+  completed: boolean;
+  progress: number;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
 } 

@@ -118,6 +118,11 @@ export const numericToTileType: { [key: number]: TileType } = {
   16: 'volcano'
 }
 
+// Create the reverse mapping from TileType to numeric
+export const tileTypeToNumeric: { [key in TileType]: number } = Object.fromEntries(
+  Object.entries(numericToTileType).map(([key, value]) => [value, parseInt(key)])
+) as { [key in TileType]: number };
+
 // Assuming the expected grid width is 13 columns based on existing components
 const EXPECTED_GRID_COLS = 13;
 
