@@ -1,8 +1,8 @@
 // lib/server-env.ts
 export const serverEnv = {
-  GITHUB_ID: process.env.GITHUB_ID!,
-  GITHUB_SECRET: process.env.GITHUB_SECRET!,
-  DATABASE_URL: process.env.DATABASE_URL!,
+  GITHUB_ID: process.env['GITHUB_ID']!,
+  GITHUB_SECRET: process.env['GITHUB_SECRET']!,
+  DATABASE_URL: process.env['DATABASE_URL']!,
 } as const;
 
 if (!serverEnv.GITHUB_ID) {
