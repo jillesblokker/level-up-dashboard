@@ -40,15 +40,15 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
         <DialogHeader>
           <DialogTitle className="font-serif flex items-center">
             <HelpCircle className="mr-2 h-5 w-5 text-amber-500" />
-            Welcome to Level Up Kingdom
+            Welcome to Level Up Habbit God
           </DialogTitle>
           <DialogDescription>Your journey to self-improvement begins here!</DialogDescription>
         </DialogHeader>
 
         <div className="py-4 space-y-4">
           <p>
-            Level Up Kingdom transforms your daily tasks into an epic medieval adventure. Complete real-life tasks to
-            earn gold, gain experience, and expand your kingdom!
+            Level Up Habbit God transforms your daily tasks into an epic medieval adventure. Complete real-life tasks to
+            earn gold, gain experience, and expand your habbit god realm!
           </p>
 
           <div className="space-y-2">
@@ -56,7 +56,7 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
             <ul className="list-disc pl-5 space-y-1">
               <li>Track daily tasks and habits</li>
               <li>Earn gold and XP for completing tasks</li>
-              <li>Build and expand your kingdom on the world map</li>
+              <li>Build and expand your habbit god realm on the world map</li>
               <li>Discover cities, dungeons, and treasures</li>
               <li>Battle monsters and complete quests</li>
             </ul>

@@ -144,7 +144,7 @@ export default function QuestsPage() {
         });
 
         if (isCompleted) {
-            toast({ title: "Quest Completed!", description: `You earned ${quest.rewards.xp} XP and ${quest.rewards.gold} Gold!`, variant: "success" });
+            toast({ title: "Quest Completed!", description: `You earned ${quest.rewards.xp} XP and ${quest.rewards.gold} Gold!`, variant: "default" });
         }
       }
     } catch (err: any) {
