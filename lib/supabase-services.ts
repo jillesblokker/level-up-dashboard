@@ -13,7 +13,7 @@ interface CharacterStats {
 }
 
 interface InventoryItem {
-  id: string
+  item_id: string
   name: string
   description?: string
   type: string
@@ -190,9 +190,17 @@ export const InventoryService = {
           .from('inventory_items')
           .upsert({
             user_id: userId,
-            item_id: item.id,
-            ...item,
-            updated_at: new Date().toISOString()
+            item_id: item.item_id,
+            name: item.name,
+            description: item.description,
+            type: item.type,
+            category: item.category,
+            quantity: item.quantity,
+            emoji: item.emoji,
+            image: item.image,
+            stats: item.stats,
+            equipped: item.equipped,
+            is_default: item.is_default
           })
 
         if (error) throw error
@@ -200,7 +208,7 @@ export const InventoryService = {
       'character-inventory',
       () => {
         const current = JSON.parse(localStorage.getItem('character-inventory') || '[]')
-        const existing = current.find((i: InventoryItem) => i.id === item.id)
+        const existing = current.find((i: InventoryItem) => i.item_id === item.item_id)
         if (existing) {
           existing.quantity += item.quantity
         } else {
@@ -516,7 +524,21 @@ export const SyncService = {
       if (localInventory) {
         const items = JSON.parse(localInventory)
         for (const item of items) {
-          await InventoryService.addToInventory(item)
+          // Transform from local format (id) to Supabase format (item_id)
+          const supabaseItem = {
+            item_id: item.id,
+            name: item.name,
+            description: item.description,
+            type: item.type,
+            category: item.category,
+            quantity: item.quantity,
+            emoji: item.emoji,
+            image: item.image,
+            stats: item.stats,
+            equipped: item.equipped || false,
+            is_default: item.isDefault || false
+          }
+          await InventoryService.addToInventory(supabaseItem)
         }
       }
 

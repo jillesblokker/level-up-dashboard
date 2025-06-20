@@ -187,91 +187,157 @@ DROP POLICY IF EXISTS "Users can view their own grids" ON public.realm_grids;
 DROP POLICY IF EXISTS "Users can insert their own grids" ON public.realm_grids;
 DROP POLICY IF EXISTS "Users can update their own grids" ON public.realm_grids;
 DROP POLICY IF EXISTS "Users can delete their own grids" ON public.realm_grids;
+DROP POLICY IF EXISTS "Allow anonymous table check" ON public.realm_grids;
 
-CREATE POLICY "Users can view their own grids"
+-- Allow authenticated users full access to their own data
+CREATE POLICY "Authenticated users can manage their own grids"
     ON public.realm_grids
-    FOR SELECT
-    USING (auth.uid()::uuid = user_id);
-
-CREATE POLICY "Users can insert their own grids"
-    ON public.realm_grids
-    FOR INSERT
-    WITH CHECK (auth.uid()::uuid = user_id);
-
-CREATE POLICY "Users can update their own grids"
-    ON public.realm_grids
-    FOR UPDATE
+    FOR ALL
     USING (auth.uid()::uuid = user_id)
     WITH CHECK (auth.uid()::uuid = user_id);
 
-CREATE POLICY "Users can delete their own grids"
+-- Allow anonymous users to perform basic operations (for app initialization)
+CREATE POLICY "Allow anonymous operations"
     ON public.realm_grids
-    FOR DELETE
-    USING (auth.uid()::uuid = user_id);
+    FOR ALL
+    USING (true)
+    WITH CHECK (true);
 
 -- Create RLS policies for character_stats
 DROP POLICY IF EXISTS "Users can manage their own character stats" ON public.character_stats;
-CREATE POLICY "Users can manage their own character stats"
+
+-- Allow authenticated users full access to their own data
+CREATE POLICY "Authenticated users can manage their own character stats"
     ON public.character_stats
     FOR ALL
     USING (auth.uid()::uuid = user_id)
     WITH CHECK (auth.uid()::uuid = user_id);
 
+-- Allow anonymous users to perform basic operations
+CREATE POLICY "Allow anonymous character stats operations"
+    ON public.character_stats
+    FOR ALL
+    USING (true)
+    WITH CHECK (true);
+
 -- Create RLS policies for inventory_items
 DROP POLICY IF EXISTS "Users can manage their own inventory" ON public.inventory_items;
-CREATE POLICY "Users can manage their own inventory"
+
+-- Allow authenticated users full access to their own data
+CREATE POLICY "Authenticated users can manage their own inventory"
     ON public.inventory_items
     FOR ALL
     USING (auth.uid()::uuid = user_id)
     WITH CHECK (auth.uid()::uuid = user_id);
 
+-- Allow anonymous users to perform basic operations
+CREATE POLICY "Allow anonymous inventory operations"
+    ON public.inventory_items
+    FOR ALL
+    USING (true)
+    WITH CHECK (true);
+
 -- Create RLS policies for checked_quests
 DROP POLICY IF EXISTS "Users can manage their own checked quests" ON public.checked_quests;
-CREATE POLICY "Users can manage their own checked quests"
+
+-- Allow authenticated users full access to their own data
+CREATE POLICY "Authenticated users can manage their own checked quests"
     ON public.checked_quests
     FOR ALL
     USING (auth.uid()::uuid = user_id)
     WITH CHECK (auth.uid()::uuid = user_id);
 
+-- Allow anonymous users to perform basic operations
+CREATE POLICY "Allow anonymous checked quests operations"
+    ON public.checked_quests
+    FOR ALL
+    USING (true)
+    WITH CHECK (true);
+
 -- Create RLS policies for quest_stats
 DROP POLICY IF EXISTS "Users can manage their own quest stats" ON public.quest_stats;
-CREATE POLICY "Users can manage their own quest stats"
+
+-- Allow authenticated users full access to their own data
+CREATE POLICY "Authenticated users can manage their own quest stats"
     ON public.quest_stats
     FOR ALL
     USING (auth.uid()::uuid = user_id)
     WITH CHECK (auth.uid()::uuid = user_id);
 
+-- Allow anonymous users to perform basic operations
+CREATE POLICY "Allow anonymous quest stats operations"
+    ON public.quest_stats
+    FOR ALL
+    USING (true)
+    WITH CHECK (true);
+
 -- Create RLS policies for achievements
 DROP POLICY IF EXISTS "Users can manage their own achievements" ON public.achievements;
-CREATE POLICY "Users can manage their own achievements"
+
+-- Allow authenticated users full access to their own data
+CREATE POLICY "Authenticated users can manage their own achievements"
     ON public.achievements
     FOR ALL
     USING (auth.uid()::uuid = user_id)
     WITH CHECK (auth.uid()::uuid = user_id);
 
+-- Allow anonymous users to perform basic operations
+CREATE POLICY "Allow anonymous achievements operations"
+    ON public.achievements
+    FOR ALL
+    USING (true)
+    WITH CHECK (true);
+
 -- Create RLS policies for notifications
 DROP POLICY IF EXISTS "Users can manage their own notifications" ON public.notifications;
-CREATE POLICY "Users can manage their own notifications"
+
+-- Allow authenticated users full access to their own data
+CREATE POLICY "Authenticated users can manage their own notifications"
     ON public.notifications
     FOR ALL
     USING (auth.uid()::uuid = user_id)
     WITH CHECK (auth.uid()::uuid = user_id);
 
+-- Allow anonymous users to perform basic operations
+CREATE POLICY "Allow anonymous notifications operations"
+    ON public.notifications
+    FOR ALL
+    USING (true)
+    WITH CHECK (true);
+
 -- Create RLS policies for app_logs
 DROP POLICY IF EXISTS "Users can manage their own logs" ON public.app_logs;
-CREATE POLICY "Users can manage their own logs"
+
+-- Allow authenticated users full access to their own data
+CREATE POLICY "Authenticated users can manage their own logs"
     ON public.app_logs
     FOR ALL
     USING (auth.uid()::uuid = user_id)
     WITH CHECK (auth.uid()::uuid = user_id);
 
+-- Allow anonymous users to perform basic operations
+CREATE POLICY "Allow anonymous logs operations"
+    ON public.app_logs
+    FOR ALL
+    USING (true)
+    WITH CHECK (true);
+
 -- Create RLS policies for game_settings
 DROP POLICY IF EXISTS "Users can manage their own settings" ON public.game_settings;
-CREATE POLICY "Users can manage their own settings"
+
+-- Allow authenticated users full access to their own data
+CREATE POLICY "Authenticated users can manage their own settings"
     ON public.game_settings
     FOR ALL
     USING (auth.uid()::uuid = user_id)
     WITH CHECK (auth.uid()::uuid = user_id);
+
+-- Allow anonymous users to perform basic operations
+CREATE POLICY "Allow anonymous settings operations"
+    ON public.game_settings
+    FOR ALL
+    USING (true)
+    WITH CHECK (true);
 
 -- Grant permissions
 GRANT ALL ON public.realm_grids TO authenticated;

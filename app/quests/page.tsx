@@ -184,7 +184,7 @@ export default function QuestsPage() {
         
         if (newCompletedState) {
           // Add to checked_quests table
-          await supabase.supabase
+          const { error: checkedError } = await supabase.supabase
             .from('checked_quests')
             .upsert({
               user_id: userId,
@@ -192,8 +192,13 @@ export default function QuestsPage() {
               checked_at: new Date().toISOString()
             })
           
+          if (checkedError) {
+            console.error('Error saving to checked_quests:', checkedError)
+            throw new Error(`Failed to save quest completion: ${checkedError.message}`)
+          }
+          
           // Update quest_stats table
-          await supabase.supabase
+          const { error: statsError } = await supabase.supabase
             .from('quest_stats')
             .upsert({
               user_id: userId,
@@ -204,16 +209,26 @@ export default function QuestsPage() {
               completed_at: new Date().toISOString(),
               progress: 100
             })
+          
+          if (statsError) {
+            console.error('Error saving to quest_stats:', statsError)
+            throw new Error(`Failed to save quest stats: ${statsError.message}`)
+          }
         } else {
           // Remove from checked_quests table
-          await supabase.supabase
+          const { error: checkedError } = await supabase.supabase
             .from('checked_quests')
             .delete()
             .eq('user_id', userId)
             .eq('quest_id', questId)
           
+          if (checkedError) {
+            console.error('Error removing from checked_quests:', checkedError)
+            throw new Error(`Failed to remove quest completion: ${checkedError.message}`)
+          }
+          
           // Update quest_stats table
-          await supabase.supabase
+          const { error: statsError } = await supabase.supabase
             .from('quest_stats')
             .upsert({
               user_id: userId,
@@ -224,13 +239,22 @@ export default function QuestsPage() {
               completed_at: null,
               progress: 0
             })
+          
+          if (statsError) {
+            console.error('Error updating quest_stats:', statsError)
+            throw new Error(`Failed to update quest stats: ${statsError.message}`)
+          }
         }
         
         console.log('Successfully saved quest completion to Supabase')
       }
 
-      // Save to localStorage as backup
-      localStorage.setItem('checked-quests', JSON.stringify(checkedQuests))
+      // Save to localStorage as backup (use the updated state)
+      const updatedCheckedQuests = newCompletedState 
+        ? [...checkedQuests, questId].filter((id, index, arr) => arr.indexOf(id) === index)
+        : checkedQuests.filter(id => id !== questId)
+      
+      localStorage.setItem('checked-quests', JSON.stringify(updatedCheckedQuests))
       localStorage.setItem('quests', JSON.stringify(quests))
 
       // Log the toggle action
@@ -250,9 +274,25 @@ export default function QuestsPage() {
 
     } catch (err) {
       console.error('Failed to sync quest state:', err)
+      
+      // Revert local state on error
+      setQuests(prevQuests =>
+        prevQuests.map(q =>
+          q.id === questId ? { ...q, completed: quest.completed } : q
+        )
+      )
+      
+      setCheckedQuests(prev => {
+        if (quest.completed) {
+          return prev.includes(questId) ? prev : [...prev, questId]
+        } else {
+          return prev.filter(id => id !== questId)
+        }
+      })
+      
       toast({
-        title: "Sync Warning",
-        description: "Quest updated locally. Will sync when connection is restored.",
+        title: "Sync Error",
+        description: err instanceof Error ? err.message : "Failed to sync quest state. Please try again.",
         variant: "destructive"
       })
     }
