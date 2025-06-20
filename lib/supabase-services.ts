@@ -59,7 +59,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Supabase environment variables not found. Sync will be disabled.')
 }
 
-const supabase = supabaseUrl && supabaseAnonKey 
+const supabase = supabaseUrl && supabaseAnonKey
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null
 
@@ -67,7 +67,8 @@ const supabase = supabaseUrl && supabaseAnonKey
 async function getUserId(supabaseClient: SupabaseClient | null): Promise<string | null> {
   if (typeof window === 'undefined' || !supabaseClient) return null;
   const { data: { session } } = await supabaseClient.auth.getSession();
-  return session?.user?.id || null;
+  // For Clerk, the user ID is in the 'sub' field of the JWT
+  return session?.user?.id || (session as any)?.sub || null;
 }
 
 // Utility to check if we're online
@@ -121,7 +122,9 @@ export const CharacterStatsService = {
           .eq('user_id', userId)
           .single();
 
-        if (error) throw error;
+        if (error && error.code !== 'PGRST116') { // Ignore 'exact one row not found'
+            throw error;
+        }
         return data;
       },
       'character-stats',
@@ -198,7 +201,7 @@ export const InventoryService = {
       () => {
         const current = JSON.parse(localStorage.getItem('character-inventory') || '[]') as InventoryItem[];
         const existingIndex = current.findIndex((i: InventoryItem) => i.item_id === item.item_id);
-        if (existingIndex !== -1) {
+        if (existingIndex !== -1 && current[existingIndex]) {
           current[existingIndex].quantity += item.quantity;
         } else {
           current.push({ user_id: 'local', ...item });
@@ -255,8 +258,8 @@ export const QuestService = {
             'checked-quests',
              () => {
                 const checked = JSON.parse(localStorage.getItem('checked-quests') || '[]') as string[];
-                const newChecked = isCompleted 
-                    ? [...checked, questId] 
+                const newChecked = isCompleted
+                    ? [...checked, questId]
                     : checked.filter(id => id !== questId);
                 localStorage.setItem('checked-quests', JSON.stringify(Array.from(new Set(newChecked))));
             }
@@ -283,7 +286,7 @@ export const SyncService = {
     onAchievementChange?: (payload: any) => void;
   }) {
     if (!supabase) return null;
-    
+
     const channels: any[] = [];
 
     if (callbacks.onCharacterStatsChange) {
@@ -303,4 +306,4 @@ export const SyncService = {
       });
     };
   }
-}; 
+};
