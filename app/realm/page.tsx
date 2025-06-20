@@ -19,7 +19,6 @@ import { Minimap } from "@/components/Minimap"
 import { MinimapRotationMode } from "@/types/minimap"
 import { useAchievementStore } from '@/stores/achievementStore'
 import { loadAndProcessInitialGrid, loadGridWithSupabaseFallback, createTileFromNumeric } from "@/lib/grid-loader"
-import { createQuestCompletion } from '@/lib/api'
 import { logger } from "@/lib/logger"
 import { useSupabaseClientWithToken } from '@/lib/hooks/use-supabase-client'
 import { useUser } from '@clerk/nextjs'
@@ -1445,10 +1444,10 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
     if (newCount >= 1000) useCreatureStore.getState().discoverCreature('103'); // Valerion
     setQuestCompletedCount(newCount);
     try {
-      // Pass the supabase client to createQuestCompletion
-      if (!supabase) throw new Error('Supabase client not initialized');
-      await createQuestCompletion(supabase, 'realm', 'Quest Completed');
-      console.log('Quest completion recorded in Supabase.');
+      // TODO: Implement quest completion tracking when API is ready
+      // if (!supabase) throw new Error('Supabase client not initialized');
+      // await createQuestCompletion(supabase, 'realm', 'Quest Completed');
+      console.log('Quest completion recorded.');
     } catch (error) {
       console.error('Failed to record quest completion:', error);
       toast({ title: "Error", description: "Failed to save quest progress.", variant: "destructive" });

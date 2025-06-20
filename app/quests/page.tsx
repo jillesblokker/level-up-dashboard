@@ -70,10 +70,15 @@ export default function QuestsPage() {
                 category: q.category,
                 completed: q.completed,
                 progress: q.progress,
-                // Add default values for any other missing Quest properties
                 description: 'Fetched from Supabase',
-                experience: 50, // default
-                gold: 25, // default
+                difficulty: 'easy' as const, // Default difficulty
+                rewards: {
+                    xp: 50, // default
+                    gold: 25, // default
+                },
+                userId: userId || '',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
             }));
         } else {
           loadedQuests = defaultQuests;
@@ -139,7 +144,7 @@ export default function QuestsPage() {
         });
 
         if (isCompleted) {
-            toast({ title: "Quest Completed!", description: `You earned ${quest.experience} XP and ${quest.gold} Gold!`, variant: "success" });
+            toast({ title: "Quest Completed!", description: `You earned ${quest.rewards.xp} XP and ${quest.rewards.gold} Gold!`, variant: "success" });
         }
       }
     } catch (err: any) {
@@ -223,8 +228,8 @@ export default function QuestsPage() {
                       <div className="flex justify-between items-center">
                         <Badge variant="outline">{quest.category}</Badge>
                         <div className="flex items-center space-x-2">
-                          <span className="text-sm font-semibold text-yellow-400">{quest.experience} XP</span>
-                          <span className="text-sm font-semibold text-amber-500">{quest.gold} Gold</span>
+                          <span className="text-sm font-semibold text-yellow-400">{quest.rewards.xp} XP</span>
+                          <span className="text-sm font-semibold text-amber-500">{quest.rewards.gold} Gold</span>
                         </div>
                       </div>
                     </CardContent>
