@@ -24,4 +24,7 @@ function getEnvOrThrow(key: string): string {
 export const env = {
   NEXT_PUBLIC_SUPABASE_URL: getEnvOrThrow('NEXT_PUBLIC_SUPABASE_URL'),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: getEnvOrThrow('NEXT_PUBLIC_SUPABASE_ANON_KEY'),
+  GITHUB_ID: getEnvOrThrow('GITHUB_ID'),
+  GITHUB_SECRET: getEnvOrThrow('GITHUB_SECRET'),
+  DATABASE_URL: getEnvOrThrow('DATABASE_URL'),
 } as const;
