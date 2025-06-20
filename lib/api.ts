@@ -92,68 +92,6 @@ export async function getTilePlacements(
   }
 }
 
-export async function createQuestCompletion(
-  supabase: SupabaseClient<Database>,
-  category: string,
-  questName: string
-): Promise<QuestCompletion> {
-  try {
-    const { data, error } = await supabase.from('quest_completions').insert({
-      category,
-      quest_name: questName,
-      completed: true,
-      date: new Date().toISOString().split('T')[0],
-      user_id: (await supabase.auth.getSession()).data.session?.user.id,
-    }).select().single();
-
-    if (error) {
-      console.error('Supabase error creating quest completion:', error);
-      throw new Error(error.message);
-    }
-
-    const questCompletion: QuestCompletion = {
-      id: data.id,
-      category: data.category,
-      questName: data.quest_name,
-      completed: data.completed,
-      date: data.date,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at,
-    };
-
-    return questCompletion;
-  } catch (error) {
-    console.error('Failed to create quest completion:', error);
-    throw new Error(error instanceof Error ? error.message : 'Failed to create quest completion');
-  }
-}
-
-export async function getQuestCompletions(supabase: SupabaseClient<Database>): Promise<QuestCompletion[]> {
-  try {
-    const { data, error } = await supabase.from('quest_completions').select('*');
-
-    if (error) {
-      console.error('Supabase error fetching quest completions:', error);
-      throw new Error(error.message);
-    }
-
-    const questCompletions: QuestCompletion[] = data.map(item => ({
-      id: item.id,
-      category: item.category,
-      questName: item.quest_name,
-      completed: item.completed,
-      date: item.date,
-      createdAt: item.created_at,
-      updatedAt: item.updated_at,
-    }));
-
-    return questCompletions;
-  } catch (error) {
-    console.error('Failed to fetch quest completions:', error);
-    throw new Error(error instanceof Error ? error.message : 'Failed to fetch quest completions');
-  }
-}
-
 // Helper to get Supabase UUID from Clerk user ID
 async function getSupabaseUserIdFromClerk(clerkId: string, supabase: SupabaseClient<Database>): Promise<string> {
   const { data, error } = await supabase

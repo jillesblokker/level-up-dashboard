@@ -131,41 +131,49 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Add triggers for updated_at
+DROP TRIGGER IF EXISTS set_realm_grids_updated_at ON public.realm_grids;
 CREATE TRIGGER set_realm_grids_updated_at
     BEFORE UPDATE ON public.realm_grids
     FOR EACH ROW
     EXECUTE FUNCTION public.handle_updated_at();
 
+DROP TRIGGER IF EXISTS set_character_stats_updated_at ON public.character_stats;
 CREATE TRIGGER set_character_stats_updated_at
     BEFORE UPDATE ON public.character_stats
     FOR EACH ROW
     EXECUTE FUNCTION public.handle_updated_at();
 
+DROP TRIGGER IF EXISTS set_inventory_items_updated_at ON public.inventory_items;
 CREATE TRIGGER set_inventory_items_updated_at
     BEFORE UPDATE ON public.inventory_items
     FOR EACH ROW
     EXECUTE FUNCTION public.handle_updated_at();
 
+DROP TRIGGER IF EXISTS set_checked_quests_updated_at ON public.checked_quests;
 CREATE TRIGGER set_checked_quests_updated_at
     BEFORE UPDATE ON public.checked_quests
     FOR EACH ROW
     EXECUTE FUNCTION public.handle_updated_at();
 
+DROP TRIGGER IF EXISTS set_quest_stats_updated_at ON public.quest_stats;
 CREATE TRIGGER set_quest_stats_updated_at
     BEFORE UPDATE ON public.quest_stats
     FOR EACH ROW
     EXECUTE FUNCTION public.handle_updated_at();
 
+DROP TRIGGER IF EXISTS set_achievements_updated_at ON public.achievements;
 CREATE TRIGGER set_achievements_updated_at
     BEFORE UPDATE ON public.achievements
     FOR EACH ROW
     EXECUTE FUNCTION public.handle_updated_at();
 
+DROP TRIGGER IF EXISTS set_notifications_updated_at ON public.notifications;
 CREATE TRIGGER set_notifications_updated_at
     BEFORE UPDATE ON public.notifications
     FOR EACH ROW
     EXECUTE FUNCTION public.handle_updated_at();
 
+DROP TRIGGER IF EXISTS set_game_settings_updated_at ON public.game_settings;
 CREATE TRIGGER set_game_settings_updated_at
     BEFORE UPDATE ON public.game_settings
     FOR EACH ROW
@@ -188,6 +196,8 @@ DROP POLICY IF EXISTS "Users can insert their own grids" ON public.realm_grids;
 DROP POLICY IF EXISTS "Users can update their own grids" ON public.realm_grids;
 DROP POLICY IF EXISTS "Users can delete their own grids" ON public.realm_grids;
 DROP POLICY IF EXISTS "Allow anonymous table check" ON public.realm_grids;
+DROP POLICY IF EXISTS "Authenticated users can manage their own grids" ON public.realm_grids;
+DROP POLICY IF EXISTS "Allow anonymous operations" ON public.realm_grids;
 
 -- Allow authenticated users full access to their own data
 CREATE POLICY "Authenticated users can manage their own grids"
@@ -205,6 +215,8 @@ CREATE POLICY "Allow anonymous operations"
 
 -- Create RLS policies for character_stats
 DROP POLICY IF EXISTS "Users can manage their own character stats" ON public.character_stats;
+DROP POLICY IF EXISTS "Authenticated users can manage their own character stats" ON public.character_stats;
+DROP POLICY IF EXISTS "Allow anonymous character stats operations" ON public.character_stats;
 
 -- Allow authenticated users full access to their own data
 CREATE POLICY "Authenticated users can manage their own character stats"
@@ -222,6 +234,8 @@ CREATE POLICY "Allow anonymous character stats operations"
 
 -- Create RLS policies for inventory_items
 DROP POLICY IF EXISTS "Users can manage their own inventory" ON public.inventory_items;
+DROP POLICY IF EXISTS "Authenticated users can manage their own inventory" ON public.inventory_items;
+DROP POLICY IF EXISTS "Allow anonymous inventory operations" ON public.inventory_items;
 
 -- Allow authenticated users full access to their own data
 CREATE POLICY "Authenticated users can manage their own inventory"
@@ -239,6 +253,8 @@ CREATE POLICY "Allow anonymous inventory operations"
 
 -- Create RLS policies for checked_quests
 DROP POLICY IF EXISTS "Users can manage their own checked quests" ON public.checked_quests;
+DROP POLICY IF EXISTS "Authenticated users can manage their own checked quests" ON public.checked_quests;
+DROP POLICY IF EXISTS "Allow anonymous checked quests operations" ON public.checked_quests;
 
 -- Allow authenticated users full access to their own data
 CREATE POLICY "Authenticated users can manage their own checked quests"
@@ -256,6 +272,8 @@ CREATE POLICY "Allow anonymous checked quests operations"
 
 -- Create RLS policies for quest_stats
 DROP POLICY IF EXISTS "Users can manage their own quest stats" ON public.quest_stats;
+DROP POLICY IF EXISTS "Authenticated users can manage their own quest stats" ON public.quest_stats;
+DROP POLICY IF EXISTS "Allow anonymous quest stats operations" ON public.quest_stats;
 
 -- Allow authenticated users full access to their own data
 CREATE POLICY "Authenticated users can manage their own quest stats"
@@ -273,6 +291,8 @@ CREATE POLICY "Allow anonymous quest stats operations"
 
 -- Create RLS policies for achievements
 DROP POLICY IF EXISTS "Users can manage their own achievements" ON public.achievements;
+DROP POLICY IF EXISTS "Authenticated users can manage their own achievements" ON public.achievements;
+DROP POLICY IF EXISTS "Allow anonymous achievements operations" ON public.achievements;
 
 -- Allow authenticated users full access to their own data
 CREATE POLICY "Authenticated users can manage their own achievements"
@@ -290,6 +310,8 @@ CREATE POLICY "Allow anonymous achievements operations"
 
 -- Create RLS policies for notifications
 DROP POLICY IF EXISTS "Users can manage their own notifications" ON public.notifications;
+DROP POLICY IF EXISTS "Authenticated users can manage their own notifications" ON public.notifications;
+DROP POLICY IF EXISTS "Allow anonymous notifications operations" ON public.notifications;
 
 -- Allow authenticated users full access to their own data
 CREATE POLICY "Authenticated users can manage their own notifications"
@@ -307,6 +329,8 @@ CREATE POLICY "Allow anonymous notifications operations"
 
 -- Create RLS policies for app_logs
 DROP POLICY IF EXISTS "Users can manage their own logs" ON public.app_logs;
+DROP POLICY IF EXISTS "Authenticated users can manage their own logs" ON public.app_logs;
+DROP POLICY IF EXISTS "Allow anonymous logs operations" ON public.app_logs;
 
 -- Allow authenticated users full access to their own data
 CREATE POLICY "Authenticated users can manage their own logs"
@@ -324,6 +348,8 @@ CREATE POLICY "Allow anonymous logs operations"
 
 -- Create RLS policies for game_settings
 DROP POLICY IF EXISTS "Users can manage their own settings" ON public.game_settings;
+DROP POLICY IF EXISTS "Authenticated users can manage their own settings" ON public.game_settings;
+DROP POLICY IF EXISTS "Allow anonymous settings operations" ON public.game_settings;
 
 -- Allow authenticated users full access to their own data
 CREATE POLICY "Authenticated users can manage their own settings"
@@ -362,6 +388,10 @@ GRANT ALL ON public.game_settings TO anon;
 -- Grant function permissions
 GRANT EXECUTE ON FUNCTION public.handle_updated_at() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.handle_updated_at() TO anon;
+
+-- Grant schema permissions
+GRANT USAGE ON SCHEMA public TO authenticated;
+GRANT USAGE ON SCHEMA public TO anon;
 
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_realm_grids_user_id ON public.realm_grids(user_id);
