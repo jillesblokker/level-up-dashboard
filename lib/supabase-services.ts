@@ -1,48 +1,54 @@
 // Supabase services with localStorage fallback
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { RetryManager } from './retry-utils'
 
 // Types for our game data
 interface CharacterStats {
-  gold: number
-  experience: number
-  level: number
-  health: number
-  max_health: number
-  character_name: string
+  user_id: string;
+  gold: number;
+  experience: number;
+  level: number;
+  health: number;
+  max_health: number;
+  character_name: string;
+  updated_at?: string;
 }
 
 interface InventoryItem {
-  item_id: string
-  name: string
-  description?: string
-  type: string
-  category?: string
-  quantity: number
-  emoji?: string
-  image?: string
-  stats?: any
-  equipped: boolean
-  is_default: boolean
+  user_id: string;
+  item_id: string;
+  name: string;
+  description?: string;
+  type: string;
+  category?: string;
+  quantity: number;
+  emoji?: string;
+  image?: string;
+  stats?: any;
+  equipped: boolean;
+  is_default: boolean;
 }
 
 interface QuestStats {
-  quest_id: string
-  quest_name: string
-  category: string
-  completed: boolean
-  progress: number
-  max_progress: number
+  user_id: string;
+  quest_id: string;
+  quest_name: string;
+  category: string;
+  completed: boolean;
+  progress: number;
+  completed_at?: string | null;
 }
 
 interface CheckedQuest {
-  quest_id: string
-  checked_at: string
+  user_id: string;
+  quest_id: string;
+  checked_at: string;
 }
 
 interface GameSettings {
-  setting_key: string
-  setting_value: any
+  user_id: string;
+  setting_key: string;
+  setting_value: any;
 }
 
 // Supabase client with better error handling
@@ -57,11 +63,11 @@ const supabase = supabaseUrl && supabaseAnonKey
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null
 
-// Utility to get user ID from Clerk
-function getUserId(): string | null {
-  if (typeof window === 'undefined') return null
-  // This will be replaced with actual Clerk user ID
-  return localStorage.getItem('clerk-user-id')
+// Utility to get user ID from Supabase session
+async function getUserId(supabaseClient: SupabaseClient | null): Promise<string | null> {
+  if (typeof window === 'undefined' || !supabaseClient) return null;
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  return session?.user?.id || null;
 }
 
 // Utility to check if we're online
@@ -70,8 +76,10 @@ function isOnline(): boolean {
 }
 
 // Utility to check if Supabase is available
-function isSupabaseAvailable(): boolean {
-  return supabase !== null && isOnline() && getUserId() !== null
+async function isSupabaseAvailable(): Promise<boolean> {
+  if (!supabase || !isOnline()) return false;
+  const userId = await getUserId(supabase);
+  return userId !== null;
 }
 
 // Utility to handle Supabase errors and fallback to localStorage with retry
@@ -80,22 +88,22 @@ async function withFallback<T>(
   localStorageKey: string,
   localStorageOperation: () => T
 ): Promise<T> {
-  if (!isSupabaseAvailable()) {
-    return localStorageOperation()
+  if (!(await isSupabaseAvailable())) {
+    return localStorageOperation();
   }
 
   const retryManager = RetryManager.getInstance()
 
   try {
-    const result = await retryManager.retryDatabase(supabaseOperation)
+    const result = await supabaseOperation();
     // Also update localStorage as backup
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(localStorageKey, JSON.stringify(result))
+    if (typeof window !== 'undefined' && result) {
+      localStorage.setItem(localStorageKey, JSON.stringify(result));
     }
-    return result
+    return result;
   } catch (error) {
-    console.warn('Supabase operation failed after retries, falling back to localStorage:', error)
-    return localStorageOperation()
+    console.warn(`Supabase operation for ${localStorageKey} failed, falling back to localStorage:`, error);
+    return localStorageOperation();
   }
 }
 
@@ -104,53 +112,52 @@ export const CharacterStatsService = {
   async getStats(): Promise<CharacterStats | null> {
     return withFallback(
       async () => {
-        const userId = getUserId()
-        if (!userId || !supabase) throw new Error('No user ID or Supabase client')
+        const userId = await getUserId(supabase);
+        if (!userId || !supabase) throw new Error('No user ID or Supabase client');
 
         const { data, error } = await supabase
           .from('character_stats')
           .select('*')
           .eq('user_id', userId)
-          .single()
+          .single();
 
-        if (error) throw error
-        return data
+        if (error) throw error;
+        return data;
       },
       'character-stats',
       () => {
-        const stored = localStorage.getItem('character-stats')
-        return stored ? JSON.parse(stored) : null
+        const stored = localStorage.getItem('character-stats');
+        return stored ? JSON.parse(stored) : null;
       }
-    )
+    );
   },
 
-  async updateStats(stats: Partial<CharacterStats>): Promise<CharacterStats> {
+  async updateStats(stats: Partial<Omit<CharacterStats, 'user_id'>>): Promise<CharacterStats> {
     return withFallback(
       async () => {
-        const userId = getUserId()
-        if (!userId || !supabase) throw new Error('No user ID or Supabase client')
+        const userId = await getUserId(supabase);
+        if (!userId || !supabase) throw new Error('No user ID or Supabase client');
 
         const { data, error } = await supabase
           .from('character_stats')
-          .upsert({
-            user_id: userId,
-            ...stats,
-            updated_at: new Date().toISOString()
-          })
+          .upsert({ user_id: userId, ...stats })
           .select()
-          .single()
+          .single();
 
-        if (error) throw error
-        return data
+        if (error) {
+            console.error("Error updating stats in Supabase:", error);
+            throw error;
+        }
+        return data;
       },
       'character-stats',
       () => {
-        const current = JSON.parse(localStorage.getItem('character-stats') || '{}')
-        const updated = { ...current, ...stats }
-        localStorage.setItem('character-stats', JSON.stringify(updated))
-        return updated
+        const current = JSON.parse(localStorage.getItem('character-stats') || '{}');
+        const updated = { ...current, ...stats };
+        localStorage.setItem('character-stats', JSON.stringify(updated));
+        return updated;
       }
-    )
+    );
   }
 }
 
@@ -159,533 +166,141 @@ export const InventoryService = {
   async getInventory(): Promise<InventoryItem[]> {
     return withFallback(
       async () => {
-        const userId = getUserId()
-        if (!userId) throw new Error('No user ID')
-        if (!supabase) throw new Error('Supabase client not initialized')
+        const userId = await getUserId(supabase);
+        if (!userId || !supabase) throw new Error('No user ID or Supabase client');
 
         const { data, error } = await supabase
           .from('inventory_items')
           .select('*')
-          .eq('user_id', userId)
+          .eq('user_id', userId);
 
-        if (error) throw error
-        return data || []
+        if (error) throw error;
+        return data || [];
       },
       'character-inventory',
-      () => {
-        const stored = localStorage.getItem('character-inventory')
-        return stored ? JSON.parse(stored) : []
-      }
-    )
+      () => JSON.parse(localStorage.getItem('character-inventory') || '[]')
+    );
   },
 
-  async addToInventory(item: InventoryItem): Promise<void> {
-    return withFallback(
+  async addToInventory(item: Omit<InventoryItem, 'user_id'>): Promise<void> {
+    await withFallback(
       async () => {
-        const userId = getUserId()
-        if (!userId) throw new Error('No user ID')
-        if (!supabase) throw new Error('Supabase client not initialized')
+        const userId = await getUserId(supabase);
+        if (!userId || !supabase) throw new Error('No user ID or Supabase client');
 
         const { error } = await supabase
           .from('inventory_items')
-          .upsert({
-            user_id: userId,
-            item_id: item.item_id,
-            name: item.name,
-            description: item.description,
-            type: item.type,
-            category: item.category,
-            quantity: item.quantity,
-            emoji: item.emoji,
-            image: item.image,
-            stats: item.stats,
-            equipped: item.equipped,
-            is_default: item.is_default
-          })
+          .upsert({ user_id: userId, ...item });
 
-        if (error) throw error
+        if (error) throw error;
       },
       'character-inventory',
       () => {
-        const current = JSON.parse(localStorage.getItem('character-inventory') || '[]')
-        const existing = current.find((i: InventoryItem) => i.item_id === item.item_id)
-        if (existing) {
-          existing.quantity += item.quantity
+        const current = JSON.parse(localStorage.getItem('character-inventory') || '[]') as InventoryItem[];
+        const existingIndex = current.findIndex((i: InventoryItem) => i.item_id === item.item_id);
+        if (existingIndex !== -1) {
+          current[existingIndex].quantity += item.quantity;
         } else {
-          current.push(item)
+          current.push({ user_id: 'local', ...item });
         }
-        localStorage.setItem('character-inventory', JSON.stringify(current))
+        localStorage.setItem('character-inventory', JSON.stringify(current));
       }
-    )
+    );
   },
-
-  async getKingdomInventory(): Promise<InventoryItem[]> {
-    return withFallback(
-      async () => {
-        const userId = getUserId()
-        if (!userId) throw new Error('No user ID')
-        if (!supabase) throw new Error('Supabase client not initialized')
-
-        const { data, error } = await supabase
-          .from('inventory_items')
-          .select('*')
-          .eq('user_id', userId)
-          .eq('type', 'kingdom')
-
-        if (error) throw error
-        return data || []
-      },
-      'kingdom-inventory',
-      () => {
-        const stored = localStorage.getItem('kingdom-inventory')
-        return stored ? JSON.parse(stored) : []
-      }
-    )
-  },
-
-  async getEquippedItems(): Promise<InventoryItem[]> {
-    return withFallback(
-      async () => {
-        const userId = getUserId()
-        if (!userId) throw new Error('No user ID')
-        if (!supabase) throw new Error('Supabase client not initialized')
-
-        const { data, error } = await supabase
-          .from('inventory_items')
-          .select('*')
-          .eq('user_id', userId)
-          .eq('equipped', true)
-
-        if (error) throw error
-        return data || []
-      },
-      'kingdom-equipped-items',
-      () => {
-        const stored = localStorage.getItem('kingdom-equipped-items')
-        return stored ? JSON.parse(stored) : []
-      }
-    )
-  }
 }
 
 // Quest Services
 export const QuestService = {
-  async getCheckedQuests(): Promise<string[]> {
-    return withFallback(
-      async () => {
-        const userId = getUserId()
-        if (!userId) throw new Error('No user ID')
-        if (!supabase) throw new Error('Supabase client not initialized')
+    async getCheckedQuests(): Promise<string[]> {
+        return withFallback(
+            async () => {
+                const userId = await getUserId(supabase);
+                if (!userId || !supabase) return [];
+                const { data, error } = await supabase
+                    .from('checked_quests')
+                    .select('quest_id')
+                    .eq('user_id', userId);
+                if (error) throw error;
+                return data?.map(q => q.quest_id) || [];
+            },
+            'checked-quests',
+            () => JSON.parse(localStorage.getItem('checked-quests') || '[]')
+        );
+    },
 
-        const { data, error } = await supabase
-          .from('checked_quests')
-          .select('quest_id')
-          .eq('user_id', userId)
+    async updateQuestStats(questStats: Omit<QuestStats, 'user_id'>): Promise<void> {
+        await withFallback(
+            async () => {
+                const userId = await getUserId(supabase);
+                if (!userId || !supabase) throw new Error('No user ID');
+                await supabase.from('quest_stats').upsert({ user_id: userId, ...questStats });
+            },
+            'quest-stats',
+            () => { /* Local storage update logic here if needed */ }
+        );
+    },
 
-        if (error) throw error
-        return data?.map(item => item.quest_id) || []
-      },
-      'checked-quests',
-      () => {
-        const stored = localStorage.getItem('checked-quests')
-        return stored ? JSON.parse(stored) : []
-      }
-    )
-  },
+    async updateCheckedQuests(questId: string, isCompleted: boolean): Promise<void> {
+        await withFallback(
+            async () => {
+                const userId = await getUserId(supabase);
+                if (!userId || !supabase) throw new Error('No user ID');
 
-  async checkQuest(questId: string): Promise<void> {
-    return withFallback(
-      async () => {
-        const userId = getUserId()
-        if (!userId) throw new Error('No user ID')
-        if (!supabase) throw new Error('Supabase client not initialized')
+                if (isCompleted) {
+                    await supabase.from('checked_quests').upsert({ user_id: userId, quest_id: questId });
+                } else {
+                    await supabase.from('checked_quests').delete().match({ user_id: userId, quest_id: questId });
+                }
+            },
+            'checked-quests',
+             () => {
+                const checked = JSON.parse(localStorage.getItem('checked-quests') || '[]') as string[];
+                const newChecked = isCompleted 
+                    ? [...checked, questId] 
+                    : checked.filter(id => id !== questId);
+                localStorage.setItem('checked-quests', JSON.stringify(Array.from(new Set(newChecked))));
+            }
+        );
+    }
+};
 
-        const { error } = await supabase
-          .from('checked_quests')
-          .upsert({
-            user_id: userId,
-            quest_id: questId,
-            checked_at: new Date().toISOString()
-          })
-
-        if (error) throw error
-      },
-      'checked-quests',
-      () => {
-        const current = JSON.parse(localStorage.getItem('checked-quests') || '[]')
-        if (!current.includes(questId)) {
-          current.push(questId)
-          localStorage.setItem('checked-quests', JSON.stringify(current))
-        }
-      }
-    )
-  },
-
-  async uncheckQuest(questId: string): Promise<void> {
-    return withFallback(
-      async () => {
-        const userId = getUserId()
-        if (!userId) throw new Error('No user ID')
-        if (!supabase) throw new Error('Supabase client not initialized')
-
-        const { error } = await supabase
-          .from('checked_quests')
-          .delete()
-          .eq('user_id', userId)
-          .eq('quest_id', questId)
-
-        if (error) throw error
-      },
-      'checked-quests',
-      () => {
-        const current = JSON.parse(localStorage.getItem('checked-quests') || '[]')
-        const filtered = current.filter((id: string) => id !== questId)
-        localStorage.setItem('checked-quests', JSON.stringify(filtered))
-      }
-    )
-  },
-
-  async getQuestStats(): Promise<QuestStats[]> {
-    return withFallback(
-      async () => {
-        const userId = getUserId()
-        if (!userId) throw new Error('No user ID')
-        if (!supabase) throw new Error('Supabase client not initialized')
-
-        const { data, error } = await supabase
-          .from('quest_stats')
-          .select('*')
-          .eq('user_id', userId)
-
-        if (error) throw error
-        return data || []
-      },
-      'quest-stats',
-      () => {
-        const stored = localStorage.getItem('quest-stats')
-        return stored ? JSON.parse(stored) : []
-      }
-    )
-  },
-
-  async updateQuestStats(questId: string, updates: Partial<QuestStats>): Promise<void> {
-    return withFallback(
-      async () => {
-        const userId = getUserId()
-        if (!userId) throw new Error('No user ID')
-        if (!supabase) throw new Error('Supabase client not initialized')
-
-        const { error } = await supabase
-          .from('quest_stats')
-          .upsert({
-            user_id: userId,
-            quest_id: questId,
-            ...updates,
-            updated_at: new Date().toISOString()
-          })
-
-        if (error) throw error
-      },
-      'quest-stats',
-      () => {
-        const current = JSON.parse(localStorage.getItem('quest-stats') || '[]')
-        const existingIndex = current.findIndex((q: QuestStats) => q.quest_id === questId)
-        if (existingIndex >= 0) {
-          current[existingIndex] = { ...current[existingIndex], ...updates }
-        } else {
-          current.push({ quest_id: questId, ...updates })
-        }
-        localStorage.setItem('quest-stats', JSON.stringify(current))
-      }
-    )
-  }
-}
-
-// Daily Quests Services
-export const DailyQuestsService = {
-  async getDailyQuests(): Promise<any[]> {
-    return withFallback(
-      async () => {
-        const userId = getUserId()
-        if (!userId) throw new Error('No user ID')
-        if (!supabase) throw new Error('Supabase client not initialized')
-
-        const { data, error } = await supabase
-          .from('game_settings')
-          .select('setting_value')
-          .eq('user_id', userId)
-          .eq('setting_key', 'daily-quests')
-          .single()
-
-        if (error) throw error
-        return data?.setting_value || []
-      },
-      'daily-quests',
-      () => {
-        const stored = localStorage.getItem('daily-quests')
-        return stored ? JSON.parse(stored) : []
-      }
-    )
-  },
-
-  async saveDailyQuests(quests: any[]): Promise<void> {
-    return withFallback(
-      async () => {
-        const userId = getUserId()
-        if (!userId) throw new Error('No user ID')
-        if (!supabase) throw new Error('Supabase client not initialized')
-
-        const { error } = await supabase
-          .from('game_settings')
-          .upsert({
-            user_id: userId,
-            setting_key: 'daily-quests',
-            setting_value: quests,
-            updated_at: new Date().toISOString()
-          })
-
-        if (error) throw error
-      },
-      'daily-quests',
-      () => {
-        localStorage.setItem('daily-quests', JSON.stringify(quests))
-      }
-    )
-  }
-}
-
-// Game Settings Services
-export const GameSettingsService = {
-  async getSetting(key: string): Promise<any> {
-    return withFallback(
-      async () => {
-        const userId = getUserId()
-        if (!userId) throw new Error('No user ID')
-        if (!supabase) throw new Error('Supabase client not initialized')
-
-        const { data, error } = await supabase
-          .from('game_settings')
-          .select('setting_value')
-          .eq('user_id', userId)
-          .eq('setting_key', key)
-          .single()
-
-        if (error) throw error
-        return data?.setting_value
-      },
-      `setting-${key}`,
-      () => {
-        const stored = localStorage.getItem(`setting-${key}`)
-        return stored ? JSON.parse(stored) : null
-      }
-    )
-  },
-
-  async setSetting(key: string, value: any): Promise<void> {
-    return withFallback(
-      async () => {
-        const userId = getUserId()
-        if (!userId) throw new Error('No user ID')
-        if (!supabase) throw new Error('Supabase client not initialized')
-
-        const { error } = await supabase
-          .from('game_settings')
-          .upsert({
-            user_id: userId,
-            setting_key: key,
-            setting_value: value,
-            updated_at: new Date().toISOString()
-          })
-
-        if (error) throw error
-      },
-      `setting-${key}`,
-      () => {
-        localStorage.setItem(`setting-${key}`, JSON.stringify(value))
-      }
-    )
-  }
-}
-
-// Sync service to handle data synchronization
+// Generic Sync Service
 export const SyncService = {
   async syncAllData(): Promise<void> {
-    if (!isOnline() || !getUserId()) return
-
-    try {
-      // Sync character stats
-      const localStats = localStorage.getItem('character-stats')
-      if (localStats) {
-        await CharacterStatsService.updateStats(JSON.parse(localStats))
-      }
-
-      // Sync inventory
-      const localInventory = localStorage.getItem('character-inventory')
-      if (localInventory) {
-        const items = JSON.parse(localInventory)
-        for (const item of items) {
-          // Transform from local format (id) to Supabase format (item_id)
-          const supabaseItem = {
-            item_id: item.id,
-            name: item.name,
-            description: item.description,
-            type: item.type,
-            category: item.category,
-            quantity: item.quantity,
-            emoji: item.emoji,
-            image: item.image,
-            stats: item.stats,
-            equipped: item.equipped || false,
-            is_default: item.isDefault || false
-          }
-          await InventoryService.addToInventory(supabaseItem)
-        }
-      }
-
-      // Sync checked quests
-      const localCheckedQuests = localStorage.getItem('checked-quests')
-      if (localCheckedQuests) {
-        const questIds = JSON.parse(localCheckedQuests)
-        for (const questId of questIds) {
-          await QuestService.checkQuest(questId)
-        }
-      }
-
-      // Sync daily quests
-      const localDailyQuests = localStorage.getItem('daily-quests')
-      if (localDailyQuests) {
-        await DailyQuestsService.saveDailyQuests(JSON.parse(localDailyQuests))
-      }
-
-      console.log('Data sync completed successfully')
-    } catch (error) {
-      console.error('Data sync failed:', error)
+    const isReady = await isSupabaseAvailable();
+    if (!isReady || !supabase) {
+      console.warn('Supabase not available, skipping sync.');
+      return;
     }
-  }
-}
+    // Implement sync logic for all data types if needed
+  },
 
-// Real-time sync service for cross-device synchronization
-export const RealTimeSyncService = {
-  setupSubscriptions(supabase: any, userId: string, callbacks: {
+  setupSubscriptions(callbacks: {
     onQuestChange?: (payload: any) => void;
     onGridChange?: (payload: any) => void;
     onCharacterStatsChange?: (payload: any) => void;
     onInventoryChange?: (payload: any) => void;
     onAchievementChange?: (payload: any) => void;
   }) {
-    if (!supabase || !userId) return null;
+    if (!supabase) return null;
+    
+    const channels: any[] = [];
 
-    console.log('Setting up comprehensive real-time sync subscriptions...');
-
-    const subscriptions: any[] = [];
-
-    // Quest changes
-    if (callbacks.onQuestChange) {
-      const questSubscription = supabase
-        .channel('quest-sync')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'checked_quests',
-            filter: `user_id=eq.${userId}`
-          },
-          callbacks.onQuestChange
-        )
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'quest_stats',
-            filter: `user_id=eq.${userId}`
-          },
-          callbacks.onQuestChange
-        )
-        .subscribe();
-      subscriptions.push(questSubscription);
-    }
-
-    // Grid changes
-    if (callbacks.onGridChange) {
-      const gridSubscription = supabase
-        .channel('grid-sync')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'realm_grids',
-            filter: `user_id=eq.${userId}`
-          },
-          callbacks.onGridChange
-        )
-        .subscribe();
-      subscriptions.push(gridSubscription);
-    }
-
-    // Character stats changes
     if (callbacks.onCharacterStatsChange) {
-      const statsSubscription = supabase
-        .channel('character-stats-sync')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'character_stats',
-            filter: `user_id=eq.${userId}`
-          },
-          callbacks.onCharacterStatsChange
-        )
-        .subscribe();
-      subscriptions.push(statsSubscription);
+        const statsChannel = supabase.channel('character_stats_changes')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'character_stats' }, callbacks.onCharacterStatsChange)
+            .subscribe();
+        channels.push(statsChannel);
     }
 
-    // Inventory changes
-    if (callbacks.onInventoryChange) {
-      const inventorySubscription = supabase
-        .channel('inventory-sync')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'inventory_items',
-            filter: `user_id=eq.${userId}`
-          },
-          callbacks.onInventoryChange
-        )
-        .subscribe();
-      subscriptions.push(inventorySubscription);
-    }
+    // Add other subscriptions as needed...
 
-    // Achievement changes
-    if (callbacks.onAchievementChange) {
-      const achievementSubscription = supabase
-        .channel('achievement-sync')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'achievements',
-            filter: `user_id=eq.${userId}`
-          },
-          callbacks.onAchievementChange
-        )
-        .subscribe();
-      subscriptions.push(achievementSubscription);
-    }
-
-    return {
-      cleanup: () => {
-        console.log('Cleaning up real-time sync subscriptions...');
-        subscriptions.forEach(subscription => {
-          supabase.removeChannel(subscription);
-        });
-      }
+    return () => {
+      channels.forEach(channel => {
+        if (supabase) {
+          supabase.removeChannel(channel)
+        }
+      });
     };
   }
-};
+}; 

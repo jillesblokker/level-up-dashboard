@@ -183,11 +183,13 @@ BEGIN
     LOOP
         EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY;', t);
         
+        -- Policy for authenticated users to manage their own data, using the JWT 'sub' claim for Clerk user ID
         EXECUTE format('DROP POLICY IF EXISTS "Authenticated users can manage their own data" ON public.%I;', t);
-        EXECUTE format('CREATE POLICY "Authenticated users can manage their own data" ON public.%I FOR ALL USING (auth.uid()::text = user_id) WITH CHECK (auth.uid()::text = user_id);', t);
+        EXECUTE format('CREATE POLICY "Authenticated users can manage their own data" ON public.%I FOR ALL USING ((auth.jwt() ->> ''sub'') = user_id) WITH CHECK ((auth.jwt() ->> ''sub'') = user_id);', t);
         
-        EXECUTE format('DROP POLICY IF EXISTS "Allow anonymous read access" ON public.%I;', t);
-        EXECUTE format('CREATE POLICY "Allow anonymous read access" ON public.%I FOR SELECT USING (true);', t);
+        -- Policy for allowing read access to server-side processes that might not have a user session
+        EXECUTE format('DROP POLICY IF EXISTS "Allow service_role read access" ON public.%I;', t);
+        EXECUTE format('CREATE POLICY "Allow service_role read access" ON public.%I FOR SELECT USING (auth.role() = ''service_role'');', t);
     END LOOP;
 END;
 $$;
