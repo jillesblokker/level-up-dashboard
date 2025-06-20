@@ -189,80 +189,67 @@ export default function QuestsPage() {
 
   return (
     <ScrollArea className="h-full" aria-label="quests-scroll-area">
-      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-        {/* Cover Image */}
-        <div className="relative w-full h-48 rounded-lg overflow-hidden mb-6">
-          <img
-            src="/images/quests-header.jpg"
-            alt="Quest Adventures"
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.currentTarget.src = "/images/achievements-header.jpg";
-            }}
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-            <div className="text-center text-white">
-              <h1 className="text-4xl font-bold mb-2">Quest Adventures</h1>
-              <p className="text-xl">Embark on epic journeys and earn rewards</p>
-            </div>
-          </div>
-        </div>
-
+      <div className="flex-1 space-y-4">
         <HeaderSection
-          title="Quests"
-          subtitle="Embark on adventures, complete tasks, and earn rewards."
+          title="Quest Adventures"
+          subtitle="Embark on epic journeys, complete tasks, and earn rewards."
+          imageSrc="/images/quests-header.jpg"
+          defaultBgColor="bg-amber-900"
         />
-        {syncError && (
-          <div className="bg-red-800 border border-red-600 text-white p-4 rounded-md mb-4 flex justify-between items-center">
-            <span>{syncError}</span>
-            <Button variant="ghost" size="icon" onClick={() => setSyncError(null)}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
-        <Tabs defaultValue={Object.keys(questsByCategory)[0] || 'all'}>
-          <TabsList>
-            {Object.keys(questsByCategory).map(category => (
-              <TabsTrigger key={category} value={category}>{category.charAt(0).toUpperCase() + category.slice(1)}</TabsTrigger>
-            ))}
-          </TabsList>
-          {Object.entries(questsByCategory).map(([category, questsInCategory]) => (
-            <TabsContent key={category} value={category}>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {questsInCategory.map(quest => (
-                  <Card 
-                    key={quest.id} 
-                    className="w-full cursor-pointer hover:shadow-lg transition-shadow duration-200"
-                    onClick={() => handleQuestToggle(quest.id)}
-                    aria-label={`Quest card for ${quest.title}. Click to mark as ${checkedQuests.has(quest.id) ? 'incomplete' : 'complete'}`}
-                  >
-                    <CardHeader>
-                      <CardTitle className="flex justify-between items-center">
-                        {quest.title}
-                        <Checkbox
-                          checked={checkedQuests.has(quest.id)}
-                          onCheckedChange={() => handleQuestToggle(quest.id)}
-                          aria-label={`Mark quest ${quest.title} as ${checkedQuests.has(quest.id) ? 'incomplete' : 'complete'}`}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-gray-400 mb-2">{quest.description}</p>
-                      <div className="flex justify-between items-center">
-                        <Badge variant="outline">{quest.category}</Badge>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm font-semibold text-yellow-400">{quest.rewards.xp} XP</span>
-                          <span className="text-sm font-semibold text-amber-500">{quest.rewards.gold} Gold</span>
+        
+        <div className="p-4 md:p-8">
+          {syncError && (
+            <div className="bg-red-800 border border-red-600 text-white p-4 rounded-md mb-4 flex justify-between items-center">
+              <span>{syncError}</span>
+              <Button variant="ghost" size="icon" onClick={() => setSyncError(null)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+          <Tabs defaultValue={Object.keys(questsByCategory)[0] || 'all'}>
+            <TabsList>
+              {Object.keys(questsByCategory).map(category => (
+                <TabsTrigger key={category} value={category}>{category.charAt(0).toUpperCase() + category.slice(1)}</TabsTrigger>
+              ))}
+            </TabsList>
+            {Object.entries(questsByCategory).map(([category, questsInCategory]) => (
+              <TabsContent key={category} value={category}>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {questsInCategory.map(quest => (
+                    <Card 
+                      key={quest.id} 
+                      className="w-full cursor-pointer hover:shadow-lg transition-shadow duration-200"
+                      onClick={() => handleQuestToggle(quest.id)}
+                      aria-label={`Quest card for ${quest.title}. Click to mark as ${checkedQuests.has(quest.id) ? 'incomplete' : 'complete'}`}
+                    >
+                      <CardHeader>
+                        <CardTitle className="flex justify-between items-center">
+                          {quest.title}
+                          <Checkbox
+                            checked={checkedQuests.has(quest.id)}
+                            onCheckedChange={() => handleQuestToggle(quest.id)}
+                            aria-label={`Mark quest ${quest.title} as ${checkedQuests.has(quest.id) ? 'incomplete' : 'complete'}`}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-gray-400 mb-2">{quest.description}</p>
+                        <div className="flex justify-between items-center">
+                          <Badge variant="outline">{quest.category}</Badge>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm font-semibold text-yellow-400">{quest.rewards.xp} XP</span>
+                            <span className="text-sm font-semibold text-amber-500">{quest.rewards.gold} Gold</span>
+                          </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-          ))}
-        </Tabs>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+            ))}
+          </Tabs>
+        </div>
       </div>
     </ScrollArea>
   );

@@ -200,4 +200,4 @@ GRANT ALL ON ALL TABLES IN SCHEMA public TO authenticated, anon;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO authenticated, anon;
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO authenticated, anon;
 
-SELECT 'Final migration script for Clerk completed successfully!' as status; 
+SELECT 'Final migration script for Clerk completed successfully!' as status;
