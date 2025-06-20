@@ -72,3 +72,14 @@ export async function withToken<T>(
 ): Promise<T> {
   const token = await getToken({ template: 'supabase' });
   if (!token) {
+    throw new Error('User not authenticated, no token found');
+  }
+
+  // Set the session for this specific operation
+  supabase.auth.setSession({
+    access_token: token,
+    refresh_token: '',
+  });
+
+  return operation(supabase);
+}

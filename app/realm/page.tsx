@@ -168,44 +168,6 @@ export default function RealmPage() {
   const [grid, setGrid] = useState<Tile[][]>([]);
   const [isLoading, setIsLoading] = useState(true)
   const [isInitialized, setIsInitialized] = useState(false)
-  const [currentEvent, setCurrentEvent] = useState<MysteryEvent | null>(null)
-  const [showLocationModal, setShowLocationModal] = useState(false)
-  const [currentLocation, setCurrentLocation] = useState<{ x: number; y: number; name: string; description: string } | null>(null)
-  const [movementMode, setMovementMode] = useState(true)
-  const [hoveredTile, setHoveredTile] = useState<{ row: number; col: number } | null>(null)
-  const [isSyncing, setIsSyncing] = useState(false)
-  const [syncError, setSyncError] = useState<string | null>(null)
-  const [showInventory, setShowInventory] = useState(false)
-  const [minimapSwitch, setMinimapSwitch] = useState(false)
-  const [minimapZoom, setMinimapZoom] = useState(1)
-  const [minimapRotationMode, setMinimapRotationMode] = useState<MinimapRotationMode>('static')
-  const [questCompletedCount, setQuestCompletedCount] = useState(0)
-  const [tileCounts, setTileCounts] = useLocalStorage<TileCounts>("tile-counts", {
-    forestPlaced: 0,
-    forestDestroyed: 0,
-    waterPlaced: 0,
-    mountainPlaced: 0,
-    mountainDestroyed: 0,
-    icePlaced: 0,
-    waterDestroyed: 0
-  })
-  // Add save status state with enhanced feedback
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
-  const [lastSaveTime, setLastSaveTime] = useState<Date | null>(null)
-  const [saveError, setSaveError] = useState<string | null>(null)
-  const [retryCount, setRetryCount] = useState(0)
-  // Add state for portal modal and portal teleportation
-  const [showPortalModal, setShowPortalModal] = useState(false);
-  const [portalSource, setPortalSource] = useState<{ x: number; y: number; type: TileType } | null>(null);
-  // Add state to track if the horse is present on the map
-  const [isHorsePresent, setIsHorsePresent] = useState(true);
-  // Add state for eagle and penguin
-  const [eaglePosition, setEaglePosition] = useState<{ x: number; y: number }>({ x: 10, y: 6 });
-  const [penguinPosition, setPenguinPosition] = useState<{ x: number; y: number } | null>(null);
-  const [isPenguinPresent, setIsPenguinPresent] = useState(false);
-  // Add state for animal positions
-  const [horsePosition, setHorsePosition] = useState<{ x: number; y: number }>({ x: 10, y: 3 });
-  const [sheepPosition, setSheepPosition] = useState<{ x: number; y: number }>({ x: 2, y: 4 });
   const { supabase } = useSupabaseClientWithToken();
 
   // Track last modal-triggered position
