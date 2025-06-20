@@ -1,4 +1,6 @@
-import { createBrowserClient } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
+import { Database } from '@/types/supabase'
+import { env } from '@/lib/env'
 import { GameState } from '../types/game'
 
 export type GameData = GameState
@@ -7,9 +9,9 @@ export async function syncGameData(
   localData: GameData,
   userId: string
 ): Promise<void> {
-  const supabase = createBrowserClient(
-    process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-    process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']!
+  const supabase = createClient<Database>(
+    env.NEXT_PUBLIC_SUPABASE_URL,
+    env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   )
 
   try {
@@ -50,9 +52,9 @@ export async function syncGameData(
 }
 
 export async function loadGameData(userId: string): Promise<GameData | null> {
-  const supabase = createBrowserClient(
-    process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-    process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']!
+  const supabase = createClient<Database>(
+    env.NEXT_PUBLIC_SUPABASE_URL,
+    env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   )
 
   try {
@@ -108,4 +110,10 @@ export function saveLocalGameData(data: GameData): void {
   } catch (error) {
     console.error('Error saving local game data:', error)
   }
-} 
+}
+
+// Create a new Supabase client for this operation
+const supabaseClient = createClient<Database>(
+  env.NEXT_PUBLIC_SUPABASE_URL,
+  env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+) 

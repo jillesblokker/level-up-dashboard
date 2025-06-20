@@ -46,8 +46,8 @@ export const supabase = createClient<Database>(
 // Create a browser client for client-side operations
 export const createBrowserClient = () => {
   return createBrowserClientOriginal<Database>(
-    process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-    process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']!
+    env.NEXT_PUBLIC_SUPABASE_URL,
+    env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
 };
 

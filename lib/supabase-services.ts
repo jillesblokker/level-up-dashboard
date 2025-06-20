@@ -1,6 +1,8 @@
 // Supabase services with localStorage fallback
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { RetryManager } from './retry-utils'
+import { Database } from '@/types/supabase'
+import { env } from '@/lib/env'
 
 // Types for our game data
 interface CharacterStats {
@@ -52,8 +54,8 @@ interface GameSettings {
 }
 
 // Supabase client with better error handling
-const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL']
-const supabaseAnonKey = process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']
+const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Supabase environment variables not found. Sync will be disabled.')
