@@ -1,25 +1,55 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import { cookies } from 'next/headers';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const cookieStore = await cookies();
+    
+    // Create Supabase client
+    const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL']!;
+    const supabaseKey = process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']!;
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        persistSession: false
+      }
+    });
+    
+    // Get the current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    if (userError) {
+      return NextResponse.json({ 
+        error: 'User auth error', 
+        details: userError.message,
+        user: null 
+      });
+    }
+
+    // Test a simple query to see if RLS is working
+    const { data: testData, error: testError } = await supabase
+      .from('character_stats')
+      .select('*')
+      .limit(1);
+
     return NextResponse.json({
-      success: true,
-      env: {
-        NEXTAUTH_URL: process.env['NEXTAUTH_URL'],
-        NEXTAUTH_SECRET: process.env['NEXTAUTH_SECRET'] ? "Exists" : "Missing",
-        GITHUB_ID: process.env['GITHUB_ID'] ? "Exists" : "Missing",
-        GITHUB_SECRET: process.env['GITHUB_SECRET'] ? "Exists" : "Missing",
-        DATABASE_URL: process.env['DATABASE_URL'] ? "Exists" : "Missing",
-        DIRECT_URL: process.env['DIRECT_URL'] ? "Exists" : "Missing",
-        PORT: process.env['PORT'],
-        NODE_ENV: process.env['NODE_ENV'],
+      user: user ? {
+        id: user.id,
+        email: user.email,
+        aud: user.aud,
+        role: user.role
+      } : null,
+      testQuery: {
+        data: testData,
+        error: testError ? testError.message : null,
+        code: testError ? testError.code : null
       },
-    }, { status: 200 })
+      message: 'Auth debug info'
+    });
   } catch (error) {
-    console.error('Debug route error:', error)
-    return NextResponse.json({
-      success: false,
-      error: String(error),
-    }, { status: 500 })
+    return NextResponse.json({ 
+      error: 'Server error', 
+      details: error instanceof Error ? error.message : 'Unknown error' 
+    });
   }
 } 

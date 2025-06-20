@@ -190,6 +190,24 @@ export default function QuestsPage() {
   return (
     <ScrollArea className="h-full" aria-label="quests-scroll-area">
       <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+        {/* Cover Image */}
+        <div className="relative w-full h-48 rounded-lg overflow-hidden mb-6">
+          <img
+            src="/images/quests-header.jpg"
+            alt="Quest Adventures"
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.currentTarget.src = "/images/achievements-header.jpg";
+            }}
+          />
+          <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+            <div className="text-center text-white">
+              <h1 className="text-4xl font-bold mb-2">Quest Adventures</h1>
+              <p className="text-xl">Embark on epic journeys and earn rewards</p>
+            </div>
+          </div>
+        </div>
+
         <HeaderSection
           title="Quests"
           subtitle="Embark on adventures, complete tasks, and earn rewards."
@@ -212,7 +230,12 @@ export default function QuestsPage() {
             <TabsContent key={category} value={category}>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {questsInCategory.map(quest => (
-                  <Card key={quest.id} className="w-full">
+                  <Card 
+                    key={quest.id} 
+                    className="w-full cursor-pointer hover:shadow-lg transition-shadow duration-200"
+                    onClick={() => handleQuestToggle(quest.id)}
+                    aria-label={`Quest card for ${quest.title}. Click to mark as ${checkedQuests.has(quest.id) ? 'incomplete' : 'complete'}`}
+                  >
                     <CardHeader>
                       <CardTitle className="flex justify-between items-center">
                         {quest.title}
@@ -220,6 +243,7 @@ export default function QuestsPage() {
                           checked={checkedQuests.has(quest.id)}
                           onCheckedChange={() => handleQuestToggle(quest.id)}
                           aria-label={`Mark quest ${quest.title} as ${checkedQuests.has(quest.id) ? 'incomplete' : 'complete'}`}
+                          onClick={(e) => e.stopPropagation()}
                         />
                       </CardTitle>
                     </CardHeader>
