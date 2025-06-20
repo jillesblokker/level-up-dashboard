@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { auth } from '@/auth';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 import getPrismaClient from '@/lib/prisma';
 import { GridCell } from '@/types/grid';
+import { env } from '@/lib/env';
 
 // Validation schemas
 const gridCellSchema = z.object({
@@ -28,7 +30,20 @@ const handleError = (error: unknown) => {
 
 export async function GET() {
   try {
-    const session = await auth();
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+        env.NEXT_PUBLIC_SUPABASE_URL,
+        env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+        },
+      }
+    );
+    const { data: { session } } = await supabase.auth.getSession();
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -50,7 +65,20 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
-    const session = await auth();
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+        env.NEXT_PUBLIC_SUPABASE_URL,
+        env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+        },
+      }
+    );
+    const { data: { session } } = await supabase.auth.getSession();
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -78,7 +106,20 @@ export async function PUT(request: Request) {
 
 export async function POST() {
   try {
-    const session = await auth();
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+        env.NEXT_PUBLIC_SUPABASE_URL,
+        env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+        },
+      }
+    );
+    const { data: { session } } = await supabase.auth.getSession();
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
