@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/types/supabase';
-import { env } from '@/lib/env';
+import { clientEnv } from '@/lib/client-env';
 import {
   createBrowserClient as createBrowserClientOriginal,
 } from '@supabase/ssr';
@@ -14,8 +14,8 @@ export interface UserMetadata {
 
 // Create a single supabase client for interacting with your database
 export const supabase = createClient<Database>(
-  env.NEXT_PUBLIC_SUPABASE_URL,
-  env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  clientEnv.NEXT_PUBLIC_SUPABASE_URL,
+  clientEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   {
     auth: {
       persistSession: true,
@@ -46,8 +46,8 @@ export const supabase = createClient<Database>(
 // Create a browser client for client-side operations
 export const createBrowserClient = () => {
   return createBrowserClientOriginal<Database>(
-    env.NEXT_PUBLIC_SUPABASE_URL,
-    env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    clientEnv.NEXT_PUBLIC_SUPABASE_URL,
+    clientEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
 };
 
