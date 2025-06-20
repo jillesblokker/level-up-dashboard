@@ -12,7 +12,6 @@ import { emitQuestCompletedWithRewards } from "@/lib/kingdom-events"
 import { toast } from "@/components/ui/use-toast"
 import { cn } from "@/lib/utils"
 import { storageService } from '@/lib/storage-service'
-import { DailyQuestsService } from '@/lib/supabase-services'
 import { useSupabaseSync } from '@/hooks/use-supabase-sync'
 
 // Quest item definitions with icons and categories
@@ -102,11 +101,8 @@ export function DailyQuests() {
     }))
     setQuestItems(updatedQuests)
     
-    // Save to both Supabase and localStorage
+    // Save to localStorage only for now
     try {
-      if (isSignedIn) {
-        await DailyQuestsService.saveDailyQuests(updatedQuests)
-      }
       storageService.set('daily-quests', updatedQuests)
       storageService.set('last-quest-reset', getCurrentCETDate())
     } catch (error) {
@@ -141,18 +137,8 @@ export function DailyQuests() {
       try {
         let savedQuests: QuestItem[] = []
         
-        if (isSignedIn) {
-          // Try to load from Supabase first
-          try {
-            savedQuests = await DailyQuestsService.getDailyQuests()
-          } catch (error) {
-            console.warn('Failed to load from Supabase, falling back to localStorage:', error)
-            savedQuests = storageService.get('daily-quests', [])
-          }
-        } else {
-          // Load from localStorage only
-          savedQuests = storageService.get('daily-quests', [])
-        }
+        // Load from localStorage only for now (Supabase service not implemented)
+        savedQuests = storageService.get('daily-quests', [])
         
         if (Array.isArray(savedQuests) && savedQuests.length > 0) {
           setQuestItems(savedQuests)
@@ -179,11 +165,8 @@ export function DailyQuests() {
     
     setQuestItems(updatedQuests)
     
-    // Save to both Supabase and localStorage
+    // Save to localStorage only for now
     try {
-      if (isSignedIn) {
-        await DailyQuestsService.saveDailyQuests(updatedQuests)
-      }
       storageService.set('daily-quests', updatedQuests)
       console.info('=== DAILY QUEST SAVE SUCCESSFUL ===', { questId, timestamp: new Date() })
     } catch (error) {
@@ -228,11 +211,8 @@ export function DailyQuests() {
     const updatedQuests = [...questItems, newQuest]
     setQuestItems(updatedQuests)
     
-    // Save to both Supabase and localStorage
+    // Save to localStorage only for now
     try {
-      if (isSignedIn) {
-        await DailyQuestsService.saveDailyQuests(updatedQuests)
-      }
       storageService.set('daily-quests', updatedQuests)
     } catch (error) {
       console.error('Failed to save new quest:', error)
