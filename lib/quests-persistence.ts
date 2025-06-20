@@ -1,6 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "@/types/supabase";
-import { Quest } from "@/types/quest";
+import { Quest } from "@/types/game";
 import { defaultQuests } from "@/lib/default-quests"; // Assuming default quests are here
 
 export async function fetchQuestsFromSupabase(supabase: SupabaseClient<Database>): Promise<Quest[]> {

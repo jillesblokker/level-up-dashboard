@@ -136,6 +136,7 @@ const createEmptyTile = (x: number, y: number): Tile => ({
 });
 
 export default function RealmPage() {
+  const router = useRouter();
   const { user, isLoaded: isAuthLoaded } = useUser();
   const userId = user?.id;
   const isGuest = !user;
@@ -183,7 +184,7 @@ export default function RealmPage() {
   const [showGridCoordinates, setShowGridCoordinates] = useState(false);
   const [autoSave, setAutoSave] = useState(true);
   const [minimapZoom, setMinimapZoom] = useState(1);
-  const [minimapRotationMode, setMinimapRotationMode] = useState(false);
+  const [minimapRotationMode, setMinimapRotationMode] = useState<MinimapRotationMode>('static');
 
   // Animal position states
   const [horsePosition, setHorsePosition] = useState({ x: 2, y: 2 });
@@ -1645,9 +1646,6 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
   console.log('Current grid state:', grid);
   console.log('Current selected tile state:', selectedTile); // Log selected tile state
 
-  // Use a variable for loading state instead of early return
-  const isLoadingState = isLoading || !isAuthLoaded || !isLoading;
-
   // Fallback: ensure grid and inventory are always set to defaults if empty/invalid
   React.useEffect(() => {
     // Fallback for grid
@@ -1714,12 +1712,8 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
         </DialogContent>
       </Dialog>
     );
-  };
+  } // <-- Add this closing brace to end LocationModal
 
-  const [showSettings, setShowSettings] = useState(false)
-  const [showGridCoordinates, setShowGridCoordinates] = useState(false)
-  const [autoSave, setAutoSave] = useState(true)
-  
   useEffect(() => {
     const handleHorseCaught = () => {
       setIsHorsePresent(false);
@@ -1915,17 +1909,6 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
     };
   }, [supabase, userId, isGuest, toast]);
 
-  const [hoveredTile, setHoveredTile] = useState<{ x: number; y: number } | null>(null);
-  const [selectedTile, setSelectedTile] = useState<TileInventoryItem | null>(null);
-  const [showInventory, setShowInventory] = useState(false);
-  const loadGridWithSupabaseFallback = async () => {
-    // No-op function to resolve linter errors
-    return createBaseGrid();
-  };
-
-  // Add missing questCompletedCount state
-  const [questCompletedCount, setQuestCompletedCount] = useState(0);
-
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen">Loading Your Realm...</div>;
   }
@@ -2039,8 +2022,8 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
                 selectedTile={selectedTile}
                 isMovementMode={movementMode === 'normal'}
                 onGridUpdate={setGrid}
-                hoveredTile={hoveredTile}
-                setHoveredTile={setHoveredTile}
+                hoveredTile={hoveredTile ? { row: hoveredTile.y, col: hoveredTile.x } : null}
+                setHoveredTile={(tile) => setHoveredTile(tile ? { x: tile.col, y: tile.row } : null)}
                 minimapZoom={minimapZoom}
                 minimapRotationMode={minimapRotationMode}
                 onTileDelete={handleTileDelete}

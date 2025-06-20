@@ -82,16 +82,6 @@ export function Milestones() {
       return;
     }
 
-    if (supabaseError) {
-      console.error('Supabase client error:', supabaseError);
-      toast({
-        title: 'Error',
-        description: 'Failed to initialize database connection. Please try again.',
-        variant: 'destructive'
-      });
-      return;
-    }
-
     const fetchMilestones = async () => {
       try {
         setIsLoading(true);
@@ -173,7 +163,7 @@ export function Milestones() {
       }
     };
     fetchMilestones();
-  }, [userId, supabase, isSupabaseLoading, supabaseError, newQuestCategory, toast]);
+  }, [userId, supabase, isSupabaseLoading, newQuestCategory, toast]);
 
   // When milestones are loaded, sync checkedMilestones with completed milestones
   useEffect(() => {

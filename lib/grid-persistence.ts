@@ -64,7 +64,7 @@ export async function loadGridFromLocalStorage(): Promise<Tile[][]> {
 export async function saveGridToSupabase(supabase: SupabaseClient<Database>, userId: string, grid: Tile[][]): Promise<void> {
     console.log('Attempting to save grid to Supabase for user:', userId);
     const numericGrid = grid.map(row =>
-        row.map(tile => tileTypeToNumeric(tile.type))
+        row.map(tile => tileTypeToNumeric[tile.type])
     );
 
     const { error } = await supabase

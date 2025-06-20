@@ -46,16 +46,6 @@ export type Character = {
   }
 }
 
-export type Quest = {
-  id: string
-  title: string
-  description: string
-  status: 'active' | 'completed' | 'failed'
-  progress: number
-  requirements: Record<string, number>
-  rewards: Record<string, number>
-}
-
 export type BaseEvent = {
   id: string
   type: string
