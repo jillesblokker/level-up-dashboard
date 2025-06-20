@@ -206,7 +206,6 @@ export default function RealmPage() {
   // Add state for animal positions
   const [horsePosition, setHorsePosition] = useState<{ x: number; y: number }>({ x: 10, y: 3 });
   const [sheepPosition, setSheepPosition] = useState<{ x: number; y: number }>({ x: 2, y: 4 });
-
   const { supabase } = useSupabaseClientWithToken();
 
   // Track last modal-triggered position

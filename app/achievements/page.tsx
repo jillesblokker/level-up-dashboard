@@ -8,7 +8,7 @@ import { useCreatureStore } from '@/stores/creatureStore'
 import { CreatureCard } from '@/components/creature-card'
 import Image from 'next/image'
 import { HeaderSection } from '@/components/HeaderSection'
-import { useSupabaseClientWithToken } from '@/lib/hooks/use-supabase-client'
+import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useUser } from '@clerk/nextjs'
 
 export default function Page() {
@@ -16,7 +16,7 @@ export default function Page() {
   const { creatures, isCreatureDiscovered } = useCreatureStore()
   const [showAllDiscovered, setShowAllDiscovered] = useState(false)
   const undiscoveredImg = '/images/undiscovered.png'
-  const { supabase } = useSupabaseClientWithToken();
+  const { supabase } = useSupabase();
   const { user } = useUser();
   const userId = user?.id;
   const [milestoneCount, setMilestoneCount] = useState(0);
