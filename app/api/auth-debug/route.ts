@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
+import { env } from '@/lib/env';
 
 export async function GET(request: NextRequest) {
   try {
     const cookieStore = await cookies();
     
     // Create Supabase client
-    const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL']!;
-    const supabaseKey = process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']!;
-    const supabase = createClient(supabaseUrl, supabaseKey, {
+    const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
       auth: {
         persistSession: false
       }

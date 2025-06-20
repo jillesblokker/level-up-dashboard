@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { env } from '@/lib/env';
 
 export async function GET() {
   try {
     // Create Supabase client
-    const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL']!;
-    const supabaseKey = process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
     
     // Test basic connection
     const { data, error } = await supabase
@@ -23,9 +22,9 @@ export async function GET() {
         data: data
       },
       env: {
-        hasUrl: !!process.env['NEXT_PUBLIC_SUPABASE_URL'],
-        hasKey: !!process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'],
-        url: process.env['NEXT_PUBLIC_SUPABASE_URL']?.substring(0, 20) + '...'
+        hasUrl: !!env.NEXT_PUBLIC_SUPABASE_URL,
+        hasKey: !!env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+        url: env.NEXT_PUBLIC_SUPABASE_URL?.substring(0, 20) + '...'
       }
     });
   } catch (error) {
