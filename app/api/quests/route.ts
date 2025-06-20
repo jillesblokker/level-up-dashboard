@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 import getPrismaClient from '@/lib/prisma';
 import { z } from 'zod';
 import { QuestResponse } from '@/types/quest';
+import { env } from '@/lib/env';
 
 // Define schemas for request validation
 const questCompletionSchema = z.object({
@@ -18,8 +20,21 @@ const questUpdateSchema = z.object({
 // Get quests for the current user
 export async function GET(request: Request) {
   try {
-    const session = await auth();
-    if (!session?.user?.email) {
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+        env.NEXT_PUBLIC_SUPABASE_URL,
+        env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+        },
+      }
+    );
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -42,7 +57,7 @@ export async function GET(request: Request) {
     const questCompletions = await getPrismaClient().questCompletion.findMany({
       where: {
         user: {
-          email: session.user.email
+          id: session.user.id
         },
         ...(date && {
           date: {
@@ -76,8 +91,21 @@ export async function GET(request: Request) {
 // Create a new quest completion
 export async function POST(request: Request) {
   try {
-    const session = await auth();
-    if (!session?.user?.email) {
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+        env.NEXT_PUBLIC_SUPABASE_URL,
+        env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+        },
+      }
+    );
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -91,18 +119,10 @@ export async function POST(request: Request) {
     
     const { name, category } = result.data;
 
-    const user = await getPrismaClient().user.findUnique({
-      where: { email: session.user.email }
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
     // Create the quest completion
     const questCompletion = await getPrismaClient().questCompletion.create({
       data: {
-        userId: user.id,
+        userId: session.user.id,
         category,
         questName: name,
         completed: false,
@@ -127,8 +147,21 @@ export async function POST(request: Request) {
 // Update a quest completion status
 export async function PUT(request: Request) {
   try {
-    const session = await auth();
-    if (!session?.user?.email) {
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+        env.NEXT_PUBLIC_SUPABASE_URL,
+        env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+        },
+      }
+    );
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -142,17 +175,9 @@ export async function PUT(request: Request) {
     
     const { questName, completed } = result.data;
 
-    const user = await getPrismaClient().user.findUnique({
-      where: { email: session.user.email }
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
     const questCompletion = await getPrismaClient().questCompletion.findFirst({
       where: {
-        userId: user.id,
+        userId: session.user.id,
         questName
       }
     });
@@ -186,7 +211,7 @@ export async function PUT(request: Request) {
 
       const [character] = await getPrismaClient().$queryRaw<CharacterRecord[]>`
         SELECT * FROM "Character"
-        WHERE "userId" = ${user.id}
+        WHERE "userId" = ${session.user.id}
         LIMIT 1
       `;
 
@@ -227,15 +252,28 @@ export async function PUT(request: Request) {
 // Export quests as CSV
 export async function PATCH() {
   try {
-    const session = await auth();
-    if (!session?.user?.email) {
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+        env.NEXT_PUBLIC_SUPABASE_URL,
+        env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+        },
+      }
+    );
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const questCompletions = await getPrismaClient().questCompletion.findMany({
       where: {
         user: {
-          email: session.user.email
+          id: session.user.id
         }
       },
       orderBy: {
