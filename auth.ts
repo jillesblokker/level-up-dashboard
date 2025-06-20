@@ -1,28 +1,16 @@
-import NextAuth from "next-auth"
-import GitHub from "next-auth/providers/github"
-import prisma from "@/lib/prisma"
-import type { Session, User } from 'next-auth'
+// auth.ts
+import NextAuth from 'next-auth'
+import GitHub from 'next-auth/providers/github'
+import { serverEnv } from './lib/server-env'
 
-export const config = {
+export const {
+  handlers: { GET, POST },
+  auth,
+} = NextAuth({
   providers: [
     GitHub({
-      clientId: process.env['GITHUB_ID']!,
-      clientSecret: process.env['GITHUB_SECRET']!,
+      clientId: serverEnv.GITHUB_ID,
+      clientSecret: serverEnv.GITHUB_SECRET,
     }),
   ],
-  callbacks: {
-    session: ({ session, user }: { session: Session; user: User }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
-  },
-  pages: {
-    signIn: '/auth/signin',
-    error: '/auth/error',
-  },
-}
-
-export const { handlers, auth, signIn, signOut } = NextAuth(config) 
+})
