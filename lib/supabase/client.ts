@@ -70,18 +70,16 @@ export async function withToken<T>(
   getToken: (options: { template: string }) => Promise<string | null>,
   operation: (supabase: SupabaseClient<Database>) => Promise<T>
 ): Promise<T> {
-  try {
-    const token = await getToken({ template: 'supabase' });
-    if (token) {
-      // Set the session for this specific operation
-      await supabase.auth.setSession({
-        access_token: token,
-        refresh_token: '',
-      });
-    }
-  } catch (error) {
-    console.warn('Could not get JWT token, proceeding without authentication:', error);
+  const token = await getToken({ template: 'supabase' });
+  if (!token) {
+    throw new Error('User not authenticated, no token found');
   }
+
+  // Set the session for this specific operation
+  supabase.auth.setSession({
+    access_token: token,
+    refresh_token: '',
+  });
 
   return operation(supabase);
 }
