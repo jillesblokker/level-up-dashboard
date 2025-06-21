@@ -56,6 +56,7 @@ model User {
   tiles         TilePlacement[]
   characters    Character[]
   realmMap      RealmMap?
+  clerk_id      String?           @unique
 
   @@index([email])
 }
