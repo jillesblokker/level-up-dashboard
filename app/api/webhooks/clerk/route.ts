@@ -60,7 +60,7 @@ export async function POST(req: Request) {
       await prisma.user.create({
         data: {
           clerk_id: id,
-          email: email,
+          email: email ?? null,
         },
       });
       return NextResponse.json({ message: 'User created' }, { status: 201 });
