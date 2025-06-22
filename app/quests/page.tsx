@@ -1,56 +1,28 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
-import { X, Trophy, Sword, Brain, Crown, Castle, Hammer, Heart } from 'lucide-react'
+import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, PersonStanding } from 'lucide-react'
 import { HeaderSection } from '@/components/HeaderSection'
 import { useUser } from '@clerk/nextjs'
 import { Milestones } from '@/components/milestones'
 
-interface QuestResponse {
+interface Quest {
+  id: string;
   name: string;
+  description: string;
   category: string;
+  difficulty: number;
+  rewards: string;
   completed: boolean;
-  date: Date;
+  date?: Date;
+  isNew: boolean;
+  completionId?: string;
 }
-
-// Default quests for all 6 categories
-const defaultQuests = [
-  // Might
-  { name: 'First Steps of Power', description: 'Complete 1 workout session.', category: 'might', icon: Sword },
-  { name: 'Strength Training', description: 'Complete 3 workout sessions this week.', category: 'might', icon: Sword },
-  { name: 'Push-up Challenge', description: 'Do 50 push-ups in one session.', category: 'might', icon: Sword },
-  
-  // Knowledge
-  { name: 'A Spark of Wisdom', description: 'Read one chapter of a book.', category: 'knowledge', icon: Brain },
-  { name: 'Knowledge Seeker', description: 'Read 3 chapters this week.', category: 'knowledge', icon: Brain },
-  { name: 'Vitamin D', description: 'Learn something new about health.', category: 'knowledge', icon: Brain },
-  { name: 'Study Session', description: 'Complete a focused study session.', category: 'knowledge', icon: Brain },
-  
-  // Honor
-  { name: 'Honor Among Thieves', description: 'Help someone in need today.', category: 'honor', icon: Crown },
-  { name: 'Wake Up Before 10', description: 'Start your day early and honorably.', category: 'honor', icon: Crown },
-  { name: 'Toothbrushing', description: 'Maintain personal hygiene.', category: 'honor', icon: Crown },
-  
-  // Castle
-  { name: 'Castle Foundations', description: 'Organize your workspace.', category: 'castle', icon: Castle },
-  { name: 'Clean the Entire House', description: 'Do a full house cleaning in one day.', category: 'castle', icon: Castle },
-  { name: 'Build a Foundation', description: 'Create a solid foundation for your goals.', category: 'castle', icon: Castle },
-  
-  // Craft
-  { name: 'Craft Mastery', description: 'Learn a new skill or hobby.', category: 'craft', icon: Hammer },
-  { name: 'Complete a 30-Day Drawing Challenge', description: 'Draw something every day for 30 days.', category: 'craft', icon: Hammer },
-  { name: 'Craft a Simple Tool', description: 'Create something useful with your hands.', category: 'craft', icon: Hammer },
-  
-  // Vitality
-  { name: 'Vitality Boost', description: 'Take a 30-minute walk.', category: 'vitality', icon: Heart },
-  { name: 'Run a Marathon', description: 'Complete a full marathon (42km) in one go.', category: 'vitality', icon: Heart },
-  { name: 'Get a Good Night\'s Sleep', description: 'Ensure 8 hours of quality sleep.', category: 'vitality', icon: Heart },
-];
 
 const categoryIcons = {
   might: Sword,
@@ -59,6 +31,8 @@ const categoryIcons = {
   castle: Castle,
   craft: Hammer,
   vitality: Heart,
+  wellness: Sun, 
+  exploration: PersonStanding,
 };
 
 const categoryLabels = {
@@ -68,16 +42,21 @@ const categoryLabels = {
   castle: 'Castle',
   craft: 'Craft',
   vitality: 'Vitality',
+  wellness: 'Wellness',
+  exploration: 'Exploration',
 };
+
+const defaultQuestCategories = ['might', 'knowledge', 'honor', 'castle', 'craft', 'vitality'];
 
 export default function QuestsPage() {
   const { user, isLoaded: isAuthLoaded } = useUser();
   const userId = user?.id;
   const isGuest = !user;
 
-  const [quests, setQuests] = useState<QuestResponse[]>([]);
+  const [quests, setQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [allCategories, setAllCategories] = useState<string[]>(defaultQuestCategories);
 
   useEffect(() => {
     const loadQuests = async () => {
@@ -90,12 +69,16 @@ export default function QuestsPage() {
           if (!response.ok) {
             throw new Error('Failed to fetch quests');
           }
-          const data = await response.json();
+          const data: Quest[] = await response.json();
           setQuests(data);
+          
+          const uniqueCategories = [...new Set(data.map(q => q.category))];
+          const combined = [...new Set([...defaultQuestCategories, ...uniqueCategories])];
+          setAllCategories(combined);
+
         } catch (err: any) {
           setError('Failed to load quest data from server.');
           console.error(err);
-          // Fallback to default quests
           setQuests([]);
         }
       } else {
@@ -128,45 +111,29 @@ export default function QuestsPage() {
 
       // Update local state
       setQuests(prev => prev.map(q => 
-        q.name === questName ? { ...q, completed: !currentCompleted } : q
+        q.name === questName ? { ...q, completed: !currentCompleted, date: new Date() } : q
       ));
     } catch (err) {
       setError("Failed to sync quest progress.");
       console.error(err);
     }
   };
-
-  const createQuest = async (name: string, category: string) => {
-    if (!userId) return;
-
-    try {
-      const response = await fetch('/api/quests', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name,
-          category,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create quest');
-      }
-
-      const newQuest = await response.json();
-      setQuests(prev => [...prev, newQuest]);
-    } catch (err) {
-      setError("Failed to create quest.");
-      console.error(err);
-    }
-  };
-
-  const categories = ['might', 'knowledge', 'honor', 'castle', 'craft', 'vitality'];
-
+  
   if (loading) {
     return <div className="text-center p-8">Loading Quests...</div>;
+  }
+
+  const questsByCategory = quests.reduce((acc, quest) => {
+    (acc[quest.category] = acc[quest.category] || []).push(quest);
+    return acc;
+  }, {} as Record<string, Quest[]>);
+
+  const getCategoryIcon = (category: string) => {
+    return categoryIcons[category as keyof typeof categoryIcons] || Trophy;
+  }
+
+  const getCategoryLabel = (category: string) => {
+    return categoryLabels[category as keyof typeof categoryLabels] || category.charAt(0).toUpperCase() + category.slice(1);
   }
 
   return (
@@ -180,102 +147,108 @@ export default function QuestsPage() {
       <div className="p-4 md:p-8">
         {error && <p className="text-red-500 bg-red-900/20 p-4 rounded-md mb-4">{error}</p>}
         
-        <Tabs defaultValue="milestones" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-7">
+        <Tabs defaultValue={allCategories[0] || 'might'} className="space-y-4">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8">
+            {allCategories.map(category => {
+              const Icon = getCategoryIcon(category);
+              return (
+                <TabsTrigger key={category} value={category} className="flex items-center gap-2">
+                  <Icon className="w-4 h-4" />
+                  {getCategoryLabel(category)}
+                </TabsTrigger>
+              )
+            })}
             <TabsTrigger value="milestones" className="flex items-center gap-2">
               <Trophy className="w-4 h-4" />
               Milestones
             </TabsTrigger>
-            {categories.map(category => {
-              const Icon = categoryIcons[category as keyof typeof categoryIcons];
-              return (
-                <TabsTrigger key={category} value={category} className="flex items-center gap-2 capitalize">
-                  <Icon className="w-4 h-4" />
-                  {categoryLabels[category as keyof typeof categoryLabels]}
-                </TabsTrigger>
-              );
-            })}
           </TabsList>
+
+          {allCategories.map(category => {
+            const categoryQuests = questsByCategory[category] || [];
+            const CategoryIcon = getCategoryIcon(category);
+            const categoryColor = {
+              might: 'text-red-500 border-red-800',
+              knowledge: 'text-blue-500 border-blue-800',
+              honor: 'text-yellow-500 border-yellow-800',
+              castle: 'text-purple-500 border-purple-800',
+              craft: 'text-amber-500 border-amber-800',
+              vitality: 'text-green-500 border-green-800',
+            }[category] || 'text-amber-500 border-amber-800';
+            return (
+              <TabsContent key={category} value={category} className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {categoryQuests.map((quest) => {
+                    const rewards = quest.rewards ? JSON.parse(quest.rewards) : { xp: 0, gold: 0 };
+                    return (
+                      <Card
+                        key={quest.id}
+                        className={`flex flex-col border-2 ${categoryColor} ${quest.completed ? 'bg-green-900/30' : 'bg-black/30'} shadow-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500`}
+                        aria-label={`${quest.name}-quest-card`}
+                        tabIndex={0}
+                        role="button"
+                        aria-pressed={quest.completed}
+                        onClick={e => {
+                          // Prevent toggling when clicking the delete button
+                          if ((e.target as HTMLElement).closest('[data-delete-button]')) return;
+                          handleQuestToggle(quest.name, quest.completed);
+                        }}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleQuestToggle(quest.name, quest.completed);
+                          }
+                        }}
+                      >
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                          <div className="flex items-center gap-2">
+                            <span className={`rounded-full p-2 bg-black/40 border ${categoryColor}`} aria-label={`${category}-icon`}>
+                              <CategoryIcon className={`w-6 h-6 ${categoryColor}`} />
+                            </span>
+                            <CardTitle className="text-lg font-semibold text-amber-300">{quest.name}</CardTitle>
+                          </div>
+                          <Checkbox
+                            checked={quest.completed}
+                            onCheckedChange={() => handleQuestToggle(quest.name, quest.completed)}
+                            className="border-amber-400 data-[state=checked]:bg-amber-500 scale-125"
+                            aria-label={`complete-${quest.name}-quest`}
+                            tabIndex={-1}
+                          />
+                        </CardHeader>
+                        <CardContent className="flex-1">
+                          <CardDescription className="mb-4 text-gray-400">
+                            {quest.description}
+                          </CardDescription>
+                          <Progress value={quest.completed ? 100 : 5} className="w-full h-2 bg-gray-700" />
+                        </CardContent>
+                        <CardFooter className="flex justify-between items-center text-xs text-gray-500 pt-2">
+                          <div className="flex items-center gap-2">
+                            <span>XP: {rewards.xp}</span>
+                            <span>Gold: {rewards.gold}</span>
+                          </div>
+                          <Button variant="ghost" size="icon" className="w-6 h-6 text-gray-500 hover:text-red-500" aria-label={`delete-${quest.name}-quest`} data-delete-button>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </CardFooter>
+                      </Card>
+                    );
+                  })}
+                  <Card className="border-2 border-dashed border-gray-700 hover:border-amber-500 transition-colors cursor-pointer flex items-center justify-center min-h-[160px]">
+                    <div className="text-center text-gray-500">
+                      <Plus className="w-8 h-8 mx-auto mb-2" />
+                      <p>Add Custom Quest</p>
+                    </div>
+                  </Card>
+                </div>
+              </TabsContent>
+            )
+          })}
 
           <TabsContent value="milestones" className="space-y-4">
             <Milestones />
           </TabsContent>
-
-          {categories.map(category => (
-            <TabsContent key={category} value={category} className="space-y-4">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold capitalize">{categoryLabels[category as keyof typeof categoryLabels]} Quests</h3>
-                <Button 
-                  onClick={() => {
-                    const categoryQuests = defaultQuests.filter(q => q.category === category);
-                    if (categoryQuests.length > 0) {
-                      const randomQuest = categoryQuests[Math.floor(Math.random() * categoryQuests.length)];
-                      if (randomQuest) {
-                        createQuest(randomQuest.name, category);
-                      }
-                    }
-                  }}
-                  size="sm"
-                >
-                  Add Random Quest
-                </Button>
-              </div>
-              
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {/* Show existing quests for this category */}
-                {quests.filter(q => q.category === category).map(quest => (
-                  <Card key={quest.name} className="cursor-pointer hover:shadow-lg transition-shadow">
-                    <CardHeader>
-                      <CardTitle className="flex items-center justify-between">
-                        <span className="text-sm">{quest.name}</span>
-                        <Checkbox 
-                          checked={quest.completed} 
-                          onCheckedChange={() => handleQuestToggle(quest.name, quest.completed)}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </CardTitle>
-                      <CardDescription>
-                        {defaultQuests.find(dq => dq.name === quest.name)?.description || 'Complete this quest to earn rewards!'}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Progress value={quest.completed ? 100 : 0} className="w-full" />
-                      <p className="text-xs text-muted-foreground mt-2">
-                        {quest.completed ? 'Completed!' : 'In Progress'}
-                      </p>
-                    </CardContent>
-                  </Card>
-                ))}
-                
-                {/* Show default quests that haven't been created yet */}
-                {defaultQuests
-                  .filter(q => q.category === category)
-                  .filter(q => !quests.some(existing => existing.name === q.name))
-                  .map(quest => (
-                    <Card key={quest.name} className="cursor-pointer hover:shadow-lg transition-shadow border-dashed">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <quest.icon className="w-4 h-4" />
-                          <span className="text-sm">{quest.name}</span>
-                        </CardTitle>
-                        <CardDescription>{quest.description}</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <Button 
-                          onClick={() => createQuest(quest.name, quest.category)}
-                          size="sm"
-                          className="w-full"
-                        >
-                          Start Quest
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
-              </div>
-            </TabsContent>
-          ))}
         </Tabs>
       </div>
     </div>
-  )
+  );
 }

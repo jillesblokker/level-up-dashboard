@@ -1,42 +1,28 @@
 import { NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
-import getPrismaClient from '@/lib/prisma';
+import { auth } from '@clerk/nextjs/server';
+import { getPrismaClient } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
-import { env } from '@/lib/env';
 
 export const dynamic = 'force-dynamic';
 
 // Create a new tile placement
 export async function POST(request: Request) {
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      env.NEXT_PUBLIC_SUPABASE_URL,
-      env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-        },
-      }
-    );
-    const { data: { session } } = await supabase.auth.getSession();
+    const { userId } = await auth();
 
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized - No valid session' }, { status: 401 });
     }
 
     const prisma = getPrismaClient();
     // Ensure user exists in database
     await prisma.user.upsert({
-      where: { id: session.user.id },
+      where: { id: userId },
       update: {},
       create: {
-        id: session.user.id,
-        email: session.user.email || '',
-        name: session.user.user_metadata?.['full_name'] || session.user.email?.split('@')[0] || 'User'
+        id: userId,
+        email: '',
+        name: 'User'
       }
     });
 
@@ -54,7 +40,7 @@ export async function POST(request: Request) {
     // First check if a tile already exists at this position
     const existingTile = await prisma.tilePlacement.findFirst({
       where: {
-        userId: session.user.id,
+        userId,
         posX,
         posY
       }
@@ -72,7 +58,7 @@ export async function POST(request: Request) {
     try {
       const placement = await prisma.tilePlacement.create({
         data: {
-          userId: session.user.id,
+          userId,
           tileType,
           posX,
           posY
@@ -116,28 +102,16 @@ export async function POST(request: Request) {
 // Get tile placements for the current user
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      env.NEXT_PUBLIC_SUPABASE_URL,
-      env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-        },
-      }
-    );
-    const { data: { session } } = await supabase.auth.getSession();
+    const { userId } = await auth();
 
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const prisma = getPrismaClient();
     const placements = await prisma.tilePlacement.findMany({
       where: {
-        userId: session.user.id
+        userId
       },
       orderBy: {
         createdAt: 'desc'
@@ -151,4 +125,4 @@ export async function GET() {
       details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
-} 
+}

@@ -12,7 +12,6 @@ export type TileType =
   | 'city'
   | 'town'
   | 'mystery'
-  | 'portal'
   | 'portal-entrance'
   | 'portal-exit'
   | 'snow'

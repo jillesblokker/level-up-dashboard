@@ -11,7 +11,6 @@ import { defaultInventoryItems } from "@/app/lib/default-inventory"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogAction } from "@/components/ui/alert-dialog"
-import type { Session } from '@supabase/supabase-js'
 import { 
   getKingdomInventory, 
   getEquippedItems, 
@@ -136,7 +135,7 @@ function isEquippable(item: KingdomInventoryItem): boolean {
   return false;
 }
 
-export function KingdomClient({ session }: { session: Session | null }) {
+export function KingdomClient({ userId }: { userId: string | null }) {
   const [coverImage, setCoverImage] = useState("/images/kingdom-header.jpg")
   const [equippedItems, setEquippedItems] = useState<KingdomInventoryItem[]>([])
   const [storedItems, setStoredItems] = useState<KingdomInventoryItem[]>([])
@@ -271,7 +270,7 @@ export function KingdomClient({ session }: { session: Session | null }) {
       <HeaderSection
         title="KINGDOM"
         imageSrc={coverImage}
-        canEdit={!!session}
+        canEdit={!!userId}
         onImageUpload={(file) => {
           // handleImageUpload logic here
           const reader = new FileReader();

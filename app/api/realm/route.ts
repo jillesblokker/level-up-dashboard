@@ -1,151 +1,73 @@
 import { NextResponse } from 'next/server';
-import { z } from 'zod';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
-import getPrismaClient from '@/lib/prisma';
-import { GridCell } from '@/types/grid';
-import { env } from '@/lib/env';
-
-// Validation schemas
-const gridCellSchema = z.object({
-  x: z.number(),
-  y: z.number(),
-  type: z.string(),
-  rotation: z.number().optional(),
-});
-
-const gridSchema = z.array(gridCellSchema);
-
-// Error handling middleware
-const handleError = (error: unknown) => {
-  console.error('Realm route error:', error);
-  if (error instanceof z.ZodError) {
-    return NextResponse.json({ error: 'Invalid request data' }, { status: 400 });
-  }
-  if (error instanceof Error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-  return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-};
+import { auth } from '@clerk/nextjs/server';
+import { getPrismaClient } from '@/lib/prisma';
 
 export async function GET() {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-        env.NEXT_PUBLIC_SUPABASE_URL,
-        env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-        },
-      }
-    );
-    const { data: { session } } = await supabase.auth.getSession();
-
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const realmMap = await getPrismaClient().realmMap.findUnique({
-      where: { userId: session.user.id },
+    const prisma = getPrismaClient();
+    const realmMap = await prisma.realmMap.findUnique({
+      where: { userId },
     });
 
     if (!realmMap) {
-      return NextResponse.json({ grid: [] });
+      return new NextResponse(JSON.stringify({ grid: null }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
-    const grid = JSON.parse(realmMap.grid) as GridCell[];
-    return NextResponse.json({ grid });
+    return NextResponse.json({ grid: realmMap.grid });
   } catch (error) {
-    return handleError(error);
+    console.error('Failed to fetch realm map:', error);
+    return new NextResponse(JSON.stringify({ error: 'Failed to fetch realm map' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
 
-export async function PUT(request: Request) {
-  try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-        env.NEXT_PUBLIC_SUPABASE_URL,
-        env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-        },
-      }
-    );
-    const { data: { session } } = await supabase.auth.getSession();
+export async function POST(request: Request) {
+  const { userId } = await auth();
 
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const body = await request.json();
-    const grid = gridSchema.parse(body.grid);
-
-    await getPrismaClient().realmMap.upsert({
-      where: { userId: session.user.id },
-      create: {
-        userId: session.user.id,
-        grid: JSON.stringify(grid),
-      },
-      update: {
-        grid: JSON.stringify(grid),
-        lastSynced: new Date(),
-      },
+  if (!userId) {
+    return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
     });
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    return handleError(error);
   }
-}
 
-export async function POST() {
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-        env.NEXT_PUBLIC_SUPABASE_URL,
-        env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-        },
-      }
-    );
-    const { data: { session } } = await supabase.auth.getSession();
+    const { grid } = await request.json();
 
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!grid) {
+      return new NextResponse(JSON.stringify({ error: 'Grid data is required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
-    const realmMap = await getPrismaClient().realmMap.findUnique({
-      where: { userId: session.user.id },
+    const prisma = getPrismaClient();
+    const updatedMap = await prisma.realmMap.upsert({
+      where: { userId },
+      update: { grid: JSON.stringify(grid) },
+      create: { userId, grid: JSON.stringify(grid) },
     });
 
-    if (!realmMap) {
-      return NextResponse.json({ error: 'No realm map found' }, { status: 404 });
-    }
-
-    const grid = JSON.parse(realmMap.grid) as GridCell[];
-    const csvHeader = 'x,y,type,rotation\n';
-    const csvData = grid.map(cell => 
-      `${cell.x},${cell.y},${cell.type},${cell.rotation || 0}`
-    ).join('\n');
-
-    const csvContent = csvHeader + csvData;
-    return new NextResponse(csvContent, {
-      headers: {
-        'Content-Type': 'text/csv',
-        'Content-Disposition': 'attachment; filename=realm-map.csv',
-      },
-    });
+    return NextResponse.json({ success: true, grid: updatedMap.grid });
   } catch (error) {
-    return handleError(error);
+    console.error('Failed to save realm map:', error);
+    return new NextResponse(JSON.stringify({ error: 'Failed to save realm map' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 } 

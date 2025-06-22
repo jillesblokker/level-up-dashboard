@@ -1,37 +1,32 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import { env } from '@/lib/env';
+import { getPrismaClient } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    // Create Supabase client
-    const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+    // Test Prisma connection
+    const prisma = getPrismaClient();
+    const result = await prisma.$queryRaw`SELECT 1 as test`;
     
-    // Test basic connection
-    const { data, error } = await supabase
-      .from('character_stats')
-      .select('count')
-      .limit(1);
-
     return NextResponse.json({
       status: 'healthy',
-      supabase: {
-        connected: !error,
-        error: error ? error.message : null,
-        code: error ? error.code : null,
-        data: data
+      database: {
+        connected: true,
+        type: 'prisma',
+        test: result
       },
       env: {
-        hasUrl: !!env.NEXT_PUBLIC_SUPABASE_URL,
-        hasKey: !!env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-        url: env.NEXT_PUBLIC_SUPABASE_URL?.substring(0, 20) + '...'
+        hasDatabaseUrl: !!process.env['DATABASE_URL'],
+        nodeEnv: process.env.NODE_ENV
       }
     });
   } catch (error) {
     return NextResponse.json({ 
       status: 'error',
-      error: error instanceof Error ? error.message : 'Unknown error' 
+      error: error instanceof Error ? error.message : 'Unknown error',
+      database: {
+        connected: false,
+        type: 'prisma'
+      }
     });
   }
 }
-

@@ -56,6 +56,8 @@ model User {
   tiles         TilePlacement[]
   characters    Character[]
   realmMap      RealmMap?
+  achievements  Achievement[]
+  gameData     UserGameData?
   clerk_id      String?           @unique
 
   @@index([email])
@@ -127,6 +129,7 @@ model Quest {
   updatedAt   DateTime         @updatedAt
   completions QuestCompletion[]
 
+  @@unique([name, category])
   @@index([category])
   @@index([difficulty])
 }
@@ -157,6 +160,32 @@ model RealmMap {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Achievement {
+  id        String   @id @default(cuid())
+  userId    String
+  achievementId String
+  unlocked  Boolean  @default(true)
+  unlockedAt DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@index([achievementId])
+}
+
+model UserGameData {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  gameProgress String   // Stored as JSON string
+  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }

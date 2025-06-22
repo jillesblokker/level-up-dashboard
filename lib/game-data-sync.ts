@@ -1,7 +1,5 @@
-import { createClient } from '@supabase/supabase-js'
-import { Database } from '@/types/supabase'
-import { env } from '@/lib/env'
 import { GameState } from '../types/game'
+import { getPrismaClient } from './prisma'
 
 export type GameData = GameState
 
@@ -9,42 +7,38 @@ export async function syncGameData(
   localData: GameData,
   userId: string
 ): Promise<void> {
-  const supabase = createClient<Database>(
-    env.NEXT_PUBLIC_SUPABASE_URL,
-    env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  )
+  const prisma = getPrismaClient()
 
   try {
     // Get existing data from the database
-    const { data: existingData, error: fetchError } = await supabase
-      .from('user_game_data')
-      .select('game_progress')
-      .eq('user_id', userId)
-      .single()
+    const existingData = await prisma.userGameData.findUnique({
+      where: { userId },
+      select: { gameProgress: true }
+    })
 
-    if (fetchError && fetchError.code !== 'PGRST116') {
-      throw fetchError
-    }
+    // Parse existing gameProgress JSON string if present
+    const existingProgress = existingData?.gameProgress ? JSON.parse(existingData.gameProgress) : {}
 
     // Merge local data with existing data
     const mergedData = {
-      ...(existingData?.game_progress || {}),
+      ...existingProgress,
       ...localData,
       last_sync: new Date().toISOString(),
     }
 
     // Update the database
-    const { error: updateError } = await supabase
-      .from('user_game_data')
-      .upsert({
-        user_id: userId,
-        game_progress: mergedData,
-        updated_at: new Date().toISOString(),
-      })
-
-    if (updateError) {
-      throw updateError
-    }
+    await prisma.userGameData.upsert({
+      where: { userId },
+      update: {
+        gameProgress: JSON.stringify(mergedData),
+        updatedAt: new Date(),
+      },
+      create: {
+        userId,
+        gameProgress: JSON.stringify(mergedData),
+        updatedAt: new Date(),
+      }
+    })
   } catch (error) {
     console.error('Error syncing game data:', error)
     throw error
@@ -52,26 +46,15 @@ export async function syncGameData(
 }
 
 export async function loadGameData(userId: string): Promise<GameData | null> {
-  const supabase = createClient<Database>(
-    env.NEXT_PUBLIC_SUPABASE_URL,
-    env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  )
+  const prisma = getPrismaClient()
 
   try {
-    const { data, error } = await supabase
-      .from('user_game_data')
-      .select('game_progress')
-      .eq('user_id', userId)
-      .single()
+    const data = await prisma.userGameData.findUnique({
+      where: { userId },
+      select: { gameProgress: true }
+    })
 
-    if (error) {
-      if (error.code === 'PGRST116') {
-        return null
-      }
-      throw error
-    }
-
-    return data?.game_progress || null
+    return data?.gameProgress ? JSON.parse(data.gameProgress) : null
   } catch (error) {
     console.error('Error loading game data:', error)
     throw error
@@ -110,10 +93,4 @@ export function saveLocalGameData(data: GameData): void {
   } catch (error) {
     console.error('Error saving local game data:', error)
   }
-}
-
-// Create a new Supabase client for this operation
-const supabaseClient = createClient<Database>(
-  env.NEXT_PUBLIC_SUPABASE_URL,
-  env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-) 
+} 

@@ -11,7 +11,6 @@ import { AuthContent } from '@/components/auth-content'
 import AuthGate from "@/app/components/AuthGate"
 import { ClerkProvider } from '@clerk/nextjs'
 import { ThemeProvider } from '@/components/theme-provider'
-import { SupabaseSyncProvider } from '@/components/supabase-sync-provider'
 import { ErrorBoundary } from '@/components/error-boundary'
 
 const fontSans = FontSans({
@@ -49,7 +48,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      afterSignInUrl="/kingdom"
+      afterSignUpUrl="/kingdom"
+    >
       <html lang="en" suppressHydrationWarning>
         <head>
           <meta name="mobile-web-app-capable" content="yes" />
@@ -66,30 +68,28 @@ export default function RootLayout({
               defaultTheme="dark"
               enableSystem
             >
-              <SupabaseSyncProvider>
-                <GradientProvider>
-                  <Providers>
-                    <AuthContent>
-                      <AuthGate>
-                        {children}
-                      </AuthGate>
-                    </AuthContent>
-                    <Toaster />
-                    <SonnerToaster 
-                      position="top-center"
-                      toastOptions={{
-                        style: {
-                          background: 'rgba(0, 0, 0, 0.9)',
-                          color: '#fbbf24',
-                          border: '1px solid rgba(146, 64, 14, 0.5)',
-                          backdropFilter: 'blur(8px)',
-                        },
-                        className: 'border border-amber-900/50 bg-black/80 text-amber-400',
-                      }}
-                    />
-                  </Providers>
-                </GradientProvider>
-              </SupabaseSyncProvider>
+              <GradientProvider>
+                <Providers>
+                  <AuthContent>
+                    <AuthGate>
+                      {children}
+                    </AuthGate>
+                  </AuthContent>
+                  <Toaster />
+                  <SonnerToaster 
+                    position="top-center"
+                    toastOptions={{
+                      style: {
+                        background: 'rgba(0, 0, 0, 0.9)',
+                        color: '#fbbf24',
+                        border: '1px solid rgba(146, 64, 14, 0.5)',
+                        backdropFilter: 'blur(8px)',
+                      },
+                      className: 'border border-amber-900/50 bg-black/80 text-amber-400',
+                    }}
+                  />
+                </Providers>
+              </GradientProvider>
             </ThemeProvider>
           </ErrorBoundary>
         </body>

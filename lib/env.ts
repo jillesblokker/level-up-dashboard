@@ -8,29 +8,19 @@ function getEnvOrThrow(key: string): string {
     throw new Error(`Missing environment variable: ${key}`);
   }
   
-  // Special validation for Supabase URL
-  if (key === 'NEXT_PUBLIC_SUPABASE_URL') {
-    try {
-      new URL(value);
-    } catch (error) {
-      console.error('Invalid Supabase URL format:', value);
-      console.error('URL should be in the format: https://your-project-id.supabase.co');
-      throw new Error('Invalid Supabase URL format');
-    }
-  }
-  
   return value;
 }
 
 export const env = {
-  NEXT_PUBLIC_SUPABASE_URL: process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']!,
+  // Clerk environment variables
+  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: getEnvOrThrow('NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY'),
+  CLERK_SECRET_KEY: getEnvOrThrow('CLERK_SECRET_KEY'),
+  CLERK_WEBHOOK_SECRET: getEnvOrThrow('CLERK_WEBHOOK_SECRET'),
+  
+  // Database environment variables
+  DATABASE_URL: getEnvOrThrow('DATABASE_URL'),
+  SHADOW_DATABASE_URL: getEnvOrThrow('SHADOW_DATABASE_URL'),
+  
+  // Node environment
+  NODE_ENV: process.env.NODE_ENV || 'development',
 } as const;
-
-if (!env.NEXT_PUBLIC_SUPABASE_URL) {
-  throw new Error('Missing environment variable: NEXT_PUBLIC_SUPABASE_URL');
-}
-
-if (!env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-  throw new Error('Missing environment variable: NEXT_PUBLIC_SUPABASE_ANON_KEY');
-}

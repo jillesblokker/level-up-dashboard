@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import getPrismaClient from '@/lib/prisma';
+import { getPrismaClient } from '@/lib/prisma';
 import { z } from 'zod';
 import { QuestResponse } from '@/types/quest';
 import { env } from '@/lib/env';
@@ -16,10 +16,10 @@ const questUpdateSchema = z.object({
   completed: z.boolean()
 });
 
-// Get quests for the current user
+// Get all available quests and their completion status for the current user
 export async function GET(request: Request) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -41,11 +41,19 @@ export async function GET(request: Request) {
       }
     }
 
-    const questCompletions = await getPrismaClient().questCompletion.findMany({
+    const prisma = getPrismaClient();
+
+    // Get all available quests
+    const allQuests = await prisma.quest.findMany({
+      orderBy: {
+        category: 'asc'
+      }
+    });
+
+    // Get user's quest completions
+    const questCompletions = await prisma.questCompletion.findMany({
       where: {
-        user: {
-          id: userId
-        },
+        userId: userId,
         ...(date && {
           date: {
             gte: date,
@@ -53,22 +61,38 @@ export async function GET(request: Request) {
           }
         })
       },
-      include: {
-        user: true
-      },
       orderBy: {
         date: 'desc'
       }
     });
 
-    const quests: QuestResponse[] = questCompletions.map(completion => ({
-      name: completion.questName,
-      category: completion.category,
-      completed: completion.completed,
-      date: completion.date
-    }));
+    // Create a map of quest completions for quick lookup
+    const completionMap = new Map();
+    questCompletions.forEach(completion => {
+      const key = `${completion.category}-${completion.questName}`;
+      completionMap.set(key, completion);
+    });
 
-    return NextResponse.json(quests);
+    // Combine quests with completion status
+    const questsWithCompletions = allQuests.map(quest => {
+      const key = `${quest.category}-${quest.name}`;
+      const completion = completionMap.get(key);
+      
+      return {
+        id: quest.id,
+        name: quest.name,
+        description: quest.description,
+        category: quest.category,
+        difficulty: quest.difficulty,
+        rewards: quest.rewards,
+        completed: completion?.completed ?? false,
+        date: completion?.date,
+        isNew: !completion, // Mark as new if no completion record exists
+        completionId: completion?.id
+      };
+    });
+
+    return NextResponse.json(questsWithCompletions);
   } catch (error) {
     console.error('Error fetching quests:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -78,7 +102,7 @@ export async function GET(request: Request) {
 // Create a new quest completion
 export async function POST(request: Request) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -122,7 +146,7 @@ export async function POST(request: Request) {
 // Update a quest completion status
 export async function PUT(request: Request) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -138,7 +162,10 @@ export async function PUT(request: Request) {
     
     const { questName, completed } = result.data;
 
-    const questCompletion = await getPrismaClient().questCompletion.findFirst({
+    const prisma = getPrismaClient();
+
+    // Find or create quest completion
+    let questCompletion = await prisma.questCompletion.findFirst({
       where: {
         userId: userId,
         questName
@@ -146,11 +173,20 @@ export async function PUT(request: Request) {
     });
 
     if (!questCompletion) {
-      return NextResponse.json({ error: 'Quest completion not found' }, { status: 404 });
+      // Create a new completion record
+      questCompletion = await prisma.questCompletion.create({
+        data: {
+          userId: userId,
+          questName,
+          category: 'general', // Default category
+          completed: false,
+          date: new Date()
+        }
+      });
     }
 
     // Update the completion status
-    const updatedCompletion = await getPrismaClient().questCompletion.update({
+    const updatedCompletion = await prisma.questCompletion.update({
       where: { id: questCompletion.id },
       data: {
         completed,
@@ -160,41 +196,29 @@ export async function PUT(request: Request) {
 
     // If quest is completed, update character stats with default rewards
     if (completed) {
-      type CharacterRecord = {
-        id: string;
-        userId: string;
-        name: string;
-        class: string;
-        level: number;
-        exp: number;
-        stats: { gold?: number };
-        createdAt: Date;
-        updatedAt: Date;
-      };
-
-      const [character] = await getPrismaClient().$queryRaw<CharacterRecord[]>`
-        SELECT * FROM "Character"
-        WHERE "userId" = ${userId}
-        LIMIT 1
-      `;
+      const character = await prisma.character.findFirst({
+        where: { userId }
+      });
 
       if (character) {
         const defaultRewards = {
           experience: 50,
           gold: 25
-        } as const;
+        };
 
-        await getPrismaClient().$executeRaw`
-          UPDATE "Character"
-          SET 
-            exp = exp + ${defaultRewards.experience},
-            stats = jsonb_set(
-              stats::jsonb,
-              '{gold}',
-              ((COALESCE((stats->>'gold')::int, 0) + ${defaultRewards.gold})::text)::jsonb
-            )
-          WHERE id = ${character.id}
-        `;
+        const currentStats = character.stats ? JSON.parse(character.stats) : {};
+        const currentGold = currentStats.gold || 0;
+
+        await prisma.character.update({
+          where: { id: character.id },
+          data: {
+            exp: character.exp + defaultRewards.experience,
+            stats: JSON.stringify({
+              ...currentStats,
+              gold: currentGold + defaultRewards.gold
+            })
+          }
+        });
       }
     }
 
@@ -215,7 +239,7 @@ export async function PUT(request: Request) {
 // Export quests as CSV
 export async function PATCH() {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

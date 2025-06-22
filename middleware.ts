@@ -1,13 +1,31 @@
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+const isPublicRoute = createRouteMatcher([
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+  '/api/webhooks(.*)',
+]);
+
+export default clerkMiddleware(async (auth, request) => {
+  // If the route is public, let it pass through.
+  if (isPublicRoute(request)) {
+    return NextResponse.next();
+  }
+
+  // For all other (protected) routes, check for authentication.
+  const { userId } = await auth();
+  
+  // If the user is not authenticated, redirect to the sign-in page.
+  if (!userId) {
+    const signInUrl = new URL('/sign-in', request.url);
+    return NextResponse.redirect(signInUrl);
+  }
+
+  // If the user is authenticated, allow them to access the protected route.
   return NextResponse.next();
-}
+});
 
 export const config = {
-  matcher: [
-    // Exclude API routes and static assets from Clerk middleware
-    '/((?!api|_next/static|_next/image|favicon.ico|public/).*)',
-  ],
-}; 
+  matcher: ['/((?!.*\\..*|_next).*)', '/', '/(api|trpc)(.*)'],
+};

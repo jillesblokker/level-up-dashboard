@@ -2,7 +2,7 @@
 
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { env } from '@/lib/env'
+import { auth } from '@clerk/nextjs/server'
 
 export async function skipAuth() {
   // Set a cookie to indicate logged out mode
@@ -22,12 +22,24 @@ export async function skipAuth() {
 export async function logout() {
   const cookieStore = await cookies()
   
-  // Clear both types of auth cookies
+  // Clear auth cookies
   cookieStore.delete('skip-auth')
-  cookieStore.delete('sb-' + env.NEXT_PUBLIC_SUPABASE_URL.replace(/[^a-zA-Z0-9]/g, '') + '-auth-token')
-  // cookieStore.delete('next-auth.session-token')
-  // cookieStore.delete('next-auth.state') // Also clear the state cookie
   
   // Redirect to sign in page
   redirect('/auth/signin')
+}
+
+export async function getAuth() {
+  const { userId } = await auth();
+  
+  if (!userId) {
+    redirect('/sign-in');
+  }
+  
+  return { userId };
+}
+
+export async function getOptionalAuth() {
+  const { userId } = await auth();
+  return { userId };
 } 

@@ -17,6 +17,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { X, Hammer, Move, Package, Settings, Save } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { EnterLocationModal } from '@/components/enter-location-modal'
+import { EnterLocationModal } from '@/components/enter-location-modal'
 
 // Constants
 const GRID_COLS = 13
@@ -54,7 +55,7 @@ const getTileImage = (type: TileType): string => {
 };
 
 const allTileTypes: TileType[] = [
-    'empty', 'mountain', 'grass', 'forest', 'water', 'city', 'town', 'mystery',
+    'empty', 'mountain', 'grass', 'forest', 'water', 'city', 'town', 'mystery', 'portal',
     'portal-entrance', 'portal-exit', 'snow', 'cave', 'dungeon', 'castle', 'ice', 'desert',
     'lava', 'volcano'
 ];
@@ -110,7 +111,7 @@ export default function RealmPage() {
     const [grid, setGrid] = useState<Tile[][]>(createBaseGrid());
     const [isLoading, setIsLoading] = useState(true);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-    const [characterPosition, setCharacterPosition] = useLocalStorage('characterPosition', { x: 1, y: 0 });
+    const [characterPosition, setCharacterPosition] = useLocalStorage('characterPosition', { x: 6, y: 3 });
     const [inventory, setInventory] = useLocalStorage<Record<TileType, Tile>>('tileInventory', initialInventory);
     const [showInventory, setShowInventory] = useState(false);
     const [selectedTile, setSelectedTile] = useState<TileInventoryItem | null>(null);
@@ -253,67 +254,8 @@ export default function RealmPage() {
 
     const handleCharacterMove = (x: number, y: number) => {
         if (gameMode === 'move') {
-            // Check if the target tile is walkable
-            const targetTile = grid[y]?.[x];
-            if (targetTile && ['mountain', 'water', 'lava', 'volcano'].includes(targetTile.type)) {
-                toast({
-                    title: "Cannot Move",
-                    description: `You cannot move to a ${targetTile.type} tile.`,
-                    variant: "destructive",
-                });
-                return;
-            }
             setCharacterPosition({ x, y });
         }
-    };
-
-    // Expand map function
-    const expandMap = () => {
-        const currentRows = grid.length;
-        const currentCols = grid[0]?.length || GRID_COLS;
-        const newRows = currentRows + 3;
-        
-        // Create new grid with 3 additional rows
-        const newGrid: Tile[][] = [];
-        
-        // Add existing rows
-        for (let y = 0; y < currentRows; y++) {
-            if (grid[y] && Array.isArray(grid[y])) {
-                newGrid[y] = [...grid[y]];
-            }
-        }
-        
-        // Add 3 new rows
-        for (let y = currentRows; y < newRows; y++) {
-            newGrid[y] = [];
-            for (let x = 0; x < currentCols; x++) {
-                let tileType: TileType = 'empty';
-                
-                // First and last columns are mountain tiles
-                if (x === 0 || x === currentCols - 1) {
-                    tileType = 'mountain';
-                } else {
-                    // Random mystery tile (1 in 20 chance for each non-mountain tile)
-                    if (Math.random() < 0.05) {
-                        tileType = 'mystery';
-                    }
-                }
-                
-                newGrid[y][x] = {
-                    ...defaultTile(tileType),
-                    x,
-                    y,
-                    id: `${tileType}-${x}-${y}`,
-                    image: getTileImage(tileType)
-                };
-            }
-        }
-        
-        setGrid(newGrid);
-        toast({
-            title: "Map Expanded",
-            description: "Your realm map has been expanded with 3 new rows!",
-        });
     };
 
     // Keyboard movement handlers
@@ -350,17 +292,6 @@ export default function RealmPage() {
                     return;
             }
             
-            // Check if the target tile is walkable
-            const targetTile = grid[newY]?.[newX];
-            if (targetTile && ['mountain', 'water', 'lava', 'volcano'].includes(targetTile.type)) {
-                toast({
-                    title: "Cannot Move",
-                    description: `You cannot move to a ${targetTile.type} tile.`,
-                    variant: "destructive",
-                });
-                return;
-            }
-            
             if (newX !== currentPos.x || newY !== currentPos.y) {
                 setCharacterPosition({ x: newX, y: newY });
             }
@@ -368,21 +299,20 @@ export default function RealmPage() {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [gameMode, characterPosition, grid, toast]);
+    }, [gameMode, characterPosition, grid]);
 
     // Effect to handle landing on special tiles
     useEffect(() => {
         if (!grid.length || !grid[characterPosition.y]?.[characterPosition.x]) return;
+
         const currentTile = grid[characterPosition.y]?.[characterPosition.x];
         if (currentTile) {
             switch (currentTile.type) {
                 case 'city':
                     setModalState({ isOpen: true, locationType: 'city', locationName: currentTile?.name ?? 'Bravos' });
-                    break;
                 case 'town':
                     setModalState({ isOpen: true, locationType: 'town', locationName: currentTile?.name ?? 'Riverwood' });
-                    break;
-                case 'mystery':
+                    break;                case 'mystery':
                     toast({
                         title: 'A Mystery!',
                         description: 'You stumble upon a hidden treasure chest. You find 50 gold!',
@@ -390,7 +320,7 @@ export default function RealmPage() {
                     break;
             }
         }
-    }, [characterPosition, grid, toast]);
+    }, [characterPosition, grid, router, toast]);
 
     if (isLoading) {
         return <div className="flex items-center justify-center h-screen bg-gray-900 text-white">Loading Realm...</div>;
@@ -431,25 +361,61 @@ export default function RealmPage() {
                             <span className="hidden sm:inline">Build</span>
                         </Button>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center space-x-2" aria-label="auto-save-controls">
-                            <Switch id="auto-save-switch" checked={autoSave} onCheckedChange={setAutoSave} />
-                            <label htmlFor="auto-save-switch" className="text-sm">Auto Save</label>
-                        </div>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={expandMap}
-                            className="flex items-center gap-2"
-                            aria-label="expand-map-button"
-                        >
-                            <Settings className="w-4 h-4" />
-                            <span className="hidden sm:inline">Expand Map</span>
-                        </Button>
-                    </div>
+            {modalState && (
+                <EnterLocationModal
+                    isOpen={modalState.isOpen}
+                    onClose={() => setModalState(null)}
+                    locationType={modalState.locationType}
+                    locationName={modalState.locationName}
+                />
+            )}
+        </div>
+    );
+}                    {saveStatus === 'saving' && (
+                        <Badge variant="secondary" className="bg-yellow-600">
+                            <Save className="w-3 h-3 mr-1" />
+                            Saving...
+                        </Badge>
+                    )}
+                    {saveStatus === 'saved' && (
+                        <Badge variant="secondary" className="bg-green-600">
+                            <Save className="w-3 h-3 mr-1" />
+                            Saved
+                        </Badge>
+                    )}
+                    {saveStatus === 'error' && (
+                        <Badge variant="destructive">
+                            Save Error
+                        </Badge>
+                    )}
                 </div>
+            {modalState && (
+                <EnterLocationModal
+                    isOpen={modalState.isOpen}
+                    onClose={() => setModalState(null)}
+                    locationType={modalState.locationType}
+                    locationName={modalState.locationName}
+                />
+            )}
+        </div>
+    );
+}
                 <div className="flex items-center gap-4">
-                    <Button
+                    <div className="flex items-center space-x-2" aria-label="auto-save-controls">
+                        <Switch id="auto-save-switch" checked={autoSave} onCheckedChange={setAutoSave} />
+                        <label htmlFor="auto-save-switch" className="text-sm">Auto Save</label>
+                    </div>
+            {modalState && (
+                <EnterLocationModal
+                    isOpen={modalState.isOpen}
+                    onClose={() => setModalState(null)}
+                    locationType={modalState.locationType}
+                    locationName={modalState.locationName}
+                />
+            )}
+        </div>
+    );
+}                    <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setShowInventory(!showInventory)}
@@ -460,7 +426,6 @@ export default function RealmPage() {
                         <span className="hidden sm:inline">Inventory</span>
                     </Button>
                 </div>
-            </div>
             {modalState && (
                 <EnterLocationModal
                     isOpen={modalState.isOpen}
@@ -469,6 +434,20 @@ export default function RealmPage() {
                     locationName={modalState.locationName}
                 />
             )}
+        </div>
+    );
+}            </div>
+            {modalState && (
+                <EnterLocationModal
+                    isOpen={modalState.isOpen}
+                    onClose={() => setModalState(null)}
+                    locationType={modalState.locationType}
+                    locationName={modalState.locationName}
+                />
+            )}
+        </div>
+    );
+}            
             <div className="flex flex-1 overflow-hidden">
                 {/* Main Map Area */}
                 <div className="flex-1 relative">
@@ -482,39 +461,80 @@ export default function RealmPage() {
                         isMovementMode={gameMode === 'move'}
                     />
                 </div>
-            </div>
-            {/* Side Inventory Panel */}
-            {showInventory && (
-                <div className="absolute top-0 right-0 h-full w-96 bg-gray-800/90 backdrop-blur-sm border-l border-gray-700 flex flex-col z-20" aria-label="inventory-panel">
-                    <div className="p-4 border-b border-gray-700 flex items-center justify-between">
-                        <h2 className="text-lg font-semibold">Tile Inventory</h2>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setShowInventory(false)}
-                            aria-label="close-inventory-button"
-                        >
-                            <X className="w-4 h-4" />
-                        </Button>
-                    </div>
-                    <ScrollArea className="flex-1 p-4">
-                        <TileInventory
-                            tiles={inventoryAsItems}
-                            selectedTile={selectedTile}
-                            onSelectTile={handleTileSelection}
-                            onUpdateTiles={(updatedTiles) => {
-                                const newInventory = { ...inventory };
-                                updatedTiles.forEach(tile => {
-                                    if (newInventory[tile.type]) {
-                                        newInventory[tile.type] = tile;
-                                    }
-                                });
-                                setInventory(newInventory);
-                            }}
-                        />
-                    </ScrollArea>
-                </div>
+            {modalState && (
+                <EnterLocationModal
+                    isOpen={modalState.isOpen}
+                    onClose={() => setModalState(null)}
+                    locationType={modalState.locationType}
+                    locationName={modalState.locationName}
+                />
             )}
         </div>
+    );
+}
+                {/* Side Inventory Panel */}
+                {showInventory && (
+                    <div className="absolute top-0 right-0 h-full w-96 bg-gray-800/90 backdrop-blur-sm border-l border-gray-700 flex flex-col z-20" aria-label="inventory-panel">
+                        <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+                            <h2 className="text-lg font-semibold">Tile Inventory</h2>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setShowInventory(false)}
+                                aria-label="close-inventory-button"
+                            >
+                                <X className="w-4 h-4" />
+                            </Button>
+                        </div>
+            {modalState && (
+                <EnterLocationModal
+                    isOpen={modalState.isOpen}
+                    onClose={() => setModalState(null)}
+                    locationType={modalState.locationType}
+                    locationName={modalState.locationName}
+                />
+            )}
+        </div>
+    );
+}                        <ScrollArea className="flex-1 p-4">
+                            <TileInventory
+                                tiles={inventoryAsItems}
+                                selectedTile={selectedTile}
+                                onSelectTile={handleTileSelection}
+                                onUpdateTiles={(updatedTiles) => {
+                                    const newInventory = { ...inventory };
+                                    updatedTiles.forEach(tile => {
+                                        if (newInventory[tile.type]) {
+                                            newInventory[tile.type] = tile;
+                                        }
+                                    });
+                                    setInventory(newInventory);
+                                }}
+                            />
+                        </ScrollArea>
+                    </div>
+            {modalState && (
+                <EnterLocationModal
+                    isOpen={modalState.isOpen}
+                    onClose={() => setModalState(null)}
+                    locationType={modalState.locationType}
+                    locationName={modalState.locationName}
+                />
+            )}
+        </div>
+    );
+}                )}
+            </div>
+            {modalState && (
+                <EnterLocationModal
+                    isOpen={modalState.isOpen}
+                    onClose={() => setModalState(null)}
+                    locationType={modalState.locationType}
+                    locationName={modalState.locationName}
+                />
+            )}
+        </div>
+    );
+}        </div>
     );
 }

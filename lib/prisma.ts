@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client'
 
 let prisma: PrismaClient | undefined
 
-export default function getPrismaClient() {
+export function getPrismaClient() {
   if (!prisma) {
     prisma = new PrismaClient()
   }

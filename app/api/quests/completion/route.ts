@@ -1,27 +1,13 @@
 import { NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
-import getPrismaClient from '@/lib/prisma';
-import { env } from '@/lib/env';
+import { auth } from '@clerk/nextjs/server';
+import { getPrismaClient } from '@/lib/prisma';
 
 // Create a new quest completion
 export async function POST(request: Request) {
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-        env.NEXT_PUBLIC_SUPABASE_URL,
-        env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-        },
-      }
-    );
-    const { data: { session } } = await supabase.auth.getSession();
+    const { userId } = await auth();
 
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -32,7 +18,7 @@ export async function POST(request: Request) {
 
     const questCompletion = await prisma.questCompletion.create({
       data: {
-        userId: session.user.id,
+        userId,
         category,
         questName,
         date: new Date()
@@ -49,21 +35,9 @@ export async function POST(request: Request) {
 // Get quest completions for the current user
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-        env.NEXT_PUBLIC_SUPABASE_URL,
-        env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-        },
-      }
-    );
-    const { data: { session } } = await supabase.auth.getSession();
+    const { userId } = await auth();
 
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -71,7 +45,7 @@ export async function GET() {
 
     const questCompletions = await prisma.questCompletion.findMany({
       where: {
-        userId: session.user.id
+        userId
       },
       orderBy: {
         date: 'desc'
@@ -83,4 +57,4 @@ export async function GET() {
     console.error('Error fetching quest completions:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-} 
+}
