@@ -281,7 +281,7 @@ export default function RealmPage() {
         
         // Add 3 new rows
         for (let y = currentRows; y < newRows; y++) {
-            newGrid[y] = [];
+            newGrid[y] = new Array(currentCols);
             for (let x = 0; x < currentCols; x++) {
                 let tileType: TileType = 'empty';
                 
@@ -295,7 +295,7 @@ export default function RealmPage() {
                     }
                 }
                 
-                newGrid[y][x] = {
+                newGrid[y]![x] = {
                     ...defaultTile(tileType),
                     x,
                     y,
