@@ -9,16 +9,14 @@ import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
 import { Sword, Brain, Crown, Castle, Hammer, Heart, PlusCircle, Trash2 } from "lucide-react"
-import { QuestService } from '@/lib/quest-service'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useUser } from "@clerk/nextjs"
 import { defaultQuests } from '@/lib/quest-sample-data'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useAuth } from "@clerk/nextjs"
-import { SupabaseClient } from "@supabase/supabase-js"
-import { Database } from "@/types/supabase"
 import { useToast } from "@/components/ui/use-toast"
 import { storageService } from '@/lib/storage-service'
+import { Quest } from '@/lib/quest-types'
 
 interface Milestone {
   id: string;
@@ -31,6 +29,13 @@ interface Milestone {
   progress: number;
   target: number;
   completed: boolean;
+}
+
+interface QuestResponse {
+  name: string;
+  category: string;
+  completed: boolean;
+  date: Date;
 }
 
 const milestoneCategories = [
@@ -86,41 +91,49 @@ export function Milestones() {
       try {
         setIsLoading(true);
         console.log('Fetching milestones...');
-        // Get all milestones for the user
-        if (!supabase) return;
-        const data = await QuestService.getQuests(supabase as SupabaseClient<Database>, userId, { category: newQuestCategory });
-        console.log('Fetched milestones:', data);
-        // If none exist for this category, insert a default one
-        if ((data.length === 0) && newQuestCategory) {
-          // Find a random quest from this category
-          const categoryQuests = defaultQuests.filter(q => q.category === newQuestCategory);
+        
+        // Fetch quests from the API
+        const response = await fetch('/api/quests');
+        if (!response.ok) {
+          throw new Error('Failed to fetch quests');
+        }
+        
+        const questData: QuestResponse[] = await response.json();
+        console.log('Fetched quests:', questData);
+        
+        // Filter quests by category if specified
+        const filteredQuests = newQuestCategory 
+          ? questData.filter(q => q.category === newQuestCategory)
+          : questData;
+        
+        // If none exist for this category, create a default one
+        if (filteredQuests.length === 0 && newQuestCategory) {
+          const categoryQuests = defaultQuests.filter((q: Quest) => q.category === newQuestCategory);
           if (categoryQuests.length > 0) {
             const randomQuest = categoryQuests[Math.floor(Math.random() * categoryQuests.length)];
             if (randomQuest) {
               try {
-                if (!supabase) return;
-                // Insert as a milestone (make it bigger: multiply xp/gold/target)
-                const newMilestoneQuest = await QuestService.createQuest(supabase as SupabaseClient<Database>, {
-                  title: `Milestone: ${randomQuest.title}`,
-                  description: randomQuest.description || `Milestone based on quest: ${randomQuest.title}`,
-                  category: newQuestCategory,
-                  difficulty: 'hard',
-                  rewards: { xp: randomQuest.rewards.xp * 5, gold: randomQuest.rewards.gold * 5, items: [] },
-                  progress: 0,
-                  completed: false,
-                  deadline: '',
-                  isNew: true,
-                  isAI: false,
-                  userId
+                // Create a new quest completion
+                const createResponse = await fetch('/api/quests', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    name: `Milestone: ${randomQuest.title}`,
+                    category: newQuestCategory,
+                  }),
                 });
-                if (newMilestoneQuest) {
+                
+                if (createResponse.ok) {
+                  const newQuest = await createResponse.json();
                   setMilestones([{
-                    id: newMilestoneQuest.id,
-                    name: newMilestoneQuest.title,
-                    category: newMilestoneQuest.category,
+                    id: newQuest.name, // Use name as ID since that's what we have
+                    name: newQuest.name,
+                    category: newQuest.category,
                     icon: '🎯',
-                    experience: newMilestoneQuest.rewards.xp,
-                    gold: newMilestoneQuest.rewards.gold,
+                    experience: 500, // Default milestone rewards
+                    gold: 250,
                     frequency: 'once',
                     progress: 0,
                     target: 10,
@@ -139,15 +152,16 @@ export function Milestones() {
             }
           }
         }
-        setMilestones(data.map(q => ({
-          id: q.id,
-          name: q.title,
+        
+        setMilestones(filteredQuests.map(q => ({
+          id: q.name, // Use name as ID
+          name: q.name,
           category: q.category,
           icon: '🎯',
-          experience: q.rewards.xp,
-          gold: q.rewards.gold,
+          experience: 500, // Default milestone rewards
+          gold: 250,
           frequency: 'once',
-          progress: q.progress,
+          progress: q.completed ? 100 : 0,
           target: 1,
           completed: q.completed
         })));
@@ -180,7 +194,7 @@ export function Milestones() {
   }, [checkedMilestones]);
 
   const handleAddMilestone = async () => {
-    if (!userId || !newMilestone.name || !newQuestCategory || !supabase) {
+    if (!userId || !newMilestone.name || !newQuestCategory) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -189,132 +203,128 @@ export function Milestones() {
       return;
     }
     try {
-      if (!supabase) return;
-      const newQuest = await QuestService.createQuest(supabase as SupabaseClient<Database>, {
-        title: newMilestone.name,
-        description: "",
-        category: newQuestCategory,
-        difficulty: "medium",
-        rewards: { xp: newMilestone.experience, gold: newMilestone.gold, items: [] },
-        progress: 0,
-        completed: false,
-        deadline: "",
-        isNew: true,
-        isAI: false,
-        userId
+      const response = await fetch('/api/quests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: newMilestone.name,
+          category: newQuestCategory,
+        }),
       });
-      if (newQuest) {
-        setMilestones(prev => [...prev, {
-          id: newQuest.id,
-          name: newQuest.title,
-          category: newQuest.category,
-          icon: newMilestone.icon,
-          experience: newQuest.rewards.xp,
-          gold: newQuest.rewards.gold,
-          frequency: "once",
-          progress: 0,
-          target: newMilestone.target,
-          completed: false
-        }]);
-        setNewMilestone({
-          name: "",
-          icon: "🎯",
-          experience: 500,
-          gold: 250,
-          target: 1,
-        });
-        setIsDialogOpen(false);
-        setNewQuestCategory("");
-        toast({
-          title: "Milestone Added",
-          description: "Your new milestone has been added successfully!",
-        });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create milestone');
       }
-    } catch (err) {
-      console.error('Failed to add milestone:', err);
+      
+      const newQuest = await response.json();
+      
+      const milestone: Milestone = {
+        id: newQuest.name,
+        name: newQuest.name,
+        category: newQuest.category,
+        icon: newMilestone.icon,
+        experience: newMilestone.experience,
+        gold: newMilestone.gold,
+        frequency: 'once',
+        progress: 0,
+        target: newMilestone.target,
+        completed: false
+      };
+      
+      setMilestones(prev => [...prev, milestone]);
+      setNewMilestone({
+        name: "",
+        icon: "🎯",
+        experience: 500,
+        gold: 250,
+        target: 1,
+      });
+      setIsDialogOpen(false);
+      
+      toast({
+        title: "Success",
+        description: "Milestone created successfully!",
+      });
+    } catch (error) {
+      console.error('Error creating milestone:', error);
       toast({
         title: "Error",
-        description: "Failed to add milestone. Please try again.",
-        variant: "destructive"
+        description: "Failed to create milestone. Please try again.",
+        variant: "destructive",
       });
     }
   };
 
   const handleDeleteMilestone = async (id: string) => {
-    if (!userId || !supabase) {
-      toast({
-        title: "Error",
-        description: "Database connection not available",
-        variant: "destructive",
-      });
-      return;
-    }
     try {
-      if (!supabase) return;
-      await QuestService.deleteQuest(supabase as SupabaseClient<Database>, id);
+      // Find the milestone to get its name
+      const milestone = milestones.find(m => m.id === id);
+      if (!milestone) return;
+      
+      // Note: The current API doesn't support deletion, so we'll just remove from local state
+      // In a real implementation, you'd want to add a DELETE endpoint
       setMilestones(prev => prev.filter(m => m.id !== id));
+      
       toast({
-        title: "Milestone Deleted",
-        description: "The milestone has been removed.",
+        title: "Success",
+        description: "Milestone removed successfully!",
       });
-    } catch (err) {
-      console.error('Failed to delete milestone:', err);
+    } catch (error) {
+      console.error('Error deleting milestone:', error);
       toast({
         title: "Error",
         description: "Failed to delete milestone. Please try again.",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
 
-  // Update milestone completion and checkedMilestones together
   const handleToggleCompletion = async (id: string, completed: boolean) => {
-    // Check if the id is a valid database id (UUID or cuid)
-    const isDbId = /^[a-z0-9]{20,}$|^[0-9a-fA-F-]{36}$/.test(id);
-    if (!isDbId) {
-      setMilestones(prev => prev.map(m =>
-        m.id === id ? { ...m, completed: !m.completed, progress: !m.completed ? 100 : 0 } : m
-      ));
-      toast({
-        title: !completed ? "Milestone Completed" : "Milestone Uncompleted",
-        description: !completed ? "Great job completing this milestone!" : "Milestone marked as incomplete.",
-      });
-      setCheckedMilestones(prev =>
-        !completed
-          ? [...prev, id]
-          : prev.filter(mid => mid !== id)
-      );
-      return;
-    }
-    if (!userId || !supabase) {
-      toast({
-        title: "Error",
-        description: "Database connection not available",
-        variant: "destructive",
-      });
-      return;
-    }
     try {
-      if (!supabase) return;
-      const updatedQuest = await QuestService.toggleQuestCompletion(supabase as SupabaseClient<Database>, id, completed);
-      setMilestones(prev => prev.map(m => 
-        m.id === id ? { ...m, completed: updatedQuest.completed } : m
-      ));
-      toast({
-        title: updatedQuest.completed ? "Milestone Completed" : "Milestone Uncompleted",
-        description: updatedQuest.completed ? "Great job completing this milestone!" : "Milestone marked as incomplete.",
+      // Find the milestone to get its name
+      const milestone = milestones.find(m => m.id === id);
+      if (!milestone) return;
+      
+      const response = await fetch('/api/quests', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          questName: milestone.name,
+          completed: completed,
+        }),
       });
-      setCheckedMilestones(prev =>
-        !updatedQuest.completed
-          ? [...prev, id]
-          : prev.filter(mid => mid !== id)
-      );
-    } catch (err) {
-      console.error('Failed to toggle milestone completion:', err);
+      
+      if (!response.ok) {
+        throw new Error('Failed to update milestone');
+      }
+      
+      setMilestones(prev => prev.map(m => 
+        m.id === id 
+          ? { ...m, completed, progress: completed ? 100 : 0 }
+          : m
+      ));
+      
+      // Update checked milestones
+      if (completed) {
+        setCheckedMilestones(prev => [...prev, id]);
+      } else {
+        setCheckedMilestones(prev => prev.filter(mId => mId !== id));
+      }
+      
+      toast({
+        title: "Success",
+        description: completed ? "Milestone completed!" : "Milestone unchecked!",
+      });
+    } catch (error) {
+      console.error('Error toggling milestone completion:', error);
       toast({
         title: "Error",
-        description: "Failed to update milestone status. Please try again.",
-        variant: "destructive"
+        description: "Failed to update milestone. Please try again.",
+        variant: "destructive",
       });
     }
   };
@@ -379,35 +389,41 @@ export function Milestones() {
                   }
                   try {
                     // Create the milestone in Supabase
-                    const newQuest = await QuestService.createQuest(supabase as SupabaseClient<Database>, {
-                      title: fakeMilestone.name,
-                      description: defaultCard.description,
-                      category: fakeMilestone.category,
-                      difficulty: 'hard',
-                      rewards: { xp: fakeMilestone.experience, gold: fakeMilestone.gold, items: [] },
-                      progress: 0,
-                      completed: action === 'toggle',
-                      deadline: '',
-                      isNew: true,
-                      isAI: false,
-                      userId
+                    const newQuest = await fetch('/api/quests', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        name: fakeMilestone.name,
+                        category: fakeMilestone.category,
+                      }),
                     });
 
-                    if (!newQuest) {
+                    if (!newQuest.ok) {
                       throw new Error('Failed to create milestone');
                     }
 
                     // Add to local state
+                    const newQuestData = await newQuest.json();
                     setMilestones(prev => [...prev, {
                       ...fakeMilestone,
-                      id: newQuest.id,
+                      id: newQuestData.name,
                       completed: action === 'toggle',
                     }]);
 
                     // If delete, immediately delete after creation
                     if (action === 'delete') {
-                      await QuestService.deleteQuest(supabase as SupabaseClient<Database>, newQuest.id);
-                      setMilestones(prev => prev.filter(m => m.id !== newQuest.id));
+                      await fetch('/api/quests', {
+                        method: 'DELETE',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          questName: fakeMilestone.name,
+                        }),
+                      });
+                      setMilestones(prev => prev.filter(m => m.id !== fakeMilestone.name));
                     }
 
                     toast({
@@ -417,8 +433,8 @@ export function Milestones() {
 
                     setCheckedMilestones(prev =>
                       action === 'toggle'
-                        ? [...prev, newQuest.id]
-                        : prev.filter(mid => mid !== newQuest.id)
+                        ? [...prev, newQuestData.name]
+                        : prev.filter(mid => mid !== newQuestData.name)
                     );
                   } catch (err) {
                     console.error('Failed to update milestone:', err);
@@ -576,12 +592,18 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress }: { milestone: M
     setIsUpdating(true);
     try {
       // Update in Supabase
-      const { error } = await supabase
-        .from('quests')
-        .update({ completed: !completed })
-        .eq('id', milestone.id);
+      const response = await fetch('/api/quests', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          questName: milestone.name,
+          completed: !completed,
+        }),
+      });
 
-      if (error) throw error;
+      if (!response.ok) throw new Error('Failed to update milestone');
 
       setCompleted(!completed);
       toast({
