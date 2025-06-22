@@ -2,14 +2,13 @@
 
 import { useEffect, useState } from 'react'
 import { useUser } from '@clerk/nextjs'
-import { SyncService } from '@/lib/supabase-services'
 
 export function useSupabaseSync() {
   const { user, isSignedIn } = useUser()
   const [isSyncing, setIsSyncing] = useState(false)
   const [lastSync, setLastSync] = useState<Date | null>(null)
 
-  // Store Clerk user ID in localStorage for Supabase services
+  // Store Clerk user ID in localStorage for services
   useEffect(() => {
     if (user?.id && typeof window !== 'undefined') {
       localStorage.setItem('clerk-user-id', user.id)
@@ -22,7 +21,8 @@ export function useSupabaseSync() {
       const syncData = async () => {
         setIsSyncing(true)
         try {
-          await SyncService.syncAllData()
+          // Sync is now handled by individual components using the new API endpoints
+          console.log('Data sync handled by individual components')
           setLastSync(new Date())
         } catch (error) {
           console.error('Sync failed:', error)
@@ -46,7 +46,7 @@ export function useSupabaseSync() {
   useEffect(() => {
     const handleOnline = () => {
       if (isSignedIn && user?.id) {
-        SyncService.syncAllData()
+        console.log('Online status restored - sync handled by components')
       }
     }
 

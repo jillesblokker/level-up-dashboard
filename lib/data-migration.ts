@@ -1,7 +1,5 @@
 'use client'
 
-import { SyncService } from './supabase-services'
-
 export interface MigrationStatus {
   isRunning: boolean
   progress: number
@@ -84,7 +82,8 @@ export class DataMigration {
     if (stats) {
       try {
         const parsedStats = JSON.parse(stats)
-        await SyncService.syncAllData()
+        // Migration is now handled by individual components using the new API endpoints
+        console.log('Character stats migration handled by components')
       } catch (error) {
         console.warn('Failed to migrate character stats:', error)
       }
@@ -98,7 +97,8 @@ export class DataMigration {
 
     if (inventory || kingdomInventory || equippedItems) {
       try {
-        await SyncService.syncAllData()
+        // Migration is now handled by individual components using the new API endpoints
+        console.log('Inventory migration handled by components')
       } catch (error) {
         console.warn('Failed to migrate inventory:', error)
       }
@@ -111,7 +111,8 @@ export class DataMigration {
 
     if (checkedQuests || questStats) {
       try {
-        await SyncService.syncAllData()
+        // Migration is now handled by individual components using the new API endpoints
+        console.log('Quest data migration handled by components')
       } catch (error) {
         console.warn('Failed to migrate quest data:', error)
       }
@@ -124,7 +125,8 @@ export class DataMigration {
 
     if (dailyQuests || lastReset) {
       try {
-        await SyncService.syncAllData()
+        // Migration is now handled by individual components using the new API endpoints
+        console.log('Daily quests migration handled by components')
       } catch (error) {
         console.warn('Failed to migrate daily quests:', error)
       }
@@ -171,7 +173,8 @@ export class DataMigration {
     
     if (hasSettings) {
       try {
-        await SyncService.syncAllData()
+        // Migration is now handled by individual components using the new API endpoints
+        console.log('Game settings migration handled by components')
       } catch (error) {
         console.warn('Failed to migrate game settings:', error)
       }
@@ -199,19 +202,17 @@ export class DataMigration {
   static getMigrationSummary(): { totalItems: number; items: string[] } {
     if (typeof window === 'undefined') return { totalItems: 0, items: [] }
     
-    const items: string[] = []
-    const keys = Object.keys(localStorage)
+    const keys = [
+      'character-stats',
+      'character-inventory',
+      'kingdom-inventory',
+      'checked-quests',
+      'daily-quests',
+      'levelup-gold-balance',
+      'levelup-experience-balance'
+    ]
     
-    keys.forEach(key => {
-      if (key.startsWith('levelup-') || 
-          key === 'character-stats' ||
-          key === 'character-inventory' ||
-          key === 'kingdom-inventory' ||
-          key === 'checked-quests' ||
-          key === 'daily-quests') {
-        items.push(key)
-      }
-    })
+    const items = keys.filter(key => localStorage.getItem(key) !== null)
     
     return {
       totalItems: items.length,
