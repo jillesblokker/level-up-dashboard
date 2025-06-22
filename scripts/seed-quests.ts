@@ -46,11 +46,14 @@ const defaultQuests = [
 async function main() {
   console.log('Start seeding...');
   for (const quest of defaultQuests) {
-    await prisma.quest.upsert({
-      where: { name_category: { name: quest.name, category: quest.category } },
-      update: {},
-      create: quest,
-    });
+    try {
+      await prisma.quest.create({
+        data: quest,
+      });
+      console.log(`Created quest: ${quest.name}`);
+    } catch (error) {
+      console.log(`Quest ${quest.name} already exists, skipping...`);
+    }
   }
   console.log('Seeding finished.');
 }

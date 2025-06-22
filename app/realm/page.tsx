@@ -45,11 +45,6 @@ const getTileImage = (type: TileType): string => {
     // Check if the exact image exists, otherwise use a fallback
     const exactPath = `/images/tiles/${type}-tile.png`;
     
-    // For portal type, use portal-entrance as fallback
-    if (type === 'portal') {
-        return '/images/tiles/portal-entrance-tile.png';
-    }
-    
     return exactPath;
 };
 
@@ -278,8 +273,9 @@ export default function RealmPage() {
         
         // Add existing rows
         for (let y = 0; y < currentRows; y++) {
-            if (grid[y] && Array.isArray(grid[y])) {
-                newGrid[y] = [...grid[y]];
+            const currentRow = grid[y];
+            if (currentRow && Array.isArray(currentRow)) {
+                newGrid[y] = [...currentRow];
             }
         }
         
