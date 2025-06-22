@@ -74,7 +74,13 @@ const allTileTypes: TileType[] = [
 ];
 
 const initialInventory: Record<TileType, Tile> = Object.fromEntries(
-  allTileTypes.map(type => [type, defaultTile(type)])
+  allTileTypes.map(type => {
+    const tile = defaultTile(type);
+    if (type === 'grass' || type === 'forest' || type === 'water') {
+      tile.quantity = 10; // Give a starting quantity for basic tiles
+    }
+    return [type, tile];
+  })
 ) as Record<TileType, Tile>;
 
 // Add this above RealmPage or near other constants
@@ -183,7 +189,7 @@ export default function RealmPage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
   const [lastSaveTime, setLastSaveTime] = useState<Date | null>(null);
-  const [characterPosition, setCharacterPosition] = useState({ x: 0, y: 0 });
+  const [characterPosition, setCharacterPosition] = useLocalStorage('characterPosition', { x: 6, y: 3 });
   const [portalSource, setPortalSource] = useState<{ x: number; y: number; type: TileType } | null>(null);
   const [showPortalModal, setShowPortalModal] = useState(false);
   const [currentEvent, setCurrentEvent] = useState<MysteryEvent | null>(null);
@@ -191,7 +197,7 @@ export default function RealmPage() {
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [showScrollMessage, setShowScrollMessage] = useState(false);
   const [movementMode, setMovementMode] = useState<'normal' | 'portal'>('normal');
-  const [defaultCharacterPosition] = useState({ x: 6, y: 3 });
+  const defaultCharacterPosition = { x: 6, y: 3 };
   // Track last modal-triggered position
   const [lastModalPosition, setLastModalPosition] = useState<{x: number, y: number} | null>(null);
 
@@ -2121,7 +2127,7 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
                 <div className="flex-1 overflow-y-auto">
                   <TileInventory
                     tiles={Object.values(inventory)
-                      .filter(tile => tile.type !== 'empty' && (tile.quantity || 0) > 0)
+                      .filter(tile => tile.type !== 'empty')
                       .map(tile => tile as TileInventoryItem)}
                     selectedTile={selectedTile}
                     onSelectTile={handleTileSelection}
