@@ -135,6 +135,27 @@ const createEmptyTile = (x: number, y: number): Tile => ({
   image: "/images/tiles/empty-tile.png",
 });
 
+// Add this function to load the initial grid from CSV
+const loadInitialGridFromCSV = async (): Promise<Tile[][]> => {
+  try {
+    const response = await fetch('/data/initial-grid.csv');
+    const csvText = await response.text();
+    const lines = csvText.trim().split('\n');
+    
+    // Skip the first line (column headers)
+    const gridData = lines.slice(1).map(line => 
+      line.split(',').map(num => parseInt(num.trim(), 10))
+    );
+    
+    return gridData.map((row, y) =>
+      row.map((numeric, x) => createTileFromNumeric(numeric, x, y))
+    );
+  } catch (error) {
+    console.error('Failed to load initial grid from CSV, using default:', error);
+    return createBaseGrid();
+  }
+};
+
 export default function RealmPage() {
   const router = useRouter();
   const { user, isLoaded: isAuthLoaded } = useUser();
@@ -198,36 +219,51 @@ export default function RealmPage() {
   const isLoadingState = isLoading || !isAuthLoaded || isSupabaseLoading;
 
   const saveCharacterPosition = (pos: { x: number; y: number }) => {
-    localStorage.setItem('character-position', JSON.stringify(pos));
+    setCharacterPosition(pos);
+    localStorage.setItem('characterPosition', JSON.stringify(pos));
   };
 
-  // Load initial grid data
   useEffect(() => {
     const initializeGrid = async () => {
-      if (!isAuthLoaded || isSupabaseLoading) {
-        return; // Wait until auth and Supabase are ready
-      }
-      setIsLoading(true);
+      if (!userId || !supabase) return;
 
-      let loadedGrid: Tile[][] | null = null;
-      if (supabase && userId && !isGuest) {
-        console.log("Authenticated user detected. Loading from Supabase...");
-        loadedGrid = await withToken(supabase, getToken, (client) => 
-          loadGridFromSupabase(client, userId)
-        );
-      }
-      
-      if (!loadedGrid) {
-        console.log("No grid from Supabase or user is a guest. Loading from localStorage...");
-        loadedGrid = await loadGridFromLocalStorage();
-      }
+      try {
+        setIsLoading(true);
+        console.log('Initializing grid...');
 
-      setGrid(loadedGrid);
-      setIsLoading(false);
+        // Try to load from Supabase first
+        const loadedGrid = await loadGridWithSupabaseFallback(supabase, userId, isGuest);
+        
+        if (loadedGrid && loadedGrid.length > 0) {
+          console.log('Loaded existing grid from Supabase');
+          setGrid(loadedGrid);
+        } else {
+          console.log('No existing grid found, loading initial grid from CSV');
+          const initialGrid = await loadInitialGridFromCSV();
+          setGrid(initialGrid);
+          
+          // Save the initial grid to Supabase
+          try {
+            await saveGridToSupabase(supabase, userId, initialGrid);
+            console.log('Saved initial grid to Supabase');
+          } catch (saveError) {
+            console.error('Failed to save initial grid to Supabase:', saveError);
+            // Save to localStorage as fallback
+            saveGridToLocalStorage(initialGrid);
+          }
+        }
+      } catch (error) {
+        console.error('Error initializing grid:', error);
+        // Fallback to initial grid from CSV
+        const initialGrid = await loadInitialGridFromCSV();
+        setGrid(initialGrid);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     initializeGrid();
-  }, [isAuthLoaded, isSupabaseLoading, userId, isGuest, supabase, getToken]);
+  }, [userId, supabase, isGuest]);
 
 
   // Autosave grid data
@@ -1186,7 +1222,8 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
     setShowInventory((prev: boolean) => {
       const newValue = !prev;
       if (newValue) {
-        setMovementMode('normal');
+        // Set to build mode when inventory is opened
+        setMovementMode('portal'); // This enables tile placement mode
       }
       return newValue;
     });
@@ -1712,7 +1749,7 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
         </DialogContent>
       </Dialog>
     );
-  } // <-- Add this closing brace to end LocationModal
+  }; // <-- Add this closing brace to end LocationModal
 
   useEffect(() => {
     const handleHorseCaught = () => {
@@ -2083,7 +2120,9 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
                 </div>
                 <div className="flex-1 overflow-y-auto">
                   <TileInventory
-                    tiles={Object.values(inventory) as TileInventoryItem[]}
+                    tiles={Object.values(inventory)
+                      .filter(tile => tile.type !== 'empty' && (tile.quantity || 0) > 0)
+                      as TileInventoryItem[]}
                     selectedTile={selectedTile}
                     onSelectTile={handleTileSelection}
                     onUpdateTiles={(tiles) => {
