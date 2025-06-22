@@ -2122,7 +2122,7 @@ const handleTileSelection = (tile: TileInventoryItem | null) => {
                   <TileInventory
                     tiles={Object.values(inventory)
                       .filter(tile => tile.type !== 'empty' && (tile.quantity || 0) > 0)
-                      as TileInventoryItem[]}
+                      .map(tile => tile as TileInventoryItem)}
                     selectedTile={selectedTile}
                     onSelectTile={handleTileSelection}
                     onUpdateTiles={(tiles) => {
