@@ -5,16 +5,14 @@ import { PrismaClient } from '@prisma/client'
 //
 // Learn more: https://pris.ly/d/help/next-js-best-practices
 
-declare global {
-  // allow global `var` declarations
-  // eslint-disable-next-line no-var
-  var prisma: PrismaClient | undefined
-}
+const globalForPrisma = globalThis as unknown as { _prisma?: PrismaClient }
 
-const prisma = global.prisma || new PrismaClient({
-  log: ['query'],
-})
+const prisma =
+  globalForPrisma._prisma ||
+  new PrismaClient({
+    log: ['query'],
+  })
 
-if (process.env.NODE_ENV !== 'production') global.prisma = prisma
+if (process.env['NODE_ENV'] !== 'production') globalForPrisma._prisma = prisma
 
 export default prisma
