@@ -1,3 +1,4 @@
+console.log('DEBUG: DATABASE_URL is', process.env['DATABASE_URL'])
 const { PrismaClient } = require('@prisma/client')
 const { defaultQuests } = require('../lib/quest-sample-data')
 
