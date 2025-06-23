@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { getPrismaClient } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import { QuestResponse } from '@/types/quest';
 import { env } from '@/lib/env';
@@ -41,8 +41,6 @@ export async function GET(request: Request) {
       }
     }
 
-    const prisma = getPrismaClient();
-
     // Get all available quests
     const allQuests = await prisma.quest.findMany({
       orderBy: {
@@ -57,7 +55,7 @@ export async function GET(request: Request) {
         ...(date && {
           date: {
             gte: date,
-            lt: new Date(date.setDate(date.getDate() + 1))
+            lt: new Date(new Date(date).setDate(date.getDate() + 1))
           }
         })
       },
@@ -119,7 +117,7 @@ export async function POST(request: Request) {
     const { name, category } = result.data;
 
     // Create the quest completion
-    const questCompletion = await getPrismaClient().questCompletion.create({
+    const questCompletion = await prisma.questCompletion.create({
       data: {
         userId: userId,
         category,
@@ -161,8 +159,6 @@ export async function PUT(request: Request) {
     }
     
     const { questName, completed } = result.data;
-
-    const prisma = getPrismaClient();
 
     // Find or create quest completion
     let questCompletion = await prisma.questCompletion.findFirst({
@@ -245,7 +241,7 @@ export async function PATCH() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const questCompletions = await getPrismaClient().questCompletion.findMany({
+    const questCompletions = await prisma.questCompletion.findMany({
       where: {
         user: {
           id: userId
@@ -270,6 +266,34 @@ export async function PATCH() {
     });
   } catch (error) {
     console.error('Error exporting quests:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { id } = await request.json();
+
+    if (!id) {
+      return NextResponse.json({ error: 'Quest completion ID is required' }, { status: 400 });
+    }
+
+    await prisma.questCompletion.delete({
+      where: {
+        id: id,
+        userId: userId
+      }
+    });
+
+    return NextResponse.json({ success: true, message: 'Quest completion deleted' });
+  } catch (error) {
+    console.error('Error deleting quest completion:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { getPrismaClient } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   const { userId } = await auth();
@@ -13,7 +13,6 @@ export async function GET() {
   }
 
   try {
-    const prisma = getPrismaClient();
     const realmMap = await prisma.realmMap.findUnique({
       where: { userId },
     });
@@ -55,7 +54,6 @@ export async function POST(request: Request) {
       });
     }
 
-    const prisma = getPrismaClient();
     const updatedMap = await prisma.realmMap.upsert({
       where: { userId },
       update: { grid: JSON.stringify(grid) },

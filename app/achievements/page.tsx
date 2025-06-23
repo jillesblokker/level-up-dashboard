@@ -23,6 +23,7 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState(true);
   const { user, isLoaded: isAuthLoaded } = useUser();
   const userId = user?.id;
+  const [showAllUnlocked, setShowAllUnlocked] = useState(false);
 
   // Fetch unlocked achievements from the API
   useEffect(() => {
@@ -57,6 +58,7 @@ export default function Page() {
   }, [isAuthLoaded, userId]);
   
   const isUnlocked = (creatureId: string) => {
+    if (showAllUnlocked) return true;
     return unlockedAchievements.has(creatureId);
   }
 
@@ -131,6 +133,16 @@ export default function Page() {
           })}
         </div>
       </main>
+      <div className="flex justify-center mt-8" aria-label="achievements-toggle-container">
+        <button
+          type="button"
+          className="px-6 py-2 rounded-lg bg-amber-500 text-white font-semibold shadow-md hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-opacity-75 transition-all duration-200"
+          aria-label={showAllUnlocked ? "Hide unlocked achievements" : "Show unlocked achievements"}
+          onClick={() => setShowAllUnlocked((prev) => !prev)}
+        >
+          {showAllUnlocked ? "Hide unlocked" : "Show unlocked"}
+        </button>
+      </div>
     </>
   );
 }

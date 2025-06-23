@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { getPrismaClient } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: Request) {
   try {
@@ -9,8 +9,6 @@ export async function GET(request: Request) {
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    const prisma = getPrismaClient();
 
     // Fetch all achievements for the user
     const achievements = await prisma.achievement.findMany({

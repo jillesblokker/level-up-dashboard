@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { getPrismaClient } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
@@ -16,8 +16,6 @@ export async function POST(request: Request) {
     if (!achievementId) {
       return NextResponse.json({ error: 'Achievement ID is required' }, { status: 400 });
     }
-
-    const prisma = getPrismaClient();
 
     // Check if achievement is already unlocked
     const existingAchievement = await prisma.achievement.findUnique({
