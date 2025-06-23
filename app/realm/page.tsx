@@ -535,20 +535,7 @@ export default function RealmPage() {
                         </Button>
                     </div>
                     <ScrollArea className="flex-1 p-4">
-                        <TileInventory
-                            tiles={inventoryAsItems}
-                            selectedTile={selectedTile}
-                            onSelectTile={handleTileSelection}
-                            onUpdateTiles={(updatedTiles: TileInventoryItem[]) => {
-                                const newInventory = { ...inventory };
-                                updatedTiles.forEach((tile: TileInventoryItem) => {
-                                    if (newInventory[tile.type]) {
-                                        newInventory[tile.type] = tile;
-                                    }
-                                });
-                                setInventory(newInventory);
-                            }}
-                        />
+                        <TileInventory />
                     </ScrollArea>
                 </div>
             )}
