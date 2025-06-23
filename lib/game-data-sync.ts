@@ -1,5 +1,5 @@
 import { GameState } from '../types/game'
-import { getPrismaClient } from './prisma'
+import { prisma } from './prisma'
 
 export type GameData = GameState
 

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { getPrismaClient } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 
 export const dynamic = 'force-dynamic';
@@ -14,7 +14,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized - No valid session' }, { status: 401 });
     }
 
-    const prisma = getPrismaClient();
     // Ensure user exists in database
     await prisma.user.upsert({
       where: { id: userId },
@@ -108,7 +107,6 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const prisma = getPrismaClient();
     const placements = await prisma.tilePlacement.findMany({
       where: {
         userId
