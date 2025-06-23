@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { getPrismaClient } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 // Create a new quest completion
 export async function POST(request: Request) {
@@ -13,8 +13,6 @@ export async function POST(request: Request) {
 
     const data = await request.json();
     const { category, questName } = data;
-
-    const prisma = getPrismaClient();
 
     const questCompletion = await prisma.questCompletion.create({
       data: {
@@ -40,8 +38,6 @@ export async function GET() {
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    const prisma = getPrismaClient();
 
     const questCompletions = await prisma.questCompletion.findMany({
       where: {
