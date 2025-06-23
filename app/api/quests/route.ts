@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import { QuestResponse } from '@/types/quest';
 import { env } from '@/lib/env';
+import type { QuestCompletion } from '@/lib/quest-types';
 
 // Define schemas for request validation
 const questCompletionSchema = z.object({
@@ -66,14 +67,14 @@ export async function GET(request: Request) {
 
     // Create a map of quest completions for quick lookup
     const completionMap = new Map();
-    questCompletions.forEach(completion => {
-      const key = `${completion.category}-${completion.questName}`;
+    questCompletions.forEach((completion: QuestCompletion) => {
+      const key = `${completion.questName}`;
       completionMap.set(key, completion);
     });
 
     // Combine quests with completion status
-    const questsWithCompletions = allQuests.map(quest => {
-      const key = `${quest.category}-${quest.name}`;
+    const questsWithCompletions = allQuests.map((quest: any) => {
+      const key = `${quest.name}`;
       const completion = completionMap.get(key);
       
       return {
@@ -114,13 +115,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid request body', details: result.error.issues }, { status: 400 });
     }
     
-    const { name, category } = result.data;
+    const { name } = result.data;
 
     // Create the quest completion
     const questCompletion = await prisma.questCompletion.create({
       data: {
         userId: userId,
-        category,
         questName: name,
         completed: false,
         date: new Date()
@@ -129,7 +129,7 @@ export async function POST(request: Request) {
 
     const response: QuestResponse = {
       name: questCompletion.questName,
-      category: questCompletion.category,
+      category: '',
       completed: questCompletion.completed,
       date: questCompletion.date
     };
@@ -174,7 +174,6 @@ export async function PUT(request: Request) {
         data: {
           userId: userId,
           questName,
-          category: 'general', // Default category
           completed: false,
           date: new Date()
         }
@@ -220,7 +219,7 @@ export async function PUT(request: Request) {
 
     const response: QuestResponse = {
       name: updatedCompletion.questName,
-      category: updatedCompletion.category,
+      category: '',
       completed: updatedCompletion.completed,
       date: updatedCompletion.date
     };
@@ -253,9 +252,9 @@ export async function PATCH() {
     });
 
     // Convert to CSV
-    let csv = 'date,name,category,completed\n';
-    questCompletions.forEach(completion => {
-      csv += `${completion.date.toISOString()},${completion.questName},${completion.category},${completion.completed}\n`;
+    let csv = 'date,name,completed\n';
+    questCompletions.forEach((completion: any) => {
+      csv += `${completion.date.toISOString()},${completion.questName},${completion.completed}\n`;
     });
 
     return new NextResponse(csv, {

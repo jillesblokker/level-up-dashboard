@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import { Tile, TileType, InventoryItem as TileInventoryItem } from '@/types/tiles'
 import { MapGrid } from '../../components/map-grid'
-import { TileInventory } from '@/components/tile-inventory'
+import TileInventory from '@/components/tile-inventory'
 import { Switch } from "@/components/ui/switch"
 import { useUser } from '@clerk/nextjs'
 import React from "react"

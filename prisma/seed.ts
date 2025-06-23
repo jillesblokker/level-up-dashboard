@@ -1,8 +1,6 @@
 console.log('DEBUG: DATABASE_URL is', process.env['DATABASE_URL'])
-const { PrismaClient } = require('@prisma/client')
+const prisma = require('../lib/prisma').default
 const { defaultQuests } = require('../lib/quest-sample-data')
-
-const prisma = new PrismaClient()
 
 // Default character data
 const defaultCharacter = {

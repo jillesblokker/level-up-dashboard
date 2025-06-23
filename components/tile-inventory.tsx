@@ -1,1 +1,1 @@
- 
+export default function TileInventory() { return null; } 
