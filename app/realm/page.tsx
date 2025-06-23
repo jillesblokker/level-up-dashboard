@@ -105,7 +105,7 @@ export default function RealmPage() {
     const [grid, setGrid] = useState<Tile[][]>(createBaseGrid());
     const [isLoading, setIsLoading] = useState(true);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-    const [characterPosition, setCharacterPosition] = useLocalStorage('characterPosition', { x: 1, y: 0 });
+    const [characterPosition, setCharacterPosition] = useLocalStorage('characterPosition', { x: 2, y: 0 });
     const [inventory, setInventory] = useLocalStorage<Record<TileType, Tile>>('tileInventory', initialInventory);
     const [showInventory, setShowInventory] = useState(false);
     const [selectedTile, setSelectedTile] = useState<TileInventoryItem | null>(null);
@@ -113,6 +113,9 @@ export default function RealmPage() {
     const [gameMode, setGameMode] = useState<'build' | 'move'>('move');
     const [hasVisitedRealm, setHasVisitedRealm] = useLocalStorage('hasVisitedRealm', false);
     const [modalState, setModalState] = useState<{ isOpen: boolean; locationType: 'city' | 'town'; locationName: string } | null>(null);
+    const defaultCharacterPosition = { x: 2, y: 0 };
+    const [hasCheckedInitialPosition, setHasCheckedInitialPosition] = useState(false);
+
     // Achievement unlock effect
     useEffect(() => {
         if (!hasVisitedRealm && isAuthLoaded) {
@@ -388,6 +391,34 @@ export default function RealmPage() {
         }
     }, [characterPosition, grid, toast]);
 
+    const handleResetPosition = () => {
+        setCharacterPosition(defaultCharacterPosition);
+        toast({
+            title: "Position Reset",
+            description: `Character position reset to (${defaultCharacterPosition.x}, ${defaultCharacterPosition.y})`,
+        });
+    };
+
+    useEffect(() => {
+        if (!isLoading && grid.length && characterPosition && !hasCheckedInitialPosition) {
+            setHasCheckedInitialPosition(true);
+            const tile = grid[characterPosition.y]?.[characterPosition.x];
+            if (!tile || ['mountain', 'water', 'lava', 'volcano'].includes(tile.type)) {
+                setCharacterPosition(defaultCharacterPosition);
+                toast({
+                    title: "Invalid Start Position",
+                    description: `Resetting character to (${defaultCharacterPosition.x}, ${defaultCharacterPosition.y})`,
+                    variant: "destructive",
+                });
+            } else {
+                toast({
+                    title: "Character Loaded",
+                    description: `Character at (${characterPosition.x}, ${characterPosition.y})`,
+                });
+            }
+        }
+    }, [isLoading, grid, characterPosition, hasCheckedInitialPosition, setCharacterPosition, toast, defaultCharacterPosition]);
+
     if (isLoading) {
         return <div className="flex items-center justify-center h-screen bg-gray-900 text-white">Loading Realm...</div>;
     }
@@ -455,6 +486,16 @@ export default function RealmPage() {
                         <Package className="w-4 h-4" />
                         <span className="hidden sm:inline">Inventory</span>
                     </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleResetPosition}
+                        className="flex items-center gap-2"
+                        aria-label="reset-position-button"
+                    >
+                        <Move className="w-4 h-4" />
+                        <span className="hidden sm:inline">Reset Position</span>
+                    </Button>
                 </div>
             </div>
             {modalState && (
@@ -498,9 +539,9 @@ export default function RealmPage() {
                             tiles={inventoryAsItems}
                             selectedTile={selectedTile}
                             onSelectTile={handleTileSelection}
-                            onUpdateTiles={(updatedTiles) => {
+                            onUpdateTiles={(updatedTiles: TileInventoryItem[]) => {
                                 const newInventory = { ...inventory };
-                                updatedTiles.forEach(tile => {
+                                updatedTiles.forEach((tile: TileInventoryItem) => {
                                     if (newInventory[tile.type]) {
                                         newInventory[tile.type] = tile;
                                     }
