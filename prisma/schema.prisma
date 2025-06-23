@@ -49,6 +49,9 @@ model User {
   quests        QuestCompletion[]
   sessions      Session[]
   tiles         TilePlacement[]
+  achievements  Achievement[]
+  characters    Character[]
+  realmMaps     RealmMap[]
 }
 
 model VerificationToken {
@@ -97,12 +100,12 @@ model QuestCompletion {
 }
 
 model Achievement {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   userId        String
   achievementId String
-  unlocked      Boolean  @default(false)
+  unlocked      Boolean   @default(false)
   unlockedAt    DateTime?
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, achievementId])
 }
@@ -113,27 +116,27 @@ model Quest {
   description String
   category    String
   difficulty  Int
-  rewards     String   // JSON stringified rewards
+  rewards     String // JSON stringified rewards
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
 model Character {
-  id        String   @id @default(cuid())
-  userId    String
-  name      String
-  class     String
-  level     Int      @default(1)
-  exp       Int      @default(0)
-  stats     String   // JSON stringified stats
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  name   String
+  class  String
+  level  Int    @default(1)
+  exp    Int    @default(0)
+  stats  String // JSON stringified stats
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, name])
 }
 
 model RealmMap {
-  id     String   @id @default(cuid())
-  userId String   @unique
-  grid   String   // JSON stringified grid
-  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String @unique
+  grid   String // JSON stringified grid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
