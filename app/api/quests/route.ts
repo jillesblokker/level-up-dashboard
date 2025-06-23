@@ -4,7 +4,6 @@ import prisma from '@/lib/prisma';
 import { z } from 'zod';
 import { QuestResponse } from '@/types/quest';
 import { env } from '@/lib/env';
-import type { QuestCompletion } from '@/lib/quest-types';
 
 // Define schemas for request validation
 const questCompletionSchema = z.object({
@@ -67,7 +66,7 @@ export async function GET(request: Request) {
 
     // Create a map of quest completions for quick lookup
     const completionMap = new Map();
-    questCompletions.forEach((completion: QuestCompletion) => {
+    questCompletions.forEach((completion: any) => {
       const key = `${completion.questName}`;
       completionMap.set(key, completion);
     });
@@ -115,13 +114,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid request body', details: result.error.issues }, { status: 400 });
     }
     
-    const { name } = result.data;
+    const { name, category } = result.data;
 
     // Create the quest completion
     const questCompletion = await prisma.questCompletion.create({
       data: {
         userId: userId,
         questName: name,
+        category: category,
         completed: false,
         date: new Date()
       }
@@ -129,7 +129,7 @@ export async function POST(request: Request) {
 
     const response: QuestResponse = {
       name: questCompletion.questName,
-      category: '',
+      category: questCompletion.category,
       completed: questCompletion.completed,
       date: questCompletion.date
     };
@@ -174,6 +174,7 @@ export async function PUT(request: Request) {
         data: {
           userId: userId,
           questName,
+          category: 'general',
           completed: false,
           date: new Date()
         }
@@ -219,7 +220,7 @@ export async function PUT(request: Request) {
 
     const response: QuestResponse = {
       name: updatedCompletion.questName,
-      category: '',
+      category: updatedCompletion.category,
       completed: updatedCompletion.completed,
       date: updatedCompletion.date
     };
