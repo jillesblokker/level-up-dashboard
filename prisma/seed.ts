@@ -1,40 +1,7 @@
-import { PrismaClient } from '@prisma/client'
+const { PrismaClient } = require('@prisma/client')
+const { defaultQuests } = require('../lib/quest-sample-data')
 
 const prisma = new PrismaClient()
-
-// Default quests data
-const defaultQuests = [
-  {
-    name: 'Daily Exercise',
-    description: 'Complete your daily exercise routine',
-    category: 'health',
-    difficulty: 1,
-    rewards: {
-      experience: 50,
-      gold: 25
-    }
-  },
-  {
-    name: 'Code Review',
-    description: 'Review and provide feedback on a pull request',
-    category: 'work',
-    difficulty: 2,
-    rewards: {
-      experience: 100,
-      gold: 50
-    }
-  },
-  {
-    name: 'Study Session',
-    description: 'Complete a focused study session',
-    category: 'education',
-    difficulty: 2,
-    rewards: {
-      experience: 75,
-      gold: 35
-    }
-  }
-]
 
 // Default character data
 const defaultCharacter = {
@@ -104,22 +71,29 @@ async function main() {
 
     console.log('Created default user:', defaultUser.id)
 
-    // Create default quests
+    // Create all user-defined quests
     for (const quest of defaultQuests) {
       await prisma.quest.upsert({
-        where: { name: quest.name },
+        where: { id: quest.id },
         update: {
-          ...quest,
+          name: quest.title,
+          description: quest.description,
+          category: quest.category,
+          difficulty: typeof quest.difficulty === 'string' ? 1 : quest.difficulty, // fallback if needed
           rewards: JSON.stringify(quest.rewards),
         },
         create: {
-          ...quest,
+          id: quest.id,
+          name: quest.title,
+          description: quest.description,
+          category: quest.category,
+          difficulty: typeof quest.difficulty === 'string' ? 1 : quest.difficulty, // fallback if needed
           rewards: JSON.stringify(quest.rewards),
         },
       })
     }
 
-    console.log('Created default quests')
+    console.log('Created all user-defined quests')
 
     // Create default character for the user
     await prisma.character.upsert({
