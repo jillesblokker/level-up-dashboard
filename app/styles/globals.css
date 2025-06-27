@@ -471,8 +471,8 @@ main {
 }
 
 .backface-hidden {
-  backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .rotate-y-180 {
@@ -514,8 +514,8 @@ main {
 .achievement-card-back {
   @apply absolute w-full h-full rounded-lg border border-amber-800/20 overflow-hidden;
   background: transparent;
-  backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .achievement-card:not(.discovered) .achievement-card-front {
@@ -638,8 +638,8 @@ main {
   .achievement-card-back {
     @apply absolute w-full h-full rounded-lg border border-amber-800/20 overflow-hidden;
     background: transparent;
-    backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
   }
 
   .achievement-card-back {
@@ -694,8 +694,8 @@ main {
   }
 
   .backface-hidden {
-    backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
   }
 
   .rotate-y-180 {

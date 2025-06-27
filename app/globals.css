@@ -90,7 +90,19 @@
 
 @layer utilities {
   .text-balance {
+    /* Note: text-wrap is only supported in Chrome 114+, iOS Safari 17.4+, and modern browsers. Safe to ignore warnings for older browsers. */
+    -webkit-text-wrap: balance;
     text-wrap: balance;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+      display: none;
+  }
+
+  .no-scrollbar {
+      -ms-overflow-style: none;  /* IE and Edge */
+      /* Note: scrollbar-width is only supported in Firefox and Chrome 121+. Other browsers will ignore this property. Safe to ignore warnings. */
+      scrollbar-width: none;  /* Firefox */
   }
 }
 
@@ -207,6 +219,7 @@
   /* Hide scrollbar for IE, Edge and Firefox */
   .no-scrollbar {
       -ms-overflow-style: none;  /* IE and Edge */
+      /* Note: scrollbar-width is only supported in Firefox and Chrome 121+. Other browsers will ignore this property. Safe to ignore warnings. */
       scrollbar-width: none;  /* Firefox */
   }
   
@@ -309,8 +322,8 @@
 }
 
 .backface-hidden {
-  backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .rotate-y-180 {

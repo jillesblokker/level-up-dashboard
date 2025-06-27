@@ -9,18 +9,46 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useClerk } from "@clerk/nextjs";
+import { useClerk, useUser } from "@clerk/nextjs";
+import { useEffect, useState } from "react";
+import { eventBus } from "@/app/lib/event-bus";
 
 const AccountMenu = () => {
   const { signOut } = useClerk();
+  const { user, isLoaded } = useUser();
+  console.log('[AccountMenu] user:', user);
+  console.log('[AccountMenu] user.imageUrl:', user?.imageUrl);
+  const [profileUpdateCount, setProfileUpdateCount] = useState(0);
+
+  useEffect(() => {
+    const refresh = async () => {
+      await user?.reload();
+      setProfileUpdateCount((c) => c + 1);
+    };
+    eventBus.on("profile-updated", refresh);
+    return () => eventBus.off("profile-updated", refresh);
+  }, [user]);
+
+  // Get display name and avatar colors from Clerk user metadata, fallback to email/username
+  const displayName = (user?.unsafeMetadata?.['user_name'] as string) || user?.username || user?.emailAddresses?.[0]?.emailAddress || "";
+  const avatarBgColor = user?.unsafeMetadata?.['avatar_bg_color'] as string || "#1f2937";
+  const avatarTextColor = user?.unsafeMetadata?.['avatar_text_color'] as string || "#ffffff";
+  const avatarType = (user?.unsafeMetadata?.['avatar_type'] as 'initial' | 'default' | 'uploaded') || (user?.imageUrl ? 'uploaded' : 'initial');
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src="/avatars/01.png" alt="User avatar" />
-            <AvatarFallback>U</AvatarFallback>
+            {avatarType === 'uploaded' && user?.imageUrl ? (
+              <AvatarImage src={user.imageUrl} alt="Profile" style={{ objectFit: 'cover', objectPosition: 'center' }} />
+            ) : avatarType === 'default' ? (
+              <img src="/images/placeholders/item-placeholder.svg" alt="Default avatar" className="w-8 h-8 rounded-full object-contain bg-gray-800" />
+            ) : (
+              <AvatarFallback style={{ backgroundColor: avatarBgColor, color: avatarTextColor }}>
+                {displayName?.[0]?.toUpperCase() || '?'}
+              </AvatarFallback>
+            )}
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -37,11 +65,6 @@ const AccountMenu = () => {
         <DropdownMenuItem asChild>
           <Link href="/account/profile">
             Profile
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/account/settings">
-            Settings
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
