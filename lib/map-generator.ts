@@ -80,7 +80,10 @@ export class MapGenerator {
     for (let y = 0; y < sectionSize; y++) {
       const row: Tile[] = [];
       for (let x = 0; x < width; x++) {
-        if (x === 0 || x === width - 1) {
+        // Force a castle 2 tiles below the bottom left water tile (assume water at (1, sectionSize-1))
+        if (x === 1 && startY + y === sectionSize + 1) {
+          row.push(this.createTile(x, startY + y, "castle"));
+        } else if (x === 0 || x === width - 1) {
           // Mountains on sides
           row.push(this.createTile(x, startY + y, "mountain"));
         } else if (mysteryPositions.has(`${x},${y}`)) {
