@@ -88,7 +88,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
               className={cn(
                 "relative overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all",
                 selectedTile?.type === tile.type && "ring-2 ring-primary",
-                tile.quantity === 0 && "border-2 border-amber-500 shadow-lg animate-pulse"
+                tile.quantity === 0 && "border-2 border-amber-500 shadow-lg"
               )}
               onClick={() => tile.quantity > 0 && onSelectTile(selectedTile?.type === tile.type ? null : tile)}
             >
