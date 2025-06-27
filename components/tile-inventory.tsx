@@ -117,6 +117,8 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                       value={buyQuantities[tile.type] || 1}
                       onChange={(e) => handleQuantityChange(tile.type, e.target.value)}
                       className="w-20 h-8"
+                      id={`buy-quantity-${tile.type}`}
+                      name={`buy-quantity-${tile.type}`}
                     />
                     <Button
                       variant="outline"
