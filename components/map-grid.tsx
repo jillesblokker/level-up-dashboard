@@ -298,17 +298,6 @@ export function MapGrid({
 
   const handleBuyTile = (x: number, y: number) => {
     if (!grid[y] || !grid[y][x]) return;
-    const stats = getCharacterStats();
-    if (stats.gold < BUYABLE_TILE_COST) {
-      toast({
-        title: 'Not enough gold',
-        description: `You need ${BUYABLE_TILE_COST} gold to buy this tile.`,
-        variant: 'destructive',
-      });
-      return;
-    }
-    // Update gold
-    updateCharacterStats({ gold: stats.gold - BUYABLE_TILE_COST });
     // Replace the tile with a default grass tile (ensure all required properties)
     const oldTile = grid[y][x];
     if (!oldTile) return;
@@ -340,7 +329,7 @@ export function MapGrid({
     if (typeof onTileClick === 'function') onTileClick(x, y);
     toast({
       title: 'Tile Purchased!',
-      description: `You bought a new tile for ${BUYABLE_TILE_COST} gold.`,
+      description: `You bought a new tile.`,
     });
   };
 
