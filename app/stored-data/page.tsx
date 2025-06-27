@@ -219,7 +219,13 @@ export default function StoredDataPage() {
             </CardHeader>
             <CardContent>
               <ul className="space-y-2" aria-label="stored-data-list">
-                <li><strong>Quests:</strong> {quests ? JSON.stringify(quests) : <em>None</em>} {/* TODO: Supabase integration */}</li>
+                <li><strong>Quests:</strong> {quests ? (
+                  <ul className="ml-4 list-disc">
+                    {['might','knowledge','honor','castle','craft','vitality','wellness','exploration'].map(cat => (
+                      <li key={cat}><strong>{cat.charAt(0).toUpperCase() + cat.slice(1)}:</strong> {Array.isArray(quests) ? quests.filter(q => q.category === cat).length : 0}</li>
+                    ))}
+                  </ul>
+                ) : <em>None</em>} {/* TODO: Supabase integration */}</li>
                 <li><strong>Gold:</strong> {gold ?? <em>None</em>} {/* TODO: Supabase integration */}</li>
                 <li><strong>Experience:</strong> {exp ?? <em>None</em>} {/* TODO: Supabase integration */}</li>
                 <li><strong>Achievements:</strong> {achievements ? JSON.stringify(achievements) : <em>None</em>} {/* TODO: Supabase integration */}</li>

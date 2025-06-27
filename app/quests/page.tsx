@@ -33,7 +33,7 @@ const categoryIcons = {
   castle: Castle,
   craft: Hammer,
   vitality: Heart,
-  wellness: Sun, 
+  wellness: Sun,
   exploration: PersonStanding,
 };
 
@@ -48,7 +48,7 @@ const categoryLabels = {
   exploration: 'Exploration',
 };
 
-const defaultQuestCategories = ['might', 'knowledge', 'honor', 'castle', 'craft', 'vitality'];
+const defaultQuestCategories = ['might', 'knowledge', 'honor', 'castle', 'craft', 'vitality', 'wellness', 'exploration'];
 
 export default function QuestsPage() {
   const { user, isLoaded: isAuthLoaded } = useUser();
