@@ -69,8 +69,8 @@ const workoutPlan = [
       { name: 'Push-up (blue – chest, push-up board, 3 positions)', instructions: 'Place hands on the blue slots (left, middle, right), perform 12 push-ups per position.', setsReps: '3x12 per position', tips: 'Engage your core, lower chest close to the board.', weight: '0' },
       { name: 'Push-up (green – triceps, push-up board, 3 positions)', instructions: 'Place hands on the green slots and perform 10 triceps push-ups per position.', setsReps: '3x10 per position', tips: 'Elbows close to body, push up explosively.', weight: '0' },
       { name: 'Goblet Squat (with dumbbell/barbell)', instructions: 'Hold a dumbbell in front of your chest, squat deeply with control.', setsReps: '3x15', tips: 'Keep your chest upright, go deep.', weight: '8kg' },
-      { name: 'Lunges (left & right)', instructions: 'Step forward deeply, bend your back knee toward the floor, alternate legs.', setsReps: '3x10 per leg', tips: 'Don't let your front knee pass your toes.', weight: '0' },
-      { name: 'Crunch', instructions: 'Lie on your back, feet flat, curl up toward your knees.', setsReps: '3x25', tips: 'Look up, roll slowly, don't pull your neck.', weight: '0' },
+      { name: 'Lunges (left & right)', instructions: 'Step forward deeply, bend your back knee toward the floor, alternate legs.', setsReps: '3x10 per leg', tips: 'Don\'t let your front knee pass your toes.', weight: '0' },
+      { name: 'Crunch', instructions: 'Lie on your back, feet flat, curl up toward your knees.', setsReps: '3x25', tips: 'Look up, roll slowly, don\'t pull your neck.', weight: '0' },
       { name: 'Plank', instructions: 'Support on forearms and toes, hold your body straight and core tight.', setsReps: '1x max time', tips: 'Keep hips in line, brace your abs.', weight: '0' }
     ]
   },
@@ -233,12 +233,20 @@ export default function QuestsPage() {
     }
   };
   
+  const safeChallengeCategory = typeof challengeCategory === 'string' ? challengeCategory : '';
+  // Helper to guarantee prev is always a valid object
+  const getSafePrev = (obj: unknown): Record<string, boolean[]> => {
+    return typeof obj === 'object' && obj !== null ? (obj as Record<string, boolean[]>) : {};
+  };
   const handleChallengeComplete = (idx: number) => {
-    setCompletedChallenges(prev => {
-      const current = prev[challengeCategory] || Array(workoutPlan.find(day => day.category === challengeCategory)?.exercises.length || 0).fill(false);
+    setCompletedChallenges(prevObj => {
+      const prev = getSafePrev(prevObj);
+      const foundDay = workoutPlan.find(day => day.category === safeChallengeCategory);
+      const exercisesLength = foundDay && Array.isArray(foundDay.exercises) ? foundDay.exercises.length : 0;
+      const current: boolean[] = (prev[safeChallengeCategory] ?? Array(exercisesLength).fill(false)) as boolean[];
       const updated = [...current];
       updated[idx] = !updated[idx];
-      return { ...prev, [challengeCategory]: updated };
+      return { ...prev, [safeChallengeCategory]: updated };
     });
   };
 
@@ -247,9 +255,12 @@ export default function QuestsPage() {
   }
 
   const questsByCategory = quests.reduce((acc, quest) => {
-    (acc[quest.category] = acc[quest.category] || []).push(quest);
+    const safeQuestCategory = typeof quest.category === 'string' ? quest.category : '';
+    (acc[safeQuestCategory] = acc[safeQuestCategory] || []).push(quest);
     return acc;
   }, {} as Record<string, Quest[]>);
+
+  const questsByCategorySafe = typeof questsByCategory === 'object' && questsByCategory !== null ? questsByCategory : {};
 
   const getCategoryIcon = (category: string) => {
     return categoryIcons[category as keyof typeof categoryIcons] || Trophy;
@@ -277,6 +288,8 @@ export default function QuestsPage() {
     setEditModalOpen(false);
     setEditingQuest(null);
   };
+
+  const safeQuestCategory = typeof questCategory === 'string' ? questCategory : '';
 
   return (
     <div className="h-full">
@@ -313,7 +326,7 @@ export default function QuestsPage() {
             </div>
             <div className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {(questsByCategory[questCategory] || []).map((quest: Quest) => {
+                {(questsByCategorySafe[safeQuestCategory] ?? []).map((quest: Quest) => {
                   const rewards = quest.rewards ? JSON.parse(quest.rewards) : { xp: 0, gold: 0 };
                   const CategoryIcon = getCategoryIcon(quest.category);
                   const categoryKey: string = String(quest.category ?? '');
@@ -425,7 +438,7 @@ export default function QuestsPage() {
                     <input
                       type="checkbox"
                       aria-label={`Mark ${exercise.name} as complete`}
-                      checked={completedChallenges[challengeCategory]?.[idx] || false}
+                      checked={completedChallenges[safeChallengeCategory]?.[idx] || false}
                       onChange={() => handleChallengeComplete(idx)}
                       className="w-5 h-5 accent-amber-500 border-amber-400 rounded focus:ring-amber-500"
                     />
