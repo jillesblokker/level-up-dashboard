@@ -122,8 +122,8 @@ export default function QuestsPage() {
   const [editingQuest, setEditingQuest] = useState<Quest | null>(null);
   const [mainTab, setMainTab] = useState<'quests' | 'challenges' | 'milestones'>('quests');
   const [questCategory, setQuestCategory] = useState(questCategories[0]);
-  const [challengeCategory, setChallengeCategory] = useState(
-    Array.isArray(workoutPlan) && workoutPlan.length > 0 ? workoutPlan[0].category : ""
+  const [challengeCategory, setChallengeCategory] = useState<string>(
+    workoutPlan[0]?.category ?? ""
   );
   const [milestoneCategory, setMilestoneCategory] = useState(questCategories[0]);
   const [completedChallenges, setCompletedChallenges] = useState<Record<string, boolean[]>>({});
