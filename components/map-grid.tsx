@@ -333,7 +333,9 @@ export function MapGrid({
       rotation,
     };
     const newGrid = grid.map(row => row.slice());
-    newGrid[y][x] = newTile;
+    if (newGrid[y]) {
+      newGrid[y][x] = newTile;
+    }
     // Call parent handler if provided (expecting 2 args: x, y)
     if (typeof onTileClick === 'function') onTileClick(x, y);
     toast({
