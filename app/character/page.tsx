@@ -240,6 +240,7 @@ export default function CharacterPage() {
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [activePotionPerks, setActivePotionPerks] = useState<{ name: string, effect: string, expiresAt: string }[]>([])
+  const [activeTab, setActiveTab] = useState("titles")
 
   // Check and unlock perks based on character level
   const checkAndUnlockPerks = useCallback((level: number) => {
@@ -804,8 +805,23 @@ export default function CharacterPage() {
 
           {/* Titles and Perks */}
           <div className="flex justify-center">
-            <Tabs defaultValue="titles" className="w-auto">
-              <TabsList className="grid w-auto grid-cols-3">
+            <Tabs defaultValue="titles" value={activeTab} onValueChange={setActiveTab} className="w-auto">
+              {/* Mobile tab selector */}
+              <div className="mb-4 md:hidden">
+                <label htmlFor="character-tab-select" className="sr-only">Select character tab</label>
+                <select
+                  id="character-tab-select"
+                  aria-label="Character tab selector"
+                  className="w-full rounded-md border border-amber-800/20 bg-black text-white p-2"
+                  value={activeTab}
+                  onChange={e => setActiveTab(e.target.value)}
+                >
+                  <option value="titles">Titles</option>
+                  <option value="perks">Perks</option>
+                  <option value="strengths">Strengths</option>
+                </select>
+              </div>
+              <TabsList className="grid w-auto grid-cols-3 hidden md:grid">
                 <TabsTrigger value="titles">Titles</TabsTrigger>
                 <TabsTrigger value="perks">Perks</TabsTrigger>
                 <TabsTrigger value="strengths">Strengths</TabsTrigger>

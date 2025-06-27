@@ -25,5 +25,5 @@ export const env = {
   NODE_ENV: process.env.NODE_ENV || 'development',
   
   // Clerk Frontend API
-  NEXT_PUBLIC_CLERK_FRONTEND_API: 'clerk.jillesblokker.com',
+  NEXT_PUBLIC_CLERK_FRONTEND_API: getEnvOrThrow('NEXT_PUBLIC_CLERK_FRONTEND_API'),
 } as const;

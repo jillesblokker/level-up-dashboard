@@ -1,12 +1,12 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { useLocalStorage } from "@/lib/hooks/use-local-storage"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import { Tile, TileType, InventoryItem as TileInventoryItem } from '@/types/tiles'
 import { MapGrid } from '../../components/map-grid'
-import TileInventory from '@/components/tile-inventory'
+import { TileInventory } from '@/components/tile-inventory'
 import { Switch } from "@/components/ui/switch"
 import { useUser } from '@clerk/nextjs'
 import React from "react"
@@ -115,6 +115,7 @@ export default function RealmPage() {
     const [modalState, setModalState] = useState<{ isOpen: boolean; locationType: 'city' | 'town'; locationName: string } | null>(null);
     const defaultCharacterPosition = { x: 2, y: 0 };
     const [hasCheckedInitialPosition, setHasCheckedInitialPosition] = useState(false);
+    const closeBtnRef = useRef<HTMLButtonElement>(null);
 
     // Achievement unlock effect
     useEffect(() => {
@@ -318,6 +319,19 @@ export default function RealmPage() {
     // Keyboard movement handlers
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
+            // Open inventory with 'i' key if not in an input/textarea
+            if (event.key === 'i' || event.key === 'I') {
+                const active = document.activeElement;
+                if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || (active as HTMLElement).isContentEditable)) return;
+                if (!showInventory) {
+                    setShowInventory(true);
+                    toast({
+                        title: 'Inventory Opened',
+                        description: 'Tile inventory opened (press "i" to open)',
+                    });
+                }
+                return;
+            }
             if (gameMode !== 'move') return;
             
             const currentPos = characterPosition;
@@ -367,7 +381,7 @@ export default function RealmPage() {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [gameMode, characterPosition, grid, toast]);
+    }, [gameMode, characterPosition, grid, toast, showInventory, setShowInventory]);
 
     // Effect to handle landing on special tiles
     useEffect(() => {
@@ -418,6 +432,43 @@ export default function RealmPage() {
             }
         }
     }, [isLoading, grid, characterPosition, hasCheckedInitialPosition, setCharacterPosition, toast, defaultCharacterPosition]);
+
+    // Focus trap for inventory panel
+    useEffect(() => {
+        if (showInventory) {
+            // Focus the close button when inventory opens
+            closeBtnRef.current?.focus();
+            const handleKeyDown = (e: KeyboardEvent) => {
+                if (e.key === 'Escape') {
+                    setShowInventory(false);
+                }
+                // Trap focus inside the panel
+                if (e.key === 'Tab' && showInventory) {
+                    const panel = document.getElementById('tile-inventory-panel');
+                    if (!panel) return;
+                    const focusable = panel.querySelectorAll<HTMLElement>(
+                        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                    );
+                    const first = focusable[0];
+                    const last = focusable[focusable.length - 1];
+                    if (!first || !last) return;
+                    if (e.shiftKey) {
+                        if (document.activeElement === first) {
+                            e.preventDefault();
+                            last.focus();
+                        }
+                    } else {
+                        if (document.activeElement === last) {
+                            e.preventDefault();
+                            first.focus();
+                        }
+                    }
+                }
+            };
+            window.addEventListener('keydown', handleKeyDown);
+            return () => window.removeEventListener('keydown', handleKeyDown);
+        }
+    }, [showInventory]);
 
     if (isLoading) {
         return <div className="flex items-center justify-center h-screen bg-gray-900 text-white">Loading Realm...</div>;
@@ -522,10 +573,11 @@ export default function RealmPage() {
             </div>
             {/* Side Inventory Panel */}
             {showInventory && (
-                <div className="absolute top-0 right-0 h-full w-96 bg-gray-800/90 backdrop-blur-sm border-l border-gray-700 flex flex-col z-20" aria-label="inventory-panel">
+                <div id="tile-inventory-panel" role="dialog" aria-modal="true" aria-label="Tile Inventory Panel" className="absolute top-0 right-0 h-full w-96 bg-gray-800/90 backdrop-blur-sm border-l border-gray-700 flex flex-col z-20">
                     <div className="p-4 border-b border-gray-700 flex items-center justify-between">
                         <h2 className="text-lg font-semibold">Tile Inventory</h2>
                         <Button
+                            ref={closeBtnRef}
                             variant="ghost"
                             size="sm"
                             onClick={() => setShowInventory(false)}
@@ -535,7 +587,22 @@ export default function RealmPage() {
                         </Button>
                     </div>
                     <ScrollArea className="flex-1 p-4">
-                        <TileInventory />
+                        <TileInventory
+                            tiles={inventoryAsItems}
+                            selectedTile={selectedTile}
+                            onSelectTile={setSelectedTile}
+                            onUpdateTiles={(newTiles: typeof inventoryAsItems) => {
+                                // Update inventory state and localStorage
+                                setInventory(prev => {
+                                    const updated = { ...prev };
+                                    newTiles.forEach((tile: typeof inventoryAsItems[number]) => {
+                                        updated[tile.type] = { ...updated[tile.type], ...tile };
+                                    });
+                                    localStorage.setItem('tileInventory', JSON.stringify(updated));
+                                    return updated;
+                                });
+                            }}
+                        />
                     </ScrollArea>
                 </div>
             )}

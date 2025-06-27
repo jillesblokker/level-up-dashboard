@@ -6,10 +6,12 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
-import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, PersonStanding } from 'lucide-react'
+import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, PersonStanding, Pencil } from 'lucide-react'
 import { HeaderSection } from '@/components/HeaderSection'
 import { useUser } from '@clerk/nextjs'
 import { Milestones } from '@/components/milestones'
+import { updateCharacterStats, getCharacterStats } from '@/lib/character-stats-manager'
+import { toast } from '@/components/ui/use-toast'
 
 interface Quest {
   id: string;
@@ -57,6 +59,9 @@ export default function QuestsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [allCategories, setAllCategories] = useState<string[]>(defaultQuestCategories);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingQuest, setEditingQuest] = useState<Quest | null>(null);
+  const [activeTab, setActiveTab] = useState(allCategories[0] || 'might');
 
   useEffect(() => {
     const loadQuests = async () => {
@@ -90,8 +95,33 @@ export default function QuestsPage() {
     loadQuests();
   }, [isAuthLoaded, userId, isGuest]);
 
+  // Daily reset logic for non-milestone quests
+  useEffect(() => {
+    if (!loading && quests.length > 0) {
+      const lastReset = localStorage.getItem('last-quest-reset-date');
+      const today = new Date().toISOString().slice(0, 10);
+      if (lastReset !== today) {
+        // Reset all non-milestone quests
+        setQuests(prev => prev.map(q =>
+          q.category !== 'milestones' ? { ...q, completed: false } : q
+        ));
+        localStorage.setItem('last-quest-reset-date', today);
+        toast({
+          title: 'Daily Reset',
+          description: 'Your daily quests have been reset! Time to build new habits.',
+        });
+      }
+    }
+  }, [loading, quests.length]);
+
   const handleQuestToggle = async (questName: string, currentCompleted: boolean) => {
     if (!userId) return;
+
+    // Find the quest and parse rewards
+    const quest = quests.find(q => q.name === questName);
+    const rewards = quest && quest.rewards ? JSON.parse(quest.rewards) : { xp: 0, gold: 0 };
+    const xpDelta = rewards.xp || 0;
+    const goldDelta = rewards.gold || 0;
 
     try {
       const response = await fetch('/api/quests', {
@@ -110,9 +140,30 @@ export default function QuestsPage() {
       }
 
       // Update local state
-      setQuests(prev => prev.map(q => 
+      setQuests(prev => prev.map(q =>
         q.name === questName ? { ...q, completed: !currentCompleted, date: new Date() } : q
       ));
+
+      // Update character stats and fire events
+      const stats = getCharacterStats();
+      let newXP = stats.experience;
+      let newGold = stats.gold;
+      if (!currentCompleted) {
+        newXP += xpDelta;
+        newGold += goldDelta;
+      } else {
+        newXP = Math.max(0, newXP - xpDelta);
+        newGold = Math.max(0, newGold - goldDelta);
+      }
+      updateCharacterStats({ experience: newXP, gold: newGold });
+      // Fire kingdom events for live updates
+      if (!currentCompleted) {
+        window.dispatchEvent(new CustomEvent('kingdom:goldGained', { detail: goldDelta }));
+        window.dispatchEvent(new CustomEvent('kingdom:experienceGained', { detail: xpDelta }));
+      } else {
+        window.dispatchEvent(new CustomEvent('kingdom:goldGained', { detail: -goldDelta }));
+        window.dispatchEvent(new CustomEvent('kingdom:experienceGained', { detail: -xpDelta }));
+      }
     } catch (err) {
       setError("Failed to sync quest progress.");
       console.error(err);
@@ -136,6 +187,25 @@ export default function QuestsPage() {
     return categoryLabels[category as keyof typeof categoryLabels] || category.charAt(0).toUpperCase() + category.slice(1);
   }
 
+  // Handler to open the edit modal with quest data
+  const handleEditQuest = (quest: Quest) => {
+    setEditingQuest(quest);
+    setEditModalOpen(true);
+  };
+
+  // Handler to close the modal
+  const handleCloseEditModal = () => {
+    setEditModalOpen(false);
+    setEditingQuest(null);
+  };
+
+  // Handler to submit the edited quest (for now, just closes the modal)
+  const handleEditQuestSubmit = (updatedQuest: Quest) => {
+    // TODO: Implement update logic (API call, state update)
+    setEditModalOpen(false);
+    setEditingQuest(null);
+  };
+
   return (
     <div className="h-full">
       <HeaderSection
@@ -147,8 +217,25 @@ export default function QuestsPage() {
       <div className="p-4 md:p-8">
         {error && <p className="text-red-500 bg-red-900/20 p-4 rounded-md mb-4">{error}</p>}
         
-        <Tabs defaultValue={allCategories[0] || 'might'} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          {/* Mobile Dropdown */}
+          <div className="block md:hidden mb-4">
+            <label htmlFor="quest-category-select" className="sr-only">Select quest category</label>
+            <select
+              id="quest-category-select"
+              className="w-full rounded border p-2 bg-black text-white"
+              aria-label="Quest category dropdown"
+              value={activeTab}
+              onChange={e => setActiveTab(e.target.value)}
+            >
+              {allCategories.map(category => (
+                <option key={category} value={category}>{getCategoryLabel(category)}</option>
+              ))}
+              <option value="milestones">Milestones</option>
+            </select>
+          </div>
+          {/* Desktop Tabs */}
+          <TabsList className="hidden md:grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8" aria-label="Quest categories tab list">
             {allCategories.map(category => {
               const Icon = getCategoryIcon(category);
               return (
@@ -189,8 +276,7 @@ export default function QuestsPage() {
                         role="button"
                         aria-pressed={quest.completed}
                         onClick={e => {
-                          // Prevent toggling when clicking the delete button
-                          if ((e.target as HTMLElement).closest('[data-delete-button]')) return;
+                          if ((e.target as HTMLElement).closest('[data-delete-button],[data-edit-button]')) return;
                           handleQuestToggle(quest.name, quest.completed);
                         }}
                         onKeyDown={e => {
@@ -207,13 +293,28 @@ export default function QuestsPage() {
                             </span>
                             <CardTitle className="text-lg font-semibold text-amber-300">{quest.name}</CardTitle>
                           </div>
-                          <Checkbox
-                            checked={quest.completed}
-                            onCheckedChange={() => handleQuestToggle(quest.name, quest.completed)}
-                            className="border-amber-400 data-[state=checked]:bg-amber-500 scale-125"
-                            aria-label={`complete-${quest.name}-quest`}
-                            tabIndex={-1}
-                          />
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="w-6 h-6 text-gray-500 hover:text-amber-500"
+                              aria-label={`edit-${quest.name}-quest`}
+                              data-edit-button
+                              onClick={e => {
+                                e.stopPropagation();
+                                handleEditQuest(quest);
+                              }}
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Checkbox
+                              checked={quest.completed}
+                              onCheckedChange={() => handleQuestToggle(quest.name, quest.completed)}
+                              className="border-amber-400 data-[state=checked]:bg-amber-500 scale-125"
+                              aria-label={`complete-${quest.name}-quest`}
+                              tabIndex={-1}
+                            />
+                          </div>
                         </CardHeader>
                         <CardContent className="flex-1">
                           <CardDescription className="mb-4 text-gray-400">
@@ -249,6 +350,46 @@ export default function QuestsPage() {
           </TabsContent>
         </Tabs>
       </div>
+      {/* Edit Quest Modal (simple version) */}
+      {editModalOpen && editingQuest && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={handleCloseEditModal} />
+          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">Edit Quest</h2>
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                // For now, just close the modal
+                handleEditQuestSubmit(editingQuest);
+              }}
+            >
+              <label className="block mb-2 text-sm font-medium">Name</label>
+              <input
+                className="w-full mb-4 p-2 border rounded"
+                value={editingQuest.name}
+                onChange={e => setEditingQuest({ ...editingQuest, name: e.target.value })}
+                placeholder="Quest name"
+                title="Quest name"
+                aria-label="Quest name"
+              />
+              <label className="block mb-2 text-sm font-medium">Description</label>
+              <textarea
+                className="w-full mb-4 p-2 border rounded"
+                value={editingQuest.description}
+                onChange={e => setEditingQuest({ ...editingQuest, description: e.target.value })}
+                placeholder="Quest description"
+                title="Quest description"
+                aria-label="Quest description"
+              />
+              {/* Add more fields as needed */}
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="secondary" onClick={handleCloseEditModal}>Cancel</Button>
+                <Button type="submit" variant="default">Save</Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

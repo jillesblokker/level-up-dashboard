@@ -51,7 +51,21 @@ export default function MonitoringDashboard() {
       <h1 className="text-2xl font-bold mb-4">System Monitoring</h1>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2" aria-label="monitoring-tabs">
+        {/* Mobile tab selector */}
+        <div className="mb-4 md:hidden">
+          <label htmlFor="monitoring-tab-select" className="sr-only">Select monitoring tab</label>
+          <select
+            id="monitoring-tab-select"
+            aria-label="Monitoring tab selector"
+            className="w-full rounded-md border border-amber-800/20 bg-black text-white p-2"
+            value={activeTab}
+            onChange={e => setActiveTab(e.target.value)}
+          >
+            <option value="performance">Performance Metrics</option>
+            <option value="security">Security Events</option>
+          </select>
+        </div>
+        <TabsList className="grid w-full grid-cols-2 hidden md:grid" aria-label="monitoring-tabs">
           <TabsTrigger value="performance">Performance Metrics</TabsTrigger>
           <TabsTrigger value="security">Security Events</TabsTrigger>
         </TabsList>

@@ -29,6 +29,7 @@ export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedType, setSelectedType] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState("all")
 
   // Load notifications data
   useEffect(() => {
@@ -315,8 +316,22 @@ export default function NotificationsPage() {
           </div>
 
           <div className="lg:col-span-3 space-y-4">
-            <Tabs defaultValue="all" className="w-full">
-              <TabsList className="w-full">
+            <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
+              {/* Mobile tab selector */}
+              <div className="mb-4 md:hidden">
+                <label htmlFor="notifications-tab-select" className="sr-only">Select notifications tab</label>
+                <select
+                  id="notifications-tab-select"
+                  aria-label="Notifications tab selector"
+                  className="w-full rounded-md border border-amber-800/20 bg-black text-white p-2"
+                  value={activeTab}
+                  onChange={e => setActiveTab(e.target.value)}
+                >
+                  <option value="all">All</option>
+                  <option value="unread">Unread</option>
+                </select>
+              </div>
+              <TabsList className="w-full hidden md:flex">
                 <TabsTrigger value="all" className="flex-1">
                   All
                 </TabsTrigger>

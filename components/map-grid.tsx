@@ -11,6 +11,8 @@ import { generateMysteryEvent, MysteryEvent, MysteryEventOutcome } from '@/lib/m
 import { MapGridProps as BaseMapGridProps } from '@/types/tiles';
 import Image from 'next/image';
 import { showScrollToast } from "@/lib/toast-utils"
+import { getCharacterStats, updateCharacterStats } from '@/lib/character-stats-manager';
+import { TileType } from '@/types/tiles';
 
 interface MapGridProps extends BaseMapGridProps {
   onExperienceUpdate?: (amount: number) => void;
@@ -220,7 +222,7 @@ export function MapGrid({
         case 'castle':
           // These interactions are handled by the parent component
           // Just call onTileClick to trigger parent handlers
-          onTileClick?.(originalTarget.x, originalTarget.y);
+          onTileClick?.(x, y);
           break;
         case 'city':
         case 'town':
@@ -291,6 +293,55 @@ export function MapGrid({
     }
   }, [horsePos, safeCharacter, isHorsePresent]);
 
+  const BUYABLE_TILE_TYPE = 'empty';
+  const BUYABLE_TILE_COST = 100; // Example cost
+
+  const handleBuyTile = (x: number, y: number) => {
+    if (!grid[y] || !grid[y][x]) return;
+    const stats = getCharacterStats();
+    if (stats.gold < BUYABLE_TILE_COST) {
+      toast({
+        title: 'Not enough gold',
+        description: `You need ${BUYABLE_TILE_COST} gold to buy this tile.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+    // Update gold
+    updateCharacterStats({ gold: stats.gold - BUYABLE_TILE_COST });
+    // Replace the tile with a default grass tile (ensure all required properties)
+    const oldTile = grid[y][x];
+    if (!oldTile) return;
+    // Ensure rotation is always 0|90|180|270
+    const validRotations = [0, 90, 180, 270];
+    const rotation = (validRotations.includes(oldTile.rotation) ? oldTile.rotation : 0) as 0 | 90 | 180 | 270;
+    const newTile = {
+      ...oldTile,
+      id: `grass-${x}-${y}`,
+      type: 'grass' as TileType,
+      name: 'Grass',
+      image: '/images/tiles/grass-tile.png',
+      quantity: 1,
+      revealed: true,
+      isVisited: false,
+      x,
+      y,
+      ariaLabel: 'grass tile',
+      cost: 0,
+      description: oldTile.description || '',
+      connections: oldTile.connections || [],
+      rotation,
+    };
+    const newGrid = grid.map(row => row.slice());
+    newGrid[y][x] = newTile;
+    // Call parent handler if provided (expecting 2 args: x, y)
+    if (typeof onTileClick === 'function') onTileClick(x, y);
+    toast({
+      title: 'Tile Purchased!',
+      description: `You bought a new tile for ${BUYABLE_TILE_COST} gold.`,
+    });
+  };
+
   if (grid.length === 0) {
     return <div>Loading map...</div>;
   }
@@ -319,15 +370,23 @@ export function MapGrid({
                   );
                 }
                 const isValidTarget = isMovementMode && isValidMovementTarget(x, y);
+                const isBuyable = tile.type === BUYABLE_TILE_TYPE;
                 return (
                   <div
                     key={`${x}-${y}`}
                     className={cn(
                       "relative w-full h-full aspect-square min-w-[32px] min-h-[32px]",
-                      isValidTarget && "cursor-pointer hover:ring-2 hover:ring-white"
+                      isValidTarget && "cursor-pointer hover:ring-2 hover:ring-white",
+                      isBuyable && 'border border-amber-400 animate-pulse'
                     )}
                     aria-label={`${tile.type} tile at position ${x}, ${y}`}
-                    onClick={() => handleTileClick(tile, x, y)}
+                    onClick={() => {
+                      if (isBuyable) {
+                        handleBuyTile(x, y);
+                      } else if (onTileClick) {
+                        onTileClick(x, y);
+                      }
+                    }}
                     onMouseEnter={() => handleTileHover(tile, x, y)}
                     onMouseLeave={handleTileLeave}
                   >
@@ -397,6 +456,12 @@ export function MapGrid({
                           onError={(e: React.SyntheticEvent<HTMLImageElement>) => { console.error('Failed to load penguin.png'); e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐧</span>'); }}
                           priority
                         />
+                      </div>
+                    )}
+                    {/* Overlay for buyable tile */}
+                    {isBuyable && (
+                      <div className="absolute inset-0 bg-amber-200/40 flex items-center justify-center z-10 pointer-events-none">
+                        <span className="text-amber-900 font-bold text-xs md:text-sm">Buy for {BUYABLE_TILE_COST} gold</span>
                       </div>
                     )}
                     <TileVisual

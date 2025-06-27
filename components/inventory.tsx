@@ -112,8 +112,25 @@ export function Inventory() {
         <CardDescription>Your collected items and equipment</CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="all" onValueChange={setSelectedType}>
-          <TabsList className="mb-4">
+        {/* Mobile tab selector */}
+        <div className="mb-4 md:hidden">
+          <label htmlFor="inventory-tab-select" className="sr-only">Select inventory tab</label>
+          <select
+            id="inventory-tab-select"
+            aria-label="Inventory tab selector"
+            className="w-full rounded-md border border-amber-800/20 bg-black text-white p-2"
+            value={selectedType}
+            onChange={e => setSelectedType(e.target.value)}
+          >
+            {types.map((type: string) => (
+              <option key={type} value={type}>
+                {type !== "all" ? `${typeEmojis[type.toLowerCase()] || "🔮"} ${type}` : "All Items"}
+              </option>
+            ))}
+          </select>
+        </div>
+        <Tabs defaultValue="all" value={selectedType} onValueChange={setSelectedType}>
+          <TabsList className="mb-4 hidden md:flex">
             {types.map((type: string) => (
               <TabsTrigger key={type} value={type} className="capitalize">
                 {type !== "all" ? `${typeEmojis[type.toLowerCase()] || "🔮"} ${type}` : "All Items"}

@@ -16,7 +16,23 @@ export default function AdminPage() {
       <h1 className="text-4xl font-bold mb-8">Game Admin Dashboard</h1>
       
       <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        {/* Mobile tab selector */}
+        <div className="mb-4 md:hidden">
+          <label htmlFor="admin-tab-select" className="sr-only">Select admin tab</label>
+          <select
+            id="admin-tab-select"
+            aria-label="Admin dashboard tab selector"
+            className="w-full rounded-md border border-amber-800/20 bg-black text-white p-2"
+            value={selectedTab}
+            onChange={e => setSelectedTab(e.target.value)}
+          >
+            <option value="realm">Realm Map</option>
+            <option value="quests">Daily Quests</option>
+            <option value="stats">Player Stats</option>
+            <option value="export">Export/Import</option>
+          </select>
+        </div>
+        <TabsList className="grid w-full grid-cols-4 hidden md:grid">
           <TabsTrigger value="realm">Realm Map</TabsTrigger>
           <TabsTrigger value="quests">Daily Quests</TabsTrigger>
           <TabsTrigger value="stats">Player Stats</TabsTrigger>

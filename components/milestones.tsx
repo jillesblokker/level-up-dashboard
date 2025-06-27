@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
-import { Sword, Brain, Crown, Castle, Hammer, Heart, PlusCircle, Trash2 } from "lucide-react"
+import { Sword, Brain, Crown, Castle, Hammer, Heart, PlusCircle, Trash2, Pencil } from "lucide-react"
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useUser } from "@clerk/nextjs"
 import { defaultQuests } from '@/lib/quest-sample-data'
@@ -17,6 +17,7 @@ import { useAuth } from "@clerk/nextjs"
 import { useToast } from "@/components/ui/use-toast"
 import { storageService } from '@/lib/storage-service'
 import { Quest } from '@/lib/quest-types'
+import { updateCharacterStats, getCharacterStats } from '@/lib/character-stats-manager'
 
 interface Milestone {
   id: string;
@@ -80,6 +81,8 @@ export function Milestones() {
   const [checkedMilestones, setCheckedMilestones] = useState<string[]>(() => {
     return storageService.get<string[]>('checked-milestones', []);
   });
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(null);
 
   useEffect(() => {
     if (!userId || !supabase || isSupabaseLoading) {
@@ -329,6 +332,25 @@ export function Milestones() {
     }
   };
 
+  // Handler to open the edit modal with milestone data
+  const handleEditMilestone = (milestone: Milestone) => {
+    setEditingMilestone(milestone);
+    setEditModalOpen(true);
+  };
+
+  // Handler to close the modal
+  const handleCloseEditModal = () => {
+    setEditModalOpen(false);
+    setEditingMilestone(null);
+  };
+
+  // Handler to submit the edited milestone (for now, just closes the modal)
+  const handleEditMilestoneSubmit = (updatedMilestone: Milestone) => {
+    // TODO: Implement update logic (API call, state update)
+    setEditModalOpen(false);
+    setEditingMilestone(null);
+  };
+
   return (
     <div className="space-y-8">
       {milestoneCategories.map(category => (
@@ -496,6 +518,7 @@ export function Milestones() {
                   milestone={milestone}
                   onDelete={handleDeleteMilestone}
                   onUpdateProgress={handleToggleCompletion}
+                  onEdit={handleEditMilestone}
                 />
               ))}
             {/* Add Milestone Card */}
@@ -569,11 +592,73 @@ export function Milestones() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Milestone Modal (simple version) */}
+      {editModalOpen && editingMilestone && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={handleCloseEditModal} />
+          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">Edit Milestone</h2>
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                // For now, just close the modal
+                handleEditMilestoneSubmit(editingMilestone);
+              }}
+            >
+              <label className="block mb-2 text-sm font-medium">Name</label>
+              <input
+                className="w-full mb-4 p-2 border rounded"
+                value={editingMilestone.name}
+                onChange={e => setEditingMilestone({ ...editingMilestone, name: e.target.value })}
+                placeholder="Milestone name"
+                title="Milestone name"
+                aria-label="Milestone name"
+              />
+              <label className="block mb-2 text-sm font-medium">Experience</label>
+              <input
+                className="w-full mb-4 p-2 border rounded"
+                type="number"
+                value={editingMilestone.experience}
+                onChange={e => setEditingMilestone({ ...editingMilestone, experience: Number(e.target.value) })}
+                placeholder="Experience points"
+                title="Experience points"
+                aria-label="Experience points"
+              />
+              <label className="block mb-2 text-sm font-medium">Gold</label>
+              <input
+                className="w-full mb-4 p-2 border rounded"
+                type="number"
+                value={editingMilestone.gold}
+                onChange={e => setEditingMilestone({ ...editingMilestone, gold: Number(e.target.value) })}
+                placeholder="Gold amount"
+                title="Gold amount"
+                aria-label="Gold amount"
+              />
+              <label className="block mb-2 text-sm font-medium">Target</label>
+              <input
+                className="w-full mb-4 p-2 border rounded"
+                type="number"
+                value={editingMilestone.target}
+                onChange={e => setEditingMilestone({ ...editingMilestone, target: Number(e.target.value) })}
+                placeholder="Target value"
+                title="Target value"
+                aria-label="Target value"
+              />
+              {/* Add more fields as needed */}
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="secondary" onClick={handleCloseEditModal}>Cancel</Button>
+                <Button type="submit" variant="default">Save</Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function MilestoneCard({ milestone, onDelete, onUpdateProgress }: { milestone: Milestone; onDelete: (id: string) => void; onUpdateProgress: (id: string, completed: boolean) => void; }) {
+function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { milestone: Milestone; onDelete: (id: string) => void; onUpdateProgress: (id: string, completed: boolean) => void; onEdit: (milestone: Milestone) => void; }) {
   const { user } = useUser();
   const { supabase } = useSupabase();
   const [completed, setCompleted] = useState(milestone.completed);
@@ -588,7 +673,6 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress }: { milestone: M
 
   const toggleCompletion = async () => {
     if (!user?.id || !supabase || isUpdating) return;
-    
     setIsUpdating(true);
     try {
       // Update in Supabase
@@ -610,6 +694,28 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress }: { milestone: M
         title: !completed ? 'Milestone Completed' : 'Milestone Uncompleted',
         description: !completed ? 'Great job completing this milestone!' : 'Milestone marked as incomplete.',
       });
+
+      // Live update character stats and fire events
+      const stats = getCharacterStats();
+      let newXP = stats.experience;
+      let newGold = stats.gold;
+      const xpDelta = milestone.experience || 0;
+      const goldDelta = milestone.gold || 0;
+      if (!completed) {
+        newXP += xpDelta;
+        newGold += goldDelta;
+      } else {
+        newXP = Math.max(0, newXP - xpDelta);
+        newGold = Math.max(0, newGold - goldDelta);
+      }
+      updateCharacterStats({ experience: newXP, gold: newGold });
+      if (!completed) {
+        window.dispatchEvent(new CustomEvent('kingdom:goldGained', { detail: goldDelta }));
+        window.dispatchEvent(new CustomEvent('kingdom:experienceGained', { detail: xpDelta }));
+      } else {
+        window.dispatchEvent(new CustomEvent('kingdom:goldGained', { detail: -goldDelta }));
+        window.dispatchEvent(new CustomEvent('kingdom:experienceGained', { detail: -xpDelta }));
+      }
     } catch (err) {
       console.error('Failed to toggle milestone completion:', err);
       toast({
@@ -634,31 +740,48 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress }: { milestone: M
       <CardHeader>
         <CardTitle className="text-amber-500 flex items-center justify-between">
           <span>{milestone.name}</span>
-          <Checkbox
-            checked={completed}
-            onCheckedChange={toggleCompletion}
-            aria-label={`Mark ${milestone.name} as ${completed ? 'incomplete' : 'complete'}`}
-            className="h-5 w-5 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white data-[state=checked]:border-amber-500 mt-1"
-            tabIndex={-1}
-            onClick={(e: React.MouseEvent<HTMLButtonElement>) => e.stopPropagation()}
-            disabled={isUpdating}
-          />
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-5 w-5 text-gray-500 hover:text-amber-500"
+              aria-label={`edit-${milestone.name}-milestone`}
+              data-edit-button
+              onClick={e => {
+                e.stopPropagation();
+                onEdit(milestone);
+              }}
+              tabIndex={-1}
+            >
+              <Pencil className="w-4 h-4" />
+            </Button>
+            <Checkbox
+              checked={completed}
+              onCheckedChange={toggleCompletion}
+              aria-label={`Mark ${milestone.name} as ${completed ? 'incomplete' : 'complete'}`}
+              className="h-5 w-5 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white data-[state=checked]:border-amber-500 mt-1"
+              tabIndex={-1}
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) => e.stopPropagation()}
+              disabled={isUpdating}
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-5 w-5 text-red-500"
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); onDelete(milestone.id); }}
+              aria-label={`Delete ${milestone.name} milestone`}
+              disabled={isUpdating}
+              tabIndex={-1}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
         </CardTitle>
         <CardDescription>{milestone.icon} {milestone.experience} XP, {milestone.gold} Gold</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex justify-between items-center">
           <Progress value={milestone.progress} className="h-1.5" aria-label={`Milestone progress: ${milestone.progress}%`} />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-5 w-5 text-red-500"
-            onClick={(e: React.MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); onDelete(milestone.id); }}
-            aria-label={`Delete ${milestone.name} milestone`}
-            disabled={isUpdating}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
         </div>
       </CardContent>
     </Card>

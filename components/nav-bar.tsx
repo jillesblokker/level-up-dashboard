@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { MainNav } from "@/components/main-nav"
 import { MobileNav } from "@/components/navigation/mobile-nav"
 import { Session } from '@supabase/supabase-js'
@@ -40,6 +40,10 @@ export function NavBar({ session }: NavBarProps) {
       total: 5
     }
   })
+  const [goldHighlight, setGoldHighlight] = useState(false);
+  const [levelHighlight, setLevelHighlight] = useState(false);
+  const goldRef = useRef(characterStats.gold);
+  const levelRef = useRef(characterStats.level);
 
   useEffect(() => {
     setIsClient(true)
@@ -75,6 +79,22 @@ export function NavBar({ session }: NavBarProps) {
     }
   }, [])
 
+  useEffect(() => {
+    if (characterStats.gold !== goldRef.current) {
+      setGoldHighlight(true);
+      goldRef.current = characterStats.gold;
+      setTimeout(() => setGoldHighlight(false), 600);
+    }
+  }, [characterStats.gold]);
+
+  useEffect(() => {
+    if (characterStats.level !== levelRef.current) {
+      setLevelHighlight(true);
+      levelRef.current = characterStats.level;
+      setTimeout(() => setLevelHighlight(false), 600);
+    }
+  }, [characterStats.level]);
+
   // Load initial notifications
   useEffect(() => {
     // No need to set notifications as they are already set in the INITIAL_NOTIFICATIONS constant
@@ -100,9 +120,19 @@ export function NavBar({ session }: NavBarProps) {
         </div>
         <div className="ml-auto flex items-center space-x-4">
           <div className="hidden md:flex items-center space-x-2">
-            <div className="text-sm font-medium">Level {characterStats.level}</div>
+            <div
+              className={`text-sm font-medium transition-all duration-300 ${levelHighlight ? 'bg-amber-300/40 rounded px-2 py-1 shadow' : ''}`}
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              Level {characterStats.level}
+            </div>
             <Progress value={levelProgress} className="w-32 h-2" />
-            <div className="flex items-center space-x-1">
+            <div
+              className={`flex items-center space-x-1 transition-all duration-300 ${goldHighlight ? 'bg-amber-400/30 rounded px-2 py-1 shadow' : ''}`}
+              aria-live="polite"
+              aria-atomic="true"
+            >
               <Coins className="h-4 w-4" />
               <span className="text-sm font-medium">{characterStats.gold}</span>
             </div>

@@ -142,6 +142,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const [totalStats, setTotalStats] = useState({ movement: 0, attack: 0, defense: 0 })
   const [modalOpen, setModalOpen] = useState(false)
   const [modalText, setModalText] = useState("")
+  const [activeTab, setActiveTab] = useState("equipped")
 
   // Load inventory from localStorage on mount
   useEffect(() => {
@@ -344,8 +345,22 @@ export function KingdomClient({ userId }: { userId: string | null }) {
               </div>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="equipped" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 bg-black border-amber-800/30">
+              <Tabs defaultValue="equipped" value={activeTab} onValueChange={setActiveTab} className="w-full">
+                {/* Mobile tab selector */}
+                <div className="mb-4 md:hidden">
+                  <label htmlFor="kingdom-inventory-tab-select" className="sr-only">Select inventory tab</label>
+                  <select
+                    id="kingdom-inventory-tab-select"
+                    aria-label="Kingdom inventory tab selector"
+                    className="w-full rounded-md border border-amber-800/20 bg-black text-white p-2"
+                    value={activeTab}
+                    onChange={e => setActiveTab(e.target.value)}
+                  >
+                    <option value="equipped">Equipped</option>
+                    <option value="stored">Stored</option>
+                  </select>
+                </div>
+                <TabsList className="grid w-full grid-cols-2 bg-black border-amber-800/30 hidden md:grid">
                   <TabsTrigger value="equipped" aria-label="equipped-tab">Equipped</TabsTrigger>
                   <TabsTrigger value="stored" aria-label="stored-tab">Stored</TabsTrigger>
                 </TabsList>

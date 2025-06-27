@@ -142,7 +142,21 @@ export function TileEditor({ tiles, onUpdateTiles, onSelectTile }: TileEditorPro
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           <span>Realm Tile Editor</span>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[400px]" aria-label="editor-tabs">
+          {/* Mobile tab selector */}
+          <div className="md:hidden w-40">
+            <label htmlFor="tile-editor-tab-select" className="sr-only">Select editor tab</label>
+            <select
+              id="tile-editor-tab-select"
+              aria-label="Tile editor tab selector"
+              className="w-full rounded-md border border-amber-800/20 bg-black text-white p-2"
+              value={activeTab}
+              onChange={e => setActiveTab(e.target.value)}
+            >
+              <option value="visual">Visual Editor</option>
+              <option value="markdown">Markdown Editor</option>
+            </select>
+          </div>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[400px] hidden md:block" aria-label="editor-tabs">
             <TabsList className="grid w-full grid-cols-2" aria-label="editor-tabs-list">
               <TabsTrigger value="visual" aria-label="Visual Editor Tab">Visual Editor</TabsTrigger>
               <TabsTrigger value="markdown" aria-label="Markdown Editor Tab">Markdown Editor</TabsTrigger>

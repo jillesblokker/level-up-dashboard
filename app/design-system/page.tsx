@@ -126,6 +126,8 @@ export default function DesignSystemPage() {
     },
   ])
 
+  const [activeTab, setActiveTab] = useState<string>("colors")
+
   const handleColorChange = (index: number, newValue: string) => {
     if (!colors[index]) return;
     const newColors = [...colors]
@@ -177,8 +179,24 @@ export default function DesignSystemPage() {
             <CardDescription className="text-gray-400">UI components and styling guidelines</CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="colors" className="space-y-6">
-              <TabsList className="bg-gray-900/50 p-1 gap-1">
+            <Tabs defaultValue="colors" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+              {/* Mobile tab selector */}
+              <div className="mb-4 md:hidden">
+                <label htmlFor="design-system-tab-select" className="sr-only">Select design system tab</label>
+                <select
+                  id="design-system-tab-select"
+                  aria-label="Design system tab selector"
+                  className="w-full rounded-md border border-amber-800/20 bg-black text-white p-2"
+                  value={activeTab}
+                  onChange={e => setActiveTab(e.target.value)}
+                >
+                  <option value="colors">Colors</option>
+                  <option value="gradients">Gradients</option>
+                  <option value="typography">Typography</option>
+                  <option value="components">Components</option>
+                </select>
+              </div>
+              <TabsList className="bg-gray-900/50 p-1 gap-1 hidden md:flex">
                 <TabsTrigger value="colors">Colors</TabsTrigger>
                 <TabsTrigger value="gradients">Gradients</TabsTrigger>
                 <TabsTrigger value="typography">Typography</TabsTrigger>

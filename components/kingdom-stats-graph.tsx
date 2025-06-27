@@ -202,8 +202,23 @@ export function KingdomStatsGraph() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="quests" onValueChange={setActiveTab} aria-label="kingdom-stats-tabs">
-          <TabsList className="mb-4 w-full grid grid-cols-3" aria-label="kingdom-stats-tab-list">
+        {/* Mobile tab selector */}
+        <div className="mb-4 md:hidden">
+          <label htmlFor="kingdom-stats-tab-select" className="sr-only">Select stats tab</label>
+          <select
+            id="kingdom-stats-tab-select"
+            aria-label="Kingdom stats tab selector"
+            className="w-full rounded-md border border-amber-800/20 bg-black text-white p-2"
+            value={activeTab}
+            onChange={e => setActiveTab(e.target.value)}
+          >
+            <option value="quests">Quests</option>
+            <option value="gold">Gold</option>
+            <option value="exp">Experience</option>
+          </select>
+        </div>
+        <Tabs defaultValue="quests" value={activeTab} onValueChange={setActiveTab} aria-label="kingdom-stats-tabs">
+          <TabsList className="mb-4 w-full grid grid-cols-3 hidden md:grid" aria-label="kingdom-stats-tab-list">
             <TabsTrigger value="quests" aria-label="quests-tab">Quests</TabsTrigger>
             <TabsTrigger value="gold" aria-label="gold-tab">Gold</TabsTrigger>
             <TabsTrigger value="exp" aria-label="experience-tab">Experience</TabsTrigger>

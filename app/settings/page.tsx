@@ -35,6 +35,7 @@ export default function SettingsPage() {
   const [userName, setUserName] = useState("")
   const [email, setEmail] = useState("")
   const [isGithubConnected, setIsGithubConnected] = useState(false)
+  const [activeTab, setActiveTab] = useState("profile")
 
   // Load user data
   useEffect(() => {
@@ -133,8 +134,22 @@ export default function SettingsPage() {
           </Link>
         </div>
 
-        <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="bg-gray-900 border-amber-800/20">
+        <Tabs defaultValue="profile" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          {/* Mobile tab selector */}
+          <div className="mb-4 md:hidden">
+            <label htmlFor="settings-tab-select" className="sr-only">Select settings tab</label>
+            <select
+              id="settings-tab-select"
+              aria-label="Settings tab selector"
+              className="w-full rounded-md border border-amber-800/20 bg-black text-white p-2"
+              value={activeTab}
+              onChange={e => setActiveTab(e.target.value)}
+            >
+              <option value="profile">Profile</option>
+              <option value="account">Account</option>
+            </select>
+          </div>
+          <TabsList className="bg-gray-900 border-amber-800/20 hidden md:flex">
             <TabsTrigger value="profile" className="text-white data-[state=active]:bg-amber-900/20">
               <User className="mr-2 h-4 w-4" />
               Profile

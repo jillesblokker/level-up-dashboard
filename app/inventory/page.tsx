@@ -98,7 +98,22 @@ export default function InventoryPage() {
       </div>
 
       <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-4">
+        {/* Mobile tab selector */}
+        <div className="mb-4 md:hidden">
+          <label htmlFor="inventory-page-tab-select" className="sr-only">Select inventory tab</label>
+          <select
+            id="inventory-page-tab-select"
+            aria-label="Inventory page tab selector"
+            className="w-full rounded-md border border-amber-800/20 bg-black text-white p-2"
+            value={activeTab}
+            onChange={e => setActiveTab(e.target.value)}
+          >
+            {tabOptions.map(tab => (
+              <option key={tab.value} value={tab.value}>{tab.label}</option>
+            ))}
+          </select>
+        </div>
+        <TabsList className="mb-4 hidden md:flex">
           {tabOptions.map(tab => (
             <TabsTrigger key={tab.value} value={tab.value}>
               {tab.label}
