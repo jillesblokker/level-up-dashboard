@@ -379,7 +379,7 @@ export function MapGrid({
                     className={cn(
                       "relative w-full h-full aspect-square min-w-[32px] min-h-[32px]",
                       isValidTarget && "cursor-pointer hover:ring-2 hover:ring-white",
-                      isBuyable && 'border border-amber-400 animate-pulse'
+                      isBuyable && 'border border-amber-400' // No animation
                     )}
                     aria-label={`${tile.type} tile at position ${x}, ${y}`}
                     onClick={() => {
@@ -462,7 +462,7 @@ export function MapGrid({
                     )}
                     {/* Overlay for buyable tile */}
                     {isBuyable && (
-                      <div className="absolute inset-0 bg-amber-200/40 flex items-center justify-center z-10 pointer-events-none">
+                      <div className="absolute inset-0 bg-amber-200/40 flex items-center justify-center z-10 pointer-events-none border-amber-400">
                         <span className="text-amber-900 font-bold text-xs md:text-sm">Buy for {BUYABLE_TILE_COST} gold</span>
                       </div>
                     )}
