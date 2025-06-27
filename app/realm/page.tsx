@@ -468,6 +468,7 @@ export default function RealmPage() {
             window.addEventListener('keydown', handleKeyDown);
             return () => window.removeEventListener('keydown', handleKeyDown);
         }
+        return undefined;
     }, [showInventory]);
 
     if (isLoading) {
