@@ -287,12 +287,46 @@ export function equipItem(itemId: string): boolean {
   const equippedItems = getEquippedItems()
   const updatedEquippedItems = [...equippedItems]
   const category = item.category
-  if (category) {
+  if (category && ['weapon', 'armor', 'shield', 'mount'].includes(category)) {
     // Unequip any existing item of the same category
     const existingIndex = equippedItems.findIndex(i => i.category === category)
     if (existingIndex !== -1) {
-      // Move the old equipped item to stored (do not remove from inventory, just unequip)
-      updatedEquippedItems.splice(existingIndex, 1)
+      const oldEquipped = equippedItems[existingIndex]
+      if (oldEquipped) {
+        // Remove from equipped
+        updatedEquippedItems.splice(existingIndex, 1)
+        // Add old equipped back to stored inventory (increment quantity if already present)
+        const kingdomInventory = getKingdomInventory()
+        const storedIndex = kingdomInventory.findIndex(i => i.id === oldEquipped.id)
+        if (storedIndex !== -1 && kingdomInventory[storedIndex]) {
+          kingdomInventory[storedIndex].quantity += 1
+        } else {
+          kingdomInventory.push({
+            ...oldEquipped,
+            quantity: 1,
+            equipped: false,
+            name: oldEquipped.name,
+            type: oldEquipped.type,
+            id: oldEquipped.id,
+            category: oldEquipped.category ?? '',
+            description: oldEquipped.description ?? '',
+            emoji: oldEquipped.emoji ?? '',
+            image: oldEquipped.image ?? '',
+            stats: oldEquipped.stats ?? {},
+          })
+        }
+        localStorage.setItem(KINGDOM_INVENTORY_KEY, JSON.stringify(kingdomInventory))
+      }
+    }
+    // Remove one from stored inventory for the new item
+    const kingdomInventory = getKingdomInventory()
+    const storedIndex = kingdomInventory.findIndex(i => i.id === item.id)
+    if (storedIndex !== -1 && kingdomInventory[storedIndex]) {
+      kingdomInventory[storedIndex].quantity -= 1
+      if (kingdomInventory[storedIndex] && kingdomInventory[storedIndex].quantity <= 0) {
+        kingdomInventory.splice(storedIndex, 1)
+      }
+      localStorage.setItem(KINGDOM_INVENTORY_KEY, JSON.stringify(kingdomInventory))
     }
   }
   // Add to equipped items
