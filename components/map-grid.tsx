@@ -309,8 +309,7 @@ export function MapGrid({
           {grid.map((row: Tile[], y: number) => (
             <div
               key={y}
-              className={`grid w-full`} 
-              style={{ gridTemplateColumns: `repeat(${row.length}, minmax(32px, 1fr))` }}
+              className={`grid w-full map-grid-row-cols-${row.length}`}
               aria-label={`map-row-${y}`}
             >
               {row.map((tile: Tile, x: number) => {
