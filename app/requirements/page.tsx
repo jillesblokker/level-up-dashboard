@@ -46,7 +46,7 @@ const chapters = [
     content: (
       <>
         <p className="text-lg font-serif text-amber-100 mb-4">
-          The path to greatness is paved with quests of Might, Knowledge, Honor, Craft, and Vitality. Each challenge is a story waiting to be written—complete them to earn gold, wisdom, and renown. Some quests are daily rituals, others are epic milestones that echo through the ages.
+          The path to greatness is paved with quests of Might, Knowledge, Honor, Craft, and Vitality. Each challenge is a story waiting to be written. Complete them to earn gold, wisdom, and renown. Some quests are daily rituals, others are epic milestones that echo through the ages.
         </p>
         <p className="text-base text-amber-200">
           Your quest log is your map to glory. Let it guide you to deeds worthy of song.
@@ -152,7 +152,7 @@ export default function RequirementsPage() {
   if (!currentChapter) {
     return (
       <main className="container max-w-2xl py-8 flex flex-col items-center" aria-label="requirements-book-section">
-        <h1 className="text-4xl font-serif font-bold mb-8 text-amber-200" aria-label="book-title">Adventurer's Guide</h1>
+        <h1 className="text-4xl font-serif font-bold mb-8 text-amber-200" aria-label="book-title">Adventurer&#39;s Guide</h1>
         <div className={`p-6 w-full min-h-[350px] flex flex-col items-center justify-center rounded-lg shadow-lg border border-amber-800/20 bg-gradient-to-b from-black to-gray-900 ${styles['preview-card']}`} aria-label="book-page-card">
           <span className="text-lg text-amber-100">Loading chapter...</span>
         </div>
@@ -162,7 +162,7 @@ export default function RequirementsPage() {
 
   return (
     <main className="container max-w-2xl py-8 flex flex-col items-center" aria-label="requirements-book-section">
-      <h1 className="text-4xl font-serif font-bold mb-8 text-amber-200" aria-label="book-title">Adventurer's Guide</h1>
+      <h1 className="text-4xl font-serif font-bold mb-8 text-amber-200" aria-label="book-title">Adventurer&#39;s Guide</h1>
       <div className={`p-6 w-full min-h-[350px] flex flex-col rounded-lg shadow-lg border border-amber-800/20 bg-gradient-to-b from-black to-gray-900 ${styles['preview-card']}`} aria-label="book-page-card">
         <div aria-label="book-page-header" className="mb-4">
           <h2 className="text-2xl font-serif text-amber-300" aria-label="book-chapter-title">{currentChapter.title}</h2>

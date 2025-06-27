@@ -110,7 +110,7 @@ export function NavBar({ session }: NavBarProps) {
           <div className="relative">
             <NotificationCenter />
           </div>
-          <UserNav session={session as unknown as Session | null} />
+          <UserNav />
         </div>
       </div>
     </div>

@@ -5,7 +5,6 @@ import { NavBar } from "@/components/nav-bar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Coins, Plus } from "lucide-react"
-import Link from "next/link"
 
 export default function GoldPilePage() {
   const [goldBalance, setGoldBalance] = useState(1000)
@@ -90,12 +89,6 @@ export default function GoldPilePage() {
             <h1 className="text-2xl font-bold tracking-tight font-serif">Treasury</h1>
             <p className="text-muted-foreground">Your gold pile grows with each adventure</p>
           </div>
-          <Link href="/treasury">
-            <Button variant="outline" className="border-amber-800/20 hover:bg-amber-900/20">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Treasury
-            </Button>
-          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
