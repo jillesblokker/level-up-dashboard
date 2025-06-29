@@ -127,6 +127,15 @@ export default function QuestsPage() {
   );
   const [milestoneCategory, setMilestoneCategory] = useState(questCategories[0]);
   const [completedChallenges, setCompletedChallenges] = useState<Record<string, boolean[]>>({});
+  const [addChallengeModalOpen, setAddChallengeModalOpen] = useState(false);
+  const [newChallenge, setNewChallenge] = useState({
+    name: '',
+    instructions: '',
+    setsReps: '',
+    tips: '',
+    weight: '',
+  });
+  const [customChallenges, setCustomChallenges] = useState<Record<string, any[]>>({});
 
   useEffect(() => {
     const loadQuests = async () => {
@@ -250,6 +259,18 @@ export default function QuestsPage() {
       updated[idx] = !updated[idx];
       return { ...prev, [safeChallengeCategory]: updated };
     });
+  };
+
+  const handleAddCustomChallenge = () => {
+    setCustomChallenges(prev => {
+      const prevArr = prev[challengeCategory] ?? [];
+      return {
+        ...prev,
+        [challengeCategory]: [...prevArr, { ...newChallenge }],
+      };
+    });
+    setAddChallengeModalOpen(false);
+    setNewChallenge({ name: '', instructions: '', setsReps: '', tips: '', weight: '' });
   };
 
   if (loading) {
@@ -430,9 +451,13 @@ export default function QuestsPage() {
             </div>
             <div className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {(workoutPlan.find(day => day.category === challengeCategory)?.exercises ?? []).map((exercise, idx) => (
+                {/* Render built-in and custom challenges */}
+                {[
+                  ...(workoutPlan.find(day => day.category === challengeCategory)?.exercises ?? []),
+                  ...(customChallenges[challengeCategory] ?? [])
+                ].map((exercise, idx) => (
                   <Card
-                    key={exercise.name}
+                    key={exercise.name + idx}
                     className="flex flex-col border-2 border-amber-800 bg-black/40 rounded-lg shadow-md"
                     aria-label={`challenge-card-${exercise.name}`}
                   >
@@ -450,7 +475,7 @@ export default function QuestsPage() {
                       <div className="text-gray-300 text-sm mb-2">{exercise.instructions}</div>
                       <div className="flex flex-wrap gap-4 mt-2">
                         <span className="bg-amber-900/40 text-amber-400 px-2 py-1 rounded text-xs" aria-label="sets-reps">{exercise.setsReps}</span>
-                        {exercise.weight !== '0' && (
+                        {exercise.weight !== '0' && exercise.weight !== '' && (
                           <span className="bg-amber-900/40 text-amber-400 px-2 py-1 rounded text-xs" aria-label="weight">{exercise.weight}</span>
                         )}
                       </div>
@@ -458,6 +483,20 @@ export default function QuestsPage() {
                     </CardContent>
                   </Card>
                 ))}
+                {/* Add Custom Challenge Card */}
+                <Card
+                  className="border-2 border-dashed border-gray-700 hover:border-amber-500 transition-colors cursor-pointer flex items-center justify-center min-h-[160px]"
+                  onClick={() => setAddChallengeModalOpen(true)}
+                  tabIndex={0}
+                  role="button"
+                  aria-label="add-custom-challenge-card"
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setAddChallengeModalOpen(true); } }}
+                >
+                  <div className="text-center text-gray-500">
+                    <Plus className="w-8 h-8 mx-auto mb-2" />
+                    <p>Add Custom Challenge</p>
+                  </div>
+                </Card>
               </div>
             </div>
           </TabsContent>
@@ -517,6 +556,69 @@ export default function QuestsPage() {
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="secondary" onClick={handleCloseEditModal}>Cancel</Button>
                 <Button type="submit" variant="default">Save</Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Add Custom Challenge Modal */}
+      {addChallengeModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setAddChallengeModalOpen(false)} />
+          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">Add Custom Challenge</h2>
+            <form
+              onSubmit={e => { e.preventDefault(); handleAddCustomChallenge(); }}
+            >
+              <label className="block mb-2 text-sm font-medium">Name</label>
+              <input
+                className="w-full mb-4 p-2 border rounded"
+                value={newChallenge.name}
+                onChange={e => setNewChallenge({ ...newChallenge, name: e.target.value })}
+                placeholder="Challenge name"
+                title="Challenge name"
+                aria-label="Challenge name"
+                required
+              />
+              <label className="block mb-2 text-sm font-medium">Instructions</label>
+              <textarea
+                className="w-full mb-4 p-2 border rounded"
+                value={newChallenge.instructions}
+                onChange={e => setNewChallenge({ ...newChallenge, instructions: e.target.value })}
+                placeholder="Instructions"
+                title="Instructions"
+                aria-label="Instructions"
+              />
+              <label className="block mb-2 text-sm font-medium">Sets/Reps</label>
+              <input
+                className="w-full mb-4 p-2 border rounded"
+                value={newChallenge.setsReps}
+                onChange={e => setNewChallenge({ ...newChallenge, setsReps: e.target.value })}
+                placeholder="e.g. 3x12"
+                title="Sets/Reps"
+                aria-label="Sets/Reps"
+              />
+              <label className="block mb-2 text-sm font-medium">Tips</label>
+              <input
+                className="w-full mb-4 p-2 border rounded"
+                value={newChallenge.tips}
+                onChange={e => setNewChallenge({ ...newChallenge, tips: e.target.value })}
+                placeholder="Tips"
+                title="Tips"
+                aria-label="Tips"
+              />
+              <label className="block mb-2 text-sm font-medium">Weight</label>
+              <input
+                className="w-full mb-4 p-2 border rounded"
+                value={newChallenge.weight}
+                onChange={e => setNewChallenge({ ...newChallenge, weight: e.target.value })}
+                placeholder="e.g. 8kg"
+                title="Weight"
+                aria-label="Weight"
+              />
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="secondary" onClick={() => setAddChallengeModalOpen(false)}>Cancel</Button>
+                <Button type="submit" variant="default">Add</Button>
               </div>
             </form>
           </div>
