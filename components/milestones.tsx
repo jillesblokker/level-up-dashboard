@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -353,193 +353,42 @@ export function Milestones() {
 
   return (
     <div className="space-y-8">
-      {milestoneCategories.map(category => (
-        <div key={category.key}>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
+      {milestoneCategories.map(category => {
+        const defaultCard = defaultMilestoneCards[category.key];
+        if (!defaultCard) return null;
+        return (
+          <div key={category.key}>
+            <div className="flex items-center gap-2 mb-4">
               <category.icon className={`h-5 w-5 ${category.iconClass}`} />
               <h3 className="text-lg font-semibold">{category.label}</h3>
             </div>
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              <Card className="flex flex-col border-2 border-amber-800 bg-black/30 shadow-md">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full p-2 bg-black/40 border border-amber-800" aria-label={`${category.label}-icon`}>
+                      <category.icon className={`w-6 h-6 ${category.iconClass}`} />
+                    </span>
+                    <CardTitle className="text-lg font-semibold text-amber-300">{defaultCard.title}</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="flex-1">
+                  <CardDescription className="mb-4 text-gray-400">
+                    {defaultCard.description}
+                  </CardDescription>
+                  <Progress value={0} className="w-full h-2 bg-gray-700" />
+                </CardContent>
+                <CardFooter className="flex justify-between items-center text-xs text-gray-500 pt-2">
+                  <div className="flex items-center gap-2">
+                    <span>XP: 500</span>
+                    <span>Gold: 250</span>
+                  </div>
+                </CardFooter>
+              </Card>
+            </div>
           </div>
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {/* Default Milestone Card - now interactive */}
-            {(() => {
-              // Check if user already has a milestone for this category
-              const userMilestone = milestones.find(m => m.category === category.key);
-              if (!userMilestone) {
-                // Render an interactive default card
-                const defaultCard = defaultMilestoneCards[category.key];
-                if (!defaultCard) return null;
-                // Fake milestone object for UI
-                const fakeMilestone = {
-                  id: `default-${category.key}`,
-                  name: defaultCard.title,
-                  category: category.key,
-                  icon: '🎯',
-                  experience: 500,
-                  gold: 250,
-                  frequency: 'once',
-                  progress: 0,
-                  target: 1,
-                  completed: false,
-                };
-                // Handler to "adopt" the default card as a real milestone
-                const adoptDefaultMilestone = async (action: 'toggle' | 'delete') => {
-                  if (!userId) return;
-                  // If Supabase is not ready, just update local state
-                  if (!supabase || isSupabaseLoading) {
-                    setMilestones(prev => [
-                      ...prev,
-                      {
-                        ...fakeMilestone,
-                        id: `local-${category.key}`,
-                        completed: action === 'toggle',
-                      },
-                    ]);
-                    toast({
-                      title: action === 'toggle' ? 'Milestone Checked Off (Local Only)' : 'Milestone Deleted (Local Only)',
-                      description: action === 'toggle'
-                        ? 'This milestone was checked off locally and will sync when online.'
-                        : 'This milestone was deleted locally.',
-                    });
-                    setCheckedMilestones(prev =>
-                      action === 'toggle'
-                        ? [...prev, `local-${category.key}`]
-                        : prev.filter(mid => mid !== `local-${category.key}`)
-                    );
-                    return;
-                  }
-                  try {
-                    // Create the milestone in Supabase
-                    const newQuest = await fetch('/api/quests', {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify({
-                        name: fakeMilestone.name,
-                        category: fakeMilestone.category,
-                      }),
-                    });
-
-                    if (!newQuest.ok) {
-                      throw new Error('Failed to create milestone');
-                    }
-
-                    // Add to local state
-                    const newQuestData = await newQuest.json();
-                    setMilestones(prev => [...prev, {
-                      ...fakeMilestone,
-                      id: newQuestData.name,
-                      completed: action === 'toggle',
-                    }]);
-
-                    // If delete, immediately delete after creation
-                    if (action === 'delete') {
-                      await fetch('/api/quests', {
-                        method: 'DELETE',
-                        headers: {
-                          'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                          questName: fakeMilestone.name,
-                        }),
-                      });
-                      setMilestones(prev => prev.filter(m => m.id !== fakeMilestone.name));
-                    }
-
-                    toast({
-                      title: action === 'toggle' ? 'Milestone Created' : 'Milestone Deleted',
-                      description: action === 'toggle' ? 'Your milestone has been created and marked as complete!' : 'The milestone has been removed.',
-                    });
-
-                    setCheckedMilestones(prev =>
-                      action === 'toggle'
-                        ? [...prev, newQuestData.name]
-                        : prev.filter(mid => mid !== newQuestData.name)
-                    );
-                  } catch (err) {
-                    console.error('Failed to update milestone:', err);
-                    toast({
-                      title: 'Error',
-                      description: 'Failed to update milestone. Please try again.',
-                      variant: 'destructive',
-                    });
-                  }
-                };
-                return (
-                  <Card
-                    className="bg-black/80 border-amber-800/50 cursor-pointer"
-                    tabIndex={0}
-                    role="region"
-                    aria-label={`${fakeMilestone.name} milestone card`}
-                    onClick={() => adoptDefaultMilestone('toggle')}
-                    onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); adoptDefaultMilestone('toggle'); } }}
-                  >
-                    <CardHeader>
-                      <CardTitle className="text-amber-500 flex items-center justify-between">
-                        <span>{fakeMilestone.name}</span>
-                        <Checkbox
-                          checked={false}
-                          onCheckedChange={() => adoptDefaultMilestone('toggle')}
-                          aria-label={`Mark ${fakeMilestone.name} as complete`}
-                          className="h-5 w-5 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white data-[state=checked]:border-amber-500 mt-1"
-                          tabIndex={-1}
-                          onClick={(e: React.MouseEvent<HTMLButtonElement>) => e.stopPropagation()}
-                        />
-                      </CardTitle>
-                      <CardDescription>{defaultCard.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex justify-between items-center">
-                        <Progress value={0} className="h-1.5" aria-label={`Milestone progress: 0%`} />
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-5 w-5 text-red-500"
-                          onClick={(e: React.MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); adoptDefaultMilestone('delete'); }}
-                          aria-label={`Delete ${fakeMilestone.name} milestone`}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              }
-              return null;
-            })()}
-            {/* User-created Milestone Cards */}
-            {milestones
-              .filter((milestone) => milestone.category === category.key)
-              .map((milestone) => (
-                <MilestoneCard
-                  key={milestone.id}
-                  milestone={milestone}
-                  onDelete={handleDeleteMilestone}
-                  onUpdateProgress={handleToggleCompletion}
-                  onEdit={handleEditMilestone}
-                />
-              ))}
-            {/* Add Milestone Card */}
-            <Card 
-              className="relative bg-gradient-to-b from-black to-gray-900 border-amber-800/20 p-3 min-h-[140px] flex flex-col justify-between cursor-pointer"
-              role="button"
-              tabIndex={0}
-              aria-label={`${category.key}-add-milestone-card`}
-              onClick={() => {
-                setNewQuestCategory(category.key)
-                setIsDialogOpen(true)
-              }}
-              onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setNewQuestCategory(category.key); setIsDialogOpen(true); } }}
-            >
-              <div className="flex justify-center items-center h-full">
-                <PlusCircle className="h-8 w-8 text-amber-500" />
-              </div>
-            </Card>
-          </div>
-        </div>
-      ))}
+        );
+      })}
 
       {/* Add Milestone Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
