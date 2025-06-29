@@ -12,6 +12,7 @@ import { useUser } from '@clerk/nextjs'
 import { Milestones } from '@/components/milestones'
 import { updateCharacterStats, getCharacterStats } from '@/lib/character-stats-manager'
 import { toast } from '@/components/ui/use-toast'
+import CardWithProgress from '@/components/quest-card'
 
 interface Quest {
   id: string;
@@ -357,70 +358,19 @@ export default function QuestsPage() {
                     ? categoryColorMap[categoryKey]
                     : 'text-amber-500 border-amber-800';
                   return (
-                    <Card
+                    <CardWithProgress
                       key={quest.id}
-                      className={`flex flex-col border-2 ${categoryColor} ${quest.completed ? 'bg-green-900/30' : 'bg-black/30'} shadow-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500`}
-                      aria-label={`${quest.name}-quest-card`}
-                      tabIndex={0}
-                      role="button"
-                      aria-pressed={quest.completed}
-                      onClick={e => {
-                        if ((e.target as HTMLElement).closest('[data-delete-button],[data-edit-button]')) return;
-                        handleQuestToggle(quest.name, quest.completed);
-                      }}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          handleQuestToggle(quest.name, quest.completed);
-                        }
-                      }}
-                    >
-                      <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <div className="flex items-center gap-2">
-                          <span className={`rounded-full p-2 bg-black/40 border ${categoryColor}`} aria-label={`${quest.category}-icon`}>
-                            <CategoryIcon className={`w-6 h-6 ${categoryColor}`} />
-                          </span>
-                          <CardTitle className="text-lg font-semibold text-amber-300">{quest.name}</CardTitle>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="w-6 h-6 text-gray-500 hover:text-amber-500"
-                            aria-label={`edit-${quest.name}-quest`}
-                            data-edit-button
-                            onClick={e => {
-                              e.stopPropagation();
-                              handleEditQuest(quest);
-                            }}
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Checkbox
-                            checked={quest.completed}
-                            onCheckedChange={() => handleQuestToggle(quest.name, quest.completed)}
-                            className="border-amber-400 data-[state=checked]:bg-amber-500 scale-125"
-                            aria-label={`complete-${quest.name}-quest`}
-                            tabIndex={-1}
-                          />
-                        </div>
-                      </CardHeader>
-                      <CardContent className="flex-1">
-                        <CardDescription className="mb-4 text-gray-400">
-                          {quest.description}
-                        </CardDescription>
-                        <Progress value={quest.completed ? 100 : 5} className="w-full h-2 bg-gray-700" />
-                      </CardContent>
-                      <CardFooter className="flex justify-between items-center text-xs text-gray-500 pt-2">
-                        <div className="flex items-center gap-2">
-                          <span>XP: {rewards.xp}</span>
-                          <span>Gold: {rewards.gold}</span>
-                        </div>
-                        <Button variant="ghost" size="icon" className="w-6 h-6 text-gray-500 hover:text-red-500" aria-label={`delete-${quest.name}-quest`} data-delete-button>
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </CardFooter>
-                    </Card>
+                      title={quest.name}
+                      description={quest.description}
+                      icon={getCategoryIcon(quest.category)}
+                      completed={quest.completed}
+                      onToggle={() => handleQuestToggle(quest.name, quest.completed)}
+                      onEdit={() => handleEditQuest(quest)}
+                      onDelete={() => handleQuestToggle(quest.name, quest.completed)}
+                      progress={quest.completed ? 100 : 5}
+                      xp={rewards.xp}
+                      gold={rewards.gold}
+                    />
                   );
                 })}
                 <Card className="border-2 border-dashed border-gray-700 hover:border-amber-500 transition-colors cursor-pointer flex items-center justify-center min-h-[160px]">
@@ -456,32 +406,19 @@ export default function QuestsPage() {
                   ...(workoutPlan.find(day => day.category === challengeCategory)?.exercises ?? []),
                   ...(customChallenges[challengeCategory] ?? [])
                 ].map((exercise, idx) => (
-                  <Card
+                  <CardWithProgress
                     key={exercise.name + idx}
-                    className="flex flex-col border-2 border-amber-800 bg-black/40 rounded-lg shadow-md"
-                    aria-label={`challenge-card-${exercise.name}`}
-                  >
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <div className="font-semibold text-lg text-amber-300">{exercise.name}</div>
-                      <input
-                        type="checkbox"
-                        aria-label={`Mark ${exercise.name} as complete`}
-                        checked={completedChallenges[safeChallengeCategory]?.[idx] || false}
-                        onChange={() => handleChallengeComplete(idx)}
-                        className="w-5 h-5 accent-amber-500 border-amber-400 rounded focus:ring-amber-500"
-                      />
-                    </CardHeader>
-                    <CardContent className="flex-1">
-                      <div className="text-gray-300 text-sm mb-2">{exercise.instructions}</div>
-                      <div className="flex flex-wrap gap-4 mt-2">
-                        <span className="bg-amber-900/40 text-amber-400 px-2 py-1 rounded text-xs" aria-label="sets-reps">{exercise.setsReps}</span>
-                        {exercise.weight !== '0' && exercise.weight !== '' && (
-                          <span className="bg-amber-900/40 text-amber-400 px-2 py-1 rounded text-xs" aria-label="weight">{exercise.weight}</span>
-                        )}
-                      </div>
-                      <div className="text-xs text-gray-400 mt-1" aria-label="tips">{exercise.tips}</div>
-                    </CardContent>
-                  </Card>
+                    title={exercise.name}
+                    description={exercise.instructions}
+                    icon={getCategoryIcon(safeChallengeCategory)}
+                    completed={completedChallenges[safeChallengeCategory]?.[idx] || false}
+                    onToggle={() => handleChallengeComplete(idx)}
+                    onEdit={() => handleEditQuest(exercise as Quest)}
+                    onDelete={() => handleChallengeComplete(idx)}
+                    progress={completedChallenges[safeChallengeCategory]?.[idx] ? 100 : 5}
+                    xp={0}
+                    gold={0}
+                  />
                 ))}
                 {/* Add Custom Challenge Card */}
                 <Card

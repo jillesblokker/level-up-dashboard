@@ -18,6 +18,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { storageService } from '@/lib/storage-service'
 import { Quest } from '@/lib/quest-types'
 import { updateCharacterStats, getCharacterStats } from '@/lib/character-stats-manager'
+import CardWithProgress from './quest-card'
 
 interface Milestone {
   id: string;
@@ -476,65 +477,20 @@ export function Milestones() {
             </div>
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {allMilestones.map(milestone => (
-                <Card
+                <CardWithProgress
                   key={milestone.id}
-                  className={`flex flex-col border-2 ${colorClass} bg-black/30 shadow-md cursor-pointer ${completed[milestone.id] ? 'bg-green-900/20' : ''}`}
-                  tabIndex={0}
-                  role="button"
-                  aria-label={`${milestone.name}-milestone-card`}
-                  aria-pressed={completed[milestone.id]}
-                  onClick={() => handleCheckboxToggle(milestone.id, milestone.target)}
-                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleCheckboxToggle(milestone.id, milestone.target); }}
-                >
-                  <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <div className="flex items-center gap-2">
-                      <span className={`rounded-full p-2 bg-black/40 border ${colorClass}`} aria-label={`${category.label}-icon`}>
-                        <category.icon className={`w-6 h-6 ${category.iconClass}`} />
-                      </span>
-                      <CardTitle className="text-lg font-semibold text-amber-300">{milestone.name}</CardTitle>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {(streaks[milestone.id] ?? 0) > 1 && <span title="Current streak" aria-label="streak-badge">🔥 {streaks[milestone.id]}</span>}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-5 w-5 text-gray-500 hover:text-amber-500"
-                        aria-label={`edit-${milestone.name}-milestone`}
-                        onClick={e => { e.stopPropagation(); setEditingMilestone(milestone); setEditModalOpen(true); }}
-                        tabIndex={-1}
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      {milestone.id.startsWith('default-') ? null : (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-5 w-5 text-red-500"
-                          onClick={e => { e.stopPropagation(); handleDeleteCustomMilestone(category.key, milestone.id); }}
-                          aria-label={`Delete ${milestone.name} milestone`}
-                          tabIndex={-1}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="flex-1">
-                    <CardDescription className="mb-4 text-gray-400">
-                      {defaultCard ? defaultCard.description : ''}
-                    </CardDescription>
-                    <Progress value={completed[milestone.id] ? 100 : 0} className={`w-full h-2 ${barColor}`} />
-                    {completed[milestone.id] && completionDates[milestone.id] && (
-                      <div className="text-xs text-green-400 mt-2">Completed on {completionDates[milestone.id]}</div>
-                    )}
-                  </CardContent>
-                  <CardFooter className="flex justify-between items-center text-xs text-gray-500 pt-2">
-                    <div className="flex items-center gap-2">
-                      <span>XP: {milestone.experience}</span>
-                      <span>Gold: {milestone.gold}</span>
-                    </div>
-                  </CardFooter>
-                </Card>
+                  title={milestone.name}
+                  description={defaultCard ? defaultCard.description : ''}
+                  icon={typeof milestone.icon === 'string' ? <span>{milestone.icon}</span> : milestone.icon}
+                  completed={!!completed[milestone.id]}
+                  onToggle={() => handleCheckboxToggle(milestone.id, milestone.target)}
+                  onEdit={() => { setEditingMilestone(milestone); setEditModalOpen(true); }}
+                  onDelete={() => handleDeleteCustomMilestone(category.key, milestone.id)}
+                  progress={milestone.progress}
+                  xp={milestone.experience}
+                  gold={milestone.gold}
+                  onUpdateProgress={handleProgressChange}
+                />
               ))}
               {/* Add Custom Milestone Card */}
               <Card
