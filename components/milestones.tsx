@@ -451,6 +451,7 @@ export function Milestones() {
     <div className="space-y-8">
       {milestoneCategories.map(category => {
         const defaultCard = defaultMilestoneCards[category.key];
+        if (!defaultCard) return null;
         const colorClass = category.iconClass.replace('text-', 'border-') + ' ' + category.iconClass;
         const barColor = category.iconClass.replace('text-', 'bg-');
         // Default milestone as a pseudo-milestone object
@@ -484,7 +485,7 @@ export function Milestones() {
                       <CardTitle className="text-lg font-semibold text-amber-300">{milestone.name}</CardTitle>
                     </div>
                     <div className="flex items-center gap-2">
-                      {streaks[milestone.id] > 1 && <span title="Current streak" aria-label="streak-badge">🔥 {streaks[milestone.id]}</span>}
+                      {(streaks[milestone.id] ?? 0) > 1 && <span title="Current streak" aria-label="streak-badge">🔥 {streaks[milestone.id]}</span>}
                       <Checkbox
                         checked={completed[milestone.id] || false}
                         onCheckedChange={() => handleCheckboxToggle(milestone.id, milestone.target)}
@@ -506,7 +507,7 @@ export function Milestones() {
                   </CardHeader>
                   <CardContent className="flex-1">
                     <CardDescription className="mb-4 text-gray-400">
-                      {defaultCard.description}
+                      {defaultCard ? defaultCard.description : ''}
                     </CardDescription>
                     <div className="flex items-center gap-2 mb-2">
                       <Input
