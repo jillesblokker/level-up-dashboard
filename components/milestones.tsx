@@ -476,7 +476,16 @@ export function Milestones() {
             </div>
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {allMilestones.map(milestone => (
-                <Card key={milestone.id} className={`flex flex-col border-2 ${colorClass} bg-black/30 shadow-md`}>
+                <Card
+                  key={milestone.id}
+                  className={`flex flex-col border-2 ${colorClass} bg-black/30 shadow-md cursor-pointer ${completed[milestone.id] ? 'bg-green-900/20' : ''}`}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`${milestone.name}-milestone-card`}
+                  aria-pressed={completed[milestone.id]}
+                  onClick={() => handleCheckboxToggle(milestone.id, milestone.target)}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleCheckboxToggle(milestone.id, milestone.target); }}
+                >
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <div className="flex items-center gap-2">
                       <span className={`rounded-full p-2 bg-black/40 border ${colorClass}`} aria-label={`${category.label}-icon`}>
@@ -486,19 +495,24 @@ export function Milestones() {
                     </div>
                     <div className="flex items-center gap-2">
                       {(streaks[milestone.id] ?? 0) > 1 && <span title="Current streak" aria-label="streak-badge">🔥 {streaks[milestone.id]}</span>}
-                      <Checkbox
-                        checked={completed[milestone.id] || false}
-                        onCheckedChange={() => handleCheckboxToggle(milestone.id, milestone.target)}
-                        aria-label={`Mark ${milestone.name} as ${completed[milestone.id] ? 'incomplete' : 'complete'}`}
-                        className="h-5 w-5 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white data-[state=checked]:border-amber-500 mt-1"
-                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-5 w-5 text-gray-500 hover:text-amber-500"
+                        aria-label={`edit-${milestone.name}-milestone`}
+                        onClick={e => { e.stopPropagation(); setEditingMilestone(milestone); setEditModalOpen(true); }}
+                        tabIndex={-1}
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
                       {milestone.id.startsWith('default-') ? null : (
                         <Button
                           variant="ghost"
                           size="icon"
                           className="h-5 w-5 text-red-500"
-                          onClick={() => handleDeleteCustomMilestone(category.key, milestone.id)}
+                          onClick={e => { e.stopPropagation(); handleDeleteCustomMilestone(category.key, milestone.id); }}
                           aria-label={`Delete ${milestone.name} milestone`}
+                          tabIndex={-1}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -509,20 +523,7 @@ export function Milestones() {
                     <CardDescription className="mb-4 text-gray-400">
                       {defaultCard ? defaultCard.description : ''}
                     </CardDescription>
-                    <div className="flex items-center gap-2 mb-2">
-                      <Input
-                        type="number"
-                        min={0}
-                        max={milestone.target}
-                        value={progress[milestone.id] || 0}
-                        onChange={e => handleProgressChange(milestone.id, Number(e.target.value), milestone.target)}
-                        className="w-20 text-sm"
-                        aria-label={`Progress for ${milestone.name}`}
-                        disabled={completed[milestone.id]}
-                      />
-                      <span className="text-xs text-gray-400">/ {milestone.target}</span>
-                    </div>
-                    <Progress value={Math.min(100, Math.round(((progress[milestone.id] || 0) / milestone.target) * 100))} className={`w-full h-2 ${barColor}`} />
+                    <Progress value={completed[milestone.id] ? 100 : 0} className={`w-full h-2 ${barColor}`} />
                     {completed[milestone.id] && completionDates[milestone.id] && (
                       <div className="text-xs text-green-400 mt-2">Completed on {completionDates[milestone.id]}</div>
                     )}
@@ -604,6 +605,57 @@ export function Milestones() {
           </div>
         );
       })}
+      {/* Edit Milestone Modal (simple version) */}
+      {editModalOpen && editingMilestone && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={handleCloseEditModal} />
+          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">Edit Milestone</h2>
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                // For now, just close the modal
+                handleEditMilestoneSubmit(editingMilestone);
+              }}
+            >
+              <label className="block mb-2 text-sm font-medium">Name</label>
+              <input
+                className="w-full mb-4 p-2 border rounded"
+                value={editingMilestone.name}
+                onChange={e => setEditingMilestone({ ...editingMilestone, name: e.target.value })}
+                placeholder="Milestone name"
+                title="Milestone name"
+                aria-label="Milestone name"
+              />
+              <label className="block mb-2 text-sm font-medium">Experience</label>
+              <input
+                className="w-full mb-4 p-2 border rounded"
+                type="number"
+                value={editingMilestone.experience}
+                onChange={e => setEditingMilestone({ ...editingMilestone, experience: Number(e.target.value) })}
+                placeholder="Experience points"
+                title="Experience points"
+                aria-label="Experience points"
+              />
+              <label className="block mb-2 text-sm font-medium">Gold</label>
+              <input
+                className="w-full mb-4 p-2 border rounded"
+                type="number"
+                value={editingMilestone.gold}
+                onChange={e => setEditingMilestone({ ...editingMilestone, gold: Number(e.target.value) })}
+                placeholder="Gold amount"
+                title="Gold amount"
+                aria-label="Gold amount"
+              />
+              {/* Add more fields as needed */}
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="secondary" onClick={handleCloseEditModal}>Cancel</Button>
+                <Button type="submit" variant="default">Save</Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
