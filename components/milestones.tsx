@@ -49,11 +49,11 @@ const milestoneCategories = [
 ];
 
 const defaultMilestoneCards: Record<string, { title: string; description: string }> = {
-  might: { title: '300 Pushups in One Day', description: 'Complete 300 pushups in a single day' },
-  knowledge: { title: '100 Days of Spanish', description: 'Practice Spanish for 100 days in a row' },
-  honor: { title: 'Wake Up Before 6AM for 30 Days', description: 'Wake up before 6AM for 30 consecutive days' },
-  castle: { title: 'Host 10 Dinners for Friends', description: 'Host 10 dinners or gatherings at your home' },
-  craft: { title: 'Complete a 30-Day Drawing Challenge', description: 'Draw something every day for 30 days' },
+  might:    { title: '300 Pushups in One Day', description: 'Complete 300 pushups in a single day' },
+  knowledge:{ title: '365 Days of Spanish', description: 'Practice Spanish every day for a year' },
+  honor:    { title: 'Wake Up Before 6AM for 100 Days', description: 'Wake up before 6AM for 100 consecutive days' },
+  castle:   { title: 'Host 50 Dinners for Friends', description: 'Host 50 dinners or gatherings at your home' },
+  craft:    { title: 'Complete a 365-Day Drawing Challenge', description: 'Draw something every day for a year' },
   vitality: { title: 'Plank 3:00', description: 'Hold a plank for 3 minutes straight' },
 };
 

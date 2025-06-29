@@ -429,32 +429,36 @@ export default function QuestsPage() {
               </select>
             </div>
             <div className="space-y-4">
-              {workoutPlan.find(day => day.category === challengeCategory)?.exercises.map((exercise, idx) => (
-                <div
-                  key={exercise.name}
-                  className="border-2 border-amber-800 bg-black/40 rounded-lg p-4 flex flex-col gap-2 shadow-md"
-                  aria-label={`challenge-card-${exercise.name}`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="font-semibold text-lg text-amber-300">{exercise.name}</div>
-                    <input
-                      type="checkbox"
-                      aria-label={`Mark ${exercise.name} as complete`}
-                      checked={completedChallenges[safeChallengeCategory]?.[idx] || false}
-                      onChange={() => handleChallengeComplete(idx)}
-                      className="w-5 h-5 accent-amber-500 border-amber-400 rounded focus:ring-amber-500"
-                    />
-                  </div>
-                  <div className="text-gray-300 text-sm">{exercise.instructions}</div>
-                  <div className="flex flex-wrap gap-4 mt-2">
-                    <span className="bg-amber-900/40 text-amber-400 px-2 py-1 rounded text-xs" aria-label="sets-reps">{exercise.setsReps}</span>
-                    {exercise.weight !== '0' && (
-                      <span className="bg-amber-900/40 text-amber-400 px-2 py-1 rounded text-xs" aria-label="weight">{exercise.weight}</span>
-                    )}
-                  </div>
-                  <div className="text-xs text-gray-400 mt-1" aria-label="tips">{exercise.tips}</div>
-                </div>
-              ))}
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {(workoutPlan.find(day => day.category === challengeCategory)?.exercises ?? []).map((exercise, idx) => (
+                  <Card
+                    key={exercise.name}
+                    className="flex flex-col border-2 border-amber-800 bg-black/40 rounded-lg shadow-md"
+                    aria-label={`challenge-card-${exercise.name}`}
+                  >
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <div className="font-semibold text-lg text-amber-300">{exercise.name}</div>
+                      <input
+                        type="checkbox"
+                        aria-label={`Mark ${exercise.name} as complete`}
+                        checked={completedChallenges[safeChallengeCategory]?.[idx] || false}
+                        onChange={() => handleChallengeComplete(idx)}
+                        className="w-5 h-5 accent-amber-500 border-amber-400 rounded focus:ring-amber-500"
+                      />
+                    </CardHeader>
+                    <CardContent className="flex-1">
+                      <div className="text-gray-300 text-sm mb-2">{exercise.instructions}</div>
+                      <div className="flex flex-wrap gap-4 mt-2">
+                        <span className="bg-amber-900/40 text-amber-400 px-2 py-1 rounded text-xs" aria-label="sets-reps">{exercise.setsReps}</span>
+                        {exercise.weight !== '0' && (
+                          <span className="bg-amber-900/40 text-amber-400 px-2 py-1 rounded text-xs" aria-label="weight">{exercise.weight}</span>
+                        )}
+                      </div>
+                      <div className="text-xs text-gray-400 mt-1" aria-label="tips">{exercise.tips}</div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           </TabsContent>
 
