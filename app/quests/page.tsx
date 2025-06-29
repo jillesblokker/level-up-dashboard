@@ -13,6 +13,7 @@ import { Milestones } from '@/components/milestones'
 import { updateCharacterStats, getCharacterStats } from '@/lib/character-stats-manager'
 import { toast } from '@/components/ui/use-toast'
 import CardWithProgress from '@/components/quest-card'
+import React from 'react'
 
 interface Quest {
   id: string;
@@ -352,7 +353,6 @@ export default function QuestsPage() {
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {(questsByCategorySafe[safeQuestCategory] ?? []).map((quest: Quest) => {
                   const rewards = quest.rewards ? JSON.parse(quest.rewards) : { xp: 0, gold: 0 };
-                  const CategoryIcon = getCategoryIcon(quest.category);
                   const categoryKey: string = String(quest.category ?? '');
                   const categoryColor = Object.prototype.hasOwnProperty.call(categoryColorMap, categoryKey)
                     ? categoryColorMap[categoryKey]
@@ -362,7 +362,7 @@ export default function QuestsPage() {
                       key={quest.id}
                       title={quest.name}
                       description={quest.description}
-                      icon={getCategoryIcon(quest.category)}
+                      icon={React.createElement(getCategoryIcon(quest.category))}
                       completed={quest.completed}
                       onToggle={() => handleQuestToggle(quest.name, quest.completed)}
                       onEdit={() => handleEditQuest(quest)}
@@ -410,7 +410,7 @@ export default function QuestsPage() {
                     key={exercise.name + idx}
                     title={exercise.name}
                     description={exercise.instructions}
-                    icon={getCategoryIcon(safeChallengeCategory)}
+                    icon={React.createElement(getCategoryIcon(safeChallengeCategory))}
                     completed={completedChallenges[safeChallengeCategory]?.[idx] || false}
                     onToggle={() => handleChallengeComplete(idx)}
                     onEdit={() => handleEditQuest(exercise as Quest)}
