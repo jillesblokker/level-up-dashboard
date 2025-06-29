@@ -489,7 +489,6 @@ export function Milestones() {
                   progress={milestone.progress}
                   xp={milestone.experience}
                   gold={milestone.gold}
-                  onUpdateProgress={handleProgressChange}
                 />
               ))}
               {/* Add Custom Milestone Card */}

@@ -11,7 +11,7 @@ import { useGradient } from '@/app/providers/gradient-provider'
 import { HeaderSection } from "@/components/HeaderSection"
 import { CreatureCard } from "@/components/creature-card"
 import { Minimap } from "@/components/Minimap"
-import QuestCard from "@/components/quest-card"
+import CardWithProgress from "@/components/quest-card"
 import { TileVisual } from "@/components/tile-visual"
 import { MapGrid } from "@/components/map-grid"
 import { TownView } from "@/components/town-view"
@@ -514,17 +514,17 @@ export default function DesignSystemPage() {
                     </div>
 
                     <div className="p-4 rounded-lg bg-gray-900/50">
-                      <p className="text-sm font-medium mb-2 text-white">QuestCard</p>
+                      <p className="text-sm font-medium mb-2 text-white">CardWithProgress</p>
                       <div className="flex gap-4 mb-2">
                         <div className={styles['questCardBox']}>
-                          <QuestCard title="Defeat the Dragon" isSelected={false} />
+                          <CardWithProgress title="Defeat the Dragon" completed={false} onToggle={() => {}} />
                         </div>
                         <div className={styles['questCardBox']}>
-                          <QuestCard title="Rescue the Princess" isSelected={true} />
+                          <CardWithProgress title="Rescue the Princess" completed={true} onToggle={() => {}} />
                         </div>
                       </div>
                       <p className="text-sm text-gray-400 mt-2">
-                        <strong>QuestCard</strong> is used for displaying quests in selection lists. The selected state is highlighted with an amber ring.
+                        <strong>CardWithProgress</strong> is used for displaying quests in selection lists. The completed state is indicated by a checkmark.
                       </p>
                     </div>
 
