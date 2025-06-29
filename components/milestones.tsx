@@ -57,6 +57,11 @@ const defaultMilestoneCards: Record<string, { title: string; description: string
   vitality: { title: 'Plank 3:00', description: 'Hold a plank for 3 minutes straight' },
 };
 
+// Add localStorage keys
+const CUSTOM_MILESTONES_KEY = 'custom-milestones-v2';
+const MILESTONE_PROGRESS_KEY = 'milestone-progress-v2';
+const MILESTONE_STREAKS_KEY = 'milestone-streaks-v2';
+
 export function Milestones() {
   const { userId } = useAuth();
   const { supabase, getToken, isLoading: isSupabaseLoading } = useSupabase();
@@ -83,6 +88,29 @@ export function Milestones() {
   });
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(null);
+  const [customMilestones, setCustomMilestones] = useState<Record<string, Milestone[]>>(() => {
+    return storageService.get<Record<string, Milestone[]>>(CUSTOM_MILESTONES_KEY, {});
+  });
+  const [progress, setProgress] = useState<Record<string, number>>(() => {
+    return storageService.get<Record<string, number>>(MILESTONE_PROGRESS_KEY, {});
+  });
+  const [completed, setCompleted] = useState<Record<string, boolean>>(() => {
+    return storageService.get<Record<string, boolean>>("milestone-completed-v2", {});
+  });
+  const [streaks, setStreaks] = useState<Record<string, number>>(() => {
+    return storageService.get<Record<string, number>>(MILESTONE_STREAKS_KEY, {});
+  });
+  const [completionDates, setCompletionDates] = useState<Record<string, string>>(() => {
+    return storageService.get<Record<string, string>>("milestone-completion-dates-v2", {});
+  });
+  const [addModalOpen, setAddModalOpen] = useState<string | null>(null);
+
+  // Persist all state changes
+  useEffect(() => { storageService.set(CUSTOM_MILESTONES_KEY, customMilestones); }, [customMilestones]);
+  useEffect(() => { storageService.set(MILESTONE_PROGRESS_KEY, progress); }, [progress]);
+  useEffect(() => { storageService.set("milestone-completed-v2", completed); }, [completed]);
+  useEffect(() => { storageService.set(MILESTONE_STREAKS_KEY, streaks); }, [streaks]);
+  useEffect(() => { storageService.set("milestone-completion-dates-v2", completionDates); }, [completionDates]);
 
   useEffect(() => {
     if (!userId || !supabase || isSupabaseLoading) {
@@ -351,11 +379,94 @@ export function Milestones() {
     setEditingMilestone(null);
   };
 
+  // --- Handlers ---
+  const handleAddCustomMilestone = (category: string) => {
+    if (!newMilestone.name.trim()) return;
+    const id = `${category}-${Date.now()}`;
+    const milestone: Milestone = {
+      id,
+      name: newMilestone.name,
+      category,
+      icon: newMilestone.icon,
+      experience: newMilestone.experience,
+      gold: newMilestone.gold,
+      frequency: 'once',
+      progress: 0,
+      target: newMilestone.target,
+      completed: false,
+    };
+    setCustomMilestones(prev => ({ ...prev, [category]: [...(prev[category] || []), milestone] }));
+    setAddModalOpen(null);
+    setNewMilestone({ name: '', target: 1, experience: 500, gold: 250, icon: '🏆' });
+  };
+  const handleDeleteCustomMilestone = (category: string, id: string) => {
+    setCustomMilestones(prev => ({ ...prev, [category]: (prev[category] || []).filter(m => m.id !== id) }));
+    setProgress(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
+    setCompleted(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
+    setStreaks(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
+    setCompletionDates(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
+  };
+  const handleProgressChange = (id: string, value: number, target: number) => {
+    setProgress(prev => ({ ...prev, [id]: value }));
+    if (value >= target) {
+      setCompleted(prev => ({ ...prev, [id]: true }));
+      setCompletionDates(prev => ({ ...prev, [id]: new Date().toISOString().slice(0, 10) }));
+      // Streak logic: increment if completed today
+      const today = new Date().toISOString().slice(0, 10);
+      setStreaks(prev => {
+        const lastDate = completionDates[id];
+        if (lastDate) {
+          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          if (lastDate === yesterday) return { ...prev, [id]: (prev[id] || 0) + 1 };
+        }
+        return { ...prev, [id]: 1 };
+      });
+    } else {
+      setCompleted(prev => ({ ...prev, [id]: false }));
+    }
+  };
+  const handleCheckboxToggle = (id: string, target: number) => {
+    const isNowComplete = !completed[id];
+    setCompleted(prev => ({ ...prev, [id]: isNowComplete }));
+    setProgress(prev => ({ ...prev, [id]: isNowComplete ? target : 0 }));
+    if (isNowComplete) {
+      setCompletionDates(prev => ({ ...prev, [id]: new Date().toISOString().slice(0, 10) }));
+      // Streak logic
+      const today = new Date().toISOString().slice(0, 10);
+      setStreaks(prev => {
+        const lastDate = completionDates[id];
+        if (lastDate) {
+          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          if (lastDate === yesterday) return { ...prev, [id]: (prev[id] || 0) + 1 };
+        }
+        return { ...prev, [id]: 1 };
+      });
+    } else {
+      setStreaks(prev => ({ ...prev, [id]: 0 }));
+      setCompletionDates(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
+    }
+  };
+
   return (
     <div className="space-y-8">
       {milestoneCategories.map(category => {
         const defaultCard = defaultMilestoneCards[category.key];
-        if (!defaultCard) return null;
+        const colorClass = category.iconClass.replace('text-', 'border-') + ' ' + category.iconClass;
+        const barColor = category.iconClass.replace('text-', 'bg-');
+        // Default milestone as a pseudo-milestone object
+        const defaultMilestone: Milestone = {
+          id: `default-${category.key}`,
+          name: defaultCard.title,
+          category: category.key,
+          icon: '',
+          experience: 500,
+          gold: 250,
+          frequency: 'once',
+          progress: progress[`default-${category.key}`] || 0,
+          target: 1,
+          completed: completed[`default-${category.key}`] || false,
+        };
+        const allMilestones = [defaultMilestone, ...(customMilestones[category.key] || [])];
         return (
           <div key={category.key}>
             <div className="flex items-center gap-2 mb-4">
@@ -363,146 +474,135 @@ export function Milestones() {
               <h3 className="text-lg font-semibold">{category.label}</h3>
             </div>
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              <Card className="flex flex-col border-2 border-amber-800 bg-black/30 shadow-md">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="rounded-full p-2 bg-black/40 border border-amber-800" aria-label={`${category.label}-icon`}>
-                      <category.icon className={`w-6 h-6 ${category.iconClass}`} />
-                    </span>
-                    <CardTitle className="text-lg font-semibold text-amber-300">{defaultCard.title}</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-1">
-                  <CardDescription className="mb-4 text-gray-400">
-                    {defaultCard.description}
-                  </CardDescription>
-                  <Progress value={0} className="w-full h-2 bg-gray-700" />
+              {allMilestones.map(milestone => (
+                <Card key={milestone.id} className={`flex flex-col border-2 ${colorClass} bg-black/30 shadow-md`}>
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <div className="flex items-center gap-2">
+                      <span className={`rounded-full p-2 bg-black/40 border ${colorClass}`} aria-label={`${category.label}-icon`}>
+                        <category.icon className={`w-6 h-6 ${category.iconClass}`} />
+                      </span>
+                      <CardTitle className="text-lg font-semibold text-amber-300">{milestone.name}</CardTitle>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {streaks[milestone.id] > 1 && <span title="Current streak" aria-label="streak-badge">🔥 {streaks[milestone.id]}</span>}
+                      <Checkbox
+                        checked={completed[milestone.id] || false}
+                        onCheckedChange={() => handleCheckboxToggle(milestone.id, milestone.target)}
+                        aria-label={`Mark ${milestone.name} as ${completed[milestone.id] ? 'incomplete' : 'complete'}`}
+                        className="h-5 w-5 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white data-[state=checked]:border-amber-500 mt-1"
+                      />
+                      {milestone.id.startsWith('default-') ? null : (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-5 w-5 text-red-500"
+                          onClick={() => handleDeleteCustomMilestone(category.key, milestone.id)}
+                          aria-label={`Delete ${milestone.name} milestone`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="flex-1">
+                    <CardDescription className="mb-4 text-gray-400">
+                      {defaultCard.description}
+                    </CardDescription>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Input
+                        type="number"
+                        min={0}
+                        max={milestone.target}
+                        value={progress[milestone.id] || 0}
+                        onChange={e => handleProgressChange(milestone.id, Number(e.target.value), milestone.target)}
+                        className="w-20 text-sm"
+                        aria-label={`Progress for ${milestone.name}`}
+                        disabled={completed[milestone.id]}
+                      />
+                      <span className="text-xs text-gray-400">/ {milestone.target}</span>
+                    </div>
+                    <Progress value={Math.min(100, Math.round(((progress[milestone.id] || 0) / milestone.target) * 100))} className={`w-full h-2 ${barColor}`} />
+                    {completed[milestone.id] && completionDates[milestone.id] && (
+                      <div className="text-xs text-green-400 mt-2">Completed on {completionDates[milestone.id]}</div>
+                    )}
+                  </CardContent>
+                  <CardFooter className="flex justify-between items-center text-xs text-gray-500 pt-2">
+                    <div className="flex items-center gap-2">
+                      <span>XP: {milestone.experience}</span>
+                      <span>Gold: {milestone.gold}</span>
+                    </div>
+                  </CardFooter>
+                </Card>
+              ))}
+              {/* Add Custom Milestone Card */}
+              <Card
+                className="flex flex-col items-center justify-center border-2 border-dashed border-amber-800 bg-black/20 shadow-md cursor-pointer hover:bg-black/30 min-h-[180px]"
+                role="button"
+                aria-label="add-custom-milestone-card"
+                tabIndex={0}
+                onClick={() => setAddModalOpen(category.key)}
+                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setAddModalOpen(category.key); }}
+              >
+                <CardContent className="flex flex-col items-center justify-center flex-1 py-8">
+                  <PlusCircle className="w-8 h-8 text-amber-500 mb-2" />
+                  <span className="text-amber-300 font-semibold">Add Custom Milestone</span>
                 </CardContent>
-                <CardFooter className="flex justify-between items-center text-xs text-gray-500 pt-2">
-                  <div className="flex items-center gap-2">
-                    <span>XP: 500</span>
-                    <span>Gold: 250</span>
-                  </div>
-                </CardFooter>
               </Card>
             </div>
+            {/* Add Custom Milestone Modal */}
+            <Dialog open={addModalOpen === category.key} onOpenChange={open => setAddModalOpen(open ? category.key : null)}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add Custom Milestone</DialogTitle>
+                  <DialogDescription>Set up a new milestone for {category.label}</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="milestone-name">Milestone Name</Label>
+                    <Input
+                      id="milestone-name"
+                      value={newMilestone.name}
+                      onChange={e => setNewMilestone({ ...newMilestone, name: e.target.value })}
+                      placeholder="Enter milestone name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="milestone-target">Target</Label>
+                    <Input
+                      id="milestone-target"
+                      type="number"
+                      value={newMilestone.target}
+                      onChange={e => setNewMilestone({ ...newMilestone, target: Number(e.target.value) })}
+                      placeholder="Enter target value"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="milestone-experience">Experience Points</Label>
+                    <Input
+                      id="milestone-experience"
+                      type="number"
+                      value={newMilestone.experience}
+                      onChange={e => setNewMilestone({ ...newMilestone, experience: Number(e.target.value) })}
+                      placeholder="Enter experience points"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="milestone-gold">Gold</Label>
+                    <Input
+                      id="milestone-gold"
+                      type="number"
+                      value={newMilestone.gold}
+                      onChange={e => setNewMilestone({ ...newMilestone, gold: Number(e.target.value) })}
+                      placeholder="Enter gold amount"
+                    />
+                  </div>
+                  <Button onClick={() => handleAddCustomMilestone(category.key)}>Add Milestone</Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         );
       })}
-
-      {/* Add Milestone Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New Milestone</DialogTitle>
-            <DialogDescription>Create a new milestone for your journey</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="name">Milestone Name</Label>
-              <Input
-                id="name"
-                value={newMilestone.name}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewMilestone({ ...newMilestone, name: e.target.value })}
-                placeholder="Enter milestone name"
-              />
-            </div>
-            <div>
-              <Label htmlFor="experience">Experience Points</Label>
-              <Input
-                id="experience"
-                type="number"
-                value={newMilestone.experience}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewMilestone({ ...newMilestone, experience: Number(e.target.value) })}
-                placeholder="Enter experience points"
-              />
-            </div>
-            <div>
-              <Label htmlFor="gold">Gold</Label>
-              <Input
-                id="gold"
-                type="number"
-                value={newMilestone.gold}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewMilestone({ ...newMilestone, gold: Number(e.target.value) })}
-                placeholder="Enter gold amount"
-              />
-            </div>
-            <div>
-              <Label htmlFor="target">Target</Label>
-              <Input
-                id="target"
-                type="number"
-                value={newMilestone.target}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewMilestone({ ...newMilestone, target: Number(e.target.value) })}
-                placeholder="Enter target value"
-              />
-            </div>
-            <Button onClick={handleAddMilestone}>Add Milestone</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit Milestone Modal (simple version) */}
-      {editModalOpen && editingMilestone && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={handleCloseEditModal} />
-          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Edit Milestone</h2>
-            <form
-              onSubmit={e => {
-                e.preventDefault();
-                // For now, just close the modal
-                handleEditMilestoneSubmit(editingMilestone);
-              }}
-            >
-              <label className="block mb-2 text-sm font-medium">Name</label>
-              <input
-                className="w-full mb-4 p-2 border rounded"
-                value={editingMilestone.name}
-                onChange={e => setEditingMilestone({ ...editingMilestone, name: e.target.value })}
-                placeholder="Milestone name"
-                title="Milestone name"
-                aria-label="Milestone name"
-              />
-              <label className="block mb-2 text-sm font-medium">Experience</label>
-              <input
-                className="w-full mb-4 p-2 border rounded"
-                type="number"
-                value={editingMilestone.experience}
-                onChange={e => setEditingMilestone({ ...editingMilestone, experience: Number(e.target.value) })}
-                placeholder="Experience points"
-                title="Experience points"
-                aria-label="Experience points"
-              />
-              <label className="block mb-2 text-sm font-medium">Gold</label>
-              <input
-                className="w-full mb-4 p-2 border rounded"
-                type="number"
-                value={editingMilestone.gold}
-                onChange={e => setEditingMilestone({ ...editingMilestone, gold: Number(e.target.value) })}
-                placeholder="Gold amount"
-                title="Gold amount"
-                aria-label="Gold amount"
-              />
-              <label className="block mb-2 text-sm font-medium">Target</label>
-              <input
-                className="w-full mb-4 p-2 border rounded"
-                type="number"
-                value={editingMilestone.target}
-                onChange={e => setEditingMilestone({ ...editingMilestone, target: Number(e.target.value) })}
-                placeholder="Target value"
-                title="Target value"
-                aria-label="Target value"
-              />
-              {/* Add more fields as needed */}
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="secondary" onClick={handleCloseEditModal}>Cancel</Button>
-                <Button type="submit" variant="default">Save</Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
