@@ -19,9 +19,10 @@ interface TileInventoryProps {
   onUpdateTiles: (tiles: InventoryItem[]) => void
   activeTab: 'place' | 'buy'
   setActiveTab: (tab: 'place' | 'buy') => void
+  onOutOfTiles?: (tile: InventoryItem) => void
 }
 
-export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles, activeTab, setActiveTab }: TileInventoryProps) {
+export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles, activeTab, setActiveTab, onOutOfTiles }: TileInventoryProps) {
   const { gold, updateGold } = useGoldStore()
   const [buyQuantities, setBuyQuantities] = useState<{ [key: string]: number }>({})
 
@@ -99,7 +100,14 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                       selectedTile?.type === tile.type && "ring-2 ring-primary",
                       tile.quantity === 0 && "opacity-50 pointer-events-none"
                     )}
-                    onClick={() => tile.quantity > 0 && onSelectTile(selectedTile?.type === tile.type ? null : tile)}
+                    onClick={() => {
+                      if (tile.quantity === 0 && onOutOfTiles) {
+                        onOutOfTiles(tile);
+                        return;
+                      }
+                      if (tile.quantity > 0) onSelectTile(selectedTile?.type === tile.type ? null : tile);
+                    }}
+                    aria-label={`Select ${tile.name} tile (Quantity: ${tile.quantity})`}
                   >
                     <div className="aspect-square relative">
                       <Image

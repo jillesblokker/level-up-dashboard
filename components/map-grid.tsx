@@ -234,7 +234,7 @@ export function MapGrid({
   };
 
   const handleTileClick = (tile: Tile, x: number, y: number) => {
-    if (isMovementMode) {
+    if (isMovementMode && isValidMovementTarget(x, y)) {
       handleMove({ tile, x, y });
     } else {
       onTileClick?.(x, y);
@@ -332,6 +332,29 @@ export function MapGrid({
       description: `You bought a new tile.`,
     });
   };
+
+  // Add useEffect to listen for 'mystery-event-completed' and replace the tile with a grass tile
+  useEffect(() => {
+    const handler = (e: any) => {
+      if (!safeCharacter) return;
+      const { x, y } = safeCharacter;
+      if (grid[y] && grid[y][x] && grid[y][x].type === 'mystery') {
+        const newGrid = grid.map(row => row.slice());
+        newGrid[y][x] = {
+          ...grid[y][x],
+          type: 'grass',
+          name: 'Grass',
+          image: '/images/tiles/grass-tile.png',
+          isVisited: true,
+        };
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('update-grid', { detail: { grid: newGrid } }));
+        }
+      }
+    };
+    window.addEventListener('mystery-event-completed', handler);
+    return () => window.removeEventListener('mystery-event-completed', handler);
+  }, [grid, safeCharacter]);
 
   if (grid.length === 0) {
     return <div>Loading map...</div>;

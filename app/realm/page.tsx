@@ -146,6 +146,8 @@ export default function RealmPage() {
     const [castleEvent, setCastleEvent] = useState<{ open: boolean, result?: string, reward?: string } | null>(null);
     const [dungeonEvent, setDungeonEvent] = useState<{ open: boolean, questionIndex: number, score: number, prevNumber: number, questions: { fact: string, number: number }[], result?: string } | null>(null);
     const [caveEvent, setCaveEvent] = useState<{ open: boolean, result?: string } | null>(null);
+    const [castleDiceRolling, setCastleDiceRolling] = useState(false);
+    const [castleDiceValue, setCastleDiceValue] = useState<number | null>(null);
 
     // Achievement unlock effect
     useEffect(() => {
@@ -448,7 +450,11 @@ export default function RealmPage() {
                         { fact: 'How many knights in the Order of the Garter? (24)', number: 24 },
                         { fact: 'How many years did the War of the Roses last? (32)', number: 32 },
                     ];
-                    setDungeonEvent({ open: true, questionIndex: 0, score: 0, prevNumber: questions[0]!.number, questions });
+                    const randomIndex = Math.floor(Math.random() * questions.length);
+                    const question = questions[randomIndex] || questions[0];
+                    if (question) {
+                        setDungeonEvent({ open: true, questionIndex: 0, score: 0, prevNumber: question.number, questions: [question] });
+                    }
                     break;
                 }
                 case 'cave': {
@@ -543,6 +549,11 @@ export default function RealmPage() {
             setSelectedTile(null);
         }
     }, [gameMode, inventoryTab]);
+
+    // 1. When tile inventory is open, always set gameMode to 'build'.
+    useEffect(() => {
+        if (showInventory) setGameMode('build');
+    }, [showInventory]);
 
     if (isLoading) {
         return <div className="flex items-center justify-center h-screen bg-gray-900 text-white">Loading Realm...</div>;
@@ -684,6 +695,7 @@ export default function RealmPage() {
                                 }}
                                 activeTab={inventoryTab}
                                 setActiveTab={setInventoryTab}
+                                onOutOfTiles={(tile) => toast({ title: 'No more tiles of this type', description: 'Buy more!' })}
                             />
                         </ScrollArea>
                     </div>
@@ -698,27 +710,43 @@ export default function RealmPage() {
                             <DialogDescription>You enter the grand hall of the castle and are summoned before the King. He sits on a golden throne, surrounded by advisors and guards. He peers down at you with curiosity.</DialogDescription>
                         </DialogHeader>
                         {!castleEvent.result ? (
-                            <Button aria-label="Roll Dice" onClick={() => {
-                                const roll = Math.ceil(Math.random() * 6);
-                                let result = '';
-                                let reward = '';
-                                if (roll <= 2) {
-                                    result = `The King rewards your humble service with 20 gold for your travels. (Rolled ${roll})`;
-                                    reward = '+20 gold';
-                                    gainGold(20, 'castle-event');
-                                } else if (roll <= 4) {
-                                    result = `The King is impressed by your tales and grants you 40 EXP to continue your noble path. (Rolled ${roll})`;
-                                    reward = '+40 XP';
-                                    gainExperience(40, 'castle-event');
-                                } else {
-                                    const attributes = ['Loyalty', 'Defense', 'Wisdom', 'Courage', 'Honor'];
-                                    const attr = attributes[Math.floor(Math.random() * attributes.length)];
-                                    result = `The King knights you an Honorary Guardian and gifts +1 ${attr} to your Kingdom Inventory. (Rolled ${roll})`;
-                                    reward = `+1 ${attr}`;
-                                    // Add attribute to inventory or show toast (implement as needed)
-                                }
-                                setCastleEvent({ open: true, result, reward });
-                            }}>Roll Dice</Button>
+                            <div className="flex flex-col items-center space-y-4">
+                                <div className="h-16 flex items-center justify-center">
+                                    {castleDiceRolling ? (
+                                        <img src="/images/dice.gif" alt="Rolling Dice" className="w-16 h-16 animate-spin" />
+                                    ) : castleDiceValue ? (
+                                        <img src={`/images/dice-${castleDiceValue}.png`} alt={`Dice ${castleDiceValue}`} className="w-16 h-16" />
+                                    ) : (
+                                        <img src="/images/dice-1.png" alt="Dice" className="w-16 h-16 opacity-50" />
+                                    )}
+                                </div>
+                                <Button aria-label="Roll Dice" onClick={async () => {
+                                    setCastleDiceRolling(true);
+                                    setCastleDiceValue(null);
+                                    await new Promise(res => setTimeout(res, 1000));
+                                    const roll = Math.ceil(Math.random() * 6);
+                                    setCastleDiceRolling(false);
+                                    setCastleDiceValue(roll);
+                                    let result = '';
+                                    let reward = '';
+                                    if (roll <= 2) {
+                                        result = `The King rewards your humble service with 20 gold for your travels. (Rolled ${roll})`;
+                                        reward = '+20 gold';
+                                        gainGold(20, 'castle-event');
+                                    } else if (roll <= 4) {
+                                        result = `The King is impressed by your tales and grants you 40 EXP to continue your noble path. (Rolled ${roll})`;
+                                        reward = '+40 XP';
+                                        gainExperience(40, 'castle-event');
+                                    } else {
+                                        const attributes = ['Loyalty', 'Defense', 'Wisdom', 'Courage', 'Honor'];
+                                        const attr = attributes[Math.floor(Math.random() * attributes.length)];
+                                        result = `The King knights you an Honorary Guardian and gifts +1 ${attr} to your Kingdom Inventory. (Rolled ${roll})`;
+                                        reward = `+1 ${attr}`;
+                                        // Add attribute to inventory or show toast (implement as needed)
+                                    }
+                                    setTimeout(() => setCastleEvent({ open: true, result, reward }), 500);
+                                }}>Roll Dice</Button>
+                            </div>
                         ) : (
                             <div className="space-y-4">
                                 <div className="text-lg font-semibold text-center">{castleEvent.result}</div>
@@ -793,30 +821,34 @@ export default function RealmPage() {
                             <DialogTitle>Cave: Choose a Path</DialogTitle>
                             <DialogDescription>You find yourself at a fork deep in the heart of a shadowy cave. Three paths lie before you, each whispering fate in a different tone.<br/>&quot;Which path do you choose, brave adventurer?&quot;</DialogDescription>
                         </DialogHeader>
-                        {!caveEvent.result ? (
-                            <div className="space-y-4">
-                                <Button aria-label="Gem Path" onClick={() => {
+                        <>{!caveEvent.result ? (
+                            <div className="space-y-4 flex flex-col">
+                                <Button className="w-full" aria-label="Gem Path" onClick={() => {
                                     const roll = Math.random();
                                     if (roll < 0.2) {
-                                        // Use onGoldUpdate or dispatch event
+                                        setCaveEvent({ open: true, result: 'You find a radiant Gem worth 80 gold!' });
+                                        gainGold(80, 'cave-event');
                                     } else {
-                                        // Use onGoldUpdate or dispatch event
+                                        setCaveEvent({ open: true, result: "It's just dust and shadows… you find nothing." });
                                     }
                                 }}>Path 1: Gem Path</Button>
-                                <Button aria-label="Dark Path" onClick={() => {
+                                <Button className="w-full" aria-label="Dark Path" onClick={() => {
                                     const roll = Math.random();
                                     if (roll < 0.1) {
-                                        // Use onExperienceUpdate or dispatch event
+                                        setCaveEvent({ open: true, result: 'A friendly Wizard appears and grants you 120 EXP!' });
+                                        gainExperience(120, 'cave-event');
                                     } else {
-                                        // Use onGoldUpdate or dispatch event
+                                        setCaveEvent({ open: true, result: 'You stumble through the dark with no gain.' });
                                     }
                                 }}>Path 2: Dark Path</Button>
-                                <Button aria-label="Light at the End" onClick={() => {
+                                <Button className="w-full" aria-label="Light at the End" onClick={() => {
                                     const roll = Math.random();
                                     if (roll < 0.9) {
-                                        // Use onGoldUpdate or dispatch event
+                                        setCaveEvent({ open: true, result: 'You emerge safely and gain 10 gold.' });
+                                        gainGold(10, 'cave-event');
                                     } else {
-                                        // Use onGoldUpdate or dispatch event
+                                        setCaveEvent({ open: true, result: 'It leads to a working volcano—you lose 10 gold in the chaos.' });
+                                        gainGold(-10, 'cave-event');
                                     }
                                 }}>Path 3: Light at the End</Button>
                             </div>
@@ -825,7 +857,7 @@ export default function RealmPage() {
                                 <div className="text-lg font-semibold text-center">{caveEvent.result}</div>
                                 <Button aria-label="Close" onClick={() => setCaveEvent(null)}>Close</Button>
                             </div>
-                        )}
+                        )}</>
                     </DialogContent>
                 </Dialog>
             )}
