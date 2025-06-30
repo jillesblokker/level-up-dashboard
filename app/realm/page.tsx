@@ -21,6 +21,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { gainGold } from '@/lib/gold-manager'
 import { gainExperience } from '@/lib/experience-manager'
+import { useCreatureStore } from '@/stores/creatureStore'
 
 // Constants
 const GRID_COLS = 13
@@ -121,6 +122,7 @@ export default function RealmPage() {
     const userId = user?.id;
     const isGuest = !user;
     const router = useRouter();
+    const { discoverCreature } = useCreatureStore();
 
     const [grid, setGrid] = useState<Tile[][]>(createBaseGrid());
     const [isLoading, setIsLoading] = useState(true);
@@ -161,12 +163,14 @@ export default function RealmPage() {
                     body: JSON.stringify({ achievementId: '000' })
                 }).catch(console.error);
             }
+            // Also unlock Necrion in the local creature store
+            discoverCreature('000');
             toast({
                 title: "Achievement Unlocked!",
                 description: "Necrion - You've discovered the realm map!",
             });
         }
-    }, [hasVisitedRealm, isAuthLoaded, userId, setHasVisitedRealm, toast]);
+    }, [hasVisitedRealm, isAuthLoaded, userId, setHasVisitedRealm, toast, discoverCreature]);
 
     const saveGrid = useCallback(async (currentGrid: Tile[][]) => {
         if (isGuest) {
@@ -712,19 +716,22 @@ export default function RealmPage() {
                         {!castleEvent.result ? (
                             <div className="flex flex-col items-center space-y-4">
                                 <div className="h-16 flex items-center justify-center">
-                                    {castleDiceRolling ? (
-                                        <img src="/images/dice.gif" alt="Rolling Dice" className="w-16 h-16 animate-spin" />
-                                    ) : castleDiceValue ? (
-                                        <img src={`/images/dice-${castleDiceValue}.png`} alt={`Dice ${castleDiceValue}`} className="w-16 h-16" />
-                                    ) : (
-                                        <img src="/images/dice-1.png" alt="Dice" className="w-16 h-16 opacity-50" />
-                                    )}
+                                    <div className="w-16 h-16 flex items-center justify-center rounded-lg border-4 border-amber-700 bg-gray-900 text-4xl font-bold text-amber-400 select-none" style={{ transition: 'background 0.2s' }}>
+                                        {castleDiceRolling
+                                            ? Math.ceil(Math.random() * 6)
+                                            : castleDiceValue || 1}
+                                    </div>
                                 </div>
                                 <Button aria-label="Roll Dice" onClick={async () => {
                                     setCastleDiceRolling(true);
                                     setCastleDiceValue(null);
+                                    let roll = 1;
+                                    const interval = setInterval(() => {
+                                        roll = Math.ceil(Math.random() * 6);
+                                        setCastleDiceValue(roll);
+                                    }, 100);
                                     await new Promise(res => setTimeout(res, 1000));
-                                    const roll = Math.ceil(Math.random() * 6);
+                                    clearInterval(interval);
                                     setCastleDiceRolling(false);
                                     setCastleDiceValue(roll);
                                     let result = '';

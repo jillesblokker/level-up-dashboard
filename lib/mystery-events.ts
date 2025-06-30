@@ -378,12 +378,14 @@ const riddleEvents: MysteryEvent[] = [
 ]
 
 export function generateMysteryEvent(): MysteryEvent {
-  const possibleEvents: MysteryEvent[] = [
-    ...treasureEvents,
-    ...scrollEvents,
-    ...artifactEvents,
-    ...riddleEvents
-  ];
+  // Only allow treasure or riddle events for mystery tiles
+  const eventType = Math.random() < 0.5 ? 'treasure' : 'riddle';
+  let possibleEvents: MysteryEvent[] = [];
+  if (eventType === 'treasure') {
+    possibleEvents = treasureEvents;
+  } else {
+    possibleEvents = riddleEvents;
+  }
   const event = getRandomElement(possibleEvents);
   return (event ? event : possibleEvents[0]) as MysteryEvent;
 }

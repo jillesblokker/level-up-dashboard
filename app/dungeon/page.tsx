@@ -6,7 +6,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { NavBar } from "@/components/nav-bar"
-import { DungeonChallenge } from "@/components/dungeon-challenge"
+import { RiddleChallenge } from "@/components/riddle-challenge"
 import { toast } from "@/components/ui/use-toast"
 
 export default function DungeonPage() {
@@ -110,10 +110,7 @@ export default function DungeonPage() {
             </CardHeader>
             <CardContent>
               {currentDungeon && !completed && (
-                <DungeonChallenge
-                  difficulty={currentDungeon.level <= 1 ? "easy" : currentDungeon.level === 2 ? "medium" : "hard"}
-                  onComplete={handleDungeonComplete}
-                />
+                <RiddleChallenge />
               )}
               {completed && (
                 <div className="text-center py-8">

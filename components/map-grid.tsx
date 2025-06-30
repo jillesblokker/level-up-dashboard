@@ -406,8 +406,8 @@ export function MapGrid({
                     onClick={() => {
                       if (isBuyable) {
                         handleBuyTile(x, y);
-                      } else if (onTileClick) {
-                        onTileClick(x, y);
+                      } else {
+                        handleTileClick(tile, x, y);
                       }
                     }}
                     onMouseEnter={() => handleTileHover(tile, x, y)}
