@@ -530,6 +530,7 @@ export default function QuestsPage() {
                   if (builtIn.length + custom.length === 0) {
                     return (
                       <Card
+                        key="start-your-first-challenge"
                         className="border-2 border-dashed border-amber-500 bg-black/40 flex items-center justify-center min-h-[160px] focus:ring-2 focus:ring-amber-500 cursor-pointer"
                         tabIndex={0}
                         role="button"
@@ -571,6 +572,7 @@ export default function QuestsPage() {
                 })()}
                 {/* Add Custom Challenge Card */}
                 <Card
+                  key="add-custom-challenge"
                   className="border-2 border-dashed border-gray-700 hover:border-amber-500 transition-colors cursor-pointer flex items-center justify-center min-h-[160px]"
                   onClick={() => setAddChallengeModalOpen(true)}
                   tabIndex={0}
