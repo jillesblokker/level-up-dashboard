@@ -111,7 +111,9 @@ export function KingdomStatsGraph() {
       const idx = prev.findIndex(d => d.day === today)
       if (idx >= 0) {
         const updated = [...prev]
-        updated[idx].count += 1
+        if (updated[idx]) {
+          updated[idx].count += 1
+        }
         return updated
       } else {
         return [...prev, { day: today, count: 1 }]
