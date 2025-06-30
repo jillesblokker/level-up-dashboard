@@ -571,6 +571,7 @@ export default function RealmPage() {
             }, 5000);
             return () => clearInterval(interval);
         }
+        return undefined;
     }, [isPenguinPresent, penguinPos, grid]);
 
     useEffect(() => {
@@ -589,6 +590,7 @@ export default function RealmPage() {
             }, 7000);
             return () => clearInterval(interval);
         }
+        return undefined;
     }, [isHorsePresent, horsePos, grid]);
 
     useEffect(() => {
@@ -607,6 +609,7 @@ export default function RealmPage() {
             }, 6000);
             return () => clearInterval(interval);
         }
+        return undefined;
     }, [sheepPos, grid]);
 
     useEffect(() => {
@@ -625,6 +628,7 @@ export default function RealmPage() {
             }, 4000);
             return () => clearInterval(interval);
         }
+        return undefined;
     }, [eaglePos, grid]);
 
     if (isLoading) {
