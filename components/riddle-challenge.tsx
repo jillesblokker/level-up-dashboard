@@ -71,6 +71,167 @@ const riddles = [
     options: ["Your name", "Your shadow", "Your time", "Your heart"],
     answer: "Your name",
   },
+  // 30 new riddles for more variation
+  {
+    question: "What has roots as nobody sees, is taller than trees, up, up it goes, and yet never grows?",
+    options: ["A mountain", "A river", "A castle", "A tree"],
+    answer: "A mountain",
+  },
+  {
+    question: "Voiceless it cries, wingless flutters, toothless bites, mouthless mutters. What is it?",
+    options: ["The wind", "A ghost", "A river", "A bell"],
+    answer: "The wind",
+  },
+  {
+    question: "It cannot be seen, cannot be felt, cannot be heard, cannot be smelt. It lies behind stars and under hills, and empty holes it fills. What is it?",
+    options: ["Darkness", "Water", "Air", "Gold"],
+    answer: "Darkness",
+  },
+  {
+    question: "Alive without breath, as cold as death; never thirsty, ever drinking, all in mail never clinking. What is it?",
+    options: ["Fish", "Knight", "Wind", "Stone"],
+    answer: "Fish",
+  },
+  {
+    question: "This thing all things devours: birds, beasts, trees, flowers; gnaws iron, bites steel; grinds hard stones to meal; slays king, ruins town, and beats high mountain down. What is it?",
+    options: ["Time", "Fire", "Water", "Wind"],
+    answer: "Time",
+  },
+  {
+    question: "What walks on four legs in the morning, two legs at noon, and three legs in the evening?",
+    options: ["A human", "A dog", "A dragon", "A horse"],
+    answer: "A human",
+  },
+  {
+    question: "What has one eye but cannot see?",
+    options: ["A needle", "A storm", "A bat", "A coin"],
+    answer: "A needle",
+  },
+  {
+    question: "What gets wetter as it dries?",
+    options: ["A towel", "A river", "A sponge", "A cloud"],
+    answer: "A towel",
+  },
+  {
+    question: "What can travel around the world while staying in a corner?",
+    options: ["A stamp", "A shadow", "A coin", "A map"],
+    answer: "A stamp",
+  },
+  {
+    question: "What has a heart that doesn't beat?",
+    options: ["An artichoke", "A stone", "A castle", "A tree"],
+    answer: "An artichoke",
+  },
+  {
+    question: "What comes down but never goes up?",
+    options: ["Rain", "Sun", "Wind", "Smoke"],
+    answer: "Rain",
+  },
+  {
+    question: "What has many keys but can't open a single lock?",
+    options: ["A piano", "A chest", "A map", "A door"],
+    answer: "A piano",
+  },
+  {
+    question: "What has hands but can't clap?",
+    options: ["A clock", "A statue", "A king", "A tree"],
+    answer: "A clock",
+  },
+  {
+    question: "What has a neck but no head?",
+    options: ["A bottle", "A river", "A knight", "A tree"],
+    answer: "A bottle",
+  },
+  {
+    question: "What has an endless supply of letters but starts empty?",
+    options: ["A mailbox", "A book", "A scroll", "A chest"],
+    answer: "A mailbox",
+  },
+  {
+    question: "What is full of holes but still holds water?",
+    options: ["A sponge", "A net", "A bucket", "A boot"],
+    answer: "A sponge",
+  },
+  {
+    question: "What is always in front of you but can't be seen?",
+    options: ["The future", "The wind", "A ghost", "A shadow"],
+    answer: "The future",
+  },
+  {
+    question: "What can you catch but not throw?",
+    options: ["A cold", "A ball", "A fish", "A shadow"],
+    answer: "A cold",
+  },
+  {
+    question: "What kind of room has no doors or windows?",
+    options: ["A mushroom", "A dungeon", "A tomb", "A cave"],
+    answer: "A mushroom",
+  },
+  {
+    question: "What has a ring but no finger?",
+    options: ["A bell", "A king", "A knight", "A sword"],
+    answer: "A bell",
+  },
+  {
+    question: "What is so fragile that saying its name breaks it?",
+    options: ["Silence", "Glass", "A promise", "A heart"],
+    answer: "Silence",
+  },
+  {
+    question: "What can fill a room but takes up no space?",
+    options: ["Light", "Air", "Sound", "A shadow"],
+    answer: "Light",
+  },
+  {
+    question: "What has a thumb and four fingers but is not alive?",
+    options: ["A glove", "A statue", "A handprint", "A puppet"],
+    answer: "A glove",
+  },
+  {
+    question: "What invention lets you look right through a wall?",
+    options: ["A window", "A mirror", "A door", "A painting"],
+    answer: "A window",
+  },
+  {
+    question: "What can be cracked, made, told, and played?",
+    options: ["A joke", "A code", "A whip", "A song"],
+    answer: "A joke",
+  },
+  {
+    question: "What has a bed but never sleeps, and runs but never walks?",
+    options: ["A river", "A horse", "A clock", "A road"],
+    answer: "A river",
+  },
+  {
+    question: "What has teeth but can't bite?",
+    options: ["A comb", "A saw", "A dragon", "A wolf"],
+    answer: "A comb",
+  },
+  {
+    question: "What has legs but doesn't walk?",
+    options: ["A table", "A horse", "A spider", "A chair"],
+    answer: "A table",
+  },
+  {
+    question: "What runs all around a castle but never moves?",
+    options: ["A wall", "A moat", "A guard", "A road"],
+    answer: "A wall",
+  },
+  {
+    question: "What can you hold in your left hand but not in your right?",
+    options: ["Your right hand", "A sword", "A shield", "A ring"],
+    answer: "Your right hand",
+  },
+  {
+    question: "What has a spine but no bones?",
+    options: ["A book", "A fish", "A dragon", "A snake"],
+    answer: "A book",
+  },
+  {
+    question: "What is easy to lift but hard to throw?",
+    options: ["A feather", "A stone", "A coin", "A sword"],
+    answer: "A feather",
+  },
 ]
 
 interface RiddleChallengeProps {

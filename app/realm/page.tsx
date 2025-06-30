@@ -18,6 +18,7 @@ import { X, Hammer, Move, Package, Settings, Save } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { EnterLocationModal } from '@/components/enter-location-modal'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 
 // Constants
 const GRID_COLS = 13
@@ -140,6 +141,9 @@ export default function RealmPage() {
     const [isHorsePresent, setIsHorsePresent] = useState(false);
     const [isPenguinPresent, setIsPenguinPresent] = useState(false);
     const [inventoryTab, setInventoryTab] = useState<'place' | 'buy'>('place');
+    const [castleEvent, setCastleEvent] = useState<{ open: boolean, result?: string, reward?: string } | null>(null);
+    const [dungeonEvent, setDungeonEvent] = useState<{ open: boolean, questionIndex: number, score: number, prevNumber: number, questions: { fact: string, number: number }[], result?: string } | null>(null);
+    const [caveEvent, setCaveEvent] = useState<{ open: boolean, result?: string } | null>(null);
 
     // Achievement unlock effect
     useEffect(() => {
@@ -414,6 +418,41 @@ export default function RealmPage() {
         const currentTile = grid[characterPosition.y]?.[characterPosition.x];
         if (currentTile) {
             switch (currentTile.type) {
+                case 'castle': {
+                    setCastleEvent({ open: true });
+                    break;
+                }
+                case 'dungeon': {
+                    // Example trivia questions (replace with real medieval facts)
+                    const questions = [
+                        { fact: 'How many castles are in England? (1,500)', number: 1500 },
+                        { fact: 'How many knights in a typical round table? (12)', number: 12 },
+                        { fact: 'How many years did the Hundred Years\' War last? (116)', number: 116 },
+                        { fact: 'How many towers in the Tower of London? (21)', number: 21 },
+                        { fact: 'How many wives did King Henry VIII have? (6)', number: 6 },
+                        { fact: 'How many crusades were there? (9)', number: 9 },
+                        { fact: 'How many people could fit in a medieval jousting arena? (5,000)', number: 5000 },
+                        { fact: 'How many bouncy castles are there in the world? (10,000)', number: 10000 },
+                        { fact: 'How many years did the Black Death last? (7)', number: 7 },
+                        { fact: 'How many dragons in St. George\'s legend? (1)', number: 1 },
+                        { fact: 'How many pages in the Magna Carta? (4)', number: 4 },
+                        { fact: 'How many steps in a castle spiral staircase? (100)', number: 100 },
+                        { fact: 'How many shields in a knight\'s armory? (20)', number: 20 },
+                        { fact: 'How many candles in a grand medieval feast? (200)', number: 200 },
+                        { fact: 'How many bells in Notre Dame? (10)', number: 10 },
+                        { fact: 'How many kings in a deck of cards? (4)', number: 4 },
+                        { fact: 'How many arrows in a longbowman\'s quiver? (24)', number: 24 },
+                        { fact: 'How many castles in Wales? (600)', number: 600 },
+                        { fact: 'How many knights in the Order of the Garter? (24)', number: 24 },
+                        { fact: 'How many years did the War of the Roses last? (32)', number: 32 },
+                    ];
+                    setDungeonEvent({ open: true, questionIndex: 0, score: 0, prevNumber: questions[0].number, questions });
+                    break;
+                }
+                case 'cave': {
+                    setCaveEvent({ open: true });
+                    break;
+                }
                 case 'city':
                     setModalState({ isOpen: true, locationType: 'city', locationName: currentTile?.name ?? 'Bravos' });
                     break;
@@ -516,136 +555,279 @@ export default function RealmPage() {
         }));
 
     return (
-        <div className="flex flex-col h-screen bg-gray-900 text-white relative" aria-label="realm-map-section">
-            {/* Top Toolbar */}
-            <div className="flex items-center justify-between p-2 bg-gray-800/80 backdrop-blur-sm border-b border-gray-700 z-30">
-                <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant={gameMode === 'move' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setGameMode('move')}
-                            className="flex items-center gap-2"
-                            aria-label="movement-mode-button"
-                        >
-                            <Move className="w-4 h-4" />
-                            <span className="hidden sm:inline">Move</span>
-                        </Button>
-                        <Button
-                            variant={gameMode === 'build' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setGameMode('build')}
-                            className="flex items-center gap-2"
-                            aria-label="build-mode-button"
-                        >
-                            <Hammer className="w-4 h-4" />
-                            <span className="hidden sm:inline">Build</span>
-                        </Button>
+        <>
+            <div className="flex flex-col h-screen bg-gray-900 text-white relative" aria-label="realm-map-section">
+                {/* Top Toolbar */}
+                <div className="flex items-center justify-between p-2 bg-gray-800/80 backdrop-blur-sm border-b border-gray-700 z-30">
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant={gameMode === 'move' ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setGameMode('move')}
+                                className="flex items-center gap-2"
+                                aria-label="movement-mode-button"
+                            >
+                                <Move className="w-4 h-4" />
+                                <span className="hidden sm:inline">Move</span>
+                            </Button>
+                            <Button
+                                variant={gameMode === 'build' ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setGameMode('build')}
+                                className="flex items-center gap-2"
+                                aria-label="build-mode-button"
+                            >
+                                <Hammer className="w-4 h-4" />
+                                <span className="hidden sm:inline">Build</span>
+                            </Button>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center space-x-2" aria-label="auto-save-controls">
+                                <Switch id="auto-save-switch" checked={autoSave} onCheckedChange={setAutoSave} />
+                                <label htmlFor="auto-save-switch" className="text-sm">Auto Save</label>
+                            </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={expandMap}
+                                className="flex items-center gap-2"
+                                aria-label="expand-map-button"
+                            >
+                                <Settings className="w-4 h-4" />
+                                <span className="hidden sm:inline">Expand Map</span>
+                            </Button>
+                        </div>
                     </div>
                     <div className="flex items-center gap-4">
-                        <div className="flex items-center space-x-2" aria-label="auto-save-controls">
-                            <Switch id="auto-save-switch" checked={autoSave} onCheckedChange={setAutoSave} />
-                            <label htmlFor="auto-save-switch" className="text-sm">Auto Save</label>
-                        </div>
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={expandMap}
+                            onClick={() => setShowInventory(!showInventory)}
                             className="flex items-center gap-2"
-                            aria-label="expand-map-button"
+                            aria-label="toggle-inventory-button"
                         >
-                            <Settings className="w-4 h-4" />
-                            <span className="hidden sm:inline">Expand Map</span>
+                            <Package className="w-4 h-4" />
+                            <span className="hidden sm:inline">Inventory</span>
                         </Button>
-                    </div>
-                </div>
-                <div className="flex items-center gap-4">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowInventory(!showInventory)}
-                        className="flex items-center gap-2"
-                        aria-label="toggle-inventory-button"
-                    >
-                        <Package className="w-4 h-4" />
-                        <span className="hidden sm:inline">Inventory</span>
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleResetPosition}
-                        className="flex items-center gap-2"
-                        aria-label="reset-position-button"
-                    >
-                        <Move className="w-4 h-4" />
-                        <span className="hidden sm:inline">Reset Position</span>
-                    </Button>
-                </div>
-            </div>
-            {modalState && (
-                <EnterLocationModal
-                    isOpen={modalState.isOpen}
-                    onClose={() => setModalState(null)}
-                    locationType={modalState.locationType}
-                    locationName={modalState.locationName}
-                />
-            )}
-            <div className="flex flex-1 overflow-hidden">
-                {/* Main Map Area */}
-                <div className="flex-1 relative">
-                    <MapGrid
-                        grid={grid}
-                        onTileClick={handlePlaceTile}
-                        character={characterPosition}
-                        onCharacterMove={handleCharacterMove}
-                        selectedTile={selectedTile}
-                        setHoveredTile={() => {}}
-                        isMovementMode={gameMode === 'move'}
-                        horsePos={horsePos}
-                        sheepPos={sheepPos}
-                        eaglePos={eaglePos}
-                        penguinPos={penguinPos}
-                        isHorsePresent={isHorsePresent}
-                        isPenguinPresent={isPenguinPresent}
-                    />
-                </div>
-            </div>
-            {/* Side Inventory Panel */}
-            {showInventory && (
-                <div id="tile-inventory-panel" role="dialog" aria-modal="true" aria-label="Tile Inventory Panel" className="absolute top-[48px] right-0 h-[calc(100%-48px)] w-96 bg-gray-800/90 backdrop-blur-sm border-l border-gray-700 flex flex-col z-20">
-                    <div className="p-4 border-b border-gray-700 flex items-center justify-between">
-                        <h2 className="text-lg font-semibold">Tile Inventory</h2>
                         <Button
-                            ref={closeBtnRef}
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
-                            onClick={() => setShowInventory(false)}
-                            aria-label="close-inventory-button"
+                            onClick={handleResetPosition}
+                            className="flex items-center gap-2"
+                            aria-label="reset-position-button"
                         >
-                            <X className="w-4 h-4" />
+                            <Move className="w-4 h-4" />
+                            <span className="hidden sm:inline">Reset Position</span>
                         </Button>
                     </div>
-                    <ScrollArea className="flex-1 p-4">
-                        <TileInventory
-                            tiles={inventoryAsItems}
-                            selectedTile={selectedTile}
-                            onSelectTile={setSelectedTile}
-                            onUpdateTiles={(newTiles: typeof inventoryAsItems) => {
-                                setInventory(prev => {
-                                    const updated = { ...prev };
-                                    newTiles.forEach((tile: typeof inventoryAsItems[number]) => {
-                                        updated[tile.type] = { ...updated[tile.type], ...tile };
-                                    });
-                                    localStorage.setItem('tileInventory', JSON.stringify(updated));
-                                    return updated;
-                                });
-                            }}
-                            activeTab={inventoryTab}
-                            setActiveTab={setInventoryTab}
-                        />
-                    </ScrollArea>
                 </div>
+                {modalState && (
+                    <EnterLocationModal
+                        isOpen={modalState.isOpen}
+                        onClose={() => setModalState(null)}
+                        locationType={modalState.locationType}
+                        locationName={modalState.locationName}
+                    />
+                )}
+                <div className="flex flex-1 overflow-hidden">
+                    {/* Main Map Area */}
+                    <div className="flex-1 relative">
+                        <MapGrid
+                            grid={grid}
+                            onTileClick={handlePlaceTile}
+                            character={characterPosition}
+                            onCharacterMove={handleCharacterMove}
+                            selectedTile={selectedTile}
+                            setHoveredTile={() => {}}
+                            isMovementMode={gameMode === 'move'}
+                            horsePos={horsePos}
+                            sheepPos={sheepPos}
+                            eaglePos={eaglePos}
+                            penguinPos={penguinPos}
+                            isHorsePresent={isHorsePresent}
+                            isPenguinPresent={isPenguinPresent}
+                        />
+                    </div>
+                </div>
+                {/* Side Inventory Panel */}
+                {showInventory && (
+                    <div id="tile-inventory-panel" role="dialog" aria-modal="true" aria-label="Tile Inventory Panel" className="absolute top-[48px] right-0 h-[calc(100%-48px)] w-96 bg-gray-800/90 backdrop-blur-sm border-l border-gray-700 flex flex-col z-20">
+                        <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+                            <h2 className="text-lg font-semibold">Tile Inventory</h2>
+                            <Button
+                                ref={closeBtnRef}
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setShowInventory(false)}
+                                aria-label="close-inventory-button"
+                            >
+                                <X className="w-4 h-4" />
+                            </Button>
+                        </div>
+                        <ScrollArea className="flex-1 p-4">
+                            <TileInventory
+                                tiles={inventoryAsItems}
+                                selectedTile={selectedTile}
+                                onSelectTile={setSelectedTile}
+                                onUpdateTiles={(newTiles: typeof inventoryAsItems) => {
+                                    setInventory(prev => {
+                                        const updated = { ...prev };
+                                        newTiles.forEach((tile: typeof inventoryAsItems[number]) => {
+                                            updated[tile.type] = { ...updated[tile.type], ...tile };
+                                        });
+                                        localStorage.setItem('tileInventory', JSON.stringify(updated));
+                                        return updated;
+                                    });
+                                }}
+                                activeTab={inventoryTab}
+                                setActiveTab={setInventoryTab}
+                            />
+                        </ScrollArea>
+                    </div>
+                )}
+            </div>
+            {/* Event Modals */}
+            {castleEvent?.open && (
+                <Dialog open={castleEvent.open} onOpenChange={() => setCastleEvent(null)}>
+                    <DialogContent aria-label="Castle Event Royal Audience" role="dialog" aria-modal="true">
+                        <DialogHeader>
+                            <DialogTitle>Royal Audience with the King</DialogTitle>
+                            <DialogDescription>You enter the grand hall of the castle and are summoned before the King. He sits on a golden throne, surrounded by advisors and guards. He peers down at you with curiosity.</DialogDescription>
+                        </DialogHeader>
+                        {!castleEvent.result ? (
+                            <Button aria-label="Roll Dice" onClick={() => {
+                                const roll = Math.ceil(Math.random() * 6);
+                                let result = '';
+                                let reward = '';
+                                if (roll <= 2) {
+                                    result = `The King rewards your humble service with 20 gold for your travels. (Rolled ${roll})`;
+                                    reward = '+20 gold';
+                                    setGold(gold + 20);
+                                } else if (roll <= 4) {
+                                    result = `The King is impressed by your tales and grants you 40 EXP to continue your noble path. (Rolled ${roll})`;
+                                    reward = '+40 XP';
+                                    setExperience(experience + 40);
+                                } else {
+                                    const attributes = ['Loyalty', 'Defense', 'Wisdom', 'Courage', 'Honor'];
+                                    const attr = attributes[Math.floor(Math.random() * attributes.length)];
+                                    result = `The King knights you an Honorary Guardian and gifts +1 ${attr} to your Kingdom Inventory. (Rolled ${roll})`;
+                                    reward = `+1 ${attr}`;
+                                    // Add attribute to inventory or show toast (implement as needed)
+                                }
+                                setCastleEvent({ open: true, result, reward });
+                            }}>Roll Dice</Button>
+                        ) : (
+                            <div className="space-y-4">
+                                <div className="text-lg font-semibold text-center">{castleEvent.result}</div>
+                                <Button aria-label="Close" onClick={() => setCastleEvent(null)}>Close</Button>
+                            </div>
+                        )}
+                    </DialogContent>
+                </Dialog>
             )}
-        </div>
+            {dungeonEvent?.open && (
+                <Dialog open={dungeonEvent.open} onOpenChange={() => setDungeonEvent(null)}>
+                    <DialogContent aria-label="Dungeon Event Higher or Lower" role="dialog" aria-modal="true">
+                        <DialogHeader>
+                            <DialogTitle>Medieval Dungeon: Higher or Lower?</DialogTitle>
+                            <DialogDescription>You descend into a damp, torch-lit dungeon. Echoes bounce from the walls. A voice from the shadows challenges you to a battle of wit and lore.<br/>"Is the next number higher or lower?"</DialogDescription>
+                        </DialogHeader>
+                        {dungeonEvent.questionIndex < dungeonEvent.questions.length ? (
+                            <div className="space-y-4">
+                                <div className="text-lg font-semibold text-center">{dungeonEvent.questions[dungeonEvent.questionIndex].fact}</div>
+                                <div className="flex gap-4 justify-center">
+                                    <Button aria-label="Higher" onClick={() => {
+                                        const nextIdx = dungeonEvent.questionIndex + 1;
+                                        if (nextIdx >= dungeonEvent.questions.length) {
+                                            setDungeonEvent({ ...dungeonEvent, questionIndex: nextIdx, result: `You scored ${dungeonEvent.score} out of 20! (+${dungeonEvent.score * 5} XP)` });
+                                            setExperience(experience + dungeonEvent.score * 5);
+                                            return;
+                                        }
+                                        const next = dungeonEvent.questions[nextIdx];
+                                        const correct = next.number > dungeonEvent.questions[dungeonEvent.questionIndex].number;
+                                        setDungeonEvent({
+                                            ...dungeonEvent,
+                                            questionIndex: nextIdx,
+                                            score: dungeonEvent.score + (correct ? 1 : 0),
+                                            prevNumber: next.number,
+                                        });
+                                    }}>Higher</Button>
+                                    <Button aria-label="Lower" onClick={() => {
+                                        const nextIdx = dungeonEvent.questionIndex + 1;
+                                        if (nextIdx >= dungeonEvent.questions.length) {
+                                            setDungeonEvent({ ...dungeonEvent, questionIndex: nextIdx, result: `You scored ${dungeonEvent.score} out of 20! (+${dungeonEvent.score * 5} XP)` });
+                                            setExperience(experience + dungeonEvent.score * 5);
+                                            return;
+                                        }
+                                        const next = dungeonEvent.questions[nextIdx];
+                                        const correct = next.number < dungeonEvent.questions[dungeonEvent.questionIndex].number;
+                                        setDungeonEvent({
+                                            ...dungeonEvent,
+                                            questionIndex: nextIdx,
+                                            score: dungeonEvent.score + (correct ? 1 : 0),
+                                            prevNumber: next.number,
+                                        });
+                                    }}>Lower</Button>
+                                </div>
+                                <div className="text-sm text-center text-gray-400">Current Score: {dungeonEvent.score} / 20</div>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                <div className="text-lg font-semibold text-center">{dungeonEvent.result}</div>
+                                <Button aria-label="Close" onClick={() => setDungeonEvent(null)}>Close</Button>
+                            </div>
+                        )}
+                    </DialogContent>
+                </Dialog>
+            )}
+            {caveEvent?.open && (
+                <Dialog open={caveEvent.open} onOpenChange={() => setCaveEvent(null)}>
+                    <DialogContent aria-label="Cave Event Three Paths" role="dialog" aria-modal="true">
+                        <DialogHeader>
+                            <DialogTitle>Cave: Choose a Path</DialogTitle>
+                            <DialogDescription>You find yourself at a fork deep in the heart of a shadowy cave. Three paths lie before you, each whispering fate in a different tone.<br/>"Which path do you choose, brave adventurer?"</DialogDescription>
+                        </DialogHeader>
+                        {!caveEvent.result ? (
+                            <div className="space-y-4">
+                                <Button aria-label="Gem Path" onClick={() => {
+                                    const roll = Math.random();
+                                    if (roll < 0.2) {
+                                        setGold(gold + 80);
+                                        setCaveEvent({ open: true, result: 'You find a radiant Gem worth 80 gold!' });
+                                    } else {
+                                        setCaveEvent({ open: true, result: 'It's just dust and shadows… you find nothing.' });
+                                    }
+                                }}>Path 1: Gem Path</Button>
+                                <Button aria-label="Dark Path" onClick={() => {
+                                    const roll = Math.random();
+                                    if (roll < 0.1) {
+                                        setExperience(experience + 120);
+                                        setCaveEvent({ open: true, result: 'A friendly Wizard appears and grants you 120 EXP!' });
+                                    } else {
+                                        setCaveEvent({ open: true, result: 'You stumble through the dark with no gain.' });
+                                    }
+                                }}>Path 2: Dark Path</Button>
+                                <Button aria-label="Light at the End" onClick={() => {
+                                    const roll = Math.random();
+                                    if (roll < 0.9) {
+                                        setGold(gold + 10);
+                                        setCaveEvent({ open: true, result: 'You emerge safely and gain 10 gold.' });
+                                    } else {
+                                        setGold(Math.max(0, gold - 10));
+                                        setCaveEvent({ open: true, result: 'It leads to a working volcano—you lose 10 gold in the chaos.' });
+                                    }
+                                }}>Path 3: Light at the End</Button>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                <div className="text-lg font-semibold text-center">{caveEvent.result}</div>
+                                <Button aria-label="Close" onClick={() => setCaveEvent(null)}>Close</Button>
+                            </div>
+                        )}
+                    </DialogContent>
+                </Dialog>
+            )}
+        </>
     );
 }
