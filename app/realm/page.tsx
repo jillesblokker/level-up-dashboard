@@ -740,37 +740,37 @@ export default function RealmPage() {
                                 <div className="text-lg font-semibold text-center">{dungeonEvent.questions[dungeonEvent.questionIndex].fact}</div>
                                 <div className="flex gap-4 justify-center">
                                     <Button aria-label="Higher" onClick={() => {
-                                        const nextQuestionHigher = dungeonEvent.questionIndex + 1;
-                                        if (nextQuestionHigher >= dungeonEvent.questions.length) {
-                                            setDungeonEvent({ ...dungeonEvent, questionIndex: nextQuestionHigher, result: `You scored ${dungeonEvent.score} out of 20! (+${dungeonEvent.score * 5} XP)` });
+                                        const nextQuestionIndex = dungeonEvent.questionIndex + 1;
+                                        if (nextQuestionIndex >= dungeonEvent.questions.length) {
+                                            setDungeonEvent({ ...dungeonEvent, questionIndex: nextQuestionIndex, result: `You scored ${dungeonEvent.score} out of 20! (+${dungeonEvent.score * 5} XP)` });
                                             gainExperience(dungeonEvent.score * 5, 'dungeon-event');
                                             return;
                                         }
-                                        const nextQuestionHigher = dungeonEvent && dungeonEvent.questions && dungeonEvent.questions[nextQuestionHigher];
-                                        if (nextQuestionHigher) {
-                                            const correct = nextQuestionHigher.number > dungeonEvent.questions[dungeonEvent.questionIndex].number;
+                                        const nextQuestion = dungeonEvent && dungeonEvent.questions && dungeonEvent.questions[nextQuestionIndex];
+                                        if (nextQuestion) {
+                                            const correct = nextQuestion.number > dungeonEvent.questions[dungeonEvent.questionIndex].number;
                                             setDungeonEvent({
                                                 ...dungeonEvent,
-                                                questionIndex: nextQuestionHigher,
+                                                questionIndex: nextQuestionIndex,
                                                 score: dungeonEvent.score + (correct ? 1 : 0),
-                                                prevNumber: nextQuestionHigher.number,
+                                                prevNumber: nextQuestion.number,
                                             });
                                         }
                                     }}>Higher</Button>
                                     <Button aria-label="Lower" onClick={() => {
-                                        const nextQuestionLower = dungeonEvent.questionIndex + 1;
-                                        if (nextQuestionLower >= dungeonEvent.questions.length) {
-                                            setDungeonEvent({ ...dungeonEvent, questionIndex: nextQuestionLower, result: `You scored ${dungeonEvent.score} out of 20! (+${dungeonEvent.score * 5} XP)` });
+                                        const nextQuestionIndex = dungeonEvent.questionIndex + 1;
+                                        if (nextQuestionIndex >= dungeonEvent.questions.length) {
+                                            setDungeonEvent({ ...dungeonEvent, questionIndex: nextQuestionIndex, result: `You scored ${dungeonEvent.score} out of 20! (+${dungeonEvent.score * 5} XP)` });
                                             return;
                                         }
-                                        const nextQuestionLower = dungeonEvent && dungeonEvent.questions && dungeonEvent.questions[nextQuestionLower];
-                                        if (nextQuestionLower) {
-                                            const correct = nextQuestionLower.number < dungeonEvent.questions[dungeonEvent.questionIndex].number;
+                                        const nextQuestion = dungeonEvent && dungeonEvent.questions && dungeonEvent.questions[nextQuestionIndex];
+                                        if (nextQuestion) {
+                                            const correct = nextQuestion.number < dungeonEvent.questions[dungeonEvent.questionIndex].number;
                                             setDungeonEvent({
                                                 ...dungeonEvent,
-                                                questionIndex: nextQuestionLower,
+                                                questionIndex: nextQuestionIndex,
                                                 score: dungeonEvent.score + (correct ? 1 : 0),
-                                                prevNumber: nextQuestionLower.number,
+                                                prevNumber: nextQuestion.number,
                                             });
                                         }
                                     }}>Lower</Button>
