@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { grantAchievementRewards } from '@/lib/achievement-rewards';
 
 interface Achievement {
   id: string;
@@ -177,6 +178,11 @@ export const useAchievementStore = create<AchievementStore>((set, get) => ({
           : achievement
       ),
     }));
+    // Find the achievement and trigger rewards/notification
+    const achievement = get().achievements.find(a => a.id === achievementId);
+    if (achievement && !achievement.completed) {
+      grantAchievementRewards(achievementId, achievement.name);
+    }
   },
   getAchievementsByCategory: (category) => {
     return get().achievements.filter((achievement) => achievement.category === category);

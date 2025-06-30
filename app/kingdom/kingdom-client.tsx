@@ -81,12 +81,32 @@ const getConsumableEffect = (item: KingdomInventoryItem) => {
     localStorage.setItem('character-stats', JSON.stringify(stats))
     return `You used a scroll and gained ${gold} gold!`
   }
-  // Potions: activate a perk for a day
+  // Potions: handle each potion type explicitly
   if (item.type === 'item' && item.name) {
-    const key = item.name.toLowerCase()
+    const key = item.name.toLowerCase();
+    if (key === 'health potion') {
+      // Restore health (if tracked) or show a toast
+      // (Assume health is tracked in character-stats)
+      const stats = JSON.parse(localStorage.getItem('character-stats') || '{"health":100}')
+      stats.health = Math.min((stats.health || 100) + 50, 100)
+      localStorage.setItem('character-stats', JSON.stringify(stats))
+      return `You used a Health Potion and restored 50 health!`;
+    }
+    if (key === 'gold potion') {
+      const stats = JSON.parse(localStorage.getItem('character-stats') || '{"gold":0}')
+      stats.gold = (stats.gold || 0) + 50
+      localStorage.setItem('character-stats', JSON.stringify(stats))
+      return `You used a Gold Potion and gained 50 gold!`;
+    }
+    if (key === 'experience potion' || key === 'exp potion') {
+      const stats = JSON.parse(localStorage.getItem('character-stats') || '{"experience":0}')
+      stats.experience = (stats.experience || 0) + 50
+      localStorage.setItem('character-stats', JSON.stringify(stats))
+      return `You used an Experience Potion and gained 50 XP!`;
+    }
+    // Other potions: use perk logic
     if (potionPerkMap[key]) {
       const perk = getRandomFromArray(potionPerkMap[key].perks)
-      // Simulate activating the perk for a day (store in localStorage with expiry)
       const now = new Date()
       const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000)
       const activePerks = JSON.parse(localStorage.getItem('active-potion-perks') || '{}')

@@ -441,52 +441,52 @@ export function MapGrid({
                     {/* Animal overlays using block/flex approach for visibility */}
                     {/* Ensure the following PNGs exist in /public/images/Animals/ and are named exactly: horse.png, sheep.png, eagle.png, penguin.png */}
                     {horsePos && horsePos.x === x && horsePos.y === y && isHorsePresent && (
-                      <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
+                      <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
                         <Image
                           src="/images/Animals/horse.png"
                           alt="Horse"
                           width={96}
                           height={96}
-                          className="object-contain drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]"
+                          className="object-contain w-24 h-24 drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]"
                           onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐴</span>'); }}
                           priority
                         />
                       </div>
                     )}
                     {sheepPos && sheepPos.x === x && sheepPos.y === y && (
-                      <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
+                      <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
                         <Image
                           src="/images/Animals/sheep.png"
                           alt="Sheep"
                           width={96}
                           height={96}
-                          className="object-contain drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]"
+                          className="object-contain w-24 h-24 drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]"
                           onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐑</span>'); }}
                           priority
                         />
                       </div>
                     )}
                     {eaglePos && eaglePos.x === x && eaglePos.y === y && (
-                      <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
+                      <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
                         <Image
                           src="/images/Animals/eagle.png"
                           alt="Eagle"
                           width={96}
                           height={96}
-                          className="object-contain drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]"
+                          className="object-contain w-24 h-24 drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]"
                           onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🦅</span>'); }}
                           priority
                         />
                       </div>
                     )}
                     {penguinPos && penguinPos.x === x && penguinPos.y === y && isPenguinPresent && (
-                      <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
+                      <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
                         <Image
                           src="/images/Animals/penguin.png"
                           alt="Penguin"
                           width={96}
                           height={96}
-                          className="object-contain drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]"
+                          className="object-contain w-24 h-24 drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]"
                           onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐧</span>'); }}
                           priority
                         />

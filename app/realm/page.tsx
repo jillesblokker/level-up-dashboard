@@ -631,6 +631,54 @@ export default function RealmPage() {
         return undefined;
     }, [eaglePos, grid]);
 
+    // Keyboard shortcut: 'm' for move mode
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'm' || event.key === 'M') {
+                setGameMode('move');
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+
+    // Ensure animals are placed on valid tiles if not already set
+    useEffect(() => {
+        if (!horsePos) {
+            // Place horse on a random grass tile
+            const grassTiles: { x: number; y: number }[] = [];
+            grid.forEach((row, y) => row.forEach((tile, x) => {
+                if (tile.type === 'grass') grassTiles.push({ x, y });
+            }));
+            if (grassTiles.length > 0) {
+                const next = grassTiles[Math.floor(Math.random() * grassTiles.length)];
+                if (next) setHorsePos(next);
+            }
+        }
+        if (!sheepPos) {
+            // Place sheep on a random forest tile
+            const forestTiles: { x: number; y: number }[] = [];
+            grid.forEach((row, y) => row.forEach((tile, x) => {
+                if (tile.type === 'forest') forestTiles.push({ x, y });
+            }));
+            if (forestTiles.length > 0) {
+                const next = forestTiles[Math.floor(Math.random() * forestTiles.length)];
+                if (next) setSheepPos(next);
+            }
+        }
+        if (!eaglePos) {
+            // Place eagle on a random mountain tile
+            const mountainTiles: { x: number; y: number }[] = [];
+            grid.forEach((row, y) => row.forEach((tile, x) => {
+                if (tile.type === 'mountain') mountainTiles.push({ x, y });
+            }));
+            if (mountainTiles.length > 0) {
+                const next = mountainTiles[Math.floor(Math.random() * mountainTiles.length)];
+                if (next) setEaglePos(next);
+            }
+        }
+    }, [grid, horsePos, sheepPos, eaglePos, setHorsePos, setSheepPos, setEaglePos]);
+
     if (isLoading) {
         return <div className="flex items-center justify-center h-screen bg-gray-900 text-white">Loading Realm...</div>;
     }
