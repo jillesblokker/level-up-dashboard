@@ -225,8 +225,124 @@ export function KingdomStatsGraph() {
   }
 
   return (
-    <div className="flex flex-col space-y-4">
-      {/* Rest of the component content */}
-    </div>
+    <Card className="border border-amber-800/20 bg-black" aria-label="kingdom-stats-card">
+      <CardHeader>
+        <CardTitle className="text-xl font-medievalsharp text-amber-500">
+          <div className="flex items-center justify-between">
+            {getTimePeriodName()}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="time-period-dropdown">
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => setTimePeriod('today')} aria-label="select-today">
+                  Today
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTimePeriod('weekly')} aria-label="select-weekly">
+                  Weekly
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTimePeriod('yearly')} aria-label="select-yearly">
+                  This Year
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {/* Mobile tab selector */}
+        <div className="mb-4 md:hidden">
+          <label htmlFor="kingdom-stats-tab-select" className="sr-only">Select stats tab</label>
+          <select
+            id="kingdom-stats-tab-select"
+            aria-label="Kingdom stats tab selector"
+            className="w-full rounded-md border border-amber-800/20 bg-black text-white p-2"
+            value={activeTab}
+            onChange={e => setActiveTab(e.target.value)}
+          >
+            <option value="challenges">Challenges</option>
+            <option value="quests">Quests</option>
+            <option value="gold">Gold</option>
+            <option value="exp">Experience</option>
+          </select>
+        </div>
+        <Tabs defaultValue="quests" value={activeTab} onValueChange={setActiveTab} aria-label="kingdom-stats-tabs">
+          <TabsList className="mb-4 w-full grid grid-cols-4 hidden md:grid" aria-label="kingdom-stats-tab-list">
+            <TabsTrigger value="challenges" aria-label="challenges-tab">Challenges</TabsTrigger>
+            <TabsTrigger value="quests" aria-label="quests-tab">Quests</TabsTrigger>
+            <TabsTrigger value="gold" aria-label="gold-tab">Gold</TabsTrigger>
+            <TabsTrigger value="exp" aria-label="experience-tab">Experience</TabsTrigger>
+          </TabsList>
+          <TabsContent value="challenges" aria-label="challenges-content">
+            {challengeCompleted ? (
+              <div>
+                {/* Render challenge graph */}
+                <div className="h-64 flex items-end w-full space-x-1" aria-label="kingdom-stats-challenge-graph">
+                  {challengeData.map((item, index) => (
+                    <div key={index} className="flex flex-col items-center flex-1">
+                      <div
+                        className={`w-full bg-amber-500 rounded-t transition-all duration-300`}
+                        style={{
+                          height: `${item.count > 0 ? (item.count / Math.max(...challengeData.map(d => d.count), 1)) * 160 : 0}px`,
+                          minHeight: item.count > 0 ? '4px' : '0'
+                        }}
+                        aria-label={`challenge-bar-${item.day}-${item.count}`}
+                      ></div>
+                      <div className="mt-2 w-full text-center">
+                        <div className="text-xs font-medium text-gray-400">{item.day}</div>
+                        <div className="text-sm font-bold">{item.count}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <section
+                className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden"
+                aria-label="kingdom-challenge-empty-state-section"
+              >
+                <Image
+                  src="/images/quests-header.jpg"
+                  alt="Empty challenge stats placeholder"
+                  className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none"
+                  width={400}
+                  height={300}
+                  aria-hidden="true"
+                />
+                <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
+                <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3">
+                  <div className="text-amber-500 text-xl font-bold drop-shadow-md" aria-label="kingdom-challenge-empty-title">
+                    No challenges completed yet
+                  </div>
+                  <div className="text-gray-100 text-base" aria-label="kingdom-challenge-empty-desc">
+                    Start your first challenge to see your progress here!
+                  </div>
+                  <button
+                    className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 transition-all"
+                    aria-label="Start your first challenge"
+                    tabIndex={0}
+                    role="button"
+                    onClick={handleCompleteChallenge}
+                  >
+                    Start Your First Challenge
+                  </button>
+                </div>
+              </section>
+            )}
+          </TabsContent>
+          <TabsContent value="quests" aria-label="quests-content">
+            {hasData(graphData, 'quests') ? renderGraph(graphData, 'quests', 'bg-purple-600', '') : <EmptyState />}
+          </TabsContent>
+          <TabsContent value="gold" aria-label="gold-content">
+            {hasData(graphData, 'gold') ? renderGraph(graphData, 'gold', 'bg-yellow-500', 'g') : <EmptyState />}
+          </TabsContent>
+          <TabsContent value="exp" aria-label="experience-content">
+            {hasData(graphData, 'experience') ? renderGraph(graphData, 'experience', 'bg-blue-500', 'xp') : <EmptyState />}
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   )
 }
