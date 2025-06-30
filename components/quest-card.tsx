@@ -19,6 +19,7 @@ interface UnifiedCardProps {
   gold?: number;
   className?: string;
   children?: React.ReactNode;
+  streak?: number; // 🔥 streak count
 }
 
 const CardWithProgress: React.FC<UnifiedCardProps> = ({
@@ -34,6 +35,7 @@ const CardWithProgress: React.FC<UnifiedCardProps> = ({
   gold,
   className,
   children,
+  streak = 0,
 }) => {
   return (
     <Card
@@ -52,7 +54,18 @@ const CardWithProgress: React.FC<UnifiedCardProps> = ({
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div className="flex items-center gap-2">
           {icon && <span className="rounded-full p-2 bg-black/40 border border-amber-800">{icon}</span>}
-          <CardTitle className="text-lg font-semibold text-amber-300">{title}</CardTitle>
+          <CardTitle className="text-lg font-semibold text-amber-300 flex items-center gap-2">
+            {title}
+            {streak > 1 && (
+              <span
+                className="ml-2 flex items-center gap-1 text-orange-400 font-bold text-base"
+                aria-label={`Streak: ${streak} days`}
+                title={`Streak: ${streak} days`}
+              >
+                <span role="img" aria-label="fire">🔥</span> {streak}
+              </span>
+            )}
+          </CardTitle>
         </div>
         <div className="flex items-center gap-2">
           {onEdit && (

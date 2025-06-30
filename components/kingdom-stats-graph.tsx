@@ -69,24 +69,10 @@ export function KingdomStatsGraph() {
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('weekly')
   const [graphData, setGraphData] = useState<GraphData[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [statType, setStatType] = useState<'quests' | 'gold' | 'experience' | 'challenges'>('quests')
+  const [statType, setStatType] = useState<'quests' | 'gold' | 'experience'>('quests')
 
   // Load data when time period or statType changes
   useEffect(() => {
-    if (statType === 'challenges') {
-      // Placeholder: Replace with real challenge data aggregation
-      setGraphData([
-        { day: 'Mon', gold: 0, experience: 0, quests: 0 },
-        { day: 'Tue', gold: 0, experience: 0, quests: 0 },
-        { day: 'Wed', gold: 0, experience: 0, quests: 0 },
-        { day: 'Thu', gold: 0, experience: 0, quests: 0 },
-        { day: 'Fri', gold: 0, experience: 0, quests: 0 },
-        { day: 'Sat', gold: 0, experience: 0, quests: 0 },
-        { day: 'Sun', gold: 0, experience: 0, quests: 0 },
-      ])
-      setIsLoading(false)
-      return
-    }
     const loadData = () => {
       try {
         setIsLoading(true)
@@ -209,9 +195,6 @@ export function KingdomStatsGraph() {
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setTimePeriod('yearly')} aria-label="select-yearly">
                   This Year
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setStatType('challenges')} aria-label="select-challenges">
-                  Challenges
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

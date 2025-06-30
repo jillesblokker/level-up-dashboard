@@ -111,6 +111,9 @@ const workoutPlan = [
   }
 ];
 
+const CHALLENGE_STREAKS_KEY = 'challenge-streaks-v1';
+const CHALLENGE_LAST_COMPLETED_KEY = 'challenge-last-completed-v1';
+
 export default function QuestsPage() {
   const { user, isLoaded: isAuthLoaded } = useUser();
   const userId = user?.id;
@@ -138,6 +141,28 @@ export default function QuestsPage() {
     weight: '',
   });
   const [customChallenges, setCustomChallenges] = useState<Record<string, any[]>>({});
+  const [challengeStreaks, setChallengeStreaks] = useState<Record<string, number[]>>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        return JSON.parse(localStorage.getItem(CHALLENGE_STREAKS_KEY) || '{}');
+      } catch {
+        return {};
+      }
+    }
+    return {};
+  });
+  const [challengeLastCompleted, setChallengeLastCompleted] = useState<Record<string, string[]>>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        return JSON.parse(localStorage.getItem(CHALLENGE_LAST_COMPLETED_KEY) || '{}');
+      } catch {
+        return {};
+      }
+    }
+    return {};
+  });
+  const [editCustomChallengeIdx, setEditCustomChallengeIdx] = useState<number | null>(null);
+  const [editCustomChallengeData, setEditCustomChallengeData] = useState<any | null>(null);
 
   useEffect(() => {
     const loadQuests = async () => {
@@ -189,6 +214,34 @@ export default function QuestsPage() {
       }
     }
   }, [loading, quests.length]);
+
+  // Persist streaks and last completed
+  useEffect(() => {
+    localStorage.setItem(CHALLENGE_STREAKS_KEY, JSON.stringify(challengeStreaks));
+  }, [challengeStreaks]);
+  useEffect(() => {
+    localStorage.setItem(CHALLENGE_LAST_COMPLETED_KEY, JSON.stringify(challengeLastCompleted));
+  }, [challengeLastCompleted]);
+
+  // Reset streaks if a day is missed (run on mount)
+  useEffect(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    setChallengeStreaks(prevStreaks => {
+      const updated: Record<string, number[]> = { ...prevStreaks };
+      Object.keys(prevStreaks).forEach(category => {
+        const streakArr = prevStreaks[category] || [];
+        const lastArr = (challengeLastCompleted[category] || []);
+        updated[category] = streakArr.map((streak, idx) => {
+          const last = lastArr[idx];
+          if (!last) return 0;
+          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          if (last === today || last === yesterday) return streak;
+          return 0; // missed a day
+        });
+      });
+      return updated;
+    });
+  }, []);
 
   const handleQuestToggle = async (questName: string, currentCompleted: boolean) => {
     if (!userId) return;
@@ -259,6 +312,40 @@ export default function QuestsPage() {
       const current: boolean[] = (prev[safeChallengeCategory] ?? Array(exercisesLength).fill(false)) as boolean[];
       const updated = [...current];
       updated[idx] = !updated[idx];
+      // --- Streak logic for custom challenges ---
+      if (idx >= (foundDay?.exercises.length || 0)) { // custom challenge
+        setChallengeStreaks(prevStreaks => {
+          const arr = prevStreaks[safeChallengeCategory] ?? [];
+          const streakArr = [...arr];
+          const lastArr = challengeLastCompleted[safeChallengeCategory] ?? [];
+          const today = new Date().toISOString().slice(0, 10);
+          if (updated[idx]) { // just completed
+            const last = lastArr[idx];
+            const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+            if (last === yesterday) {
+              streakArr[idx] = (streakArr[idx] || 0) + 1;
+            } else if (last === today) {
+              // already completed today, do not increment
+              streakArr[idx] = streakArr[idx] || 1;
+            } else {
+              streakArr[idx] = 1;
+            }
+          } else {
+            streakArr[idx] = 0;
+          }
+          return { ...prevStreaks, [safeChallengeCategory]: streakArr };
+        });
+        setChallengeLastCompleted(prevLast => {
+          const arr = prevLast[safeChallengeCategory] ?? [];
+          const lastArr = [...arr];
+          if (updated[idx]) {
+            lastArr[idx] = new Date().toISOString().slice(0, 10);
+          } else {
+            lastArr[idx] = '';
+          }
+          return { ...prevLast, [safeChallengeCategory]: lastArr };
+        });
+      }
       return { ...prev, [safeChallengeCategory]: updated };
     });
   };
@@ -273,6 +360,41 @@ export default function QuestsPage() {
     });
     setAddChallengeModalOpen(false);
     setNewChallenge({ name: '', instructions: '', setsReps: '', tips: '', weight: '' });
+  };
+
+  // Edit handler for custom challenges
+  const handleEditCustomChallenge = (idx: number) => {
+    if (!customChallenges[challengeCategory] || !customChallenges[challengeCategory][idx]) return;
+    setEditCustomChallengeIdx(idx);
+    setEditCustomChallengeData({ ...customChallenges[challengeCategory][idx] });
+  };
+  const handleEditCustomChallengeSubmit = () => {
+    if (editCustomChallengeIdx === null || !editCustomChallengeData) return;
+    setCustomChallenges(prev => {
+      const arr = [...(prev[challengeCategory] ?? [])];
+      arr[editCustomChallengeIdx] = { ...editCustomChallengeData };
+      return { ...prev, [challengeCategory]: arr };
+    });
+    setEditCustomChallengeIdx(null);
+    setEditCustomChallengeData(null);
+  };
+  const handleDeleteCustomChallenge = (idx: number) => {
+    setCustomChallenges(prev => {
+      const arr = [...(prev[challengeCategory] ?? [])];
+      arr.splice(idx, 1);
+      // Remove streak and last-completed for this challenge
+      setChallengeStreaks(streaksPrev => {
+        const arr2 = [...(streaksPrev[challengeCategory] ?? [])];
+        arr2.splice(idx, 1);
+        return { ...streaksPrev, [challengeCategory]: arr2 };
+      });
+      setChallengeLastCompleted(lastPrev => {
+        const arr2 = [...(lastPrev[challengeCategory] ?? [])];
+        arr2.splice(idx, 1);
+        return { ...lastPrev, [challengeCategory]: arr2 };
+      });
+      return { ...prev, [challengeCategory]: arr };
+    });
   };
 
   if (loading) {
@@ -402,24 +524,51 @@ export default function QuestsPage() {
             <div className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {/* Render built-in and custom challenges */}
-                {[
-                  ...(workoutPlan.find(day => day.category === challengeCategory)?.exercises ?? []),
-                  ...(customChallenges[challengeCategory] ?? [])
-                ].map((exercise, idx) => (
-                  <CardWithProgress
-                    key={exercise.name + idx}
-                    title={exercise.name}
-                    description={exercise.instructions}
-                    icon={React.createElement(getCategoryIcon(safeChallengeCategory))}
-                    completed={completedChallenges[safeChallengeCategory]?.[idx] || false}
-                    onToggle={() => handleChallengeComplete(idx)}
-                    onEdit={() => handleEditQuest(exercise as Quest)}
-                    onDelete={() => handleChallengeComplete(idx)}
-                    progress={completedChallenges[safeChallengeCategory]?.[idx] ? 100 : 5}
-                    xp={0}
-                    gold={0}
-                  />
-                ))}
+                {(() => {
+                  const builtIn = workoutPlan.find(day => day.category === challengeCategory)?.exercises ?? [];
+                  const custom = customChallenges[challengeCategory] ?? [];
+                  if (builtIn.length + custom.length === 0) {
+                    return (
+                      <Card
+                        className="border-2 border-dashed border-amber-500 bg-black/40 flex items-center justify-center min-h-[160px] focus:ring-2 focus:ring-amber-500 cursor-pointer"
+                        tabIndex={0}
+                        role="button"
+                        aria-label="start-your-first-challenge-cta"
+                        onClick={() => setAddChallengeModalOpen(true)}
+                        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setAddChallengeModalOpen(true); } }}
+                      >
+                        <div className="text-center text-amber-400">
+                          <Plus className="w-8 h-8 mx-auto mb-2" />
+                          <p className="text-lg font-semibold">Start your first challenge</p>
+                          <p className="text-sm text-amber-200 mt-1">Add a custom challenge to begin your streak!</p>
+                        </div>
+                      </Card>
+                    );
+                  }
+                  return [
+                    ...builtIn,
+                    ...custom
+                  ].map((exercise, idx) => {
+                    const isCustom = idx >= builtIn.length;
+                    const cardProps: any = {
+                      key: exercise.name + idx,
+                      title: exercise.name,
+                      description: exercise.instructions,
+                      icon: React.createElement(getCategoryIcon(safeChallengeCategory)),
+                      completed: completedChallenges[safeChallengeCategory]?.[idx] || false,
+                      onToggle: () => handleChallengeComplete(idx),
+                      progress: completedChallenges[safeChallengeCategory]?.[idx] ? 100 : 5,
+                      xp: 0,
+                      gold: 0,
+                      streak: isCustom ? challengeStreaks[challengeCategory]?.[idx] || 0 : 0,
+                    };
+                    if (isCustom) {
+                      cardProps.onEdit = () => handleEditCustomChallenge(idx - builtIn.length);
+                      cardProps.onDelete = () => handleDeleteCustomChallenge(idx - builtIn.length);
+                    }
+                    return <CardWithProgress {...cardProps} />;
+                  });
+                })()}
                 {/* Add Custom Challenge Card */}
                 <Card
                   className="border-2 border-dashed border-gray-700 hover:border-amber-500 transition-colors cursor-pointer flex items-center justify-center min-h-[160px]"
@@ -556,6 +705,69 @@ export default function QuestsPage() {
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="secondary" onClick={() => setAddChallengeModalOpen(false)}>Cancel</Button>
                 <Button type="submit" variant="default">Add</Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Edit Custom Challenge Modal */}
+      {editCustomChallengeIdx !== null && editCustomChallengeData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => { setEditCustomChallengeIdx(null); setEditCustomChallengeData(null); }} />
+          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">Edit Custom Challenge</h2>
+            <form
+              onSubmit={e => { e.preventDefault(); handleEditCustomChallengeSubmit(); }}
+            >
+              <label className="block mb-2 text-sm font-medium">Name</label>
+              <input
+                className="w-full mb-4 p-2 border rounded"
+                value={editCustomChallengeData.name}
+                onChange={e => setEditCustomChallengeData({ ...editCustomChallengeData, name: e.target.value })}
+                placeholder="Challenge name"
+                title="Challenge name"
+                aria-label="Challenge name"
+                required
+              />
+              <label className="block mb-2 text-sm font-medium">Instructions</label>
+              <textarea
+                className="w-full mb-4 p-2 border rounded"
+                value={editCustomChallengeData.instructions}
+                onChange={e => setEditCustomChallengeData({ ...editCustomChallengeData, instructions: e.target.value })}
+                placeholder="Instructions"
+                title="Instructions"
+                aria-label="Instructions"
+              />
+              <label className="block mb-2 text-sm font-medium">Sets/Reps</label>
+              <input
+                className="w-full mb-4 p-2 border rounded"
+                value={editCustomChallengeData.setsReps}
+                onChange={e => setEditCustomChallengeData({ ...editCustomChallengeData, setsReps: e.target.value })}
+                placeholder="e.g. 3x12"
+                title="Sets/Reps"
+                aria-label="Sets/Reps"
+              />
+              <label className="block mb-2 text-sm font-medium">Tips</label>
+              <input
+                className="w-full mb-4 p-2 border rounded"
+                value={editCustomChallengeData.tips}
+                onChange={e => setEditCustomChallengeData({ ...editCustomChallengeData, tips: e.target.value })}
+                placeholder="Tips"
+                title="Tips"
+                aria-label="Tips"
+              />
+              <label className="block mb-2 text-sm font-medium">Weight</label>
+              <input
+                className="w-full mb-4 p-2 border rounded"
+                value={editCustomChallengeData.weight}
+                onChange={e => setEditCustomChallengeData({ ...editCustomChallengeData, weight: e.target.value })}
+                placeholder="e.g. 8kg"
+                title="Weight"
+                aria-label="Weight"
+              />
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="secondary" onClick={() => { setEditCustomChallengeIdx(null); setEditCustomChallengeData(null); }}>Cancel</Button>
+                <Button type="submit" variant="default">Save</Button>
               </div>
             </form>
           </div>
