@@ -10,15 +10,18 @@ import { toast } from "sonner"
 import { useGoldStore } from "@/stores/goldStore"
 import { TileType, InventoryItem } from "@/types/tiles"
 import { useState } from "react"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 
 interface TileInventoryProps {
   tiles: InventoryItem[]
   selectedTile: InventoryItem | null
   onSelectTile: (tile: InventoryItem | null) => void
   onUpdateTiles: (tiles: InventoryItem[]) => void
+  activeTab: 'place' | 'buy'
+  setActiveTab: (tab: 'place' | 'buy') => void
 }
 
-export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles }: TileInventoryProps) {
+export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles, activeTab, setActiveTab }: TileInventoryProps) {
   const { gold, updateGold } = useGoldStore()
   const [buyQuantities, setBuyQuantities] = useState<{ [key: string]: number }>({})
 
@@ -78,64 +81,107 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
   }
 
   return (
-    <ScrollArea className="h-full w-full">
-      <div className="flex flex-col gap-4 p-4">
-        <div className="grid grid-cols-2 gap-4">
-          {tiles.map((tile) => (
-            <Card
-              key={tile.type}
-              className={cn(
-                "relative overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all",
-                selectedTile?.type === tile.type && "ring-2 ring-primary",
-                tile.quantity === 0 && "border-2 border-amber-500 shadow-lg"
-              )}
-              onClick={() => tile.quantity > 0 && onSelectTile(selectedTile?.type === tile.type ? null : tile)}
-            >
-              <div className="aspect-square relative">
-                <Image
-                  src={getTileImage(tile.type)}
-                  alt={tile.name}
-                  fill
-                  className="object-cover"
-                />
-                {tile.quantity === 0 && (
-                  <span className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded shadow" aria-label="Buyable tile badge">Buyable</span>
-                )}
+    <>
+      <Tabs value={activeTab} onValueChange={value => setActiveTab(value as 'place' | 'buy')} className="w-full">
+        <TabsList className="mb-4 w-full flex">
+          <TabsTrigger value="place" className="flex-1">Place</TabsTrigger>
+          <TabsTrigger value="buy" className="flex-1">Buy</TabsTrigger>
+        </TabsList>
+        <TabsContent value="place">
+          <ScrollArea className="h-full w-full">
+            <div className="flex flex-col gap-4 p-4">
+              <div className="grid grid-cols-2 gap-4">
+                {tiles.map((tile) => (
+                  <Card
+                    key={tile.type}
+                    className={cn(
+                      "relative overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all",
+                      selectedTile?.type === tile.type && "ring-2 ring-primary",
+                      tile.quantity === 0 && "opacity-50 pointer-events-none"
+                    )}
+                    onClick={() => tile.quantity > 0 && onSelectTile(selectedTile?.type === tile.type ? null : tile)}
+                  >
+                    <div className="aspect-square relative">
+                      <Image
+                        src={getTileImage(tile.type)}
+                        alt={tile.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="p-3 bg-background/95 backdrop-blur-sm">
+                      <div className="capitalize font-semibold text-sm">{tile.name}</div>
+                      <div className="text-xs text-muted-foreground mt-1 flex justify-between items-center">
+                        <span className="font-medium">Quantity: {tile.quantity}</span>
+                        <span className="text-amber-500 font-medium">{tile.cost} gold</span>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
               </div>
-              <div className="p-3 bg-background/95 backdrop-blur-sm">
-                <div className="capitalize font-semibold text-sm">{tile.name}</div>
-                <div className="text-xs text-muted-foreground mt-1 flex justify-between items-center">
-                  <span className="font-medium">Quantity: {tile.quantity}</span>
-                  <span className="text-amber-500 font-medium">{tile.cost} gold</span>
-                </div>
-                {tile.quantity === 0 && (
-                  <div className="flex gap-2 mt-2">
-                    <Input
-                      type="number"
-                      min="1"
-                      value={buyQuantities[tile.type] || 1}
-                      onChange={(e) => handleQuantityChange(tile.type, e.target.value)}
-                      className="w-20 h-8"
-                      id={`buy-quantity-${tile.type}`}
-                      name={`buy-quantity-${tile.type}`}
-                    />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1"
-                      onClick={(e) => handleBuyTile(tile, e)}
-                      aria-label={`Buy ${buyQuantities[tile.type] || 1} ${tile.name || tile.type} tile${(buyQuantities[tile.type] || 1) > 1 ? 's' : ''}`}
-                    >
-                      Buy
-                    </Button>
-                  </div>
-                )}
+            </div>
+          </ScrollArea>
+        </TabsContent>
+        <TabsContent value="buy">
+          <ScrollArea className="h-full w-full">
+            <div className="flex flex-col gap-4 p-4">
+              <div className="grid grid-cols-2 gap-4">
+                {tiles.map((tile) => (
+                  <Card
+                    key={tile.type}
+                    className={cn(
+                      "relative overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all",
+                      tile.quantity === 0 && "border-2 border-amber-500 shadow-lg"
+                    )}
+                  >
+                    <div className="aspect-square relative">
+                      <Image
+                        src={getTileImage(tile.type)}
+                        alt={tile.name}
+                        fill
+                        className="object-cover"
+                      />
+                      {tile.quantity === 0 && (
+                        <span className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded shadow" aria-label="Buyable tile badge">Buyable</span>
+                      )}
+                    </div>
+                    <div className="p-3 bg-background/95 backdrop-blur-sm">
+                      <div className="capitalize font-semibold text-sm">{tile.name}</div>
+                      <div className="text-xs text-muted-foreground mt-1 flex justify-between items-center">
+                        <span className="font-medium">Quantity: {tile.quantity}</span>
+                        <span className="text-amber-500 font-medium">{tile.cost} gold</span>
+                      </div>
+                      {tile.quantity === 0 && (
+                        <div className="flex gap-2 mt-2">
+                          <Input
+                            type="number"
+                            min="1"
+                            value={buyQuantities[tile.type] || 1}
+                            onChange={(e) => handleQuantityChange(tile.type, e.target.value)}
+                            className="w-20 h-8"
+                            id={`buy-quantity-${tile.type}`}
+                            name={`buy-quantity-${tile.type}`}
+                          />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1"
+                            onClick={(e) => handleBuyTile(tile, e)}
+                            aria-label={`Buy ${buyQuantities[tile.type] || 1} ${tile.name || tile.type} tile${(buyQuantities[tile.type] || 1) > 1 ? 's' : ''}`}
+                          >
+                            Buy
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+                ))}
               </div>
-            </Card>
-          ))}
-        </div>
-      </div>
-    </ScrollArea>
+            </div>
+          </ScrollArea>
+        </TabsContent>
+      </Tabs>
+    </>
   )
 }
 

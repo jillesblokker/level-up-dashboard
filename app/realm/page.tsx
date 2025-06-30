@@ -17,6 +17,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { X, Hammer, Move, Package, Settings, Save } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { EnterLocationModal } from '@/components/enter-location-modal'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 
 // Constants
 const GRID_COLS = 13
@@ -132,6 +133,13 @@ export default function RealmPage() {
     const defaultCharacterPosition = { x: 2, y: 0 };
     const [hasCheckedInitialPosition, setHasCheckedInitialPosition] = useState(false);
     const closeBtnRef = useRef<HTMLButtonElement>(null);
+    const [horsePos, setHorsePos] = useState<{ x: number; y: number } | null>(null);
+    const [sheepPos, setSheepPos] = useState<{ x: number; y: number } | null>(null);
+    const [eaglePos, setEaglePos] = useState<{ x: number; y: number } | null>(null);
+    const [penguinPos, setPenguinPos] = useState<{ x: number; y: number } | null>(null);
+    const [isHorsePresent, setIsHorsePresent] = useState(false);
+    const [isPenguinPresent, setIsPenguinPresent] = useState(false);
+    const [inventoryTab, setInventoryTab] = useState<'place' | 'buy'>('place');
 
     // Achievement unlock effect
     useEffect(() => {
@@ -233,10 +241,8 @@ export default function RealmPage() {
 
     const handlePlaceTile = (x: number, y: number) => {
         if (gameMode !== 'build' || !selectedTile) return;
-
         const tileToPlace = inventory[selectedTile.type];
         if (!tileToPlace || (tileToPlace.quantity ?? 0) <= 0) return;
-
         setGrid(prevGrid => {
             const newGrid = prevGrid.map(row => row.slice());
             if (newGrid[y]?.[x]) {
@@ -244,7 +250,6 @@ export default function RealmPage() {
             }
             return newGrid;
         });
-
         setInventory(prev => {
             const newInventory = { ...prev };
             const invTile = newInventory[selectedTile.type];
@@ -253,8 +258,12 @@ export default function RealmPage() {
             }
             return newInventory;
         });
-
-        setSelectedTile(null);
+        // Show penguin if ice tile
+        if (selectedTile.type === 'ice') {
+            setPenguinPos({ x, y });
+            setIsPenguinPresent(true);
+        }
+        // Do not clear selectedTile here (allow repeated placement)
     };
 
     const handleTileSelection = (tile: TileInventoryItem | null) => {
@@ -487,6 +496,13 @@ export default function RealmPage() {
         return undefined;
     }, [showInventory]);
 
+    // When leaving build mode or switching to 'buy', clear selectedTile
+    useEffect(() => {
+        if (gameMode !== 'build' || inventoryTab === 'buy') {
+            setSelectedTile(null);
+        }
+    }, [gameMode, inventoryTab]);
+
     if (isLoading) {
         return <div className="flex items-center justify-center h-screen bg-gray-900 text-white">Loading Realm...</div>;
     }
@@ -585,6 +601,12 @@ export default function RealmPage() {
                         selectedTile={selectedTile}
                         setHoveredTile={() => {}}
                         isMovementMode={gameMode === 'move'}
+                        horsePos={horsePos}
+                        sheepPos={sheepPos}
+                        eaglePos={eaglePos}
+                        penguinPos={penguinPos}
+                        isHorsePresent={isHorsePresent}
+                        isPenguinPresent={isPenguinPresent}
                     />
                 </div>
             </div>
@@ -609,7 +631,6 @@ export default function RealmPage() {
                             selectedTile={selectedTile}
                             onSelectTile={setSelectedTile}
                             onUpdateTiles={(newTiles: typeof inventoryAsItems) => {
-                                // Update inventory state and localStorage
                                 setInventory(prev => {
                                     const updated = { ...prev };
                                     newTiles.forEach((tile: typeof inventoryAsItems[number]) => {
@@ -619,6 +640,8 @@ export default function RealmPage() {
                                     return updated;
                                 });
                             }}
+                            activeTab={inventoryTab}
+                            setActiveTab={setInventoryTab}
                         />
                     </ScrollArea>
                 </div>
