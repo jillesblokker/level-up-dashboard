@@ -28,6 +28,10 @@ interface MapGridProps extends BaseMapGridProps {
   onHoverEnd?: () => void;
 }
 
+function isTile(tile: Tile | undefined): tile is Tile {
+  return !!tile;
+}
+
 export function MapGrid({ 
   selectedTile = null,
   grid,
@@ -299,26 +303,27 @@ export function MapGrid({
   const handleBuyTile = (x: number, y: number) => {
     if (!grid[y] || !grid[y][x]) return;
     // Replace the tile with a default grass tile (ensure all required properties)
-    const oldTile = grid[y][x];
-    if (!oldTile) return;
+    const row = grid[y];
+    if (!row || !row[x]) return;
+    const tile = row[x]!;
     // Ensure rotation is always 0|90|180|270
     const validRotations = [0, 90, 180, 270];
-    const rotation = (validRotations.includes(oldTile.rotation) ? oldTile.rotation : 0) as 0 | 90 | 180 | 270;
+    const rotation = (validRotations.includes(tile.rotation) ? tile.rotation : 0) as 0 | 90 | 180 | 270;
     const newTile = {
-      ...oldTile,
+      ...tile,
       id: `grass-${x}-${y}`,
       type: 'grass' as TileType,
       name: 'Grass',
       image: '/images/tiles/grass-tile.png',
       quantity: 1,
       revealed: true,
-      isVisited: false,
+      isVisited: true,
       x,
       y,
       ariaLabel: 'grass tile',
       cost: 0,
-      description: oldTile.description || '',
-      connections: oldTile.connections || [],
+      description: tile.description || '',
+      connections: tile.connections || [],
       rotation,
     };
     const newGrid = grid.map(row => row.slice());
@@ -340,15 +345,20 @@ export function MapGrid({
       const { x, y } = safeCharacter;
       if (grid[y] && grid[y][x] && grid[y][x].type === 'mystery') {
         const newGrid = grid.map(row => row.slice());
-        newGrid[y][x] = {
-          ...grid[y][x],
-          type: 'grass',
-          name: 'Grass',
-          image: '/images/tiles/grass-tile.png',
-          isVisited: true,
-        };
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('update-grid', { detail: { grid: newGrid } }));
+        const row = grid[y];
+        if (row && isTile(row[x])) {
+          const tile = row[x];
+// @ts-expect-error: tile is guaranteed to be defined by the isTile guard above
+          newGrid[y][x] = {
+            ...tile,
+            type: 'grass',
+            name: 'Grass',
+            image: '/images/tiles/grass-tile.png',
+            isVisited: true,
+          };
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('update-grid', { detail: { grid: newGrid } }));
+          }
         }
       }
     };
