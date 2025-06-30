@@ -448,7 +448,7 @@ export default function RealmPage() {
                         { fact: 'How many knights in the Order of the Garter? (24)', number: 24 },
                         { fact: 'How many years did the War of the Roses last? (32)', number: 32 },
                     ];
-                    setDungeonEvent({ open: true, questionIndex: 0, score: 0, prevNumber: questions[0].number, questions });
+                    setDungeonEvent({ open: true, questionIndex: 0, score: 0, prevNumber: questions[0]!.number, questions });
                     break;
                 }
                 case 'cave': {
@@ -728,16 +728,16 @@ export default function RealmPage() {
                     </DialogContent>
                 </Dialog>
             )}
-            {dungeonEvent?.open && (
+            {dungeonEvent?.open && dungeonEvent?.questions && (
                 <Dialog open={dungeonEvent.open} onOpenChange={() => setDungeonEvent(null)}>
                     <DialogContent aria-label="Dungeon Event Higher or Lower" role="dialog" aria-modal="true">
                         <DialogHeader>
                             <DialogTitle>Medieval Dungeon: Higher or Lower?</DialogTitle>
-                            <DialogDescription>You descend into a damp, torch-lit dungeon. Echoes bounce from the walls. A voice from the shadows challenges you to a battle of wit and lore.<br/>"Is the next number higher or lower?"</DialogDescription>
+                            <DialogDescription>You descend into a damp, torch-lit dungeon. Echoes bounce from the walls. A voice from the shadows challenges you to a battle of wit and lore.<br/>&quot;Is the next number higher or lower?&quot;</DialogDescription>
                         </DialogHeader>
                         {dungeonEvent.questionIndex < dungeonEvent.questions.length ? (
                             <div className="space-y-4">
-                                <div className="text-lg font-semibold text-center">{dungeonEvent.questions[dungeonEvent.questionIndex].fact}</div>
+                                <div className="text-lg font-semibold text-center">{dungeonEvent.questions[dungeonEvent.questionIndex]?.fact}</div>
                                 <div className="flex gap-4 justify-center">
                                     <Button aria-label="Higher" onClick={() => {
                                         const nextQuestionIndex = dungeonEvent.questionIndex + 1;
@@ -746,9 +746,9 @@ export default function RealmPage() {
                                             gainExperience(dungeonEvent.score * 5, 'dungeon-event');
                                             return;
                                         }
-                                        const nextQuestion = dungeonEvent && dungeonEvent.questions && dungeonEvent.questions[nextQuestionIndex];
+                                        const nextQuestion = dungeonEvent?.questions?.[nextQuestionIndex];
                                         if (nextQuestion) {
-                                            const correct = nextQuestion.number > dungeonEvent.questions[dungeonEvent.questionIndex].number;
+                                            const correct = nextQuestion!.number > dungeonEvent.questions![dungeonEvent.questionIndex]!.number;
                                             setDungeonEvent({
                                                 ...dungeonEvent,
                                                 questionIndex: nextQuestionIndex,
@@ -763,9 +763,9 @@ export default function RealmPage() {
                                             setDungeonEvent({ ...dungeonEvent, questionIndex: nextQuestionIndex, result: `You scored ${dungeonEvent.score} out of 20! (+${dungeonEvent.score * 5} XP)` });
                                             return;
                                         }
-                                        const nextQuestion = dungeonEvent && dungeonEvent.questions && dungeonEvent.questions[nextQuestionIndex];
+                                        const nextQuestion = dungeonEvent?.questions?.[nextQuestionIndex];
                                         if (nextQuestion) {
-                                            const correct = nextQuestion.number < dungeonEvent.questions[dungeonEvent.questionIndex].number;
+                                            const correct = nextQuestion!.number < dungeonEvent.questions![dungeonEvent.questionIndex]!.number;
                                             setDungeonEvent({
                                                 ...dungeonEvent,
                                                 questionIndex: nextQuestionIndex,
@@ -791,7 +791,7 @@ export default function RealmPage() {
                     <DialogContent aria-label="Cave Event Three Paths" role="dialog" aria-modal="true">
                         <DialogHeader>
                             <DialogTitle>Cave: Choose a Path</DialogTitle>
-                            <DialogDescription>You find yourself at a fork deep in the heart of a shadowy cave. Three paths lie before you, each whispering fate in a different tone.<br/>"Which path do you choose, brave adventurer?"</DialogDescription>
+                            <DialogDescription>You find yourself at a fork deep in the heart of a shadowy cave. Three paths lie before you, each whispering fate in a different tone.<br/>&quot;Which path do you choose, brave adventurer?&quot;</DialogDescription>
                         </DialogHeader>
                         {!caveEvent.result ? (
                             <div className="space-y-4">
