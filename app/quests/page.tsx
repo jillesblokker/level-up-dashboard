@@ -546,29 +546,41 @@ export default function QuestsPage() {
                       </Card>
                     );
                   }
-                  return [
-                    ...builtIn,
-                    ...custom
-                  ].map((exercise, idx) => {
-                    const isCustom = idx >= builtIn.length;
-                    const cardProps: any = {
-                      key: exercise.name + idx,
-                      title: exercise.name,
-                      description: exercise.instructions,
-                      icon: React.createElement(getCategoryIcon(safeChallengeCategory)),
-                      completed: completedChallenges[safeChallengeCategory]?.[idx] || false,
-                      onToggle: () => handleChallengeComplete(idx),
-                      progress: completedChallenges[safeChallengeCategory]?.[idx] ? 100 : 5,
-                      xp: 0,
-                      gold: 0,
-                      streak: isCustom ? challengeStreaks[challengeCategory]?.[idx] || 0 : 0,
-                    };
-                    if (isCustom) {
-                      cardProps.onEdit = () => handleEditCustomChallenge(idx - builtIn.length);
-                      cardProps.onDelete = () => handleDeleteCustomChallenge(idx - builtIn.length);
-                    }
-                    return <CardWithProgress {...cardProps} />;
-                  });
+                  return React.Children.toArray([
+                    ...builtIn.map((exercise, idx) => {
+                      const cardProps: any = {
+                        key: exercise.name + idx,
+                        title: exercise.name,
+                        description: exercise.instructions,
+                        icon: React.createElement(getCategoryIcon(safeChallengeCategory)),
+                        completed: completedChallenges[safeChallengeCategory]?.[idx] || false,
+                        onToggle: () => handleChallengeComplete(idx),
+                        progress: completedChallenges[safeChallengeCategory]?.[idx] ? 100 : 5,
+                        xp: 0,
+                        gold: 0,
+                        streak: 0,
+                      };
+                      return <CardWithProgress {...cardProps} />;
+                    }),
+                    ...custom.map((exercise, idx) => {
+                      const builtInLength = builtIn.length;
+                      const cardProps: any = {
+                        key: exercise.name + (idx + builtInLength),
+                        title: exercise.name,
+                        description: exercise.instructions,
+                        icon: React.createElement(getCategoryIcon(safeChallengeCategory)),
+                        completed: completedChallenges[safeChallengeCategory]?.[idx + builtInLength] || false,
+                        onToggle: () => handleChallengeComplete(idx + builtInLength),
+                        progress: completedChallenges[safeChallengeCategory]?.[idx + builtInLength] ? 100 : 5,
+                        xp: 0,
+                        gold: 0,
+                        streak: challengeStreaks[challengeCategory]?.[idx + builtInLength] || 0,
+                        onEdit: () => handleEditCustomChallenge(idx),
+                        onDelete: () => handleDeleteCustomChallenge(idx),
+                      };
+                      return <CardWithProgress {...cardProps} />;
+                    })
+                  ]);
                 })()}
                 {/* Add Custom Challenge Card */}
                 <Card
