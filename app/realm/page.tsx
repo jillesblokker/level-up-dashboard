@@ -492,7 +492,7 @@ export default function RealmPage() {
     }
 
     const inventoryAsItems: TileInventoryItem[] = Object.values(inventory)
-        .filter(t => t.type !== 'empty')
+        .filter(t => t.type !== 'empty' && !['sheep', 'horse', 'special', 'swamp', 'treasure', 'monster'].includes(t.type))
         .map(t => ({
             ...t,
             cost: t.cost ?? 0,
