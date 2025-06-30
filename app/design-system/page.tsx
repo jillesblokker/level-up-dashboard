@@ -10,7 +10,6 @@ import { useState } from "react"
 import { useGradient } from '@/app/providers/gradient-provider'
 import { HeaderSection } from "@/components/HeaderSection"
 import { CreatureCard } from "@/components/creature-card"
-import { Minimap } from "@/components/Minimap"
 import CardWithProgress from "@/components/quest-card"
 import { TileVisual } from "@/components/tile-visual"
 import { MapGrid } from "@/components/map-grid"
@@ -525,70 +524,6 @@ export default function DesignSystemPage() {
                       </div>
                       <p className="text-sm text-gray-400 mt-2">
                         <strong>CardWithProgress</strong> is used for displaying quests in selection lists. The completed state is indicated by a checkmark.
-                      </p>
-                    </div>
-
-                    <div className="p-4 rounded-lg bg-gray-900/50">
-                      <p className="text-sm font-medium mb-2 text-white">Minimap</p>
-                      <div className="mb-2">
-                        <Minimap
-                          grid={[
-                            [
-                              { ...mockTile },
-                              {
-                                ...mockTile,
-                                id: 'tile-forest',
-                                type: 'forest' as TileType,
-                                name: 'Forest Tile',
-                                description: 'A lush forest tile.',
-                                image: '/images/tiles/forest-tile.png',
-                                rotation: 0 as 0 | 90 | 180 | 270
-                              },
-                              {
-                                ...mockTile,
-                                id: 'tile-water',
-                                type: 'water' as TileType,
-                                name: 'Water Tile',
-                                description: 'A water tile.',
-                                image: '/images/tiles/water-tile.png',
-                                rotation: 0 as 0 | 90 | 180 | 270
-                              }
-                            ],
-                            [
-                              {
-                                ...mockTile,
-                                id: 'tile-mountain',
-                                type: 'mountain' as TileType,
-                                name: 'Mountain Tile',
-                                description: 'A mountain tile.',
-                                image: '/images/tiles/mountain-tile.png',
-                                rotation: 0 as 0 | 90 | 180 | 270
-                              },
-                              {
-                                ...mockTile,
-                                id: 'tile-ice',
-                                type: 'ice' as TileType,
-                                name: 'Ice Tile',
-                                description: 'An ice tile.',
-                                image: '/images/tiles/ice-tile.png',
-                                rotation: 0 as 0 | 90 | 180 | 270
-                              },
-                              { ...mockTile }
-                            ]
-                          ]}
-                          playerPosition={{ x: 1, y: 1 }}
-                          playerDirection={0}
-                          entities={[]}
-                          zoom={1}
-                          onZoomChange={() => {}}
-                          rotationMode="static"
-                          onRotationModeChange={() => {}}
-                          onClose={() => {}}
-                          className="relative static"
-                        />
-                      </div>
-                      <p className="text-sm text-gray-400 mt-2">
-                        <strong>Minimap</strong> provides a compact, interactive overview of the current map area, showing the character&apos;s position and tile types. Used in the main realm and exploration pages.
                       </p>
                     </div>
 

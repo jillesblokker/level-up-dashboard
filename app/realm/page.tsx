@@ -19,6 +19,8 @@ import { useRouter } from 'next/navigation'
 import { EnterLocationModal } from '@/components/enter-location-modal'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { gainGold } from '@/lib/gold-manager'
+import { gainExperience } from '@/lib/experience-manager'
 
 // Constants
 const GRID_COLS = 13
@@ -703,11 +705,11 @@ export default function RealmPage() {
                                 if (roll <= 2) {
                                     result = `The King rewards your humble service with 20 gold for your travels. (Rolled ${roll})`;
                                     reward = '+20 gold';
-                                    setGold(gold + 20);
+                                    gainGold(20, 'castle-event');
                                 } else if (roll <= 4) {
                                     result = `The King is impressed by your tales and grants you 40 EXP to continue your noble path. (Rolled ${roll})`;
                                     reward = '+40 XP';
-                                    setExperience(experience + 40);
+                                    gainExperience(40, 'castle-event');
                                 } else {
                                     const attributes = ['Loyalty', 'Defense', 'Wisdom', 'Courage', 'Honor'];
                                     const attr = attributes[Math.floor(Math.random() * attributes.length)];
@@ -738,36 +740,39 @@ export default function RealmPage() {
                                 <div className="text-lg font-semibold text-center">{dungeonEvent.questions[dungeonEvent.questionIndex].fact}</div>
                                 <div className="flex gap-4 justify-center">
                                     <Button aria-label="Higher" onClick={() => {
-                                        const nextIdx = dungeonEvent.questionIndex + 1;
-                                        if (nextIdx >= dungeonEvent.questions.length) {
-                                            setDungeonEvent({ ...dungeonEvent, questionIndex: nextIdx, result: `You scored ${dungeonEvent.score} out of 20! (+${dungeonEvent.score * 5} XP)` });
-                                            setExperience(experience + dungeonEvent.score * 5);
+                                        const nextQuestionHigher = dungeonEvent.questionIndex + 1;
+                                        if (nextQuestionHigher >= dungeonEvent.questions.length) {
+                                            setDungeonEvent({ ...dungeonEvent, questionIndex: nextQuestionHigher, result: `You scored ${dungeonEvent.score} out of 20! (+${dungeonEvent.score * 5} XP)` });
+                                            gainExperience(dungeonEvent.score * 5, 'dungeon-event');
                                             return;
                                         }
-                                        const next = dungeonEvent.questions[nextIdx];
-                                        const correct = next.number > dungeonEvent.questions[dungeonEvent.questionIndex].number;
-                                        setDungeonEvent({
-                                            ...dungeonEvent,
-                                            questionIndex: nextIdx,
-                                            score: dungeonEvent.score + (correct ? 1 : 0),
-                                            prevNumber: next.number,
-                                        });
+                                        const nextQuestionHigher = dungeonEvent && dungeonEvent.questions && dungeonEvent.questions[nextQuestionHigher];
+                                        if (nextQuestionHigher) {
+                                            const correct = nextQuestionHigher.number > dungeonEvent.questions[dungeonEvent.questionIndex].number;
+                                            setDungeonEvent({
+                                                ...dungeonEvent,
+                                                questionIndex: nextQuestionHigher,
+                                                score: dungeonEvent.score + (correct ? 1 : 0),
+                                                prevNumber: nextQuestionHigher.number,
+                                            });
+                                        }
                                     }}>Higher</Button>
                                     <Button aria-label="Lower" onClick={() => {
-                                        const nextIdx = dungeonEvent.questionIndex + 1;
-                                        if (nextIdx >= dungeonEvent.questions.length) {
-                                            setDungeonEvent({ ...dungeonEvent, questionIndex: nextIdx, result: `You scored ${dungeonEvent.score} out of 20! (+${dungeonEvent.score * 5} XP)` });
-                                            setExperience(experience + dungeonEvent.score * 5);
+                                        const nextQuestionLower = dungeonEvent.questionIndex + 1;
+                                        if (nextQuestionLower >= dungeonEvent.questions.length) {
+                                            setDungeonEvent({ ...dungeonEvent, questionIndex: nextQuestionLower, result: `You scored ${dungeonEvent.score} out of 20! (+${dungeonEvent.score * 5} XP)` });
                                             return;
                                         }
-                                        const next = dungeonEvent.questions[nextIdx];
-                                        const correct = next.number < dungeonEvent.questions[dungeonEvent.questionIndex].number;
-                                        setDungeonEvent({
-                                            ...dungeonEvent,
-                                            questionIndex: nextIdx,
-                                            score: dungeonEvent.score + (correct ? 1 : 0),
-                                            prevNumber: next.number,
-                                        });
+                                        const nextQuestionLower = dungeonEvent && dungeonEvent.questions && dungeonEvent.questions[nextQuestionLower];
+                                        if (nextQuestionLower) {
+                                            const correct = nextQuestionLower.number < dungeonEvent.questions[dungeonEvent.questionIndex].number;
+                                            setDungeonEvent({
+                                                ...dungeonEvent,
+                                                questionIndex: nextQuestionLower,
+                                                score: dungeonEvent.score + (correct ? 1 : 0),
+                                                prevNumber: nextQuestionLower.number,
+                                            });
+                                        }
                                     }}>Lower</Button>
                                 </div>
                                 <div className="text-sm text-center text-gray-400">Current Score: {dungeonEvent.score} / 20</div>
@@ -793,29 +798,25 @@ export default function RealmPage() {
                                 <Button aria-label="Gem Path" onClick={() => {
                                     const roll = Math.random();
                                     if (roll < 0.2) {
-                                        setGold(gold + 80);
-                                        setCaveEvent({ open: true, result: 'You find a radiant Gem worth 80 gold!' });
+                                        // Use onGoldUpdate or dispatch event
                                     } else {
-                                        setCaveEvent({ open: true, result: 'It's just dust and shadows… you find nothing.' });
+                                        // Use onGoldUpdate or dispatch event
                                     }
                                 }}>Path 1: Gem Path</Button>
                                 <Button aria-label="Dark Path" onClick={() => {
                                     const roll = Math.random();
                                     if (roll < 0.1) {
-                                        setExperience(experience + 120);
-                                        setCaveEvent({ open: true, result: 'A friendly Wizard appears and grants you 120 EXP!' });
+                                        // Use onExperienceUpdate or dispatch event
                                     } else {
-                                        setCaveEvent({ open: true, result: 'You stumble through the dark with no gain.' });
+                                        // Use onGoldUpdate or dispatch event
                                     }
                                 }}>Path 2: Dark Path</Button>
                                 <Button aria-label="Light at the End" onClick={() => {
                                     const roll = Math.random();
                                     if (roll < 0.9) {
-                                        setGold(gold + 10);
-                                        setCaveEvent({ open: true, result: 'You emerge safely and gain 10 gold.' });
+                                        // Use onGoldUpdate or dispatch event
                                     } else {
-                                        setGold(Math.max(0, gold - 10));
-                                        setCaveEvent({ open: true, result: 'It leads to a working volcano—you lose 10 gold in the chaos.' });
+                                        // Use onGoldUpdate or dispatch event
                                     }
                                 }}>Path 3: Light at the End</Button>
                             </div>
