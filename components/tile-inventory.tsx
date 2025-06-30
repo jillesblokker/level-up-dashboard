@@ -80,7 +80,6 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
   return (
     <ScrollArea className="h-full w-full">
       <div className="flex flex-col gap-4 p-4">
-        <div className="text-lg font-semibold">Tile Inventory</div>
         <div className="grid grid-cols-2 gap-4">
           {tiles.map((tile) => (
             <Card

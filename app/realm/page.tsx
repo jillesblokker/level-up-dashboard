@@ -54,16 +54,32 @@ const allTileTypes: TileType[] = [
     'lava', 'volcano'
 ];
 
-const initialInventory: Record<TileType, Tile> = Object.fromEntries(
-    allTileTypes.map(type => {
-        const tile = defaultTile(type);
-        tile.image = getTileImage(type); // Use the corrected image path
-        if (['grass', 'forest', 'water'].includes(type)) {
-            tile.quantity = 10;
-        }
-        return [type, tile];
-    })
-) as Record<TileType, Tile>;
+const initialInventory: Record<TileType, Tile> = {
+    grass: { ...defaultTile('grass'), cost: 25, quantity: 10 },
+    water: { ...defaultTile('water'), cost: 50, quantity: 10 },
+    forest: { ...defaultTile('forest'), cost: 75, quantity: 10 },
+    mountain: { ...defaultTile('mountain'), cost: 20, quantity: 10 },
+    desert: { ...defaultTile('desert'), cost: 100, quantity: 10 },
+    ice: { ...defaultTile('ice'), cost: 120, quantity: 10 },
+    snow: { ...defaultTile('snow'), cost: 125, quantity: 10 },
+    cave: { ...defaultTile('cave'), cost: 200, quantity: 5 },
+    town: { ...defaultTile('town'), cost: 250, quantity: 1 },
+    city: { ...defaultTile('city'), cost: 300, quantity: 1 },
+    castle: { ...defaultTile('castle'), cost: 500, quantity: 1 },
+    dungeon: { ...defaultTile('dungeon'), cost: 400, quantity: 2 },
+    volcano: { ...defaultTile('volcano'), cost: 500, quantity: 1 },
+    lava: { ...defaultTile('lava'), cost: 200, quantity: 5 },
+    'portal-entrance': { ...defaultTile('portal-entrance'), cost: 250, quantity: 1 },
+    'portal-exit': { ...defaultTile('portal-exit'), cost: 250, quantity: 1 },
+    mystery: { ...defaultTile('mystery'), cost: 300, quantity: 1 },
+    empty: { ...defaultTile('empty'), cost: 0, quantity: 0 },
+    sheep: { ...defaultTile('sheep'), cost: 0, quantity: 0 },
+    horse: { ...defaultTile('horse'), cost: 0, quantity: 0 },
+    special: { ...defaultTile('special'), cost: 0, quantity: 0 },
+    swamp: { ...defaultTile('swamp'), cost: 0, quantity: 0 },
+    treasure: { ...defaultTile('treasure'), cost: 0, quantity: 0 },
+    monster: { ...defaultTile('monster'), cost: 0, quantity: 0 },
+};
 
 const createBaseGrid = (): Tile[][] => {
     return Array.from({ length: INITIAL_ROWS }, (_, y) =>
@@ -574,7 +590,7 @@ export default function RealmPage() {
             </div>
             {/* Side Inventory Panel */}
             {showInventory && (
-                <div id="tile-inventory-panel" role="dialog" aria-modal="true" aria-label="Tile Inventory Panel" className="absolute top-0 right-0 h-full w-96 bg-gray-800/90 backdrop-blur-sm border-l border-gray-700 flex flex-col z-20">
+                <div id="tile-inventory-panel" role="dialog" aria-modal="true" aria-label="Tile Inventory Panel" className="absolute top-[48px] right-0 h-[calc(100%-48px)] w-96 bg-gray-800/90 backdrop-blur-sm border-l border-gray-700 flex flex-col z-20">
                     <div className="p-4 border-b border-gray-700 flex items-center justify-between">
                         <h2 className="text-lg font-semibold">Tile Inventory</h2>
                         <Button
