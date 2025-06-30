@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { getAggregatedKingdomData } from "@/lib/kingdom-events"
 import Image from 'next/image'
+import Link from 'next/link'
 
 // Time period types
 type TimePeriod = 'today' | 'weekly' | 'yearly'
@@ -51,14 +52,11 @@ function EmptyState() {
         <div className="text-gray-100 text-base" aria-label="kingdom-stats-empty-desc">
           Start habit building now to see your kingdom flourish!
         </div>
-        <button
-          className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 transition-all"
-          aria-label="Start your first quest"
-          tabIndex={0}
-          role="button"
-        >
-          Start Your First Quest
-        </button>
+        <Link href="/quests?tab=quests" passHref legacyBehavior>
+          <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 transition-all" aria-label="Start your first quest" tabIndex={0} role="button">
+            Start Your First Quest
+          </a>
+        </Link>
       </div>
     </section>
   )
@@ -319,15 +317,11 @@ export function KingdomStatsGraph() {
                   <div className="text-gray-100 text-base" aria-label="kingdom-challenge-empty-desc">
                     Start your first challenge to see your progress here!
                   </div>
-                  <button
-                    className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 transition-all"
-                    aria-label="Start your first challenge"
-                    tabIndex={0}
-                    role="button"
-                    onClick={handleCompleteChallenge}
-                  >
-                    Start Your First Challenge
-                  </button>
+                  <Link href="/quests?tab=challenges" passHref legacyBehavior>
+                    <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 transition-all" aria-label="Start your first challenge" tabIndex={0} role="button">
+                      Start Your First Challenge
+                    </a>
+                  </Link>
                 </div>
               </section>
             )}

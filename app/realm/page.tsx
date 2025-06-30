@@ -500,11 +500,6 @@ export default function RealmPage() {
                     description: `Resetting character to (${defaultCharacterPosition.x}, ${defaultCharacterPosition.y})`,
                     variant: "destructive",
                 });
-            } else {
-                toast({
-                    title: "Character Loaded",
-                    description: `Character at (${characterPosition.x}, ${characterPosition.y})`,
-                });
             }
         }
     }, [isLoading, grid, characterPosition, hasCheckedInitialPosition, setCharacterPosition, toast, defaultCharacterPosition]);
@@ -558,6 +553,79 @@ export default function RealmPage() {
     useEffect(() => {
         if (showInventory) setGameMode('build');
     }, [showInventory]);
+
+    // Add useEffect for animal movement and visibility
+    useEffect(() => {
+        // Penguin moves every 5 seconds if present and on ice
+        if (isPenguinPresent && penguinPos) {
+            const interval = setInterval(() => {
+                // Find all ice tiles
+                const iceTiles: { x: number; y: number }[] = [];
+                grid.forEach((row, y) => row.forEach((tile, x) => {
+                    if (tile.type === 'ice') iceTiles.push({ x, y });
+                }));
+                if (iceTiles.length > 0) {
+                    const next = iceTiles[Math.floor(Math.random() * iceTiles.length)];
+                    if (next) setPenguinPos(next);
+                }
+            }, 5000);
+            return () => clearInterval(interval);
+        }
+    }, [isPenguinPresent, penguinPos, grid]);
+
+    useEffect(() => {
+        // Horse moves every 7 seconds if present
+        if (isHorsePresent && horsePos) {
+            const interval = setInterval(() => {
+                // Find all grass tiles
+                const grassTiles: { x: number; y: number }[] = [];
+                grid.forEach((row, y) => row.forEach((tile, x) => {
+                    if (tile.type === 'grass') grassTiles.push({ x, y });
+                }));
+                if (grassTiles.length > 0) {
+                    const next = grassTiles[Math.floor(Math.random() * grassTiles.length)];
+                    if (next) setHorsePos(next);
+                }
+            }, 7000);
+            return () => clearInterval(interval);
+        }
+    }, [isHorsePresent, horsePos, grid]);
+
+    useEffect(() => {
+        // Sheep moves every 6 seconds
+        if (sheepPos) {
+            const interval = setInterval(() => {
+                // Find all forest tiles
+                const forestTiles: { x: number; y: number }[] = [];
+                grid.forEach((row, y) => row.forEach((tile, x) => {
+                    if (tile.type === 'forest') forestTiles.push({ x, y });
+                }));
+                if (forestTiles.length > 0) {
+                    const next = forestTiles[Math.floor(Math.random() * forestTiles.length)];
+                    if (next) setSheepPos(next);
+                }
+            }, 6000);
+            return () => clearInterval(interval);
+        }
+    }, [sheepPos, grid]);
+
+    useEffect(() => {
+        // Eagle moves every 4 seconds
+        if (eaglePos) {
+            const interval = setInterval(() => {
+                // Find all mountain tiles
+                const mountainTiles: { x: number; y: number }[] = [];
+                grid.forEach((row, y) => row.forEach((tile, x) => {
+                    if (tile.type === 'mountain') mountainTiles.push({ x, y });
+                }));
+                if (mountainTiles.length > 0) {
+                    const next = mountainTiles[Math.floor(Math.random() * mountainTiles.length)];
+                    if (next) setEaglePos(next);
+                }
+            }, 4000);
+            return () => clearInterval(interval);
+        }
+    }, [eaglePos, grid]);
 
     if (isLoading) {
         return <div className="flex items-center justify-center h-screen bg-gray-900 text-white">Loading Realm...</div>;

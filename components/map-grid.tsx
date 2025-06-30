@@ -13,6 +13,7 @@ import Image from 'next/image';
 import { showScrollToast } from "@/lib/toast-utils"
 import { getCharacterStats, updateCharacterStats } from '@/lib/character-stats-manager';
 import { TileType } from '@/types/tiles';
+import { addToKingdomInventory } from '@/lib/inventory-manager';
 
 interface MapGridProps extends BaseMapGridProps {
   onExperienceUpdate?: (amount: number) => void;
@@ -54,6 +55,8 @@ export function MapGrid({
   const { toast } = useToast();
   const [localCurrentEvent, setLocalCurrentEvent] = useState<MysteryEvent | null>(null);
   const [eventOutcome, setEventOutcome] = useState<MysteryEventOutcome | null>(null);
+  // Track last triggered mystery tile position
+  const [lastMysteryTile, setLastMysteryTile] = useState<{ x: number; y: number } | null>(null);
 
   // Defensive fallback for character
   const safeCharacter = character && typeof character.x === 'number' && typeof character.y === 'number' ? character : { x: 0, y: 0 };
@@ -61,6 +64,8 @@ export function MapGrid({
   const handleMysteryTile = () => {
     const event = generateMysteryEvent();
     setLocalCurrentEvent(event);
+    // Save the current character position as the last triggered mystery tile
+    setLastMysteryTile({ x: safeCharacter.x, y: safeCharacter.y });
   };
 
   const handleEventChoice = (choice: string) => {
@@ -73,10 +78,15 @@ export function MapGrid({
   };
 
   const handleAcknowledgeOutcome = () => {
+    // If the outcome is an artifact, add it to the kingdom inventory
+    if (eventOutcome && eventOutcome.reward && eventOutcome.reward.type === 'item' && eventOutcome.reward.item) {
+      const artifact = eventOutcome.reward.item.find(i => i.type === 'artifact');
+      if (artifact) {
+        addToKingdomInventory(artifact);
+      }
+    }
     setLocalCurrentEvent(null);
     setEventOutcome(null);
-    // Call a callback or dispatch an event to parent to trigger tile replacement if needed
-    // (In your main page, this should trigger the tile replacement logic)
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('mystery-event-completed'));
     }
@@ -338,11 +348,11 @@ export function MapGrid({
     });
   };
 
-  // Add useEffect to listen for 'mystery-event-completed' and replace the tile with a grass tile
+  // Replace the tile with grass after the event, even if the character has moved away
   useEffect(() => {
     const handler = (e: any) => {
-      if (!safeCharacter) return;
-      const { x, y } = safeCharacter;
+      if (!lastMysteryTile) return;
+      const { x, y } = lastMysteryTile;
       if (grid[y] && grid[y][x] && grid[y][x].type === 'mystery') {
         const newGrid = grid.map(row => row.slice());
         const row = grid[y];
@@ -361,10 +371,11 @@ export function MapGrid({
           }
         }
       }
+      setLastMysteryTile(null);
     };
     window.addEventListener('mystery-event-completed', handler);
     return () => window.removeEventListener('mystery-event-completed', handler);
-  }, [grid, safeCharacter]);
+  }, [grid, lastMysteryTile]);
 
   if (grid.length === 0) {
     return <div>Loading map...</div>;
@@ -504,6 +515,19 @@ export function MapGrid({
             {eventOutcome ? (
               <div className="grid gap-4 py-4">
                 <div className="text-lg font-semibold text-center">{eventOutcome.message}</div>
+                {/* Show artifact details if present */}
+                {eventOutcome.reward && eventOutcome.reward.type === 'item' && eventOutcome.reward.item && eventOutcome.reward.item.some(i => i.type === 'artifact') && (
+                  <div className="flex flex-col items-center mt-2">
+                    {eventOutcome.reward.item.filter(i => i.type === 'artifact').map(artifact => (
+                      <div key={artifact.id} className="flex flex-col items-center">
+                        <img src={artifact.image || '/images/items/artifact/crown/artifact-crowny.png'} alt={artifact.name} className="w-16 h-16 mb-2" />
+                        <div className="text-amber-400 font-bold">{artifact.name}</div>
+                        <div className="text-sm text-gray-300 text-center">{artifact.description}</div>
+                      </div>
+                    ))}
+                    <div className="text-green-400 mt-2">Artifact added to your Kingdom Inventory!</div>
+                  </div>
+                )}
                 <Button onClick={handleAcknowledgeOutcome} className="mx-auto mt-4">OK</Button>
               </div>
             ) : (

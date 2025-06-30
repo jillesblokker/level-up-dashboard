@@ -313,14 +313,6 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             <CardHeader>
               <CardTitle className="text-amber-500">Kingdom Statistics</CardTitle>
               <CardDescription className="text-gray-400">Track your realm&apos;s growth</CardDescription>
-              {/* Total Stats Display */}
-              <div className="flex gap-2 mt-2">
-                {Object.entries(totalStats).map(([stat, value]) => (
-                  <Badge key={stat} className="bg-amber-950/30 text-amber-500 border-amber-800/30">
-                    {stat}: {value}
-                  </Badge>
-                ))}
-              </div>
             </CardHeader>
             <CardContent>
               <KingdomStatsGraph />
@@ -335,14 +327,6 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             <CardHeader>
               <CardTitle className="text-amber-500">Kingdom Inventory</CardTitle>
               <CardDescription className="text-gray-400">Your equipment and resources</CardDescription>
-              {/* Total Stats Display */}
-              <div className="flex gap-2 mt-2">
-                {Object.entries(totalStats).map(([stat, value]) => (
-                  <Badge key={stat} className="bg-amber-950/30 text-amber-500 border-amber-800/30">
-                    {stat}: {value}
-                  </Badge>
-                ))}
-              </div>
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="equipped" value={activeTab} onValueChange={setActiveTab} className="w-full">
