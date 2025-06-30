@@ -113,7 +113,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                       <div className="capitalize font-semibold text-sm">{tile.name}</div>
                       <div className="text-xs text-muted-foreground mt-1 flex justify-between items-center">
                         <span className="font-medium">Quantity: {tile.quantity}</span>
-                        <span className="text-amber-500 font-medium">{tile.cost} gold</span>
+                        {/* No gold price in Place tab */}
                       </div>
                     </div>
                   </Card>

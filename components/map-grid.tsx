@@ -401,10 +401,10 @@ export function MapGrid({
                         <Image
                           src="/images/Animals/horse.png"
                           alt="Horse"
-                          width={256}
-                          height={256}
-                          className="object-contain"
-                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { console.error('Failed to load horse.png'); e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐴</span>'); }}
+                          width={96}
+                          height={96}
+                          className="object-contain drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]"
+                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐴</span>'); }}
                           priority
                         />
                       </div>
@@ -414,10 +414,10 @@ export function MapGrid({
                         <Image
                           src="/images/Animals/sheep.png"
                           alt="Sheep"
-                          width={256}
-                          height={256}
-                          className="object-contain"
-                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { console.error('Failed to load sheep.png'); e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐑</span>'); }}
+                          width={96}
+                          height={96}
+                          className="object-contain drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]"
+                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐑</span>'); }}
                           priority
                         />
                       </div>
@@ -427,10 +427,10 @@ export function MapGrid({
                         <Image
                           src="/images/Animals/eagle.png"
                           alt="Eagle"
-                          width={256}
-                          height={256}
-                          className="object-contain"
-                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { console.error('Failed to load eagle.png'); e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🦅</span>'); }}
+                          width={96}
+                          height={96}
+                          className="object-contain drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]"
+                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🦅</span>'); }}
                           priority
                         />
                       </div>
@@ -440,10 +440,10 @@ export function MapGrid({
                         <Image
                           src="/images/Animals/penguin.png"
                           alt="Penguin"
-                          width={256}
-                          height={256}
-                          className="object-contain"
-                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { console.error('Failed to load penguin.png'); e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐧</span>'); }}
+                          width={96}
+                          height={96}
+                          className="object-contain drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]"
+                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐧</span>'); }}
                           priority
                         />
                       </div>
