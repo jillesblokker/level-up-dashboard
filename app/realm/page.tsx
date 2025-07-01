@@ -336,7 +336,7 @@ export default function RealmPage() {
         setGrid(prevGrid => {
             const newGrid = prevGrid.map(row => row.slice());
             if (newGrid[y]?.[x]) {
-                newGrid[y][x] = { ...tileToPlace, x, y, iId: `${tileToPlace.type}-${x}-${y}`, quantity: 1 };
+                newGrid[y][x] = { ...tileToPlace, x, y, quantity: 1 };
             }
             return newGrid;
         });
