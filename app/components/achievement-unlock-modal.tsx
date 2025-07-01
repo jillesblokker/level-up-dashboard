@@ -32,6 +32,7 @@ export function AchievementUnlockModal({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]" role="dialog" aria-label="achievement-unlock-modal">
+        <DialogDescription id="achievement-unlock-modal-desc">Achievement unlocked details</DialogDescription>
         <DialogHeader>
           <DialogTitle>New Creature Discovered!</DialogTitle>
           <DialogDescription>

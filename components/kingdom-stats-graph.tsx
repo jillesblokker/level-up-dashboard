@@ -60,14 +60,14 @@ function EmptyState({ tab }: EmptyStateProps) {
         <div className="text-gray-100 text-base" aria-label="kingdom-stats-empty-desc">
           Start habit building now to see your kingdom flourish!
         </div>
-        <Link href={isChallenge ? "/challenges" : "/quests?tab=quests"} passHref legacyBehavior>
+        <Link href={"/quests?tab=quests"} passHref legacyBehavior>
           <a
             className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 transition-all"
-            aria-label={isChallenge ? "Start your first challenge" : "Start your first quest"}
+            aria-label="Start your first quest"
             tabIndex={0}
             role="button"
           >
-            {isChallenge ? "Start Your First Challenge" : "Start Your First Quest"}
+            Start Your First Quest
           </a>
         </Link>
       </div>

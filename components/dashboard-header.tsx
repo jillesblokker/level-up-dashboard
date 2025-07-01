@@ -73,6 +73,7 @@ export function DashboardHeader({ backgroundImage }: DashboardHeaderProps) {
       {/* Background Image Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="border-2 border-amber-800/20" role="dialog" aria-label="update-banner-image-modal">
+          <DialogDescription id="update-banner-image-modal-desc">Update your banner image</DialogDescription>
           <DialogHeader>
             <DialogTitle className="font-serif">Update Banner Image</DialogTitle>
             <DialogDescription>Enter an image URL to set as your kingdom banner</DialogDescription>

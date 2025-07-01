@@ -98,6 +98,7 @@ const AccountMenu = () => {
               window.location.href = "/auth/signin";
             }}
             aria-label="Log out"
+            role="button"
           >
             Log out
           </button>

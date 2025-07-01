@@ -10,7 +10,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { eventBus } from "@/app/lib/event-bus";
 import Cropper from 'react-easy-crop';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { getCroppedImg } from '../../app/lib/cropImage';
 import type { Area } from 'react-easy-crop';
 const placeholderSvg = "/images/placeholders/item-placeholder.svg";
@@ -288,6 +288,7 @@ export default function ProfilePage() {
       {/* Avatar Cropper Modal */}
       <Dialog open={showCropper} onOpenChange={setShowCropper}>
         <DialogContent role="dialog" aria-label="profile-modal">
+          <DialogDescription id="profile-modal-desc">Profile details and actions</DialogDescription>
           <DialogTitle className="sr-only">Crop Avatar</DialogTitle>
           {selectedImage && (
             <div style={{ position: 'relative', width: '100%', height: 300 }}>

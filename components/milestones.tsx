@@ -524,7 +524,7 @@ export function Milestones() {
               <DialogContent role="dialog" aria-label="milestone-modal">
                 <DialogHeader>
                   <DialogTitle>Add Custom Milestone</DialogTitle>
-                  <DialogDescription>Set up a new milestone for {category.label}</DialogDescription>
+                  <DialogDescription id="milestone-modal-desc">Set up a new milestone for {category.label}</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
