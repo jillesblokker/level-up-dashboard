@@ -364,6 +364,22 @@ export default function CharacterPage() {
     }
   });
 
+  // --- Supabase real-time sync for character_perks ---
+  useSupabaseRealtimeSync({
+    table: 'character_perks',
+    userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
+    onChange: () => {
+      // Re-fetch perks from API or Supabase and update state
+      // (Replace with your actual fetch logic if needed)
+      fetch('/api/character-perks').then(async (response) => {
+        if (response.ok) {
+          const perks = await response.json();
+          setPerks(perks);
+        }
+      });
+    }
+  });
+
   // Load titles from localStorage on mount
   useEffect(() => {
     const savedTitles = storageService.get("titles", []);
