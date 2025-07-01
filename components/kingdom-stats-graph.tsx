@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ChevronDown } from "lucide-react"
 import {
@@ -15,6 +15,8 @@ import { getAggregatedKingdomData } from "@/lib/kingdom-events"
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSupabaseRealtimeSync } from "@/hooks/useSupabaseRealtimeSync"
+import { useSupabase } from '@/lib/hooks/useSupabase'
+import { useAuth } from '@clerk/nextjs'
 
 // Time period types
 type TimePeriod = 'today' | 'weekly' | 'yearly'
@@ -64,289 +66,145 @@ function EmptyState() {
 }
 
 export function KingdomStatsGraph({ userId }: { userId: string | null }) {
-  const [activeTab, setActiveTab] = useState("quests")
+  const [activeTab, setActiveTab] = useState<'challenges' | 'quests' | 'gold' | 'experience'>('challenges')
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('weekly')
-  const [graphData, setGraphData] = useState<GraphData[]>([])
+  const [graphData, setGraphData] = useState<Array<{ day: string; value: number }>>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [statType, setStatType] = useState<'quests' | 'gold' | 'experience'>('quests')
-  // Challenge state
-  const [challengeData, setChallengeData] = useState<Array<{ day: string; count: number }>>([])
-  const [challengeCompleted, setChallengeCompleted] = useState(false)
+  const { supabase } = useSupabase()
+  const { userId: clerkUserId } = useAuth()
+  const uid = userId || clerkUserId
 
-  // Load challenge data from localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem('kingdom-challenge-data-v1')
-    if (stored) {
-      let parsed: any = [];
-      try {
-        parsed = JSON.parse(stored)
-      } catch { parsed = [] }
-      if (!Array.isArray(parsed)) parsed = [];
-      setChallengeData(parsed)
-      setChallengeCompleted(
-        Array.isArray(parsed) &&
-        parsed.length > 0 &&
-        parsed.some((d: { count?: number } | undefined) => !!d && typeof d.count === 'number' && d.count > 0)
-      )
+  // Helper to get last 7 days as strings (YYYY-MM-DD)
+  function getLast7Days() {
+    const days = []
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date()
+      d.setDate(d.getDate() - i)
+      days.push(d.toISOString().slice(0, 10))
     }
-  }, [])
+    return days
+  }
 
-  // Save challenge data to localStorage
+  // Fetch and aggregate data for the selected tab
   useEffect(() => {
-    localStorage.setItem('kingdom-challenge-data-v1', JSON.stringify(challengeData))
-    const arr = Array.isArray(challengeData) ? challengeData : [];
-    setChallengeCompleted(
-      Array.isArray(arr) &&
-      arr.length > 0 &&
-      arr.some((d: { count?: number } | undefined) => !!d && typeof d.count === 'number' && d.count > 0)
-    )
-  }, [challengeData])
-
-  // Handler for completing a challenge
-  const handleCompleteChallenge = () => {
-    // Add a completion for today
-    const today = new Date().toLocaleDateString()
-    setChallengeData(prev => {
-      const idx = prev.findIndex(d => d.day === today)
-      if (idx >= 0) {
-        const updated = [...prev]
-        if (updated[idx]) {
-          updated[idx].count += 1
+    if (!uid || !supabase) return
+    setIsLoading(true)
+    const days = getLast7Days()
+    const fetchData = async () => {
+      let data: Array<{ day: string; value: number }> = days.map(day => ({ day, value: 0 }))
+      if (activeTab === 'challenges') {
+        // Fetch challenge completions
+        const { data: completions } = await supabase
+          .from('ChallengeCompletion')
+          .select('completedAt')
+          .eq('userId', uid)
+          .gte('completedAt', days[0] + 'T00:00:00.000Z')
+        if (completions) {
+          completions.forEach((row: any) => {
+            const completedAt = row?.completedAt;
+            if (typeof completedAt !== 'string') return;
+            const day = completedAt.slice(0, 10);
+            const idx = data.findIndex(d => d.day === day);
+            if (idx !== -1) data[idx].value += 1;
+          });
         }
-        return updated
-      } else {
-        return [...prev, { day: today, count: 1 }]
+      } else if (activeTab === 'quests') {
+        // Fetch quest completions
+        const { data: completions } = await supabase
+          .from('QuestCompletion')
+          .select('date')
+          .eq('completed', true)
+          .eq('user_id', uid)
+          .gte('date', days[0] + 'T00:00:00.000Z')
+        if (completions) {
+          completions.forEach((row: any) => {
+            const date = row?.date;
+            if (typeof date !== 'string') return;
+            const day = date.slice(0, 10);
+            const idx = data.findIndex(d => d.day === day);
+            if (idx !== -1) data[idx].value += 1;
+          });
+        }
+      } else if (activeTab === 'gold') {
+        // Fetch gold transactions (if available)
+        const { data: golds } = await supabase
+          .from('gold_transactions')
+          .select('amount,created_at')
+          .eq('user_id', uid)
+          .gte('created_at', days[0] + 'T00:00:00.000Z')
+        if (golds) {
+          golds.forEach((row: any) => {
+            const createdAt = row?.created_at;
+            if (typeof createdAt !== 'string') return;
+            const day = createdAt.slice(0, 10);
+            const idx = data.findIndex(d => d.day === day);
+            if (idx !== -1) data[idx].value += typeof row.amount === 'number' ? row.amount : (parseInt(row.amount, 10) || 0);
+          });
+        }
+      } else if (activeTab === 'experience') {
+        // Fetch experience transactions
+        const { data: exps } = await supabase
+          .from('ExperienceTransaction')
+          .select('amount,createdAt')
+          .eq('userId', uid)
+          .gte('createdAt', days[0] + 'T00:00:00.000Z')
+        if (exps) {
+          exps.forEach((row: any) => {
+            const createdAt = row?.createdAt;
+            if (typeof createdAt !== 'string') return;
+            const day = createdAt.slice(0, 10);
+            const idx = data.findIndex(d => d.day === day);
+            if (idx !== -1) data[idx].value += typeof row.amount === 'number' ? row.amount : (parseInt(row.amount, 10) || 0);
+          });
+        }
       }
-    })
-  }
-
-  // Load data when time period or statType changes
-  useEffect(() => {
-    const loadData = () => {
-      try {
-        setIsLoading(true)
-        const data = getAggregatedKingdomData(timePeriod)
-        setGraphData(data)
-        console.log(`📊 Kingdom stats loaded for ${timePeriod}:`, data)
-      } catch (error) {
-        console.error('Error loading kingdom stats:', error)
-        setGraphData([])
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    loadData()
-  }, [timePeriod, statType])
-
-  // Listen for real-time updates
-  useEffect(() => {
-    const handleKingdomUpdate = () => {
-      // Reload data when events occur
-      const data = getAggregatedKingdomData(timePeriod)
       setGraphData(data)
-      console.log(`🔄 Kingdom stats updated for ${timePeriod}:`, data)
+      setIsLoading(false)
     }
+    fetchData()
+  }, [activeTab, uid, supabase])
 
-    // Listen for kingdom events
-    window.addEventListener('kingdom:goldGained', handleKingdomUpdate)
-    window.addEventListener('kingdom:experienceGained', handleKingdomUpdate)
-    window.addEventListener('kingdom:questCompleted', handleKingdomUpdate)
+  // Check if there is any data
+  const hasData = graphData.some(d => d.value > 0)
 
-    // Listen for legacy events for backward compatibility
-    window.addEventListener('goldUpdate', handleKingdomUpdate)
-    window.addEventListener('expUpdate', handleKingdomUpdate)
-    window.addEventListener('questComplete', handleKingdomUpdate)
-
-    return () => {
-      window.removeEventListener('kingdom:goldGained', handleKingdomUpdate)
-      window.removeEventListener('kingdom:experienceGained', handleKingdomUpdate)
-      window.removeEventListener('kingdom:questCompleted', handleKingdomUpdate)
-      window.removeEventListener('goldUpdate', handleKingdomUpdate)
-      window.removeEventListener('expUpdate', handleKingdomUpdate)
-      window.removeEventListener('questComplete', handleKingdomUpdate)
-    }
-  }, [timePeriod])
-
-  useSupabaseRealtimeSync({
-    table: "kingdom_time_series",
-    userId,
-    onChange: () => {
-      // Re-fetch data when real-time update occurs
-      const data = getAggregatedKingdomData(timePeriod);
-      setGraphData(data);
-    },
-  });
-
-  // Check if data has any values > 0
-  const hasData = (data: GraphData[], type: 'quests' | 'gold' | 'experience') => {
-    return data.some(item => item[type] > 0)
-  }
-
-  // Get time period display name
-  const getTimePeriodName = () => {
-    switch (timePeriod) {
-      case 'today':
-        return 'Today\'s Progress'
-      case 'weekly':
-        return 'Weekly Progress'
-      case 'yearly':
-        return 'This Year\'s Progress'
-      default:
-        return 'Weekly Progress'
-    }
-  }
-
-  const getHighestValue = (data: GraphData[], type: 'quests' | 'gold' | 'experience') => {
-    return Math.max(...data.map(item => item[type]), 10)
-  }
-
-  const renderGraph = (data: GraphData[], type: 'quests' | 'gold' | 'experience', color: string, unit: string) => {
-    const highestValue = getHighestValue(data, type)
-    
-    if (isLoading) {
-      return (
-        <div className="h-64 flex items-center justify-center" aria-label="kingdom-stats-loading">
-          <div className="text-gray-400">Loading stats...</div>
-        </div>
-      )
-    }
-
-    return (
-      <div className="h-64 flex items-end w-full space-x-1" aria-label={`kingdom-stats-${type}-graph`}>
-        {data.map((item, index) => (
-          <div key={index} className="flex flex-col items-center flex-1">
-            <div
-              className={`w-full ${color} rounded-t transition-all duration-300`}
-              style={{
-                height: `${item[type] > 0 ? (item[type] / highestValue) * 160 : 0}px`,
-                minHeight: item[type] > 0 ? '4px' : '0'
-              }}
-              aria-label={`${type}-bar-${item.day}-${item[type]}`}
-            ></div>
-            <div className="mt-2 w-full text-center">
-              <div className="text-xs font-medium text-gray-400">{item.day}</div>
-              <div className="text-sm font-bold">{item[type]}{unit}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-    )
-  }
-
+  // Render
   return (
-    <Card className="border border-amber-800/20 bg-black" aria-label="kingdom-stats-card">
+    <Card className="bg-black border-amber-800">
       <CardHeader>
-        <CardTitle className="text-xl font-medievalsharp text-amber-500">
-          <div className="flex items-center justify-between">
-            {getTimePeriodName()}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="time-period-dropdown">
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setTimePeriod('today')} aria-label="select-today">
-                  Today
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTimePeriod('weekly')} aria-label="select-weekly">
-                  Weekly
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTimePeriod('yearly')} aria-label="select-yearly">
-                  This Year
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </CardTitle>
+        <CardTitle className="text-amber-500 text-2xl font-bold">Kingdom Statistics</CardTitle>
+        <CardDescription className="text-gray-300">Track your realm's growth</CardDescription>
       </CardHeader>
       <CardContent>
-        {/* Mobile tab selector */}
-        <div className="mb-4 md:hidden">
-          <label htmlFor="kingdom-stats-tab-select" className="sr-only">Select stats tab</label>
-          <select
-            id="kingdom-stats-tab-select"
-            aria-label="Kingdom stats tab selector"
-            className="w-full rounded-md border border-amber-800/20 bg-black text-white p-2"
-            value={activeTab}
-            onChange={e => setActiveTab(e.target.value)}
-          >
-            <option value="challenges">Challenges</option>
-            <option value="quests">Quests</option>
-            <option value="gold">Gold</option>
-            <option value="exp">Experience</option>
-          </select>
+        <div className="py-4">
+          <div className="text-amber-400 text-xl font-semibold mb-2">Weekly Progress</div>
+          <Tabs value={activeTab} onValueChange={v => setActiveTab(v as typeof activeTab)} className="mb-4">
+            <TabsList aria-label="kingdom-stats-tabs">
+              <TabsTrigger value="challenges" aria-label="challenges-tab">Challenges</TabsTrigger>
+              <TabsTrigger value="quests" aria-label="quests-tab">Quests</TabsTrigger>
+              <TabsTrigger value="gold" aria-label="gold-tab">Gold</TabsTrigger>
+              <TabsTrigger value="experience" aria-label="experience-tab">Experience</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          {isLoading ? (
+            <div className="h-64 flex items-center justify-center text-gray-400">Loading...</div>
+          ) : !hasData && activeTab === 'challenges' ? (
+            <EmptyState />
+          ) : (
+            <div className="h-64 flex items-end gap-2 w-full px-4">
+              {graphData.map((d, i) => (
+                <div key={d.day} className="flex flex-col items-center justify-end flex-1">
+                  <div
+                    className="w-full rounded-t bg-amber-500 transition-all"
+                    style={{ height: `${d.value === 0 ? 8 : d.value * 32}px`, minHeight: 8 }}
+                    aria-label={`bar-${d.day}`}
+                  />
+                  <div className="text-xs text-gray-300 mt-1">{new Date(d.day).toLocaleDateString()}</div>
+                  <div className="text-lg text-white font-bold">{d.value}</div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-        <Tabs defaultValue="quests" value={activeTab} onValueChange={setActiveTab} aria-label="kingdom-stats-tabs">
-          <TabsList className="mb-4 w-full grid grid-cols-4 hidden md:grid" aria-label="kingdom-stats-tab-list">
-            <TabsTrigger value="challenges" aria-label="challenges-tab">Challenges</TabsTrigger>
-            <TabsTrigger value="quests" aria-label="quests-tab">Quests</TabsTrigger>
-            <TabsTrigger value="gold" aria-label="gold-tab">Gold</TabsTrigger>
-            <TabsTrigger value="exp" aria-label="experience-tab">Experience</TabsTrigger>
-          </TabsList>
-          <TabsContent value="challenges" aria-label="challenges-content">
-            {challengeCompleted ? (
-              <div>
-                {/* Render challenge graph */}
-                <div className="h-64 flex items-end w-full space-x-1" aria-label="kingdom-stats-challenge-graph">
-                  {challengeData.map((item, index) => (
-                    <div key={index} className="flex flex-col items-center flex-1">
-                      <div
-                        className={`w-full bg-amber-500 rounded-t transition-all duration-300`}
-                        style={{
-                          height: `${item.count > 0 ? (item.count / Math.max(...challengeData.map(d => d.count), 1)) * 160 : 0}px`,
-                          minHeight: item.count > 0 ? '4px' : '0'
-                        }}
-                        aria-label={`challenge-bar-${item.day}-${item.count}`}
-                      ></div>
-                      <div className="mt-2 w-full text-center">
-                        <div className="text-xs font-medium text-gray-400">{item.day}</div>
-                        <div className="text-sm font-bold">{item.count}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <section
-                className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden"
-                aria-label="kingdom-challenge-empty-state-section"
-              >
-                <Image
-                  src="/images/quests-header.jpg"
-                  alt="Empty challenge stats placeholder"
-                  className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none"
-                  width={400}
-                  height={300}
-                  aria-hidden="true"
-                />
-                <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
-                <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3">
-                  <div className="text-amber-500 text-xl font-bold drop-shadow-md" aria-label="kingdom-challenge-empty-title">
-                    No challenges completed yet
-                  </div>
-                  <div className="text-gray-100 text-base" aria-label="kingdom-challenge-empty-desc">
-                    Start your first challenge to see your progress here!
-                  </div>
-                  <Link href="/quests?tab=challenges" passHref legacyBehavior>
-                    <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 transition-all" aria-label="Start your first challenge" tabIndex={0} role="button">
-                      Start Your First Challenge
-                    </a>
-                  </Link>
-                </div>
-              </section>
-            )}
-          </TabsContent>
-          <TabsContent value="quests" aria-label="quests-content">
-            {hasData(graphData, 'quests') ? renderGraph(graphData, 'quests', 'bg-purple-600', '') : <EmptyState />}
-          </TabsContent>
-          <TabsContent value="gold" aria-label="gold-content">
-            {hasData(graphData, 'gold') ? renderGraph(graphData, 'gold', 'bg-yellow-500', 'g') : <EmptyState />}
-          </TabsContent>
-          <TabsContent value="exp" aria-label="experience-content">
-            {hasData(graphData, 'experience') ? renderGraph(graphData, 'experience', 'bg-blue-500', 'xp') : <EmptyState />}
-          </TabsContent>
-        </Tabs>
       </CardContent>
     </Card>
   )
