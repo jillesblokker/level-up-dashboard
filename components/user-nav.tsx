@@ -82,12 +82,6 @@ export function UserNav() {
               <span>Design System</span>
             </DropdownMenuItem>
           </Link>
-          <Link href="/server-checks">
-            <DropdownMenuItem className="cursor-pointer" aria-label="Server Checks">
-              <Monitor className="mr-2 h-4 w-4" />
-              <span>Server Checks</span>
-            </DropdownMenuItem>
-          </Link>
           <Link href="/stored-data">
             <DropdownMenuItem className="cursor-pointer" aria-label="Stored Data">
               <ClipboardCheck className="mr-2 h-4 w-4" />
