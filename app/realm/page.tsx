@@ -982,8 +982,8 @@ export default function RealmPage() {
                                             return;
                                         }
                                         const nextQuestion = dungeonEvent?.questions?.[nextQuestionIndex];
-                                        if (nextQuestion) {
-                                            const correct = nextQuestion.number > dungeonEvent.questions[dungeonEvent.questionIndex].number;
+                                        if (nextQuestion && dungeonEvent.questions && typeof dungeonEvent.questionIndex === 'number' && dungeonEvent.questions[dungeonEvent.questionIndex]) {
+                                            const correct = nextQuestion.number > dungeonEvent.questions[dungeonEvent.questionIndex]!.number;
                                             setDungeonEvent({
                                                 ...dungeonEvent,
                                                 questionIndex: nextQuestionIndex,
@@ -999,8 +999,8 @@ export default function RealmPage() {
                                             return;
                                         }
                                         const nextQuestion = dungeonEvent?.questions?.[nextQuestionIndex];
-                                        if (nextQuestion) {
-                                            const correct = nextQuestion.number < dungeonEvent.questions[dungeonEvent.questionIndex].number;
+                                        if (nextQuestion && dungeonEvent.questions && typeof dungeonEvent.questionIndex === 'number' && dungeonEvent.questions[dungeonEvent.questionIndex]) {
+                                            const correct = nextQuestion.number < dungeonEvent.questions[dungeonEvent.questionIndex]!.number;
                                             setDungeonEvent({
                                                 ...dungeonEvent,
                                                 questionIndex: nextQuestionIndex,
