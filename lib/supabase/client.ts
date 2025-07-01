@@ -83,3 +83,16 @@ export async function withToken<T>(
 
   return operation(supabase);
 }
+
+if (!clientEnv.NEXT_PUBLIC_SUPABASE_URL || !clientEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  console.warn('Supabase URL or ANON KEY is missing in environment variables.');
+}
+
+// Warn if multiple clients are created in the browser
+if (typeof window !== 'undefined') {
+  if ((window as any)._supabaseClientCreated) {
+    console.warn('Multiple Supabase clients detected in the browser. This may cause auth/session issues.');
+  } else {
+    (window as any)._supabaseClientCreated = true;
+  }
+}

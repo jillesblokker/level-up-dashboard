@@ -22,6 +22,7 @@ export default function Page() {
   const { creatures } = useCreatureStore()
   const [unlockedAchievements, setUnlockedAchievements] = useState<Map<string, DbAchievement>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { user, isLoaded: isAuthLoaded } = useUser();
   const userId = user?.id;
   const [showAllUnlocked, setShowAllUnlocked] = useState(false);
@@ -29,32 +30,29 @@ export default function Page() {
   // Fetch unlocked achievements from the API
   useEffect(() => {
     if (!isAuthLoaded || !userId) {
-      // If auth is loaded but there's no user, we're not loading.
       if (isAuthLoaded) setIsLoading(false);
       return;
     };
-    
     const fetchAchievements = async () => {
       setIsLoading(true);
+      setError(null);
       try {
         const response = await fetch('/api/achievements');
         if (response.ok) {
           const data: DbAchievement[] = await response.json();
-          const achievementMap = new Map(data.map(ach => [ach.achievementId, ach]));
+          const achievementMap = new Map(data.filter(Boolean).map(ach => [ach.achievementId, ach]));
           setUnlockedAchievements(achievementMap);
         } else {
-          // Handle non-ok responses if needed
-          console.error('Failed to fetch achievements with status:', response.status);
-          setUnlockedAchievements(new Map()); // Clear previous data on error
+          setError(`Failed to fetch achievements (status: ${response.status})`);
+          setUnlockedAchievements(new Map());
         }
       } catch (error) {
-        console.error('An error occurred while fetching achievements:', error);
-        setUnlockedAchievements(new Map()); // Clear previous data on error
+        setError('An error occurred while fetching achievements.');
+        setUnlockedAchievements(new Map());
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchAchievements();
 
     // --- Supabase real-time subscription ---
@@ -96,7 +94,21 @@ export default function Page() {
       </div>
     );
   }
-
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-900 text-red-400">
+        <p>{error}</p>
+      </div>
+    );
+  }
+  if (!creatures || creatures.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-900 text-white">
+        <p>No creatures defined.</p>
+      </div>
+    );
+  }
+  const hasAnyUnlocked = creatures.some(c => unlockedAchievements.has(c.id));
   return (
     <>
       <HeaderSection
@@ -105,11 +117,14 @@ export default function Page() {
         canEdit={true}
       />
       <main className="container mx-auto p-6" aria-label="achievements-section">
+        {!hasAnyUnlocked && !showAllUnlocked && (
+          <div className="text-center text-gray-400 mb-8">No achievements unlocked yet. Start exploring to discover creatures!</div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" aria-label="creature-cards-grid">
           {creatures.map(creature => {
+            if (!creature) return null;
             const unlocked = isUnlocked(creature.id);
             const unlockDate = getUnlockDate(creature.id);
-
             return (
               <Card
                 key={creature.id}
