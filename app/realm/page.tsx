@@ -22,6 +22,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { gainGold } from '@/lib/gold-manager'
 import { gainExperience } from '@/lib/experience-manager'
 import { useCreatureStore } from '@/stores/creatureStore'
+import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 
 // Constants
 const GRID_COLS = 13
@@ -277,7 +278,10 @@ export default function RealmPage() {
                         const response = await fetch('/api/realm');
                         if (response.ok) {
                             const data = await response.json();
-                            if (data.grid) loadedGrid = JSON.parse(data.grid);
+                            if (data && data.grid && typeof data.grid === 'string') {
+                                // @ts-ignore: setGrid is always defined in this scope
+                                setGrid(JSON.parse(data.grid));
+                            }
                         }
                     }
                 } catch (error) {
@@ -299,6 +303,23 @@ export default function RealmPage() {
             initializeGrid();
         }
     }, [userId, isAuthLoaded, isGuest, toast]);
+
+    // --- Supabase real-time sync for realm_grids ---
+    useSupabaseRealtimeSync({
+        table: 'realm_grids',
+        userId,
+        onChange: () => {
+            if (isAuthLoaded && !isGuest && userId) {
+                // Re-fetch the grid from the API
+                fetch('/api/realm').then(async (response) => {
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data && data.grid && typeof data.grid === 'string') setGrid(JSON.parse(data.grid));
+                    }
+                });
+            }
+        }
+    });
 
     useEffect(() => {
         if (autoSave && saveStatus !== 'saving') {
