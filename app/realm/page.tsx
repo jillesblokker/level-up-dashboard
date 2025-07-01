@@ -194,10 +194,14 @@ export default function RealmPage() {
     const defaultCharacterPosition = { x: 2, y: 0 };
     const [hasCheckedInitialPosition, setHasCheckedInitialPosition] = useState(false);
     const closeBtnRef = useRef<HTMLButtonElement>(null);
-    const [horsePos, setHorsePos] = useState<{ x: number; y: number } | null>(null);
-    const [sheepPos, setSheepPos] = useState<{ x: number; y: number } | null>(null);
+    const [horsePos, setHorsePos] = useState<{ x: number; y: number } | null>(() => {
+      if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem('horsePos');
+        if (saved) return JSON.parse(saved);
+      }
+      return { x: 10, y: 4 };
+    });
     const [eaglePos, setEaglePos] = useState<{ x: number; y: number } | null>(null);
-    const [penguinPos, setPenguinPos] = useState<{ x: number; y: number } | null>(null);
     const [isHorsePresent, setIsHorsePresent] = useState(true);
     const [isPenguinPresent, setIsPenguinPresent] = useState(false);
     const [inventoryTab, setInventoryTab] = useState<'place' | 'buy'>('place');
@@ -208,6 +212,7 @@ export default function RealmPage() {
     const [castleDiceValue, setCastleDiceValue] = useState<number | null>(null);
     const [lastMysteryTile, setLastMysteryTile] = useState<{ x: number; y: number } | null>(null);
     const [mysteryEventCompleted, setMysteryEventCompleted] = useState(false);
+    const [penguinPos] = useState<{ x: number; y: number } | null>(null);
 
     // Achievement unlock effect
     useEffect(() => {
@@ -350,7 +355,6 @@ export default function RealmPage() {
         });
         // Show penguin if ice tile
         if (selectedTile.type === 'ice') {
-            setPenguinPos({ x, y });
             setIsPenguinPresent(true);
         }
         // Do not clear selectedTile here (allow repeated placement)
@@ -634,13 +638,9 @@ export default function RealmPage() {
 
     // Ensure animals are placed on valid tiles if not already set
     useEffect(() => {
-        // Place horse at start position (10,4)
+        // Place horse at start position (10,4) if not set
         if (!horsePos) {
             setHorsePos({ x: 10, y: 4 });
-        }
-        // Place sheep at start position (3,5)
-        if (!sheepPos) {
-            setSheepPos({ x: 3, y: 5 });
         }
         if (!eaglePos) {
             const nonEmptyTiles: { x: number; y: number }[] = [];
@@ -652,7 +652,7 @@ export default function RealmPage() {
                 if (next) setEaglePos(next);
             }
         }
-    }, [grid, horsePos, sheepPos, eaglePos, setHorsePos, setSheepPos, setEaglePos]);
+    }, [grid, horsePos, eaglePos, setHorsePos, setEaglePos]);
 
     // Animal movement logic (adjacent only)
     useEffect(() => {
@@ -671,54 +671,12 @@ export default function RealmPage() {
         return () => clearInterval(interval);
     }, [grid, horsePos, setHorsePos]);
 
+    // Persist horse position to localStorage
     useEffect(() => {
-        const interval = setInterval(() => {
-            if (sheepPos) {
-                const adj = getAdjacentPositions(sheepPos.x, sheepPos.y, grid).filter(pos =>
-                    !!grid[pos.y]?.[pos.x] &&
-                    grid[pos.y]?.[pos.x]?.type === 'grass'
-                );
-                if (adj.length > 0) {
-                    const next = adj[Math.floor(Math.random() * adj.length)];
-                    if (next) setSheepPos(next);
-                }
-            }
-        }, 5000);
-        return () => clearInterval(interval);
-    }, [grid, sheepPos, setSheepPos]);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            if (eaglePos) {
-                const adj = getAdjacentPositions(eaglePos.x, eaglePos.y, grid).filter(pos =>
-                    !!grid[pos.y]?.[pos.x] &&
-                    grid[pos.y]?.[pos.x]?.type !== 'empty'
-                );
-                if (adj.length > 0) {
-                    const next = adj[Math.floor(Math.random() * adj.length)];
-                    if (next) setEaglePos(next);
-                }
-            }
-        }, 5000);
-        return () => clearInterval(interval);
-    }, [grid, eaglePos, setEaglePos]);
-
-    useEffect(() => {
-        if (isPenguinPresent && penguinPos) {
-            const interval = setInterval(() => {
-                const adj = getAdjacentPositions(penguinPos.x, penguinPos.y, grid).filter(pos =>
-                    !!grid[pos.y]?.[pos.x] &&
-                    grid[pos.y]?.[pos.x]?.type === 'ice'
-                );
-                if (adj.length > 0) {
-                    const next = adj[Math.floor(Math.random() * adj.length)];
-                    if (next) setPenguinPos(next);
-                }
-            }, 5000);
-            return () => clearInterval(interval);
+        if (typeof window !== 'undefined' && horsePos) {
+            localStorage.setItem('horsePos', JSON.stringify(horsePos));
         }
-        return undefined;
-    }, [isPenguinPresent, penguinPos, grid, setPenguinPos]);
+    }, [horsePos]);
 
     // Keyboard shortcut: 'm' for move mode
     useEffect(() => {
@@ -853,7 +811,7 @@ export default function RealmPage() {
                             setHoveredTile={() => {}}
                             isMovementMode={gameMode === 'move'}
                             horsePos={horsePos}
-                            sheepPos={sheepPos}
+                            sheepPos={null}
                             eaglePos={eaglePos}
                             penguinPos={penguinPos}
                             isHorsePresent={isHorsePresent}
