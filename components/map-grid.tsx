@@ -14,6 +14,7 @@ import { showScrollToast } from "@/lib/toast-utils"
 import { getCharacterStats, updateCharacterStats } from '@/lib/character-stats-manager';
 import { TileType } from '@/types/tiles';
 import { addToKingdomInventory } from '@/lib/inventory-manager';
+import { Trash2 } from 'lucide-react';
 
 interface MapGridProps extends BaseMapGridProps {
   onExperienceUpdate?: (amount: number) => void;
@@ -27,6 +28,7 @@ interface MapGridProps extends BaseMapGridProps {
   isPenguinPresent?: boolean;
   onHover?: (x: number, y: number) => void;
   onHoverEnd?: () => void;
+  onTileDelete?: (x: number, y: number) => void;
 }
 
 function isTile(tile: Tile | undefined): tile is Tile {
@@ -50,7 +52,8 @@ export function MapGrid({
   eaglePos = null,
   penguinPos = null,
   isHorsePresent = false,
-  isPenguinPresent = false
+  isPenguinPresent = false,
+  onTileDelete
 }: MapGridProps) {
   const { toast } = useToast();
   const [localCurrentEvent, setLocalCurrentEvent] = useState<MysteryEvent | null>(null);
@@ -487,6 +490,16 @@ export function MapGrid({
                           priority
                         />
                       </div>
+                    )}
+                    {!isMovementMode && tile.type !== 'empty' && typeof onTileDelete === 'function' && (
+                      <button
+                        aria-label={`Delete tile at ${x},${y}`}
+                        className="absolute top-1 right-1 z-20 bg-red-700 rounded-full p-1 hover:bg-red-800 focus:outline-none"
+                        onClick={e => { e.stopPropagation(); onTileDelete(x, y); }}
+                        tabIndex={0}
+                      >
+                        <Trash2 size={18} className="text-white" />
+                      </button>
                     )}
                     <TileVisual
                       tile={tile}

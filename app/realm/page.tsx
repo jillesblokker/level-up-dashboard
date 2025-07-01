@@ -952,6 +952,7 @@ export default function RealmPage() {
                             penguinPos={penguinPos}
                             isHorsePresent={isHorsePresent && !horseCaught}
                             isPenguinPresent={isPenguinPresent}
+                            onTileDelete={handleDeleteTile}
                         />
                     </div>
                 </div>
