@@ -172,6 +172,26 @@ function assignTile(row: Tile[], x: number, tile: Tile) {
   };
 }
 
+// --- Creature achievement requirement mapping ---
+const creatureRequirements = [
+  { id: '001', action: 'forest_tiles_destroyed', threshold: 1 },
+  { id: '002', action: 'forest_tiles_destroyed', threshold: 5 },
+  { id: '003', action: 'forest_tiles_destroyed', threshold: 10 },
+  { id: '004', action: 'water_tiles_placed', threshold: 1 },
+  { id: '005', action: 'water_tiles_placed', threshold: 5 },
+  { id: '006', action: 'water_tiles_placed', threshold: 10 },
+  { id: '007', action: 'forest_tiles_placed', threshold: 1 },
+  { id: '008', action: 'forest_tiles_placed', threshold: 5 },
+  { id: '009', action: 'forest_tiles_placed', threshold: 10 },
+  { id: '010', action: 'mountain_tiles_destroyed', threshold: 1 },
+  { id: '011', action: 'mountain_tiles_destroyed', threshold: 5 },
+  { id: '012', action: 'mountain_tiles_destroyed', threshold: 10 },
+  { id: '013', action: 'ice_tiles_placed', threshold: 1 },
+  { id: '014', action: 'ice_tiles_placed', threshold: 5 },
+  { id: '015', action: 'ice_tiles_placed', threshold: 10 },
+  // Add more as needed
+];
+
 export default function RealmPage() {
     const { toast } = useToast();
     const { user, isLoaded: isAuthLoaded } = useUser();
@@ -359,7 +379,7 @@ export default function RealmPage() {
         return undefined;
     }, [grid, saveGrid, saveStatus, autoSave]);
 
-    const handlePlaceTile = (x: number, y: number) => {
+    const handlePlaceTile = async (x: number, y: number) => {
         if (gameMode !== 'build' || !selectedTile) return;
         const tileToPlace = inventory[selectedTile.type];
         if (!tileToPlace || (tileToPlace.quantity ?? 0) <= 0) return;
@@ -381,6 +401,47 @@ export default function RealmPage() {
         // Show penguin if ice tile
         if (selectedTile.type === 'ice') {
             setIsPenguinPresent(true);
+        }
+        // --- Backend progress integration ---
+        let action = null;
+        if (selectedTile.type === 'forest') action = 'forest_tiles_placed';
+        if (selectedTile.type === 'water') action = 'water_tiles_placed';
+        if (selectedTile.type === 'ice') action = 'ice_tiles_placed';
+        // Add more as needed
+        if (action && userId) {
+            try {
+                const res = await fetch('/api/progress/increment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action })
+                });
+                const data = await res.json();
+                if (res.ok && data && typeof data.newValue === 'number') {
+                    // Check if this unlocks a creature
+                    creatureRequirements.forEach(req => {
+                        if (req.action === action && req.threshold === data.newValue) {
+                            fetch('/api/creatures/discover', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ creatureId: req.id })
+                            }).then(() => {
+                                discoverCreature(req.id);
+                                toast({
+                                    title: 'Creature Discovered!',
+                                    description: `You discovered a new creature!`,
+                                });
+                            });
+                        }
+                    });
+                }
+            } catch (err) {
+                // Optionally show error toast
+                toast({
+                    title: 'Progress Not Saved',
+                    description: 'Could not update your progress. Please try again.',
+                    variant: 'destructive',
+                });
+            }
         }
         // Do not clear selectedTile here (allow repeated placement)
     };
