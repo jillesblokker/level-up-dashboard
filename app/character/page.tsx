@@ -380,6 +380,22 @@ export default function CharacterPage() {
     }
   });
 
+  // --- Supabase real-time sync for character_strengths ---
+  useSupabaseRealtimeSync({
+    table: 'character_strengths',
+    userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
+    onChange: () => {
+      // Re-fetch strengths from API or Supabase and update state
+      // (Replace with your actual fetch logic if needed)
+      fetch('/api/character-strengths').then(async (response) => {
+        if (response.ok) {
+          const strengths = await response.json();
+          setStrengths(strengths);
+        }
+      });
+    }
+  });
+
   // Load titles from localStorage on mount
   useEffect(() => {
     const savedTitles = storageService.get("titles", []);
