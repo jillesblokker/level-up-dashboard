@@ -119,12 +119,56 @@ const loadInitialGridFromCSV = async (): Promise<Tile[][]> => {
 // Helper to get adjacent positions
 function getAdjacentPositions(x: number, y: number, grid: any[][]): { x: number; y: number }[] {
   const positions: { x: number; y: number }[] = [];
-  if (!grid || !grid[0]) return positions;
-  if (y > 0 && grid[y - 1] && grid[y - 1][x]) positions.push({ x, y: y - 1 }); // up
-  if (y < grid.length - 1 && grid[y + 1] && grid[y + 1][x]) positions.push({ x, y: y + 1 }); // down
-  if (x > 0 && grid[y] && grid[y][x - 1]) positions.push({ x: x - 1, y }); // left
-  if (x < grid[0].length - 1 && grid[y] && grid[y][x + 1]) positions.push({ x: x + 1, y }); // right
+  if (!grid || !Array.isArray(grid) || !Array.isArray(grid[0])) return positions;
+  // up
+  if (
+    y > 0 &&
+    Array.isArray(grid[y - 1]) &&
+    typeof x === 'number' &&
+    grid[y - 1][x] !== undefined
+  ) {
+    // @ts-ignore: runtime guard ensures grid[y-1][x] is defined
+    positions.push({ x, y: y - 1 });
+  }
+  // down
+  if (
+    y < grid.length - 1 &&
+    Array.isArray(grid[y + 1]) &&
+    typeof x === 'number' &&
+    grid[y + 1][x] !== undefined
+  ) {
+    // @ts-ignore: runtime guard ensures grid[y+1][x] is defined
+    positions.push({ x, y: y + 1 });
+  }
+  // left
+  if (
+    x > 0 &&
+    Array.isArray(grid[y]) &&
+    grid[y][x - 1] !== undefined
+  ) {
+    // @ts-ignore: runtime guard ensures grid[y][x-1] is defined
+    positions.push({ x: x - 1, y });
+  }
+  // right
+  if (
+    Array.isArray(grid[y]) &&
+    x < grid[y].length - 1 &&
+    grid[y][x + 1] !== undefined
+  ) {
+    // @ts-ignore: runtime guard ensures grid[y][x+1] is defined
+    positions.push({ x: x + 1, y });
+  }
   return positions;
+}
+
+function assignTile(row: Tile[], x: number, tile: Tile) {
+  row[x] = {
+    ...tile,
+    type: 'grass',
+    name: 'Grass',
+    image: '/images/tiles/grass-tile.png',
+    isVisited: true,
+  };
 }
 
 export default function RealmPage() {
@@ -605,7 +649,10 @@ export default function RealmPage() {
     useEffect(() => {
         const interval = setInterval(() => {
             if (horsePos) {
-                const adj = getAdjacentPositions(horsePos.x, horsePos.y, grid).filter(pos => grid[pos.y] && grid[pos.y][pos.x] && grid[pos.y][pos.x].type === 'grass');
+                const adj = getAdjacentPositions(horsePos.x, horsePos.y, grid).filter(pos =>
+                    !!grid[pos.y]?.[pos.x] &&
+                    grid[pos.y]?.[pos.x]?.type === 'grass'
+                );
                 if (adj.length > 0) {
                     const next = adj[Math.floor(Math.random() * adj.length)];
                     if (next) setHorsePos(next);
@@ -618,7 +665,10 @@ export default function RealmPage() {
     useEffect(() => {
         const interval = setInterval(() => {
             if (sheepPos) {
-                const adj = getAdjacentPositions(sheepPos.x, sheepPos.y, grid).filter(pos => grid[pos.y] && grid[pos.y][pos.x] && grid[pos.y][pos.x].type === 'grass');
+                const adj = getAdjacentPositions(sheepPos.x, sheepPos.y, grid).filter(pos =>
+                    !!grid[pos.y]?.[pos.x] &&
+                    grid[pos.y]?.[pos.x]?.type === 'grass'
+                );
                 if (adj.length > 0) {
                     const next = adj[Math.floor(Math.random() * adj.length)];
                     if (next) setSheepPos(next);
@@ -631,7 +681,10 @@ export default function RealmPage() {
     useEffect(() => {
         const interval = setInterval(() => {
             if (eaglePos) {
-                const adj = getAdjacentPositions(eaglePos.x, eaglePos.y, grid).filter(pos => grid[pos.y] && grid[pos.y][pos.x] && grid[pos.y][pos.x].type !== 'empty');
+                const adj = getAdjacentPositions(eaglePos.x, eaglePos.y, grid).filter(pos =>
+                    !!grid[pos.y]?.[pos.x] &&
+                    grid[pos.y]?.[pos.x]?.type !== 'empty'
+                );
                 if (adj.length > 0) {
                     const next = adj[Math.floor(Math.random() * adj.length)];
                     if (next) setEaglePos(next);
@@ -644,7 +697,10 @@ export default function RealmPage() {
     useEffect(() => {
         if (isPenguinPresent && penguinPos) {
             const interval = setInterval(() => {
-                const adj = getAdjacentPositions(penguinPos.x, penguinPos.y, grid).filter(pos => grid[pos.y] && grid[pos.y][pos.x] && grid[pos.y][pos.x].type === 'ice');
+                const adj = getAdjacentPositions(penguinPos.x, penguinPos.y, grid).filter(pos =>
+                    !!grid[pos.y]?.[pos.x] &&
+                    grid[pos.y]?.[pos.x]?.type === 'ice'
+                );
                 if (adj.length > 0) {
                     const next = adj[Math.floor(Math.random() * adj.length)];
                     if (next) setPenguinPos(next);
@@ -670,19 +726,19 @@ export default function RealmPage() {
     useEffect(() => {
         if (lastMysteryTile && mysteryEventCompleted) {
             const { x, y } = lastMysteryTile;
-            if (grid[y]?.[x] && grid[y][x].type === 'mystery') {
+            // @ts-ignore: runtime guard ensures grid[y] and grid[y][x] are defined
+            const tile = grid[y]?.[x];
+            if (typeof x === 'number' && typeof y === 'number') {
                 const newGrid = grid.map(row => row.slice());
-                // @ts-expect-error: tile is guaranteed to be defined
-                newGrid[y][x] = {
-                    ...grid[y][x],
-                    type: 'grass',
-                    name: 'Grass',
-                    image: '/images/tiles/grass-tile.png',
-                    isVisited: true,
-                };
-                setGrid(newGrid);
-                if (typeof window !== 'undefined') {
-                    window.dispatchEvent(new CustomEvent('update-grid', { detail: { grid: newGrid } }));
+                // @ts-ignore: runtime guard ensures newGrid[y] is defined
+                const newRow = newGrid[y] as Tile[] | undefined;
+                if (newRow && tile) {
+                    // @ts-ignore: runtime guard ensures newRow[x] is defined
+                    assignTile(newRow, x, tile);
+                    setGrid(newGrid);
+                    if (typeof window !== 'undefined') {
+                        window.dispatchEvent(new CustomEvent('update-grid', { detail: { grid: newGrid } }));
+                    }
                 }
             }
         }
@@ -912,7 +968,7 @@ export default function RealmPage() {
                                         }
                                         const nextQuestion = dungeonEvent?.questions?.[nextQuestionIndex];
                                         if (nextQuestion) {
-                                            const correct = nextQuestion!.number > dungeonEvent.questions![dungeonEvent.questionIndex]!.number;
+                                            const correct = nextQuestion.number > dungeonEvent.questions[dungeonEvent.questionIndex].number;
                                             setDungeonEvent({
                                                 ...dungeonEvent,
                                                 questionIndex: nextQuestionIndex,
@@ -929,7 +985,7 @@ export default function RealmPage() {
                                         }
                                         const nextQuestion = dungeonEvent?.questions?.[nextQuestionIndex];
                                         if (nextQuestion) {
-                                            const correct = nextQuestion!.number < dungeonEvent.questions![dungeonEvent.questionIndex]!.number;
+                                            const correct = nextQuestion.number < dungeonEvent.questions[dungeonEvent.questionIndex].number;
                                             setDungeonEvent({
                                                 ...dungeonEvent,
                                                 questionIndex: nextQuestionIndex,
@@ -957,7 +1013,7 @@ export default function RealmPage() {
                             <DialogTitle>Cave: Choose a Path</DialogTitle>
                             <DialogDescription>You find yourself at a fork deep in the heart of a shadowy cave. Three paths lie before you, each whispering fate in a different tone.<br/>&quot;Which path do you choose, brave adventurer?&quot;</DialogDescription>
                         </DialogHeader>
-                        <>{!caveEvent.result ? (
+                        {!caveEvent.result ? (
                             <div className="space-y-4 flex flex-col">
                                 <Button className="w-full" aria-label="Gem Path" onClick={() => {
                                     const roll = Math.random();
@@ -993,7 +1049,7 @@ export default function RealmPage() {
                                 <div className="text-lg font-semibold text-center">{caveEvent.result}</div>
                                 <Button aria-label="Close" onClick={() => setCaveEvent(null)}>Close</Button>
                             </div>
-                        )}</>
+                        )}
                     </DialogContent>
                 </Dialog>
             )}
