@@ -236,38 +236,32 @@ export function KingdomStatsGraph({ userId }: { userId: string | null }) {
   return (
     <Card className="bg-black border-amber-800">
       <CardHeader>
-        <CardTitle className="text-amber-500 text-2xl font-bold">Kingdom Statistics</CardTitle>
+        <div className="flex items-center justify-between gap-4">
+          <CardTitle className="text-amber-500 text-2xl font-bold">Kingdom Statistics</CardTitle>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" aria-label="Select time period" className="ml-2">
+                {(() => {
+                  if (timePeriod === 'week') return 'This week';
+                  if (timePeriod === 'month') return 'This month';
+                  if (timePeriod === 'year') return 'This year';
+                  return 'All time';
+                })()}
+                <ChevronDown className="ml-2 w-4 h-4" aria-hidden="true" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent aria-label="kingdom-stats-time-period-dropdown">
+              <DropdownMenuItem onSelect={() => setTimePeriod('week')} aria-label="This week">This week</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setTimePeriod('month')} aria-label="This month">This month</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setTimePeriod('year')} aria-label="This year">This year</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setTimePeriod('all')} aria-label="All time">All time</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <CardDescription className="text-gray-300">Track your realm&apos;s growth</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="py-4">
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-amber-400 text-xl font-semibold">{(() => {
-              if (timePeriod === 'week') return 'Weekly Progress';
-              if (timePeriod === 'month') return 'Monthly Progress';
-              if (timePeriod === 'year') return 'Yearly Progress';
-              return 'All Time Progress';
-            })()}</div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" aria-label="Select time period" className="ml-2">
-                  {(() => {
-                    if (timePeriod === 'week') return 'This week';
-                    if (timePeriod === 'month') return 'This month';
-                    if (timePeriod === 'year') return 'This year';
-                    return 'All time';
-                  })()}
-                  <ChevronDown className="ml-2 w-4 h-4" aria-hidden="true" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent aria-label="kingdom-stats-time-period-dropdown">
-                <DropdownMenuItem onSelect={() => setTimePeriod('week')} aria-label="This week">This week</DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => setTimePeriod('month')} aria-label="This month">This month</DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => setTimePeriod('year')} aria-label="This year">This year</DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => setTimePeriod('all')} aria-label="All time">All time</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
           <Tabs value={activeTab} onValueChange={v => setActiveTab(v as typeof activeTab)} className="mb-4">
             <TabsList aria-label="kingdom-stats-tabs">
               <TabsTrigger value="challenges" aria-label="challenges-tab">Challenges</TabsTrigger>
