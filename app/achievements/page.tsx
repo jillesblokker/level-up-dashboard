@@ -8,6 +8,7 @@ import { CreatureCard } from '@/components/creature-card'
 import Image from 'next/image'
 import { HeaderSection } from '@/components/HeaderSection'
 import { useUser } from '@clerk/nextjs'
+import { createBrowserClient } from '@/lib/supabase/client'
 
 interface DbAchievement {
   id: string;
@@ -55,6 +56,27 @@ export default function Page() {
     };
 
     fetchAchievements();
+
+    // --- Supabase real-time subscription ---
+    const supabase = createBrowserClient();
+    const channel = supabase.channel('achievements-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'achievements',
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload) => {
+          fetchAchievements();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [isAuthLoaded, userId]);
   
   const isUnlocked = (creatureId: string) => {
