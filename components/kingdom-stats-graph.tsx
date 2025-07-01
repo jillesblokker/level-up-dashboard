@@ -17,6 +17,7 @@ import Link from 'next/link'
 import { useSupabaseRealtimeSync } from "@/hooks/useSupabaseRealtimeSync"
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useAuth } from '@clerk/nextjs'
+import { withToken } from '@/lib/supabase/client'
 
 // Time period types
 type TimePeriod = 'week' | 'month' | 'year' | 'all'
@@ -76,6 +77,7 @@ function EmptyState({ tab }: EmptyStateProps) {
 }
 
 export function KingdomStatsGraph({ userId }: { userId: string | null }) {
+  const { getToken } = useAuth()
   const [activeTab, setActiveTab] = useState<'challenges' | 'quests' | 'gold' | 'experience'>('challenges')
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('week')
   const [graphData, setGraphData] = useState<Array<{ day: string; value: number }>>([])
@@ -126,11 +128,13 @@ export function KingdomStatsGraph({ userId }: { userId: string | null }) {
       else if (timePeriod === 'year') fromDate = days[0] + '-01T00:00:00.000Z';
       // For 'all', no fromDate filter
       if (activeTab === 'challenges') {
-        const { data: completions } = await supabase
-          .from('ChallengeCompletion')
-          .select('completedAt')
-          .eq('userId', uid)
-          .gte('completedAt', fromDate || '')
+        const { data: completions } = await withToken(supabase, getToken, async (client) =>
+          client
+            .from('ChallengeCompletion')
+            .select('completedAt')
+            .eq('userId', uid)
+            .gte('completedAt', fromDate || '')
+        );
         if (Array.isArray(completions)) {
           completions.forEach((row) => {
             const completedAt = row && typeof row === 'object' ? (row as { completedAt?: string }).completedAt : undefined;
@@ -227,7 +231,7 @@ export function KingdomStatsGraph({ userId }: { userId: string | null }) {
       setIsLoading(false);
     };
     fetchData();
-  }, [activeTab, uid, supabase, timePeriod]);
+  }, [activeTab, uid, supabase, timePeriod, getToken]);
 
   // Check if there is any data
   const hasData = graphData.some(d => d.value > 0);
