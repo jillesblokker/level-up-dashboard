@@ -116,6 +116,16 @@ const loadInitialGridFromCSV = async (): Promise<Tile[][]> => {
     }
 };
 
+// Helper to get adjacent positions
+function getAdjacentPositions(x: number, y: number, grid: any[][]) {
+  const positions = [];
+  if (y > 0 && grid[y - 1]?.[x]) positions.push({ x, y: y - 1 }); // up
+  if (y < grid.length - 1 && grid[y + 1]?.[x]) positions.push({ x, y: y + 1 }); // down
+  if (x > 0 && grid[y]?.[x - 1]) positions.push({ x: x - 1, y }); // left
+  if (x < grid[0].length - 1 && grid[y]?.[x + 1]) positions.push({ x: x + 1, y }); // right
+  return positions;
+}
+
 export default function RealmPage() {
     const { toast } = useToast();
     const { user, isLoaded: isAuthLoaded } = useUser();
@@ -150,6 +160,8 @@ export default function RealmPage() {
     const [caveEvent, setCaveEvent] = useState<{ open: boolean, result?: string } | null>(null);
     const [castleDiceRolling, setCastleDiceRolling] = useState(false);
     const [castleDiceValue, setCastleDiceValue] = useState<number | null>(null);
+    const [lastMysteryTile, setLastMysteryTile] = useState<{ x: number; y: number } | null>(null);
+    const [mysteryEventCompleted, setMysteryEventCompleted] = useState(false);
 
     // Achievement unlock effect
     useEffect(() => {
@@ -562,7 +574,7 @@ export default function RealmPage() {
                 if (tile.type === 'grass') grassTiles.push({ x, y });
             }));
             if (grassTiles.length > 0) {
-                const next = grassTiles[Math.floor(Math.random() * grassTiles.length)];
+                const next = grassTiles[0]; // Always pick the first visible grass tile
                 if (next) setHorsePos(next);
             }
         }
@@ -572,7 +584,7 @@ export default function RealmPage() {
                 if (tile.type === 'grass') grassTiles.push({ x, y });
             }));
             if (grassTiles.length > 0) {
-                const next = grassTiles[Math.floor(Math.random() * grassTiles.length)];
+                const next = grassTiles[grassTiles.length - 1]; // Pick a different grass tile for sheep
                 if (next) setSheepPos(next);
             }
         }
@@ -582,23 +594,19 @@ export default function RealmPage() {
                 if (tile.type !== 'empty') nonEmptyTiles.push({ x, y });
             }));
             if (nonEmptyTiles.length > 0) {
-                const next = nonEmptyTiles[Math.floor(Math.random() * nonEmptyTiles.length)];
+                const next = nonEmptyTiles[0];
                 if (next) setEaglePos(next);
             }
         }
     }, [grid, horsePos, sheepPos, eaglePos, setHorsePos, setSheepPos, setEaglePos]);
 
-    // Animal movement logic
+    // Animal movement logic (adjacent only)
     useEffect(() => {
-        // Horse moves every 5s to a random grass tile
         const interval = setInterval(() => {
             if (horsePos) {
-                const grassTiles: { x: number; y: number }[] = [];
-                grid.forEach((row, y) => row.forEach((tile, x) => {
-                    if (tile.type === 'grass') grassTiles.push({ x, y });
-                }));
-                if (grassTiles.length > 0) {
-                    const next = grassTiles[Math.floor(Math.random() * grassTiles.length)];
+                const adj = getAdjacentPositions(horsePos.x, horsePos.y, grid).filter(pos => grid[pos.y]?.[pos.x] && grid[pos.y][pos.x].type === 'grass');
+                if (adj.length > 0) {
+                    const next = adj[Math.floor(Math.random() * adj.length)];
                     if (next) setHorsePos(next);
                 }
             }
@@ -607,15 +615,11 @@ export default function RealmPage() {
     }, [grid, horsePos, setHorsePos]);
 
     useEffect(() => {
-        // Sheep moves every 5s to a random grass tile
         const interval = setInterval(() => {
             if (sheepPos) {
-                const grassTiles: { x: number; y: number }[] = [];
-                grid.forEach((row, y) => row.forEach((tile, x) => {
-                    if (tile.type === 'grass') grassTiles.push({ x, y });
-                }));
-                if (grassTiles.length > 0) {
-                    const next = grassTiles[Math.floor(Math.random() * grassTiles.length)];
+                const adj = getAdjacentPositions(sheepPos.x, sheepPos.y, grid).filter(pos => grid[pos.y]?.[pos.x] && grid[pos.y][pos.x].type === 'grass');
+                if (adj.length > 0) {
+                    const next = adj[Math.floor(Math.random() * adj.length)];
                     if (next) setSheepPos(next);
                 }
             }
@@ -624,15 +628,11 @@ export default function RealmPage() {
     }, [grid, sheepPos, setSheepPos]);
 
     useEffect(() => {
-        // Eagle moves every 5s to a random non-empty tile
         const interval = setInterval(() => {
             if (eaglePos) {
-                const nonEmptyTiles: { x: number; y: number }[] = [];
-                grid.forEach((row, y) => row.forEach((tile, x) => {
-                    if (tile.type !== 'empty') nonEmptyTiles.push({ x, y });
-                }));
-                if (nonEmptyTiles.length > 0) {
-                    const next = nonEmptyTiles[Math.floor(Math.random() * nonEmptyTiles.length)];
+                const adj = getAdjacentPositions(eaglePos.x, eaglePos.y, grid).filter(pos => grid[pos.y]?.[pos.x] && grid[pos.y][pos.x].type !== 'empty');
+                if (adj.length > 0) {
+                    const next = adj[Math.floor(Math.random() * adj.length)];
                     if (next) setEaglePos(next);
                 }
             }
@@ -641,15 +641,11 @@ export default function RealmPage() {
     }, [grid, eaglePos, setEaglePos]);
 
     useEffect(() => {
-        // Penguin moves every 5s to a random ice tile (only if present)
         if (isPenguinPresent && penguinPos) {
             const interval = setInterval(() => {
-                const iceTiles: { x: number; y: number }[] = [];
-                grid.forEach((row, y) => row.forEach((tile, x) => {
-                    if (tile.type === 'ice') iceTiles.push({ x, y });
-                }));
-                if (iceTiles.length > 0) {
-                    const next = iceTiles[Math.floor(Math.random() * iceTiles.length)];
+                const adj = getAdjacentPositions(penguinPos.x, penguinPos.y, grid).filter(pos => grid[pos.y]?.[pos.x] && grid[pos.y][pos.x].type === 'ice');
+                if (adj.length > 0) {
+                    const next = adj[Math.floor(Math.random() * adj.length)];
                     if (next) setPenguinPos(next);
                 }
             }, 5000);
@@ -668,6 +664,28 @@ export default function RealmPage() {
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
+
+    // Fix for mystery tile: always change to grass after event
+    useEffect(() => {
+        if (lastMysteryTile && mysteryEventCompleted) {
+            const { x, y } = lastMysteryTile;
+            if (grid[y]?.[x] && grid[y][x].type === 'mystery') {
+                const newGrid = grid.map(row => row.slice());
+                // @ts-expect-error: tile is guaranteed to be defined
+                newGrid[y][x] = {
+                    ...grid[y][x],
+                    type: 'grass',
+                    name: 'Grass',
+                    image: '/images/tiles/grass-tile.png',
+                    isVisited: true,
+                };
+                setGrid(newGrid);
+                if (typeof window !== 'undefined') {
+                    window.dispatchEvent(new CustomEvent('update-grid', { detail: { grid: newGrid } }));
+                }
+            }
+        }
+    }, [lastMysteryTile, mysteryEventCompleted, grid]);
 
     if (isLoading) {
         return <div className="flex items-center justify-center h-screen bg-gray-900 text-white">Loading Realm...</div>;
