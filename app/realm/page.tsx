@@ -14,7 +14,7 @@ import { createTileFromNumeric } from "@/lib/grid-loader"
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { X, Hammer, Move, Package, Settings, Save } from 'lucide-react'
+import { X, Hammer, Move, Package, Settings, Save, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { EnterLocationModal } from '@/components/enter-location-modal'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
@@ -835,6 +835,17 @@ export default function RealmPage() {
             localStorage.setItem('sheepPos', JSON.stringify(sheepPos));
         }
     }, [sheepPos]);
+
+    // Add the handler:
+    const handleDeleteTile = (x: number, y: number) => {
+        setGrid(prevGrid => {
+            const newGrid = prevGrid.map(row => row.slice());
+            if (newGrid[y]?.[x] && newGrid[y][x].type !== 'empty') {
+                newGrid[y][x] = { ...defaultTile('empty'), x, y, id: `empty-${x}-${y}` };
+            }
+            return newGrid;
+        });
+    };
 
     if (isLoading) {
         return <div className="flex items-center justify-center h-screen bg-gray-900 text-white">Loading Realm...</div>;
