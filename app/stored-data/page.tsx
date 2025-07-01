@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 import { formatBytes } from '@/lib/utils';
 import { MigrationStatus } from '@/components/migration-status'
 import { HealthCheck } from '@/components/health-check'
+import { useSupabase } from '@/lib/hooks/useSupabase';
+import { useAuth } from '@clerk/nextjs';
 
 interface StoredData {
   key: string;
@@ -70,6 +72,40 @@ export default function StoredDataPage() {
   // - TilePlacement
   // - User
   // - VerificationToken
+
+  const { userId } = useAuth();
+  const { supabase, isLoading: isSupabaseLoading } = useSupabase();
+  const [challengeDefs, setChallengeDefs] = useState<any[]>([]);
+  const [userChallenges, setUserChallenges] = useState<any[]>([]);
+  const [achievementDefs, setAchievementDefs] = useState<any[]>([]);
+  const [userAchievements, setUserAchievements] = useState<any[]>([]);
+  const [isChallengeLoading, setIsChallengeLoading] = useState(false);
+  const [isAchievementLoading, setIsAchievementLoading] = useState(false);
+
+  // Fetch challenge and achievement data from Supabase
+  useEffect(() => {
+    if (!userId || !supabase) return;
+    setIsChallengeLoading(true);
+    setIsAchievementLoading(true);
+    // Fetch challenge definitions
+    supabase.from('Challenge').select('*').then(({ data }) => {
+      setChallengeDefs(data || []);
+      setIsChallengeLoading(false);
+    });
+    // Fetch user challenge progress
+    supabase.from('UserChallenge').select('*').eq('userId', userId).then(({ data }) => {
+      setUserChallenges(data || []);
+    });
+    // Fetch achievement definitions
+    supabase.from('AchievementDefinition').select('*').then(({ data }) => {
+      setAchievementDefs(data || []);
+      setIsAchievementLoading(false);
+    });
+    // Fetch user achievement progress
+    supabase.from('Achievement').select('*').eq('userId', userId).then(({ data }) => {
+      setUserAchievements(data || []);
+    });
+  }, [userId, supabase]);
 
   const refreshData = () => {
     setIsLoading(true);
@@ -256,6 +292,81 @@ export default function StoredDataPage() {
                 <li><strong>User</strong> {/* TODO: Supabase integration */}</li>
                 <li><strong>VerificationToken</strong> {/* TODO: Supabase integration */}</li>
               </ul>
+            </CardContent>
+          </Card>
+        </section>
+
+        <section aria-label="user-challenge-achievement-section">
+          <Card aria-label="user-challenge-achievement-card">
+            <CardHeader>
+              <CardTitle>User Challenges & Achievements</CardTitle>
+              <CardDescription>Progress and unlocks synced with Supabase</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-semibold text-lg mb-2">Challenges</h3>
+                  {isChallengeLoading ? (
+                    <div>Loading challenges...</div>
+                  ) : (
+                    <ul className="space-y-1" aria-label="challenge-list">
+                      {challengeDefs.length === 0 ? (
+                        <li>No challenges found.</li>
+                      ) : challengeDefs.map((challenge) => {
+                        const userChal = userChallenges.find((uc) => uc.challengeId === challenge.id);
+                        return (
+                          <li key={challenge.id} className="flex items-center gap-2">
+                            <span className="font-mono text-sm">{challenge.name}</span>
+                            <span className="text-xs text-gray-500">({challenge.category})</span>
+                            <span className="ml-auto text-xs">
+                              {userChal ? (
+                                userChal.completed ? (
+                                  <span className="text-green-600">Completed</span>
+                                ) : (
+                                  <span>Progress: {userChal.progress}</span>
+                                )
+                              ) : (
+                                <span className="text-gray-400">Not started</span>
+                              )}
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-2">Achievements</h3>
+                  {isAchievementLoading ? (
+                    <div>Loading achievements...</div>
+                  ) : (
+                    <ul className="space-y-1" aria-label="achievement-list">
+                      {achievementDefs.length === 0 ? (
+                        <li>No achievements found.</li>
+                      ) : achievementDefs.map((ach) => {
+                        const userAch = userAchievements.find((ua) => ua.achievementId === ach.id);
+                        return (
+                          <li key={ach.id} className="flex items-center gap-2">
+                            <span className="font-mono text-sm">{ach.name}</span>
+                            <span className="text-xs text-gray-500">({ach.category || 'uncategorized'})</span>
+                            <span className="ml-auto text-xs">
+                              {userAch ? (
+                                userAch.unlocked ? (
+                                  <span className="text-green-600">Unlocked</span>
+                                ) : (
+                                  <span>Progress: {userAch.progress}</span>
+                                )
+                              ) : (
+                                <span className="text-gray-400">Not started</span>
+                              )}
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
+              </div>
             </CardContent>
           </Card>
         </section>
