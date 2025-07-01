@@ -19,6 +19,7 @@ import { storageService } from '@/lib/storage-service'
 import { Quest } from '@/lib/quest-types'
 import { updateCharacterStats, getCharacterStats } from '@/lib/character-stats-manager'
 import CardWithProgress from './quest-card'
+import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 
 interface Milestone {
   id: string;
@@ -447,6 +448,18 @@ export function Milestones() {
       setCompletionDates(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
     }
   };
+
+  useSupabaseRealtimeSync({
+    table: 'milestones',
+    userId,
+    onChange: () => {
+      // Re-fetch milestones
+      if (typeof window !== 'undefined') {
+        // Call fetchMilestones if available
+        window.location.reload(); // Or call fetchMilestones() if you want to avoid reload
+      }
+    }
+  });
 
   return (
     <div className="space-y-8">

@@ -335,7 +335,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
               <CardDescription className="text-gray-400">Track your realm&apos;s growth</CardDescription>
             </CardHeader>
             <CardContent>
-              <KingdomStatsGraph />
+              <KingdomStatsGraph userId={userId} />
             </CardContent>
           </Card>
 

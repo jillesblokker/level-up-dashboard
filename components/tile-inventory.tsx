@@ -11,6 +11,7 @@ import { useGoldStore } from "@/stores/goldStore"
 import { TileType, InventoryItem } from "@/types/tiles"
 import { useState } from "react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 
 interface TileInventoryProps {
   tiles: InventoryItem[]
@@ -25,6 +26,20 @@ interface TileInventoryProps {
 export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles, activeTab, setActiveTab, onOutOfTiles }: TileInventoryProps) {
   const { gold, updateGold } = useGoldStore()
   const [buyQuantities, setBuyQuantities] = useState<{ [key: string]: number }>({})
+
+  useSupabaseRealtimeSync({
+    table: 'tile_inventory',
+    userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
+    onChange: () => {
+      // Re-fetch tile inventory and update state
+      // (Replace with your actual fetch logic if needed)
+      if (typeof window !== 'undefined') {
+        // Example: fetch('/api/tile-inventory').then(...)
+        // For now, just call onUpdateTiles with the current tiles
+        onUpdateTiles(tiles);
+      }
+    }
+  });
 
   const handleBuyTile = (tile: InventoryItem, e: React.MouseEvent) => {
     e.stopPropagation()

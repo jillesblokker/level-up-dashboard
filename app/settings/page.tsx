@@ -14,6 +14,7 @@ import { NavBar } from "@/components/nav-bar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "@/components/ui/use-toast"
 import { CharacterStats } from "@/types/character"
+import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 
 export default function SettingsPage() {
   // const { data: session } = useSession()
@@ -64,6 +65,17 @@ export default function SettingsPage() {
       console.error("Error loading user data:", error)
     }
   }, [])
+
+  useSupabaseRealtimeSync({
+    table: 'game_settings',
+    userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
+    onChange: () => {
+      // Reload settings
+      if (typeof window !== 'undefined') {
+        window.location.reload();
+      }
+    }
+  });
 
   const handleSaveProfile = () => {
     try {

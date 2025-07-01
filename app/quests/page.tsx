@@ -202,10 +202,10 @@ export default function QuestsPage() {
     table: 'quest_completions',
     userId,
     onChange: () => {
-      if (isAuthLoaded && !isGuest && userId) {
+      if (!isGuest && userId) {
         fetch('/api/quests').then(async (response) => {
           if (response.ok) {
-            const data: Quest[] = await response.json();
+            const data = await response.json();
             setQuests(data);
           }
         });

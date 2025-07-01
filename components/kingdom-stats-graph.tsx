@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button"
 import { getAggregatedKingdomData } from "@/lib/kingdom-events"
 import Image from 'next/image'
 import Link from 'next/link'
+import { useSupabaseRealtimeSync } from "@/hooks/useSupabaseRealtimeSync"
 
 // Time period types
 type TimePeriod = 'today' | 'weekly' | 'yearly'
@@ -62,7 +63,7 @@ function EmptyState() {
   )
 }
 
-export function KingdomStatsGraph() {
+export function KingdomStatsGraph({ userId }: { userId: string | null }) {
   const [activeTab, setActiveTab] = useState("quests")
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('weekly')
   const [graphData, setGraphData] = useState<GraphData[]>([])
@@ -165,6 +166,16 @@ export function KingdomStatsGraph() {
       window.removeEventListener('questComplete', handleKingdomUpdate)
     }
   }, [timePeriod])
+
+  useSupabaseRealtimeSync({
+    table: "kingdom_time_series",
+    userId,
+    onChange: () => {
+      // Re-fetch data when real-time update occurs
+      const data = getAggregatedKingdomData(timePeriod);
+      setGraphData(data);
+    },
+  });
 
   // Check if data has any values > 0
   const hasData = (data: GraphData[], type: 'quests' | 'gold' | 'experience') => {

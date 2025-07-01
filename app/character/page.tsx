@@ -353,14 +353,12 @@ export default function CharacterPage() {
     table: 'character_stats',
     userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
     onChange: () => {
-      // Re-fetch character stats from API or Supabase and update state
-      // (Replace with your actual fetch logic if needed)
-      fetch('/api/character-stats').then(async (response) => {
-        if (response.ok) {
-          const stats = await response.json();
-          setCharacterStats(stats);
-        }
-      });
+      // Reload character stats
+      if (typeof window !== 'undefined') {
+        // You may want to call your actual fetch logic here
+        // For now, reload the page or trigger a state update
+        window.location.reload();
+      }
     }
   });
 
@@ -369,14 +367,24 @@ export default function CharacterPage() {
     table: 'character_perks',
     userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
     onChange: () => {
-      // Re-fetch perks from API or Supabase and update state
-      // (Replace with your actual fetch logic if needed)
-      fetch('/api/character-perks').then(async (response) => {
-        if (response.ok) {
-          const perks = await response.json();
-          setPerks(perks);
-        }
-      });
+      // Reload perks
+      if (typeof window !== 'undefined') {
+        // You may want to call your actual fetch logic here
+        window.location.reload();
+      }
+    }
+  });
+
+  // --- Supabase real-time sync for character_titles ---
+  useSupabaseRealtimeSync({
+    table: 'character_titles',
+    userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
+    onChange: () => {
+      // Reload titles
+      if (typeof window !== 'undefined') {
+        // You may want to call your actual fetch logic here
+        window.location.reload();
+      }
     }
   });
 
@@ -385,41 +393,10 @@ export default function CharacterPage() {
     table: 'character_strengths',
     userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
     onChange: () => {
-      // Re-fetch strengths from API or Supabase and update state
-      // (Replace with your actual fetch logic if needed)
-      fetch('/api/character-strengths').then(async (response) => {
-        if (response.ok) {
-          const strengths = await response.json();
-          setStrengths(strengths);
-        }
-      });
-    }
-  });
-
-  // Load titles from localStorage on mount
-  useEffect(() => {
-    const savedTitles = storageService.get("titles", []);
-    setTitles(Array.isArray(savedTitles) ? savedTitles : []);
-  }, []);
-
-  // Whenever titles change, update localStorage
-  useEffect(() => {
-    storageService.set("titles", titles);
-  }, [titles]);
-
-  // --- Supabase real-time sync for character_titles ---
-  useSupabaseRealtimeSync({
-    table: 'character_titles',
-    userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
-    onChange: () => {
-      // Re-fetch titles from API or Supabase and update state
-      // (Replace with your actual fetch logic if needed)
-      fetch('/api/character-titles').then(async (response) => {
-        if (response.ok) {
-          const titles = await response.json();
-          setTitles(titles);
-        }
-      });
+      // Reload strengths
+      if (typeof window !== 'undefined') {
+        window.location.reload();
+      }
     }
   });
 
