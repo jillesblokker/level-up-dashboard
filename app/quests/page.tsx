@@ -14,6 +14,7 @@ import { updateCharacterStats, getCharacterStats } from '@/lib/character-stats-m
 import { toast } from '@/components/ui/use-toast'
 import CardWithProgress from '@/components/quest-card'
 import React from 'react'
+import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 
 interface Quest {
   id: string;
@@ -195,6 +196,22 @@ export default function QuestsPage() {
 
     loadQuests();
   }, [isAuthLoaded, userId, isGuest]);
+
+  // --- Supabase real-time sync for quest_completions ---
+  useSupabaseRealtimeSync({
+    table: 'quest_completions',
+    userId,
+    onChange: () => {
+      if (isAuthLoaded && !isGuest && userId) {
+        fetch('/api/quests').then(async (response) => {
+          if (response.ok) {
+            const data: Quest[] = await response.json();
+            setQuests(data);
+          }
+        });
+      }
+    }
+  });
 
   // Daily reset logic for non-milestone quests
   useEffect(() => {
