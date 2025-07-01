@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { NavBar } from "@/components/nav-bar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "@/components/ui/use-toast"
+import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 
 interface Notification {
   id: string
@@ -119,6 +120,22 @@ export default function NotificationsPage() {
 
     setNotifications(sampleNotifications)
   }, [])
+
+  // --- Supabase real-time sync for notifications ---
+  useSupabaseRealtimeSync({
+    table: 'notifications',
+    userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
+    onChange: () => {
+      // Re-fetch notifications from API or Supabase and update state
+      // (Replace with your actual fetch logic if needed)
+      fetch('/api/notifications').then(async (response) => {
+        if (response.ok) {
+          const notifications = await response.json();
+          setNotifications(notifications);
+        }
+      });
+    }
+  });
 
   // Filter notifications based on search query and filters
   const filteredNotifications = notifications.filter((notification) => {
