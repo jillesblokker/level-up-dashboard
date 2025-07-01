@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { ArrowLeft, Sword, Shield, Beaker, Gem, Scroll, Crown } from "lucide-react";
 import Link from "next/link";
 import { InventoryItem, getInventory } from "@/lib/inventory-manager";
+import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync';
 
 const ITEM_TYPES = [
   { value: "weapon", label: "Weapon", icon: <Sword className="h-4 w-4" /> },
@@ -54,6 +55,20 @@ export default function InventoryPage() {
       window.removeEventListener("character-inventory-update", loadItems);
     };
   }, []);
+
+  // --- Supabase real-time sync for inventory_items ---
+  useSupabaseRealtimeSync({
+    table: 'inventory_items',
+    userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
+    onChange: () => {
+      // Re-fetch inventory items and update state
+      // (Replace with your actual fetch logic if needed)
+      if (typeof window !== 'undefined') {
+        const inventoryItems = getInventory();
+        setItems(inventoryItems);
+      }
+    }
+  });
 
   const filteredItems = activeTab === "all" 
     ? items 
