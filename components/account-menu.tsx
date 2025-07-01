@@ -81,6 +81,8 @@ const AccountMenu = () => {
         <DropdownMenuItem asChild>
           <button
             className="w-full text-left cursor-pointer"
+            aria-label="Log out"
+            role="button"
             onClick={async () => {
               // Remove guest mode flags
               if (typeof window !== "undefined") {
@@ -92,13 +94,10 @@ const AccountMenu = () => {
               // Clerk sign out (if signed in)
               try {
                 await signOut();
-              } catch (e: unknown) {
-                // Ignore errors if not signed in
-              }
+              } catch (e) {}
+              // Redirect to a public page (not protected)
               window.location.href = "/auth/signin";
             }}
-            aria-label="Log out"
-            role="button"
           >
             Log out
           </button>

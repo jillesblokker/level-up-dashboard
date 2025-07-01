@@ -2,7 +2,7 @@
 
 import { useAuth } from '@clerk/nextjs';
 import { useState, useEffect } from 'react';
-import { createBrowserClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@/types/supabase';
 
@@ -15,8 +15,7 @@ export function useSupabase() {
 
     useEffect(() => {
         if (isLoaded) {
-            const client = createBrowserClient();
-            setSupabase(client);
+            setSupabase(supabase);
             setIsLoading(false);
         }
     }, [isLoaded]);
