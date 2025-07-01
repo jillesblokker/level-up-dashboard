@@ -516,7 +516,7 @@ export function MapGrid({
       </div>
       {localCurrentEvent && (
         <Dialog open={!!localCurrentEvent} onOpenChange={() => setLocalCurrentEvent(null)}>
-          <DialogContent>
+          <DialogContent role="dialog" aria-label="event-modal">
             <DialogHeader>
               <DialogTitle>{localCurrentEvent.title}</DialogTitle>
               <DialogDescription>{localCurrentEvent.description}</DialogDescription>

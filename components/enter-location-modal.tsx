@@ -39,7 +39,7 @@ export function EnterLocationModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md bg-gray-900 border-amber-800">
+      <DialogContent className="sm:max-w-md bg-gray-900 border-amber-800" role="dialog" aria-label="enter-location-modal">
         <DialogHeader>
           <DialogTitle className="text-amber-400">
             Enter {locationType.charAt(0).toUpperCase() + locationType.slice(1)}

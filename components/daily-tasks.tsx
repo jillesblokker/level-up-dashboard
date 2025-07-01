@@ -317,7 +317,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
       </div>
 
       <Dialog open={showAddTask} onOpenChange={setShowAddTask}>
-        <DialogContent className="sm:max-w-md bg-black text-white border-amber-800/20">
+        <DialogContent className="sm:max-w-md bg-black text-white border-amber-800/20" role="dialog" aria-label="daily-tasks-modal">
           <DialogHeader>
             <DialogTitle>Add New Quest</DialogTitle>
             <DialogDescription>Create a new daily quest to track your progress.</DialogDescription>

@@ -36,7 +36,7 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
 
   return (
     <Dialog open={open} onOpenChange={() => handleClose()}>
-      <DialogContent className="sm:max-w-md bg-black text-white border-amber-800/20">
+      <DialogContent className="sm:max-w-md bg-black text-white border-amber-800/20" role="dialog" aria-label="onboarding-guide-modal">
         <DialogHeader>
           <DialogTitle className="font-serif flex items-center">
             <HelpCircle className="mr-2 h-5 w-5 text-amber-500" />

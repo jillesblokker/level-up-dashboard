@@ -287,7 +287,7 @@ export default function ProfilePage() {
 
       {/* Avatar Cropper Modal */}
       <Dialog open={showCropper} onOpenChange={setShowCropper}>
-        <DialogContent>
+        <DialogContent role="dialog" aria-label="profile-modal">
           <DialogTitle className="sr-only">Crop Avatar</DialogTitle>
           {selectedImage && (
             <div style={{ position: 'relative', width: '100%', height: 300 }}>

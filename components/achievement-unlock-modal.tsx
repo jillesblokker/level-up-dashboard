@@ -28,7 +28,7 @@ export function AchievementUnlockModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-gray-900 border-amber-800/20">
+      <DialogContent className="bg-gray-900 border-amber-800/20" role="dialog" aria-label="achievement-unlock-modal">
         <DialogHeader>
           <DialogTitle className="text-2xl font-cardo text-amber-500">
             New Creature Discovered!

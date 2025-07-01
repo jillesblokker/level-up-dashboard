@@ -1,20 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'];
-const supabaseKey = process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'];
-const supabase = createClient(
-  supabaseUrl!,
-  supabaseKey!
-);
+import { supabase } from '@/lib/supabase/client';
 
 export async function GET(request: Request) {
   const logs: any[] = [];
   try {
     const { userId } = await auth();
     logs.push({ step: 'auth', userId });
-    logs.push({ env: { supabaseUrl, supabaseKeyPresent: !!supabaseKey } });
+    logs.push({ env: { supabaseUrl: process.env['NEXT_PUBLIC_SUPABASE_URL'], supabaseKeyPresent: !!process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'] } });
     if (!userId) {
       logs.push({ error: 'Unauthorized' });
       return NextResponse.json({ error: 'Unauthorized', logs }, { status: 401 });

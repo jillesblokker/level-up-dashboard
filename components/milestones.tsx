@@ -521,7 +521,7 @@ export function Milestones() {
             </div>
             {/* Add Custom Milestone Modal */}
             <Dialog open={addModalOpen === category.key} onOpenChange={open => setAddModalOpen(open ? category.key : null)}>
-              <DialogContent>
+              <DialogContent role="dialog" aria-label="milestone-modal">
                 <DialogHeader>
                   <DialogTitle>Add Custom Milestone</DialogTitle>
                   <DialogDescription>Set up a new milestone for {category.label}</DialogDescription>

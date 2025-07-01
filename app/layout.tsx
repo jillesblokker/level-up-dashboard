@@ -49,8 +49,8 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider
-      afterSignInUrl="/kingdom"
-      afterSignUpUrl="/kingdom"
+      signInFallbackRedirectUrl="/kingdom"
+      signUpFallbackRedirectUrl="/kingdom"
     >
       <html lang="en" suppressHydrationWarning>
         <head>
