@@ -125,9 +125,9 @@ function getAdjacentPositions(x: number, y: number, grid: any[][]): { x: number;
     y > 0 &&
     Array.isArray(grid[y - 1]) &&
     typeof x === 'number' &&
+    // @ts-ignore: runtime guard ensures grid[y-1][x] is defined
     grid[y - 1][x] !== undefined
   ) {
-    // @ts-ignore: runtime guard ensures grid[y-1][x] is defined
     positions.push({ x, y: y - 1 });
   }
   // down
@@ -135,27 +135,27 @@ function getAdjacentPositions(x: number, y: number, grid: any[][]): { x: number;
     y < grid.length - 1 &&
     Array.isArray(grid[y + 1]) &&
     typeof x === 'number' &&
+    // @ts-ignore: runtime guard ensures grid[y+1][x] is defined
     grid[y + 1][x] !== undefined
   ) {
-    // @ts-ignore: runtime guard ensures grid[y+1][x] is defined
     positions.push({ x, y: y + 1 });
   }
   // left
   if (
     x > 0 &&
     Array.isArray(grid[y]) &&
+    // @ts-ignore: runtime guard ensures grid[y][x-1] is defined
     grid[y][x - 1] !== undefined
   ) {
-    // @ts-ignore: runtime guard ensures grid[y][x-1] is defined
     positions.push({ x: x - 1, y });
   }
   // right
   if (
     Array.isArray(grid[y]) &&
     x < grid[y].length - 1 &&
+    // @ts-ignore: runtime guard ensures grid[y][x+1] is defined
     grid[y][x + 1] !== undefined
   ) {
-    // @ts-ignore: runtime guard ensures grid[y][x+1] is defined
     positions.push({ x: x + 1, y });
   }
   return positions;
@@ -613,15 +613,9 @@ export default function RealmPage() {
 
     // Ensure animals are placed on valid tiles if not already set
     useEffect(() => {
+        // Place horse at start position (10,4)
         if (!horsePos) {
-            const grassTiles: { x: number; y: number }[] = [];
-            grid.forEach((row, y) => row.forEach((tile, x) => {
-                if (tile.type === 'grass') grassTiles.push({ x, y });
-            }));
-            if (grassTiles.length > 0) {
-                const next = grassTiles[0]; // Always pick the first visible grass tile
-                if (next) setHorsePos(next);
-            }
+            setHorsePos({ x: 10, y: 4 });
         }
         if (!sheepPos) {
             const grassTiles: { x: number; y: number }[] = [];
