@@ -336,7 +336,7 @@ export default function RealmPage() {
         setGrid(prevGrid => {
             const newGrid = prevGrid.map(row => row.slice());
             if (newGrid[y]?.[x]) {
-                newGrid[y][x] = { ...tileToPlace, x, y, id: `${tileToPlace.type}-${x}-${y}`, quantity: 1 };
+                newGrid[y][x] = { ...tileToPlace, x, y, iId: `${tileToPlace.type}-${x}-${y}`, quantity: 1 };
             }
             return newGrid;
         });
@@ -638,15 +638,9 @@ export default function RealmPage() {
         if (!horsePos) {
             setHorsePos({ x: 10, y: 4 });
         }
+        // Place sheep at start position (3,5)
         if (!sheepPos) {
-            const grassTiles: { x: number; y: number }[] = [];
-            grid.forEach((row, y) => row.forEach((tile, x) => {
-                if (tile.type === 'grass') grassTiles.push({ x, y });
-            }));
-            if (grassTiles.length > 0) {
-                const next = grassTiles[grassTiles.length - 1]; // Pick a different grass tile for sheep
-                if (next) setSheepPos(next);
-            }
+            setSheepPos({ x: 3, y: 5 });
         }
         if (!eaglePos) {
             const nonEmptyTiles: { x: number; y: number }[] = [];
