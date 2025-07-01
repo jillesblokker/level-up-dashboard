@@ -198,7 +198,7 @@ export default function RealmPage() {
     const [sheepPos, setSheepPos] = useState<{ x: number; y: number } | null>(null);
     const [eaglePos, setEaglePos] = useState<{ x: number; y: number } | null>(null);
     const [penguinPos, setPenguinPos] = useState<{ x: number; y: number } | null>(null);
-    const [isHorsePresent, setIsHorsePresent] = useState(false);
+    const [isHorsePresent, setIsHorsePresent] = useState(true);
     const [isPenguinPresent, setIsPenguinPresent] = useState(false);
     const [inventoryTab, setInventoryTab] = useState<'place' | 'buy'>('place');
     const [castleEvent, setCastleEvent] = useState<{ open: boolean, result?: string, reward?: string } | null>(null);

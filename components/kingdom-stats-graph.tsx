@@ -30,7 +30,12 @@ interface GraphData {
 }
 
 // Empty state component
-function EmptyState() {
+interface EmptyStateProps {
+  tab: 'challenges' | 'quests' | 'gold' | 'experience';
+}
+
+function EmptyState({ tab }: EmptyStateProps) {
+  const isChallenge = tab === 'challenges';
   return (
     <section
       className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden"
@@ -55,14 +60,19 @@ function EmptyState() {
         <div className="text-gray-100 text-base" aria-label="kingdom-stats-empty-desc">
           Start habit building now to see your kingdom flourish!
         </div>
-        <Link href="/quests?tab=quests" passHref legacyBehavior>
-          <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 transition-all" aria-label="Start your first quest" tabIndex={0} role="button">
-            Start Your First Quest
+        <Link href={isChallenge ? "/challenges" : "/quests?tab=quests"} passHref legacyBehavior>
+          <a
+            className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 transition-all"
+            aria-label={isChallenge ? "Start your first challenge" : "Start your first quest"}
+            tabIndex={0}
+            role="button"
+          >
+            {isChallenge ? "Start Your First Challenge" : "Start Your First Quest"}
           </a>
         </Link>
       </div>
     </section>
-  )
+  );
 }
 
 export function KingdomStatsGraph({ userId }: { userId: string | null }) {
@@ -268,8 +278,8 @@ export function KingdomStatsGraph({ userId }: { userId: string | null }) {
           </Tabs>
           {isLoading ? (
             <div className="h-64 flex items-center justify-center text-gray-400">Loading...</div>
-          ) : !hasData && activeTab === 'challenges' ? (
-            <EmptyState />
+          ) : !hasData ? (
+            <EmptyState tab={activeTab} />
           ) : (
             <div className="h-64 flex items-end gap-2 w-full px-4">
               {graphData.map((d, i) => (
