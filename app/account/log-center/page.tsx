@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import logger, { LogEntry } from "@/lib/logger";
 import { Badge } from "@/components/ui/badge";
+import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync';
 
 export default function LogCenterPage() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -12,6 +13,22 @@ export default function LogCenterPage() {
   useEffect(() => {
     setLogs(logger.getAllLogs());
   }, []);
+
+  // --- Supabase real-time sync for app_logs ---
+  useSupabaseRealtimeSync({
+    table: 'app_logs',
+    userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
+    onChange: () => {
+      // Re-fetch logs from API or Supabase and update state
+      // (Replace with your actual fetch logic if needed)
+      fetch('/api/app-logs').then(async (response) => {
+        if (response.ok) {
+          const logs = await response.json();
+          setLogs(logs);
+        }
+      });
+    }
+  });
 
   const getLevelColor = (level: LogEntry["level"]) => {
     switch (level) {
