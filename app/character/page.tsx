@@ -391,6 +391,22 @@ export default function CharacterPage() {
     storageService.set("titles", titles);
   }, [titles]);
 
+  // --- Supabase real-time sync for character_titles ---
+  useSupabaseRealtimeSync({
+    table: 'character_titles',
+    userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
+    onChange: () => {
+      // Re-fetch titles from API or Supabase and update state
+      // (Replace with your actual fetch logic if needed)
+      fetch('/api/character-titles').then(async (response) => {
+        if (response.ok) {
+          const titles = await response.json();
+          setTitles(titles);
+        }
+      });
+    }
+  });
+
   // Helper function to check if perk can be activated (weekly cooldown)
   const canActivatePerk = (perk: Perk): boolean => {
     if (!perk.unlocked || perk.active) return false;
