@@ -11,6 +11,8 @@ import { MigrationStatus } from '@/components/migration-status'
 import { HealthCheck } from '@/components/health-check'
 import { useSupabase } from '@/lib/hooks/useSupabase';
 import { useAuth } from '@clerk/nextjs';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 
 interface StoredData {
   key: string;
@@ -339,26 +341,25 @@ export default function StoredDataPage() {
                   {isChallengeLoading ? (
                     <div>Loading challenges...</div>
                   ) : (
-                    <ul className="space-y-1" aria-label="challenge-list">
+                    <ul className="space-y-2" aria-label="challenge-list">
                       {challengeDefs.length === 0 ? (
                         <li>No challenges found.</li>
                       ) : challengeDefs.map((challenge) => {
                         const userChal = userChallenges.find((uc) => uc.challengeId === challenge.id);
+                        const percent = userChal && challenge.target ? Math.min(100, Math.round((userChal.progress / challenge.target) * 100)) : 0;
                         return (
-                          <li key={challenge.id} className="flex items-center gap-2">
-                            <span className="font-mono text-sm">{challenge.name}</span>
-                            <span className="text-xs text-gray-500">({challenge.category})</span>
-                            <span className="ml-auto text-xs">
-                              {userChal ? (
-                                userChal.completed ? (
-                                  <span className="text-green-600">Completed</span>
-                                ) : (
-                                  <span>Progress: {userChal.progress}</span>
-                                )
-                              ) : (
-                                <span className="text-gray-400">Not started</span>
+                          <li key={challenge.id} className="flex flex-col gap-1 border-b pb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-sm">{challenge.name}</span>
+                              <span className="text-xs text-gray-500">({challenge.category})</span>
+                              {userChal && userChal.completed && (
+                                <Badge color="success" aria-label="challenge-completed-badge">Completed</Badge>
                               )}
-                            </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Progress value={percent} max={100} aria-label={`progress-bar-${challenge.name}`} className="w-40 h-2" />
+                              <span className="text-xs">{userChal ? `${userChal.progress}/${challenge.target}` : '0/' + (challenge.target || 1)}</span>
+                            </div>
                           </li>
                         );
                       })}
@@ -370,26 +371,25 @@ export default function StoredDataPage() {
                   {isAchievementLoading ? (
                     <div>Loading achievements...</div>
                   ) : (
-                    <ul className="space-y-1" aria-label="achievement-list">
+                    <ul className="space-y-2" aria-label="achievement-list">
                       {achievementDefs.length === 0 ? (
                         <li>No achievements found.</li>
                       ) : achievementDefs.map((ach) => {
                         const userAch = userAchievements.find((ua) => ua.achievementId === ach.id);
+                        const percent = userAch && ach.target ? Math.min(100, Math.round((userAch.progress / ach.target) * 100)) : (userAch && userAch.progress ? 100 : 0);
                         return (
-                          <li key={ach.id} className="flex items-center gap-2">
-                            <span className="font-mono text-sm">{ach.name}</span>
-                            <span className="text-xs text-gray-500">({ach.category || 'uncategorized'})</span>
-                            <span className="ml-auto text-xs">
-                              {userAch ? (
-                                userAch.unlocked ? (
-                                  <span className="text-green-600">Unlocked</span>
-                                ) : (
-                                  <span>Progress: {userAch.progress}</span>
-                                )
-                              ) : (
-                                <span className="text-gray-400">Not started</span>
+                          <li key={ach.id} className="flex flex-col gap-1 border-b pb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-sm">{ach.name}</span>
+                              <span className="text-xs text-gray-500">({ach.category || 'uncategorized'})</span>
+                              {userAch && userAch.unlocked && (
+                                <Badge color="success" aria-label="achievement-unlocked-badge">Unlocked</Badge>
                               )}
-                            </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Progress value={percent} max={100} aria-label={`progress-bar-${ach.name}`} className="w-40 h-2" />
+                              <span className="text-xs">{userAch ? `${userAch.progress}${ach.target ? '/' + ach.target : ''}` : '0' + (ach.target ? '/' + ach.target : '')}</span>
+                            </div>
                           </li>
                         );
                       })}
