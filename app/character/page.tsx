@@ -14,6 +14,7 @@ import { calculateLevelProgress, CharacterStats } from "@/types/character"
 import { storageService } from '@/lib/storage-service'
 import { getTitleProgress, TITLES } from '@/lib/title-manager'
 import { getStrengths, calculateStrengthProgress, Strength } from '@/lib/strength-manager'
+import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 
 // Character progression types
 interface Title {
@@ -346,6 +347,22 @@ export default function CharacterPage() {
       window.removeEventListener('character-inventory-update', loadActivePotionPerks)
     }
   }, [])
+
+  // --- Supabase real-time sync for character_stats ---
+  useSupabaseRealtimeSync({
+    table: 'character_stats',
+    userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
+    onChange: () => {
+      // Re-fetch character stats from API or Supabase and update state
+      // (Replace with your actual fetch logic if needed)
+      fetch('/api/character-stats').then(async (response) => {
+        if (response.ok) {
+          const stats = await response.json();
+          setCharacterStats(stats);
+        }
+      });
+    }
+  });
 
   // Load titles from localStorage on mount
   useEffect(() => {
