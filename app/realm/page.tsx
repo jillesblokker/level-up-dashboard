@@ -121,8 +121,8 @@ function getAdjacentPositions(x: number, y: number, grid: any[][]) {
   const positions = [];
   if (y > 0 && grid[y - 1]?.[x]) positions.push({ x, y: y - 1 }); // up
   if (y < grid.length - 1 && grid[y + 1]?.[x]) positions.push({ x, y: y + 1 }); // down
-  if (x > 0 && grid[y]?.[x - 1]) positions.push({ x: x - 1, y }); // left
-  if (x < grid[0].length - 1 && grid[y]?.[x + 1]) positions.push({ x: x + 1, y }); // right
+  if (x > 0 && grid[y] && grid[y][x - 1]) positions.push({ x: x - 1, y }); // left
+  if (x < grid[0].length - 1 && grid[y] && grid[y][x + 1]) positions.push({ x: x + 1, y }); // right
   return positions;
 }
 
