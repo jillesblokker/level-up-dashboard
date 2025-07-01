@@ -19,7 +19,7 @@ import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useAuth } from '@clerk/nextjs'
 
 // Time period types
-type TimePeriod = 'today' | 'weekly' | 'yearly'
+type TimePeriod = 'week' | 'month' | 'year' | 'all'
 
 // Data type for graph rendering
 interface GraphData {
@@ -67,116 +67,197 @@ function EmptyState() {
 
 export function KingdomStatsGraph({ userId }: { userId: string | null }) {
   const [activeTab, setActiveTab] = useState<'challenges' | 'quests' | 'gold' | 'experience'>('challenges')
-  const [timePeriod, setTimePeriod] = useState<TimePeriod>('weekly')
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>('week')
   const [graphData, setGraphData] = useState<Array<{ day: string; value: number }>>([])
   const [isLoading, setIsLoading] = useState(true)
   const { supabase } = useSupabase()
   const { userId: clerkUserId } = useAuth()
   const uid = userId || clerkUserId
 
-  // Helper to get last 7 days as strings (YYYY-MM-DD)
-  function getLast7Days() {
-    const days = []
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date()
-      d.setDate(d.getDate() - i)
-      days.push(d.toISOString().slice(0, 10))
+  // Helper to get date ranges for each period
+  function getDateRange(period: TimePeriod) {
+    const now = new Date();
+    let days: string[] = [];
+    if (period === 'week') {
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        days.push(d.toISOString().slice(0, 10));
+      }
+    } else if (period === 'month') {
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        days.push(d.toISOString().slice(0, 10));
+      }
+    } else if (period === 'year') {
+      // Group by month for the last 12 months
+      for (let i = 11; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        days.push(d.toISOString().slice(0, 7)); // YYYY-MM
+      }
+    } else if (period === 'all') {
+      // Just one bar for all time
+      days = ['all'];
     }
-    return days
+    return days;
   }
 
-  // Fetch and aggregate data for the selected tab
+  // Fetch and aggregate data for the selected tab and period
   useEffect(() => {
-    if (!uid || !supabase) return
-    setIsLoading(true)
-    const days = getLast7Days()
+    if (!uid || !supabase) return;
+    setIsLoading(true);
+    const days = getDateRange(timePeriod);
     const fetchData = async () => {
-      let data: Array<{ day: string; value: number }> = days.map(day => ({ day, value: 0 }))
+      let data: Array<{ day: string; value: number }> = days.map(day => ({ day, value: 0 }));
+      let fromDate: string | undefined;
+      if (timePeriod === 'week') fromDate = days[0] + 'T00:00:00.000Z';
+      else if (timePeriod === 'month') fromDate = days[0] + 'T00:00:00.000Z';
+      else if (timePeriod === 'year') fromDate = days[0] + '-01T00:00:00.000Z';
+      // For 'all', no fromDate filter
       if (activeTab === 'challenges') {
-        // Fetch challenge completions
         const { data: completions } = await supabase
           .from('ChallengeCompletion')
           .select('completedAt')
           .eq('userId', uid)
-          .gte('completedAt', days[0] + 'T00:00:00.000Z')
-        if (completions) {
-          completions.forEach((row: any) => {
-            const completedAt = row?.completedAt;
+          .gte('completedAt', fromDate || '')
+        if (Array.isArray(completions)) {
+          completions.forEach((row) => {
+            const completedAt = row && typeof row === 'object' ? (row as { completedAt?: string }).completedAt : undefined;
             if (typeof completedAt !== 'string') return;
-            const day = completedAt.slice(0, 10);
-            const idx = data.findIndex(d => d.day === day);
-            if (idx !== -1) data[idx].value += 1;
+            if (timePeriod === 'year') {
+              const month = completedAt.slice(0, 7);
+              const idx = data.findIndex(d => d.day === month);
+              if (idx !== -1 && data[idx]) data[idx].value += 1;
+            } else if (timePeriod === 'all') {
+              if (data[0]) data[0].value += 1;
+            } else {
+              const day = completedAt.slice(0, 10);
+              const idx = data.findIndex(d => d.day === day);
+              if (idx !== -1 && data[idx]) data[idx].value += 1;
+            }
           });
         }
       } else if (activeTab === 'quests') {
-        // Fetch quest completions
         const { data: completions } = await supabase
           .from('QuestCompletion')
           .select('date')
           .eq('completed', true)
           .eq('user_id', uid)
-          .gte('date', days[0] + 'T00:00:00.000Z')
-        if (completions) {
-          completions.forEach((row: any) => {
-            const date = row?.date;
+          .gte('date', fromDate || '')
+        if (Array.isArray(completions)) {
+          completions.forEach((row) => {
+            const date = row && typeof row === 'object' ? (row as { date?: string }).date : undefined;
             if (typeof date !== 'string') return;
-            const day = date.slice(0, 10);
-            const idx = data.findIndex(d => d.day === day);
-            if (idx !== -1) data[idx].value += 1;
+            if (timePeriod === 'year') {
+              const month = date.slice(0, 7);
+              const idx = data.findIndex(d => d.day === month);
+              if (idx !== -1 && data[idx]) data[idx].value += 1;
+            } else if (timePeriod === 'all') {
+              if (data[0]) data[0].value += 1;
+            } else {
+              const day = date.slice(0, 10);
+              const idx = data.findIndex(d => d.day === day);
+              if (idx !== -1 && data[idx]) data[idx].value += 1;
+            }
           });
         }
       } else if (activeTab === 'gold') {
-        // Fetch gold transactions (if available)
         const { data: golds } = await supabase
           .from('gold_transactions')
           .select('amount,created_at')
           .eq('user_id', uid)
-          .gte('created_at', days[0] + 'T00:00:00.000Z')
-        if (golds) {
-          golds.forEach((row: any) => {
-            const createdAt = row?.created_at;
+          .gte('created_at', fromDate || '')
+        if (Array.isArray(golds)) {
+          golds.forEach((row) => {
+            const createdAt = row && typeof row === 'object' ? (row as { created_at?: string }).created_at : undefined;
+            const amount = row && typeof row === 'object' ? (row as { amount?: number | string }).amount : 0;
             if (typeof createdAt !== 'string') return;
-            const day = createdAt.slice(0, 10);
-            const idx = data.findIndex(d => d.day === day);
-            if (idx !== -1) data[idx].value += typeof row.amount === 'number' ? row.amount : (parseInt(row.amount, 10) || 0);
+            const parsedAmount = typeof amount === 'number' ? amount : (parseInt(amount as string, 10) || 0);
+            if (timePeriod === 'year') {
+              const month = createdAt.slice(0, 7);
+              const idx = data.findIndex(d => d.day === month);
+              if (idx !== -1 && data[idx]) data[idx].value += parsedAmount;
+            } else if (timePeriod === 'all') {
+              if (data[0]) data[0].value += parsedAmount;
+            } else {
+              const day = createdAt.slice(0, 10);
+              const idx = data.findIndex(d => d.day === day);
+              if (idx !== -1 && data[idx]) data[idx].value += parsedAmount;
+            }
           });
         }
       } else if (activeTab === 'experience') {
-        // Fetch experience transactions
         const { data: exps } = await supabase
           .from('ExperienceTransaction')
           .select('amount,createdAt')
           .eq('userId', uid)
-          .gte('createdAt', days[0] + 'T00:00:00.000Z')
-        if (exps) {
-          exps.forEach((row: any) => {
-            const createdAt = row?.createdAt;
+          .gte('createdAt', fromDate || '')
+        if (Array.isArray(exps)) {
+          exps.forEach((row) => {
+            const createdAt = row && typeof row === 'object' ? (row as { createdAt?: string }).createdAt : undefined;
+            const amount = row && typeof row === 'object' ? (row as { amount?: number | string }).amount : 0;
             if (typeof createdAt !== 'string') return;
-            const day = createdAt.slice(0, 10);
-            const idx = data.findIndex(d => d.day === day);
-            if (idx !== -1) data[idx].value += typeof row.amount === 'number' ? row.amount : (parseInt(row.amount, 10) || 0);
+            const parsedAmount = typeof amount === 'number' ? amount : (parseInt(amount as string, 10) || 0);
+            if (timePeriod === 'year') {
+              const month = createdAt.slice(0, 7);
+              const idx = data.findIndex(d => d.day === month);
+              if (idx !== -1 && data[idx]) data[idx].value += parsedAmount;
+            } else if (timePeriod === 'all') {
+              if (data[0]) data[0].value += parsedAmount;
+            } else {
+              const day = createdAt.slice(0, 10);
+              const idx = data.findIndex(d => d.day === day);
+              if (idx !== -1 && data[idx]) data[idx].value += parsedAmount;
+            }
           });
         }
       }
-      setGraphData(data)
-      setIsLoading(false)
-    }
-    fetchData()
-  }, [activeTab, uid, supabase])
+      setGraphData(data);
+      setIsLoading(false);
+    };
+    fetchData();
+  }, [activeTab, uid, supabase, timePeriod]);
 
   // Check if there is any data
-  const hasData = graphData.some(d => d.value > 0)
+  const hasData = graphData.some(d => d.value > 0);
 
   // Render
   return (
     <Card className="bg-black border-amber-800">
       <CardHeader>
         <CardTitle className="text-amber-500 text-2xl font-bold">Kingdom Statistics</CardTitle>
-        <CardDescription className="text-gray-300">Track your realm's growth</CardDescription>
+        <CardDescription className="text-gray-300">Track your realm&apos;s growth</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="py-4">
-          <div className="text-amber-400 text-xl font-semibold mb-2">Weekly Progress</div>
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-amber-400 text-xl font-semibold">{(() => {
+              if (timePeriod === 'week') return 'Weekly Progress';
+              if (timePeriod === 'month') return 'Monthly Progress';
+              if (timePeriod === 'year') return 'Yearly Progress';
+              return 'All Time Progress';
+            })()}</div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" aria-label="Select time period" className="ml-2">
+                  {(() => {
+                    if (timePeriod === 'week') return 'This week';
+                    if (timePeriod === 'month') return 'This month';
+                    if (timePeriod === 'year') return 'This year';
+                    return 'All time';
+                  })()}
+                  <ChevronDown className="ml-2 w-4 h-4" aria-hidden="true" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent aria-label="kingdom-stats-time-period-dropdown">
+                <DropdownMenuItem onSelect={() => setTimePeriod('week')} aria-label="This week">This week</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setTimePeriod('month')} aria-label="This month">This month</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setTimePeriod('year')} aria-label="This year">This year</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setTimePeriod('all')} aria-label="All time">All time</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
           <Tabs value={activeTab} onValueChange={v => setActiveTab(v as typeof activeTab)} className="mb-4">
             <TabsList aria-label="kingdom-stats-tabs">
               <TabsTrigger value="challenges" aria-label="challenges-tab">Challenges</TabsTrigger>
@@ -198,7 +279,7 @@ export function KingdomStatsGraph({ userId }: { userId: string | null }) {
                     style={{ height: `${d.value === 0 ? 8 : d.value * 32}px`, minHeight: 8 }}
                     aria-label={`bar-${d.day}`}
                   />
-                  <div className="text-xs text-gray-300 mt-1">{new Date(d.day).toLocaleDateString()}</div>
+                  <div className="text-xs text-gray-300 mt-1">{timePeriod === 'year' ? d.day : new Date(d.day).toLocaleDateString()}</div>
                   <div className="text-lg text-white font-bold">{d.value}</div>
                 </div>
               ))}
