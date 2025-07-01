@@ -117,10 +117,11 @@ const loadInitialGridFromCSV = async (): Promise<Tile[][]> => {
 };
 
 // Helper to get adjacent positions
-function getAdjacentPositions(x: number, y: number, grid: any[][]) {
-  const positions = [];
-  if (y > 0 && grid[y - 1]?.[x]) positions.push({ x, y: y - 1 }); // up
-  if (y < grid.length - 1 && grid[y + 1]?.[x]) positions.push({ x, y: y + 1 }); // down
+function getAdjacentPositions(x: number, y: number, grid: any[][]): { x: number; y: number }[] {
+  const positions: { x: number; y: number }[] = [];
+  if (!grid || !grid[0]) return positions;
+  if (y > 0 && grid[y - 1] && grid[y - 1][x]) positions.push({ x, y: y - 1 }); // up
+  if (y < grid.length - 1 && grid[y + 1] && grid[y + 1][x]) positions.push({ x, y: y + 1 }); // down
   if (x > 0 && grid[y] && grid[y][x - 1]) positions.push({ x: x - 1, y }); // left
   if (x < grid[0].length - 1 && grid[y] && grid[y][x + 1]) positions.push({ x: x + 1, y }); // right
   return positions;
@@ -604,7 +605,7 @@ export default function RealmPage() {
     useEffect(() => {
         const interval = setInterval(() => {
             if (horsePos) {
-                const adj = getAdjacentPositions(horsePos.x, horsePos.y, grid).filter(pos => grid[pos.y]?.[pos.x] && grid[pos.y][pos.x].type === 'grass');
+                const adj = getAdjacentPositions(horsePos.x, horsePos.y, grid).filter(pos => grid[pos.y] && grid[pos.y][pos.x] && grid[pos.y][pos.x].type === 'grass');
                 if (adj.length > 0) {
                     const next = adj[Math.floor(Math.random() * adj.length)];
                     if (next) setHorsePos(next);
@@ -617,7 +618,7 @@ export default function RealmPage() {
     useEffect(() => {
         const interval = setInterval(() => {
             if (sheepPos) {
-                const adj = getAdjacentPositions(sheepPos.x, sheepPos.y, grid).filter(pos => grid[pos.y]?.[pos.x] && grid[pos.y][pos.x].type === 'grass');
+                const adj = getAdjacentPositions(sheepPos.x, sheepPos.y, grid).filter(pos => grid[pos.y] && grid[pos.y][pos.x] && grid[pos.y][pos.x].type === 'grass');
                 if (adj.length > 0) {
                     const next = adj[Math.floor(Math.random() * adj.length)];
                     if (next) setSheepPos(next);
@@ -630,7 +631,7 @@ export default function RealmPage() {
     useEffect(() => {
         const interval = setInterval(() => {
             if (eaglePos) {
-                const adj = getAdjacentPositions(eaglePos.x, eaglePos.y, grid).filter(pos => grid[pos.y]?.[pos.x] && grid[pos.y][pos.x].type !== 'empty');
+                const adj = getAdjacentPositions(eaglePos.x, eaglePos.y, grid).filter(pos => grid[pos.y] && grid[pos.y][pos.x] && grid[pos.y][pos.x].type !== 'empty');
                 if (adj.length > 0) {
                     const next = adj[Math.floor(Math.random() * adj.length)];
                     if (next) setEaglePos(next);
@@ -643,7 +644,7 @@ export default function RealmPage() {
     useEffect(() => {
         if (isPenguinPresent && penguinPos) {
             const interval = setInterval(() => {
-                const adj = getAdjacentPositions(penguinPos.x, penguinPos.y, grid).filter(pos => grid[pos.y]?.[pos.x] && grid[pos.y][pos.x].type === 'ice');
+                const adj = getAdjacentPositions(penguinPos.x, penguinPos.y, grid).filter(pos => grid[pos.y] && grid[pos.y][pos.x] && grid[pos.y][pos.x].type === 'ice');
                 if (adj.length > 0) {
                     const next = adj[Math.floor(Math.random() * adj.length)];
                     if (next) setPenguinPos(next);
