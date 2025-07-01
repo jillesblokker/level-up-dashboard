@@ -20,17 +20,6 @@ interface StoredData {
   version: string;
 }
 
-// Utility to get a value from localStorage or return null
-function getStoredValue<T>(key: string): T | null {
-  if (typeof window === 'undefined') return null;
-  try {
-    const value = window.localStorage.getItem(key);
-    return value ? JSON.parse(value) : null;
-  } catch {
-    return null;
-  }
-}
-
 export default function StoredDataPage() {
   const [storedData, setStoredData] = useState<StoredData[]>([]);
   const [storageInfo, setStorageInfo] = useState<{ total: number; used: number; remaining: number }>({ total: 0, used: 0, remaining: 0 });
@@ -52,26 +41,18 @@ export default function StoredDataPage() {
   const [sortBy, setSortBy] = useState<'key' | 'size' | 'lastUpdated'>('key');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
-  // --- Key data types ---
-  const quests = getStoredValue<any>('quests'); // TODO: Replace with Supabase fetch
-  const gold = getStoredValue<number>('gold-balance'); // TODO: Replace with Supabase fetch
-  const exp = getStoredValue<number>('experience'); // TODO: Replace with Supabase fetch
-  const achievements = getStoredValue<any>('achievements'); // TODO: Replace with Supabase fetch
-  const grid = getStoredValue<any>('grid'); // TODO: Replace with Supabase fetch
-  const titles = getStoredValue<any>('titles'); // TODO: Replace with Supabase fetch
-  const perks = getStoredValue<any>('perks'); // TODO: Replace with Supabase fetch
-  const strengths = getStoredValue<any>('strengths'); // TODO: Replace with Supabase fetch
-  const characterPosition = getStoredValue<any>('character-position'); // TODO: Replace with Supabase fetch
-
-  // --- Supabase entities (TODO: fetch from Supabase) ---
-  // TODO: Fetch these from Supabase and display summary
-  // - Account
-  // - Item
-  // - QuestCompletion
-  // - Session
-  // - TilePlacement
-  // - User
-  // - VerificationToken
+  // Supabase state for key data
+  const [supabaseQuests, setSupabaseQuests] = useState<any[]>([]);
+  const [supabaseGold, setSupabaseGold] = useState<number | null>(null);
+  const [supabaseExp, setSupabaseExp] = useState<number | null>(null);
+  const [supabaseAchievements, setSupabaseAchievements] = useState<any[]>([]);
+  const [supabaseInventory, setSupabaseInventory] = useState<any[]>([]);
+  const [supabaseTitles, setSupabaseTitles] = useState<any[]>([]);
+  const [supabasePerks, setSupabasePerks] = useState<any[]>([]);
+  const [supabaseStrengths, setSupabaseStrengths] = useState<any[]>([]);
+  const [supabaseCharPosition, setSupabaseCharPosition] = useState<any>(null);
+  const [isKeyDataLoading, setIsKeyDataLoading] = useState(false);
+  const [keyDataError, setKeyDataError] = useState<string | null>(null);
 
   const { userId } = useAuth();
   const { supabase, isLoading: isSupabaseLoading } = useSupabase();
@@ -81,6 +62,49 @@ export default function StoredDataPage() {
   const [userAchievements, setUserAchievements] = useState<any[]>([]);
   const [isChallengeLoading, setIsChallengeLoading] = useState(false);
   const [isAchievementLoading, setIsAchievementLoading] = useState(false);
+
+  // Fetch all key data from Supabase
+  useEffect(() => {
+    if (!userId || !supabase) return;
+    setIsKeyDataLoading(true);
+    setKeyDataError(null);
+    Promise.all([
+      supabase.from('quest_completions').select('*').eq('user_id', userId),
+      supabase.from('character_stats').select('*').eq('user_id', userId),
+      supabase.from('achievements').select('*').eq('user_id', userId),
+      supabase.from('inventory_items').select('*').eq('user_id', userId),
+      supabase.from('character_titles').select('*').eq('user_id', userId),
+      supabase.from('character_perks').select('*').eq('user_id', userId),
+      supabase.from('character_strengths').select('*').eq('user_id', userId),
+      supabase.from('character_positions').select('*').eq('user_id', userId),
+    ]).then(([
+      questsRes,
+      statsRes,
+      achievementsRes,
+      inventoryRes,
+      titlesRes,
+      perksRes,
+      strengthsRes,
+      charPosRes,
+    ]) => {
+      setSupabaseQuests(questsRes.data || []);
+      setSupabaseAchievements(achievementsRes.data || []);
+      setSupabaseInventory(inventoryRes.data || []);
+      setSupabaseTitles(titlesRes.data || []);
+      setSupabasePerks(perksRes.data || []);
+      setSupabaseStrengths(strengthsRes.data || []);
+      setSupabaseCharPosition(charPosRes.data?.[0] || null);
+      // Gold and exp from character_stats
+      const stats = statsRes.data?.[0];
+      setSupabaseGold(stats?.gold ?? null);
+      setSupabaseExp(stats?.experience ?? null);
+    }).catch((err) => {
+      setKeyDataError('Failed to load key data from Supabase');
+      console.error(err);
+    }).finally(() => {
+      setIsKeyDataLoading(false);
+    });
+  }, [userId, supabase]);
 
   // Fetch challenge and achievement data from Supabase
   useEffect(() => {
@@ -246,31 +270,37 @@ export default function StoredDataPage() {
 
       {/* Existing stored data content */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {/* Key Data Types */}
+        {/* Key Data Types (Supabase) */}
         <section aria-label="stored-data-summary-section">
           <Card aria-label="stored-data-summary-card">
             <CardHeader>
               <CardTitle>Stored Data Summary</CardTitle>
-              <CardDescription>Key game data currently stored (localStorage or future Supabase)</CardDescription>
+              <CardDescription>Key game data currently stored in Supabase</CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-2" aria-label="stored-data-list">
-                <li><strong>Quests:</strong> {quests ? (
-                  <ul className="ml-4 list-disc">
-                    {['might','knowledge','honor','castle','craft','vitality','wellness','exploration'].map(cat => (
-                      <li key={cat}><strong>{cat.charAt(0).toUpperCase() + cat.slice(1)}:</strong> {Array.isArray(quests) ? quests.filter(q => q.category === cat).length : 0}</li>
-                    ))}
-                  </ul>
-                ) : <em>None</em>} {/* TODO: Supabase integration */}</li>
-                <li><strong>Gold:</strong> {gold ?? <em>None</em>} {/* TODO: Supabase integration */}</li>
-                <li><strong>Experience:</strong> {exp ?? <em>None</em>} {/* TODO: Supabase integration */}</li>
-                <li><strong>Achievements:</strong> {achievements ? JSON.stringify(achievements) : <em>None</em>} {/* TODO: Supabase integration */}</li>
-                <li><strong>Grid:</strong> {grid ? '[Grid Data Present]' : <em>None</em>} {/* TODO: Supabase integration */}</li>
-                <li><strong>Titles:</strong> {titles ? JSON.stringify(titles) : <em>None</em>} {/* TODO: Supabase integration */}</li>
-                <li><strong>Perks:</strong> {perks ? JSON.stringify(perks) : <em>None</em>} {/* TODO: Supabase integration */}</li>
-                <li><strong>Strengths:</strong> {strengths ? JSON.stringify(strengths) : <em>None</em>} {/* TODO: Supabase integration */}</li>
-                <li><strong>Character Position:</strong> {characterPosition ? JSON.stringify(characterPosition) : <em>None</em>} {/* TODO: Supabase integration */}</li>
-              </ul>
+              {isKeyDataLoading ? (
+                <div>Loading key data...</div>
+              ) : keyDataError ? (
+                <div className="text-red-600">{keyDataError}</div>
+              ) : (
+                <ul className="space-y-2" aria-label="stored-data-list">
+                  <li><strong>Quests:</strong> {supabaseQuests.length > 0 ? (
+                    <ul className="ml-4 list-disc">
+                      {['might','knowledge','honor','castle','craft','vitality','wellness','exploration'].map(cat => (
+                        <li key={cat}><strong>{cat.charAt(0).toUpperCase() + cat.slice(1)}:</strong> {supabaseQuests.filter(q => q.category === cat).length}</li>
+                      ))}
+                    </ul>
+                  ) : <em>None</em>}</li>
+                  <li><strong>Gold:</strong> {supabaseGold ?? <em>None</em>}</li>
+                  <li><strong>Experience:</strong> {supabaseExp ?? <em>None</em>}</li>
+                  <li><strong>Achievements:</strong> {supabaseAchievements.length > 0 ? supabaseAchievements.length : <em>None</em>}</li>
+                  <li><strong>Inventory:</strong> {supabaseInventory.length > 0 ? supabaseInventory.length : <em>None</em>}</li>
+                  <li><strong>Titles:</strong> {supabaseTitles.length > 0 ? supabaseTitles.length : <em>None</em>}</li>
+                  <li><strong>Perks:</strong> {supabasePerks.length > 0 ? supabasePerks.length : <em>None</em>}</li>
+                  <li><strong>Strengths:</strong> {supabaseStrengths.length > 0 ? supabaseStrengths.length : <em>None</em>}</li>
+                  <li><strong>Character Position:</strong> {supabaseCharPosition ? JSON.stringify(supabaseCharPosition) : <em>None</em>}</li>
+                </ul>
+              )}
             </CardContent>
           </Card>
         </section>
