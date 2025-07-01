@@ -213,6 +213,20 @@ export default function RealmPage() {
     const [lastMysteryTile, setLastMysteryTile] = useState<{ x: number; y: number } | null>(null);
     const [mysteryEventCompleted, setMysteryEventCompleted] = useState(false);
     const [penguinPos] = useState<{ x: number; y: number } | null>(null);
+    const [sheepPos, setSheepPos] = useState<{ x: number; y: number } | null>(() => {
+      if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem('sheepPos');
+        if (saved) return JSON.parse(saved);
+      }
+      return { x: 5, y: 2 };
+    });
+    const [isSheepPresent, setIsSheepPresent] = useState(true);
+    const [horseCaught, setHorseCaught] = useState(() => {
+      if (typeof window !== 'undefined') {
+        return localStorage.getItem('horseCaught') === 'true';
+      }
+      return false;
+    });
 
     // Achievement unlock effect
     useEffect(() => {
@@ -224,7 +238,18 @@ export default function RealmPage() {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ achievementId: '000' })
-                }).catch(console.error);
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to unlock achievement');
+                })
+                .catch(err => {
+                    toast({
+                        title: 'Achievement Unlock Failed',
+                        description: 'Could not unlock the Necrion achievement. Please try again later.',
+                        variant: 'destructive',
+                    });
+                    console.error('Achievement unlock error:', err);
+                });
             }
             // Also unlock Necrion in the local creature store
             discoverCreature('000');
@@ -711,6 +736,45 @@ export default function RealmPage() {
         }
     }, [lastMysteryTile, mysteryEventCompleted, grid]);
 
+    // Listen for horse-caught event
+    useEffect(() => {
+        const handler = (e: any) => {
+            if (!horseCaught) {
+                setIsHorsePresent(false);
+                setHorseCaught(true);
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('horseCaught', 'true');
+                }
+            }
+        };
+        window.addEventListener('horse-caught', handler);
+        return () => window.removeEventListener('horse-caught', handler);
+    }, [horseCaught]);
+
+    // Sheep movement logic (adjacent only)
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (sheepPos) {
+                const adj = getAdjacentPositions(sheepPos.x, sheepPos.y, grid).filter(pos =>
+                    !!grid[pos.y]?.[pos.x] &&
+                    grid[pos.y]?.[pos.x]?.type === 'grass'
+                );
+                if (adj.length > 0) {
+                    const next = adj[Math.floor(Math.random() * adj.length)];
+                    if (next) setSheepPos(next);
+                }
+            }
+        }, 7000);
+        return () => clearInterval(interval);
+    }, [grid, sheepPos, setSheepPos]);
+
+    // Persist sheep position to localStorage
+    useEffect(() => {
+        if (typeof window !== 'undefined' && sheepPos) {
+            localStorage.setItem('sheepPos', JSON.stringify(sheepPos));
+        }
+    }, [sheepPos]);
+
     if (isLoading) {
         return <div className="flex items-center justify-center h-screen bg-gray-900 text-white">Loading Realm...</div>;
     }
@@ -811,10 +875,10 @@ export default function RealmPage() {
                             setHoveredTile={() => {}}
                             isMovementMode={gameMode === 'move'}
                             horsePos={horsePos}
-                            sheepPos={null}
+                            sheepPos={sheepPos}
                             eaglePos={eaglePos}
                             penguinPos={penguinPos}
-                            isHorsePresent={isHorsePresent}
+                            isHorsePresent={isHorsePresent && !horseCaught}
                             isPenguinPresent={isPenguinPresent}
                         />
                     </div>

@@ -17,6 +17,53 @@ const defaultCharacter = {
   }
 }
 
+// --- Achievement Definitions ---
+const defaultAchievementDefinitions = [
+  { code: 'defeat_100_monsters', name: 'Monster Hunter', description: 'Defeat 100 monsters in battle', icon: null },
+  { code: 'win_50_battles', name: 'Battle Master', description: 'Win 50 battles', icon: null },
+  { code: 'learn_20_spells', name: 'Spell Scholar', description: 'Learn 20 different spells', icon: null },
+  { code: 'read_30_scrolls', name: 'Scroll Sage', description: 'Read 30 ancient scrolls', icon: null },
+  { code: 'visit_all_regions', name: 'World Explorer', description: 'Visit all regions in the realm', icon: null },
+  { code: 'discover_secret_locations', name: 'Secret Seeker', description: 'Discover 10 secret locations', icon: null },
+  { code: 'complete_50_quests', name: 'Quest Champion', description: 'Complete 50 quests for the villagers', icon: null },
+  { code: 'max_reputation', name: 'Beloved Hero', description: 'Reach maximum reputation in any region', icon: null },
+  { code: 'craft_legendary', name: 'Legendary Craftsman', description: 'Craft a legendary item', icon: null },
+  { code: 'craft_100_items', name: 'Master Artisan', description: 'Craft 100 items', icon: null },
+  { code: 'collect_all_creatures', name: 'Creature Master', description: 'Discover all creatures in the realm', icon: null },
+  { code: 'collect_rare_items', name: 'Rare Collector', description: 'Collect 20 rare items', icon: null },
+];
+
+// --- Challenge Definitions ---
+const defaultChallenges = [
+  { name: '300x Pushups', description: 'Complete 300 pushups.', category: 'might', difficulty: 3, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Plank 3:00', description: 'Hold a plank for 3 minutes.', category: 'might', difficulty: 2, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Walk', description: 'Go for a walk.', category: 'might', difficulty: 1, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Spanish', description: 'Practice Spanish language learning.', category: 'knowledge', difficulty: 2, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Duo Piano', description: 'Practice piano with Duolingo.', category: 'knowledge', difficulty: 2, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Mindpal', description: 'Use Mindpal for learning.', category: 'knowledge', difficulty: 2, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Quick Typing', description: 'Practice typing skills.', category: 'knowledge', difficulty: 1, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Read 5 Minutes', description: 'Read for 5 minutes.', category: 'knowledge', difficulty: 1, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Vitamin D', description: 'Get vitamin D exposure.', category: 'knowledge', difficulty: 1, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: '24 Draw Lesson', description: 'Complete a drawing lesson.', category: 'knowledge', difficulty: 2, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Daily Hype 4 Academy', description: 'Complete daily academy tasks.', category: 'knowledge', difficulty: 2, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Wake Up Before 10', description: 'Wake up before 10 AM.', category: 'honor', difficulty: 2, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Toothbrushing', description: 'Brush your teeth properly.', category: 'honor', difficulty: 1, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Handwriting', description: 'Practice handwriting.', category: 'honor', difficulty: 1, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Shave', description: 'Shave properly.', category: 'honor', difficulty: 1, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Barber', description: 'Visit the barber.', category: 'honor', difficulty: 2, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Dishwasher', description: 'Load/unload the dishwasher.', category: 'castle', difficulty: 1, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Diaper Bin', description: 'Empty the diaper bin.', category: 'castle', difficulty: 1, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Vacuuming', description: 'Vacuum the house.', category: 'castle', difficulty: 2, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Water Plants', description: 'Water the plants.', category: 'castle', difficulty: 1, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Bed Laundry', description: 'Change bed sheets and do laundry.', category: 'castle', difficulty: 2, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Trash Bin at the Road', description: 'Take trash bin to the road.', category: 'castle', difficulty: 1, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Paper on the Road', description: 'Take paper recycling to the road.', category: 'castle', difficulty: 1, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Doodle', description: 'Create a doodle or sketch.', category: 'craft', difficulty: 1, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Animate', description: 'Work on animation project.', category: 'craft', difficulty: 2, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Battubby', description: 'Take a bath or shower.', category: 'vitality', difficulty: 1, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+  { name: 'Mango Food Fill', description: 'Eat healthy food like mango.', category: 'vitality', difficulty: 1, rewards: JSON.stringify({ xp: 50, gold: 25 }) },
+];
+
 async function main() {
   try {
     // Define default tiles with better organization
@@ -134,6 +181,57 @@ async function main() {
     }
 
     console.log('Added default tiles')
+
+    // --- Seed AchievementDefinition ---
+    for (const achievement of defaultAchievementDefinitions) {
+      await prisma.achievementDefinition.upsert({
+        where: { code: achievement.code },
+        update: achievement,
+        create: achievement,
+      });
+    }
+    console.log('Seeded AchievementDefinition table');
+
+    // --- Seed Challenge ---
+    for (const challenge of defaultChallenges) {
+      await prisma.challenge.upsert({
+        where: { name: challenge.name },
+        update: challenge,
+        create: challenge,
+      });
+    }
+    console.log('Seeded Challenge table');
+
+    // --- Seed Example User Progress ---
+    // Seed a UserChallenge for the default user
+    const firstChallenge = await prisma.challenge.findFirst();
+    if (firstChallenge) {
+      await prisma.userChallenge.upsert({
+        where: { userId_challengeId: { userId: defaultUser.id, challengeId: firstChallenge.id } },
+        update: { progress: 2, completed: false },
+        create: {
+          userId: defaultUser.id,
+          challengeId: firstChallenge.id,
+          progress: 2,
+          completed: false,
+        },
+      });
+    }
+    // Seed a user Achievement progress for the default user
+    const firstAchievementDef = await prisma.achievementDefinition.findFirst();
+    if (firstAchievementDef) {
+      await prisma.achievement.upsert({
+        where: { userId_achievementId: { userId: defaultUser.id, achievementId: firstAchievementDef.id } },
+        update: { progress: 5, unlocked: false },
+        create: {
+          userId: defaultUser.id,
+          achievementId: firstAchievementDef.id,
+          progress: 5,
+          unlocked: false,
+        },
+      });
+    }
+    console.log('Seeded example user progress for UserChallenge and Achievement');
   } catch (error) {
     console.error('Error seeding database:', error)
     throw error

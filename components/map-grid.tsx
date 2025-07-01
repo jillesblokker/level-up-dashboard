@@ -256,54 +256,50 @@ export function MapGrid({
   };
 
   useEffect(() => {
-    console.log('Horse catching useEffect triggered:', { horsePos, safeCharacter, isHorsePresent });
+    // Persistent horse caught flag
+    const horseCaught = typeof window !== 'undefined' && localStorage.getItem('horseCaught') === 'true';
     if (
       horsePos &&
       safeCharacter.x === horsePos.x &&
       safeCharacter.y === horsePos.y &&
-      isHorsePresent
+      isHorsePresent &&
+      !horseCaught
     ) {
-      console.log('Horse caught! Character at horse position');
-      // Remove horse from map
+      // Remove horse from map and trigger event only once
       if (typeof window !== 'undefined') {
-        const horses = [
-          {
-            id: 'swift-horse',
-            name: 'Sally Swift Horse',
-            description: 'Fast and agile.',
-            type: 'creature',
-            emoji: '🐎',
-            image: '/images/items/horse/horse-stelony.png',
-          },
-          {
-            id: 'endurance-horse',
-            name: 'Buster Endurance Horse',
-            description: 'Can travel long distances.',
-            type: 'creature',
-            emoji: '🐴',
-            image: '/images/items/horse/horse-perony.png',
-          },
-          {
-            id: 'war-horse',
-            name: 'Shadow War Horse',
-            description: 'Strong and brave.',
-            type: 'creature',
-            emoji: '🦄',
-            image: '/images/items/horse/horse-felony.png',
-          },
-        ];
-        const randomHorse = { ...horses[Math.floor(Math.random() * horses.length)], quantity: 1 };
-        if (randomHorse) {
-          console.log('Dispatching horse-caught event with:', randomHorse);
-          // Dispatch the horse-caught event with the horse data
-          window.dispatchEvent(new CustomEvent('horse-caught', { 
-            detail: { horse: randomHorse }
-          }));
-          
-          // Show the toast notification using the correct function
-          showScrollToast(toast, 'Horse Caught!', `You caught a horse: ${randomHorse.name}`);
-        }
+        localStorage.setItem('horseCaught', 'true');
       }
+      const horses = [
+        {
+          id: 'swift-horse',
+          name: 'Sally Swift Horse',
+          description: 'Fast and agile.',
+          type: 'creature',
+          emoji: '🐎',
+          image: '/images/items/horse/horse-stelony.png',
+        },
+        {
+          id: 'endurance-horse',
+          name: 'Buster Endurance Horse',
+          description: 'Can travel long distances.',
+          type: 'creature',
+          emoji: '🐴',
+          image: '/images/items/horse/horse-perony.png',
+        },
+        {
+          id: 'war-horse',
+          name: 'Shadow War Horse',
+          description: 'Strong and brave.',
+          type: 'creature',
+          emoji: '🦄',
+          image: '/images/items/horse/horse-felony.png',
+        },
+      ];
+      const randomHorse = { ...horses[Math.floor(Math.random() * horses.length)], quantity: 1 };
+      window.dispatchEvent(new CustomEvent('horse-caught', { 
+        detail: { horse: randomHorse }
+      }));
+      showScrollToast(toast, 'Horse Caught!', `You caught a horse: ${randomHorse.name}`);
     }
   }, [horsePos, safeCharacter, isHorsePresent]);
 
