@@ -12,21 +12,23 @@ export async function GET(request: Request) {
       logs.push({ error: 'Unauthorized' });
       return NextResponse.json({ error: 'Unauthorized', logs }, { status: 401 });
     }
-    // Fetch all discovered creatures for the user from Supabase
+    // Fetch all achievements for the user from Supabase
     const { data, error } = await supabase
-      .from('DiscoveredCreatures')
-      .select('creature_id, discovered_at')
+      .from('achievements')
+      .select('achievement_id, unlocked_at, achievement_name, progress, unlocked')
       .eq('user_id', userId)
-      .order('discovered_at', { ascending: false });
+      .order('unlocked_at', { ascending: false });
     logs.push({ step: 'query', data, error });
     if (error) {
       logs.push({ error: error.message });
       return NextResponse.json({ error: error.message, logs }, { status: 500 });
     }
     const achievements = (data || []).map(row => ({
-      achievementId: row.creature_id,
-      unlocked: true,
-      unlockedAt: row.discovered_at,
+      achievementId: row.achievement_id,
+      unlocked: row.unlocked,
+      unlockedAt: row.unlocked_at,
+      achievementName: row.achievement_name,
+      progress: row.progress,
     }));
     logs.push({ step: 'success', achievementsCount: achievements.length });
     return NextResponse.json(achievements);
