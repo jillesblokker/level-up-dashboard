@@ -123,12 +123,12 @@ export default function StoredDataPage() {
       setUserChallenges(data || []);
     });
     // Fetch achievement definitions
-    supabase.from('AchievementDefinition').select('*').then(({ data }) => {
+    supabase.from('achievements').select('*').then(({ data }) => {
       setAchievementDefs(data || []);
       setIsAchievementLoading(false);
     });
     // Fetch user achievement progress
-    supabase.from('Achievement').select('*').eq('userId', userId).then(({ data }) => {
+    supabase.from('achievements').select('*').eq('user_id', userId).then(({ data }) => {
       setUserAchievements(data || []);
     });
   }, [userId, supabase]);
