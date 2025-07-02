@@ -2,8 +2,8 @@ import { Webhook } from 'svix'
 import { headers } from 'next/headers'
 import { WebhookEvent } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
-import prisma from '@/lib/prisma'
-import { createDefaultQuestsForUser } from '@/lib/quest-service'
+import { supabase } from '@/lib/supabase/client';
+// TODO: Implement Clerk webhook logic with Supabase client
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env['CLERK_WEBHOOK_SECRET']
@@ -49,15 +49,14 @@ export async function POST(req: Request) {
     const email = email_addresses[0]?.email_address;
 
     try {
-      const newUser = await prisma.user.create({
-        data: {
-          clerk_id: id,
-          email: email ?? null,
-        },
-      });
-
-      await createDefaultQuestsForUser(newUser.id);
-
+      // Insert user into Supabase 'users' table
+      const { error } = await supabase
+        .from('users')
+        .insert([{ id, email }]);
+      if (error) {
+        console.error('Error inserting user into Supabase:', error);
+        return NextResponse.json({ message: 'Error creating user in database', details: error.message }, { status: 500 });
+      }
       return NextResponse.json({ message: 'User and default quests created' }, { status: 201 });
     } catch (error) {
         console.error('Error creating user or quests in database:', error);

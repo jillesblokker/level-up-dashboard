@@ -1,17 +1,20 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { supabase } from '@/lib/supabase/client';
 
 export async function GET() {
   try {
-    // Test Prisma connection
-    const result = await prisma.$queryRaw`SELECT 1 as test`;
-    
+    // Test Supabase connection by selecting from a known table (e.g., 'users')
+    const { error } = await supabase.from('users').select('id').limit(1);
+
+    if (error) {
+      throw error;
+    }
+
     return NextResponse.json({
       status: 'healthy',
       database: {
         connected: true,
-        type: 'prisma',
-        test: result
+        type: 'supabase',
       },
       env: {
         hasDatabaseUrl: !!process.env['DATABASE_URL'],
@@ -19,12 +22,12 @@ export async function GET() {
       }
     });
   } catch (error) {
-    return NextResponse.json({ 
+    return NextResponse.json({
       status: 'error',
       error: error instanceof Error ? error.message : 'Unknown error',
       database: {
         connected: false,
-        type: 'prisma'
+        type: 'supabase'
       }
     });
   }

@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import prisma from '@/lib/prisma';
 import { z } from 'zod';
 import { QuestResponse } from '@/types/quest';
 import { env } from '@/lib/env';
+import { supabase } from '@/lib/supabase/client';
 
 // Define schemas for request validation
 const questCompletionSchema = z.object({
@@ -42,40 +42,41 @@ export async function GET(request: Request) {
     }
 
     // Get all available quests
-    const allQuests = await prisma.quest.findMany({
-      orderBy: {
-        category: 'asc'
-      }
-    });
+    const { data: allQuests, error: questsError } = await supabase
+      .from('quests')
+      .select('*')
+      .order('category', { ascending: true });
+    if (questsError) {
+      return NextResponse.json({ error: questsError.message }, { status: 500 });
+    }
 
     // Get user's quest completions
-    const questCompletions = await prisma.questCompletion.findMany({
-      where: {
-        userId: userId,
-        ...(date && {
-          date: {
-            gte: date,
-            lt: new Date(new Date(date).setDate(date.getDate() + 1))
-          }
-        })
-      },
-      orderBy: {
-        date: 'desc'
-      }
-    });
+    let completionsQuery = supabase
+      .from('quest_completion')
+      .select('*')
+      .eq('user_id', userId)
+      .order('date', { ascending: false });
+    if (date) {
+      completionsQuery = completionsQuery
+        .gte('date', date.toISOString())
+        .lt('date', new Date(new Date(date).setDate(date.getDate() + 1)).toISOString());
+    }
+    const { data: questCompletions, error: completionsError } = await completionsQuery;
+    if (completionsError) {
+      return NextResponse.json({ error: completionsError.message }, { status: 500 });
+    }
 
     // Create a map of quest completions for quick lookup
     const completionMap = new Map();
     questCompletions.forEach((completion: any) => {
-      const key = `${completion.questName}`;
+      const key = `${completion.quest_name}`;
       completionMap.set(key, completion);
     });
 
     // Combine quests with completion status
-    const questsWithCompletions = allQuests.map((quest: any) => {
+    const questsWithCompletions = (allQuests as any[]).map((quest: any) => {
       const key = `${quest.name}`;
-      const completion = completionMap.get(key);
-      
+      const completion = completionMap.get(key) as any;
       return {
         id: quest.id,
         name: quest.name,
@@ -117,21 +118,27 @@ export async function POST(request: Request) {
     const { name, category } = result.data;
 
     // Create the quest completion
-    const questCompletion = await prisma.questCompletion.create({
-      data: {
-        userId: userId,
-        questName: name,
-        category: category,
-        completed: false,
-        date: new Date()
-      }
-    });
+    const { data: questCompletion, error } = await supabase
+      .from('quest_completion')
+      .insert([
+        {
+          user_id: userId,
+          quest_name: name,
+          category: category,
+          completed: false,
+          date: new Date().toISOString()
+        }
+      ])
+      .single();
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
     const response: QuestResponse = {
-      name: questCompletion.questName,
-      category: questCompletion.category,
-      completed: questCompletion.completed,
-      date: questCompletion.date
+      name: (questCompletion as any).quest_name,
+      category: (questCompletion as any).category,
+      completed: (questCompletion as any).completed,
+      date: (questCompletion as any).date
     };
 
     return NextResponse.json(response);
@@ -161,68 +168,80 @@ export async function PUT(request: Request) {
     const { questName, completed } = result.data;
 
     // Find or create quest completion
-    let questCompletion = await prisma.questCompletion.findFirst({
-      where: {
-        userId: userId,
-        questName
-      }
-    });
+    const { data: completions, error: findError } = await supabase
+      .from('quest_completion')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('quest_name', questName)
+      .limit(1);
+    let questCompletion = completions?.[0];
 
     if (!questCompletion) {
       // Create a new completion record
-      questCompletion = await prisma.questCompletion.create({
-        data: {
-          userId: userId,
-          questName,
-          category: 'general',
-          completed: false,
-          date: new Date()
-        }
-      });
+      const { data: newCompletion, error: createError } = await supabase
+        .from('quest_completion')
+        .insert([
+          {
+            user_id: userId,
+            quest_name: questName,
+            category: 'general',
+            completed: false,
+            date: new Date().toISOString()
+          }
+        ])
+        .single();
+      if (createError) {
+        return NextResponse.json({ error: createError.message }, { status: 500 });
+      }
+      questCompletion = newCompletion;
     }
 
     // Update the completion status
-    const updatedCompletion = await prisma.questCompletion.update({
-      where: { id: questCompletion.id },
-      data: {
+    const { data: updatedCompletion, error: updateError } = await supabase
+      .from('quest_completion')
+      .update({
         completed,
-        date: completed ? new Date() : questCompletion.date
-      }
-    });
+        date: completed ? new Date().toISOString() : questCompletion.date
+      })
+      .eq('id', questCompletion.id)
+      .single();
+    if (updateError) {
+      return NextResponse.json({ error: updateError.message }, { status: 500 });
+    }
 
     // If quest is completed, update character stats with default rewards
     if (completed) {
-      const character = await prisma.character.findFirst({
-        where: { userId }
-      });
-
+      const { data: characters, error: charError } = await supabase
+        .from('character')
+        .select('*')
+        .eq('user_id', userId)
+        .limit(1);
+      const character = characters?.[0];
       if (character) {
         const defaultRewards = {
           experience: 50,
           gold: 25
         };
-
         const currentStats = character.stats ? JSON.parse(character.stats) : {};
         const currentGold = currentStats.gold || 0;
-
-        await prisma.character.update({
-          where: { id: character.id },
-          data: {
+        await supabase
+          .from('character')
+          .update({
             exp: character.exp + defaultRewards.experience,
             stats: JSON.stringify({
               ...currentStats,
               gold: currentGold + defaultRewards.gold
             })
-          }
-        });
+          })
+          .eq('id', character.id);
       }
     }
 
     const response: QuestResponse = {
-      name: updatedCompletion.questName,
-      category: updatedCompletion.category,
-      completed: updatedCompletion.completed,
-      date: updatedCompletion.date
+      name: (updatedCompletion as any).quest_name,
+      category: (updatedCompletion as any).category,
+      completed: (updatedCompletion as any).completed,
+      date: (updatedCompletion as any).date
     };
 
     return NextResponse.json(response);
@@ -241,21 +260,19 @@ export async function PATCH() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const questCompletions = await prisma.questCompletion.findMany({
-      where: {
-        user: {
-          id: userId
-        }
-      },
-      orderBy: {
-        date: 'desc'
-      }
-    });
+    const { data: questCompletions, error } = await supabase
+      .from('quest_completion')
+      .select('*')
+      .eq('user_id', userId)
+      .order('date', { ascending: false });
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
     // Convert to CSV
     let csv = 'date,name,completed\n';
     questCompletions.forEach((completion: any) => {
-      csv += `${completion.date.toISOString()},${completion.questName},${completion.completed}\n`;
+      csv += `${(completion as any).date},${(completion as any).quest_name},${(completion as any).completed}\n`;
     });
 
     return new NextResponse(csv, {
@@ -284,16 +301,20 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Quest completion ID is required' }, { status: 400 });
     }
 
-    await prisma.questCompletion.delete({
-      where: {
-        id: id,
-        userId: userId
-      }
-    });
+    const { error } = await supabase
+      .from('quest_completion')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', userId);
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true, message: 'Quest completion deleted' });
   } catch (error) {
     console.error('Error deleting quest completion:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-} 
+}
+
+// TODO: Implement quests logic with Supabase client 
