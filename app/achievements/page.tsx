@@ -13,9 +13,10 @@ import { supabase } from '@/lib/supabase/client'
 interface DbAchievement {
   id: string;
   userId: string;
-  achievementId: string; // This corresponds to the creature ID
+  achievement_id: string; // This corresponds to the creature ID
   unlocked: boolean;
-  unlockedAt: string;
+  unlocked_at: string;
+  progress: number;
 }
 
 export default function Page() {
@@ -40,7 +41,7 @@ export default function Page() {
         const response = await fetch('/api/achievements');
         if (response.ok) {
           const data: DbAchievement[] = await response.json();
-          const achievementMap = new Map(data.filter(Boolean).map(ach => [ach.achievementId, ach]));
+          const achievementMap = new Map(data.filter(Boolean).map(ach => [ach.achievement_id, ach]));
           setUnlockedAchievements(achievementMap);
         } else {
           setError(`Failed to fetch achievements (status: ${response.status})`);
@@ -83,7 +84,7 @@ export default function Page() {
 
   const getUnlockDate = (creatureId: string) => {
     const achievement = unlockedAchievements.get(creatureId);
-    return achievement ? new Date(achievement.unlockedAt).toLocaleDateString() : null;
+    return achievement ? new Date(achievement.unlocked_at).toLocaleDateString() : null;
   }
 
   if (isLoading) {

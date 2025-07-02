@@ -76,11 +76,11 @@ export async function GET(request: Request) {
 
     // Combine quests with completion status
     const questsWithCompletions = (allQuests as any[]).map((quest: any) => {
-      const key = `${quest.name}`;
+      const key = `${quest.title}`;
       const completion = completionMap.get(key) as any;
       return {
         id: quest.id,
-        name: quest.name,
+        title: quest.title,
         description: quest.description,
         category: quest.category,
         difficulty: quest.difficulty,
@@ -215,7 +215,7 @@ export async function PUT(request: Request) {
     // If quest is completed, update character stats with default rewards
     if (completed) {
       const { data: characters, error: charError } = await supabase
-        .from('character')
+        .from('character_stats')
         .select('*')
         .eq('user_id', userId)
         .limit(1);
@@ -225,16 +225,11 @@ export async function PUT(request: Request) {
           experience: 50,
           gold: 25
         };
-        const currentStats = character.stats ? JSON.parse(character.stats) : {};
-        const currentGold = currentStats.gold || 0;
         await supabase
-          .from('character')
+          .from('character_stats')
           .update({
-            exp: character.exp + defaultRewards.experience,
-            stats: JSON.stringify({
-              ...currentStats,
-              gold: currentGold + defaultRewards.gold
-            })
+            experience: character.experience + defaultRewards.experience,
+            gold: character.gold + defaultRewards.gold
           })
           .eq('id', character.id);
       }

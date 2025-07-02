@@ -18,10 +18,10 @@ import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 
 interface Quest {
   id: string;
-  name: string;
+  title: string;
   description: string;
   category: string;
-  difficulty: number;
+  difficulty: string;
   rewards: string;
   completed: boolean;
   date?: Date;
@@ -260,11 +260,11 @@ export default function QuestsPage() {
     });
   }, []);
 
-  const handleQuestToggle = async (questName: string, currentCompleted: boolean) => {
+  const handleQuestToggle = async (questTitle: string, currentCompleted: boolean) => {
     if (!userId) return;
 
     // Find the quest and parse rewards
-    const quest = quests.find(q => q.name === questName);
+    const quest = quests.find(q => q.title === questTitle);
     const rewards = quest && quest.rewards ? JSON.parse(quest.rewards) : { xp: 0, gold: 0 };
     const xpDelta = rewards.xp || 0;
     const goldDelta = rewards.gold || 0;
@@ -276,7 +276,7 @@ export default function QuestsPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          questName,
+          questTitle,
           completed: !currentCompleted,
         }),
       });
@@ -287,7 +287,7 @@ export default function QuestsPage() {
 
       // Update local state
       setQuests(prev => prev.map(q =>
-        q.name === questName ? { ...q, completed: !currentCompleted, date: new Date() } : q
+        q.title === questTitle ? { ...q, completed: !currentCompleted, date: new Date() } : q
       ));
 
       // Update character stats and fire events
@@ -499,13 +499,13 @@ export default function QuestsPage() {
                   return (
                     <CardWithProgress
                       key={quest.id}
-                      title={quest.name}
+                      title={quest.title}
                       description={quest.description}
                       icon={React.createElement(getCategoryIcon(quest.category))}
                       completed={quest.completed}
-                      onToggle={() => handleQuestToggle(quest.name, quest.completed)}
+                      onToggle={() => handleQuestToggle(quest.title, quest.completed)}
                       onEdit={() => handleEditQuest(quest)}
-                      onDelete={() => handleQuestToggle(quest.name, quest.completed)}
+                      onDelete={() => handleQuestToggle(quest.title, quest.completed)}
                       progress={quest.completed ? 100 : 5}
                       xp={rewards.xp}
                       gold={rewards.gold}
@@ -654,11 +654,11 @@ export default function QuestsPage() {
               <label className="block mb-2 text-sm font-medium">Name</label>
               <input
                 className="w-full mb-4 p-2 border rounded"
-                value={editingQuest.name}
-                onChange={e => setEditingQuest({ ...editingQuest, name: e.target.value })}
-                placeholder="Quest name"
-                title="Quest name"
-                aria-label="Quest name"
+                value={editingQuest.title}
+                onChange={e => setEditingQuest({ ...editingQuest, title: e.target.value })}
+                placeholder="Quest title"
+                title="Quest title"
+                aria-label="Quest title"
               />
               <label className="block mb-2 text-sm font-medium">Description</label>
               <textarea

@@ -114,12 +114,12 @@ export default function StoredDataPage() {
     setIsChallengeLoading(true);
     setIsAchievementLoading(true);
     // Fetch challenge definitions
-    supabase.from('Challenge').select('*').then(({ data }) => {
+    supabase.from('challenges').select('*').then(({ data }) => {
       setChallengeDefs(data || []);
       setIsChallengeLoading(false);
     });
     // Fetch user challenge progress
-    supabase.from('UserChallenge').select('*').eq('userId', userId).then(({ data }) => {
+    supabase.from('user_challenges').select('*').eq('user_id', userId).then(({ data }) => {
       setUserChallenges(data || []);
     });
     // Fetch achievement definitions
@@ -350,14 +350,14 @@ export default function StoredDataPage() {
                         return (
                           <li key={challenge.id} className="flex flex-col gap-1 border-b pb-2">
                             <div className="flex items-center gap-2">
-                              <span className="font-mono text-sm">{challenge.name}</span>
+                              <span className="font-mono text-sm">{challenge.title}</span>
                               <span className="text-xs text-gray-500">({challenge.category})</span>
                               {userChal && userChal.completed && (
                                 <Badge color="success" aria-label="challenge-completed-badge">Completed</Badge>
                               )}
                             </div>
                             <div className="flex items-center gap-2">
-                              <Progress value={percent} max={100} aria-label={`progress-bar-${challenge.name}`} className="w-40 h-2" />
+                              <Progress value={percent} max={100} aria-label={`progress-bar-${challenge.title}`} className="w-40 h-2" />
                               <span className="text-xs">{userChal ? `${userChal.progress}/${challenge.target}` : '0/' + (challenge.target || 1)}</span>
                             </div>
                           </li>
@@ -380,14 +380,14 @@ export default function StoredDataPage() {
                         return (
                           <li key={ach.id} className="flex flex-col gap-1 border-b pb-2">
                             <div className="flex items-center gap-2">
-                              <span className="font-mono text-sm">{ach.name}</span>
+                              <span className="font-mono text-sm">{ach.title}</span>
                               <span className="text-xs text-gray-500">({ach.category || 'uncategorized'})</span>
                               {userAch && userAch.unlocked && (
                                 <Badge color="success" aria-label="achievement-unlocked-badge">Unlocked</Badge>
                               )}
                             </div>
                             <div className="flex items-center gap-2">
-                              <Progress value={percent} max={100} aria-label={`progress-bar-${ach.name}`} className="w-40 h-2" />
+                              <Progress value={percent} max={100} aria-label={`progress-bar-${ach.title}`} className="w-40 h-2" />
                               <span className="text-xs">{userAch ? `${userAch.progress}${ach.target ? '/' + ach.target : ''}` : '0' + (ach.target ? '/' + ach.target : '')}</span>
                             </div>
                           </li>
