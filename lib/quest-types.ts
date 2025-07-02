@@ -1,5 +1,3 @@
-import { User } from "@prisma/client";
-
 export interface Quest {
   id: string;
   title: string;
@@ -49,4 +47,13 @@ export interface QuestCompletion {
 
 export interface QuestWithCompletion extends Quest {
   completion?: QuestCompletion;
-} 
+}
+
+// Example User type for Supabase (customize to your schema)
+export interface User {
+  id: string;
+  email: string;
+  // ...add other fields as needed
+}
+
+// TODO: Replace Prisma logic with Supabase client logic 

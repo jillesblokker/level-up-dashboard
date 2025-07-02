@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+// TODO: Replace Prisma logic with Supabase client logic
 
 const defaultQuests = {
   might: [
@@ -35,20 +33,13 @@ export async function createDefaultQuestsForUser(userId: string) {
   for (const category in defaultQuests) {
     for (const quest of defaultQuests[category as keyof typeof defaultQuests]) {
       questCreations.push(
-        prisma.questCompletion.create({
-          data: {
-            userId,
-            category,
-            questName: quest.name,
-            completed: quest.completed,
-          },
-        })
+        // TODO: Replace Prisma logic with Supabase client logic
       );
     }
   }
 
   try {
-    await prisma.$transaction(questCreations);
+    // TODO: Replace Prisma logic with Supabase client logic
   } catch (error) {
     console.error(`Failed to create default quests for user ${userId}`, error);
     // Even if quest creation fails, we shouldn't block user creation.

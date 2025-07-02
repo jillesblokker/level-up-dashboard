@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+// TODO: Replace Prisma types with Supabase types if needed
 
 export interface Quest {
   id: string;
@@ -39,7 +39,7 @@ export interface QuestCompletion {
   id: string;
   questName: string;
   userId: string;
-  user: User;
+  user?: { id: string; email?: string };
   quest: Quest;
   completed: boolean;
   completedAt?: Date;

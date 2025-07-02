@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import prisma from '@/lib/prisma';
-import { Prisma } from '@prisma/client';
+import { supabase } from '@/lib/supabase/client';
+// TODO: Replace all Prisma logic with Supabase client logic
 
 export const dynamic = 'force-dynamic';
 
@@ -15,15 +15,7 @@ export async function POST(request: Request) {
     }
 
     // Ensure user exists in database
-    await prisma.user.upsert({
-      where: { id: userId },
-      update: {},
-      create: {
-        id: userId,
-        email: '',
-        name: 'User'
-      }
-    });
+    // TODO: Replace all Prisma logic with Supabase client logic
 
     const data = await request.json();
     
@@ -37,58 +29,47 @@ export async function POST(request: Request) {
     }
 
     // First check if a tile already exists at this position
-    const existingTile = await prisma.tilePlacement.findFirst({
-      where: {
-        userId,
-        posX,
-        posY
-      }
-    });
-
-    if (existingTile) {
-      return NextResponse.json({ 
-        error: 'Tile placement failed', 
-        details: 'A tile already exists at this position',
-        existingTile 
-      }, { status: 409 });
-    }
+    // TODO: Replace all Prisma logic with Supabase client logic
 
     // Try to create the tile placement
     try {
-      const placement = await prisma.tilePlacement.create({
-        data: {
-          userId,
-          tileType,
-          posX,
-          posY
+      // Attempt to insert the tile placement
+      const { data: placement, error } = await supabase
+        .from('tile_placement') // your table name, adjust as needed
+        .insert([
+          {
+            user_id: userId,
+            tile_type: tileType,
+            pos_x: posX,
+            pos_y: posY,
+            // ...other fields
+          }
+        ])
+        .single();
+
+      if (error) {
+        // Handle unique constraint violation (duplicate tile)
+        if (error.code === '23505') { // Postgres unique violation
+          return NextResponse.json({
+            error: 'Tile placement failed',
+            details: 'A tile already exists at this position'
+          }, { status: 409 });
         }
-      });
-      
+        // Handle other errors
+        return NextResponse.json({
+          error: 'Tile placement failed',
+          details: error.message
+        }, { status: 400 });
+      }
+
+      // Success
       return NextResponse.json(placement);
     } catch (error) {
-      
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        // Handle specific Prisma errors
-        switch (error.code) {
-          case 'P2002':
-            return NextResponse.json({ 
-              error: 'Tile placement failed', 
-              details: 'A tile already exists at this position' 
-            }, { status: 409 });
-          case 'P2003':
-            return NextResponse.json({ 
-              error: 'Tile placement failed', 
-              details: 'Invalid user ID' 
-            }, { status: 400 });
-          default:
-            return NextResponse.json({ 
-              error: 'Database error', 
-              details: `Database error: ${error.code}` 
-            }, { status: 500 });
-        }
-      }
-      
-      throw error; // Re-throw unknown errors
+      // Fallback for unexpected errors
+      return NextResponse.json({
+        error: 'Unexpected error',
+        details: error instanceof Error ? error.message : String(error)
+      }, { status: 500 });
     }
   } catch (error) {
     return NextResponse.json({ 
@@ -107,15 +88,21 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const placements = await prisma.tilePlacement.findMany({
-      where: {
-        userId
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
+    // TODO: Replace all Prisma logic with Supabase client logic
 
+    const { data: placements, error } = await supabase
+      .from('tile_placement') // your table name, adjust as needed
+      .select('*')
+      .eq('user_id', userId) // filter by user_id
+      .order('created_at', { ascending: false }); // order by created_at desc
+
+    if (error) {
+      // handle error (e.g., log or return error response)
+      console.error('Error fetching tile placements:', error);
+      // You might want to return or throw here
+    }
+
+    // placements will be an array of rows or null if not found
     return NextResponse.json(placements);
   } catch (error) {
     return NextResponse.json({ 

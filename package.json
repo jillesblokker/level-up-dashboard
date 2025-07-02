@@ -22,7 +22,6 @@
   "dependencies": {
     "@auth/core": "0.34.2",
     "@clerk/nextjs": "6.20.2",
-    "@prisma/client": "^5.22.0",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-alert-dialog": "1.1.10",
     "@radix-ui/react-aspect-ratio": "1.1.4",
@@ -102,7 +101,6 @@
     "eslint": "8.57.1",
     "eslint-config-next": "14.1.0",
     "postcss": "8.5.3",
-    "prisma": "^5.10.2",
     "ts-node": "10.9.2",
     "typescript": "^5.8.3",
     "vitest": "3.1.2"

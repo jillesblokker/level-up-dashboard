@@ -1,5 +1,7 @@
 import { GameState } from '../types/game'
-import prisma from './prisma'
+import { supabase } from '@/lib/supabase/client';
+// TODO: Replace all Prisma logic with Supabase client logic
+// TODO: Implement all database logic with Supabase client here
 
 export type GameData = GameState
 
@@ -9,10 +11,16 @@ export async function syncGameData(
 ): Promise<void> {
   try {
     // Get existing data from the database
-    const existingData = await prisma.realmMap.findUnique({
-      where: { userId },
-      select: { grid: true }
-    })
+    const { data: existingData, error } = await supabase
+      .from('realm_map')
+      .select('grid')
+      .eq('user_id', userId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching realm map:', error);
+      throw error;
+    }
 
     // Parse existing grid JSON string if present
     const existingGrid = existingData?.grid ? JSON.parse(existingData.grid) : {}
@@ -25,16 +33,13 @@ export async function syncGameData(
     }
 
     // Update the database
-    await prisma.realmMap.upsert({
-      where: { userId },
-      update: {
+    await supabase
+      .from('realm_map')
+      .upsert({
+        user_id: userId,
         grid: JSON.stringify(mergedData),
-      },
-      create: {
-        userId,
-        grid: JSON.stringify(mergedData),
-      }
-    })
+      })
+      .eq('user_id', userId)
   } catch (error) {
     console.error('Error syncing game data:', error)
     throw error
@@ -43,12 +48,18 @@ export async function syncGameData(
 
 export async function loadGameData(userId: string): Promise<GameData | null> {
   try {
-    const data = await prisma.realmMap.findUnique({
-      where: { userId },
-      select: { grid: true }
-    })
+    const { data: existingData, error } = await supabase
+      .from('realm_map')
+      .select('grid')
+      .eq('user_id', userId)
+      .single();
 
-    return data?.grid ? JSON.parse(data.grid) : null
+    if (error) {
+      console.error('Error fetching realm map:', error);
+      return null;
+    }
+
+    return existingData?.grid ? JSON.parse(existingData.grid) : null;
   } catch (error) {
     console.error('Error loading game data:', error)
     throw error
