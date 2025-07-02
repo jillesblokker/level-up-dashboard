@@ -21,10 +21,11 @@ export async function GET(request: Request) {
   try {
     const { getToken, userId } = await auth();
     const token = await getToken();
-    const supabase = create_supabase_server_client(token || undefined);
-    if (!userId) {
+    if (!userId || !token) {
+      console.log('[API/QUESTS] Unauthorized');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const supabase = create_supabase_server_client(token);
 
     const { searchParams } = new URL(request.url);
     const dateParam = searchParams.get('date');
@@ -38,6 +39,7 @@ export async function GET(request: Request) {
           throw new Error('Invalid date');
         }
       } catch {
+        console.log('[API/QUESTS] Invalid date parameter:', dateParam);
         return NextResponse.json({ error: 'Invalid date parameter' }, { status: 400 });
       }
     }
@@ -47,7 +49,9 @@ export async function GET(request: Request) {
       .from('quests')
       .select('*')
       .order('category', { ascending: true });
+    console.log('[API/QUESTS] allQuests:', allQuests, 'questsError:', questsError);
     if (questsError) {
+      console.log('[API/QUESTS] questsError:', questsError);
       return NextResponse.json({ error: questsError.message }, { status: 500 });
     }
 
@@ -63,7 +67,9 @@ export async function GET(request: Request) {
         .lt('date', new Date(new Date(date).setDate(date.getDate() + 1)).toISOString());
     }
     const { data: questCompletions, error: completionsError } = await completionsQuery;
+    console.log('[API/QUESTS] questCompletions:', questCompletions, 'completionsError:', completionsError);
     if (completionsError) {
+      console.log('[API/QUESTS] completionsError:', completionsError);
       return NextResponse.json({ error: completionsError.message }, { status: 500 });
     }
 

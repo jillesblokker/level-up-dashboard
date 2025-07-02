@@ -13,10 +13,10 @@ import { supabase } from '@/lib/supabase/client'
 interface DbAchievement {
   id: string;
   userId: string;
-  achievement_id: string; // This corresponds to the creature ID
-  unlocked: boolean;
+  achievement_id: string;
   unlocked_at: string;
-  progress: number;
+  achievement_name: string;
+  description?: string;
 }
 
 export default function Page() {

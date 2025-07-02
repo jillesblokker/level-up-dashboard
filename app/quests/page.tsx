@@ -566,7 +566,6 @@ export default function QuestsPage() {
                   return React.Children.toArray([
                     ...builtIn.map((exercise, idx) => {
                       const cardProps: any = {
-                        key: exercise.name + idx,
                         title: exercise.name,
                         description: exercise.instructions,
                         icon: React.createElement(getCategoryIcon(safeChallengeCategory)),
@@ -577,12 +576,11 @@ export default function QuestsPage() {
                         gold: 0,
                         streak: 0,
                       };
-                      return <CardWithProgress {...cardProps} />;
+                      return <CardWithProgress key={exercise.name + idx} {...cardProps} />;
                     }),
                     ...custom.map((exercise, idx) => {
                       const builtInLength = builtIn.length;
                       const cardProps: any = {
-                        key: exercise.name + (idx + builtInLength),
                         title: exercise.name,
                         description: exercise.instructions,
                         icon: React.createElement(getCategoryIcon(safeChallengeCategory)),
@@ -595,7 +593,7 @@ export default function QuestsPage() {
                         onEdit: () => handleEditCustomChallenge(idx),
                         onDelete: () => handleDeleteCustomChallenge(idx),
                       };
-                      return <CardWithProgress {...cardProps} />;
+                      return <CardWithProgress key={exercise.name + (idx + builtInLength)} {...cardProps} />;
                     })
                   ]);
                 })()}
