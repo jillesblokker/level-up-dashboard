@@ -7,12 +7,12 @@ import { create_supabase_server_client } from '@/app/lib/supabase/server-client'
 
 // Define schemas for request validation
 const questCompletionSchema = z.object({
-  name: z.string().min(1),
+  title: z.string().min(1),
   category: z.string().min(1)
 });
 
 const questUpdateSchema = z.object({
-  questName: z.string().min(1),
+  title: z.string().min(1),
   completed: z.boolean()
 });
 
@@ -117,7 +117,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid request body', details: result.error.issues }, { status: 400 });
     }
     
-    const { name, category } = result.data;
+    const { title, category } = result.data;
 
     // Create the quest completion
     const { data: questCompletion, error } = await supabase
@@ -125,7 +125,7 @@ export async function POST(request: Request) {
       .insert([
         {
           user_id: userId,
-          quest_name: name,
+          quest_name: title,
           category: category,
           completed: false,
           date: new Date().toISOString()
@@ -137,7 +137,7 @@ export async function POST(request: Request) {
     }
 
     const response: QuestResponse = {
-      name: (questCompletion as any).quest_name,
+      title: (questCompletion as any).quest_name,
       category: (questCompletion as any).category,
       completed: (questCompletion as any).completed,
       date: (questCompletion as any).date
@@ -168,14 +168,14 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Invalid request body', details: result.error.issues }, { status: 400 });
     }
     
-    const { questName, completed } = result.data;
+    const { title: updateTitle, completed } = result.data;
 
     // Find or create quest completion
     const { data: completions, error: findError } = await supabase
       .from('quest_completion')
       .select('*')
       .eq('user_id', userId)
-      .eq('quest_name', questName)
+      .eq('quest_name', updateTitle)
       .limit(1);
     let questCompletion = completions?.[0];
 
@@ -186,7 +186,7 @@ export async function PUT(request: Request) {
         .insert([
           {
             user_id: userId,
-            quest_name: questName,
+            quest_name: updateTitle,
             category: 'general',
             completed: false,
             date: new Date().toISOString()
@@ -236,7 +236,7 @@ export async function PUT(request: Request) {
     }
 
     const response: QuestResponse = {
-      name: (updatedCompletion as any).quest_name,
+      title: (updatedCompletion as any).quest_name,
       category: (updatedCompletion as any).category,
       completed: (updatedCompletion as any).completed,
       date: (updatedCompletion as any).date
@@ -269,7 +269,7 @@ export async function PATCH(request: Request) {
     }
 
     // Convert to CSV
-    let csv = 'date,name,completed\n';
+    let csv = 'date,title,completed\n';
     questCompletions.forEach((completion: any) => {
       csv += `${(completion as any).date},${(completion as any).quest_name},${(completion as any).completed}\n`;
     });

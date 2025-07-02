@@ -1,5 +1,5 @@
 export interface QuestResponse {
-  name: string;
+  title: string;
   category: string;
   completed: boolean;
   date: Date;
