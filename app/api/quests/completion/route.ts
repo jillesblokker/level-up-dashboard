@@ -39,7 +39,7 @@ export async function POST(request: Request) {
 }
 
 // Get quest completions for the current user
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const { userId } = await auth();
 

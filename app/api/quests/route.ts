@@ -3,7 +3,7 @@ import { auth } from '@clerk/nextjs/server';
 import { z } from 'zod';
 import { QuestResponse } from '@/types/quest';
 import { env } from '@/lib/env';
-import { supabase } from '@/lib/supabase/client';
+import { create_supabase_server_client } from '@/app/lib/supabase/server-client';
 
 // Define schemas for request validation
 const questCompletionSchema = z.object({
@@ -19,8 +19,9 @@ const questUpdateSchema = z.object({
 // Get all available quests and their completion status for the current user
 export async function GET(request: Request) {
   try {
-    const { userId } = await auth();
-
+    const { getToken, userId } = await auth();
+    const token = await getToken();
+    const supabase = create_supabase_server_client(token || undefined);
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -101,8 +102,9 @@ export async function GET(request: Request) {
 // Create a new quest completion
 export async function POST(request: Request) {
   try {
-    const { userId } = await auth();
-
+    const { getToken, userId } = await auth();
+    const token = await getToken();
+    const supabase = create_supabase_server_client(token || undefined);
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -151,8 +153,9 @@ export async function POST(request: Request) {
 // Update a quest completion status
 export async function PUT(request: Request) {
   try {
-    const { userId } = await auth();
-
+    const { getToken, userId } = await auth();
+    const token = await getToken();
+    const supabase = create_supabase_server_client(token || undefined);
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -252,10 +255,11 @@ export async function PUT(request: Request) {
 }
 
 // Export quests as CSV
-export async function PATCH() {
+export async function PATCH(request: Request) {
   try {
-    const { userId } = await auth();
-
+    const { getToken, userId } = await auth();
+    const token = await getToken();
+    const supabase = create_supabase_server_client(token || undefined);
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -289,8 +293,9 @@ export async function PATCH() {
 
 export async function DELETE(request: Request) {
   try {
-    const { userId } = await auth();
-
+    const { getToken, userId } = await auth();
+    const token = await getToken();
+    const supabase = create_supabase_server_client(token || undefined);
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
