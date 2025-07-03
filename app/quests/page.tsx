@@ -8,13 +8,14 @@ import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
 import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, PersonStanding, Pencil } from 'lucide-react'
 import { HeaderSection } from '@/components/HeaderSection'
-import { useUser } from '@clerk/nextjs'
+import { useUser, useAuth } from '@clerk/nextjs'
 import { Milestones } from '@/components/milestones'
 import { updateCharacterStats, getCharacterStats } from '@/lib/character-stats-manager'
 import { toast } from '@/components/ui/use-toast'
 import CardWithProgress from '@/components/quest-card'
 import React from 'react'
 import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
+import { SignedIn, SignedOut, SignIn } from '@clerk/nextjs'
 
 interface Quest {
   id: string;
@@ -116,7 +117,8 @@ const CHALLENGE_STREAKS_KEY = 'challenge-streaks-v1';
 const CHALLENGE_LAST_COMPLETED_KEY = 'challenge-last-completed-v1';
 
 export default function QuestsPage() {
-  const { user, isLoaded: isAuthLoaded } = useUser();
+  const { user, isLoaded: isUserLoaded } = useUser();
+  const { getToken, isLoaded: isClerkLoaded } = useAuth();
   const userId = user?.id;
   const isGuest = !user;
 
@@ -167,22 +169,23 @@ export default function QuestsPage() {
 
   useEffect(() => {
     const loadQuests = async () => {
-      if (!isAuthLoaded) return;
+      if (!isClerkLoaded || !isUserLoaded) return;
       setLoading(true);
-
       if (!isGuest && userId) {
         try {
-          const response = await fetch('/api/quests');
+          const token = await getToken();
+          if (!token) throw new Error('No Clerk token');
+          const response = await fetch(`/api/quests?userId=${userId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
           if (!response.ok) {
             throw new Error('Failed to fetch quests');
           }
           const data: Quest[] = await response.json();
           setQuests(data);
-          
           const uniqueCategories = [...new Set(data.map(q => q.category))];
           const combined = [...new Set([...questCategories, ...uniqueCategories])];
           setAllCategories(combined);
-
         } catch (err: any) {
           setError('Failed to load quest data from server.');
           console.error(err);
@@ -193,9 +196,8 @@ export default function QuestsPage() {
       }
       setLoading(false);
     };
-
     loadQuests();
-  }, [isAuthLoaded, userId, isGuest]);
+  }, [isClerkLoaded, isUserLoaded, userId, isGuest, getToken]);
 
   // --- Supabase real-time sync for quest_completions ---
   useSupabaseRealtimeSync({
@@ -414,8 +416,13 @@ export default function QuestsPage() {
     });
   };
 
-  if (loading) {
-    return <div className="text-center p-8">Loading Quests...</div>;
+  if (!isClerkLoaded || !isUserLoaded) {
+    return (
+      <main className="p-8">
+        <h1 className="text-2xl font-bold mb-4">Quests</h1>
+        <div>Loading Clerk...</div>
+      </main>
+    );
   }
 
   const questsByCategory = quests.reduce((acc, quest) => {

@@ -1,9 +1,16 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { QuestResponse } from '@/types/quest';
 import { env } from '@/lib/env';
-import { create_supabase_server_client } from '@/app/lib/supabase/server-client';
+
+const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'];
+const supabaseServiceRoleKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
+
+let supabase: ReturnType<typeof createClient> | null = null;
+if (supabaseUrl && supabaseServiceRoleKey) {
+  supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+}
 
 // Define schemas for request validation
 const questCompletionSchema = z.object({
@@ -16,88 +23,65 @@ const questUpdateSchema = z.object({
   completed: z.boolean()
 });
 
-// Get all available quests and their completion status for the current user
+// Get all available quests and their completion status (optionally filter by userId query param)
 export async function GET(request: Request) {
   try {
-    const { getToken, userId } = await auth();
-    const token = await getToken();
-    if (!userId || !token) {
-      console.log('[API/QUESTS] Unauthorized');
+    // Optionally check for Authorization header
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    const supabase = create_supabase_server_client(token);
-
-    const { searchParams } = new URL(request.url);
-    const dateParam = searchParams.get('date');
-    
-    // Validate date parameter if provided
-    let date: Date | undefined;
-    if (dateParam) {
-      try {
-        date = new Date(dateParam);
-        if (isNaN(date.getTime())) {
-          throw new Error('Invalid date');
-        }
-      } catch {
-        console.log('[API/QUESTS] Invalid date parameter:', dateParam);
-        return NextResponse.json({ error: 'Invalid date parameter' }, { status: 400 });
-      }
+    if (!supabase) {
+      return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
     }
-
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
     // Get all available quests
     const { data: allQuests, error: questsError } = await supabase
       .from('quests')
       .select('*')
       .order('category', { ascending: true });
-    console.log('[API/QUESTS] allQuests:', allQuests, 'questsError:', questsError);
     if (questsError) {
-      console.log('[API/QUESTS] questsError:', questsError);
       return NextResponse.json({ error: questsError.message }, { status: 500 });
     }
-
-    // Get user's quest completions
-    let completionsQuery = supabase
-      .from('quest_completion')
-      .select('*')
-      .eq('user_id', userId)
-      .order('date', { ascending: false });
-    if (date) {
-      completionsQuery = completionsQuery
-        .gte('date', date.toISOString())
-        .lt('date', new Date(new Date(date).setDate(date.getDate() + 1)).toISOString());
+    // Get user's quest completions if userId is provided
+    let questCompletions: any[] = [];
+    if (userId) {
+      const { data, error } = await supabase
+        .from('quest_completion')
+        .select('*')
+        .eq('user_id', userId)
+        .order('date', { ascending: false });
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+      questCompletions = data || [];
     }
-    const { data: questCompletions, error: completionsError } = await completionsQuery;
-    console.log('[API/QUESTS] questCompletions:', questCompletions, 'completionsError:', completionsError);
-    if (completionsError) {
-      console.log('[API/QUESTS] completionsError:', completionsError);
-      return NextResponse.json({ error: completionsError.message }, { status: 500 });
+    // Combine quests with completion status if userId is provided
+    let questsWithCompletions = allQuests;
+    if (userId) {
+      const completionMap = new Map();
+      questCompletions.forEach((completion: any) => {
+        const key = `${completion['quest_name']}`;
+        completionMap.set(key, completion);
+      });
+      questsWithCompletions = (allQuests as any[]).map((quest: any) => {
+        const key = `${quest['title']}`;
+        const completion = completionMap.get(key) as any;
+        return {
+          id: quest['id'],
+          title: quest['title'],
+          description: quest['description'],
+          category: quest['category'],
+          difficulty: quest['difficulty'],
+          rewards: quest['rewards'],
+          completed: completion?.completed ?? false,
+          date: completion?.date,
+          isNew: !completion,
+          completionId: completion?.id
+        };
+      });
     }
-
-    // Create a map of quest completions for quick lookup
-    const completionMap = new Map();
-    questCompletions.forEach((completion: any) => {
-      const key = `${completion.quest_name}`;
-      completionMap.set(key, completion);
-    });
-
-    // Combine quests with completion status
-    const questsWithCompletions = (allQuests as any[]).map((quest: any) => {
-      const key = `${quest.title}`;
-      const completion = completionMap.get(key) as any;
-      return {
-        id: quest.id,
-        title: quest.title,
-        description: quest.description,
-        category: quest.category,
-        difficulty: quest.difficulty,
-        rewards: quest.rewards,
-        completed: completion?.completed ?? false,
-        date: completion?.date,
-        isNew: !completion, // Mark as new if no completion record exists
-        completionId: completion?.id
-      };
-    });
-
     return NextResponse.json(questsWithCompletions);
   } catch (error) {
     console.error('Error fetching quests:', error);
@@ -108,23 +92,26 @@ export async function GET(request: Request) {
 // Create a new quest completion
 export async function POST(request: Request) {
   try {
-    const { getToken, userId } = await auth();
-    const token = await getToken();
-    const supabase = create_supabase_server_client(token || undefined);
-    if (!userId) {
+    // Require Authorization header
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
+    if (!supabase) {
+      return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
+    }
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+    if (!userId) {
+      return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
+    }
     const body = await request.json();
-    
     // Validate request body
     const result = questCompletionSchema.safeParse(body);
     if (!result.success) {
       return NextResponse.json({ error: 'Invalid request body', details: result.error.issues }, { status: 400 });
     }
-    
     const { title, category } = result.data;
-
     // Create the quest completion
     const { data: questCompletion, error } = await supabase
       .from('quest_completion')
@@ -141,14 +128,12 @@ export async function POST(request: Request) {
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-
     const response: QuestResponse = {
-      title: (questCompletion as any).quest_name,
-      category: (questCompletion as any).category,
-      completed: (questCompletion as any).completed,
-      date: (questCompletion as any).date
+      title: (questCompletion as any)['quest_name'],
+      category: (questCompletion as any)['category'],
+      completed: (questCompletion as any)['completed'],
+      date: (questCompletion as any)['date']
     };
-
     return NextResponse.json(response);
   } catch (error) {
     console.error('Error creating quest completion:', error);
@@ -159,23 +144,26 @@ export async function POST(request: Request) {
 // Update a quest completion status
 export async function PUT(request: Request) {
   try {
-    const { getToken, userId } = await auth();
-    const token = await getToken();
-    const supabase = create_supabase_server_client(token || undefined);
-    if (!userId) {
+    // Require Authorization header
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
+    if (!supabase) {
+      return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
+    }
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+    if (!userId) {
+      return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
+    }
     const body = await request.json();
-    
     // Validate request body
     const result = questUpdateSchema.safeParse(body);
     if (!result.success) {
       return NextResponse.json({ error: 'Invalid request body', details: result.error.issues }, { status: 400 });
     }
-    
     const { title: updateTitle, completed } = result.data;
-
     // Find or create quest completion
     const { data: completions, error: findError } = await supabase
       .from('quest_completion')
@@ -184,7 +172,6 @@ export async function PUT(request: Request) {
       .eq('quest_name', updateTitle)
       .limit(1);
     let questCompletion = completions?.[0];
-
     if (!questCompletion) {
       // Create a new completion record
       const { data: newCompletion, error: createError } = await supabase
@@ -204,20 +191,18 @@ export async function PUT(request: Request) {
       }
       questCompletion = newCompletion;
     }
-
     // Update the completion status
     const { data: updatedCompletion, error: updateError } = await supabase
       .from('quest_completion')
       .update({
         completed,
-        date: completed ? new Date().toISOString() : questCompletion.date
+        date: completed ? new Date().toISOString() : questCompletion['date']
       })
-      .eq('id', questCompletion.id)
+      .eq('id', questCompletion['id'])
       .single();
     if (updateError) {
       return NextResponse.json({ error: updateError.message }, { status: 500 });
     }
-
     // If quest is completed, update character stats with default rewards
     if (completed) {
       const { data: characters, error: charError } = await supabase
@@ -234,20 +219,18 @@ export async function PUT(request: Request) {
         await supabase
           .from('character_stats')
           .update({
-            experience: character.experience + defaultRewards.experience,
-            gold: character.gold + defaultRewards.gold
+            experience: (character as any)['experience'] + defaultRewards.experience,
+            gold: (character as any)['gold'] + defaultRewards.gold
           })
-          .eq('id', character.id);
+          .eq('id', (character as any)['id']);
       }
     }
-
     const response: QuestResponse = {
-      title: (updatedCompletion as any).quest_name,
-      category: (updatedCompletion as any).category,
-      completed: (updatedCompletion as any).completed,
-      date: (updatedCompletion as any).date
+      title: (updatedCompletion as any)['quest_name'],
+      category: (updatedCompletion as any)['category'],
+      completed: (updatedCompletion as any)['completed'],
+      date: (updatedCompletion as any)['date']
     };
-
     return NextResponse.json(response);
   } catch (error) {
     console.error('Error updating quest completion:', error);
@@ -277,7 +260,7 @@ export async function PATCH(request: Request) {
     // Convert to CSV
     let csv = 'date,title,completed\n';
     questCompletions.forEach((completion: any) => {
-      csv += `${(completion as any).date},${(completion as any).quest_name},${(completion as any).completed}\n`;
+      csv += `${(completion as any)['date']},${(completion as any)['quest_name']},${(completion as any)['completed']}\n`;
     });
 
     return new NextResponse(csv, {
@@ -323,4 +306,5 @@ export async function DELETE(request: Request) {
   }
 }
 
+// TODO: Implement quests logic with Supabase client 
 // TODO: Implement quests logic with Supabase client 
