@@ -5,14 +5,14 @@ import { verifyToken } from '@clerk/clerk-sdk-node';
 const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'];
 const supabaseServiceRoleKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
 
-if (!supabaseUrl || !supabaseServiceRoleKey) {
-  throw new Error('Supabase URL or Service Role Key is missing from environment variables.');
-}
+// Add logging for debugging
+console.log('[API/test-table] supabaseUrl:', supabaseUrl);
+console.log('[API/test-table] supabaseServiceRoleKey present:', !!supabaseServiceRoleKey);
 
-const supabase = createClient(
-  supabaseUrl,
-  supabaseServiceRoleKey
-);
+let supabase: ReturnType<typeof createClient> | null = null;
+if (supabaseUrl && supabaseServiceRoleKey) {
+  supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+}
 
 export async function GET(req: NextRequest) {
   // 1. Get the JWT from the Authorization header
@@ -28,7 +28,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
   }
 
-  // 3. Query Supabase with service role key
+  // 3. Check for env vars and supabase client
+  if (!supabaseUrl || !supabaseServiceRoleKey) {
+    return NextResponse.json({ error: 'Supabase URL or Service Role Key is missing from environment variables.' }, { status: 500 });
+  }
+  if (!supabase) {
+    return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
+  }
+
+  // 4. Query Supabase with service role key
   const { data, error } = await supabase.from('test_table').select('*');
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
