@@ -19,7 +19,7 @@ import { SignedIn, SignedOut, SignIn } from '@clerk/nextjs'
 
 interface Quest {
   id: string;
-  title: string;
+  name: string;
   description: string;
   category: string;
   difficulty: string;
@@ -266,31 +266,29 @@ export default function QuestsPage() {
     });
   }, []);
 
-  const handleQuestToggle = async (questTitle: string, currentCompleted: boolean) => {
+  const handleQuestToggle = async (questId: number, currentCompleted: boolean) => {
     if (!userId) return;
-    const quest = quests.find(q => q.title === questTitle);
+    const quest = quests.find(q => Number(q.id) === questId);
+    if (!quest) return;
     const rewards = quest && quest.rewards ? JSON.parse(quest.rewards) : { xp: 0, gold: 0 };
     const xpDelta = rewards.xp || 0;
     const goldDelta = rewards.gold || 0;
     try {
       const token = await getToken();
       if (!token) throw new Error('No Clerk token');
-      const response = await fetch('/api/quests', {
-        method: 'PUT',
+      const response = await fetch('/api/quests/completion', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          title: questTitle,
-          completed: !currentCompleted,
-        }),
+        body: JSON.stringify({ questId }),
       });
       if (!response.ok) {
         throw new Error('Failed to update quest');
       }
       setQuests(prev => prev.map(q =>
-        q.title === questTitle ? { ...q, completed: !currentCompleted, date: new Date() } : q
+        Number(q.id) === questId ? { ...q, completed: !currentCompleted, date: new Date() } : q
       ));
       const stats = getCharacterStats();
       let newXP = stats.experience;
@@ -504,13 +502,13 @@ export default function QuestsPage() {
                   return (
                     <CardWithProgress
                       key={quest.id}
-                      title={quest.title}
+                      title={quest.name}
                       description={quest.description}
                       icon={React.createElement(getCategoryIcon(quest.category))}
                       completed={quest.completed}
-                      onToggle={() => handleQuestToggle(quest.title, quest.completed)}
+                      onToggle={() => handleQuestToggle(Number(quest.id), quest.completed)}
                       onEdit={() => handleEditQuest(quest)}
-                      onDelete={() => handleQuestToggle(quest.title, quest.completed)}
+                      onDelete={() => handleQuestToggle(Number(quest.id), quest.completed)}
                       progress={quest.completed ? 100 : 5}
                       xp={rewards.xp}
                       gold={rewards.gold}
@@ -657,11 +655,11 @@ export default function QuestsPage() {
               <label className="block mb-2 text-sm font-medium">Name</label>
               <input
                 className="w-full mb-4 p-2 border rounded"
-                value={editingQuest.title}
-                onChange={e => setEditingQuest({ ...editingQuest, title: e.target.value })}
-                placeholder="Quest title"
-                title="Quest title"
-                aria-label="Quest title"
+                value={editingQuest.name}
+                onChange={e => setEditingQuest({ ...editingQuest, name: e.target.value })}
+                placeholder="Quest name"
+                title="Quest name"
+                aria-label="Quest name"
               />
               <label className="block mb-2 text-sm font-medium">Description</label>
               <textarea
