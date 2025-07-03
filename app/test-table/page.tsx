@@ -8,17 +8,8 @@ export default function TestTablePage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Only render loading until Clerk is loaded (prevents hydration mismatch)
-  if (!isLoaded) {
-    return (
-      <main className="p-8">
-        <h1 className="text-2xl font-bold mb-4">Supabase Test Table</h1>
-        <div>Loading...</div>
-      </main>
-    );
-  }
-
   useEffect(() => {
+    if (!isLoaded) return;
     setLoading(true);
     getToken()
       .then((token) => {
@@ -35,6 +26,15 @@ export default function TestTablePage() {
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [isLoaded, getToken]);
+
+  if (!isLoaded) {
+    return (
+      <main className="p-8">
+        <h1 className="text-2xl font-bold mb-4">Supabase Test Table</h1>
+        <div>Loading...</div>
+      </main>
+    );
+  }
 
   return (
     <main className="p-8">
