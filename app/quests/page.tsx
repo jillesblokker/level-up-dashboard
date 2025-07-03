@@ -174,6 +174,8 @@ export default function QuestsPage() {
     difficulty: '',
     rewards: JSON.stringify({ xp: 0, gold: 0 }),
   });
+  const [addQuestError, setAddQuestError] = useState<string | null>(null);
+  const [addQuestLoading, setAddQuestLoading] = useState(false);
 
   useEffect(() => {
     const loadQuests = async () => {
@@ -421,6 +423,8 @@ export default function QuestsPage() {
   };
 
   const handleAddQuest = async () => {
+    setAddQuestError(null);
+    setAddQuestLoading(true);
     try {
       const token = await getToken();
       if (!token) throw new Error('No Clerk token');
@@ -432,16 +436,23 @@ export default function QuestsPage() {
         },
         body: JSON.stringify(newQuest),
       });
-      if (!response.ok) throw new Error('Failed to add quest');
+      const result = await response.json();
+      if (!response.ok) {
+        setAddQuestError(result.error || 'Failed to add quest');
+        setAddQuestLoading(false);
+        return;
+      }
       setAddQuestModalOpen(false);
       setNewQuest({ name: '', description: '', category: questCategory, difficulty: '', rewards: JSON.stringify({ xp: 0, gold: 0 }) });
       // Refresh quests
       const token2 = await getToken();
       const refreshed = await fetch(`/api/quests?userId=${userId}`, { headers: { Authorization: `Bearer ${token2}` } });
       if (refreshed.ok) setQuests(await refreshed.json());
-    } catch (err) {
-      setError('Failed to add quest.');
+    } catch (err: any) {
+      setAddQuestError(err.message || 'Failed to add quest.');
       console.error(err);
+    } finally {
+      setAddQuestLoading(false);
     }
   };
 
@@ -535,7 +546,7 @@ export default function QuestsPage() {
                   return (
                     <CardWithProgress
                       key={quest.id}
-                      title={quest.name}
+                      title={quest.name || 'Untitled Quest'}
                       description={quest.description}
                       icon={React.createElement(getCategoryIcon(quest.category))}
                       completed={quest.completed}
@@ -845,6 +856,7 @@ export default function QuestsPage() {
           <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
             <h2 className="text-lg font-semibold mb-4">Add Custom Quest</h2>
             <form onSubmit={e => { e.preventDefault(); handleAddQuest(); }}>
+              {addQuestError && <div className="mb-4 text-red-500 bg-red-900/20 p-2 rounded">{addQuestError}</div>}
               <label className="block mb-2 text-sm font-medium">Name</label>
               <input className="w-full mb-4 p-2 border rounded" value={newQuest.name} onChange={e => setNewQuest({ ...newQuest, name: e.target.value })} placeholder="Quest name" title="Quest name" aria-label="Quest name" required />
               <label className="block mb-2 text-sm font-medium">Description</label>
@@ -862,8 +874,8 @@ export default function QuestsPage() {
               <label className="block mb-2 text-sm font-medium">Gold Reward</label>
               <input type="number" className="w-full mb-4 p-2 border rounded" value={JSON.parse(newQuest.rewards).gold} onChange={e => setNewQuest({ ...newQuest, rewards: JSON.stringify({ ...JSON.parse(newQuest.rewards), gold: Number(e.target.value) }) })} placeholder="Gold" title="Gold" aria-label="Gold" />
               <div className="flex justify-end gap-2">
-                <Button type="button" variant="secondary" onClick={() => setAddQuestModalOpen(false)}>Cancel</Button>
-                <Button type="submit" variant="default">Add</Button>
+                <Button type="button" variant="secondary" onClick={() => setAddQuestModalOpen(false)} disabled={addQuestLoading}>Cancel</Button>
+                <Button type="submit" variant="default" disabled={addQuestLoading}>{addQuestLoading ? 'Adding...' : 'Add'}</Button>
               </div>
             </form>
           </div>
