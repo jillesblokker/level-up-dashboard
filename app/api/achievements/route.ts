@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabase } from '@/lib/supabase/client';
+import { create_supabase_server_client } from '@/app/lib/supabase/server-client';
 
 export async function GET(request: Request) {
   const logs: any[] = [];
   try {
-    const { userId } = await auth();
+    const { userId, getToken } = await auth();
+    const token = await getToken({ template: 'supabase' });
     logs.push({ step: 'auth', userId });
     logs.push({ env: { supabaseUrl: process.env['NEXT_PUBLIC_SUPABASE_URL'], supabaseKeyPresent: !!process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'] } });
     if (!userId) {
@@ -13,6 +15,7 @@ export async function GET(request: Request) {
       console.log('[API/ACHIEVEMENTS] Unauthorized', logs);
       return NextResponse.json({ error: 'Unauthorized', logs }, { status: 401 });
     }
+    const supabase = create_supabase_server_client(token || undefined);
     // Fetch all achievements for the user from Supabase
     const { data, error } = await supabase
       .from('achievements')
