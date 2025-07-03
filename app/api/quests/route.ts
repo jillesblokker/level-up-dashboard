@@ -105,6 +105,7 @@ export async function GET(request: Request) {
         return {
           id: quest['id'],
           name: quest['title'],
+          title: quest['title'],
           description: quest['description'],
           category: quest['category'],
           difficulty: quest['difficulty'],
@@ -120,6 +121,7 @@ export async function GET(request: Request) {
       questsWithCompletions = (allQuests as any[]).map((quest: any) => ({
         id: quest['id'],
         name: quest['title'],
+        title: quest['title'],
         description: quest['description'],
         category: quest['category'],
         difficulty: quest['difficulty'],

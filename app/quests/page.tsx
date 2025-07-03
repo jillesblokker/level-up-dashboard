@@ -20,6 +20,7 @@ import { SignedIn, SignedOut, SignIn } from '@clerk/nextjs'
 interface Quest {
   id: string;
   name: string;
+  title?: string;
   description: string;
   category: string;
   difficulty: string;
@@ -556,7 +557,7 @@ export default function QuestsPage() {
                   return (
                     <CardWithProgress
                       key={quest.id}
-                      title={quest.name || 'Untitled Quest'}
+                      title={quest.name || quest.title || 'Untitled Quest'}
                       description={quest.description}
                       icon={React.createElement(getCategoryIcon(quest.category))}
                       completed={quest.completed}
