@@ -24,7 +24,8 @@ interface Quest {
   description: string;
   category: string;
   difficulty: string;
-  rewards: string;
+  xp?: number;
+  gold?: number;
   completed: boolean;
   date?: Date;
   isNew: boolean;
@@ -173,7 +174,8 @@ export default function QuestsPage() {
     description: '',
     category: questCategory,
     difficulty: '',
-    rewards: JSON.stringify({ xp: 0, gold: 0 }),
+    xp: 0,
+    gold: 0,
   });
   const [addQuestError, setAddQuestError] = useState<string | null>(null);
   const [addQuestLoading, setAddQuestLoading] = useState(false);
@@ -281,9 +283,8 @@ export default function QuestsPage() {
     if (!userId) return;
     const quest = quests.find(q => Number(q.id) === questId);
     if (!quest) return;
-    const rewards = quest && quest.rewards ? JSON.parse(quest.rewards) : { xp: 0, gold: 0 };
-    const xpDelta = rewards.xp || 0;
-    const goldDelta = rewards.gold || 0;
+    const xpDelta = quest.xp || 0;
+    const goldDelta = quest.gold || 0;
     try {
       const token = await getToken();
       if (!token) throw new Error('No Clerk token');
@@ -454,7 +455,7 @@ export default function QuestsPage() {
         return;
       }
       setAddQuestModalOpen(false);
-      setNewQuest({ name: '', description: '', category: questCategory, difficulty: '', rewards: JSON.stringify({ xp: 0, gold: 0 }) });
+      setNewQuest({ name: '', description: '', category: questCategory, difficulty: '', xp: 0, gold: 0 });
       // Refresh quests
       const token2 = await getToken();
       const refreshed = await fetch(`/api/quests?userId=${userId}`, { headers: { Authorization: `Bearer ${token2}` } });
@@ -549,7 +550,6 @@ export default function QuestsPage() {
             <div className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {(questsByCategorySafe[safeQuestCategory] ?? []).map((quest: Quest) => {
-                  const rewards = quest.rewards ? JSON.parse(quest.rewards) : { xp: 0, gold: 0 };
                   const categoryKey: string = String(quest.category ?? '');
                   const categoryColor = Object.prototype.hasOwnProperty.call(categoryColorMap, categoryKey)
                     ? categoryColorMap[categoryKey]
@@ -565,8 +565,8 @@ export default function QuestsPage() {
                       onEdit={() => handleEditQuest(quest)}
                       onDelete={() => handleQuestToggle(Number(quest.id), quest.completed)}
                       progress={quest.completed ? 100 : 5}
-                      xp={rewards.xp}
-                      gold={rewards.gold}
+                      xp={quest.xp ?? 0}
+                      gold={quest.gold ?? 0}
                     />
                   );
                 })}
@@ -881,9 +881,9 @@ export default function QuestsPage() {
               <label className="block mb-2 text-sm font-medium">Difficulty</label>
               <input className="w-full mb-4 p-2 border rounded" value={newQuest.difficulty} onChange={e => setNewQuest({ ...newQuest, difficulty: e.target.value })} placeholder="Difficulty" title="Difficulty" aria-label="Difficulty" />
               <label className="block mb-2 text-sm font-medium">XP Reward</label>
-              <input type="number" className="w-full mb-4 p-2 border rounded" value={JSON.parse(newQuest.rewards).xp} onChange={e => setNewQuest({ ...newQuest, rewards: JSON.stringify({ ...JSON.parse(newQuest.rewards), xp: Number(e.target.value) }) })} placeholder="XP" title="XP" aria-label="XP" />
+              <input type="number" className="w-full mb-4 p-2 border rounded" value={newQuest.xp} onChange={e => setNewQuest({ ...newQuest, xp: Number(e.target.value) })} placeholder="XP" title="XP" aria-label="XP" />
               <label className="block mb-2 text-sm font-medium">Gold Reward</label>
-              <input type="number" className="w-full mb-4 p-2 border rounded" value={JSON.parse(newQuest.rewards).gold} onChange={e => setNewQuest({ ...newQuest, rewards: JSON.stringify({ ...JSON.parse(newQuest.rewards), gold: Number(e.target.value) }) })} placeholder="Gold" title="Gold" aria-label="Gold" />
+              <input type="number" className="w-full mb-4 p-2 border rounded" value={newQuest.gold} onChange={e => setNewQuest({ ...newQuest, gold: Number(e.target.value) })} placeholder="Gold" title="Gold" aria-label="Gold" />
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="secondary" onClick={() => setAddQuestModalOpen(false)} disabled={addQuestLoading}>Cancel</Button>
                 <Button type="submit" variant="default" disabled={addQuestLoading}>{addQuestLoading ? 'Adding...' : 'Add'}</Button>

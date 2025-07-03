@@ -19,7 +19,7 @@ export async function POST(request: Request) {
       return new NextResponse(JSON.stringify({ error: 'Supabase client not initialized.' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
     }
     const body = await request.json();
-    const { name, description, category, difficulty, rewards } = body;
+    const { name, description, category, difficulty, xp, gold } = body;
     if (!name || !category) {
       return new NextResponse(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
@@ -31,7 +31,8 @@ export async function POST(request: Request) {
           description,
           category,
           difficulty,
-          rewards,
+          xp_reward: xp ?? 0,
+          gold_reward: gold ?? 0,
         },
       ])
       .single();
@@ -45,7 +46,8 @@ export async function POST(request: Request) {
       description: quest.description,
       category: quest.category,
       difficulty: quest.difficulty,
-      rewards: quest.rewards,
+      xp: quest.xp_reward,
+      gold: quest.gold_reward,
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (error) {
     return new NextResponse(JSON.stringify({ error: 'Internal server error' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
