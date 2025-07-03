@@ -136,7 +136,7 @@ export async function POST(request: Request) {
     };
     return NextResponse.json(response);
   } catch (error) {
-    console.error('Error creating quest completion:', error);
+    console.error('Error creating quest completion:', String(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -198,7 +198,7 @@ export async function PUT(request: Request) {
         completed,
         date: completed ? new Date().toISOString() : questCompletion['date']
       })
-      .eq('id', questCompletion['id'])
+      .eq('id', String(questCompletion['id']))
       .single();
     if (updateError) {
       return NextResponse.json({ error: updateError.message }, { status: 500 });
@@ -233,7 +233,7 @@ export async function PUT(request: Request) {
     };
     return NextResponse.json(response);
   } catch (error) {
-    console.error('Error updating quest completion:', error);
+    console.error('Error updating quest completion:', String(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -241,13 +241,19 @@ export async function PUT(request: Request) {
 // Export quests as CSV
 export async function PATCH(request: Request) {
   try {
-    const { getToken, userId } = await auth();
-    const token = await getToken();
-    const supabase = create_supabase_server_client(token || undefined);
-    if (!userId) {
+    // Require Authorization header
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
+    if (!supabase) {
+      return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
+    }
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+    if (!userId) {
+      return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
+    }
     const { data: questCompletions, error } = await supabase
       .from('quest_completion')
       .select('*')
@@ -256,13 +262,11 @@ export async function PATCH(request: Request) {
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-
     // Convert to CSV
     let csv = 'date,title,completed\n';
-    questCompletions.forEach((completion: any) => {
-      csv += `${(completion as any)['date']},${(completion as any)['quest_name']},${(completion as any)['completed']}\n`;
+    (questCompletions as any[]).forEach((completion: any) => {
+      csv += `${completion['date']},${completion['quest_name']},${completion['completed']}\n`;
     });
-
     return new NextResponse(csv, {
       headers: {
         'Content-Type': 'text/csv',
@@ -270,26 +274,30 @@ export async function PATCH(request: Request) {
       }
     });
   } catch (error) {
-    console.error('Error exporting quests:', error);
+    console.error('Error exporting quests:', String(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function DELETE(request: Request) {
   try {
-    const { getToken, userId } = await auth();
-    const token = await getToken();
-    const supabase = create_supabase_server_client(token || undefined);
-    if (!userId) {
+    // Require Authorization header
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
+    if (!supabase) {
+      return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
+    }
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+    if (!userId) {
+      return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
+    }
     const { id } = await request.json();
-
     if (!id) {
       return NextResponse.json({ error: 'Quest completion ID is required' }, { status: 400 });
     }
-
     const { error } = await supabase
       .from('quest_completion')
       .delete()
@@ -298,13 +306,13 @@ export async function DELETE(request: Request) {
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-
     return NextResponse.json({ success: true, message: 'Quest completion deleted' });
   } catch (error) {
-    console.error('Error deleting quest completion:', error);
+    console.error('Error deleting quest completion:', String(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
+// TODO: Implement quests logic with Supabase client 
 // TODO: Implement quests logic with Supabase client 
 // TODO: Implement quests logic with Supabase client 
