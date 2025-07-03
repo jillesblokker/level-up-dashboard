@@ -28,7 +28,9 @@ export async function GET(request: Request) {
   try {
     // Optionally check for Authorization header
     const authHeader = request.headers.get('authorization');
+    console.log('[QUESTS][GET] Authorization header:', authHeader);
     if (!authHeader) {
+      console.error('[QUESTS][GET] Missing Authorization header');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     if (!supabase) {
@@ -87,6 +89,8 @@ export async function GET(request: Request) {
     console.error('Error fetching quests:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
+  // Safety net
+  return NextResponse.json({ error: 'Unknown error' }, { status: 500 });
 }
 
 // Create a new quest completion
@@ -94,7 +98,9 @@ export async function POST(request: Request) {
   try {
     // Require Authorization header
     const authHeader = request.headers.get('authorization');
+    console.log('[QUESTS][POST] Authorization header:', authHeader);
     if (!authHeader) {
+      console.error('[QUESTS][POST] Missing Authorization header');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     if (!supabase) {
@@ -139,6 +145,8 @@ export async function POST(request: Request) {
     console.error('Error creating quest completion:', String(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
+  // Safety net
+  return NextResponse.json({ error: 'Unknown error' }, { status: 500 });
 }
 
 // Update a quest completion status
@@ -146,7 +154,9 @@ export async function PUT(request: Request) {
   try {
     // Require Authorization header
     const authHeader = request.headers.get('authorization');
+    console.log('[QUESTS][PUT] Authorization header:', authHeader);
     if (!authHeader) {
+      console.error('[QUESTS][PUT] Missing Authorization header');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     if (!supabase) {
@@ -236,6 +246,8 @@ export async function PUT(request: Request) {
     console.error('Error updating quest completion:', String(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
+  // Safety net
+  return NextResponse.json({ error: 'Unknown error' }, { status: 500 });
 }
 
 // Export quests as CSV

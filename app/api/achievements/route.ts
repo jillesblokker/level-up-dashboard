@@ -13,7 +13,9 @@ export async function GET(request: Request) {
   try {
     // Optionally check for Authorization header
     const authHeader = request.headers.get('authorization');
+    console.log('[ACHIEVEMENTS][GET] Authorization header:', authHeader);
     if (!authHeader) {
+      console.error('[ACHIEVEMENTS][GET] Missing Authorization header');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     if (!supabase) {
@@ -38,6 +40,7 @@ export async function GET(request: Request) {
     }));
     return NextResponse.json(achievements);
   } catch (error) {
+    console.error('[ACHIEVEMENTS][GET] Internal server error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 
