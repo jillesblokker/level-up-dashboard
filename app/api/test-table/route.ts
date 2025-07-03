@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
 
   // 2. Verify the Clerk JWT
   try {
-    await verifyToken(token); // Throws if invalid
+    await verifyToken(token, {}); // Pass empty options object
   } catch (e) {
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
   }
