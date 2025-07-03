@@ -436,7 +436,17 @@ export default function QuestsPage() {
         },
         body: JSON.stringify(newQuest),
       });
-      const result = await response.json();
+      const contentType = response.headers.get('content-type');
+      let result: any = {};
+      if (contentType && contentType.includes('application/json')) {
+        result = await response.json();
+      } else {
+        const text = await response.text();
+        console.error('Non-JSON response:', text);
+        setAddQuestError('Unexpected server response. Please try again.');
+        setAddQuestLoading(false);
+        return;
+      }
       if (!response.ok) {
         setAddQuestError(result.error || 'Failed to add quest');
         setAddQuestLoading(false);

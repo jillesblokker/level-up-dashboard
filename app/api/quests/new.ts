@@ -13,15 +13,15 @@ export async function POST(request: Request) {
   try {
     const authHeader = request.headers.get('authorization');
     if (!authHeader) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
     }
     if (!supabase) {
-      return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
+      return new NextResponse(JSON.stringify({ error: 'Supabase client not initialized.' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
     }
     const body = await request.json();
     const { name, description, category, difficulty, rewards } = body;
     if (!name || !category) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return new NextResponse(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
     const { data, error } = await supabase
       .from('quests')
@@ -36,18 +36,18 @@ export async function POST(request: Request) {
       ])
       .single();
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return new NextResponse(JSON.stringify({ error: error.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
     }
     const quest: any = data;
-    return NextResponse.json({
+    return new NextResponse(JSON.stringify({
       id: quest.id,
       name: quest.title,
       description: quest.description,
       category: quest.category,
       difficulty: quest.difficulty,
       rewards: quest.rewards,
-    });
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return new NextResponse(JSON.stringify({ error: 'Internal server error' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
   }
 } 
