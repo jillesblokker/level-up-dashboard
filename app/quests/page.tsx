@@ -203,9 +203,13 @@ export default function QuestsPage() {
   useSupabaseRealtimeSync({
     table: 'quest_completions',
     userId,
-    onChange: () => {
+    onChange: async () => {
       if (!isGuest && userId) {
-        fetch('/api/quests').then(async (response) => {
+        const token = await getToken();
+        if (!token) return;
+        fetch(`/api/quests?userId=${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }).then(async (response) => {
           if (response.ok) {
             const data = await response.json();
             setQuests(data);
@@ -264,35 +268,30 @@ export default function QuestsPage() {
 
   const handleQuestToggle = async (questTitle: string, currentCompleted: boolean) => {
     if (!userId) return;
-
-    // Find the quest and parse rewards
     const quest = quests.find(q => q.title === questTitle);
     const rewards = quest && quest.rewards ? JSON.parse(quest.rewards) : { xp: 0, gold: 0 };
     const xpDelta = rewards.xp || 0;
     const goldDelta = rewards.gold || 0;
-
     try {
+      const token = await getToken();
+      if (!token) throw new Error('No Clerk token');
       const response = await fetch('/api/quests', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          questTitle,
+          title: questTitle,
           completed: !currentCompleted,
         }),
       });
-
       if (!response.ok) {
         throw new Error('Failed to update quest');
       }
-
-      // Update local state
       setQuests(prev => prev.map(q =>
         q.title === questTitle ? { ...q, completed: !currentCompleted, date: new Date() } : q
       ));
-
-      // Update character stats and fire events
       const stats = getCharacterStats();
       let newXP = stats.experience;
       let newGold = stats.gold;
@@ -304,7 +303,6 @@ export default function QuestsPage() {
         newGold = Math.max(0, newGold - goldDelta);
       }
       updateCharacterStats({ experience: newXP, gold: newGold });
-      // Fire kingdom events for live updates
       if (!currentCompleted) {
         window.dispatchEvent(new CustomEvent('kingdom:goldGained', { detail: goldDelta }));
         window.dispatchEvent(new CustomEvent('kingdom:experienceGained', { detail: xpDelta }));
@@ -313,7 +311,7 @@ export default function QuestsPage() {
         window.dispatchEvent(new CustomEvent('kingdom:experienceGained', { detail: -xpDelta }));
       }
     } catch (err) {
-      setError("Failed to sync quest progress.");
+      setError('Failed to sync quest progress.');
       console.error(err);
     }
   };
