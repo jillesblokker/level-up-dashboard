@@ -104,7 +104,7 @@ export async function GET(request: Request) {
         const completion = completionMap.get(key) as any;
         return {
           id: quest['id'],
-          title: quest['title'],
+          name: quest['title'],
           description: quest['description'],
           category: quest['category'],
           difficulty: quest['difficulty'],
@@ -115,6 +115,20 @@ export async function GET(request: Request) {
           completionId: completion?.id
         };
       });
+    } else {
+      // If no userId, still map title to name for allQuests
+      questsWithCompletions = (allQuests as any[]).map((quest: any) => ({
+        id: quest['id'],
+        name: quest['title'],
+        description: quest['description'],
+        category: quest['category'],
+        difficulty: quest['difficulty'],
+        rewards: quest['rewards'],
+        completed: false,
+        date: null,
+        isNew: true,
+        completionId: null
+      }));
     }
     return NextResponse.json(questsWithCompletions);
   } catch (error) {

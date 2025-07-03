@@ -166,6 +166,14 @@ export default function QuestsPage() {
   });
   const [editCustomChallengeIdx, setEditCustomChallengeIdx] = useState<number | null>(null);
   const [editCustomChallengeData, setEditCustomChallengeData] = useState<any | null>(null);
+  const [addQuestModalOpen, setAddQuestModalOpen] = useState(false);
+  const [newQuest, setNewQuest] = useState({
+    name: '',
+    description: '',
+    category: questCategory,
+    difficulty: '',
+    rewards: JSON.stringify({ xp: 0, gold: 0 }),
+  });
 
   useEffect(() => {
     const loadQuests = async () => {
@@ -412,6 +420,31 @@ export default function QuestsPage() {
     });
   };
 
+  const handleAddQuest = async () => {
+    try {
+      const token = await getToken();
+      if (!token) throw new Error('No Clerk token');
+      const response = await fetch('/api/quests/new', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(newQuest),
+      });
+      if (!response.ok) throw new Error('Failed to add quest');
+      setAddQuestModalOpen(false);
+      setNewQuest({ name: '', description: '', category: questCategory, difficulty: '', rewards: JSON.stringify({ xp: 0, gold: 0 }) });
+      // Refresh quests
+      const token2 = await getToken();
+      const refreshed = await fetch(`/api/quests?userId=${userId}`, { headers: { Authorization: `Bearer ${token2}` } });
+      if (refreshed.ok) setQuests(await refreshed.json());
+    } catch (err) {
+      setError('Failed to add quest.');
+      console.error(err);
+    }
+  };
+
   if (!isClerkLoaded || !isUserLoaded) {
     return (
       <main className="p-8">
@@ -515,7 +548,7 @@ export default function QuestsPage() {
                     />
                   );
                 })}
-                <Card className="border-2 border-dashed border-gray-700 hover:border-amber-500 transition-colors cursor-pointer flex items-center justify-center min-h-[160px]">
+                <Card className="border-2 border-dashed border-gray-700 hover:border-amber-500 transition-colors cursor-pointer flex items-center justify-center min-h-[160px]" onClick={() => setAddQuestModalOpen(true)} tabIndex={0} role="button" aria-label="add-custom-quest-card" onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setAddQuestModalOpen(true); } }}>
                   <div className="text-center text-gray-500">
                     <Plus className="w-8 h-8 mx-auto mb-2" />
                     <p>Add Custom Quest</p>
@@ -800,6 +833,37 @@ export default function QuestsPage() {
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="secondary" onClick={() => { setEditCustomChallengeIdx(null); setEditCustomChallengeData(null); }}>Cancel</Button>
                 <Button type="submit" variant="default">Save</Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Add Custom Quest Modal */}
+      {addQuestModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setAddQuestModalOpen(false)} />
+          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">Add Custom Quest</h2>
+            <form onSubmit={e => { e.preventDefault(); handleAddQuest(); }}>
+              <label className="block mb-2 text-sm font-medium">Name</label>
+              <input className="w-full mb-4 p-2 border rounded" value={newQuest.name} onChange={e => setNewQuest({ ...newQuest, name: e.target.value })} placeholder="Quest name" title="Quest name" aria-label="Quest name" required />
+              <label className="block mb-2 text-sm font-medium">Description</label>
+              <textarea className="w-full mb-4 p-2 border rounded" value={newQuest.description} onChange={e => setNewQuest({ ...newQuest, description: e.target.value })} placeholder="Quest description" title="Quest description" aria-label="Quest description" />
+              <label className="block mb-2 text-sm font-medium">Category</label>
+              <select className="w-full mb-4 p-2 border rounded" value={newQuest.category} onChange={e => setNewQuest({ ...newQuest, category: e.target.value })} aria-label="Quest category">
+                {questCategories.map((category: string) => (
+                  <option key={category} value={category}>{getCategoryLabel(category)}</option>
+                ))}
+              </select>
+              <label className="block mb-2 text-sm font-medium">Difficulty</label>
+              <input className="w-full mb-4 p-2 border rounded" value={newQuest.difficulty} onChange={e => setNewQuest({ ...newQuest, difficulty: e.target.value })} placeholder="Difficulty" title="Difficulty" aria-label="Difficulty" />
+              <label className="block mb-2 text-sm font-medium">XP Reward</label>
+              <input type="number" className="w-full mb-4 p-2 border rounded" value={JSON.parse(newQuest.rewards).xp} onChange={e => setNewQuest({ ...newQuest, rewards: JSON.stringify({ ...JSON.parse(newQuest.rewards), xp: Number(e.target.value) }) })} placeholder="XP" title="XP" aria-label="XP" />
+              <label className="block mb-2 text-sm font-medium">Gold Reward</label>
+              <input type="number" className="w-full mb-4 p-2 border rounded" value={JSON.parse(newQuest.rewards).gold} onChange={e => setNewQuest({ ...newQuest, rewards: JSON.stringify({ ...JSON.parse(newQuest.rewards), gold: Number(e.target.value) }) })} placeholder="Gold" title="Gold" aria-label="Gold" />
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="secondary" onClick={() => setAddQuestModalOpen(false)}>Cancel</Button>
+                <Button type="submit" variant="default">Add</Button>
               </div>
             </form>
           </div>
