@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { SignedIn, SignedOut, SignIn, useAuth } from "@clerk/nextjs";
 
 export default function TestTablePage() {
   const { getToken, isLoaded } = useAuth();
@@ -31,7 +31,7 @@ export default function TestTablePage() {
     return (
       <main className="p-8">
         <h1 className="text-2xl font-bold mb-4">Supabase Test Table</h1>
-        <div>Loading...</div>
+        <div>Loading Clerk...</div>
       </main>
     );
   }
@@ -39,9 +39,14 @@ export default function TestTablePage() {
   return (
     <main className="p-8">
       <h1 className="text-2xl font-bold mb-4">Supabase Test Table</h1>
-      {loading && <div>Loading...</div>}
-      {error && <div className="text-red-500">Error: {error}</div>}
-      <pre>{JSON.stringify(data, null, 2)}</pre>
+      <SignedIn>
+        {loading && <div>Loading...</div>}
+        {error && <div className="text-red-500">Error: {error}</div>}
+        <pre>{JSON.stringify(data, null, 2)}</pre>
+      </SignedIn>
+      <SignedOut>
+        <SignIn />
+      </SignedOut>
     </main>
   );
 } 
