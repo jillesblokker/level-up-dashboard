@@ -1,3 +1,12 @@
+// TROUBLESHOOTING: If you get a 500 error, check the following:
+// 1. Are NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY set in your environment? (Check .env and restart server)
+// 2. Do the tables 'quests', 'quest_completion', and 'character_stats' exist in your Supabase database, with the expected columns?
+// 3. Check your server logs for error output after 'Quests error:' or 'Error fetching quests:'
+// 4. Test your API with curl or Postman to see the error response.
+// 5. If you see 'Supabase client not initialized', your env vars are missing or incorrect.
+//
+// Health check endpoint: GET /api/quests?health=1
+
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
@@ -6,6 +15,13 @@ import { env } from '@/lib/env';
 
 const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'];
 const supabaseServiceRoleKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
+
+if (!supabaseUrl) {
+  console.error('[QUESTS][INIT] NEXT_PUBLIC_SUPABASE_URL is missing from environment variables.');
+}
+if (!supabaseServiceRoleKey) {
+  console.error('[QUESTS][INIT] SUPABASE_SERVICE_ROLE_KEY is missing from environment variables.');
+}
 
 let supabase: ReturnType<typeof createClient> | null = null;
 if (supabaseUrl && supabaseServiceRoleKey) {
@@ -23,9 +39,18 @@ const questUpdateSchema = z.object({
   completed: z.boolean()
 });
 
-// Get all available quests and their completion status (optionally filter by userId query param)
+// Health check endpoint
 export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    if (searchParams.get('health') === '1') {
+      return NextResponse.json({
+        status: 'healthy',
+        supabaseUrl,
+        supabaseServiceRoleKeyPresent: !!supabaseServiceRoleKey,
+        supabaseClientInitialized: !!supabase,
+      });
+    }
     // Optionally check for Authorization header
     const authHeader = request.headers.get('authorization');
     console.log('[QUESTS][GET] Authorization header:', authHeader);
@@ -33,17 +58,23 @@ export async function GET(request: Request) {
       console.error('[QUESTS][GET] Missing Authorization header');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    if (!supabaseUrl || !supabaseServiceRoleKey) {
+      console.error('[QUESTS][GET] Supabase env vars missing:', { supabaseUrl, supabaseServiceRoleKey });
+      return NextResponse.json({ error: 'Supabase environment variables missing.' }, { status: 500 });
+    }
     if (!supabase) {
+      console.error('[QUESTS][GET] Supabase client not initialized.');
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
     }
-    const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
     // Get all available quests
+    console.log('Fetching all quests...');
     const { data: allQuests, error: questsError } = await supabase
       .from('quests')
       .select('*')
       .order('category', { ascending: true });
     if (questsError) {
+      console.error('Quests error:', questsError);
       return NextResponse.json({ error: questsError.message }, { status: 500 });
     }
     // Get user's quest completions if userId is provided
@@ -55,6 +86,7 @@ export async function GET(request: Request) {
         .eq('user_id', userId)
         .order('date', { ascending: false });
       if (error) {
+        console.error('Quest completion fetch error:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
       questCompletions = data || [];
@@ -86,7 +118,7 @@ export async function GET(request: Request) {
     }
     return NextResponse.json(questsWithCompletions);
   } catch (error) {
-    console.error('Error fetching quests:', error);
+    console.error('Error fetching quests:', error instanceof Error ? error.stack : error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
   // Safety net
