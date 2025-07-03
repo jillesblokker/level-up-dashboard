@@ -1,18 +1,29 @@
-import { NextResponse } from 'next/server';
-import { create_supabase_server_client } from '@/app/lib/supabase/server-client';
-import { auth } from '@clerk/nextjs/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import { verifyToken } from '@clerk/clerk-sdk-node';
 
-export async function GET() {
+const supabase = createClient(
+  process.env['NEXT_PUBLIC_SUPABASE_URL']!,
+  process.env['SUPABASE_SERVICE_ROLE_KEY']!
+);
+
+export async function GET(req: NextRequest) {
+  // 1. Get the JWT from the Authorization header
+  const authHeader = req.headers.get('authorization');
+  if (!authHeader) return NextResponse.json({ error: 'No auth header' }, { status: 401 });
+
+  const token = authHeader.replace('Bearer ', '');
+
+  // 2. Verify the Clerk JWT
   try {
-    const { getToken } = await auth();
-    const token = await getToken({ template: 'supabase' });
-    const supabase = create_supabase_server_client(token || undefined);
-    const { data, error } = await supabase.from('test_table').select('*');
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-    return NextResponse.json({ data });
-  } catch (error) {
-    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
+    await verifyToken(token); // Throws if invalid
+  } catch (e) {
+    return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
   }
+
+  // 3. Query Supabase with service role key
+  const { data, error } = await supabase.from('test_table').select('*');
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  return NextResponse.json({ data }, { status: 200 });
 } 
