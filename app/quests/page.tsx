@@ -297,8 +297,11 @@ export default function QuestsPage() {
         body: JSON.stringify({ questId }),
       });
       if (!response.ok) {
-        throw new Error('Failed to update quest');
+        const result = await response.json();
+        setError(result.error || 'Failed to update quest');
+        return;
       }
+      // Update UI immediately
       setQuests(prev => prev.map(q =>
         Number(q.id) === questId ? { ...q, completed: !currentCompleted, date: new Date() } : q
       ));
@@ -320,8 +323,8 @@ export default function QuestsPage() {
         window.dispatchEvent(new CustomEvent('kingdom:goldGained', { detail: -goldDelta }));
         window.dispatchEvent(new CustomEvent('kingdom:experienceGained', { detail: -xpDelta }));
       }
-    } catch (err) {
-      setError('Failed to sync quest progress.');
+    } catch (err: any) {
+      setError(err.message || 'Failed to sync quest progress.');
       console.error(err);
     }
   };
@@ -430,13 +433,20 @@ export default function QuestsPage() {
     try {
       const token = await getToken();
       if (!token) throw new Error('No Clerk token');
+      // Map xp/gold to xp_reward/gold_reward for backend
+      const { xp, gold, ...rest } = newQuest;
+      const questPayload = {
+        ...rest,
+        xp_reward: xp,
+        gold_reward: gold,
+      };
       const response = await fetch('/api/quests/new', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(newQuest),
+        body: JSON.stringify(questPayload),
       });
       const contentType = response.headers.get('content-type');
       let result: any = {};
