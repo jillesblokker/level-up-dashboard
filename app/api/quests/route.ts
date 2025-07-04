@@ -100,16 +100,17 @@ export async function GET(request: Request) {
         completionMap.set(key, completion);
       });
       questsWithCompletions = (allQuests as any[]).map((quest: any) => {
-        const key = `${quest['title']}`;
+        const key = `${quest['name']}`;
         const completion = completionMap.get(key) as any;
         return {
           id: quest['id'],
-          name: quest['title'],
-          title: quest['title'],
+          name: quest['name'],
+          title: quest['name'],
           description: quest['description'],
           category: quest['category'],
           difficulty: quest['difficulty'],
-          rewards: quest['rewards'],
+          xp: quest['xp_reward'],
+          gold: quest['gold_reward'],
           completed: completion?.completed ?? false,
           date: completion?.date,
           isNew: !completion,
@@ -117,15 +118,16 @@ export async function GET(request: Request) {
         };
       });
     } else {
-      // If no userId, still map title to name for allQuests
+      // If no userId, still map name for allQuests
       questsWithCompletions = (allQuests as any[]).map((quest: any) => ({
         id: quest['id'],
-        name: quest['title'],
-        title: quest['title'],
+        name: quest['name'],
+        title: quest['name'],
         description: quest['description'],
         category: quest['category'],
         difficulty: quest['difficulty'],
-        rewards: quest['rewards'],
+        xp: quest['xp_reward'],
+        gold: quest['gold_reward'],
         completed: false,
         date: null,
         isNew: true,

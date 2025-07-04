@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       .from('quests')
       .insert([
         {
-          title: name, // DB uses 'title', frontend uses 'name'
+          name, // DB uses 'name' for quest name
           description,
           category,
           difficulty,
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     const quest: any = data;
     return new NextResponse(JSON.stringify({
       id: quest.id,
-      name: quest.title,
+      name: quest.name,
       description: quest.description,
       category: quest.category,
       difficulty: quest.difficulty,
