@@ -13,14 +13,18 @@ export async function POST(request: Request) {
   try {
     const authHeader = request.headers.get('authorization');
     if (!authHeader) {
+      console.error('[API/quests/new] Missing authorization header');
       return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
     }
     if (!supabase) {
+      console.error('[API/quests/new] Supabase client not initialized');
       return new NextResponse(JSON.stringify({ error: 'Supabase client not initialized.' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
     }
     const body = await request.json();
-    const { name, description, category, difficulty, xp, gold } = body;
+    console.log('[API/quests/new] Received body:', body);
+    const { name, description, category, difficulty, xp_reward, gold_reward } = body;
     if (!name || !category) {
+      console.error('[API/quests/new] Missing required fields:', { name, category });
       return new NextResponse(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
     const { data, error } = await supabase
@@ -31,12 +35,13 @@ export async function POST(request: Request) {
           description,
           category,
           difficulty,
-          xp_reward: xp ?? 0,
-          gold_reward: gold ?? 0,
+          xp_reward: xp_reward ?? 0,
+          gold_reward: gold_reward ?? 0,
         },
       ])
       .single();
     if (error) {
+      console.error('[API/quests/new] Supabase insert error:', error);
       return new NextResponse(JSON.stringify({ error: error.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
     }
     const quest: any = data;
@@ -50,6 +55,7 @@ export async function POST(request: Request) {
       gold: quest.gold_reward,
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (error) {
+    console.error('[API/quests/new] Internal server error:', error);
     return new NextResponse(JSON.stringify({ error: 'Internal server error' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
   }
 } 

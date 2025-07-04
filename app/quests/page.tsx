@@ -288,6 +288,7 @@ export default function QuestsPage() {
     try {
       const token = await getToken();
       if (!token) throw new Error('No Clerk token');
+      console.log('[ToggleQuest] Sending:', { questId });
       const response = await fetch('/api/quests/completion', {
         method: 'POST',
         headers: {
@@ -296,12 +297,21 @@ export default function QuestsPage() {
         },
         body: JSON.stringify({ questId }),
       });
+      let result: any = {};
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        result = await response.json();
+      } else {
+        const text = await response.text();
+        console.error('[ToggleQuest] Non-JSON response:', text);
+        setError('Unexpected server response. Please try again.');
+        return;
+      }
+      console.log('[ToggleQuest] Response:', result);
       if (!response.ok) {
-        const result = await response.json();
         setError(result.error || 'Failed to update quest');
         return;
       }
-      // Update UI immediately
       setQuests(prev => prev.map(q =>
         Number(q.id) === questId ? { ...q, completed: !currentCompleted, date: new Date() } : q
       ));
@@ -325,7 +335,7 @@ export default function QuestsPage() {
       }
     } catch (err: any) {
       setError(err.message || 'Failed to sync quest progress.');
-      console.error(err);
+      console.error('[ToggleQuest] Error:', err);
     }
   };
   
@@ -433,13 +443,13 @@ export default function QuestsPage() {
     try {
       const token = await getToken();
       if (!token) throw new Error('No Clerk token');
-      // Map xp/gold to xp_reward/gold_reward for backend
       const { xp, gold, ...rest } = newQuest;
       const questPayload = {
         ...rest,
         xp_reward: xp,
         gold_reward: gold,
       };
+      console.log('[AddQuest] Payload:', questPayload);
       const response = await fetch('/api/quests/new', {
         method: 'POST',
         headers: {
@@ -454,14 +464,14 @@ export default function QuestsPage() {
         result = await response.json();
       } else {
         const text = await response.text();
-        console.error('Non-JSON response:', text);
+        console.error('[AddQuest] Non-JSON response:', text);
         setAddQuestError('Unexpected server response. Please try again.');
         setAddQuestLoading(false);
         return;
       }
+      console.log('[AddQuest] Response:', result);
       if (!response.ok) {
         setAddQuestError(result.error || 'Failed to add quest');
-        setAddQuestLoading(false);
         return;
       }
       setAddQuestModalOpen(false);
@@ -472,7 +482,7 @@ export default function QuestsPage() {
       if (refreshed.ok) setQuests(await refreshed.json());
     } catch (err: any) {
       setAddQuestError(err.message || 'Failed to add quest.');
-      console.error(err);
+      console.error('[AddQuest] Error:', err);
     } finally {
       setAddQuestLoading(false);
     }

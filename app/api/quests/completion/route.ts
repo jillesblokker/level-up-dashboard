@@ -7,11 +7,14 @@ export async function POST(request: Request) {
   try {
     const { userId } = await auth();
     if (!userId) {
+      console.error('[API/quests/completion] Unauthorized');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const data = await request.json();
+    console.log('[API/quests/completion] Received body:', data);
     const { questId } = data;
     if (!questId) {
+      console.error('[API/quests/completion] Missing questId');
       return NextResponse.json({ error: 'Missing questId' }, { status: 400 });
     }
     // Fetch quest to get rewards
@@ -21,6 +24,7 @@ export async function POST(request: Request) {
       .eq('id', questId)
       .single();
     if (questError || !quest) {
+      console.error('[API/quests/completion] Quest not found:', questError);
       return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
     }
     const { data: questCompletion, error } = await supabase
@@ -35,12 +39,12 @@ export async function POST(request: Request) {
       ])
       .single();
     if (error) {
-      console.error('Error creating quest completion:', error);
+      console.error('[API/quests/completion] Supabase insert error:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
     return NextResponse.json(questCompletion);
   } catch (error) {
-    console.error('Error creating quest completion:', error);
+    console.error('[API/quests/completion] Internal server error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
