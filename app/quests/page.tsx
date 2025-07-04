@@ -280,6 +280,7 @@ export default function QuestsPage() {
   }, []);
 
   const handleQuestToggle = async (questId: number, currentCompleted: boolean) => {
+    console.log('[handleQuestToggle] called for questId:', questId, 'currentCompleted:', currentCompleted);
     if (!userId) return;
     const quest = quests.find(q => Number(q.id) === questId);
     if (!quest) return;
@@ -604,13 +605,24 @@ export default function QuestsPage() {
                       description={quest.description}
                       icon={React.createElement(getCategoryIcon(quest.category))}
                       completed={quest.completed}
-                      onToggle={() => handleQuestToggle(Number(quest.id), quest.completed)}
+                      onToggle={() => {
+                        console.log('[onToggle] for quest', quest.id);
+                        handleQuestToggle(Number(quest.id), quest.completed);
+                      }}
                       onEdit={() => handleEditQuest(quest)}
                       onDelete={() => handleDeleteQuest(quest.id)}
                       progress={quest.completed ? 100 : 5}
                       xp={quest.xp ?? 0}
                       gold={quest.gold ?? 0}
-                    />
+                    >
+                      <Checkbox
+                        checked={quest.completed}
+                        onCheckedChange={() => {
+                          console.log('[Checkbox] onCheckedChange');
+                          handleQuestToggle(Number(quest.id), quest.completed);
+                        }}
+                      />
+                    </CardWithProgress>
                   );
                 })}
                 <Card className="border-2 border-dashed border-gray-700 hover:border-amber-500 transition-colors cursor-pointer flex items-center justify-center min-h-[160px]" onClick={() => setAddQuestModalOpen(true)} tabIndex={0} role="button" aria-label="add-custom-quest-card" onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setAddQuestModalOpen(true); } }}>
