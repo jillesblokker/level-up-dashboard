@@ -287,16 +287,14 @@ export default function QuestsPage() {
     const xpDelta = quest.xp || 0;
     const goldDelta = quest.gold || 0;
     try {
-      const token = await getToken();
-      if (!token) throw new Error('No Clerk token');
-      console.log('[ToggleQuest] Sending:', { questId });
-      const response = await fetch('/api/quests/completion', {
+      // No longer using Clerk token for this call
+      console.log('[ToggleQuest] Sending:', { questId, userId });
+      const response = await fetch('https://uunfpqrauivviygysjzj.supabase.co/functions/v1/quest-completion', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ questId }),
+        body: JSON.stringify({ questId, userId }),
       });
       let result: any = {};
       const contentType = response.headers.get('content-type');
