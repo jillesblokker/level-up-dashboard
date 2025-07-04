@@ -39,6 +39,7 @@ export async function POST(request: Request) {
           gold_reward: gold_reward ?? 0,
         },
       ])
+      .select()
       .single();
     if (error) {
       console.error('[API/quests/new] Supabase insert error:', error);
