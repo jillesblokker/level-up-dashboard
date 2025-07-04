@@ -468,9 +468,27 @@ export default function QuestsPage() {
     }
   };
 
-  // Add a handler to remove a quest from local state
-  const handleDeleteQuest = (questId: string) => {
-    setQuests(prev => prev.filter(q => q.id !== questId));
+  const handleDeleteQuest = async (questId: string) => {
+    try {
+      const token = await getToken();
+      if (!token) throw new Error('No Clerk token');
+      const response = await fetch('/api/quests/delete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ id: questId }),
+      });
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.error || 'Failed to delete quest');
+      }
+      setQuests(prev => prev.filter(q => q.id !== questId));
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete quest.');
+      console.error(err);
+    }
   };
 
   if (!isClerkLoaded || !isUserLoaded) {
