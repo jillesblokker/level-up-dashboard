@@ -279,10 +279,10 @@ export default function QuestsPage() {
     });
   }, []);
 
-  const handleQuestToggle = async (questId: number, currentCompleted: boolean) => {
+  const handleQuestToggle = async (questId: string, currentCompleted: boolean) => {
     console.log('[handleQuestToggle] called for questId:', questId, 'currentCompleted:', currentCompleted);
     if (!userId) return;
-    const quest = quests.find(q => Number(q.id) === questId);
+    const quest = quests.find(q => q.id === questId);
     if (!quest) return;
     const xpDelta = quest.xp || 0;
     const goldDelta = quest.gold || 0;
@@ -314,7 +314,7 @@ export default function QuestsPage() {
         return;
       }
       setQuests(prev => prev.map(q =>
-        Number(q.id) === questId ? { ...q, completed: !currentCompleted, date: new Date() } : q
+        q.id === questId ? { ...q, completed: !currentCompleted, date: new Date() } : q
       ));
       const stats = getCharacterStats();
       let newXP = stats.experience;
@@ -607,7 +607,7 @@ export default function QuestsPage() {
                       completed={quest.completed}
                       onToggle={() => {
                         console.log('[onToggle] for quest', quest.id);
-                        handleQuestToggle(Number(quest.id), quest.completed);
+                        handleQuestToggle(quest.id, quest.completed);
                       }}
                       onEdit={() => handleEditQuest(quest)}
                       onDelete={() => handleDeleteQuest(quest.id)}
@@ -619,7 +619,7 @@ export default function QuestsPage() {
                         checked={quest.completed}
                         onCheckedChange={() => {
                           console.log('[Checkbox] onCheckedChange');
-                          handleQuestToggle(Number(quest.id), quest.completed);
+                          handleQuestToggle(quest.id, quest.completed);
                         }}
                       />
                     </CardWithProgress>
