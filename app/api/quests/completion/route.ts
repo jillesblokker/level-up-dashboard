@@ -6,31 +6,38 @@ import { supabase } from '@/lib/supabase/client';
 export async function POST(request: Request) {
   try {
     const { userId } = await auth();
-
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
     const data = await request.json();
-    const { category, questName } = data;
-
+    const { questId } = data;
+    if (!questId) {
+      return NextResponse.json({ error: 'Missing questId' }, { status: 400 });
+    }
+    // Fetch quest to get rewards
+    const { data: quest, error: questError } = await supabase
+      .from('quests')
+      .select('id, xp_reward, gold_reward')
+      .eq('id', questId)
+      .single();
+    if (questError || !quest) {
+      return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
+    }
     const { data: questCompletion, error } = await supabase
       .from('quest_completion')
       .insert([
         {
           user_id: userId,
-          category,
-          quest_name: questName,
-          date: new Date().toISOString(),
+          quest_id: questId,
+          xp_earned: quest.xp_reward,
+          gold_earned: quest.gold_reward,
         },
       ])
       .single();
-
     if (error) {
       console.error('Error creating quest completion:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-
     return NextResponse.json(questCompletion);
   } catch (error) {
     console.error('Error creating quest completion:', error);
