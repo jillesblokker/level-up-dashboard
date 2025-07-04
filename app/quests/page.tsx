@@ -468,6 +468,11 @@ export default function QuestsPage() {
     }
   };
 
+  // Add a handler to remove a quest from local state
+  const handleDeleteQuest = (questId: string) => {
+    setQuests(prev => prev.filter(q => q.id !== questId));
+  };
+
   if (!isClerkLoaded || !isUserLoaded) {
     return (
       <main className="p-8">
@@ -563,7 +568,7 @@ export default function QuestsPage() {
                       completed={quest.completed}
                       onToggle={() => handleQuestToggle(Number(quest.id), quest.completed)}
                       onEdit={() => handleEditQuest(quest)}
-                      onDelete={() => handleQuestToggle(Number(quest.id), quest.completed)}
+                      onDelete={() => handleDeleteQuest(quest.id)}
                       progress={quest.completed ? 100 : 5}
                       xp={quest.xp ?? 0}
                       gold={quest.gold ?? 0}

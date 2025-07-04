@@ -37,6 +37,13 @@ const CardWithProgress: React.FC<UnifiedCardProps> = ({
   children,
   streak = 0,
 }) => {
+  // Add local delete confirmation
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (window.confirm('Are you sure you want to delete this quest?')) {
+      onDelete && onDelete();
+    }
+  };
   return (
     <Card
       className={cn(
@@ -48,7 +55,11 @@ const CardWithProgress: React.FC<UnifiedCardProps> = ({
       role="button"
       aria-label={`${title}-card`}
       aria-pressed={completed}
-      onClick={onToggle}
+      onClick={e => {
+        // Only toggle if not clicking edit/delete
+        if ((e.target as HTMLElement).closest('[data-no-toggle]')) return;
+        onToggle();
+      }}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle(); } }}
     >
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -76,6 +87,7 @@ const CardWithProgress: React.FC<UnifiedCardProps> = ({
               aria-label={`edit-${title}-card`}
               onClick={e => { e.stopPropagation(); onEdit(); }}
               tabIndex={-1}
+              data-no-toggle
             >
               <Pencil className="w-4 h-4" />
             </Button>
@@ -87,15 +99,17 @@ const CardWithProgress: React.FC<UnifiedCardProps> = ({
             className="h-5 w-5 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white data-[state=checked]:border-amber-500 mt-1"
             tabIndex={-1}
             onClick={e => e.stopPropagation()}
+            data-no-toggle
           />
           {onDelete && (
             <Button
               variant="ghost"
               size="icon"
               className="h-5 w-5 text-red-500"
-              onClick={e => { e.stopPropagation(); onDelete(); }}
+              onClick={handleDelete}
               aria-label={`Delete ${title} card`}
               tabIndex={-1}
+              data-no-toggle
             >
               <Trash2 className="h-4 w-4" />
             </Button>
