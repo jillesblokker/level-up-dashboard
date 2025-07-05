@@ -287,13 +287,11 @@ export default function QuestsPage() {
     const xpDelta = quest.xp || 0;
     const goldDelta = quest.gold || 0;
     try {
-      // No longer using Clerk token for this call
+      // Use new debug endpoint
       console.log('[ToggleQuest] Sending:', { questId, userId });
-      const response = await fetch('https://uunfpqrauivviygysjzj.supabase.co/functions/v1/quest-completion', {
+      const response = await fetch(`/api-quests-debug?userId=${userId}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ questId, userId }),
       });
       let result: any = {};
