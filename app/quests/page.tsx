@@ -287,9 +287,9 @@ export default function QuestsPage() {
     const xpDelta = quest.xp || 0;
     const goldDelta = quest.gold || 0;
     try {
-      // Use new debug endpoint
+      // Use new static endpoint
       console.log('[ToggleQuest] Sending:', { questId, userId });
-      const response = await fetch(`/api-quests-debug?userId=${userId}`, {
+      const response = await fetch(`/api-quests-static?userId=${userId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ questId, userId }),
