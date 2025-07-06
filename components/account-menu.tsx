@@ -9,39 +9,42 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useClerk, useUser } from "@clerk/nextjs";
+// import { useClerk, useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { eventBus } from "@/app/lib/event-bus";
 
 const AccountMenu = () => {
-  const { signOut } = useClerk();
-  const { user, isLoaded } = useUser();
-  console.log('[AccountMenu] user:', user);
-  console.log('[AccountMenu] user.imageUrl:', user?.imageUrl);
+  // const { signOut } = useClerk();
+  // const { user, isLoaded } = useUser();
+  const username = 'Local User';
+  const email = 'local@example.com';
+  const avatarUrl = '';
+  const signOut = async () => {};
+  console.log('[AccountMenu] user:', { username, email, avatarUrl });
   const [profileUpdateCount, setProfileUpdateCount] = useState(0);
 
   useEffect(() => {
     const refresh = async () => {
-      await user?.reload();
+      // await user?.reload();
       setProfileUpdateCount((c) => c + 1);
     };
     eventBus.on("profile-updated", refresh);
     return () => eventBus.off("profile-updated", refresh);
-  }, [user]);
+  }, []);
 
   // Get display name and avatar colors from Clerk user metadata, fallback to email/username
-  const displayName = (user?.unsafeMetadata?.['user_name'] as string) || user?.username || user?.emailAddresses?.[0]?.emailAddress || "";
-  const avatarBgColor = user?.unsafeMetadata?.['avatar_bg_color'] as string || "#1f2937";
-  const avatarTextColor = user?.unsafeMetadata?.['avatar_text_color'] as string || "#ffffff";
-  const avatarType = (user?.unsafeMetadata?.['avatar_type'] as 'initial' | 'default' | 'uploaded') || (user?.imageUrl ? 'uploaded' : 'initial');
+  const displayName = username || email || "";
+  const avatarBgColor = avatarUrl ? "" : "#1f2937";
+  const avatarTextColor = avatarUrl ? "" : "#ffffff";
+  const avatarType = avatarUrl ? 'uploaded' : 'initial';
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            {avatarType === 'uploaded' && user?.imageUrl ? (
-              <AvatarImage src={user.imageUrl} alt="Profile" style={{ objectFit: 'cover', objectPosition: 'center' }} />
+            {avatarType === 'uploaded' && avatarUrl ? (
+              <AvatarImage src={avatarUrl} alt="Profile" style={{ objectFit: 'cover', objectPosition: 'center' }} />
             ) : avatarType === 'default' ? (
               <img src="/images/placeholders/item-placeholder.svg" alt="Default avatar" className="w-8 h-8 rounded-full object-contain bg-gray-800" />
             ) : (
@@ -57,7 +60,7 @@ const AccountMenu = () => {
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">User</p>
             <p className="text-xs leading-none text-muted-foreground">
-              user@example.com
+              {email}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -93,7 +96,7 @@ const AccountMenu = () => {
               }
               // Clerk sign out (if signed in)
               try {
-                await signOut();
+                // await signOut();
               } catch (e) {}
               // Redirect to a public page (not protected)
               window.location.href = "/auth/signin";

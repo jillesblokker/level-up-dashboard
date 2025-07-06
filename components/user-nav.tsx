@@ -16,14 +16,24 @@ import { logout } from '@/app/actions/auth'
 import Link from "next/link"
 import { ClipboardCheck, Palette, User, Settings, Monitor } from "lucide-react"
 import type { Session } from '@supabase/supabase-js'
-import { useClerk, useUser } from "@clerk/nextjs";
+// import { useClerk, useUser } from "@clerk/nextjs";
+
+// Commented out Clerk-dependent user property accesses for local debugging
+// Remove or replace all user.unsafeMetadata, user.username, user.emailAddresses, user.imageUrl, etc.
+// Example placeholder:
+const username = 'Local User';
+const email = 'local@example.com';
+const avatarUrl = '';
+
+const signOut = async () => {};
 
 export function UserNav() {
-  const { user, isLoaded } = useUser();
-
   // Helper to get the avatar initial as a string
   const getAvatarInitial = () => {
-    const name = (user?.unsafeMetadata?.['user_name'] as string) || user?.username || user?.emailAddresses?.[0]?.emailAddress || '';
+    // Commented out Clerk-dependent user property accesses for local debugging
+    // Remove or replace all user.unsafeMetadata, user.username, user.emailAddresses, user.imageUrl, etc.
+    // Example placeholder:
+    const name = username || email || '';
     return name && typeof name === 'string' ? name.charAt(0).toUpperCase() : 'U';
   };
 
@@ -32,17 +42,17 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            {user?.imageUrl ? (
+            {avatarUrl ? (
               <AvatarImage 
-                src={user.imageUrl} 
-                alt={String(user?.unsafeMetadata?.['user_name'] || user?.username || user?.emailAddresses?.[0]?.emailAddress || 'User')} 
+                src={avatarUrl} 
+                alt={String(username || email || '')} 
                 style={{ objectFit: 'cover', objectPosition: 'center' }}
               />
             ) : (
               <AvatarFallback 
                 style={{ 
-                  backgroundColor: user?.unsafeMetadata?.['avatar_bg_color'] as string || "#1f2937",
-                  color: user?.unsafeMetadata?.['avatar_text_color'] as string || "#ffffff"
+                  backgroundColor: '#1f2937',
+                  color: '#ffffff'
                 }}
               >
                 {getAvatarInitial()}
@@ -55,10 +65,10 @@ export function UserNav() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              {String(user?.unsafeMetadata?.['user_name'] || user?.username || user?.emailAddresses?.[0]?.emailAddress || '')}
+              {String(username || email || '')}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
-              {String(user?.emailAddresses?.[0]?.emailAddress || '')}
+              {String(email || '')}
             </p>
           </div>
         </DropdownMenuLabel>

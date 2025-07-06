@@ -2,7 +2,7 @@
 
 import { ThemeProvider } from "next-themes"
 import React, { useEffect, useState, createContext, useContext } from 'react'
-import { ClerkProvider, useAuth as useClerkAuth } from '@clerk/nextjs';
+// import { ClerkProvider, useAuth as useClerkAuth } from '@clerk/nextjs';
 
 interface AuthContextType {
   isGuest: boolean;
@@ -17,7 +17,9 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { isLoaded, userId } = useClerkAuth();
+  // const { isLoaded, userId } = useClerkAuth();
+  const isLoaded = true;
+  const userId = null;
   const [isGuest, setIsGuest] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -30,11 +32,11 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
       return;
     }
-    if (isLoaded) {
-      setIsGuest(false);
-      setIsLoading(false);
-    }
-  }, [isLoaded]);
+    // if (isLoaded) {
+    //   setIsGuest(false);
+    //   setIsLoading(false);
+    // }
+  }, []);
 
   return (
     <AuthContext.Provider value={{ isGuest, isLoading, userId: isGuest ? undefined : (userId ?? undefined) }}>
@@ -49,32 +51,32 @@ export function useAuthContext() {
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider
-      appearance={{
-        elements: {
-          rootBox: "mx-auto",
-          card: "bg-black/80 backdrop-blur-sm border-amber-900/50 shadow-2xl",
-          headerTitle: "text-amber-500",
-          headerSubtitle: "text-amber-200/80",
-          socialButtonsBlockButton: "bg-amber-900/20 hover:bg-amber-900/30 text-amber-200 border-amber-900/50",
-          formButtonPrimary: "bg-amber-900/20 hover:bg-amber-900/30 text-amber-200 border-amber-900/50",
-          footerActionLink: "text-amber-500 hover:text-amber-400",
-          formFieldInput: "bg-black/50 border-amber-900/50 text-amber-200",
-          formFieldLabel: "text-amber-200/80",
-        },
-      }}
-    >
-      <AuthProvider>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
-      </AuthProvider>
-    </ClerkProvider>
+    // <ClerkProvider
+    //   appearance={{
+    //     elements: {
+    //       rootBox: "mx-auto",
+    //       card: "bg-black/80 backdrop-blur-sm border-amber-900/50 shadow-2xl",
+    //       headerTitle: "text-amber-500",
+    //       headerSubtitle: "text-amber-200/80",
+    //       socialButtonsBlockButton: "bg-amber-900/20 hover:bg-amber-900/30 text-amber-200 border-amber-900/50",
+    //       formButtonPrimary: "bg-amber-900/20 hover:bg-amber-900/30 text-amber-200 border-amber-900/50",
+    //       footerActionLink: "text-amber-500 hover:text-amber-400",
+    //       formFieldInput: "bg-black/50 border-amber-900/50 text-amber-200",
+    //       formFieldLabel: "text-amber-200/80",
+    //     },
+    //   }}
+    // >
+    <AuthProvider>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        {children}
+      </ThemeProvider>
+    </AuthProvider>
+    // </ClerkProvider>
   )
 }
 

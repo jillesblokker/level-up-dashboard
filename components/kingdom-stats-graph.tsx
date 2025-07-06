@@ -16,7 +16,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useSupabaseRealtimeSync } from "@/hooks/useSupabaseRealtimeSync"
 import { useSupabase } from '@/lib/hooks/useSupabase'
-import { useAuth } from '@clerk/nextjs'
+// import { useAuth } from '@clerk/nextjs'
 import { withToken } from '@/lib/supabase/client'
 
 // Time period types
