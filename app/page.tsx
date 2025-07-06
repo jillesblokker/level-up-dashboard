@@ -1,6 +1,6 @@
-import { redirect } from 'next/navigation';
+import { SignIn } from "@clerk/nextjs";
 
-export default function HomePage() {
-  redirect('/kingdom');
+export default function Test() {
+  return <SignIn />;
 }
 
