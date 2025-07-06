@@ -119,7 +119,6 @@ const CardWithProgress: React.FC<UnifiedCardProps> = ({
       <CardContent className="flex-1">
         {description && <CardDescription className="mb-4 text-gray-400">{description}</CardDescription>}
         <Progress value={completed ? 100 : progress} className="w-full h-2 bg-gray-700" />
-        {children}
       </CardContent>
       {(xp !== undefined || gold !== undefined) && (
         <CardFooter className="flex justify-between items-center text-xs text-gray-500 pt-2">
