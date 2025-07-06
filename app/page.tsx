@@ -1,9 +1,6 @@
-import { SignIn } from "@clerk/nextjs";
+import { redirect } from 'next/navigation';
 
-export default function Test() {
-  if (typeof window !== 'undefined') {
-    console.log("Rendering Clerk SignIn page");
-  }
-  return <SignIn />;
+export default function HomePage() {
+  redirect('/kingdom');
 }
 

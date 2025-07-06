@@ -9,19 +9,15 @@ import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync';
 
 export default function LogCenterPage() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [userId, setUserId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     setLogs(logger.getAllLogs());
-    if (typeof window !== 'undefined') {
-      setUserId(localStorage.getItem('userId') || undefined);
-    }
   }, []);
 
   // --- Supabase real-time sync for app_logs ---
   useSupabaseRealtimeSync({
     table: 'app_logs',
-    userId,
+    userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
     onChange: () => {
       // Re-fetch logs from API or Supabase and update state
       // (Replace with your actual fetch logic if needed)

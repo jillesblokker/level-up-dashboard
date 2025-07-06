@@ -8,7 +8,6 @@ interface AuthContextType {
   isGuest: boolean;
   isLoading: boolean;
   userId?: string | undefined;
-  getToken?: () => Promise<string | null>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -22,8 +21,6 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isGuest, setIsGuest] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const getToken = async () => null;
-
   useEffect(() => {
     const skipAuthCookie = document.cookie.split(';').find(c => c.trim().startsWith('skip-auth='));
     const isSkippingAuth = skipAuthCookie ? skipAuthCookie.split('=')[1] === 'true' : false;
@@ -33,14 +30,14 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
       return;
     }
-    // if (isLoaded) {
-    //   setIsGuest(false);
-    //   setIsLoading(false);
-    // }
-  }, []);
+    if (isLoaded) {
+      setIsGuest(false);
+      setIsLoading(false);
+    }
+  }, [isLoaded]);
 
   return (
-    <AuthContext.Provider value={{ isGuest, isLoading, userId: isGuest ? undefined : (userId ?? undefined), getToken }}>
+    <AuthContext.Provider value={{ isGuest, isLoading, userId: isGuest ? undefined : (userId ?? undefined) }}>
       {children}
     </AuthContext.Provider>
   );

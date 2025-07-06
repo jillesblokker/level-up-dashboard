@@ -11,9 +11,9 @@ import { Progress } from "@/components/ui/progress"
 import { Sword, Brain, Crown, Castle, Hammer, Heart, PlusCircle, Trash2, Pencil } from "lucide-react"
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useUser } from "@clerk/nextjs"
-import { useAuth } from "@clerk/nextjs"
 import { defaultQuests } from '@/lib/quest-sample-data'
 import { Checkbox } from '@/components/ui/checkbox'
+import { useAuth } from "@clerk/nextjs"
 import { useToast } from "@/components/ui/use-toast"
 import { storageService } from '@/lib/storage-service'
 import { Quest } from '@/lib/quest-types'
@@ -64,10 +64,8 @@ const CUSTOM_MILESTONES_KEY = 'custom-milestones-v2';
 const MILESTONE_PROGRESS_KEY = 'milestone-progress-v2';
 const MILESTONE_STREAKS_KEY = 'milestone-streaks-v2';
 
-const userId = 'local-debug-user';
-
 export function Milestones() {
-  // const { userId } = useAuth();
+  const { userId } = useAuth();
   const { supabase, getToken, isLoading: isSupabaseLoading } = useSupabase();
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -117,7 +115,6 @@ export function Milestones() {
   useEffect(() => { storageService.set("milestone-completion-dates-v2", completionDates); }, [completionDates]);
 
   useEffect(() => {
-    // const { userId } = useAuth();
     if (!userId || !supabase || isSupabaseLoading) {
       console.log('Waiting for auth and Supabase client...');
       return;
@@ -230,7 +227,6 @@ export function Milestones() {
   }, [checkedMilestones]);
 
   const handleAddMilestone = async () => {
-    // const { userId } = useAuth();
     if (!userId || !newMilestone.name || !newQuestCategory) {
       toast({
         title: "Error",
@@ -633,7 +629,7 @@ export function Milestones() {
 }
 
 function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { milestone: Milestone; onDelete: (id: string) => void; onUpdateProgress: (id: string, completed: boolean) => void; onEdit: (milestone: Milestone) => void; }) {
-  // const { user } = useUser();
+  const { user } = useUser();
   const { supabase } = useSupabase();
   const [completed, setCompleted] = useState(milestone.completed);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -646,8 +642,7 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
   };
 
   const toggleCompletion = async () => {
-    // const { user } = useUser();
-    if (!userId || !supabase || isUpdating) return;
+    if (!user?.id || !supabase || isUpdating) return;
     setIsUpdating(true);
     try {
       // Update in Supabase

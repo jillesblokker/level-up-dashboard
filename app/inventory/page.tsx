@@ -24,7 +24,6 @@ export default function InventoryPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
   const { toast } = useToast();
-  const [userId, setUserId] = useState<string | undefined>(undefined);
 
   // Tabs configuration for navigation
   const tabOptions = [
@@ -57,16 +56,10 @@ export default function InventoryPage() {
     };
   }, []);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setUserId(localStorage.getItem('userId') || undefined);
-    }
-  }, []);
-
   // --- Supabase real-time sync for inventory_items ---
   useSupabaseRealtimeSync({
     table: 'inventory_items',
-    userId,
+    userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
     onChange: () => {
       // Re-fetch inventory items and update state
       if (typeof window !== 'undefined') {

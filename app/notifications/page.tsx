@@ -31,7 +31,6 @@ export default function NotificationsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedType, setSelectedType] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("all")
-  const [userId, setUserId] = useState<string | undefined>(undefined);
 
   // Load notifications data
   useEffect(() => {
@@ -122,16 +121,10 @@ export default function NotificationsPage() {
     setNotifications(sampleNotifications)
   }, [])
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setUserId(localStorage.getItem('userId') || undefined);
-    }
-  }, []);
-
   // --- Supabase real-time sync for notifications ---
   useSupabaseRealtimeSync({
     table: 'notifications',
-    userId,
+    userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
     onChange: () => {
       // Re-fetch notifications from API or Supabase and update state
       // (Replace with your actual fetch logic if needed)

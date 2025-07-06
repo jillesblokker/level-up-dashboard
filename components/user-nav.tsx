@@ -19,14 +19,11 @@ import type { Session } from '@supabase/supabase-js'
 import { useClerk, useUser } from "@clerk/nextjs";
 
 export function UserNav() {
-  const { signOut } = useClerk();
   const { user, isLoaded } = useUser();
-  const username = user?.username || user?.primaryEmailAddress?.emailAddress || '';
-  const email = user?.primaryEmailAddress?.emailAddress || '';
-  const avatarUrl = user?.imageUrl || '';
+
   // Helper to get the avatar initial as a string
   const getAvatarInitial = () => {
-    const name = username || email || '';
+    const name = (user?.unsafeMetadata?.['user_name'] as string) || user?.username || user?.emailAddresses?.[0]?.emailAddress || '';
     return name && typeof name === 'string' ? name.charAt(0).toUpperCase() : 'U';
   };
 
@@ -35,17 +32,17 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            {avatarUrl ? (
+            {user?.imageUrl ? (
               <AvatarImage 
-                src={avatarUrl} 
-                alt={String(username || email || '')} 
+                src={user.imageUrl} 
+                alt={String(user?.unsafeMetadata?.['user_name'] || user?.username || user?.emailAddresses?.[0]?.emailAddress || 'User')} 
                 style={{ objectFit: 'cover', objectPosition: 'center' }}
               />
             ) : (
               <AvatarFallback 
                 style={{ 
-                  backgroundColor: '#1f2937',
-                  color: '#ffffff'
+                  backgroundColor: user?.unsafeMetadata?.['avatar_bg_color'] as string || "#1f2937",
+                  color: user?.unsafeMetadata?.['avatar_text_color'] as string || "#ffffff"
                 }}
               >
                 {getAvatarInitial()}
@@ -58,10 +55,10 @@ export function UserNav() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              {String(username || email || '')}
+              {String(user?.unsafeMetadata?.['user_name'] || user?.username || user?.emailAddresses?.[0]?.emailAddress || '')}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
-              {String(email || '')}
+              {String(user?.emailAddresses?.[0]?.emailAddress || '')}
             </p>
           </div>
         </DropdownMenuLabel>

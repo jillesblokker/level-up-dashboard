@@ -107,11 +107,9 @@ export class StorageService {
     try {
       // Simple XOR encryption for demonstration
       // In production, use a proper encryption library
-      const xorred = data.split('').map((char, i) => 
+      return btoa(data.split('').map((char, i) => 
         String.fromCharCode(char.charCodeAt(0) ^ this.ENCRYPTION_KEY.charCodeAt(i % this.ENCRYPTION_KEY.length))
-      ).join('');
-      // Safely encode Unicode before btoa
-      return btoa(unescape(encodeURIComponent(xorred)));
+      ).join(''));
     } catch (error) {
       console.error('Error encrypting data:', error);
       return data;
