@@ -1,36 +1,47 @@
-export default async function handler(req, res) {
+export default function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'authorization, x-client-info, apikey, content-type');
+  res.setHeader('Content-Type', 'application/json');
 
-  // Handle OPTIONS request (preflight)
+  // Handle OPTIONS request for CORS preflight
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    return res.status(200).send('ok');
   }
 
-  // Get userId from query parameters
-  const { userId } = req.query;
+  // Create static quest data
+  const quests = [
+    {
+      id: '1',
+      title: 'Complete Your Profile',
+      description: 'Fill out all fields in your profile',
+      points: 50,
+      category: 'onboarding',
+      difficulty: 'easy',
+      completed: false
+    },
+    {
+      id: '2',
+      title: 'First Contribution',
+      description: 'Make your first contribution to the community',
+      points: 100,
+      category: 'community',
+      difficulty: 'medium',
+      completed: false
+    },
+    {
+      id: '3',
+      title: 'Share Knowledge',
+      description: 'Create your first tutorial or guide',
+      points: 150,
+      category: 'content',
+      difficulty: 'hard',
+      completed: false
+    }
+  ];
 
-  try {
-    // Call the Supabase Edge Function that returns static data
-    const response = await fetch(
-      `https://uunfpqrauivviygysjzj.supabase.co/functions/v1/api-quests-static?userId=${userId || ''}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-
-    // Get the response data
-    const data = await response.json();
-
-    // Return the data
-    return res.status(200).json(data);
-  } catch (error) {
-    console.error('Error in API route:', error);
-    return res.status(500).json({ error: 'Failed to fetch quests' });
-  }
+  res.status(200).json({
+    quests,
+    message: 'Static quest data loaded successfully'
+  });
 } 
