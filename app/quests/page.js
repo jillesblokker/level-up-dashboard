@@ -10,7 +10,7 @@ export default function QuestsPage() {
   useEffect(() => {
     async function fetchQuests() {
       try {
-        const response = await fetch(`/api-quests-static?userId=${userId}`);
+        const response = await fetch(`/api/quests-static?userId=${userId}`);
         const data = await response.json();
         setQuests(data.quests || data || []);
       } catch (error) {
