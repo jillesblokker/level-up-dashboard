@@ -1,9 +1,9 @@
 "use client";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/tabs';
 import { Milestones } from '../../components/milestones';
-import RiddleChallenge from '../../components/riddle-challenge';
-import DungeonChallenge from '../../components/dungeon-challenge';
-import DailyQuests from '../../components/daily-quests';
+import { RiddleChallenge } from '../../components/riddle-challenge';
+import { DungeonChallenge } from '../../components/dungeon-challenge';
+import { DailyQuests } from '../../components/daily-quests';
 import Image from 'next/image';
 
 export default function QuestsPage() {
