@@ -118,7 +118,6 @@ export function Milestones() {
 
   useEffect(() => {
     // const { userId } = useAuth();
-    const { supabase, getToken, isLoading: isSupabaseLoading } = useSupabase();
     if (!userId || !supabase || isSupabaseLoading) {
       console.log('Waiting for auth and Supabase client...');
       return;

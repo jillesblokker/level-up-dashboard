@@ -45,7 +45,7 @@ const AccountMenu = () => {
           <Avatar className="h-8 w-8">
             {avatarType === 'uploaded' && avatarUrl ? (
               <AvatarImage src={avatarUrl} alt="Profile" style={{ objectFit: 'cover', objectPosition: 'center' }} />
-            ) : avatarType === 'default' ? (
+            ) : avatarType === 'initial' ? (
               <img src="/images/placeholders/item-placeholder.svg" alt="Default avatar" className="w-8 h-8 rounded-full object-contain bg-gray-800" />
             ) : (
               <AvatarFallback style={{ backgroundColor: avatarBgColor, color: avatarTextColor }}>

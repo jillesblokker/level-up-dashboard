@@ -16,7 +16,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useSupabaseRealtimeSync } from "@/hooks/useSupabaseRealtimeSync"
 import { useSupabase } from '@/lib/hooks/useSupabase'
-// import { useAuth } from '@clerk/nextjs'
+import { useAuth } from './providers'
 import { withToken } from '@/lib/supabase/client'
 
 // Time period types
@@ -77,7 +77,8 @@ function EmptyState({ tab }: EmptyStateProps) {
 }
 
 export function KingdomStatsGraph({ userId }: { userId: string | null }) {
-  const { getToken } = useAuth()
+  const { getToken: _getToken } = useAuth()
+  const getToken = _getToken || (async () => null)
   const [activeTab, setActiveTab] = useState<'challenges' | 'quests' | 'gold' | 'experience'>('challenges')
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('week')
   const [graphData, setGraphData] = useState<Array<{ day: string; value: number }>>([])
@@ -134,7 +135,7 @@ export function KingdomStatsGraph({ userId }: { userId: string | null }) {
             .select('completedAt')
             .eq('userId', uid)
             .gte('completedAt', fromDate || '')
-        );
+        ) as { data: any[] };
         if (Array.isArray(completions)) {
           completions.forEach((row) => {
             const completedAt = row && typeof row === 'object' ? (row as { completedAt?: string }).completedAt : undefined;
