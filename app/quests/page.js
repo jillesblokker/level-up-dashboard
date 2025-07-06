@@ -4,14 +4,12 @@ import { QuestItem } from './QuestItem';
 export default function QuestsPage() {
   const [quests, setQuests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const userId = "uunfpqrauivviygysjzj";
+  const userId = "user_2z5XXhrBfLdbU0P6AUCBco0CJWC"; // Use your actual userId
 
   useEffect(() => {
     async function fetchQuests() {
       try {
-        const response = await fetch(
-          `https://uunfpqrauivviygysjzj.supabase.co/functions/v1/api-quests-complete?userId=${userId}`
-        );
+        const response = await fetch(`/api-quests-static?userId=${userId}`);
         const data = await response.json();
         setQuests(data.quests || data || []);
       } catch (error) {
@@ -20,7 +18,6 @@ export default function QuestsPage() {
         setLoading(false);
       }
     }
-
     fetchQuests();
   }, []);
 

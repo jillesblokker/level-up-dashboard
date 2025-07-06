@@ -6,13 +6,9 @@ export function QuestItem({ quest, userId, onQuestToggled }) {
   const toggleQuest = async () => {
     try {
       setIsLoading(true);
-      console.log('[ToggleQuest] Toggling quest:', quest.id, 'to', !quest.completed);
-      
       const response = await fetch(`/api/toggle-quest?userId=${userId}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           questId: quest.id,
           completed: !quest.completed,
