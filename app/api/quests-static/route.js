@@ -1,15 +1,4 @@
-export default function handler(req, res) {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', 'authorization, x-client-info, apikey, content-type');
-  res.setHeader('Content-Type', 'application/json');
-
-  // Handle OPTIONS request for CORS preflight
-  if (req.method === 'OPTIONS') {
-    return res.status(200).send('ok');
-  }
-
-  // Create static quest data
+export async function GET(request) {
   const quests = [
     {
       id: '1',
@@ -39,9 +28,5 @@ export default function handler(req, res) {
       completed: false
     }
   ];
-
-  res.status(200).json({
-    quests,
-    message: 'Static quest data loaded successfully'
-  });
+  return Response.json({ quests, message: 'Static quest data loaded successfully' });
 } 
