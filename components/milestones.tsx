@@ -10,8 +10,8 @@ import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
 import { Sword, Brain, Crown, Castle, Hammer, Heart, PlusCircle, Trash2, Pencil } from "lucide-react"
 import { useSupabase } from '@/lib/hooks/useSupabase'
-// import { useUser } from "@clerk/nextjs"
-// import { useAuth } from "@clerk/nextjs"
+import { useUser } from "@clerk/nextjs"
+import { useAuth } from "@clerk/nextjs"
 import { defaultQuests } from '@/lib/quest-sample-data'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useToast } from "@/components/ui/use-toast"

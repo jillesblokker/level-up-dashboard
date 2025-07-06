@@ -9,23 +9,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-// import { useClerk, useUser } from "@clerk/nextjs";
+import { useClerk, useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { eventBus } from "@/app/lib/event-bus";
 
 const AccountMenu = () => {
-  // const { signOut } = useClerk();
-  // const { user, isLoaded } = useUser();
+  const { signOut } = useClerk();
+  const { user, isLoaded } = useUser();
   const username = 'Local User';
   const email = 'local@example.com';
   const avatarUrl = '';
-  const signOut = async () => {};
   console.log('[AccountMenu] user:', { username, email, avatarUrl });
   const [profileUpdateCount, setProfileUpdateCount] = useState(0);
 
   useEffect(() => {
     const refresh = async () => {
-      // await user?.reload();
+      await user?.reload();
       setProfileUpdateCount((c) => c + 1);
     };
     eventBus.on("profile-updated", refresh);
@@ -96,7 +95,7 @@ const AccountMenu = () => {
               }
               // Clerk sign out (if signed in)
               try {
-                // await signOut();
+                await signOut();
               } catch (e) {}
               // Redirect to a public page (not protected)
               window.location.href = "/auth/signin";

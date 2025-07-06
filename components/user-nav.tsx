@@ -16,7 +16,7 @@ import { logout } from '@/app/actions/auth'
 import Link from "next/link"
 import { ClipboardCheck, Palette, User, Settings, Monitor } from "lucide-react"
 import type { Session } from '@supabase/supabase-js'
-// import { useClerk, useUser } from "@clerk/nextjs";
+import { useClerk, useUser } from "@clerk/nextjs";
 
 // Commented out Clerk-dependent user property accesses for local debugging
 // Remove or replace all user.unsafeMetadata, user.username, user.emailAddresses, user.imageUrl, etc.
