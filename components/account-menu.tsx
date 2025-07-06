@@ -16,9 +16,9 @@ import { eventBus } from "@/app/lib/event-bus";
 const AccountMenu = () => {
   const { signOut } = useClerk();
   const { user, isLoaded } = useUser();
-  const username = 'Local User';
-  const email = 'local@example.com';
-  const avatarUrl = '';
+  const username = user?.username || user?.primaryEmailAddress?.emailAddress || '';
+  const email = user?.primaryEmailAddress?.emailAddress || '';
+  const avatarUrl = user?.imageUrl || '';
   console.log('[AccountMenu] user:', { username, email, avatarUrl });
   const [profileUpdateCount, setProfileUpdateCount] = useState(0);
 

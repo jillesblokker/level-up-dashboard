@@ -18,21 +18,14 @@ import { ClipboardCheck, Palette, User, Settings, Monitor } from "lucide-react"
 import type { Session } from '@supabase/supabase-js'
 import { useClerk, useUser } from "@clerk/nextjs";
 
-// Commented out Clerk-dependent user property accesses for local debugging
-// Remove or replace all user.unsafeMetadata, user.username, user.emailAddresses, user.imageUrl, etc.
-// Example placeholder:
-const username = 'Local User';
-const email = 'local@example.com';
-const avatarUrl = '';
-
-const signOut = async () => {};
-
 export function UserNav() {
+  const { signOut } = useClerk();
+  const { user, isLoaded } = useUser();
+  const username = user?.username || user?.primaryEmailAddress?.emailAddress || '';
+  const email = user?.primaryEmailAddress?.emailAddress || '';
+  const avatarUrl = user?.imageUrl || '';
   // Helper to get the avatar initial as a string
   const getAvatarInitial = () => {
-    // Commented out Clerk-dependent user property accesses for local debugging
-    // Remove or replace all user.unsafeMetadata, user.username, user.emailAddresses, user.imageUrl, etc.
-    // Example placeholder:
     const name = username || email || '';
     return name && typeof name === 'string' ? name.charAt(0).toUpperCase() : 'U';
   };
