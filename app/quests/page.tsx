@@ -185,6 +185,7 @@ export default function QuestsPage() {
 
   // Fetch quests for the logged-in user
   useEffect(() => {
+    console.log('[Quests Debug] userId:', userId, 'supabase:', !!supabase, 'isSupabaseLoading:', isSupabaseLoading);
     if (!userId || !supabase || isSupabaseLoading) return;
     setLoading(true);
     const fetchQuests = async () => {
@@ -307,6 +308,15 @@ export default function QuestsPage() {
       <main className="p-8">
         <h1 className="text-2xl font-bold mb-4">Quests</h1>
         <div>Loading Clerk...</div>
+      </main>
+    );
+  }
+
+  if (!userId) {
+    return (
+      <main className="p-8">
+        <h1 className="text-2xl font-bold mb-4">Quests</h1>
+        <div className="text-red-500 bg-red-900/20 p-4 rounded-md mb-4">No userId found. Please sign in to view your quests.</div>
       </main>
     );
   }
