@@ -108,8 +108,7 @@ export function NotificationAlert() {
           <Bell className="h-5 w-5" />
           {notifications.filter((n) => !n.read).length > 0 && (
             <Badge
-              variant="destructive"
-              className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 flex items-center justify-center"
+              className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-blue-900 text-white"
               aria-label={`${notifications.filter((n) => !n.read).length} unread notifications`}
             >
               {notifications.filter((n) => !n.read).length}
