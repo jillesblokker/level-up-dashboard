@@ -66,7 +66,7 @@ const MILESTONE_STREAKS_KEY = 'milestone-streaks-v2';
 
 export function Milestones() {
   const { userId } = useAuth();
-  const { supabase, getToken, isLoading: isSupabaseLoading } = useSupabase();
+  const { supabase, isLoading: isSupabaseLoading } = useSupabase();
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
