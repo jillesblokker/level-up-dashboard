@@ -196,6 +196,7 @@ export default function QuestsPage() {
           .order('created_at', { ascending: false });
         if (error) throw error;
         setQuests(data || []);
+        console.log('[Quests] Loaded quests:', data);
       } catch (err: any) {
         setError(err.message || 'Failed to fetch quests');
         setQuests([]);
@@ -384,6 +385,9 @@ export default function QuestsPage() {
                     />
                   );
                 })}
+                {(questsByCategorySafe[safeQuestCategory] ?? []).length === 0 && (
+                  <div className="text-center text-gray-400">No quests found for this category.</div>
+                )}
                 <Card className="border-2 border-dashed border-gray-700 hover:border-amber-500 transition-colors cursor-pointer flex items-center justify-center min-h-[160px]" onClick={() => setAddQuestModalOpen(true)} tabIndex={0} role="button" aria-label="add-custom-quest-card" onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setAddQuestModalOpen(true); } }}>
                   <div className="text-center text-gray-500">
                     <Plus className="w-8 h-8 mx-auto mb-2" />
