@@ -18,20 +18,37 @@ export function useSupabase() {
         }
 
         const init = async () => {
-            const token = await getToken({ template: 'supabase' });
-            const client = createClient(
-                process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-                process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']!,
-                {
-                    global: {
-                        headers: {
-                            Authorization: token ? `Bearer ${token}` : '',
-                        },
-                    },
+            try {
+                console.log('[useSupabase] Calling getToken...');
+                const token = await getToken({ template: 'supabase' });
+                console.log('[useSupabase] getToken result:', token);
+                const url = process.env['NEXT_PUBLIC_SUPABASE_URL'];
+                const anon = process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'];
+                console.log('[useSupabase] Env URL:', url);
+                console.log('[useSupabase] Env ANON:', anon ? 'set' : 'not set');
+                if (!url || !anon) {
+                    console.error('[useSupabase] Supabase env vars missing!');
+                    setIsLoading(false);
+                    return;
                 }
-            );
-            setSupabase(client);
-            setIsLoading(false);
+                const client = createClient(
+                    url,
+                    anon,
+                    {
+                        global: {
+                            headers: {
+                                Authorization: token ? `Bearer ${token}` : '',
+                            },
+                        },
+                    }
+                );
+                setSupabase(client);
+                setIsLoading(false);
+                console.log('[useSupabase] Supabase client created!');
+            } catch (err) {
+                console.error('[useSupabase] Error initializing Supabase:', err);
+                setIsLoading(false);
+            }
         };
 
         init();
