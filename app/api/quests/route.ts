@@ -83,8 +83,7 @@ export async function GET(request: Request) {
       const { data, error } = await supabase
         .from('quest_completion')
         .select('*')
-        .eq('user_id', userId)
-        .order('date', { ascending: false });
+        .eq('user_id', userId);
       if (error) {
         console.error('Quest completion fetch error:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
@@ -176,8 +175,7 @@ export async function POST(request: Request) {
           user_id: userId,
           quest_name: title,
           category: category,
-          completed: false,
-          date: new Date().toISOString()
+          completed: false
         }
       ])
       .single();
@@ -241,8 +239,7 @@ export async function PUT(request: Request) {
             user_id: userId,
             quest_name: updateTitle,
             category: 'general',
-            completed: false,
-            date: new Date().toISOString()
+            completed: false
           }
         ])
         .single();
@@ -255,8 +252,7 @@ export async function PUT(request: Request) {
     const { data: updatedCompletion, error: updateError } = await supabase
       .from('quest_completion')
       .update({
-        completed,
-        date: completed ? new Date().toISOString() : questCompletion['date']
+        completed
       })
       .eq('id', String(questCompletion['id']))
       .single();
