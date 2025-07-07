@@ -15,6 +15,7 @@ import { toast } from '@/components/ui/use-toast'
 import CardWithProgress from '@/components/quest-card'
 import React from 'react'
 import { SignedIn, SignedOut, SignIn } from '@clerk/nextjs'
+import { useSupabase } from '@/lib/hooks/useSupabase'
 
 interface Quest {
   id: string;
@@ -120,6 +121,7 @@ const CHALLENGE_LAST_COMPLETED_KEY = 'challenge-last-completed-v1';
 export default function QuestsPage() {
   const { user, isLoaded: isUserLoaded } = useUser();
   const { getToken, isLoaded: isClerkLoaded } = useAuth();
+  const { supabase, isLoading: isSupabaseLoading } = useSupabase();
   const userId = user?.id;
   const isGuest = !user;
 
@@ -178,6 +180,31 @@ export default function QuestsPage() {
   });
   const [addQuestError, setAddQuestError] = useState<string | null>(null);
   const [addQuestLoading, setAddQuestLoading] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [questToDelete, setQuestToDelete] = useState<Quest | null>(null);
+
+  // Fetch quests for the logged-in user
+  useEffect(() => {
+    if (!userId || !supabase || isSupabaseLoading) return;
+    setLoading(true);
+    const fetchQuests = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('quests')
+          .select('*')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        setQuests(data || []);
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch quests');
+        setQuests([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchQuests();
+  }, [userId, supabase, isSupabaseLoading]);
 
   // Daily reset logic for non-milestone quests
   useEffect(() => {
@@ -226,136 +253,52 @@ export default function QuestsPage() {
     });
   }, []);
 
-  const handleQuestToggle = (questId: number, currentCompleted: boolean) => {
+  // Mark quest as complete (UI only)
+  const handleQuestToggle = (questId: string, currentCompleted: boolean) => {
     setQuests(prev => prev.map(q =>
-      Number(q.id) === questId ? { ...q, completed: !currentCompleted, date: new Date() } : q
+      q.id === questId ? { ...q, completed: !currentCompleted } : q
     ));
   };
-  
-  const safeChallengeCategory = typeof challengeCategory === 'string' ? challengeCategory : '';
-  // Helper to guarantee prev is always a valid object
-  const getSafePrev = (obj: unknown): Record<string, boolean[]> => {
-    return typeof obj === 'object' && obj !== null ? (obj as Record<string, boolean[]>) : {};
-  };
-  const handleChallengeComplete = (idx: number) => {
-    setCompletedChallenges(prevObj => {
-      const prev = getSafePrev(prevObj);
-      const foundDay = workoutPlan.find(day => day.category === safeChallengeCategory);
-      const exercisesLength = foundDay && Array.isArray(foundDay.exercises) ? foundDay.exercises.length : 0;
-      const current: boolean[] = (prev[safeChallengeCategory] ?? Array(exercisesLength).fill(false)) as boolean[];
-      const updated = [...current];
-      updated[idx] = !updated[idx];
-      // --- Streak logic for custom challenges ---
-      if (idx >= (foundDay?.exercises.length || 0)) { // custom challenge
-        setChallengeStreaks(prevStreaks => {
-          const arr = prevStreaks[safeChallengeCategory] ?? [];
-          const streakArr = [...arr];
-          const lastArr = challengeLastCompleted[safeChallengeCategory] ?? [];
-          const today = new Date().toISOString().slice(0, 10);
-          if (updated[idx]) { // just completed
-            const last = lastArr[idx];
-            const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-            if (last === yesterday) {
-              streakArr[idx] = (streakArr[idx] || 0) + 1;
-            } else if (last === today) {
-              // already completed today, do not increment
-              streakArr[idx] = streakArr[idx] || 1;
-            } else {
-              streakArr[idx] = 1;
-            }
-          } else {
-            streakArr[idx] = 0;
-          }
-          return { ...prevStreaks, [safeChallengeCategory]: streakArr };
-        });
-        setChallengeLastCompleted(prevLast => {
-          const arr = prevLast[safeChallengeCategory] ?? [];
-          const lastArr = [...arr];
-          if (updated[idx]) {
-            lastArr[idx] = new Date().toISOString().slice(0, 10);
-          } else {
-            lastArr[idx] = '';
-          }
-          return { ...prevLast, [safeChallengeCategory]: lastArr };
-        });
-      }
-      return { ...prev, [safeChallengeCategory]: updated };
-    });
+
+  // Edit quest (open modal)
+  const handleEditQuest = (quest: Quest) => {
+    setEditingQuest(quest);
+    setEditModalOpen(true);
   };
 
-  const handleAddCustomChallenge = () => {
-    setCustomChallenges(prev => {
-      const prevArr = prev[challengeCategory] ?? [];
-      return {
-        ...prev,
-        [challengeCategory]: [...prevArr, { ...newChallenge }],
-      };
-    });
-    setAddChallengeModalOpen(false);
-    setNewChallenge({ name: '', instructions: '', setsReps: '', tips: '', weight: '' });
+  // Save edited quest
+  const handleEditQuestSubmit = (updatedQuest: Quest) => {
+    setQuests(prev => prev.map(q =>
+      q.id === updatedQuest.id ? { ...q, ...updatedQuest } : q
+    ));
+    setEditModalOpen(false);
+    setEditingQuest(null);
   };
 
-  // Edit handler for custom challenges
-  const handleEditCustomChallenge = (idx: number) => {
-    if (!customChallenges[challengeCategory] || !customChallenges[challengeCategory][idx]) return;
-    setEditCustomChallengeIdx(idx);
-    setEditCustomChallengeData({ ...customChallenges[challengeCategory][idx] });
+  // Delete quest (UI only, confirmation modal)
+  const handleDeleteQuest = (questId: string) => {
+    setQuestToDelete(quests.find(q => q.id === questId) || null);
+    setDeleteConfirmOpen(true);
   };
-  const handleEditCustomChallengeSubmit = () => {
-    if (editCustomChallengeIdx === null || !editCustomChallengeData) return;
-    setCustomChallenges(prev => {
-      const arr = [...(prev[challengeCategory] ?? [])];
-      arr[editCustomChallengeIdx] = { ...editCustomChallengeData };
-      return { ...prev, [challengeCategory]: arr };
-    });
-    setEditCustomChallengeIdx(null);
-    setEditCustomChallengeData(null);
-  };
-  const handleDeleteCustomChallenge = (idx: number) => {
-    setCustomChallenges(prev => {
-      const arr = [...(prev[challengeCategory] ?? [])];
-      arr.splice(idx, 1);
-      // Remove streak and last-completed for this challenge
-      setChallengeStreaks(streaksPrev => {
-        const arr2 = [...(streaksPrev[challengeCategory] ?? [])];
-        arr2.splice(idx, 1);
-        return { ...streaksPrev, [challengeCategory]: arr2 };
-      });
-      setChallengeLastCompleted(lastPrev => {
-        const arr2 = [...(lastPrev[challengeCategory] ?? [])];
-        arr2.splice(idx, 1);
-        return { ...lastPrev, [challengeCategory]: arr2 };
-      });
-      return { ...prev, [challengeCategory]: arr };
-    });
-  };
-
-  const handleAddQuest = () => {
-    setAddQuestError(null);
-    setAddQuestLoading(true);
-    try {
-      const { xp, gold, ...rest } = newQuest;
-      const questPayload: Quest = {
-        ...rest,
-        xp,
-        gold,
-        id: Date.now().toString(),
-        completed: false,
-        isNew: true,
-        category: String(newQuest.category || questCategories[0]),
-      };
-      setQuests(prev => [...prev, questPayload]);
-      setAddQuestModalOpen(false);
-      setNewQuest({ name: '', description: '', category: questCategory, difficulty: '', xp: 0, gold: 0 });
-    } catch (err: any) {
-      setAddQuestError(err.message || 'Failed to add quest.');
-    } finally {
-      setAddQuestLoading(false);
+  const confirmDeleteQuest = () => {
+    if (questToDelete) {
+      setQuests(prev => prev.filter(q => q.id !== questToDelete.id));
+      setDeleteConfirmOpen(false);
+      setQuestToDelete(null);
     }
   };
+  const cancelDeleteQuest = () => {
+    setDeleteConfirmOpen(false);
+    setQuestToDelete(null);
+  };
 
-  const handleDeleteQuest = (questId: string) => {
-    setQuests(prev => prev.filter(q => q.id !== questId));
+  // Add quest (open modal)
+  const handleAddQuest = () => {
+    setAddQuestModalOpen(true);
+  };
+  const handleAddQuestSubmit = (quest: Quest) => {
+    setQuests(prev => [{ ...quest, id: Date.now().toString(), completed: false, isNew: true, category: String(quest.category || questCategories[0]) }, ...prev]);
+    setAddQuestModalOpen(false);
   };
 
   if (!isClerkLoaded || !isUserLoaded) {
@@ -382,25 +325,6 @@ export default function QuestsPage() {
   const getCategoryLabel = (category: string) => {
     return categoryLabels[category as keyof typeof categoryLabels] || category.charAt(0).toUpperCase() + category.slice(1);
   }
-
-  // Handler to open the edit modal with quest data
-  const handleEditQuest = (quest: Quest) => {
-    setEditingQuest(quest);
-    setEditModalOpen(true);
-  };
-
-  // Handler to close the modal
-  const handleCloseEditModal = () => {
-    setEditModalOpen(false);
-    setEditingQuest(null);
-  };
-
-  // Handler to submit the edited quest (for now, just closes the modal)
-  const handleEditQuestSubmit = (updatedQuest: Quest) => {
-    // TODO: Implement update logic (API call, state update)
-    setEditModalOpen(false);
-    setEditingQuest(null);
-  };
 
   const safeQuestCategory = typeof questCategory === 'string' ? questCategory : '';
 
@@ -451,7 +375,7 @@ export default function QuestsPage() {
                       description={quest.description}
                       icon={React.createElement(getCategoryIcon(quest.category))}
                       completed={quest.completed}
-                      onToggle={() => handleQuestToggle(Number(quest.id), quest.completed)}
+                      onToggle={() => handleQuestToggle(quest.id, quest.completed)}
                       onEdit={() => handleEditQuest(quest)}
                       onDelete={() => handleDeleteQuest(quest.id)}
                       progress={quest.completed ? 100 : 5}
@@ -516,10 +440,10 @@ export default function QuestsPage() {
                       const cardProps: any = {
                         title: exercise.name,
                         description: exercise.instructions,
-                        icon: React.createElement(getCategoryIcon(safeChallengeCategory)),
-                        completed: completedChallenges[safeChallengeCategory]?.[idx] || false,
-                        onToggle: () => handleChallengeComplete(idx),
-                        progress: completedChallenges[safeChallengeCategory]?.[idx] ? 100 : 5,
+                        icon: React.createElement(getCategoryIcon(safeQuestCategory)),
+                        completed: completedChallenges[safeQuestCategory]?.[idx] || false,
+                        onToggle: () => handleQuestToggle(exercise.name, completedChallenges[safeQuestCategory]?.[idx] || false),
+                        progress: completedChallenges[safeQuestCategory]?.[idx] ? 100 : 5,
                         xp: 0,
                         gold: 0,
                         streak: 0,
@@ -531,15 +455,15 @@ export default function QuestsPage() {
                       const cardProps: any = {
                         title: exercise.name,
                         description: exercise.instructions,
-                        icon: React.createElement(getCategoryIcon(safeChallengeCategory)),
-                        completed: completedChallenges[safeChallengeCategory]?.[idx + builtInLength] || false,
-                        onToggle: () => handleChallengeComplete(idx + builtInLength),
-                        progress: completedChallenges[safeChallengeCategory]?.[idx + builtInLength] ? 100 : 5,
+                        icon: React.createElement(getCategoryIcon(safeQuestCategory)),
+                        completed: completedChallenges[safeQuestCategory]?.[idx + builtInLength] || false,
+                        onToggle: () => handleQuestToggle(exercise.name, completedChallenges[safeQuestCategory]?.[idx + builtInLength] || false),
+                        progress: completedChallenges[safeQuestCategory]?.[idx + builtInLength] ? 100 : 5,
                         xp: 0,
                         gold: 0,
                         streak: challengeStreaks[challengeCategory]?.[idx + builtInLength] || 0,
-                        onEdit: () => handleEditCustomChallenge(idx),
-                        onDelete: () => handleDeleteCustomChallenge(idx),
+                        onEdit: () => handleEditQuest(exercise),
+                        onDelete: () => handleDeleteQuest(exercise.name),
                       };
                       return <CardWithProgress key={exercise.name + (idx + builtInLength)} {...cardProps} />;
                     })
@@ -587,13 +511,12 @@ export default function QuestsPage() {
       {/* Edit Quest Modal (simple version) */}
       {editModalOpen && editingQuest && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={handleCloseEditModal} />
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => { setEditModalOpen(false); setEditingQuest(null); }} />
           <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
             <h2 className="text-lg font-semibold mb-4">Edit Quest</h2>
             <form
               onSubmit={e => {
                 e.preventDefault();
-                // For now, just close the modal
                 handleEditQuestSubmit(editingQuest);
               }}
             >
@@ -617,7 +540,7 @@ export default function QuestsPage() {
               />
               {/* Add more fields as needed */}
               <div className="flex justify-end gap-2">
-                <Button type="button" variant="secondary" onClick={handleCloseEditModal}>Cancel</Button>
+                <Button type="button" variant="secondary" onClick={() => { setEditModalOpen(false); setEditingQuest(null); }}>Cancel</Button>
                 <Button type="submit" variant="default">Save</Button>
               </div>
             </form>
@@ -756,7 +679,7 @@ export default function QuestsPage() {
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setAddQuestModalOpen(false)} />
           <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
             <h2 className="text-lg font-semibold mb-4">Add Custom Quest</h2>
-            <form onSubmit={e => { e.preventDefault(); handleAddQuest(); }}>
+            <form onSubmit={e => { e.preventDefault(); handleAddQuestSubmit({ ...newQuest, id: Date.now().toString(), completed: false, isNew: true, category: String(newQuest.category || questCategories[0]) }); }}>
               {addQuestError && <div className="mb-4 text-red-500 bg-red-900/20 p-2 rounded">{addQuestError}</div>}
               <label className="block mb-2 text-sm font-medium">Name</label>
               <input className="w-full mb-4 p-2 border rounded" value={newQuest.name} onChange={e => setNewQuest({ ...newQuest, name: e.target.value })} placeholder="Quest name" title="Quest name" aria-label="Quest name" required />
@@ -779,6 +702,20 @@ export default function QuestsPage() {
                 <Button type="submit" variant="default" disabled={addQuestLoading}>{addQuestLoading ? 'Adding...' : 'Add'}</Button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmOpen && questToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={cancelDeleteQuest} />
+          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">Delete Quest</h2>
+            <p>Are you sure you want to delete the quest "{questToDelete.name}"?</p>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="secondary" onClick={cancelDeleteQuest}>Cancel</Button>
+              <Button type="button" variant="destructive" onClick={confirmDeleteQuest}>Delete</Button>
+            </div>
           </div>
         </div>
       )}
