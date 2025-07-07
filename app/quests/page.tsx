@@ -349,6 +349,8 @@ export default function QuestsPage() {
 
   return (
     <div className="h-full">
+      <div style={{ background: '#222', color: '#fff', padding: 10, borderRadius: 5, margin: 10 }}>DEBUG: QuestDebugger should appear below</div>
+      <QuestDebugger />
       <HeaderSection
         title="Quest Log"
         subtitle="Embark on epic journeys and complete tasks to earn rewards."
@@ -741,9 +743,6 @@ export default function QuestsPage() {
           </div>
         </div>
       )}
-      <div className="mt-8">
-        <QuestDebugger />
-      </div>
     </div>
   );
 }
