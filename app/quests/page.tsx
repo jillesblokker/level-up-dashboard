@@ -125,6 +125,9 @@ export default function QuestsPage() {
   const userId = user?.id;
   const isGuest = !user;
 
+  // Debug: log auth and supabase loading states
+  console.log('[Quests Debug] isClerkLoaded:', isClerkLoaded, 'isUserLoaded:', isUserLoaded, 'isSupabaseLoading:', isSupabaseLoading, 'userId:', userId);
+
   const [quests, setQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -303,11 +306,15 @@ export default function QuestsPage() {
     setAddQuestModalOpen(false);
   };
 
-  if (!isClerkLoaded || !isUserLoaded) {
+  if (!isClerkLoaded || !isUserLoaded || isSupabaseLoading) {
+    console.log('Waiting for auth and Supabase client...');
     return (
       <main className="p-8">
         <h1 className="text-2xl font-bold mb-4">Quests</h1>
-        <div>Loading Clerk...</div>
+        <div className="text-yellow-500 bg-yellow-900/20 p-4 rounded-md mb-4">
+          Waiting for authentication and Supabase client to load...<br />
+          <span>isClerkLoaded: {String(isClerkLoaded)}, isUserLoaded: {String(isUserLoaded)}, isSupabaseLoading: {String(isSupabaseLoading)}</span>
+        </div>
       </main>
     );
   }
