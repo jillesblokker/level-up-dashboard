@@ -554,7 +554,7 @@ export default function QuestsPage() {
           <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
             <h2 className="text-lg font-semibold mb-4">Add Custom Challenge</h2>
             <form
-              onSubmit={e => { e.preventDefault(); handleAddCustomChallenge(); }}
+              onSubmit={e => e.preventDefault()}
             >
               <label className="block mb-2 text-sm font-medium">Name</label>
               <input
@@ -617,7 +617,7 @@ export default function QuestsPage() {
           <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
             <h2 className="text-lg font-semibold mb-4">Edit Custom Challenge</h2>
             <form
-              onSubmit={e => { e.preventDefault(); handleEditCustomChallengeSubmit(); }}
+              onSubmit={e => e.preventDefault()}
             >
               <label className="block mb-2 text-sm font-medium">Name</label>
               <input
@@ -711,7 +711,7 @@ export default function QuestsPage() {
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={cancelDeleteQuest} />
           <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
             <h2 className="text-lg font-semibold mb-4">Delete Quest</h2>
-            <p>Are you sure you want to delete the quest "{questToDelete.name}"?</p>
+            <p>Are you sure you want to delete the quest &quot;{questToDelete.name}&quot;?</p>
             <div className="flex justify-end gap-2">
               <Button type="button" variant="secondary" onClick={cancelDeleteQuest}>Cancel</Button>
               <Button type="button" variant="destructive" onClick={confirmDeleteQuest}>Delete</Button>
