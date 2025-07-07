@@ -16,6 +16,7 @@ import CardWithProgress from '@/components/quest-card'
 import React from 'react'
 import { SignedIn, SignedOut, SignIn } from '@clerk/nextjs'
 import { useSupabase } from '@/lib/hooks/useSupabase'
+import QuestDebugger from './QuestDebugger'
 
 interface Quest {
   id: string;
@@ -740,6 +741,9 @@ export default function QuestsPage() {
           </div>
         </div>
       )}
+      <div className="mt-8">
+        <QuestDebugger />
+      </div>
     </div>
   );
 }
