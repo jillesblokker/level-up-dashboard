@@ -21,6 +21,7 @@ export function useSupabase() {
             try {
                 console.log('[useSupabase] Calling getToken...');
                 const token = await getToken({ template: 'supabase' });
+                console.log('[Clerk Supabase JWT]', token);
                 console.log('[useSupabase] getToken result:', token);
                 const url = process.env['NEXT_PUBLIC_SUPABASE_URL'];
                 const anon = process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'];
