@@ -14,7 +14,6 @@ import { updateCharacterStats, getCharacterStats } from '@/lib/character-stats-m
 import { toast } from '@/components/ui/use-toast'
 import CardWithProgress from '@/components/quest-card'
 import React from 'react'
-import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 import { SignedIn, SignedOut, SignIn } from '@clerk/nextjs'
 
 interface Quest {
@@ -180,58 +179,6 @@ export default function QuestsPage() {
   const [addQuestError, setAddQuestError] = useState<string | null>(null);
   const [addQuestLoading, setAddQuestLoading] = useState(false);
 
-  useEffect(() => {
-    const loadQuests = async () => {
-      if (!isClerkLoaded || !isUserLoaded) return;
-      setLoading(true);
-      if (!isGuest && userId) {
-        try {
-          const token = await getToken();
-          if (!token) throw new Error('No Clerk token');
-          const response = await fetch(`/api/quests?userId=${userId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (!response.ok) {
-            throw new Error('Failed to fetch quests');
-          }
-          const data: Quest[] = await response.json();
-          setQuests(data);
-          const uniqueCategories = [...new Set(data.map(q => q.category))];
-          const combined = [...new Set([...questCategories, ...uniqueCategories])];
-          setAllCategories(combined);
-        } catch (err: any) {
-          setError('Failed to load quest data from server.');
-          console.error(err);
-          setQuests([]);
-        }
-      } else {
-        setQuests([]);
-      }
-      setLoading(false);
-    };
-    loadQuests();
-  }, [isClerkLoaded, isUserLoaded, userId, isGuest, getToken]);
-
-  // --- Supabase real-time sync for quest_completions ---
-  useSupabaseRealtimeSync({
-    table: 'quest_completions',
-    userId,
-    onChange: async () => {
-      if (!isGuest && userId) {
-        const token = await getToken();
-        if (!token) return;
-        fetch(`/api/quests?userId=${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }).then(async (response) => {
-          if (response.ok) {
-            const data = await response.json();
-            setQuests(data);
-          }
-        });
-      }
-    }
-  });
-
   // Daily reset logic for non-milestone quests
   useEffect(() => {
     if (!loading && quests.length > 0) {
@@ -279,64 +226,10 @@ export default function QuestsPage() {
     });
   }, []);
 
-  const handleQuestToggle = async (questId: number, currentCompleted: boolean) => {
-    if (!userId) return;
-    const quest = quests.find(q => Number(q.id) === questId);
-    if (!quest) return;
-    const xpDelta = quest.xp || 0;
-    const goldDelta = quest.gold || 0;
-    try {
-      const token = await getToken();
-      if (!token) throw new Error('No Clerk token');
-      console.log('[ToggleQuest] Sending:', { questId });
-      const response = await fetch('/api/quests/completion', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ questId }),
-      });
-      let result: any = {};
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        result = await response.json();
-      } else {
-        const text = await response.text();
-        console.error('[ToggleQuest] Non-JSON response:', text);
-        setError('Unexpected server response. Please try again.');
-        return;
-      }
-      console.log('[ToggleQuest] Response:', result);
-      if (!response.ok) {
-        setError(result.error || 'Failed to update quest');
-        return;
-      }
-      setQuests(prev => prev.map(q =>
-        Number(q.id) === questId ? { ...q, completed: !currentCompleted, date: new Date() } : q
-      ));
-      const stats = getCharacterStats();
-      let newXP = stats.experience;
-      let newGold = stats.gold;
-      if (!currentCompleted) {
-        newXP += xpDelta;
-        newGold += goldDelta;
-      } else {
-        newXP = Math.max(0, newXP - xpDelta);
-        newGold = Math.max(0, newGold - goldDelta);
-      }
-      updateCharacterStats({ experience: newXP, gold: newGold });
-      if (!currentCompleted) {
-        window.dispatchEvent(new CustomEvent('kingdom:goldGained', { detail: goldDelta }));
-        window.dispatchEvent(new CustomEvent('kingdom:experienceGained', { detail: xpDelta }));
-      } else {
-        window.dispatchEvent(new CustomEvent('kingdom:goldGained', { detail: -goldDelta }));
-        window.dispatchEvent(new CustomEvent('kingdom:experienceGained', { detail: -xpDelta }));
-      }
-    } catch (err: any) {
-      setError(err.message || 'Failed to sync quest progress.');
-      console.error('[ToggleQuest] Error:', err);
-    }
+  const handleQuestToggle = (questId: number, currentCompleted: boolean) => {
+    setQuests(prev => prev.map(q =>
+      Number(q.id) === questId ? { ...q, completed: !currentCompleted, date: new Date() } : q
+    ));
   };
   
   const safeChallengeCategory = typeof challengeCategory === 'string' ? challengeCategory : '';
@@ -437,78 +330,32 @@ export default function QuestsPage() {
     });
   };
 
-  const handleAddQuest = async () => {
+  const handleAddQuest = () => {
     setAddQuestError(null);
     setAddQuestLoading(true);
     try {
-      const token = await getToken();
-      if (!token) throw new Error('No Clerk token');
       const { xp, gold, ...rest } = newQuest;
-      const questPayload = {
+      const questPayload: Quest = {
         ...rest,
-        xp_reward: xp,
-        gold_reward: gold,
+        xp,
+        gold,
+        id: Date.now().toString(),
+        completed: false,
+        isNew: true,
+        category: String(newQuest.category || questCategories[0]),
       };
-      console.log('[AddQuest] Payload:', questPayload);
-      const response = await fetch('/api/quests/new', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(questPayload),
-      });
-      const contentType = response.headers.get('content-type');
-      let result: any = {};
-      if (contentType && contentType.includes('application/json')) {
-        result = await response.json();
-      } else {
-        const text = await response.text();
-        console.error('[AddQuest] Non-JSON response:', text);
-        setAddQuestError('Unexpected server response. Please try again.');
-        setAddQuestLoading(false);
-        return;
-      }
-      console.log('[AddQuest] Response:', result);
-      if (!response.ok) {
-        setAddQuestError(result.error || 'Failed to add quest');
-        return;
-      }
+      setQuests(prev => [...prev, questPayload]);
       setAddQuestModalOpen(false);
       setNewQuest({ name: '', description: '', category: questCategory, difficulty: '', xp: 0, gold: 0 });
-      // Refresh quests
-      const token2 = await getToken();
-      const refreshed = await fetch(`/api/quests?userId=${userId}`, { headers: { Authorization: `Bearer ${token2}` } });
-      if (refreshed.ok) setQuests(await refreshed.json());
     } catch (err: any) {
       setAddQuestError(err.message || 'Failed to add quest.');
-      console.error('[AddQuest] Error:', err);
     } finally {
       setAddQuestLoading(false);
     }
   };
 
-  const handleDeleteQuest = async (questId: string) => {
-    try {
-      const token = await getToken();
-      if (!token) throw new Error('No Clerk token');
-      const response = await fetch('/api/quests/delete', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ id: questId }),
-      });
-      if (!response.ok) {
-        const result = await response.json();
-        throw new Error(result.error || 'Failed to delete quest');
-      }
-      setQuests(prev => prev.filter(q => q.id !== questId));
-    } catch (err: any) {
-      setError(err.message || 'Failed to delete quest.');
-      console.error(err);
-    }
+  const handleDeleteQuest = (questId: string) => {
+    setQuests(prev => prev.filter(q => q.id !== questId));
   };
 
   if (!isClerkLoaded || !isUserLoaded) {
