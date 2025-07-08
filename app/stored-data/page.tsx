@@ -65,20 +65,20 @@ export default function StoredDataPage() {
   const [isChallengeLoading, setIsChallengeLoading] = useState(false);
   const [isAchievementLoading, setIsAchievementLoading] = useState(false);
 
-  // Fetch all key data from Supabase
+  // Fetch all key data from backend API
   useEffect(() => {
-    if (!userId || !supabase) return;
+    if (!userId) return;
     setIsKeyDataLoading(true);
     setKeyDataError(null);
     Promise.all([
-      supabase.from('quest_completions').select('*').eq('user_id', userId),
-      supabase.from('character_stats').select('*').eq('user_id', userId),
-      supabase.from('achievements').select('*').eq('user_id', userId),
-      supabase.from('inventory_items').select('*').eq('user_id', userId),
-      supabase.from('character_titles').select('*').eq('user_id', userId),
-      supabase.from('character_perks').select('*').eq('user_id', userId),
-      supabase.from('character_strengths').select('*').eq('user_id', userId),
-      supabase.from('character_positions').select('*').eq('user_id', userId),
+      fetch(`/api/quests/completion?userId=${userId}`).then(res => res.json()),
+      fetch(`/api/character/stats?userId=${userId}`).then(res => res.json()),
+      fetch(`/api/achievements?userId=${userId}`).then(res => res.json()),
+      fetch(`/api/inventory/items?userId=${userId}`).then(res => res.json()),
+      fetch(`/api/character/titles?userId=${userId}`).then(res => res.json()),
+      fetch(`/api/character/perks?userId=${userId}`).then(res => res.json()),
+      fetch(`/api/character/strengths?userId=${userId}`).then(res => res.json()),
+      fetch(`/api/character/positions?userId=${userId}`).then(res => res.json()),
     ]).then(([
       questsRes,
       statsRes,
@@ -101,37 +101,37 @@ export default function StoredDataPage() {
       setSupabaseGold(stats?.gold ?? null);
       setSupabaseExp(stats?.experience ?? null);
     }).catch((err) => {
-      setKeyDataError('Failed to load key data from Supabase');
+      setKeyDataError('Failed to load key data from backend');
       console.error(err);
     }).finally(() => {
       setIsKeyDataLoading(false);
     });
-  }, [userId, supabase]);
+  }, [userId]);
 
-  // Fetch challenge and achievement data from Supabase
+  // Fetch challenge and achievement data from backend API
   useEffect(() => {
-    if (!userId || !supabase) return;
+    if (!userId) return;
     setIsChallengeLoading(true);
     setIsAchievementLoading(true);
     // Fetch challenge definitions
-    supabase.from('challenges').select('*').then(({ data }) => {
+    fetch(`/api/challenges?userId=${userId}`).then(res => res.json()).then(({ data }) => {
       setChallengeDefs(data || []);
       setIsChallengeLoading(false);
     });
     // Fetch user challenge progress
-    supabase.from('user_challenges').select('*').eq('user_id', userId).then(({ data }) => {
+    fetch(`/api/user-challenges?userId=${userId}`).then(res => res.json()).then(({ data }) => {
       setUserChallenges(data || []);
     });
     // Fetch achievement definitions
-    supabase.from('achievements').select('*').then(({ data }) => {
+    fetch(`/api/achievements/definitions?userId=${userId}`).then(res => res.json()).then(({ data }) => {
       setAchievementDefs(data || []);
       setIsAchievementLoading(false);
     });
     // Fetch user achievement progress
-    supabase.from('achievements').select('*').eq('user_id', userId).then(({ data }) => {
+    fetch(`/api/achievements/user?userId=${userId}`).then(res => res.json()).then(({ data }) => {
       setUserAchievements(data || []);
     });
-  }, [userId, supabase]);
+  }, [userId]);
 
   const refreshData = () => {
     setIsLoading(true);
