@@ -36,6 +36,7 @@ export async function POST(request: Request) {
     });
     return NextResponse.json({ success: true, newValue: data?.[0]?.new_value ?? null });
   } catch (err) {
+    console.error('[progress/increment] Internal server error:', err);
     return NextResponse.json({ error: (err as Error).message }, { status: 500 });
   }
 } 
