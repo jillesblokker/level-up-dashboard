@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { supabase } from '@/lib/supabase/client';
+import { supabaseServer } from '../../../../pages/api/server-client';
 import { Database } from '@/types/supabase';
 
 export async function POST(request: Request) {
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     }
 
     // Check if achievement is already unlocked in Supabase
-    const { data: existing, error: fetchError } = await supabase
+    const { data: existing, error: fetchError } = await supabaseServer
       .from('achievements')
       .select('*')
       .eq('user_id', userId)
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     }
 
     // Insert new achievement unlock into Supabase
-    const { error } = await supabase.from('achievements').insert([
+    const { error } = await supabaseServer.from('achievements').insert([
       {
         user_id: userId,
         achievement_id: achievementId,
