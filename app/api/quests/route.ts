@@ -8,29 +8,15 @@
 // Health check endpoint: GET /api/quests?health=1
 
 import { NextResponse, NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { QuestResponse } from '@/types/quest';
 import { env } from '@/lib/env';
 import { getAuth } from '@clerk/nextjs/server';
 import { logKingdomEvent } from '../kingdom/logKingdomEvent';
 import { grantReward } from '../kingdom/grantReward';
-import { supabaseServer } from '@/lib/supabase/server-client';
+import { supabaseServer } from '../../../pages/api/server-client';
 
-const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'];
-const supabaseServiceRoleKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
-
-if (!supabaseUrl) {
-  console.error('[QUESTS][INIT] NEXT_PUBLIC_SUPABASE_URL is missing from environment variables.');
-}
-if (!supabaseServiceRoleKey) {
-  console.error('[QUESTS][INIT] SUPABASE_SERVICE_ROLE_KEY is missing from environment variables.');
-}
-
-let supabase: ReturnType<typeof createClient> | null = null;
-if (supabaseUrl && supabaseServiceRoleKey) {
-  supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
-}
+const supabase = supabaseServer;
 
 // Define schemas for request validation
 const questCompletionSchema = z.object({
@@ -67,8 +53,8 @@ export async function GET(request: Request) {
     if (searchParams.get('health') === '1') {
       return NextResponse.json({
         status: 'healthy',
-        supabaseUrl,
-        supabaseServiceRoleKeyPresent: !!supabaseServiceRoleKey,
+        supabaseUrl: process.env['NEXT_PUBLIC_SUPABASE_URL'],
+        supabaseServiceRoleKeyPresent: !!process.env['SUPABASE_SERVICE_ROLE_KEY'],
         supabaseClientInitialized: !!supabase,
       });
     }
@@ -77,8 +63,8 @@ export async function GET(request: Request) {
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized (Clerk JWT invalid or missing)' }, { status: 401 });
     }
-    if (!supabaseUrl || !supabaseServiceRoleKey) {
-      console.error('[QUESTS][GET] Supabase env vars missing:', { supabaseUrl, supabaseServiceRoleKey });
+    if (!process.env['NEXT_PUBLIC_SUPABASE_URL'] || !process.env['SUPABASE_SERVICE_ROLE_KEY']) {
+      console.error('[QUESTS][GET] Supabase env vars missing:', { supabaseUrl: process.env['NEXT_PUBLIC_SUPABASE_URL'], supabaseServiceRoleKey: process.env['SUPABASE_SERVICE_ROLE_KEY'] });
       return NextResponse.json({ error: 'Supabase environment variables missing.' }, { status: 500 });
     }
     if (!supabase) {
