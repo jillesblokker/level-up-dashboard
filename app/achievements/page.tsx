@@ -47,6 +47,11 @@ export default function Page() {
         if (response.ok) {
           const data: DbAchievement[] = await response.json();
           const achievementMap = new Map(data.filter(Boolean).map(ach => [ach.achievement_id, ach]));
+
+          console.log("Fetched achievements:", data);
+          console.log("Creature IDs:", creatures.map(c => c.id));
+          console.log("Unlocked Achievement IDs:", Array.from(achievementMap.keys()));
+
           setUnlockedAchievements(achievementMap);
         } else {
           setError(`Failed to fetch achievements (status: ${response.status})`);
