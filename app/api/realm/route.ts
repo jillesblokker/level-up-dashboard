@@ -1,24 +1,49 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-// TODO: Replace all Prisma logic with Supabase client logic
-// TODO: Implement all database logic with Supabase client here
+import { supabaseServer } from '../../../pages/api/server-client';
 
+// GET: Fetch the user's grid from realm_map
 export async function GET() {
   try {
-    console.log('[REALM][GET] Placeholder handler called');
-    // TODO: Implement GET logic with Supabase
-    return NextResponse.json({ message: 'Realm GET not yet implemented' }, { status: 200 });
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const { data, error } = await supabaseServer
+      .from('realm_map')
+      .select('grid')
+      .eq('user_id', userId)
+      .single();
+    if (error && error.code !== 'PGRST116') { // PGRST116: No rows found
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    return NextResponse.json({ grid: data?.grid ?? null });
   } catch (error) {
     console.error('[REALM][GET] Internal server error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
+// POST: Upsert the user's grid in realm_map
 export async function POST(request: Request) {
   try {
-    console.log('[REALM][POST] Placeholder handler called');
-    // TODO: Implement POST logic with Supabase
-    return NextResponse.json({ message: 'Realm POST not yet implemented' }, { status: 200 });
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const { grid } = await request.json();
+    if (!grid) {
+      return NextResponse.json({ error: 'Grid is required' }, { status: 400 });
+    }
+    const { error } = await supabaseServer
+      .from('realm_map')
+      .upsert([
+        { user_id: userId, grid, updated_at: new Date().toISOString() }
+      ], { onConflict: 'user_id' });
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error('[REALM][POST] Internal server error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

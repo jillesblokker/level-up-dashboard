@@ -388,6 +388,8 @@ export default function RealmPage() {
             if (newGrid[y]?.[x]) {
                 newGrid[y][x] = { ...tileToPlace, x, y, quantity: 1 };
             }
+            // Save the updated grid to the backend
+            saveGrid(newGrid);
             return newGrid;
         });
         setInventory(prev => {
@@ -851,6 +853,8 @@ export default function RealmPage() {
             if (newGrid[y]?.[x] && newGrid[y][x].type !== 'empty') {
                 newGrid[y][x] = { ...defaultTile('empty'), x, y, id: `empty-${x}-${y}` };
             }
+            // Save the updated grid to the backend
+            saveGrid(newGrid);
             return newGrid;
         });
     };
