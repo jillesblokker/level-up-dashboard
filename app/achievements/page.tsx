@@ -13,7 +13,8 @@ import { supabase } from '@/lib/supabase/client'
 interface DbAchievement {
   id: string;
   userId: string;
-  achievement_id: string;
+  achievement_id?: string;
+  achievementId: string;
   unlocked_at: string;
   achievement_name: string;
   description?: string;
@@ -46,7 +47,7 @@ export default function Page() {
         });
         if (response.ok) {
           const data: DbAchievement[] = await response.json();
-          const achievementMap = new Map(data.filter(Boolean).map(ach => [ach.achievement_id, ach]));
+          const achievementMap = new Map(data.filter(Boolean).map(ach => [ach.achievementId, ach]));
 
           console.log("Fetched achievements:", data);
           console.log("Creature IDs:", creatures.map(c => c.id));
