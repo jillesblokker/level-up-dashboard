@@ -82,9 +82,7 @@ export function KingdomStatsGraph({ userId }: { userId: string | null }) {
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('week')
   const [graphData, setGraphData] = useState<Array<{ day: string; value: number }>>([])
   const [isLoading, setIsLoading] = useState(true)
-  const { supabase } = useSupabase()
-  const { userId: clerkUserId } = useAuth()
-  const uid = userId || clerkUserId
+  const uid = userId
 
   // Helper to get date ranges for each period
   function getDateRange(period: TimePeriod) {
@@ -117,121 +115,23 @@ export function KingdomStatsGraph({ userId }: { userId: string | null }) {
 
   // Fetch and aggregate data for the selected tab and period
   useEffect(() => {
-    if (!uid || !supabase) return;
+    if (!uid) return;
     setIsLoading(true);
     const days = getDateRange(timePeriod);
     const fetchData = async () => {
-      let data: Array<{ day: string; value: number }> = days.map(day => ({ day, value: 0 }));
-      let fromDate: string | undefined;
-      if (timePeriod === 'week') fromDate = days[0] + 'T00:00:00.000Z';
-      else if (timePeriod === 'month') fromDate = days[0] + 'T00:00:00.000Z';
-      else if (timePeriod === 'year') fromDate = days[0] + '-01T00:00:00.000Z';
-      // For 'all', no fromDate filter
-      if (activeTab === 'challenges') {
-        const { data: completions } = await withToken(supabase, getToken, async (client) =>
-          client
-            .from('ChallengeCompletion')
-            .select('completedAt')
-            .eq('userId', uid)
-            .gte('completedAt', fromDate || '')
-        );
-        if (Array.isArray(completions)) {
-          completions.forEach((row) => {
-            const completedAt = row && typeof row === 'object' ? (row as { completedAt?: string }).completedAt : undefined;
-            if (typeof completedAt !== 'string') return;
-            if (timePeriod === 'year') {
-              const month = completedAt.slice(0, 7);
-              const idx = data.findIndex(d => d.day === month);
-              if (idx !== -1 && data[idx]) data[idx].value += 1;
-            } else if (timePeriod === 'all') {
-              if (data[0]) data[0].value += 1;
-            } else {
-              const day = completedAt.slice(0, 10);
-              const idx = data.findIndex(d => d.day === day);
-              if (idx !== -1 && data[idx]) data[idx].value += 1;
-            }
-          });
-        }
-      } else if (activeTab === 'quests') {
-        const { data: completions } = await supabase
-          .from('QuestCompletion')
-          .select('date')
-          .eq('completed', true)
-          .eq('user_id', uid)
-          .gte('date', fromDate || '')
-        if (Array.isArray(completions)) {
-          completions.forEach((row) => {
-            const date = row && typeof row === 'object' ? (row as { date?: string }).date : undefined;
-            if (typeof date !== 'string') return;
-            if (timePeriod === 'year') {
-              const month = date.slice(0, 7);
-              const idx = data.findIndex(d => d.day === month);
-              if (idx !== -1 && data[idx]) data[idx].value += 1;
-            } else if (timePeriod === 'all') {
-              if (data[0]) data[0].value += 1;
-            } else {
-              const day = date.slice(0, 10);
-              const idx = data.findIndex(d => d.day === day);
-              if (idx !== -1 && data[idx]) data[idx].value += 1;
-            }
-          });
-        }
-      } else if (activeTab === 'gold') {
-        const { data: golds } = await supabase
-          .from('gold_transactions')
-          .select('amount,created_at')
-          .eq('user_id', uid)
-          .gte('created_at', fromDate || '')
-        if (Array.isArray(golds)) {
-          golds.forEach((row) => {
-            const createdAt = row && typeof row === 'object' ? (row as { created_at?: string }).created_at : undefined;
-            const amount = row && typeof row === 'object' ? (row as { amount?: number | string }).amount : 0;
-            if (typeof createdAt !== 'string') return;
-            const parsedAmount = typeof amount === 'number' ? amount : (parseInt(amount as string, 10) || 0);
-            if (timePeriod === 'year') {
-              const month = createdAt.slice(0, 7);
-              const idx = data.findIndex(d => d.day === month);
-              if (idx !== -1 && data[idx]) data[idx].value += parsedAmount;
-            } else if (timePeriod === 'all') {
-              if (data[0]) data[0].value += parsedAmount;
-            } else {
-              const day = createdAt.slice(0, 10);
-              const idx = data.findIndex(d => d.day === day);
-              if (idx !== -1 && data[idx]) data[idx].value += parsedAmount;
-            }
-          });
-        }
-      } else if (activeTab === 'experience') {
-        const { data: exps } = await supabase
-          .from('ExperienceTransaction')
-          .select('amount,createdAt')
-          .eq('userId', uid)
-          .gte('createdAt', fromDate || '')
-        if (Array.isArray(exps)) {
-          exps.forEach((row) => {
-            const createdAt = row && typeof row === 'object' ? (row as { createdAt?: string }).createdAt : undefined;
-            const amount = row && typeof row === 'object' ? (row as { amount?: number | string }).amount : 0;
-            if (typeof createdAt !== 'string') return;
-            const parsedAmount = typeof amount === 'number' ? amount : (parseInt(amount as string, 10) || 0);
-            if (timePeriod === 'year') {
-              const month = createdAt.slice(0, 7);
-              const idx = data.findIndex(d => d.day === month);
-              if (idx !== -1 && data[idx]) data[idx].value += parsedAmount;
-            } else if (timePeriod === 'all') {
-              if (data[0]) data[0].value += parsedAmount;
-            } else {
-              const day = createdAt.slice(0, 10);
-              const idx = data.findIndex(d => d.day === day);
-              if (idx !== -1 && data[idx]) data[idx].value += parsedAmount;
-            }
-          });
-        }
+      try {
+        const res = await fetch(`/api/kingdom-stats?userId=${uid}&tab=${activeTab}&period=${timePeriod}`);
+        if (!res.ok) throw new Error('Failed to fetch stats');
+        const { data } = await res.json();
+        setGraphData(data || days.map(day => ({ day, value: 0 })));
+      } catch (err) {
+        setGraphData(days.map(day => ({ day, value: 0 })));
+      } finally {
+        setIsLoading(false);
       }
-      setGraphData(data);
-      setIsLoading(false);
     };
     fetchData();
-  }, [activeTab, uid, supabase, timePeriod, getToken]);
+  }, [activeTab, uid, timePeriod]);
 
   // Check if there is any data
   const hasData = graphData.some(d => d.value > 0);
