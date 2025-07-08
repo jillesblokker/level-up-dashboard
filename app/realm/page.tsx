@@ -416,7 +416,15 @@ export default function RealmPage() {
                     body: JSON.stringify({ action })
                 });
                 const data = await res.json();
-                if (res.ok && data && typeof data.newValue === 'number') {
+                if (!res.ok) {
+                    // Log full error response
+                    console.error('Progress increment API error:', data);
+                    toast({
+                        title: 'Progress Not Saved',
+                        description: data?.error ? `${data.error}\n${data.stack || ''}\n${data.debug || ''}` : 'Could not update your progress. Please try again.',
+                        variant: 'destructive',
+                    });
+                } else if (data && typeof data.newValue === 'number') {
                     // Check if this unlocks a creature
                     creatureRequirements.forEach(req => {
                         if (req.action === action && req.threshold === data.newValue) {
