@@ -39,5 +39,6 @@ export async function grantReward({
   if (relatedId !== undefined) {
     logArgs.relatedId = relatedId;
   }
+  console.log('[grantReward] Logging event:', logArgs);
   await logKingdomEvent(logArgs);
 } 
