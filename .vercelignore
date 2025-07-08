@@ -16,5 +16,5 @@ coverage/
 *.local.ts
 
 # Ignore legacy Next.js pages if not used
-pages/
+-pages/
 pages.bak/ 
