@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { supabaseServer } from '../../lib/supabase/server-client';
+import { supabaseServer } from './server-client';
 
 // Helper to get date ranges for each period
 function getDateRange(period: string): string[] {
