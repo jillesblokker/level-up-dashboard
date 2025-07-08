@@ -15,6 +15,7 @@ import { env } from '@/lib/env';
 import { getAuth } from '@clerk/nextjs/server';
 import { logKingdomEvent } from '../kingdom/logKingdomEvent';
 import { grantReward } from '../kingdom/grantReward';
+import { supabaseServer } from '@/lib/supabase/server-client';
 
 const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'];
 const supabaseServiceRoleKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
