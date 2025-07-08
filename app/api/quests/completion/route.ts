@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
-import { logKingdomEvent } from '../../kingdom/logKingdomEvent';
+import { grantReward } from '../../kingdom/grantReward';
 
 // Create a new quest completion
 export async function POST(request: Request) {
@@ -43,13 +43,20 @@ export async function POST(request: Request) {
       console.error('[API/quests/completion] Supabase insert error:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    // Log the quest completion event
-    await logKingdomEvent({
+    // Log the quest completion event (XP and gold as separate logs)
+    await grantReward({
       userId,
-      eventType: 'quest',
+      type: 'quest',
       relatedId: questId,
       amount: quest.xp_reward,
       context: { gold: quest.gold_reward }
+    });
+    await grantReward({
+      userId,
+      type: 'gold',
+      relatedId: questId,
+      amount: quest.gold_reward,
+      context: { xp: quest.xp_reward }
     });
     return NextResponse.json(questCompletion);
   } catch (error) {

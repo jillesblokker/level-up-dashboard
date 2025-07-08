@@ -173,7 +173,7 @@ export default function Page() {
                         <Image src={'/images/undiscovered.png'} alt="Undiscovered Card" fill sizes="(max-width: 768px) 100vw, 340px" className="object-cover rounded-lg opacity-50" />
                       )}
                     </div>
-                    {unlocked && unlockDate && (
+                    {unlocked && unlockDate && unlockDate !== "Invalid Date" && (
                       <div className="mt-2 text-sm text-gray-400" aria-label={`unlock-date-for-${creature.id}`}>
                         <span>Unlocked on {unlockDate}</span>
                       </div>

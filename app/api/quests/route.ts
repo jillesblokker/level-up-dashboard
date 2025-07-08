@@ -13,6 +13,8 @@ import { z } from 'zod';
 import { QuestResponse } from '@/types/quest';
 import { env } from '@/lib/env';
 import { getAuth } from '@clerk/nextjs/server';
+import { logKingdomEvent } from '../kingdom/logKingdomEvent';
+import { grantReward } from '../kingdom/grantReward';
 
 const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'];
 const supabaseServiceRoleKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
@@ -258,7 +260,22 @@ export async function PUT(request: Request) {
             experience: (character as any)['experience'] + defaultRewards.experience,
             gold: (character as any)['gold'] + defaultRewards.gold
           })
-          .eq('id', (character as any)['id']);
+          .eq('user_id', userId);
+        // Log experience and gold rewards
+        await grantReward({
+          userId,
+          type: 'exp',
+          amount: defaultRewards.experience,
+          relatedId: String(questCompletion['id']),
+          context: { source: 'quest_completion', questTitle: String(questCompletion['quest_name']) }
+        });
+        await grantReward({
+          userId,
+          type: 'gold',
+          amount: defaultRewards.gold,
+          relatedId: String(questCompletion['id']),
+          context: { source: 'quest_completion', questTitle: String(questCompletion['quest_name']) }
+        });
       }
     }
     const response: QuestResponse = {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '../../../../pages/api/server-client';
 import { Database } from '@/types/supabase';
+import { grantReward } from '../../kingdom/grantReward';
 
 export async function POST(request: Request) {
   try {
@@ -51,6 +52,14 @@ export async function POST(request: Request) {
       console.error('Error unlocking achievement in Supabase:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
+
+    // Log the achievement unlock as a reward event
+    await grantReward({
+      userId,
+      type: 'achievement',
+      relatedId: achievementId,
+      context: { source: 'achievement_unlock' }
+    });
 
     console.log(`Achievement unlocked in Supabase: ${achievementId} for user: ${userId}`);
 
