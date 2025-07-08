@@ -16,7 +16,6 @@ import CardWithProgress from '@/components/quest-card'
 import React from 'react'
 import { SignedIn, SignedOut, SignIn } from '@clerk/nextjs'
 import { useSupabase } from '@/lib/hooks/useSupabase'
-import QuestDebugger from './QuestDebugger'
 
 interface Quest {
   id: string;
@@ -349,8 +348,6 @@ export default function QuestsPage() {
 
   return (
     <div className="h-full">
-      <div style={{ background: '#222', color: '#fff', padding: 10, borderRadius: 5, margin: 10 }}>DEBUG: QuestDebugger should appear below</div>
-      <QuestDebugger />
       <HeaderSection
         title="Quest Log"
         subtitle="Embark on epic journeys and complete tasks to earn rewards."
