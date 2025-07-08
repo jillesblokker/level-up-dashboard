@@ -122,12 +122,11 @@ const CHALLENGE_LAST_COMPLETED_KEY = 'challenge-last-completed-v1';
 export default function QuestsPage() {
   const { user, isLoaded: isUserLoaded } = useUser();
   const { getToken, isLoaded: isClerkLoaded } = useAuth();
-  const { supabase, isLoading: isSupabaseLoading } = useSupabase();
   const userId = user?.id;
   const isGuest = !user;
 
   // Debug: log auth and supabase loading states
-  console.log('[Quests Debug] isClerkLoaded:', isClerkLoaded, 'isUserLoaded:', isUserLoaded, 'isSupabaseLoading:', isSupabaseLoading, 'userId:', userId);
+  console.log('[Quests Debug] isClerkLoaded:', isClerkLoaded, 'isUserLoaded:', isUserLoaded);
 
   const [quests, setQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -189,19 +188,20 @@ export default function QuestsPage() {
 
   // Fetch quests for the logged-in user
   useEffect(() => {
-    console.log('[Quests Debug] userId:', userId, 'supabase:', !!supabase, 'isSupabaseLoading:', isSupabaseLoading);
-    if (!userId || !supabase || isSupabaseLoading) return;
+    if (!isClerkLoaded || !isUserLoaded) return;
     setLoading(true);
     const fetchQuests = async () => {
       try {
-        const { data, error } = await supabase
-          .from('quests')
-          .select('*')
-          .eq('user_id', userId)
-          .order('created_at', { ascending: false });
-        if (error) throw error;
+        const token = await getToken();
+        if (!token) throw new Error('No Clerk token');
+        const res = await fetch('/api/quests', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!res.ok) throw new Error('Failed to fetch quests');
+        const data = await res.json();
         setQuests(data || []);
-        console.log('[Quests] Loaded quests:', data);
       } catch (err: any) {
         setError(err.message || 'Failed to fetch quests');
         setQuests([]);
@@ -210,7 +210,7 @@ export default function QuestsPage() {
       }
     };
     fetchQuests();
-  }, [userId, supabase, isSupabaseLoading]);
+  }, [isClerkLoaded, isUserLoaded, getToken]);
 
   // Daily reset logic for non-milestone quests
   useEffect(() => {
@@ -307,14 +307,14 @@ export default function QuestsPage() {
     setAddQuestModalOpen(false);
   };
 
-  if (!isClerkLoaded || !isUserLoaded || isSupabaseLoading) {
-    console.log('Waiting for auth and Supabase client...');
+  if (!isClerkLoaded || !isUserLoaded) {
+    console.log('Waiting for auth and Clerk client...');
     return (
       <main className="p-8">
         <h1 className="text-2xl font-bold mb-4">Quests</h1>
         <div className="text-yellow-500 bg-yellow-900/20 p-4 rounded-md mb-4">
-          Waiting for authentication and Supabase client to load...<br />
-          <span>isClerkLoaded: {String(isClerkLoaded)}, isUserLoaded: {String(isUserLoaded)}, isSupabaseLoading: {String(isSupabaseLoading)}</span>
+          Waiting for authentication and Clerk client to load...<br />
+          <span>isClerkLoaded: {String(isClerkLoaded)}, isUserLoaded: {String(isUserLoaded)}</span>
         </div>
       </main>
     );

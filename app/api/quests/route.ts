@@ -7,11 +7,12 @@
 //
 // Health check endpoint: GET /api/quests?health=1
 
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { QuestResponse } from '@/types/quest';
 import { env } from '@/lib/env';
+import { getAuth } from '@clerk/nextjs/server';
 
 const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'];
 const supabaseServiceRoleKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
@@ -39,6 +40,23 @@ const questUpdateSchema = z.object({
   completed: z.boolean()
 });
 
+// Helper to extract and verify Clerk JWT, returns userId or null
+async function getUserIdFromRequest(request: Request): Promise<string | null> {
+  try {
+    // Convert to NextRequest for Clerk compatibility
+    const nextReq = request instanceof NextRequest ? request : new NextRequest(request.url, { headers: request.headers, method: request.method, body: (request as any).body });
+    const authHeader = nextReq.headers.get('authorization');
+    if (!authHeader) return null;
+    // Clerk expects 'Bearer <token>'
+    const token = authHeader.replace(/^Bearer /i, '');
+    const { userId } = getAuth(nextReq);
+    return userId || null;
+  } catch (e) {
+    console.error('[Clerk] JWT verification failed:', e);
+    return null;
+  }
+}
+
 // Health check endpoint
 export async function GET(request: Request) {
   try {
@@ -51,12 +69,10 @@ export async function GET(request: Request) {
         supabaseClientInitialized: !!supabase,
       });
     }
-    // Optionally check for Authorization header
-    const authHeader = request.headers.get('authorization');
-    console.log('[QUESTS][GET] Authorization header:', authHeader);
-    if (!authHeader) {
-      console.error('[QUESTS][GET] Missing Authorization header');
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Secure Clerk JWT verification
+    const userId = await getUserIdFromRequest(request);
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized (Clerk JWT invalid or missing)' }, { status: 401 });
     }
     if (!supabaseUrl || !supabaseServiceRoleKey) {
       console.error('[QUESTS][GET] Supabase env vars missing:', { supabaseUrl, supabaseServiceRoleKey });
@@ -66,7 +82,6 @@ export async function GET(request: Request) {
       console.error('[QUESTS][GET] Supabase client not initialized.');
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
     }
-    const userId = searchParams.get('userId');
     // Get all available quests
     console.log('Fetching all quests...');
     const { data: allQuests, error: questsError } = await supabase
@@ -77,48 +92,27 @@ export async function GET(request: Request) {
       console.error('Quests error:', questsError);
       return NextResponse.json({ error: questsError.message }, { status: 500 });
     }
-    // Get user's quest completions if userId is provided
+    // Get user's quest completions
     let questCompletions: any[] = [];
-    if (userId) {
-      const { data, error } = await supabase
-        .from('quest_completion')
-        .select('*')
-        .eq('user_id', userId);
-      if (error) {
-        console.error('Quest completion fetch error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
-      questCompletions = data || [];
+    const { data, error } = await supabase
+      .from('quest_completion')
+      .select('*')
+      .eq('user_id', userId);
+    if (error) {
+      console.error('Quest completion fetch error:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    // Combine quests with completion status if userId is provided
-    let questsWithCompletions = allQuests;
-    if (userId) {
-      const completionMap = new Map();
-      questCompletions.forEach((completion: any) => {
-        const key = `${completion['quest_name']}`;
-        completionMap.set(key, completion);
-      });
-      questsWithCompletions = (allQuests as any[]).map((quest: any) => {
-        const key = `${quest['name']}`;
-        const completion = completionMap.get(key) as any;
-        return {
-          id: quest['id'],
-          name: quest['name'],
-          title: quest['name'],
-          description: quest['description'],
-          category: quest['category'],
-          difficulty: quest['difficulty'],
-          xp: quest['xp_reward'],
-          gold: quest['gold_reward'],
-          completed: completion?.completed ?? false,
-          date: completion?.date,
-          isNew: !completion,
-          completionId: completion?.id
-        };
-      });
-    } else {
-      // If no userId, still map name for allQuests
-      questsWithCompletions = (allQuests as any[]).map((quest: any) => ({
+    questCompletions = data || [];
+    // Combine quests with completion status
+    const completionMap = new Map();
+    questCompletions.forEach((completion: any) => {
+      const key = `${completion['quest_name']}`;
+      completionMap.set(key, completion);
+    });
+    const questsWithCompletions = (allQuests as any[]).map((quest: any) => {
+      const key = `${quest['name']}`;
+      const completion = completionMap.get(key) as any;
+      return {
         id: quest['id'],
         name: quest['name'],
         title: quest['name'],
@@ -127,12 +121,12 @@ export async function GET(request: Request) {
         difficulty: quest['difficulty'],
         xp: quest['xp_reward'],
         gold: quest['gold_reward'],
-        completed: false,
-        date: null,
-        isNew: true,
-        completionId: null
-      }));
-    }
+        completed: completion?.completed ?? false,
+        date: completion?.date,
+        isNew: !completion,
+        completionId: completion?.id
+      };
+    });
     return NextResponse.json(questsWithCompletions);
   } catch (error) {
     console.error('Error fetching quests:', error instanceof Error ? error.stack : error);
@@ -145,20 +139,13 @@ export async function GET(request: Request) {
 // Create a new quest completion
 export async function POST(request: Request) {
   try {
-    // Require Authorization header
-    const authHeader = request.headers.get('authorization');
-    console.log('[QUESTS][POST] Authorization header:', authHeader);
-    if (!authHeader) {
-      console.error('[QUESTS][POST] Missing Authorization header');
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Secure Clerk JWT verification
+    const userId = await getUserIdFromRequest(request);
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized (Clerk JWT invalid or missing)' }, { status: 401 });
     }
     if (!supabase) {
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
-    }
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-    if (!userId) {
-      return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
     }
     const body = await request.json();
     // Validate request body
@@ -200,20 +187,13 @@ export async function POST(request: Request) {
 // Update a quest completion status
 export async function PUT(request: Request) {
   try {
-    // Require Authorization header
-    const authHeader = request.headers.get('authorization');
-    console.log('[QUESTS][PUT] Authorization header:', authHeader);
-    if (!authHeader) {
-      console.error('[QUESTS][PUT] Missing Authorization header');
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Secure Clerk JWT verification
+    const userId = await getUserIdFromRequest(request);
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized (Clerk JWT invalid or missing)' }, { status: 401 });
     }
     if (!supabase) {
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
-    }
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-    if (!userId) {
-      return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
     }
     const body = await request.json();
     // Validate request body
@@ -299,18 +279,13 @@ export async function PUT(request: Request) {
 // Export quests as CSV
 export async function PATCH(request: Request) {
   try {
-    // Require Authorization header
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Secure Clerk JWT verification
+    const userId = await getUserIdFromRequest(request);
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized (Clerk JWT invalid or missing)' }, { status: 401 });
     }
     if (!supabase) {
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
-    }
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-    if (!userId) {
-      return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
     }
     const { data: questCompletions, error } = await supabase
       .from('quest_completion')
@@ -339,18 +314,13 @@ export async function PATCH(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    // Require Authorization header
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Secure Clerk JWT verification
+    const userId = await getUserIdFromRequest(request);
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized (Clerk JWT invalid or missing)' }, { status: 401 });
     }
     if (!supabase) {
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
-    }
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-    if (!userId) {
-      return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
     }
     const { id } = await request.json();
     if (!id) {
