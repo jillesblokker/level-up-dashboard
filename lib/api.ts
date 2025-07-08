@@ -92,30 +92,17 @@ export async function getTilePlacements(
   }
 }
 
-// Helper to get Supabase UUID from Clerk user ID
-async function getSupabaseUserIdFromClerk(clerkId: string, supabase: SupabaseClient<Database>): Promise<string> {
-  const { data, error } = await supabase
-    .from('users')
-    .select('id')
-    .eq('clerk_id', clerkId)
-    .single();
-  if (error || !data) throw new Error('Could not find Supabase user for Clerk ID');
-  return data.id;
-}
-
-// Example: uploadGridData
 export async function uploadGridData(
   supabase: SupabaseClient<Database>,
   grid: number[][],
   clerkId: string
 ): Promise<{ id: string } | null> {
   if (!clerkId) throw new Error('No Clerk user ID provided');
-  const userId = await getSupabaseUserIdFromClerk(clerkId, supabase);
   try {
     const { data, error } = await supabase
       .from('realm_grids')
       .insert([
-        { user_id: userId, grid, version: 1 },
+        { user_id: clerkId, grid, version: 1 },
       ])
       .select('id')
       .single();
@@ -149,18 +136,16 @@ export async function updateGridData(
   }
 }
 
-// Example: getLatestGrid
 export async function getLatestGrid(
   supabase: SupabaseClient<Database>,
   clerkId: string
 ): Promise<{ id: string; grid: number[][] } | null> {
   if (!clerkId) throw new Error('No Clerk user ID provided');
-  const userId = await getSupabaseUserIdFromClerk(clerkId, supabase);
   try {
     const { data, error } = await supabase
       .from('realm_grids')
       .select('id, grid')
-      .eq('user_id', userId)
+      .eq('user_id', clerkId)
       .order('version', { ascending: false })
       .limit(1)
       .single();
