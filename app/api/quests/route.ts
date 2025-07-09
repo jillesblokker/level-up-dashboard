@@ -92,14 +92,14 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
     questCompletions = data || [];
-    // Combine quests with completion status
+    // Combine quests with completion status (by quest_id)
     const completionMap = new Map();
     questCompletions.forEach((completion: any) => {
-      const key = `${completion['quest_name']}`;
+      const key = String(completion['quest_id'] ?? completion['quest_name']);
       completionMap.set(key, completion);
     });
     const questsWithCompletions = (allQuests as any[]).map((quest: any) => {
-      const key = `${quest['name']}`;
+      const key = String(quest['id']);
       const completion = completionMap.get(key) as any;
       return {
         id: quest['id'],
