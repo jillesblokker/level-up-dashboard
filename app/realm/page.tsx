@@ -10,7 +10,7 @@ import { TileInventory } from '@/components/tile-inventory'
 import { Switch } from "@/components/ui/switch"
 import { useUser } from '@clerk/nextjs'
 import React from "react"
-import { createTileFromNumeric } from "@/lib/grid-loader"
+import { createTileFromNumeric, numericToTileType, tileTypeToNumeric } from "@/lib/grid-loader"
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -25,7 +25,7 @@ import { useCreatureStore } from '@/stores/creatureStore'
 import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 
 // Constants
-const GRID_COLS = 13
+const GRID_COLS = 12;
 const INITIAL_ROWS = 7
 const AUTOSAVE_INTERVAL = 30000 // 30 seconds
 
@@ -280,79 +280,47 @@ export default function RealmPage() {
         }
     }, [hasVisitedRealm, isAuthLoaded, userId, setHasVisitedRealm, toast, discoverCreature]);
 
-    const saveGrid = useCallback(async (currentGrid: Tile[][]) => {
-        if (isGuest) {
-            localStorage.setItem('guest-realm-grid', JSON.stringify(currentGrid));
-            setSaveStatus('saved');
-            return;
-        }
-        if (!userId) return;
-
-        setSaveStatus('saving');
-        try {
-            const response = await fetch('/api/realm', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ grid: currentGrid }),
-            });
-            if (!response.ok) throw new Error('Failed to save grid.');
-            setSaveStatus('saved');
-        } catch (error) {
-            console.error("Failed to save grid:", error);
-            setSaveStatus('error');
-            toast({
-                title: "Save Failed",
-                description: "Could not save your realm. Progress is saved locally.",
-                variant: "destructive",
-            });
-            localStorage.setItem(`fallback-grid-${userId}`, JSON.stringify(currentGrid));
-        }
-    }, [userId, isGuest, toast]);
-
+    // Load grid from /api/realm-tiles on mount
     useEffect(() => {
-        const initializeGrid = async () => {
+        const fetchTiles = async () => {
+            if (!isAuthLoaded || isGuest) return;
             setIsLoading(true);
-            let loadedGrid: Tile[][] | null = null;
-
-            if (isGuest) {
-                const localGrid = localStorage.getItem('guest-realm-grid');
-                if (localGrid) try { loadedGrid = JSON.parse(localGrid); } catch {}
-            } else if (userId) {
-                try {
-                    const fallbackGrid = localStorage.getItem(`fallback-grid-${userId}`);
-                    if (fallbackGrid) {
-                        loadedGrid = JSON.parse(fallbackGrid);
-                        toast({ title: "Loaded Local Save", description: "Your previous unsaved progress was loaded." });
-                        localStorage.removeItem(`fallback-grid-${userId}`);
-                    } else {
-                        const response = await fetch('/api/realm');
-                        if (response.ok) {
-                            const data = await response.json();
-                            if (data && data.grid && typeof data.grid === 'string') {
-                                // @ts-ignore: setGrid is always defined in this scope
-                                setGrid(JSON.parse(data.grid));
-                            }
+            try {
+                const res = await fetch('/api/realm-tiles');
+                const data = await res.json();
+                if (res.ok && data.tiles) {
+                    // Reconstruct grid from tiles
+                    const gridArr: Tile[][] = Array.from({ length: INITIAL_ROWS }, (_, y) =>
+                        Array.from({ length: GRID_COLS }, (_, x) => defaultTile('empty'))
+                    );
+                    data.tiles.forEach((row: any) => {
+                        if (!row) return;
+                        if (!gridArr[row.y] || !Array.isArray(gridArr[row.y])) return;
+                        for (let x = 0; x < GRID_COLS; x++) {
+                            const typeNum = row[`tile_${x}_type`];
+                            const tileType = typeof typeNum === 'number' ? numericToTileType[typeNum] || 'empty' : 'empty';
+                            if (typeof gridArr[row.y][x] === 'undefined') continue;
+                            gridArr[row.y][x] = {
+                                ...defaultTile(tileType),
+                                x,
+                                y: row.y,
+                                id: `${tileType}-${x}-${row.y}`,
+                                // Optionally add event, updated_at, etc.
+                            };
                         }
-                    }
-                } catch (error) {
-                    console.error('Error fetching grid from API:', error);
-                    toast({ title: "Error", description: "Could not load your realm data.", variant: "destructive" });
+                    });
+                    setGrid(gridArr);
+                } else {
+                    setGrid(createBaseGrid());
                 }
-            }
-
-            if (loadedGrid && Array.isArray(loadedGrid) && (loadedGrid.length === 0 || Array.isArray(loadedGrid[0]))) {
-                setGrid(loadedGrid);
-            } else {
-                const initialGrid = await loadInitialGridFromCSV();
-                setGrid(initialGrid);
+            } catch (err) {
+                toast({ title: 'Error', description: 'Failed to load realm tiles', variant: 'destructive' });
+                setGrid(createBaseGrid());
             }
             setIsLoading(false);
         };
-
-        if (isAuthLoaded) {
-            initializeGrid();
-        }
-    }, [userId, isAuthLoaded, isGuest, toast]);
+        fetchTiles();
+    }, [isAuthLoaded, isGuest]);
 
     // --- Supabase real-time sync for realm_grids ---
     useSupabaseRealtimeSync({
@@ -379,6 +347,7 @@ export default function RealmPage() {
         return undefined;
     }, [grid, saveGrid, saveStatus, autoSave]);
 
+    // Place tile: update grid and send only the changed tile to backend
     const handlePlaceTile = async (x: number, y: number) => {
         if (gameMode !== 'build' || !selectedTile) return;
         const tileToPlace = inventory[selectedTile.type];
@@ -388,8 +357,6 @@ export default function RealmPage() {
             if (newGrid[y]?.[x]) {
                 newGrid[y][x] = { ...tileToPlace, x, y, quantity: 1 };
             }
-            // Save the updated grid to the backend
-            saveGrid(newGrid);
             return newGrid;
         });
         setInventory(prev => {
@@ -400,60 +367,16 @@ export default function RealmPage() {
             }
             return newInventory;
         });
-        // Show penguin if ice tile
-        if (selectedTile.type === 'ice') {
-            setIsPenguinPresent(true);
+        // Save only the changed tile
+        try {
+            await fetch('/api/realm-tiles', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ x, y, tile_type: tileTypeToNumeric[selectedTile.type] })
+            });
+        } catch (err) {
+            toast({ title: 'Error', description: 'Failed to save tile', variant: 'destructive' });
         }
-        // --- Backend progress integration ---
-        let action = null;
-        if (selectedTile.type === 'forest') action = 'forest_tiles_placed';
-        if (selectedTile.type === 'water') action = 'water_tiles_placed';
-        if (selectedTile.type === 'ice') action = 'ice_tiles_placed';
-        // Add more as needed
-        if (action && userId) {
-            try {
-                const res = await fetch('/api/progress/increment', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action })
-                });
-                const data = await res.json();
-                if (!res.ok) {
-                    // Log full error response
-                    console.error('Progress increment API error:', data);
-                    toast({
-                        title: 'Progress Not Saved',
-                        description: data?.error ? `${data.error}\n${data.stack || ''}\n${data.debug || ''}` : 'Could not update your progress. Please try again.',
-                        variant: 'destructive',
-                    });
-                } else if (data && typeof data.newValue === 'number') {
-                    // Check if this unlocks a creature
-                    creatureRequirements.forEach(req => {
-                        if (req.action === action && req.threshold === data.newValue) {
-                            fetch('/api/creatures/discover', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ creatureId: req.id })
-                            }).then(() => {
-                                discoverCreature(req.id);
-                                toast({
-                                    title: 'Creature Discovered!',
-                                    description: `You discovered a new creature!`,
-                                });
-                            });
-                        }
-                    });
-                }
-            } catch (err) {
-                // Optionally show error toast
-                toast({
-                    title: 'Progress Not Saved',
-                    description: 'Could not update your progress. Please try again.',
-                    variant: 'destructive',
-                });
-            }
-        }
-        // Do not clear selectedTile here (allow repeated placement)
     };
 
     const handleTileSelection = (tile: TileInventoryItem | null) => {
@@ -846,15 +769,21 @@ export default function RealmPage() {
         }
     }, [sheepPos]);
 
-    // Add the handler:
+    // Delete tile: set to empty and send to backend
     const handleDeleteTile = (x: number, y: number) => {
         setGrid(prevGrid => {
             const newGrid = prevGrid.map(row => row.slice());
             if (newGrid[y]?.[x] && newGrid[y][x].type !== 'empty') {
                 newGrid[y][x] = { ...defaultTile('empty'), x, y, id: `empty-${x}-${y}` };
             }
-            // Save the updated grid to the backend
-            saveGrid(newGrid);
+            // Save only the changed tile
+            fetch('/api/realm-tiles', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ x, y, tile_type: tileTypeToNumeric['empty'] })
+            }).catch(() => {
+                toast({ title: 'Error', description: 'Failed to delete tile', variant: 'destructive' });
+            });
             return newGrid;
         });
     };
