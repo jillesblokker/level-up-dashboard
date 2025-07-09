@@ -200,6 +200,7 @@ export default function QuestsPage() {
         });
         if (!res.ok) throw new Error('Failed to fetch quests');
         const data = await res.json();
+        console.log('[Quests Debug] fetched quests:', data);
         setQuests(data || []);
       } catch (err: any) {
         setError(err.message || 'Failed to fetch quests');
@@ -433,6 +434,7 @@ export default function QuestsPage() {
                   const categoryColor = Object.prototype.hasOwnProperty.call(categoryColorMap, categoryKey)
                     ? categoryColorMap[categoryKey]
                     : 'text-amber-500 border-amber-800';
+                  console.log('[Quests Debug] rendering quest:', quest.name, 'completed:', quest.completed);
                   return (
                     <CardWithProgress
                       key={quest.id}
