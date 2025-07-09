@@ -25,7 +25,7 @@ import { useCreatureStore } from '@/stores/creatureStore'
 import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 
 // Constants
-const GRID_COLS = 12;
+const GRID_COLS = 13;
 const INITIAL_ROWS = 7
 const AUTOSAVE_INTERVAL = 30000 // 30 seconds
 
