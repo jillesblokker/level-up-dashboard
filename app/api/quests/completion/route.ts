@@ -91,3 +91,28 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export async function PUT(request: Request) {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const { questId, completed } = await request.json();
+    if (!questId || typeof completed !== 'boolean') {
+      return NextResponse.json({ error: 'Missing questId or completed' }, { status: 400 });
+    }
+    const { data, error } = await supabaseServer
+      .from('quest_completion')
+      .update({ completed })
+      .eq('user_id', userId)
+      .eq('quest_id', questId)
+      .single();
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    return NextResponse.json(data);
+  } catch (error) {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
