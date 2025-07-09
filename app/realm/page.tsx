@@ -452,6 +452,21 @@ export default function RealmPage() {
         });
     };
 
+    // Handler to reset the map to the initial grid
+    const handleResetMap = async () => {
+        try {
+            const res = await fetch('/api/realm-tiles/reset', { method: 'POST' });
+            if (res.ok) {
+                // Reload the grid after reset
+                window.location.reload();
+            } else {
+                throw new Error('Failed to reset map');
+            }
+        } catch (err) {
+            toast({ title: 'Error', description: 'Failed to reset map', variant: 'destructive' });
+        }
+    };
+
     // Keyboard movement handlers
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -840,6 +855,16 @@ export default function RealmPage() {
                             >
                                 <Settings className="w-4 h-4" />
                                 <span className="hidden sm:inline">Expand Map</span>
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleResetMap}
+                                className="flex items-center gap-2"
+                                aria-label="reset-map-button"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                                <span className="hidden sm:inline">Reset Map</span>
                             </Button>
                         </div>
                     </div>
