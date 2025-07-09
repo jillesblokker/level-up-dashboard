@@ -109,10 +109,12 @@ export async function PUT(request: Request) {
       .eq('quest_id', questId)
       .single();
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error('[QUESTS/COMPLETION][PUT] Supabase error:', error, { userId, questId, completed });
+      return NextResponse.json({ error: error.message, details: error }, { status: 500 });
     }
     return NextResponse.json(data);
   } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('[QUESTS/COMPLETION][PUT] Internal server error:', error);
+    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)), details: error }, { status: 500 });
   }
 }
