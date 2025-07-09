@@ -184,6 +184,8 @@ export default function QuestsPage() {
   const [addQuestLoading, setAddQuestLoading] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [questToDelete, setQuestToDelete] = useState<Quest | null>(null);
+  const [milestones, setMilestones] = useState<any[]>([]);
+  const [challenges, setChallenges] = useState<any[]>([]);
 
   // Fetch quests for the logged-in user
   useEffect(() => {
@@ -308,6 +310,108 @@ export default function QuestsPage() {
       }
     } catch (err: any) {
       toast({ title: 'Error', description: err.message || 'Failed to update quest' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Mark milestone as complete (sync with backend)
+  const handleMilestoneToggle = async (milestoneId: string, currentCompleted: boolean) => {
+    try {
+      setLoading(true);
+      const token = await getToken();
+      if (!token) throw new Error('No Clerk token');
+      // Upsert milestone completion
+      const res = await fetch('/api/milestones/completion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ milestoneId }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        toast({ title: 'Error', description: `Failed to update milestone: ${err.error || res.statusText}` });
+        setLoading(false);
+        return;
+      }
+      // Now update the completed status (toggle)
+      const updateRes = await fetch('/api/milestones/completion', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ milestoneId, completed: !currentCompleted }),
+      });
+      if (!updateRes.ok) {
+        const err = await updateRes.json();
+        toast({ title: 'Error', description: `Failed to update milestone: ${err.error || updateRes.statusText}` });
+        setLoading(false);
+        return;
+      }
+      // Re-fetch milestones from backend (assume /api/milestones returns all milestones with completion)
+      const fetchRes = await fetch('/api/milestones', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (fetchRes.ok) {
+        const data = await fetchRes.json();
+        setMilestones(data || []);
+      }
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message || 'Failed to update milestone' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Mark challenge as complete (sync with backend)
+  const handleChallengeToggle = async (challengeId: string, currentCompleted: boolean) => {
+    try {
+      setLoading(true);
+      const token = await getToken();
+      if (!token) throw new Error('No Clerk token');
+      // Upsert challenge completion
+      const res = await fetch('/api/challenges/completion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ challengeId }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        toast({ title: 'Error', description: `Failed to update challenge: ${err.error || res.statusText}` });
+        setLoading(false);
+        return;
+      }
+      // Now update the completed status (toggle)
+      const updateRes = await fetch('/api/challenges/completion', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ challengeId, completed: !currentCompleted }),
+      });
+      if (!updateRes.ok) {
+        const err = await updateRes.json();
+        toast({ title: 'Error', description: `Failed to update challenge: ${err.error || updateRes.statusText}` });
+        setLoading(false);
+        return;
+      }
+      // Re-fetch challenges from backend (assume /api/challenges returns all challenges with completion)
+      const fetchRes = await fetch('/api/challenges', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (fetchRes.ok) {
+        const data = await fetchRes.json();
+        setChallenges(data || []);
+      }
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message || 'Failed to update challenge' });
     } finally {
       setLoading(false);
     }
