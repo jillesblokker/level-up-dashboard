@@ -30,14 +30,14 @@ export async function POST(request: Request) {
     }
     const { data: questCompletion, error } = await supabaseServer
       .from('quest_completion')
-      .insert([
+      .upsert([
         {
           user_id: userId,
           quest_id: questId,
           xp_earned: quest.xp_reward,
           gold_earned: quest.gold_reward,
         },
-      ])
+      ], { onConflict: 'user_id,quest_id' })
       .single();
     if (error) {
       console.error('[API/quests/completion] Supabase insert error:', error);
