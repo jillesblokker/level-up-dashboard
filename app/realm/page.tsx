@@ -367,13 +367,45 @@ export default function RealmPage() {
         });
         // Save only the changed tile
         try {
-            await fetch('/api/realm-tiles', {
+            const res = await fetch('/api/realm-tiles', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ x, y, tile_type: tileTypeToNumeric[selectedTile.type] })
             });
+            if (!res.ok) {
+                const err = await res.json();
+                toast({ title: 'Error', description: `Failed to save tile: ${err.error}`, variant: 'destructive' });
+                console.error('Tile save error:', err);
+            } else {
+                // Unlock achievement for special tiles
+                const tileTypeToAchievement: Record<string, string> = {
+                    'ice': '013', // Example: 013 = first ice tile placed
+                    'snow': '016', // Example: 016 = first snow tile placed
+                    'cave': '011', // Example: 011 = first cave tile placed
+                    // Add more mappings as needed
+                };
+                const achievementId = tileTypeToAchievement[selectedTile.type];
+                if (achievementId && userId) {
+                    try {
+                        const unlockRes = await fetch('/api/achievements/unlock', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ achievementId })
+                        });
+                        if (!unlockRes.ok) {
+                            const unlockErr = await unlockRes.json();
+                            toast({ title: 'Achievement Error', description: `Failed to unlock achievement: ${unlockErr.error}`, variant: 'destructive' });
+                            console.error('Achievement unlock error:', unlockErr);
+                        }
+                    } catch (err) {
+                        toast({ title: 'Achievement Error', description: 'Failed to unlock achievement', variant: 'destructive' });
+                        console.error('Achievement unlock error:', err);
+                    }
+                }
+            }
         } catch (err) {
             toast({ title: 'Error', description: 'Failed to save tile', variant: 'destructive' });
+            console.error('Tile save error:', err);
         }
     };
 

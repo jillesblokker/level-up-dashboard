@@ -87,7 +87,7 @@ export async function POST(request: Request) {
     }
     const { x, y, tile_type, event_type } = await request.json();
     if (typeof x !== 'number' || typeof y !== 'number' || typeof tile_type !== 'number') {
-      return NextResponse.json({ error: 'Missing or invalid tile data' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing or invalid tile data', details: { x, y, tile_type } }, { status: 400 });
     }
     // Build the update object for the correct tile column
     const updateObj: any = {
@@ -102,10 +102,12 @@ export async function POST(request: Request) {
         { user_id: userId, y, ...updateObj }
       ], { onConflict: 'user_id,y' });
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error('[REALM-TILES][POST] Supabase error:', error, { x, y, tile_type, event_type });
+      return NextResponse.json({ error: error.message, details: error }, { status: 500 });
     }
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('[REALM-TILES][POST] Internal server error:', error);
+    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)), details: error }, { status: 500 });
   }
 } 
