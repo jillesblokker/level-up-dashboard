@@ -299,8 +299,9 @@ export default function RealmPage() {
                         for (let x = 0; x < GRID_COLS; x++) {
                             const typeNum = row[`tile_${x}_type`];
                             const tileType = typeof typeNum === 'number' ? numericToTileType[typeNum] || 'empty' : 'empty';
-                            if (typeof gridArr[row.y][x] === 'undefined') continue;
-                            gridArr[row.y][x] = {
+                            const rowArr = gridArr[row.y];
+                            if (!rowArr || typeof rowArr[x] === 'undefined') continue;
+                            rowArr[x] = {
                                 ...defaultTile(tileType),
                                 x,
                                 y: row.y,
@@ -340,12 +341,9 @@ export default function RealmPage() {
     });
 
     useEffect(() => {
-        if (autoSave && saveStatus !== 'saving') {
-            const timer = setTimeout(() => saveGrid(grid), AUTOSAVE_INTERVAL);
-            return () => clearTimeout(timer);
-        }
+        // Autosave logic is no longer needed with per-tile saving
         return undefined;
-    }, [grid, saveGrid, saveStatus, autoSave]);
+    }, [grid, autoSave, saveStatus]);
 
     // Place tile: update grid and send only the changed tile to backend
     const handlePlaceTile = async (x: number, y: number) => {
