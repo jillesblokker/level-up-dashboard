@@ -2,15 +2,33 @@ import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '../../../pages/api/server-client';
 
-// Initial grid data (7 rows x 12 columns)
+// Tile type legend:
+// 0 = empty
+// 1 = mountain
+// 2 = grass
+// 3 = forest
+// 4 = water
+// 5 = city
+// 6 = town
+// 7 = mystery
+// 8 = portal-entrance
+// 9 = portal-exit
+// 10 = snow
+// 11 = cave
+// 12 = dungeon
+// 13 = castle
+// 14 = ice
+// 15 = lava
+// 16 = volcano
+// (add more as needed)
 const INITIAL_GRID: number[][] = [
-  [1,1,1,1,1,1,1,1,1,1,1,1],
-  [1,2,2,5,2,2,2,2,2,2,2,1],
-  [1,2,2,2,2,2,2,2,2,2,2,1],
-  [1,2,2,2,2,2,2,2,2,2,2,1],
-  [1,2,2,2,2,2,2,6,2,2,2,1],
-  [1,2,2,2,2,2,2,2,2,2,2,1],
-  [1,1,1,1,1,1,1,1,1,1,1,1],
+  [1,1,2,1,1,1,1,1,1,1,1,1,1],
+  [1,2,2,5,2,2,2,2,2,2,2,2,1],
+  [1,2,3,3,3,3,3,3,3,3,3,2,1],
+  [1,2,2,2,2,3,3,3,3,3,2,7,1],
+  [1,2,2,2,4,4,3,6,3,3,3,2,1],
+  [1,2,7,2,4,4,3,2,3,3,3,2,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,1],
 ];
 
 // GET: Return all tiles for the user, ordered by y
