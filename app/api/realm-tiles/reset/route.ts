@@ -43,7 +43,8 @@ export async function POST() {
       .delete()
       .eq('user_id', userId);
     if (deleteError) {
-      return NextResponse.json({ error: deleteError.message }, { status: 500 });
+      console.error('[RESET][DELETE] Supabase error:', deleteError);
+      return NextResponse.json({ error: deleteError.message, details: deleteError }, { status: 500 });
     }
     // Insert the initial grid
     const now = new Date().toISOString();
@@ -60,10 +61,12 @@ export async function POST() {
       .from('realm_tiles')
       .insert(rows);
     if (insertError) {
-      return NextResponse.json({ error: insertError.message }, { status: 500 });
+      console.error('[RESET][INSERT] Supabase error:', insertError);
+      return NextResponse.json({ error: insertError.message, details: insertError }, { status: 500 });
     }
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('[RESET][CATCH] Internal server error:', error);
+    return NextResponse.json({ error: 'Internal server error', details: String(error) }, { status: 500 });
   }
 } 
