@@ -258,11 +258,58 @@ export default function QuestsPage() {
     });
   }, []);
 
-  // Mark quest as complete (UI only)
-  const handleQuestToggle = (questId: string, currentCompleted: boolean) => {
-    setQuests(prev => prev.map(q =>
-      q.id === questId ? { ...q, completed: !currentCompleted } : q
-    ));
+  // Mark quest as complete (sync with backend)
+  const handleQuestToggle = async (questId: string, currentCompleted: boolean) => {
+    // Find the quest object
+    const quest = quests.find(q => q.id === questId);
+    if (!quest) return;
+    try {
+      setLoading(true);
+      const token = await getToken();
+      if (!token) throw new Error('No Clerk token');
+      // Call the backend to upsert quest completion
+      const res = await fetch('/api/quests/completion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ questId: quest.id }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        toast({ title: 'Error', description: `Failed to update quest: ${err.error || res.statusText}` });
+        setLoading(false);
+        return;
+      }
+      // Now update the completed status (toggle)
+      const updateRes = await fetch('/api/quests/completion', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ questId: quest.id, completed: !currentCompleted }),
+      });
+      if (!updateRes.ok) {
+        const err = await updateRes.json();
+        toast({ title: 'Error', description: `Failed to update quest: ${err.error || updateRes.statusText}` });
+        setLoading(false);
+        return;
+      }
+      // Re-fetch quests from backend
+      const fetchRes = await fetch('/api/quests', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (fetchRes.ok) {
+        const data = await fetchRes.json();
+        setQuests(data || []);
+      }
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message || 'Failed to update quest' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Edit quest (open modal)
