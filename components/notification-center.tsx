@@ -103,7 +103,7 @@ export function NotificationCenter() {
           {notifications.length === 0 ? (
             <div className="flex justify-center items-center h-full p-8">
               <div className="flex flex-col items-center bg-gray-900/50 rounded-lg border border-gray-800 p-6 w-full max-w-xs mx-auto">
-                <img src="/images/Notifications/no_mail.png" alt="No mail" className="mx-auto h-32 w-32 my-4" />
+                <img src="/images/Notifications/no_mail.png" alt="No mail" className="mx-auto h-32 w-32 my-4" width={128} height={128} />
               </div>
             </div>
           ) : (
