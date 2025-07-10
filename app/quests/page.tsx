@@ -189,12 +189,25 @@ export default function QuestsPage() {
 
   // Fetch quests for the logged-in user
   useEffect(() => {
-    if (!isClerkLoaded || !isUserLoaded) return;
-    setLoading(true);
-    const fetchQuests = async () => {
+    let cancelled = false;
+    async function fetchQuestsWithRetry(retries = 2) {
+      if (!isClerkLoaded || !isUserLoaded) return;
+      setLoading(true);
+      let token = await getToken();
+      let attempts = 0;
+      while (!token && attempts < retries) {
+        // Wait 200ms and try again
+        await new Promise(res => setTimeout(res, 200));
+        token = await getToken();
+        attempts++;
+      }
+      if (!token) {
+        setLoading(false);
+        setError('[Quests Debug] No Clerk token available, skipping fetch.');
+        console.error('[Quests Debug] No Clerk token available, skipping fetch.');
+        return;
+      }
       try {
-        const token = await getToken();
-        if (!token) throw new Error('No Clerk token');
         console.log('[Quests Debug] Fetching /api/quests with token:', token.slice(0, 10), '...');
         const res = await fetch('/api/quests', {
           headers: {
@@ -212,8 +225,9 @@ export default function QuestsPage() {
       } finally {
         setLoading(false);
       }
-    };
-    fetchQuests();
+    }
+    fetchQuestsWithRetry();
+    return () => { cancelled = true; };
   }, [isClerkLoaded, isUserLoaded, getToken]);
 
   // Daily reset logic for non-milestone quests
