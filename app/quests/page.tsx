@@ -482,6 +482,56 @@ export default function QuestsPage() {
     setAddQuestModalOpen(false);
   };
 
+  // Fetch milestones when token is present
+  useEffect(() => {
+    if (!token) return;
+    async function fetchMilestones() {
+      try {
+        if (!token) return; // Guard for linter
+        console.log('[Milestones Debug] Fetching /api/milestones with token:', token.slice(0, 10), '...');
+        const res = await fetch('/api/milestones', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!res.ok) throw new Error('Failed to fetch milestones');
+        const data = await res.json();
+        console.log('[Milestones Debug] fetched milestones:', data);
+        setMilestones(data || []);
+      } catch (err: any) {
+        setError('[Milestones Debug] Error fetching milestones: ' + (err.message || 'Failed to fetch milestones'));
+        setMilestones([]);
+        console.error('[Milestones Debug] Error fetching milestones:', err);
+      }
+    }
+    fetchMilestones();
+  }, [token]);
+
+  // Fetch challenges when token is present
+  useEffect(() => {
+    if (!token) return;
+    async function fetchChallenges() {
+      try {
+        if (!token) return; // Guard for linter
+        console.log('[Challenges Debug] Fetching /api/challenges with token:', token.slice(0, 10), '...');
+        const res = await fetch('/api/challenges', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!res.ok) throw new Error('Failed to fetch challenges');
+        const data = await res.json();
+        console.log('[Challenges Debug] fetched challenges:', data);
+        setChallenges(data || []);
+      } catch (err: any) {
+        setError('[Challenges Debug] Error fetching challenges: ' + (err.message || 'Failed to fetch challenges'));
+        setChallenges([]);
+        console.error('[Challenges Debug] Error fetching challenges:', err);
+      }
+    }
+    fetchChallenges();
+  }, [token]);
+
   if (!isClerkLoaded || !isUserLoaded) {
     console.log('Waiting for auth and Clerk client...');
     return (
