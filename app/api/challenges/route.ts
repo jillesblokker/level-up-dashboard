@@ -8,9 +8,11 @@ async function getUserIdFromRequest(request: Request): Promise<string | null> {
   try {
     const nextReq = request instanceof NextRequest ? request : new NextRequest(request.url, { headers: request.headers, method: request.method, body: (request as any).body });
     const authHeader = nextReq.headers.get('authorization');
+    console.log('[getUserIdFromRequest] Authorization header:', authHeader);
     if (!authHeader) return null;
     const token = authHeader.replace(/^Bearer /i, '');
     const { userId } = getAuth(nextReq);
+    console.log('[getUserIdFromRequest] Extracted userId:', userId);
     return userId || null;
   } catch (e) {
     console.error('[Clerk] JWT verification failed:', e);
