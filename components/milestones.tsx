@@ -64,7 +64,11 @@ const CUSTOM_MILESTONES_KEY = 'custom-milestones-v2';
 const MILESTONE_PROGRESS_KEY = 'milestone-progress-v2';
 const MILESTONE_STREAKS_KEY = 'milestone-streaks-v2';
 
-export function Milestones() {
+interface MilestonesProps {
+  token: string | null;
+}
+
+export function Milestones({ token }: MilestonesProps) {
   const { userId } = useAuth();
   const { supabase, isLoading: isSupabaseLoading } = useSupabase();
   const [milestones, setMilestones] = useState<Milestone[]>([]);
@@ -115,25 +119,27 @@ export function Milestones() {
   useEffect(() => { storageService.set("milestone-completion-dates-v2", completionDates); }, [completionDates]);
 
   useEffect(() => {
-    if (!userId || !supabase || isSupabaseLoading) {
-      console.log('Waiting for auth and Supabase client...');
+    if (!userId || !supabase || isSupabaseLoading || !token) {
+      console.log('Waiting for auth, Supabase client, or token...');
       return;
     }
-
     const fetchMilestones = async () => {
       try {
         setIsLoading(true);
-        console.log('Fetching milestones...');
-        // Fetch milestones from the correct API
-        const response = await fetch('/api/milestones');
+        console.log('[Milestones Debug] Fetching /api/milestones with token:', token.slice(0, 10), '...');
+        const response = await fetch('/api/milestones', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch milestones');
         }
         const milestoneData = await response.json();
-        console.log('Fetched milestones:', milestoneData);
+        console.log('[Milestones Debug] fetched milestones:', milestoneData);
         setMilestones(milestoneData || []);
       } catch (err) {
-        console.error('Failed to fetch milestones:', err);
+        console.error('[Milestones Debug] Error fetching milestones:', err);
         toast({
           title: 'Error',
           description: 'Failed to load milestones. Please try again.',
@@ -144,7 +150,7 @@ export function Milestones() {
       }
     };
     fetchMilestones();
-  }, [userId, supabase, isSupabaseLoading, newQuestCategory, toast]);
+  }, [userId, supabase, isSupabaseLoading, token, newQuestCategory, toast]);
 
   // When milestones are loaded, sync checkedMilestones with completed milestones
   useEffect(() => {

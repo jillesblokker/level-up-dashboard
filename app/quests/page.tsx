@@ -752,7 +752,7 @@ export default function QuestsPage() {
                 ))}
               </select>
             </div>
-            <Milestones key={milestoneCategory} />
+            <Milestones key={milestoneCategory} token={token} />
           </TabsContent>
         </Tabs>
       </div>
