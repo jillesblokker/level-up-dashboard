@@ -40,5 +40,6 @@ export async function grantReward({
     logArgs.relatedId = relatedId;
   }
   console.log('[grantReward] Logging event:', logArgs);
-  await logKingdomEvent(logArgs);
+  const result = await logKingdomEvent(logArgs);
+  console.log('[grantReward] logKingdomEvent result:', result);
 } 

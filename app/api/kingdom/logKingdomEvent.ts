@@ -15,7 +15,8 @@ export async function logKingdomEvent({
   amount?: number,
   context?: any
 }) {
-  await supabaseServer.from('kingdom_event_log').insert([{
+  console.log('[logKingdomEvent] Inserting event:', { userId, eventType, relatedId, amount, context });
+  const { data, error } = await supabaseServer.from('kingdom_event_log').insert([{
     user_id: userId,
     event_type: eventType,
     related_id: relatedId,
@@ -23,4 +24,9 @@ export async function logKingdomEvent({
     context,
     created_at: new Date().toISOString()
   }]);
+  if (error) {
+    console.error('[logKingdomEvent] Insert error:', error);
+  } else {
+    console.log('[logKingdomEvent] Inserted event:', data);
+  }
 } 

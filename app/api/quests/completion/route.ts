@@ -18,6 +18,7 @@ export async function POST(request: Request) {
       console.error('[API/quests/completion] Missing questId');
       return NextResponse.json({ error: 'Missing questId' }, { status: 400 });
     }
+    console.log('[API/quests/completion] User:', userId, 'QuestId:', questId);
     // Fetch quest to get rewards
     const { data: quest, error: questError } = await supabaseServer
       .from('quests')
@@ -43,6 +44,7 @@ export async function POST(request: Request) {
       console.error('[API/quests/completion] Supabase insert error:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
+    console.log('[API/quests/completion] Upserted quest_completion:', questCompletion);
     // Log the quest completion event (XP and gold as separate logs)
     await grantReward({
       userId,
