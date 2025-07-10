@@ -415,11 +415,13 @@ export default function NotificationsPage() {
                     </Card>
                   ))
                 ) : (
-                  <div className="text-center py-12 bg-gray-900/50 rounded-lg border border-gray-800">
-                    <Bell className="mx-auto h-12 w-12 text-gray-700 mb-4" />
+                  <Card className="flex flex-col items-center justify-center py-12 bg-gray-900/50 rounded-lg border border-gray-800">
+                    <img src="/images/Notifications/no_mail.png" alt="No mail" className="mx-auto h-32 w-32 mb-6" />
                     <h3 className="text-lg font-medium mb-2">No Notifications</h3>
-                    <p className="text-muted-foreground">You&apos;re all caught up!</p>
-                  </div>
+                    <p className="text-muted-foreground text-center max-w-xs mx-auto">
+                      You must have just missed the courier. No messages from your loyal subjects at this moment
+                    </p>
+                  </Card>
                 )}
               </TabsContent>
 
@@ -478,11 +480,13 @@ export default function NotificationsPage() {
                       </Card>
                     ))
                 ) : (
-                  <div className="text-center py-12 bg-gray-900/50 rounded-lg border border-gray-800">
-                    <CheckCircle className="mx-auto h-12 w-12 text-green-700 mb-4" />
+                  <Card className="flex flex-col items-center justify-center py-12 bg-gray-900/50 rounded-lg border border-gray-800">
+                    <img src="/images/Notifications/no_mail.png" alt="No mail" className="mx-auto h-32 w-32 mb-6" />
                     <h3 className="text-lg font-medium mb-2">No Unread Notifications</h3>
-                    <p className="text-muted-foreground">You&apos;ve read all your notifications!</p>
-                  </div>
+                    <p className="text-muted-foreground text-center max-w-xs mx-auto">
+                      You must have just missed the courier. No messages from your loyal subjects at this moment
+                    </p>
+                  </Card>
                 )}
               </TabsContent>
             </Tabs>
