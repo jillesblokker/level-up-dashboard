@@ -124,80 +124,14 @@ export function Milestones() {
       try {
         setIsLoading(true);
         console.log('Fetching milestones...');
-        
-        // Fetch quests from the API
-        const response = await fetch('/api/quests');
+        // Fetch milestones from the correct API
+        const response = await fetch('/api/milestones');
         if (!response.ok) {
-          throw new Error('Failed to fetch quests');
+          throw new Error('Failed to fetch milestones');
         }
-        
-        const questData: QuestResponse[] = await response.json();
-        console.log('Fetched quests:', questData);
-        
-        // Filter quests by category if specified
-        const filteredQuests = newQuestCategory 
-          ? questData.filter(q => q.category === newQuestCategory)
-          : questData;
-        
-        // If none exist for this category, create a default one
-        if (filteredQuests.length === 0 && newQuestCategory) {
-          const categoryQuests = defaultQuests.filter((q: Quest) => q.category === newQuestCategory);
-          if (categoryQuests.length > 0) {
-            const randomQuest = categoryQuests[Math.floor(Math.random() * categoryQuests.length)];
-            if (randomQuest) {
-              try {
-                // Create a new quest completion
-                const createResponse = await fetch('/api/quests', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({
-                    name: `Milestone: ${randomQuest.title}`,
-                    category: newQuestCategory,
-                  }),
-                });
-                
-                if (createResponse.ok) {
-                  const newQuest = await createResponse.json();
-                  setMilestones([{
-                    id: newQuest.name, // Use name as ID since that's what we have
-                    name: newQuest.name,
-                    category: newQuest.category,
-                    icon: '🎯',
-                    experience: 500, // Default milestone rewards
-                    gold: 250,
-                    frequency: 'once',
-                    progress: 0,
-                    target: 10,
-                    completed: false
-                  }]);
-                  return;
-                }
-              } catch (err) {
-                console.error('Failed to create default milestone:', err);
-                toast({
-                  title: 'Error',
-                  description: 'Failed to create default milestone. Please try again.',
-                  variant: 'destructive'
-                });
-              }
-            }
-          }
-        }
-        
-        setMilestones(filteredQuests.map(q => ({
-          id: q.name, // Use name as ID
-          name: q.name,
-          category: q.category,
-          icon: '🎯',
-          experience: 500, // Default milestone rewards
-          gold: 250,
-          frequency: 'once',
-          progress: q.completed ? 100 : 0,
-          target: 1,
-          completed: q.completed
-        })));
+        const milestoneData = await response.json();
+        console.log('Fetched milestones:', milestoneData);
+        setMilestones(milestoneData || []);
       } catch (err) {
         console.error('Failed to fetch milestones:', err);
         toast({
