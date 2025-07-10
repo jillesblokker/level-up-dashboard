@@ -66,9 +66,10 @@ const MILESTONE_STREAKS_KEY = 'milestone-streaks-v2';
 
 interface MilestonesProps {
   token: string | null;
+  onUpdateProgress?: (milestoneId: string, currentCompleted: boolean) => Promise<void>;
 }
 
-export function Milestones({ token }: MilestonesProps) {
+export function Milestones({ token, onUpdateProgress }: MilestonesProps) {
   const { userId } = useAuth();
   const { supabase, isLoading: isSupabaseLoading } = useSupabase();
   const [milestones, setMilestones] = useState<Milestone[]>([]);
@@ -256,48 +257,53 @@ export function Milestones({ token }: MilestonesProps) {
 
   const handleToggleCompletion = async (id: string, completed: boolean) => {
     try {
-      // Find the milestone to get its name
+      // Find the milestone to get its id
       const milestone = milestones.find(m => m.id === id);
       if (!milestone) return;
-      
-      const response = await fetch('/api/quests', {
+      if (!token) throw new Error('No Clerk token');
+      // First, upsert the completion row
+      const res = await fetch('/api/milestones/completion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ milestoneId: milestone.id }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Failed to upsert milestone completion');
+      }
+      // Then, update the completed status
+      const updateRes = await fetch('/api/milestones/completion', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          questName: milestone.name,
-          completed: completed,
-        }),
+        body: JSON.stringify({ milestoneId: milestone.id, completed }),
       });
-      
-      if (!response.ok) {
-        throw new Error('Failed to update milestone');
+      if (!updateRes.ok) {
+        const err = await updateRes.json();
+        throw new Error(err.error || 'Failed to update milestone completion');
       }
-      
-      setMilestones(prev => prev.map(m => 
-        m.id === id 
-          ? { ...m, completed, progress: completed ? 100 : 0 }
-          : m
-      ));
-      
+      setMilestones(prev => prev.map(m => m.id === id ? { ...m, completed, progress: completed ? 100 : 0 } : m));
       // Update checked milestones
       if (completed) {
         setCheckedMilestones(prev => [...prev, id]);
       } else {
         setCheckedMilestones(prev => prev.filter(mId => mId !== id));
       }
-      
       toast({
-        title: "Success",
-        description: completed ? "Milestone completed!" : "Milestone unchecked!",
+        title: 'Success',
+        description: completed ? 'Milestone completed!' : 'Milestone unchecked!',
       });
     } catch (error) {
       console.error('Error toggling milestone completion:', error);
       toast({
-        title: "Error",
-        description: "Failed to update milestone. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to update milestone. Please try again.',
+        variant: 'destructive',
       });
     }
   };
@@ -582,29 +588,11 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
   };
 
   const toggleCompletion = async () => {
-    if (!user?.id || !supabase || isUpdating) return;
+    if (isUpdating) return;
     setIsUpdating(true);
     try {
-      // Update in Supabase
-      const response = await fetch('/api/quests', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          questName: milestone.name,
-          completed: !completed,
-        }),
-      });
-
-      if (!response.ok) throw new Error('Failed to update milestone');
-
+      await onUpdateProgress(milestone.id, !completed);
       setCompleted(!completed);
-      toast({
-        title: !completed ? 'Milestone Completed' : 'Milestone Uncompleted',
-        description: !completed ? 'Great job completing this milestone!' : 'Milestone marked as incomplete.',
-      });
-
       // Live update character stats and fire events
       const stats = getCharacterStats();
       let newXP = stats.experience;
