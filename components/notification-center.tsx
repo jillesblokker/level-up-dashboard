@@ -101,7 +101,15 @@ export function NotificationCenter() {
         </div>
         <div className="divide-y divide-amber-800/10 max-h-[80vh] overflow-auto">
           {notifications.length === 0 ? (
-            <div className="p-4 text-center text-muted-foreground">No notifications</div>
+            <div className="flex justify-center items-center h-full p-8">
+              <div className="flex flex-col items-center bg-gray-900/50 rounded-lg border border-gray-800 p-8 w-full max-w-xs mx-auto">
+                <img src="/images/Notifications/no_mail.png" alt="No mail" className="mx-auto h-32 w-32 mb-6" />
+                <h3 className="text-lg font-medium mb-2">No Notifications</h3>
+                <p className="text-muted-foreground text-center max-w-xs mx-auto">
+                  You must have just missed the courier. No messages from your loyal subjects at this moment
+                </p>
+              </div>
+            </div>
           ) : (
             notifications.map((notification) => (
               <div key={notification.id} className={cn("p-3 relative", !notification.read && "bg-amber-900/10")}>
