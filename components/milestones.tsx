@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
-import { Sword, Brain, Crown, Castle, Hammer, Heart, PlusCircle, Trash2, Pencil } from "lucide-react"
+import { Sword, Brain, Crown, Castle, Hammer, Heart, PlusCircle, Trash2, Pencil, Sun, PersonStanding } from "lucide-react"
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useUser } from "@clerk/nextjs"
 import { defaultQuests } from '@/lib/quest-sample-data'
@@ -48,6 +48,8 @@ const milestoneCategories = [
   { key: 'castle', label: 'Castle', icon: Castle, iconClass: 'text-purple-500' },
   { key: 'craft', label: 'Craft', icon: Hammer, iconClass: 'text-amber-500' },
   { key: 'vitality', label: 'Vitality', icon: Heart, iconClass: 'text-green-500' },
+  { key: 'wellness', label: 'Wellness', icon: Sun, iconClass: 'text-amber-400' },
+  { key: 'exploration', label: 'Exploration', icon: PersonStanding, iconClass: 'text-blue-400' },
 ];
 
 const defaultMilestoneCards: Record<string, { title: string; description: string }> = {
@@ -57,6 +59,8 @@ const defaultMilestoneCards: Record<string, { title: string; description: string
   castle:   { title: 'Host 50 Dinners for Friends', description: 'Host 50 dinners or gatherings at your home' },
   craft:    { title: 'Complete a 365-Day Drawing Challenge', description: 'Draw something every day for a year' },
   vitality: { title: 'Plank 3:00', description: 'Hold a plank for 3 minutes straight' },
+  wellness: { title: 'Do a Yoga Session', description: 'Stretch to avoid a stretcher. Keep those shoulders down' },
+  exploration: { title: 'Hike 2km', description: 'Why are you running' },
 };
 
 // Add localStorage keys
