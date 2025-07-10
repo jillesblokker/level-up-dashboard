@@ -186,28 +186,33 @@ export default function QuestsPage() {
   const [questToDelete, setQuestToDelete] = useState<Quest | null>(null);
   const [milestones, setMilestones] = useState<any[]>([]);
   const [challenges, setChallenges] = useState<any[]>([]);
+  const [token, setToken] = useState<string | null>(null);
 
-  // Fetch quests for the logged-in user
+  // Acquire token only when Clerk is loaded and user is loaded
   useEffect(() => {
     let cancelled = false;
-    async function fetchQuestsWithRetry(retries = 2) {
+    async function getClerkToken() {
       if (!isClerkLoaded || !isUserLoaded) return;
-      setLoading(true);
-      let token = await getToken();
+      let t = await getToken();
       let attempts = 0;
-      while (!token && attempts < retries) {
-        // Wait 200ms and try again
+      while (!t && attempts < 2) {
         await new Promise(res => setTimeout(res, 200));
-        token = await getToken();
+        t = await getToken();
         attempts++;
       }
-      if (!token) {
-        setLoading(false);
-        setError('[Quests Debug] No Clerk token available, skipping fetch.');
-        console.error('[Quests Debug] No Clerk token available, skipping fetch.');
-        return;
-      }
+      if (!cancelled) setToken(t || null);
+    }
+    getClerkToken();
+    return () => { cancelled = true; };
+  }, [isClerkLoaded, isUserLoaded, getToken]);
+
+  // Fetch quests when token is present
+  useEffect(() => {
+    if (!token) return;
+    setLoading(true);
+    async function fetchQuests() {
       try {
+        if (!token) return; // Guard for linter
         console.log('[Quests Debug] Fetching /api/quests with token:', token.slice(0, 10), '...');
         const res = await fetch('/api/quests', {
           headers: {
@@ -226,9 +231,8 @@ export default function QuestsPage() {
         setLoading(false);
       }
     }
-    fetchQuestsWithRetry();
-    return () => { cancelled = true; };
-  }, [isClerkLoaded, isUserLoaded, getToken]);
+    fetchQuests();
+  }, [token]);
 
   // Daily reset logic for non-milestone quests
   useEffect(() => {
