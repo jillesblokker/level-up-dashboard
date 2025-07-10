@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { supabase } from '@/lib/supabase/client';
+import { supabaseServer } from '@/lib/supabase/server-client';
 
 export async function POST(request: Request) {
   const logs: any[] = [];
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Creature ID is required', logs }, { status: 400 });
     }
     // Insert into DiscoveredCreatures if not already present
-    const { data: existing, error: fetchError } = await supabase
+    const { data: existing, error: fetchError } = await supabaseServer
       .from('DiscoveredCreatures')
       .select('*')
       .eq('user_id', userId)
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
       logs.push({ step: 'already discovered' });
       return NextResponse.json({ success: true, alreadyDiscovered: true, logs });
     }
-    const { error, data: insertData } = await supabase.from('DiscoveredCreatures').insert([
+    const { error, data: insertData } = await supabaseServer.from('DiscoveredCreatures').insert([
       {
         user_id: userId,
         creature_id: creatureId,

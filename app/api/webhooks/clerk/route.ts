@@ -2,7 +2,7 @@ import { Webhook } from 'svix'
 import { headers } from 'next/headers'
 import { WebhookEvent } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase/client';
+import { supabaseServer } from '@/lib/supabase/server-client';
 // TODO: Implement Clerk webhook logic with Supabase client
 
 export async function POST(req: Request) {
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
 
     try {
       // Insert user into Supabase 'users' table
-      const { error } = await supabase
+      const { error } = await supabaseServer
         .from('users')
         .insert([{ id, email }]);
       if (error) {

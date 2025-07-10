@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { supabase } from '@/lib/supabase/client';
+import { supabaseServer } from '@/lib/supabase/server-client';
 // TODO: Replace all Prisma logic with Supabase client logic
 
 export const dynamic = 'force-dynamic';
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     // Try to create the tile placement
     try {
       // Attempt to insert the tile placement
-      const { data: placement, error } = await supabase
+      const { data: placement, error } = await supabaseServer
         .from('tile_placement') // your table name, adjust as needed
         .insert([
           {
@@ -90,7 +90,7 @@ export async function GET() {
 
     // TODO: Replace all Prisma logic with Supabase client logic
 
-    const { data: placements, error } = await supabase
+    const { data: placements, error } = await supabaseServer
       .from('tile_placement') // your table name, adjust as needed
       .select('*')
       .eq('user_id', userId) // filter by user_id
