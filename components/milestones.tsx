@@ -374,7 +374,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       setCompleted(prev => ({ ...prev, [id]: false }));
     }
   };
-  const handleCheckboxToggle = (id: string, target: number) => {
+  const handleCheckboxToggle = async (id: string, target: number) => {
     const isNowComplete = !completed[id];
     setCompleted(prev => ({ ...prev, [id]: isNowComplete }));
     setProgress(prev => ({ ...prev, [id]: isNowComplete ? target : 0 }));
@@ -394,6 +394,32 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       setStreaks(prev => ({ ...prev, [id]: 0 }));
       setCompletionDates(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
     }
+    // Persist to backend if milestone exists in backend
+    const milestone = milestones.find(m => m.id === id);
+    if (milestone && token) {
+      try {
+        // Upsert completion row
+        await fetch('/api/milestones/completion', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ milestoneId: milestone.id }),
+        });
+        // Update completed status
+        await fetch('/api/milestones/completion', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ milestoneId: milestone.id, completed: isNowComplete }),
+        });
+        // Emit kingdom event for stats
+        if (isNowComplete) {
+          import('@/lib/kingdom-events').then(mod => {
+            mod.emitQuestCompletedWithRewards(milestone.name, milestone.gold, milestone.experience, 'milestone');
+          });
+        }
+      } catch (err) {
+        console.error('Failed to persist milestone completion:', err);
+      }
+    }
   };
 
   useSupabaseRealtimeSync({
@@ -411,118 +437,237 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
   // Filter milestones by category if provided
   const filteredMilestones = category ? milestones.filter(m => m.category?.toLowerCase() === category.toLowerCase()) : milestones;
 
+  // Find the selected category object if category is provided
+  const selectedCategoryObj = category ? milestoneCategories.find(cat => cat.key === category) : null;
+
   return (
     <div className="space-y-8">
-      {milestoneCategories.map(category => {
-        const defaultCard = defaultMilestoneCards[category.key];
-        if (!defaultCard) return null;
-        const colorClass = category.iconClass.replace('text-', 'border-') + ' ' + category.iconClass;
-        const barColor = category.iconClass.replace('text-', 'bg-');
-        // Default milestone as a pseudo-milestone object
-        const defaultMilestone: Milestone = {
-          id: `default-${category.key}`,
-          name: defaultCard.title,
-          category: category.key,
-          icon: '',
-          experience: 500,
-          gold: 250,
-          frequency: 'once',
-          progress: progress[`default-${category.key}`] || 0,
-          target: 1,
-          completed: completed[`default-${category.key}`] || false,
-        };
-        const allMilestones = [defaultMilestone, ...(customMilestones[category.key] || [])];
-        return (
-          <div key={category.key}>
-            <div className="flex items-center gap-2 mb-4">
-              <category.icon className={`h-5 w-5 ${category.iconClass}`} />
-              <h3 className="text-lg font-semibold">{category.label}</h3>
+      {category && selectedCategoryObj ? (
+        (() => {
+          const defaultCard = defaultMilestoneCards[selectedCategoryObj.key];
+          if (!defaultCard) return null;
+          const colorClass = selectedCategoryObj.iconClass.replace('text-', 'border-') + ' ' + selectedCategoryObj.iconClass;
+          const barColor = selectedCategoryObj.iconClass.replace('text-', 'bg-');
+          // Default milestone as a pseudo-milestone object
+          const defaultMilestone: Milestone = {
+            id: `default-${selectedCategoryObj.key}`,
+            name: defaultCard.title,
+            category: selectedCategoryObj.key,
+            icon: '',
+            experience: 500,
+            gold: 250,
+            frequency: 'once',
+            progress: progress[`default-${selectedCategoryObj.key}`] || 0,
+            target: 1,
+            completed: completed[`default-${selectedCategoryObj.key}`] || false,
+          };
+          // Filter milestones and custom milestones by selected category
+          const filteredMilestones = milestones.filter(m => m.category?.toLowerCase() === selectedCategoryObj.key.toLowerCase());
+          const filteredCustomMilestones = (customMilestones[selectedCategoryObj.key] || []);
+          const allMilestones = [defaultMilestone, ...filteredMilestones, ...filteredCustomMilestones];
+          return (
+            <div key={selectedCategoryObj.key}>
+              <div className="flex items-center gap-2 mb-4">
+                <selectedCategoryObj.icon className={`h-5 w-5 ${selectedCategoryObj.iconClass}`} />
+                <h3 className="text-lg font-semibold">{selectedCategoryObj.label}</h3>
+              </div>
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                {allMilestones.map(milestone => (
+                  <CardWithProgress
+                    key={milestone.id}
+                    title={milestone.name}
+                    description={defaultCard ? defaultCard.description : ''}
+                    icon={typeof milestone.icon === 'string' ? <span>{milestone.icon}</span> : milestone.icon}
+                    completed={!!completed[milestone.id]}
+                    onToggle={() => handleCheckboxToggle(milestone.id, milestone.target)}
+                    onEdit={() => { setEditingMilestone(milestone); setEditModalOpen(true); }}
+                    onDelete={() => handleDeleteCustomMilestone(selectedCategoryObj.key, milestone.id)}
+                    progress={milestone.progress}
+                    xp={milestone.experience}
+                    gold={milestone.gold}
+                  />
+                ))}
+                {/* Add Custom Milestone Card */}
+                <Card
+                  className="flex flex-col items-center justify-center border-2 border-dashed border-amber-800 bg-black/20 shadow-md cursor-pointer hover:bg-black/30 min-h-[180px]"
+                  role="button"
+                  aria-label="add-custom-milestone-card"
+                  tabIndex={0}
+                  onClick={() => setAddModalOpen(selectedCategoryObj.key)}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setAddModalOpen(selectedCategoryObj.key); }}
+                >
+                  <CardContent className="flex flex-col items-center justify-center flex-1 py-8">
+                    <PlusCircle className="w-8 h-8 text-amber-500 mb-2" />
+                    <span className="text-amber-300 font-semibold">Add Custom Milestone</span>
+                  </CardContent>
+                </Card>
+              </div>
+              {/* Add Custom Milestone Modal */}
+              <Dialog open={addModalOpen === selectedCategoryObj.key} onOpenChange={open => setAddModalOpen(open ? selectedCategoryObj.key : null)}>
+                <DialogContent role="dialog" aria-label="milestone-modal">
+                  <DialogHeader>
+                    <DialogTitle>Add Custom Milestone</DialogTitle>
+                    <DialogDescription id="milestone-modal-desc">Set up a new milestone for {selectedCategoryObj.label}</DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="milestone-name">Milestone Name</Label>
+                      <Input
+                        id="milestone-name"
+                        value={newMilestone.name}
+                        onChange={e => setNewMilestone({ ...newMilestone, name: e.target.value })}
+                        placeholder="Enter milestone name"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="milestone-target">Target</Label>
+                      <Input
+                        id="milestone-target"
+                        type="number"
+                        value={newMilestone.target}
+                        onChange={e => setNewMilestone({ ...newMilestone, target: Number(e.target.value) })}
+                        placeholder="Enter target value"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="milestone-experience">Experience Points</Label>
+                      <Input
+                        id="milestone-experience"
+                        type="number"
+                        value={newMilestone.experience}
+                        onChange={e => setNewMilestone({ ...newMilestone, experience: Number(e.target.value) })}
+                        placeholder="Enter experience points"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="milestone-gold">Gold</Label>
+                      <Input
+                        id="milestone-gold"
+                        type="number"
+                        value={newMilestone.gold}
+                        onChange={e => setNewMilestone({ ...newMilestone, gold: Number(e.target.value) })}
+                        placeholder="Enter gold amount"
+                      />
+                    </div>
+                    <Button onClick={() => handleAddCustomMilestone(selectedCategoryObj.key)}>Add Milestone</Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {allMilestones.map(milestone => (
-                <CardWithProgress
-                  key={milestone.id}
-                  title={milestone.name}
-                  description={defaultCard ? defaultCard.description : ''}
-                  icon={typeof milestone.icon === 'string' ? <span>{milestone.icon}</span> : milestone.icon}
-                  completed={!!completed[milestone.id]}
-                  onToggle={() => handleCheckboxToggle(milestone.id, milestone.target)}
-                  onEdit={() => { setEditingMilestone(milestone); setEditModalOpen(true); }}
-                  onDelete={() => handleDeleteCustomMilestone(category.key, milestone.id)}
-                  progress={milestone.progress}
-                  xp={milestone.experience}
-                  gold={milestone.gold}
-                />
-              ))}
-              {/* Add Custom Milestone Card */}
-              <Card
-                className="flex flex-col items-center justify-center border-2 border-dashed border-amber-800 bg-black/20 shadow-md cursor-pointer hover:bg-black/30 min-h-[180px]"
-                role="button"
-                aria-label="add-custom-milestone-card"
-                tabIndex={0}
-                onClick={() => setAddModalOpen(category.key)}
-                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setAddModalOpen(category.key); }}
-              >
-                <CardContent className="flex flex-col items-center justify-center flex-1 py-8">
-                  <PlusCircle className="w-8 h-8 text-amber-500 mb-2" />
-                  <span className="text-amber-300 font-semibold">Add Custom Milestone</span>
-                </CardContent>
-              </Card>
+          );
+        })()
+      ) : (
+        milestoneCategories.map(category => {
+          const defaultCard = defaultMilestoneCards[category.key];
+          if (!defaultCard) return null;
+          const colorClass = category.iconClass.replace('text-', 'border-') + ' ' + category.iconClass;
+          const barColor = category.iconClass.replace('text-', 'bg-');
+          // Default milestone as a pseudo-milestone object
+          const defaultMilestone: Milestone = {
+            id: `default-${category.key}`,
+            name: defaultCard.title,
+            category: category.key,
+            icon: '',
+            experience: 500,
+            gold: 250,
+            frequency: 'once',
+            progress: progress[`default-${category.key}`] || 0,
+            target: 1,
+            completed: completed[`default-${category.key}`] || false,
+          };
+          const allMilestones = [defaultMilestone, ...(customMilestones[category.key] || [])];
+          return (
+            <div key={category.key}>
+              <div className="flex items-center gap-2 mb-4">
+                <category.icon className={`h-5 w-5 ${category.iconClass}`} />
+                <h3 className="text-lg font-semibold">{category.label}</h3>
+              </div>
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                {allMilestones.map(milestone => (
+                  <CardWithProgress
+                    key={milestone.id}
+                    title={milestone.name}
+                    description={defaultCard ? defaultCard.description : ''}
+                    icon={typeof milestone.icon === 'string' ? <span>{milestone.icon}</span> : milestone.icon}
+                    completed={!!completed[milestone.id]}
+                    onToggle={() => handleCheckboxToggle(milestone.id, milestone.target)}
+                    onEdit={() => { setEditingMilestone(milestone); setEditModalOpen(true); }}
+                    onDelete={() => handleDeleteCustomMilestone(category.key, milestone.id)}
+                    progress={milestone.progress}
+                    xp={milestone.experience}
+                    gold={milestone.gold}
+                  />
+                ))}
+                {/* Add Custom Milestone Card */}
+                <Card
+                  className="flex flex-col items-center justify-center border-2 border-dashed border-amber-800 bg-black/20 shadow-md cursor-pointer hover:bg-black/30 min-h-[180px]"
+                  role="button"
+                  aria-label="add-custom-milestone-card"
+                  tabIndex={0}
+                  onClick={() => setAddModalOpen(category.key)}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setAddModalOpen(category.key); }}
+                >
+                  <CardContent className="flex flex-col items-center justify-center flex-1 py-8">
+                    <PlusCircle className="w-8 h-8 text-amber-500 mb-2" />
+                    <span className="text-amber-300 font-semibold">Add Custom Milestone</span>
+                  </CardContent>
+                </Card>
+              </div>
+              {/* Add Custom Milestone Modal */}
+              <Dialog open={addModalOpen === category.key} onOpenChange={open => setAddModalOpen(open ? category.key : null)}>
+                <DialogContent role="dialog" aria-label="milestone-modal">
+                  <DialogHeader>
+                    <DialogTitle>Add Custom Milestone</DialogTitle>
+                    <DialogDescription id="milestone-modal-desc">Set up a new milestone for {category.label}</DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="milestone-name">Milestone Name</Label>
+                      <Input
+                        id="milestone-name"
+                        value={newMilestone.name}
+                        onChange={e => setNewMilestone({ ...newMilestone, name: e.target.value })}
+                        placeholder="Enter milestone name"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="milestone-target">Target</Label>
+                      <Input
+                        id="milestone-target"
+                        type="number"
+                        value={newMilestone.target}
+                        onChange={e => setNewMilestone({ ...newMilestone, target: Number(e.target.value) })}
+                        placeholder="Enter target value"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="milestone-experience">Experience Points</Label>
+                      <Input
+                        id="milestone-experience"
+                        type="number"
+                        value={newMilestone.experience}
+                        onChange={e => setNewMilestone({ ...newMilestone, experience: Number(e.target.value) })}
+                        placeholder="Enter experience points"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="milestone-gold">Gold</Label>
+                      <Input
+                        id="milestone-gold"
+                        type="number"
+                        value={newMilestone.gold}
+                        onChange={e => setNewMilestone({ ...newMilestone, gold: Number(e.target.value) })}
+                        placeholder="Enter gold amount"
+                      />
+                    </div>
+                    <Button onClick={() => handleAddCustomMilestone(category.key)}>Add Milestone</Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
-            {/* Add Custom Milestone Modal */}
-            <Dialog open={addModalOpen === category.key} onOpenChange={open => setAddModalOpen(open ? category.key : null)}>
-              <DialogContent role="dialog" aria-label="milestone-modal">
-                <DialogHeader>
-                  <DialogTitle>Add Custom Milestone</DialogTitle>
-                  <DialogDescription id="milestone-modal-desc">Set up a new milestone for {category.label}</DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="milestone-name">Milestone Name</Label>
-                    <Input
-                      id="milestone-name"
-                      value={newMilestone.name}
-                      onChange={e => setNewMilestone({ ...newMilestone, name: e.target.value })}
-                      placeholder="Enter milestone name"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="milestone-target">Target</Label>
-                    <Input
-                      id="milestone-target"
-                      type="number"
-                      value={newMilestone.target}
-                      onChange={e => setNewMilestone({ ...newMilestone, target: Number(e.target.value) })}
-                      placeholder="Enter target value"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="milestone-experience">Experience Points</Label>
-                    <Input
-                      id="milestone-experience"
-                      type="number"
-                      value={newMilestone.experience}
-                      onChange={e => setNewMilestone({ ...newMilestone, experience: Number(e.target.value) })}
-                      placeholder="Enter experience points"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="milestone-gold">Gold</Label>
-                    <Input
-                      id="milestone-gold"
-                      type="number"
-                      value={newMilestone.gold}
-                      onChange={e => setNewMilestone({ ...newMilestone, gold: Number(e.target.value) })}
-                      placeholder="Enter gold amount"
-                    />
-                  </div>
-                  <Button onClick={() => handleAddCustomMilestone(category.key)}>Add Milestone</Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-        );
-      })}
+          );
+        })
+      )}
       {/* Edit Milestone Modal (simple version) */}
       {editModalOpen && editingMilestone && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
