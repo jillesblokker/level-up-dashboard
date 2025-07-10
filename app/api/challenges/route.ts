@@ -1,10 +1,26 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { NextRequest } from 'next/server';
+import { getAuth } from '@clerk/nextjs/server';
 import { supabaseServer } from '../../../pages/api/server-client';
+
+// Helper to extract and verify Clerk JWT, returns userId or null
+async function getUserIdFromRequest(request: Request): Promise<string | null> {
+  try {
+    const nextReq = request instanceof NextRequest ? request : new NextRequest(request.url, { headers: request.headers, method: request.method, body: (request as any).body });
+    const authHeader = nextReq.headers.get('authorization');
+    if (!authHeader) return null;
+    const token = authHeader.replace(/^Bearer /i, '');
+    const { userId } = getAuth(nextReq);
+    return userId || null;
+  } catch (e) {
+    console.error('[Clerk] JWT verification failed:', e);
+    return null;
+  }
+}
 
 export async function GET(request: Request) {
   try {
-    const { userId } = await auth();
+    const userId = await getUserIdFromRequest(request);
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
