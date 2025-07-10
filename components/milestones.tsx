@@ -67,9 +67,10 @@ const MILESTONE_STREAKS_KEY = 'milestone-streaks-v2';
 interface MilestonesProps {
   token: string | null;
   onUpdateProgress?: (milestoneId: string, currentCompleted: boolean) => Promise<void>;
+  category?: string | undefined;
 }
 
-export function Milestones({ token, onUpdateProgress }: MilestonesProps) {
+export function Milestones({ token, onUpdateProgress, category }: MilestonesProps) {
   const { userId } = useAuth();
   const { supabase, isLoading: isSupabaseLoading } = useSupabase();
   const [milestones, setMilestones] = useState<Milestone[]>([]);
@@ -406,6 +407,9 @@ export function Milestones({ token, onUpdateProgress }: MilestonesProps) {
       }
     }
   });
+
+  // Filter milestones by category if provided
+  const filteredMilestones = category ? milestones.filter(m => m.category?.toLowerCase() === category.toLowerCase()) : milestones;
 
   return (
     <div className="space-y-8">

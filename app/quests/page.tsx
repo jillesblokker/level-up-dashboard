@@ -752,7 +752,7 @@ export default function QuestsPage() {
                 ))}
               </select>
             </div>
-            <Milestones key={milestoneCategory} token={token} onUpdateProgress={handleMilestoneToggle} />
+            <Milestones key={milestoneCategory} token={token} category={milestoneCategory} onUpdateProgress={handleMilestoneToggle} />
           </TabsContent>
         </Tabs>
       </div>
