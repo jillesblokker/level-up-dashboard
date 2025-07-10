@@ -660,64 +660,22 @@ export default function QuestsPage() {
             </div>
             <div className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {/* Render built-in and custom challenges */}
-                {(() => {
-                  const builtIn = workoutPlan.find(day => day.category === challengeCategory)?.exercises ?? [];
-                  const custom = customChallenges[challengeCategory] ?? [];
-                  if (builtIn.length + custom.length === 0) {
-                    return (
-                      <Card
-                        key="start-your-first-challenge"
-                        className="border-2 border-dashed border-amber-500 bg-black/40 flex items-center justify-center min-h-[160px] focus:ring-2 focus:ring-amber-500 cursor-pointer"
-                        tabIndex={0}
-                        role="button"
-                        aria-label="start-your-first-challenge-cta"
-                        onClick={() => setAddChallengeModalOpen(true)}
-                        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setAddChallengeModalOpen(true); } }}
-                      >
-                        <div className="text-center text-amber-400">
-                          <Plus className="w-8 h-8 mx-auto mb-2" />
-                          <p className="text-lg font-semibold">Start your first challenge</p>
-                          <p className="text-sm text-amber-200 mt-1">Add a custom challenge to begin your streak!</p>
-                        </div>
-                      </Card>
-                    );
-                  }
-                  return React.Children.toArray([
-                    ...builtIn.map((exercise, idx) => {
-                      const cardProps: any = {
-                        title: exercise.name,
-                        description: exercise.instructions,
-                        icon: React.createElement(getCategoryIcon(safeQuestCategory)),
-                        completed: completedChallenges[safeQuestCategory]?.[idx] || false,
-                        onToggle: () => handleQuestToggle(exercise.name, completedChallenges[safeQuestCategory]?.[idx] || false),
-                        progress: completedChallenges[safeQuestCategory]?.[idx] ? 100 : 5,
-                        xp: 0,
-                        gold: 0,
-                        streak: 0,
-                      };
-                      return <CardWithProgress key={exercise.name + idx} {...cardProps} />;
-                    }),
-                    ...custom.map((exercise, idx) => {
-                      const builtInLength = builtIn.length;
-                      const cardProps: any = {
-                        title: exercise.name,
-                        description: exercise.instructions,
-                        icon: React.createElement(getCategoryIcon(safeQuestCategory)),
-                        completed: completedChallenges[safeQuestCategory]?.[idx + builtInLength] || false,
-                        onToggle: () => handleQuestToggle(exercise.name, completedChallenges[safeQuestCategory]?.[idx + builtInLength] || false),
-                        progress: completedChallenges[safeQuestCategory]?.[idx + builtInLength] ? 100 : 5,
-                        xp: 0,
-                        gold: 0,
-                        streak: challengeStreaks[challengeCategory]?.[idx + builtInLength] || 0,
-                        onEdit: () => handleEditQuest(exercise),
-                        onDelete: () => handleDeleteQuest(exercise.name),
-                      };
-                      return <CardWithProgress key={exercise.name + (idx + builtInLength)} {...cardProps} />;
-                    })
-                  ]);
-                })()}
-                {/* Add Custom Challenge Card */}
+                {challenges.filter(c => c.category === challengeCategory).map((challenge) => (
+                  <CardWithProgress
+                    key={challenge.id}
+                    title={challenge.name}
+                    description={challenge.description}
+                    icon={React.createElement(getCategoryIcon(challenge.category))}
+                    completed={challenge.completed}
+                    onToggle={() => handleChallengeToggle(challenge.id, challenge.completed)}
+                    progress={challenge.completed ? 100 : 5}
+                    xp={challenge.xp ?? 0}
+                    gold={challenge.gold ?? 0}
+                  />
+                ))}
+                {challenges.filter(c => c.category === challengeCategory).length === 0 && (
+                  <div className="text-center text-gray-400">No challenges found for this category.</div>
+                )}
                 <Card
                   key="add-custom-challenge"
                   className="border-2 border-dashed border-gray-700 hover:border-amber-500 transition-colors cursor-pointer flex items-center justify-center min-h-[160px]"
