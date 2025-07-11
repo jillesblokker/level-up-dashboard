@@ -855,9 +855,10 @@ export default function RealmPage() {
     useEffect(() => {
       if (!isPenguinPresent || !penguinPos) return;
       const interval = setInterval(() => {
-        const adj = getAdjacentPositions(penguinPos.x, penguinPos.y, grid).filter(pos =>
-          !!grid[pos.y]?.[pos.x] && grid[pos.y][pos.x].type === 'ice'
-        );
+        const adj = getAdjacentPositions(penguinPos.x, penguinPos.y, grid).filter(pos => {
+          const row = grid[pos.y];
+          return !!row && row[pos.x]?.type === 'ice';
+        });
         if (adj.length > 0) {
           const next = adj[Math.floor(Math.random() * adj.length)];
           if (next) setPenguinPos(next);
