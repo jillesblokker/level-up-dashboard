@@ -382,8 +382,9 @@ export default function RealmPage() {
                 const res = await fetch('/api/realm-tiles');
                 const data = await res.json();
                 if (res.ok && data.tiles) {
-                    // Reconstruct grid from tiles
-                    const gridArr: Tile[][] = Array.from({ length: INITIAL_ROWS }, (_, y) =>
+                    // Dynamically determine the number of rows from the data
+                    const maxRow = Math.max(...data.tiles.map((row: any) => row.y ?? 0), INITIAL_ROWS - 1);
+                    const gridArr: Tile[][] = Array.from({ length: maxRow + 1 }, (_, y) =>
                         Array.from({ length: GRID_COLS }, (_, x) => defaultTile('empty'))
                     );
                     data.tiles.forEach((row: any) => {
