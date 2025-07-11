@@ -405,6 +405,7 @@ export function MapGrid({
                 }
                 const isValidTarget = isMovementMode && isValidMovementTarget(x, y);
                 const isBuyable = tile.type === BUYABLE_TILE_TYPE;
+                const [isHovered, setIsHovered] = useState(false);
                 return (
                   <div
                     key={`${x}-${y}`}
@@ -420,8 +421,8 @@ export function MapGrid({
                         handleTileClick(tile, x, y);
                       }
                     }}
-                    onMouseEnter={() => handleTileHover(tile, x, y)}
-                    onMouseLeave={handleTileLeave}
+                    onMouseEnter={() => { handleTileHover(tile, x, y); setIsHovered(true); }}
+                    onMouseLeave={() => { handleTileLeave(); setIsHovered(false); }}
                   >
                     {/* Character image at character position, only on valid tiles */}
                     {safeCharacter.x === x && safeCharacter.y === y && !['mountain', 'water', 'lava', 'volcano', 'empty'].includes(tile.type) && (
@@ -437,8 +438,7 @@ export function MapGrid({
                         />
                       </div>
                     )}
-                    {/* Animal overlays using block/flex approach for visibility */}
-                    {/* Ensure the following PNGs exist in /public/images/Animals/ and are named exactly: horse.png, sheep.png, eagle.png, penguin.png */}
+                    {/* Animal overlays */}
                     {horsePos && horsePos.x === x && horsePos.y === y && isHorsePresent && (
                       <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
                         <Image
@@ -478,20 +478,22 @@ export function MapGrid({
                         />
                       </div>
                     )}
-                    {penguinPos && penguinPos.x === x && penguinPos.y === y && isPenguinPresent && (
+                    {/* Penguin appears on ice tiles */}
+                    {tile.type === 'ice' && (
                       <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
                         <Image
                           src="/images/Animals/penguin.png"
                           alt="Penguin"
                           width={96}
                           height={96}
-                          className="object-contain w-24 h-24 drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]"
-                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:red;font-size:2rem;\'>🐧</span>'); }}
+                          className="object-contain w-24 h-24 drop-shadow-[0_2px_8px_rgba(0,200,255,0.8)]"
+                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:blue;font-size:2rem;\'>🐧</span>'); }}
                           priority
                         />
                       </div>
                     )}
-                    {!isMovementMode && tile.type !== 'empty' && typeof onTileDelete === 'function' && (
+                    {/* Only show delete icon on hover in build mode */}
+                    {!isMovementMode && tile.type !== 'empty' && typeof onTileDelete === 'function' && isHovered && (
                       <button
                         aria-label={`Delete tile at ${x},${y}`}
                         className="absolute top-1 right-1 z-20 bg-red-700 rounded-full p-1 hover:bg-red-800 focus:outline-none"
