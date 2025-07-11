@@ -839,8 +839,9 @@ export default function RealmPage() {
     useEffect(() => {
       if (!isPenguinPresent && grid.length) {
         for (let y = 0; y < grid.length; y++) {
+          if (!grid[y]) continue;
           for (let x = 0; x < grid[y].length; x++) {
-            if (grid[y][x].type === 'ice') {
+            if (grid[y][x]?.type === 'ice') {
               setPenguinPos({ x, y });
               setIsPenguinPresent(true);
               return;
