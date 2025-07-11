@@ -522,7 +522,7 @@ export function MapGrid({
           <DialogContent role="dialog" aria-label="event-modal">
             <DialogHeader>
               <DialogTitle>{localCurrentEvent.title}</DialogTitle>
-              <DialogDescription id="event-modal-desc">Event details and actions</DialogDescription>
+              <DialogDescription id="event-modal-desc">{localCurrentEvent.description}</DialogDescription>
             </DialogHeader>
             {eventOutcome ? (
               <div className="grid gap-4 py-4">
