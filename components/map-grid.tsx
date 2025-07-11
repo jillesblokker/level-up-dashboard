@@ -45,7 +45,7 @@ export function MapGrid({
   onHoverEnd,
   isMovementMode = false,
   gridRotation = 0,
-  hoveredTile,
+  hoveredTile: externalHoveredTile,
   setHoveredTile,
   horsePos = null,
   sheepPos = null,
@@ -60,6 +60,8 @@ export function MapGrid({
   const [eventOutcome, setEventOutcome] = useState<MysteryEventOutcome | null>(null);
   // Track last triggered mystery tile position
   const [lastMysteryTile, setLastMysteryTile] = useState<{ x: number; y: number } | null>(null);
+  // Add hoveredTile state for delete icon
+  const [hoveredTile, setHoveredTileLocal] = useState<{x: number, y: number} | null>(null);
 
   // Defensive fallback for character
   const safeCharacter = character && typeof character.x === 'number' && typeof character.y === 'number' ? character : { x: 0, y: 0 };
@@ -405,7 +407,6 @@ export function MapGrid({
                 }
                 const isValidTarget = isMovementMode && isValidMovementTarget(x, y);
                 const isBuyable = tile.type === BUYABLE_TILE_TYPE;
-                const [isHovered, setIsHovered] = useState(false);
                 return (
                   <div
                     key={`${x}-${y}`}
@@ -421,8 +422,8 @@ export function MapGrid({
                         handleTileClick(tile, x, y);
                       }
                     }}
-                    onMouseEnter={() => { handleTileHover(tile, x, y); setIsHovered(true); }}
-                    onMouseLeave={() => { handleTileLeave(); setIsHovered(false); }}
+                    onMouseEnter={() => { handleTileHover(tile, x, y); setHoveredTileLocal({x, y}); }}
+                    onMouseLeave={() => { handleTileLeave(); setHoveredTileLocal(null); }}
                   >
                     {/* Character image at character position, only on valid tiles */}
                     {safeCharacter.x === x && safeCharacter.y === y && !['mountain', 'water', 'lava', 'volcano', 'empty'].includes(tile.type) && (
@@ -493,7 +494,7 @@ export function MapGrid({
                       </div>
                     )}
                     {/* Only show delete icon on hover in build mode */}
-                    {!isMovementMode && tile.type !== 'empty' && typeof onTileDelete === 'function' && isHovered && (
+                    {!isMovementMode && tile.type !== 'empty' && typeof onTileDelete === 'function' && hoveredTile && hoveredTile.x === x && hoveredTile.y === y && (
                       <button
                         aria-label={`Delete tile at ${x},${y}`}
                         className="absolute top-1 right-1 z-20 bg-red-700 rounded-full p-1 hover:bg-red-800 focus:outline-none"
@@ -506,7 +507,7 @@ export function MapGrid({
                     <TileVisual
                       tile={tile}
                       isSelected={selectedTile?.x === x && selectedTile?.y === y}
-                      isHovered={hoveredTile?.row === y && hoveredTile?.col === x}
+                      isHovered={externalHoveredTile?.row === y && externalHoveredTile?.col === x}
                       isCharacterPresent={safeCharacter.x === x && safeCharacter.y === y}
                     />
                   </div>
