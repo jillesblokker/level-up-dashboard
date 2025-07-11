@@ -81,7 +81,7 @@ export function NotificationCenter() {
           <span className="sr-only">Notifications</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" aria-label="notification-center-sidepanel" className="w-96 max-w-full bg-black border-l border-amber-800/20">
+      <SheetContent side="right" aria-label="notification-center-sidepanel" className="w-96 max-w-full bg-black border-l border-amber-800/20 max-w-[90vw] p-4" aria-modal="true">
         <SheetHeader>
           <SheetTitle className="text-amber-500">Notifications</SheetTitle>
         </SheetHeader>
@@ -93,7 +93,8 @@ export function NotificationCenter() {
                 notificationService.markAllAsRead()
                 setNotifications(notificationService.getNotifications())
               }}
-              className="text-xs text-amber-500 hover:text-amber-400"
+              className="text-xs text-amber-500 hover:text-amber-400 min-w-[44px] min-h-[44px]"
+              aria-label="Mark all notifications as read"
             >
               Mark all read
             </button>

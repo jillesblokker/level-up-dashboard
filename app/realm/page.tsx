@@ -998,78 +998,75 @@ export default function RealmPage() {
             <div className="flex flex-col h-screen bg-gray-900 text-white relative" aria-label="realm-map-section">
                 {/* Top Toolbar */}
                 <div className="flex items-center justify-between p-2 bg-gray-800/80 backdrop-blur-sm border-b border-gray-700 z-30">
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                            <Button
-                                variant={gameMode === 'move' ? 'default' : 'outline'}
-                                size="sm"
-                                onClick={() => setGameMode('move')}
-                                className="flex items-center gap-2"
-                                aria-label="movement-mode-button"
-                            >
-                                <Move className="w-4 h-4" />
-                                <span className="hidden sm:inline">Move</span>
-                            </Button>
-                            <Button
-                                variant={gameMode === 'build' ? 'default' : 'outline'}
-                                size="sm"
-                                onClick={() => setGameMode('build')}
-                                className="flex items-center gap-2"
-                                aria-label="build-mode-button"
-                            >
-                                <Hammer className="w-4 h-4" />
-                                <span className="hidden sm:inline">Build</span>
-                            </Button>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <div className="flex items-center space-x-2" aria-label="auto-save-controls">
-                                <Switch id="auto-save-switch" checked={autoSave} onCheckedChange={setAutoSave} />
-                                <label htmlFor="auto-save-switch" className="text-sm">Auto Save</label>
-                            </div>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={expandMap}
-                                className="flex items-center gap-2"
-                                aria-label="expand-map-button"
-                            >
-                                <Settings className="w-4 h-4" />
-                                <span className="hidden sm:inline">Expand Map</span>
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={handleResetMap}
-                                className="flex items-center gap-2"
-                                aria-label="reset-map-button"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                                <span className="hidden sm:inline">Reset Map</span>
-                            </Button>
-                        </div>
+                  {/* On mobile, make action rows horizontally scrollable and touch-friendly */}
+                  <div className="flex flex-1 flex-col gap-2">
+                    <div className="flex items-center gap-2 overflow-x-auto flex-nowrap md:gap-4 md:overflow-visible md:flex-wrap" style={{ WebkitOverflowScrolling: 'touch' }}>
+                      <Button
+                        variant={gameMode === 'move' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setGameMode('move')}
+                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                        aria-label="movement-mode-button"
+                      >
+                        <Move className="w-4 h-4" />
+                        <span className="hidden sm:inline">Move</span>
+                      </Button>
+                      <Button
+                        variant={gameMode === 'build' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setGameMode('build')}
+                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                        aria-label="build-mode-button"
+                      >
+                        <Hammer className="w-4 h-4" />
+                        <span className="hidden sm:inline">Build</span>
+                      </Button>
+                      <div className="flex items-center space-x-2 min-w-[100px]" aria-label="auto-save-controls">
+                        <Switch id="auto-save-switch" checked={autoSave} onCheckedChange={setAutoSave} />
+                        <label htmlFor="auto-save-switch" className="text-sm">Auto Save</label>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={expandMap}
+                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                        aria-label="expand-map-button"
+                      >
+                        <Settings className="w-4 h-4" />
+                        <span className="hidden sm:inline">Expand Map</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleResetMap}
+                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                        aria-label="reset-map-button"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span className="hidden sm:inline">Reset Map</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowInventory(!showInventory)}
+                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                        aria-label="toggle-inventory-button"
+                      >
+                        <Package className="w-4 h-4" />
+                        <span className="hidden sm:inline">Inventory</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleResetPosition}
+                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                        aria-label="reset-position-button"
+                      >
+                        <Move className="w-4 h-4" />
+                        <span className="hidden sm:inline">Reset Position</span>
+                      </Button>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setShowInventory(!showInventory)}
-                            className="flex items-center gap-2"
-                            aria-label="toggle-inventory-button"
-                        >
-                            <Package className="w-4 h-4" />
-                            <span className="hidden sm:inline">Inventory</span>
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleResetPosition}
-                            className="flex items-center gap-2"
-                            aria-label="reset-position-button"
-                        >
-                            <Move className="w-4 h-4" />
-                            <span className="hidden sm:inline">Reset Position</span>
-                        </Button>
-                    </div>
+                  </div>
                 </div>
                 {modalState && (
                     <EnterLocationModal
@@ -1102,7 +1099,7 @@ export default function RealmPage() {
                 </div>
                 {/* Side Inventory Panel */}
                 {showInventory && (
-                    <div id="tile-inventory-panel" role="dialog" aria-modal="true" aria-label="Tile Inventory Panel" className="absolute top-[48px] right-0 h-[calc(100%-48px)] w-96 bg-gray-800/90 backdrop-blur-sm border-l border-gray-700 flex flex-col z-20">
+                    <div id="tile-inventory-panel" role="dialog" aria-modal="true" aria-label="Tile Inventory Panel" className="absolute top-[48px] right-0 h-[calc(100%-48px)] w-96 max-w-[90vw] bg-gray-800/90 backdrop-blur-sm border-l border-gray-700 flex flex-col z-20 p-2">
                         <div className="p-4 border-b border-gray-700 flex items-center justify-between">
                             <h2 className="text-lg font-semibold">Tile Inventory</h2>
                             <Button
@@ -1111,8 +1108,9 @@ export default function RealmPage() {
                                 size="sm"
                                 onClick={() => setShowInventory(false)}
                                 aria-label="close-inventory-button"
+                                className="min-w-[44px] min-h-[44px]"
                             >
-                                <X className="w-4 h-4" />
+                                <X className="w-6 h-6" />
                             </Button>
                         </div>
                         <ScrollArea className="flex-1 p-4">

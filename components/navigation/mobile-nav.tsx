@@ -128,127 +128,122 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
   const isActive = (path: string) => pathname === path
   
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-black border-b border-gray-800">
-      <div className="flex items-center justify-between px-4 h-16">
-        {/* Logo */}
-        <Link href="/" className="flex items-center">
-          <span className="text-lg font-cardo text-amber-400">Thrivehaven</span>
-        </Link>
-
-        {/* Stats and Controls */}
-        <div className="flex items-center gap-2">
-          {/* Level */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-sm text-gray-400">Level</span>
-            <span className="text-amber-400 font-bold">{characterStats.level}</span>
-          </div>
-
-          {/* Gold */}
-          <div className="flex items-center gap-1.5">
-            <Icons.coins className="w-4 h-4 text-amber-400" />
-            <span className="text-gray-100">{characterStats.gold}</span>
-          </div>
-
-          {/* Tabs Dropdown (if tabs are provided) */}
-          {tabs && tabs.length > 0 && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-1">
-                  {tabs.find(tab => tab.value === activeTab)?.label || "Select"}
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] mx-4">
-                {tabs.map((tab) => (
-                  <DropdownMenuItem
-                    key={tab.value}
-                    onClick={() => onTabChange?.(tab.value)}
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-black border-b border-gray-800 h-16 flex items-center justify-between px-2">
+      {/* Only show menu icon in the top bar on mobile */}
+      <div className="flex-1 flex items-center justify-end">
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 p-0"
+              aria-label="Open menu"
+            >
+              <Menu className="h-6 w-6 text-amber-400" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent 
+            side="right" 
+            className="w-full max-w-[90vw] sm:max-w-[320px] p-2 bg-gray-900 border-gray-800"
+            aria-modal="true"
+            aria-label="main-menu-sheet"
+          >
+            <div className="flex flex-col h-full">
+              {/* Logo at the top of the menu */}
+              <div className="flex items-center justify-center py-4 border-b border-gray-800">
+                <span className="text-lg md:text-2xl font-cardo text-amber-400">Thrivehaven</span>
+              </div>
+              {/* Stats section */}
+              <div className="flex items-center justify-center gap-6 py-4 border-b border-gray-800">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm md:text-base text-gray-400">Level</span>
+                  <span className="text-amber-400 font-bold text-sm md:text-base">{characterStats.level}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Icons.coins className="w-4 h-4 md:w-5 md:h-5 text-amber-400" />
+                  <span className="text-gray-100 text-sm md:text-base">{characterStats.gold}</span>
+                </div>
+              </div>
+              {/* Tabs Dropdown (if tabs are provided) */}
+              {tabs && tabs.length > 0 && (
+                <div className="px-4 py-2 border-b border-gray-800">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="w-full flex justify-between items-center">
+                        {tabs.find(tab => tab.value === activeTab)?.label || "Select"}
+                        <ChevronDown className="h-4 w-4 ml-2" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-full">
+                      {tabs.map((tab) => (
+                        <DropdownMenuItem
+                          key={tab.value}
+                          onClick={() => onTabChange?.(tab.value)}
+                          className={cn(
+                            activeTab === tab.value && "bg-accent"
+                          )}
+                        >
+                          {tab.label}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              )}
+              {/* Main Navigation */}
+              <div className="py-2">
+                <div className="px-6 py-2">
+                  <h2 className="text-sm font-semibold text-gray-400">Navigation</h2>
+                </div>
+                {mainNavItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
                     className={cn(
-                      activeTab === tab.value && "bg-accent"
+                      "flex items-center gap-3 px-6 py-4 text-gray-400 hover:bg-gray-800/50 transition-colors border-b border-gray-800",
+                      isActive(item.href) && "text-amber-400 bg-gray-800/50"
                     )}
                   >
-                    {tab.label}
-                  </DropdownMenuItem>
+                    <item.icon className="h-5 w-5" />
+                    <span className="font-cardo">{item.label}</span>
+                  </Link>
                 ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-
-          {/* Menu Button */}
-          <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger asChild>
+              </div>
+              {/* Account Section */}
+              <div className="py-2">
+                <div className="px-6 py-2">
+                  <h2 className="text-sm font-semibold text-gray-400">Account</h2>
+                </div>
+                {accountItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 px-6 py-4 text-gray-400 hover:bg-gray-800/50 transition-colors border-b border-gray-800",
+                      isActive(item.href) && "text-amber-400 bg-gray-800/50"
+                    )}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    <span className="font-cardo">{item.label}</span>
+                  </Link>
+                ))}
+              </div>
+              {/* Close Button */}
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 p-0"
+                className="absolute top-2 right-2 min-w-[44px] min-h-[44px]"
+                onClick={() => setOpen(false)}
+                aria-label="Close menu"
               >
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle menu</span>
+                <X className="h-6 w-6" />
+                <span className="sr-only">Close menu</span>
               </Button>
-            </SheetTrigger>
-            <SheetContent 
-              side="right" 
-              className="w-full sm:max-w-[300px] p-0 bg-gray-900 border-gray-800"
-            >
-              <div className="flex flex-col h-full">
-                {/* Main Navigation */}
-                <div className="flex-1">
-                  <div className="py-2">
-                    <div className="px-6 py-2">
-                      <h2 className="text-sm font-semibold text-gray-400">Navigation</h2>
-                    </div>
-                    {mainNavItems.map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={() => setOpen(false)}
-                        className={cn(
-                          "flex items-center gap-3 px-6 py-4 text-gray-400 hover:bg-gray-800/50 transition-colors border-b border-gray-800",
-                          isActive(item.href) && "text-amber-400 bg-gray-800/50"
-                        )}
-                      >
-                        <item.icon className="h-5 w-5" />
-                        <span className="font-cardo">{item.label}</span>
-                      </Link>
-                    ))}
-                  </div>
-
-                  {/* Account Section */}
-                  <div className="py-2">
-                    <div className="px-6 py-2">
-                      <h2 className="text-sm font-semibold text-gray-400">Account</h2>
-                    </div>
-                    {accountItems.map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={() => setOpen(false)}
-                        className={cn(
-                          "flex items-center gap-3 px-6 py-4 text-gray-400 hover:bg-gray-800/50 transition-colors border-b border-gray-800",
-                          isActive(item.href) && "text-amber-400 bg-gray-800/50"
-                        )}
-                      >
-                        <item.icon className="h-5 w-5" />
-                        <span className="font-cardo">{item.label}</span>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Close Button */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute top-4 right-4"
-                  onClick={() => setOpen(false)}
-                >
-                  <X className="h-5 w-5" />
-                  <span className="sr-only">Close menu</span>
-                </Button>
-              </div>
-            </SheetContent>
-          </Sheet>
-        </div>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
     </nav>
   )

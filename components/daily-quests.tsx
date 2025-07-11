@@ -260,7 +260,48 @@ export function DailyQuests() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+          {/* Mobile: horizontally scrollable row for daily quests */}
+          <div className="flex gap-4 overflow-x-auto flex-nowrap md:hidden py-2" style={{ WebkitOverflowScrolling: 'touch' }}>
+            {mightQuests.map((quest) => (
+              <Card 
+                key={quest.id}
+                className={cn(
+                  "relative overflow-hidden border-amber-800/20 transition-all duration-200 flex items-center justify-between p-3 hover:bg-amber-950/20 cursor-pointer min-w-[180px] max-w-[220px] flex-shrink-0",
+                  quest.completed && "bg-amber-500/10"
+                )}
+                onClick={() => toggleQuest(quest.id)}
+                onKeyDown={(e: React.KeyboardEvent) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleQuest(quest.id);
+                  }
+                }}
+                tabIndex={0}
+                role="button"
+                aria-pressed={quest.completed}
+                aria-label={`Toggle ${quest.name} quest completion`}
+              >
+                <div className="flex items-center space-x-3">
+                  <span className="text-xl" role="img" aria-label={quest.name}>
+                    {quest.icon}
+                  </span>
+                  <span className="text-sm font-medium text-white">{quest.name}</span>
+                </div>
+                <Checkbox 
+                  id={quest.id} 
+                  checked={quest.completed}
+                  onCheckedChange={(checked) => {
+                    toggleQuest(quest.id);
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="h-8 w-8 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white data-[state=checked]:border-amber-500 min-h-[44px] min-w-[44px]"
+                  aria-label={`Mark ${quest.name} as ${quest.completed ? 'incomplete' : 'complete'}`}
+                />
+              </Card>
+            ))}
+          </div>
+          {/* Desktop/tablet: grid layout */}
+          <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
             {mightQuests.map((quest) => (
               <Card 
                 key={quest.id}
@@ -298,79 +339,6 @@ export function DailyQuests() {
                 />
               </Card>
             ))}
-            <Dialog open={isDialogOpen && newQuestCategory === "might"} onOpenChange={(open) => {
-              setIsDialogOpen(open);
-              if (open) setNewQuestCategory("might");
-            }}>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="border-dashed border-gray-700 justify-start h-auto py-2 px-3">
-                  <Plus className="h-4 w-4 mr-2" />
-                  <span>Add Might Quest</span>
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="bg-gradient-to-b from-blue-900 to-blue-950 border-blue-800/20" role="dialog" aria-label="daily-quests-modal">
-                <DialogHeader>
-                  <DialogTitle className="text-white">Add New Might Quest</DialogTitle>
-                  <DialogDescription className="text-gray-400">Create a new daily quest for strength and physical power.</DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="quest-name" className="text-right text-white">Name</Label>
-                    <Input 
-                      id="quest-name" 
-                      value={newQuestName} 
-                      onChange={(e) => setNewQuestName(e.target.value)} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
-                    />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="quest-icon" className="text-right text-white">Icon</Label>
-                    <Input 
-                      id="quest-icon" 
-                      value={newQuestIcon} 
-                      onChange={(e) => setNewQuestIcon(e.target.value)} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
-                      placeholder="Emoji or icon" 
-                    />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="quest-experience" className="text-right text-white">Experience</Label>
-                    <Input 
-                      id="quest-experience" 
-                      type="number"
-                      value={newQuestExperience} 
-                      onChange={(e) => setNewQuestExperience(Number(e.target.value))} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
-                      min={0}
-                    />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="quest-gold" className="text-right text-white">Gold</Label>
-                    <Input 
-                      id="quest-gold" 
-                      type="number"
-                      value={newQuestGold} 
-                      onChange={(e) => setNewQuestGold(Number(e.target.value))} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
-                      min={0}
-                    />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="quest-frequency" className="text-right text-white">Frequency</Label>
-                    <Input 
-                      id="quest-frequency" 
-                      value={newQuestFrequency} 
-                      onChange={(e) => setNewQuestFrequency(e.target.value)} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
-                      placeholder="e.g. 3x, 5 minutes, twice daily" 
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button onClick={addNewQuest} className="bg-blue-600 hover:bg-blue-700 text-white">Add Quest</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
           </div>
         </CardContent>
       </Card>

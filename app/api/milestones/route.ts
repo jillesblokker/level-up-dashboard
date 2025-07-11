@@ -55,6 +55,7 @@ export async function GET(request: Request) {
     });
     return NextResponse.json(milestonesWithCompletion);
   } catch (error) {
+    console.error('[Milestones Error]', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

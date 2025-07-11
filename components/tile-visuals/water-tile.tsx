@@ -7,11 +7,12 @@ interface WaterTileProps {
 export function WaterTile({ className, ariaLabel, onClick }: WaterTileProps) {
   return (
     <div 
-      className={`w-full h-full relative ${className || ""}`} 
+      className={`w-full h-full relative min-h-[44px] min-w-[44px] active:scale-95 transition-transform ${className || ""}`} 
       aria-label={ariaLabel || "Water tile"} 
       onClick={onClick}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); } : undefined}
+      role={onClick ? "button" : undefined}
     >
       <svg viewBox="0 0 64 64" className="w-full h-full" aria-hidden="true">
         {/* Base water color */}

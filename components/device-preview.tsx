@@ -53,7 +53,7 @@ export default function DevicePreview() {
           {getDeviceIcon()}
         </Button>
       </SheetTrigger>
-      <SheetContent>
+      <SheetContent className="max-w-[90vw] p-4" aria-modal="true" aria-label="device-preview-sheet">
         <SheetHeader>
           <SheetTitle>Device Preview</SheetTitle>
           <SheetDescription>
@@ -64,7 +64,7 @@ export default function DevicePreview() {
           <Button
             variant={currentDevice === "web" ? "default" : "outline"}
             onClick={() => handleDeviceChange("web")}
-            className="w-full"
+            className="w-full min-h-[44px]"
           >
             <Monitor className="mr-2 h-4 w-4" />
             Web
@@ -72,7 +72,7 @@ export default function DevicePreview() {
           <Button
             variant={currentDevice === "ipad" ? "default" : "outline"}
             onClick={() => handleDeviceChange("ipad")}
-            className="w-full"
+            className="w-full min-h-[44px]"
           >
             <Tablet className="mr-2 h-4 w-4" />
             iPad
@@ -80,7 +80,7 @@ export default function DevicePreview() {
           <Button
             variant={currentDevice === "iphone" ? "default" : "outline"}
             onClick={() => handleDeviceChange("iphone")}
-            className="w-full"
+            className="w-full min-h-[44px]"
           >
             <Smartphone className="mr-2 h-4 w-4" />
             iPhone

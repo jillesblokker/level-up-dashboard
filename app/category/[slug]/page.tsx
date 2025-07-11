@@ -97,7 +97,7 @@ export default function CategoryPage() {
           ))}
         </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="category-items-grid">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" aria-label="category-cards-grid">
           {categoryData.items.map((item) => (
             <Card key={item.id} className="overflow-hidden" aria-label={`${item.name}-card`}>
               <div 

@@ -659,7 +659,7 @@ export default function QuestsPage() {
               </select>
             </div>
             <div className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                 {challenges.filter(c => c.category === challengeCategory).map((challenge) => (
                   <CardWithProgress
                     key={challenge.id}

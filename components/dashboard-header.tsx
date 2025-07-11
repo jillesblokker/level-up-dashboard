@@ -97,68 +97,136 @@ export function DashboardHeader({ backgroundImage }: DashboardHeaderProps) {
         </DialogContent>
       </Dialog>
 
-      {/* Quick Actions Row */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-6">
-        <QuickActionButton
-          title="Might"
-          icon={<Sword className="h-5 w-5" />}
-          color="bg-red-500"
-          actions={[
-            { icon: <Sword className="h-4 w-4" />, label: "50 Push-ups", xp: 25 },
-            { icon: <Sword className="h-4 w-4" />, label: "10 Pull-ups", xp: 30 },
-            { icon: <Sword className="h-4 w-4" />, label: "20 Dips", xp: 20 },
-          ]}
-        />
-        <QuickActionButton
-          title="Endurance"
-          icon={<Activity className="h-5 w-5" />}
-          color="bg-blue-500"
-          actions={[
-            { icon: <Activity className="h-4 w-4" />, label: "5K Run", xp: 40 },
-            { icon: <Activity className="h-4 w-4" />, label: "20min HIIT", xp: 30 },
-            { icon: <Activity className="h-4 w-4" />, label: "Cycling", xp: 25 },
-          ]}
-        />
-        <QuickActionButton
-          title="Wisdom"
-          icon={<Book className="h-5 w-5" />}
-          color="bg-purple-500"
-          actions={[
-            { icon: <Book className="h-4 w-4" />, label: "Read 5 pages", xp: 10 },
-            { icon: <Book className="h-4 w-4" />, label: "Read 20 pages", xp: 20 },
-            { icon: <Book className="h-4 w-4" />, label: "Study spells", xp: 30 },
-          ]}
-        />
-        <QuickActionButton
-          title="Vitality"
-          icon={<Coffee className="h-5 w-5" />}
-          color="bg-green-500"
-          actions={[
-            { icon: <Coffee className="h-4 w-4" />, label: "Eat hearty meal", xp: 15 },
-            { icon: <Coffee className="h-4 w-4" />, label: "Drink water", xp: 10 },
-            { icon: <Coffee className="h-4 w-4" />, label: "Prepare rations", xp: 20 },
-          ]}
-        />
-        <QuickActionButton
-          title="Resilience"
-          icon={<Moon className="h-5 w-5" />}
-          color="bg-indigo-500"
-          actions={[
-            { icon: <Moon className="h-4 w-4" />, label: "8h sleep", xp: 20 },
-            { icon: <Moon className="h-4 w-4" />, label: "Meditation", xp: 15 },
-            { icon: <Moon className="h-4 w-4" />, label: "Stretching", xp: 15 },
-          ]}
-        />
-        <QuickActionButton
-          title="Dexterity"
-          icon={<Brain className="h-5 w-5" />}
-          color="bg-amber-500"
-          actions={[
-            { icon: <Brain className="h-4 w-4" />, label: "Crafting", xp: 25 },
-            { icon: <Brain className="h-4 w-4" />, label: "Lockpicking", xp: 15 },
-            { icon: <Brain className="h-4 w-4" />, label: "Archery", xp: 20 },
-          ]}
-        />
+      {/* Quick Actions */}
+      <div className="w-full">
+        <div className="flex gap-4 overflow-x-auto flex-nowrap pb-2 md:hidden" style={{ WebkitOverflowScrolling: 'touch' }}>
+          {/* Mobile: horizontally scrollable row */}
+          <div className="flex gap-4">
+            <QuickActionButton
+              title="Might"
+              icon={<Sword className="h-5 w-5" />}
+              color="bg-red-500"
+              actions={[
+                { icon: <Sword className="h-4 w-4" />, label: "50 Push-ups", xp: 25 },
+                { icon: <Sword className="h-4 w-4" />, label: "10 Pull-ups", xp: 30 },
+                { icon: <Sword className="h-4 w-4" />, label: "20 Dips", xp: 20 },
+              ]}
+            />
+            <QuickActionButton
+              title="Endurance"
+              icon={<Activity className="h-5 w-5" />}
+              color="bg-blue-500"
+              actions={[
+                { icon: <Activity className="h-4 w-4" />, label: "5K Run", xp: 40 },
+                { icon: <Activity className="h-4 w-4" />, label: "20min HIIT", xp: 30 },
+                { icon: <Activity className="h-4 w-4" />, label: "Cycling", xp: 25 },
+              ]}
+            />
+            <QuickActionButton
+              title="Wisdom"
+              icon={<Book className="h-5 w-5" />}
+              color="bg-purple-500"
+              actions={[
+                { icon: <Book className="h-4 w-4" />, label: "Read 5 pages", xp: 10 },
+                { icon: <Book className="h-4 w-4" />, label: "Read 20 pages", xp: 20 },
+                { icon: <Book className="h-4 w-4" />, label: "Study spells", xp: 30 },
+              ]}
+            />
+            <QuickActionButton
+              title="Vitality"
+              icon={<Coffee className="h-5 w-5" />}
+              color="bg-green-500"
+              actions={[
+                { icon: <Coffee className="h-4 w-4" />, label: "Eat hearty meal", xp: 15 },
+                { icon: <Coffee className="h-4 w-4" />, label: "Drink water", xp: 10 },
+                { icon: <Coffee className="h-4 w-4" />, label: "Prepare rations", xp: 20 },
+              ]}
+            />
+            <QuickActionButton
+              title="Resilience"
+              icon={<Moon className="h-5 w-5" />}
+              color="bg-indigo-500"
+              actions={[
+                { icon: <Moon className="h-4 w-4" />, label: "8h sleep", xp: 20 },
+                { icon: <Moon className="h-4 w-4" />, label: "Meditation", xp: 15 },
+                { icon: <Moon className="h-4 w-4" />, label: "Stretching", xp: 15 },
+              ]}
+            />
+            <QuickActionButton
+              title="Dexterity"
+              icon={<Brain className="h-5 w-5" />}
+              color="bg-amber-500"
+              actions={[
+                { icon: <Brain className="h-4 w-4" />, label: "Crafting", xp: 25 },
+                { icon: <Brain className="h-4 w-4" />, label: "Lockpicking", xp: 15 },
+                { icon: <Brain className="h-4 w-4" />, label: "Archery", xp: 20 },
+              ]}
+            />
+          </div>
+        </div>
+        {/* Desktop/tablet: grid layout */}
+        <div className="hidden md:grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-6">
+          <QuickActionButton
+            title="Might"
+            icon={<Sword className="h-5 w-5" />}
+            color="bg-red-500"
+            actions={[
+              { icon: <Sword className="h-4 w-4" />, label: "50 Push-ups", xp: 25 },
+              { icon: <Sword className="h-4 w-4" />, label: "10 Pull-ups", xp: 30 },
+              { icon: <Sword className="h-4 w-4" />, label: "20 Dips", xp: 20 },
+            ]}
+          />
+          <QuickActionButton
+            title="Endurance"
+            icon={<Activity className="h-5 w-5" />}
+            color="bg-blue-500"
+            actions={[
+              { icon: <Activity className="h-4 w-4" />, label: "5K Run", xp: 40 },
+              { icon: <Activity className="h-4 w-4" />, label: "20min HIIT", xp: 30 },
+              { icon: <Activity className="h-4 w-4" />, label: "Cycling", xp: 25 },
+            ]}
+          />
+          <QuickActionButton
+            title="Wisdom"
+            icon={<Book className="h-5 w-5" />}
+            color="bg-purple-500"
+            actions={[
+              { icon: <Book className="h-4 w-4" />, label: "Read 5 pages", xp: 10 },
+              { icon: <Book className="h-4 w-4" />, label: "Read 20 pages", xp: 20 },
+              { icon: <Book className="h-4 w-4" />, label: "Study spells", xp: 30 },
+            ]}
+          />
+          <QuickActionButton
+            title="Vitality"
+            icon={<Coffee className="h-5 w-5" />}
+            color="bg-green-500"
+            actions={[
+              { icon: <Coffee className="h-4 w-4" />, label: "Eat hearty meal", xp: 15 },
+              { icon: <Coffee className="h-4 w-4" />, label: "Drink water", xp: 10 },
+              { icon: <Coffee className="h-4 w-4" />, label: "Prepare rations", xp: 20 },
+            ]}
+          />
+          <QuickActionButton
+            title="Resilience"
+            icon={<Moon className="h-5 w-5" />}
+            color="bg-indigo-500"
+            actions={[
+              { icon: <Moon className="h-4 w-4" />, label: "8h sleep", xp: 20 },
+              { icon: <Moon className="h-4 w-4" />, label: "Meditation", xp: 15 },
+              { icon: <Moon className="h-4 w-4" />, label: "Stretching", xp: 15 },
+            ]}
+          />
+          <QuickActionButton
+            title="Dexterity"
+            icon={<Brain className="h-5 w-5" />}
+            color="bg-amber-500"
+            actions={[
+              { icon: <Brain className="h-4 w-4" />, label: "Crafting", xp: 25 },
+              { icon: <Brain className="h-4 w-4" />, label: "Lockpicking", xp: 15 },
+              { icon: <Brain className="h-4 w-4" />, label: "Archery", xp: 20 },
+            ]}
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

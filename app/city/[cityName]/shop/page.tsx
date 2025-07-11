@@ -128,7 +128,7 @@ export default function ShopPage() {
           ))}
         </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="shop-items-grid">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" aria-label="shop-cards-grid">
           {shopItems.map((item) => (
             <Card key={item.id} className="overflow-hidden" aria-label={`${item.name}-card`}>
               {item.image ? (
@@ -155,7 +155,7 @@ export default function ShopPage() {
               <CardContent>
                 <p className="text-sm mb-2">{item.description}</p>
                 <Button
-                  className="w-full"
+                  className="w-full min-h-[44px]"
                   aria-label={`Purchase ${item.name}`}
                   onClick={() => {
                     if (gold < item.price) {

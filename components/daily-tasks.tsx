@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { storageService } from '@/lib/storage-service'
+import { cn } from "@/lib/utils"
 
 interface Task {
   id: string
@@ -247,72 +248,81 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {Object.keys(tasksByCategory).map((category) => (
-            <Card
-              key={category}
-              className="bg-gray-950 border-amber-800 overflow-hidden"
-            >
-              <CardHeader className={`${getCategoryStyle(category)} rounded-t-lg p-4`}>
-                <CardTitle className="text-white flex items-center gap-2 font-serif">
-                  {getCategoryIcon(category)}
-                  {getCategoryName(category)}
-                </CardTitle>
-                <CardDescription className="text-white/90">
-                  {tasksByCategory[category]?.filter((t) => t.completed).length || 0} of {tasksByCategory[category]?.length || 0}{" "}
-                  completed
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <ul className="space-y-2">
-                  {tasksByCategory[category] ? tasksByCategory[category].map((task) => (
-                    <li key={task.id} className="flex items-start gap-2">
-                      <button
+        {/* Daily Tasks List */}
+        <div className="w-full">
+          {/* Mobile: horizontally scrollable row for daily tasks */}
+          <div className="flex gap-4 overflow-x-auto flex-nowrap md:hidden py-2" style={{ WebkitOverflowScrolling: 'touch' }}>
+            {Object.keys(tasksByCategory).map((category) => (
+              <Card
+                key={category}
+                className={cn(
+                  "bg-gray-950 border-amber-800 overflow-hidden min-w-[180px] max-w-[220px] flex-shrink-0",
+                )}
+              >
+                <CardHeader className={`${getCategoryStyle(category)} rounded-t-lg p-4`}>
+                  <CardTitle className="text-white flex items-center gap-2 font-serif">
+                    {getCategoryIcon(category)}
+                    {getCategoryName(category)}
+                  </CardTitle>
+                  <CardDescription className="text-white/90">
+                    {tasksByCategory[category]?.filter((t) => t.completed).length || 0} of {tasksByCategory[category]?.length || 0}{" "}
+                    completed
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-4">
+                  {(tasksByCategory[category] || []).map((task) => (
+                    <div key={task.id} className="flex items-center justify-between gap-2 mb-2">
+                      <span className="text-sm font-medium text-white">{task.title}</span>
+                      <Button
                         onClick={() => handleTaskToggle(task.id)}
-                        className="flex items-center gap-2 text-left"
+                        size="sm"
+                        className="min-h-[44px] min-w-[44px]"
                         aria-label={`Toggle task: ${task.title}`}
                       >
-                        <Checkbox
-                          checked={task.completed}
-                          onCheckedChange={() => handleTaskToggle(task.id)}
-                          className="mt-1"
-                        />
-                        <span className={`flex-1 text-sm ${task.completed ? "line-through text-gray-500" : "text-white"}`}>
-                          {task.title}
-                          <div className="text-xs text-amber-400/90 mt-1">
-                            Reward: {task.gold} gold, {task.xp} XP
-                          </div>
-                        </span>
-                      </button>
-                      <button
-                        onClick={() => handleDeleteTask(task.id)}
-                        className="text-gray-500 hover:text-white"
-                        aria-label={`Delete task: ${task.title}`}
-                        title={`Delete task: ${task.title}`}
+                        Complete
+                      </Button>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          {/* Desktop/tablet: grid layout */}
+          <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {Object.keys(tasksByCategory).map((category) => (
+              <Card
+                key={category}
+                className={cn(
+                  "bg-gray-950 border-amber-800 overflow-hidden",
+                )}
+              >
+                <CardHeader className={`${getCategoryStyle(category)} rounded-t-lg p-4`}>
+                  <CardTitle className="text-white flex items-center gap-2 font-serif">
+                    {getCategoryIcon(category)}
+                    {getCategoryName(category)}
+                  </CardTitle>
+                  <CardDescription className="text-white/90">
+                    {tasksByCategory[category]?.filter((t) => t.completed).length || 0} of {tasksByCategory[category]?.length || 0}{" "}
+                    completed
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-4">
+                  {(tasksByCategory[category] || []).map((task) => (
+                    <div key={task.id} className="flex items-center justify-between gap-2 mb-2">
+                      <span className="text-sm font-medium text-white">{task.title}</span>
+                      <Button
+                        onClick={() => handleTaskToggle(task.id)}
+                        size="sm"
+                        aria-label={`Toggle task: ${task.title}`}
                       >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </li>
-                  )) : null}
-                </ul>
-              </CardContent>
-
-              <CardFooter className="pt-0 pb-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full border-amber-800 hover:bg-amber-900 text-amber-400 hover:text-amber-200"
-                  onClick={() => {
-                    setNewTaskCategory(category)
-                    setShowAddTask(true)
-                  }}
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Quest
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
+                        Complete
+                      </Button>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
 

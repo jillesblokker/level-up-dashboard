@@ -55,6 +55,7 @@ export async function GET(request: Request) {
     });
     return NextResponse.json(challengesWithCompletion);
   } catch (error) {
+    console.error('[Challenges Error]', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

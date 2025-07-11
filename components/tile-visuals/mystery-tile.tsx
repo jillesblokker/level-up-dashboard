@@ -11,13 +11,14 @@ export function MysteryTile({ className, ariaLabel = "Mystery tile", onClick }: 
   return (
     <div
       className={cn(
-        "w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-800 to-indigo-900 cursor-pointer relative overflow-hidden",
+        "w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-800 to-indigo-900 cursor-pointer relative overflow-hidden min-h-[44px] min-w-[44px] active:scale-95 transition-transform",
         className
       )}
       aria-label={ariaLabel}
       onClick={onClick}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); } : undefined}
+      role={onClick ? "button" : undefined}
     >
       {/* Question mark */}
       <div className="absolute inset-0 flex items-center justify-center" aria-hidden="true">

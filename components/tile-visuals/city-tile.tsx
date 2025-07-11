@@ -16,7 +16,7 @@ export function CityTile({ className, ariaLabel, onClick, isMainTile, citySize }
   return (
     <div 
       className={cn(
-        "w-full h-full flex items-center justify-center",
+        "w-full h-full flex items-center justify-center min-h-[44px] min-w-[44px] active:scale-95 transition-transform",
         isMainTile && citySize === 2 && "scale-150",
         className
       )}
@@ -24,6 +24,7 @@ export function CityTile({ className, ariaLabel, onClick, isMainTile, citySize }
       aria-label={ariaLabel || "city-tile"}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); } : undefined}
+      role={onClick ? "button" : undefined}
     >
       <Building2 className={cn(
         "text-blue-400",

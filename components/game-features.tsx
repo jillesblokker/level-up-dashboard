@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Toggle } from '@/components/ui/toggle';
 import { CreatureCard } from '@/components/creature-card';
@@ -12,6 +12,7 @@ import {
   replayability 
 } from '@/lib/replayability';
 import { useSearchParams } from 'next/navigation';
+import React from 'react';
 
 export function GameFeatures() {
   const searchParams = useSearchParams();
@@ -123,7 +124,10 @@ export function GameFeatures() {
           <>
             {card000Node}
             {/* Grid of remaining cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 p-6" aria-label="cards-grid">
+            <div
+              className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+              aria-label="features-cards-grid"
+            >
               {creatures
                 .filter(c => c.id !== '000')
                 .slice()
@@ -142,7 +146,7 @@ export function GameFeatures() {
                     >
                       <CardHeader className="w-full flex flex-col items-center">
                         <div className="flex justify-between items-center w-full">
-                          <CardTitle className="font-serif text-2xl">Creature {creature.id}</CardTitle>
+                          <CardTitle className="text-lg md:text-2xl font-serif text-center">{creature.name}</CardTitle>
                           {!discovered && (
                             <Badge variant="secondary" aria-label={`creature-${creature.id}-undiscovered-badge`}>
                               Undiscovered
@@ -165,6 +169,7 @@ export function GameFeatures() {
                             <Image src={undiscoveredImg} alt="Undiscovered Card" fill sizes="(max-width: 768px) 100vw, 340px" className="object-cover rounded-lg opacity-80" />
                           )}
                         </div>
+                        <CardDescription className="text-sm md:text-base text-center">{creature.description}</CardDescription>
                         {/* Show achievement points and unlock date if available */}
                         {achievement?.isUnlocked && (
                           <div className="mt-2 text-base text-gray-500">
