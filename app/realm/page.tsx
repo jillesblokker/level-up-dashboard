@@ -326,7 +326,8 @@ export default function RealmPage() {
         }
       }
       for (const req of creatureRequirements) {
-        if (actionCounts[req.action] >= req.threshold) {
+        const count = actionCounts[req.action];
+        if (typeof count === 'number' && typeof req.threshold === 'number' && count >= req.threshold) {
           // Unlock achievement if not already unlocked
           if (userId) {
             fetch('/api/achievements/unlock', {
