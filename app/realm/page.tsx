@@ -232,7 +232,7 @@ export default function RealmPage() {
     const [castleDiceValue, setCastleDiceValue] = useState<number | null>(null);
     const [lastMysteryTile, setLastMysteryTile] = useState<{ x: number; y: number } | null>(null);
     const [mysteryEventCompleted, setMysteryEventCompleted] = useState(false);
-    const [penguinPos] = useState<{ x: number; y: number } | null>(null);
+    const [penguinPos, setPenguinPos] = useState<{ x: number; y: number } | null>(null);
     const [sheepPos, setSheepPos] = useState<{ x: number; y: number } | null>(() => {
       if (typeof window !== 'undefined') {
         const saved = localStorage.getItem('sheepPos');
@@ -832,6 +832,37 @@ export default function RealmPage() {
             return newGrid;
         });
     };
+
+    // Add penguin state at the top of RealmPage
+    // Only declare penguinPos and isPenguinPresent once at the top of RealmPage
+    // After grid is loaded or updated, place penguin on first visible ice tile if not already present
+    useEffect(() => {
+      if (!isPenguinPresent && grid.length) {
+        for (let y = 0; y < grid.length; y++) {
+          for (let x = 0; x < grid[y].length; x++) {
+            if (grid[y][x].type === 'ice') {
+              setPenguinPos({ x, y });
+              setIsPenguinPresent(true);
+              return;
+            }
+          }
+        }
+      }
+    }, [grid, isPenguinPresent]);
+    // Penguin movement logic: move every 5 seconds to adjacent ice tile
+    useEffect(() => {
+      if (!isPenguinPresent || !penguinPos) return;
+      const interval = setInterval(() => {
+        const adj = getAdjacentPositions(penguinPos.x, penguinPos.y, grid).filter(pos =>
+          !!grid[pos.y]?.[pos.x] && grid[pos.y][pos.x].type === 'ice'
+        );
+        if (adj.length > 0) {
+          const next = adj[Math.floor(Math.random() * adj.length)];
+          if (next) setPenguinPos(next);
+        }
+      }, 5000);
+      return () => clearInterval(interval);
+    }, [grid, penguinPos, isPenguinPresent]);
 
     if (isLoading) {
         return <div className="flex items-center justify-center h-screen bg-gray-900 text-white">Loading Realm...</div>;
