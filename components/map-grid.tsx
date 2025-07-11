@@ -479,8 +479,8 @@ export function MapGrid({
                         />
                       </div>
                     )}
-                    {/* Penguin appears on ice tiles */}
-                    {tile.type === 'ice' && (
+                    {/* Penguin appears only at penguinPos on an ice tile */}
+                    {tile.type === 'ice' && penguinPos && penguinPos.x === x && penguinPos.y === y && (
                       <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
                         <Image
                           src="/images/Animals/penguin.png"

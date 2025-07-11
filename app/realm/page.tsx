@@ -248,6 +248,98 @@ export default function RealmPage() {
       return false;
     });
 
+    // --- Penguin and Achievement Logic Helpers ---
+    function findFirstIceTile(grid: Tile[][]): { x: number; y: number } | null {
+      for (let y = 0; y < grid.length; y++) {
+        const row = grid[y];
+        if (!row) continue;
+        for (let x = 0; x < row.length; x++) {
+          if (row[x]?.type === 'ice') return { x, y };
+        }
+      }
+      return null;
+    }
+
+    function countTiles(grid: Tile[][], type: string): number {
+      let count = 0;
+      for (let y = 0; y < grid.length; y++) {
+        const row = grid[y];
+        if (!row) continue;
+        for (let x = 0; x < row.length; x++) {
+          if (row[x]?.type === type) count++;
+        }
+      }
+      return count;
+    }
+
+    // --- Penguin respawn and disappearance logic ---
+    useEffect(() => {
+      const hasIce = grid.some(row => row && row.some(tile => tile?.type === 'ice'));
+      if (!hasIce && isPenguinPresent) {
+        setIsPenguinPresent(false);
+        setPenguinPos(null);
+      } else if (hasIce && !isPenguinPresent) {
+        const pos = findFirstIceTile(grid);
+        if (pos) {
+          setPenguinPos(pos);
+          setIsPenguinPresent(true);
+        }
+      }
+    }, [grid]);
+
+    // --- Listen for mystery-event-completed and update grid ---
+    useEffect(() => {
+      function handler() {
+        if (lastMysteryTile) {
+          const { x, y } = lastMysteryTile;
+          setGrid(prevGrid => {
+            const newGrid = prevGrid.map(row => row.slice());
+            if (typeof y === 'number' && newGrid[y]) {
+              const row = newGrid[y];
+              if (row && typeof x === 'number' && row[x] && row[x].type === 'mystery') {
+                assignTile(row, x, row[x]);
+              }
+            }
+            return newGrid;
+          });
+          setLastMysteryTile(null);
+          setMysteryEventCompleted(false);
+        }
+      }
+      window.addEventListener('mystery-event-completed', handler);
+      return () => window.removeEventListener('mystery-event-completed', handler);
+    }, [lastMysteryTile]);
+
+    // --- General achievement tracker ---
+    useEffect(() => {
+      // Track tile actions for achievements
+      const actionCounts: Record<string, number> = {};
+      for (const req of creatureRequirements) {
+        // e.g., 'forest_tiles_destroyed', 'ice_tiles_placed', etc.
+        const [tileType, action] = req.action.split('_tiles_');
+        if (action === 'placed' && tileType) {
+          actionCounts[req.action] = countTiles(grid, tileType as string);
+        } else if (action === 'destroyed') {
+          // For destroyed, you may need to track this via a separate state or event log
+          // For now, skip unless you have a destruction log
+          actionCounts[req.action] = 0;
+        }
+      }
+      for (const req of creatureRequirements) {
+        if (actionCounts[req.action] >= req.threshold) {
+          // Unlock achievement if not already unlocked
+          if (userId) {
+            fetch('/api/achievements/unlock', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ achievementId: req.id })
+            });
+            discoverCreature(req.id);
+          }
+        }
+      }
+    }, [grid, userId, discoverCreature]);
+
     // Achievement unlock effect
     useEffect(() => {
         if (!hasVisitedRealm && isAuthLoaded) {
