@@ -102,13 +102,13 @@ export function NotificationCenter() {
         <div className="divide-y divide-amber-800/10 max-h-[80vh] overflow-auto">
           {notifications.length === 0 ? (
             <div className="flex justify-center items-center h-full p-8">
-              <div className="flex flex-col items-center bg-gray-900/50 rounded-lg border border-gray-800 p-6 w-full max-w-xs mx-auto">
+              <div className="flex flex-col items-center bg-gray-900/50 rounded-xl border border-gray-800 p-8 w-full max-w-md mx-auto">
                 <img
                   src="/images/Notifications/no-mail.png"
                   alt="No mail"
-                  className="mx-auto h-32 w-32 my-4"
-                  width={128}
-                  height={128}
+                  className="mx-auto w-full max-w-[320px] aspect-[4/3] object-cover rounded-lg my-4"
+                  width={320}
+                  height={240}
                   onError={(e) => { e.currentTarget.src = '/images/placeholders/item-placeholder.svg'; e.currentTarget.alt = 'Image not found'; }}
                 />
                 <p className="text-muted-foreground text-center max-w-xs mx-auto mt-2">
