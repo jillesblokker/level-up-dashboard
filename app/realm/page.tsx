@@ -528,7 +528,7 @@ export default function RealmPage() {
     };
 
     // Expand map function
-    const expandMap = () => {
+    const expandMap = async () => {
         const currentRows = grid.length;
         const currentCols = grid[0]?.length || GRID_COLS;
         const newRows = currentRows + 3;
@@ -571,6 +571,26 @@ export default function RealmPage() {
         }
         
         setGrid(newGrid);
+        // Persist all new tiles in the new rows to the backend
+        try {
+            if (!Array.isArray(newGrid)) return;
+            for (let y = currentRows; y < newRows; y++) {
+                if (!Array.isArray(newGrid[y])) continue;
+                for (let x = 0; x < currentCols; x++) {
+                    const tile = newGrid[y]?.[x];
+                    if (!tile) continue;
+                    const tileTypeNum = tileTypeToNumeric[tile.type];
+                    if (typeof tileTypeNum === 'undefined') continue;
+                    await fetch('/api/realm-tiles', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ x, y, tile_type: tileTypeNum })
+                    });
+                }
+            }
+        } catch (err) {
+            toast({ title: 'Error', description: 'Failed to save expanded map tiles', variant: 'destructive' });
+        }
         toast({
             title: "Map Expanded",
             description: "Your realm map has been expanded with 3 new rows!",
