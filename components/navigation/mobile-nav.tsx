@@ -129,21 +129,16 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
   
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black border-b border-gray-800 h-16 flex items-center justify-between px-2">
-      {/* Mobile nav bar: logo, notification, avatar, hamburger */}
+      {/* Mobile nav bar: logo, notification, hamburger */}
       <div className="flex flex-1 items-center justify-between gap-2">
-        {/* Castle icon (left) */}
+        {/* Castle icon (left) - use SVG as on web */}
         <span className="pl-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7 text-amber-400"><path strokeLinecap="round" strokeLinejoin="round" d="M3 21V7.5a.75.75 0 01.75-.75h.75V3.75A.75.75 0 015.25 3h1.5a.75.75 0 01.75.75V6.75h1.5V3.75A.75.75 0 0110.25 3h1.5a.75.75 0 01.75.75V6.75h1.5V3.75A.75.75 0 0114.75 3h1.5a.75.75 0 01.75.75V6.75h.75a.75.75 0 01.75.75V21" /><path strokeLinecap="round" strokeLinejoin="round" d="M3 21h18M3 21v-2.25A2.25 2.25 0 015.25 16.5h13.5A2.25 2.25 0 0121 18.75V21" /></svg></span>
-        {/* NotificationCenter and Avatar (right) */}
+        {/* NotificationCenter (right) */}
         <div className="flex items-center gap-2">
           {/* NotificationCenter */}
           {/* @ts-ignore-next-line */}
           {typeof window !== 'undefined' && require('@/components/notification-center').NotificationCenter && (
             require('@/components/notification-center').NotificationCenter()
-          )}
-          {/* Avatar */}
-          {/* @ts-ignore-next-line */}
-          {typeof window !== 'undefined' && require('@/components/user-nav').UserNav && (
-            require('@/components/user-nav').UserNav()
           )}
         </div>
         {/* Hamburger menu (far right) */}
@@ -222,7 +217,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                   </Link>
                 ))}
               </div>
-              {/* Account Section */}
+              {/* Account Section (now includes avatar/user nav) */}
               <div className="py-2">
                 <div className="px-6 py-2">
                   <h2 className="text-sm font-semibold text-gray-400">Account</h2>
@@ -241,8 +236,15 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                     <span className="font-cardo">{item.label}</span>
                   </Link>
                 ))}
+                {/* Avatar/UserNav moved here */}
+                <div className="flex justify-center py-4">
+                  {/* @ts-ignore-next-line */}
+                  {typeof window !== 'undefined' && require('@/components/user-nav').UserNav && (
+                    require('@/components/user-nav').UserNav()
+                  )}
+                </div>
               </div>
-              {/* Close Button */}
+              {/* Single Close Button (remove any duplicate/tiny close) */}
               <Button
                 variant="ghost"
                 size="icon"
