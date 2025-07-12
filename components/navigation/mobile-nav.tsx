@@ -233,17 +233,6 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
               <div className="py-2">
                 <ExpandableAccountSettings />
               </div>
-              {/* Single Close Button (remove any duplicate/tiny close) */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-2 right-2 min-w-[44px] min-h-[44px]"
-                onClick={() => setOpen(false)}
-                aria-label="Close menu"
-              >
-                <X className="h-6 w-6" />
-                <span className="sr-only">Close menu</span>
-              </Button>
             </div>
           </SheetContent>
         </Sheet>
