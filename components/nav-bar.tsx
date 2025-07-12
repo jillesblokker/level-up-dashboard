@@ -109,17 +109,19 @@ export function NavBar({ session }: NavBarProps) {
   return (
     <div className="border-b">
       <div className="flex h-16 items-center px-4">
-        <Castle className="h-6 w-6 mr-4" />
+        {/* White castle logo always left */}
+        <Castle className="h-6 w-6 mr-4 text-white" />
         {/* Desktop Navigation */}
         <div className="hidden md:flex">
           <MainNav />
         </div>
-        {/* Mobile Navigation */}
-        <div className="flex md:hidden flex-1">
+        {/* Mobile Navigation: only hamburger menu on right, no notification or user nav */}
+        <div className="flex md:hidden flex-1 justify-end">
           <MobileNav />
         </div>
-        <div className="ml-auto flex items-center space-x-4">
-          <div className="hidden md:flex items-center space-x-2">
+        {/* Desktop right-side stats, notification, user nav */}
+        <div className="ml-auto flex items-center space-x-4 hidden md:flex">
+          <div className="flex items-center space-x-2">
             <div
               className={`text-sm font-medium transition-all duration-300 ${levelHighlight ? 'bg-amber-300/40 rounded px-2 py-1 shadow' : ''}`}
               aria-live="polite"

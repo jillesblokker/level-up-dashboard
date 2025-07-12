@@ -129,18 +129,10 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
   
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black border-b border-gray-800 h-16 flex items-center justify-between px-2">
-      {/* Mobile nav bar: logo, notification, hamburger */}
+      {/* Mobile nav bar: logo, hamburger */}
       <div className="flex flex-1 items-center justify-between gap-2">
         {/* Castle icon (left) - use SVG as on web */}
-        <span className="pl-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7 text-amber-400"><path strokeLinecap="round" strokeLinejoin="round" d="M3 21V7.5a.75.75 0 01.75-.75h.75V3.75A.75.75 0 015.25 3h1.5a.75.75 0 01.75.75V6.75h1.5V3.75A.75.75 0 0110.25 3h1.5a.75.75 0 01.75.75V6.75h1.5V3.75A.75.75 0 0114.75 3h1.5a.75.75 0 01.75.75V6.75h.75a.75.75 0 01.75.75V21" /><path strokeLinecap="round" strokeLinejoin="round" d="M3 21h18M3 21v-2.25A2.25 2.25 0 015.25 16.5h13.5A2.25 2.25 0 0121 18.75V21" /></svg></span>
-        {/* NotificationCenter (right) */}
-        <div className="flex items-center gap-2">
-          {/* NotificationCenter */}
-          {/* @ts-ignore-next-line */}
-          {typeof window !== 'undefined' && require('@/components/notification-center').NotificationCenter && (
-            require('@/components/notification-center').NotificationCenter()
-          )}
-        </div>
+        <span className="pl-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7 text-white"><path strokeLinecap="round" strokeLinejoin="round" d="M3 21V7.5a.75.75 0 01.75-.75h.75V3.75A.75.75 0 015.25 3h1.5a.75.75 0 01.75.75V6.75h1.5V3.75A.75.75 0 0110.25 3h1.5a.75.75 0 01.75.75V6.75h1.5V3.75A.75.75 0 0114.75 3h1.5a.75.75 0 01.75.75V6.75h.75a.75.75 0 01.75.75V21" /><path strokeLinecap="round" strokeLinejoin="round" d="M3 21h18M3 21v-2.25A2.25 2.25 0 015.25 16.5h13.5A2.25 2.25 0 0121 18.75V21" /></svg></span>
         {/* Hamburger menu (far right) */}
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
@@ -169,6 +161,18 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                 <div className="flex items-center gap-1.5">
                   <Icons.coins className="w-4 h-4 md:w-5 md:h-5 text-amber-400" />
                   <span className="text-gray-100 text-sm md:text-base">{characterStats.gold}</span>
+                </div>
+              </div>
+              {/* Notifications section */}
+              <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-800">
+                <span className="text-amber-400"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg></span>
+                <span className="font-semibold text-white">Notifications</span>
+                {/* NotificationCenter with badge */}
+                <div className="ml-auto">
+                  {/* @ts-ignore-next-line */}
+                  {typeof window !== 'undefined' && require('@/components/notification-center').NotificationCenter && (
+                    require('@/components/notification-center').NotificationCenter()
+                  )}
                 </div>
               </div>
               {/* Tabs Dropdown (if tabs are provided) */}
@@ -219,8 +223,15 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
               </div>
               {/* Account Section (now includes avatar/user nav) */}
               <div className="py-2">
-                <div className="px-6 py-2">
-                  <h2 className="text-sm font-semibold text-gray-400">Account</h2>
+                <div className="px-6 py-2 flex items-center gap-3">
+                  {/* Avatar/UserNav */}
+                  <div>
+                    {/* @ts-ignore-next-line */}
+                    {typeof window !== 'undefined' && require('@/components/user-nav').UserNav && (
+                      require('@/components/user-nav').UserNav()
+                    )}
+                  </div>
+                  <span className="font-semibold text-white">Account settings</span>
                 </div>
                 {accountItems.map((item) => (
                   <Link
@@ -236,13 +247,6 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                     <span className="font-cardo">{item.label}</span>
                   </Link>
                 ))}
-                {/* Avatar/UserNav moved here */}
-                <div className="flex justify-center py-4">
-                  {/* @ts-ignore-next-line */}
-                  {typeof window !== 'undefined' && require('@/components/user-nav').UserNav && (
-                    require('@/components/user-nav').UserNav()
-                  )}
-                </div>
               </div>
               {/* Single Close Button (remove any duplicate/tiny close) */}
               <Button
