@@ -1009,7 +1009,7 @@ export default function RealmPage() {
                         aria-label="movement-mode-button"
                       >
                         <Move className="w-4 h-4" />
-                        <span className="hidden sm:inline">Move</span>
+                        <span className="hidden md:inline">Move</span>
                       </Button>
                       <Button
                         variant={gameMode === 'build' ? 'default' : 'outline'}
@@ -1019,9 +1019,9 @@ export default function RealmPage() {
                         aria-label="build-mode-button"
                       >
                         <Hammer className="w-4 h-4" />
-                        <span className="hidden sm:inline">Build</span>
+                        <span className="hidden md:inline">Build</span>
                       </Button>
-                      <div className="flex items-center space-x-2 min-w-[100px]" aria-label="auto-save-controls">
+                      <div className="hidden md:flex items-center space-x-2 min-w-[100px]" aria-label="auto-save-controls">
                         <Switch id="auto-save-switch" checked={autoSave} onCheckedChange={setAutoSave} />
                         <label htmlFor="auto-save-switch" className="text-sm">Auto Save</label>
                       </div>

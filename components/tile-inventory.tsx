@@ -105,8 +105,8 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         </TabsList>
         <TabsContent value="place">
           <ScrollArea className="h-full w-full">
-            {/* Mobile: horizontally scrollable row for tile cards */}
-            <div className="flex gap-4 overflow-x-auto flex-nowrap md:hidden p-4" style={{ WebkitOverflowScrolling: 'touch' }}>
+            {/* Mobile: vertical stack for tile cards */}
+            <div className="flex flex-col gap-4 md:hidden p-4">
               {tiles.map((tile) => (
                 <Card
                   key={tile.type}
@@ -162,8 +162,8 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 </Card>
               ))}
             </div>
-            {/* Desktop/tablet: grid layout */}
-            <div className="hidden md:grid grid-cols-2 gap-4 lg:grid-cols-3 p-4">
+            {/* Desktop/tablet: grid layout, 2 columns for md+, not 3 */}
+            <div className="hidden md:grid grid-cols-2 gap-4 p-4">
               {tiles.map((tile) => (
                 <Card
                   key={tile.type}
@@ -208,7 +208,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                       <Button
                         variant="outline"
                         size="sm"
-                        className="flex-1"
+                        className="flex-1 min-h-[44px]"
                         onClick={(e) => handleBuyTile(tile, e)}
                         aria-label={`Buy ${buyQuantities[tile.type] || 1} ${tile.name || tile.type} tile${(buyQuantities[tile.type] || 1) > 1 ? 's' : ''}`}
                       >
