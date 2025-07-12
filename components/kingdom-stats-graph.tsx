@@ -166,7 +166,23 @@ export function KingdomStatsGraph({ userId }: { userId: string | null }) {
       </CardHeader>
       <CardContent>
         <div className="py-4">
-          <Tabs value={activeTab} onValueChange={v => setActiveTab(v as typeof activeTab)} className="mb-4">
+          {/* Mobile tab selector */}
+          <div className="mb-4 md:hidden">
+            <label htmlFor="kingdom-stats-tab-select" className="sr-only">Select stats tab</label>
+            <select
+              id="kingdom-stats-tab-select"
+              aria-label="Kingdom stats tab selector"
+              className="w-full rounded-md border border-amber-800/20 bg-black text-white p-2"
+              value={activeTab}
+              onChange={e => setActiveTab(e.target.value as typeof activeTab)}
+            >
+              <option value="challenges">Challenges</option>
+              <option value="quests">Quests</option>
+              <option value="gold">Gold</option>
+              <option value="experience">Experience</option>
+            </select>
+          </div>
+          <Tabs value={activeTab} onValueChange={v => setActiveTab(v as typeof activeTab)} className="mb-4 hidden md:block">
             <TabsList aria-label="kingdom-stats-tabs">
               <TabsTrigger value="challenges" aria-label="challenges-tab">Challenges</TabsTrigger>
               <TabsTrigger value="quests" aria-label="quests-tab">Quests</TabsTrigger>

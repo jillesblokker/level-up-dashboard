@@ -131,21 +131,16 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black border-b border-gray-800 h-16 flex items-center justify-between px-2">
       {/* Mobile nav bar: logo, notification, avatar, hamburger */}
       <div className="flex flex-1 items-center justify-between gap-2">
-        {/* Logo (left) */}
-        <span className="text-lg md:text-2xl font-cardo text-amber-400 pl-2">Thrivehaven</span>
-        {/* Notification icon (center) */}
-        <div className="flex-1 flex items-center justify-center">
-          <div className="relative">
-            {/* Import and use NotificationCenter here */}
-            {/* @ts-ignore-next-line */}
-            {typeof window !== 'undefined' && require('@/components/notification-center').NotificationCenter && (
-              require('@/components/notification-center').NotificationCenter()
-            )}
-          </div>
-        </div>
-        {/* Avatar (right) */}
-        <div className="flex items-center">
-          {/* Import and use UserNav here */}
+        {/* Castle icon (left) */}
+        <span className="pl-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7 text-amber-400"><path strokeLinecap="round" strokeLinejoin="round" d="M3 21V7.5a.75.75 0 01.75-.75h.75V3.75A.75.75 0 015.25 3h1.5a.75.75 0 01.75.75V6.75h1.5V3.75A.75.75 0 0110.25 3h1.5a.75.75 0 01.75.75V6.75h1.5V3.75A.75.75 0 0114.75 3h1.5a.75.75 0 01.75.75V6.75h.75a.75.75 0 01.75.75V21" /><path strokeLinecap="round" strokeLinejoin="round" d="M3 21h18M3 21v-2.25A2.25 2.25 0 015.25 16.5h13.5A2.25 2.25 0 0121 18.75V21" /></svg></span>
+        {/* NotificationCenter and Avatar (right) */}
+        <div className="flex items-center gap-2">
+          {/* NotificationCenter */}
+          {/* @ts-ignore-next-line */}
+          {typeof window !== 'undefined' && require('@/components/notification-center').NotificationCenter && (
+            require('@/components/notification-center').NotificationCenter()
+          )}
+          {/* Avatar */}
           {/* @ts-ignore-next-line */}
           {typeof window !== 'undefined' && require('@/components/user-nav').UserNav && (
             require('@/components/user-nav').UserNav()

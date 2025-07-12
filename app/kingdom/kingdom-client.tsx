@@ -331,7 +331,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             aria-label="kingdom-stats-card"
           >
             <CardHeader>
-              <CardTitle className="text-amber-500">Kingdom Statistics</CardTitle>
+              <CardTitle className="text-amber-500">Kingdom stats</CardTitle>
               <CardDescription className="text-gray-400">Track your realm&apos;s growth</CardDescription>
             </CardHeader>
             <CardContent>
@@ -370,51 +370,41 @@ export function KingdomClient({ userId }: { userId: string | null }) {
                 </TabsList>
                 
                 <TabsContent value="equipped" className="mt-4">
-                  <ScrollArea 
-                    className="h-[calc(100vh-20rem)] rounded-md border border-amber-800/20 p-4"
-                    aria-label="equipped-items-scroll-area"
-                  >
-                    {equippedItems.length === 0 ? (
-                      <div className="text-center text-gray-400 py-8">
-                        No items equipped
-                      </div>
-                    ) : (
-                      <div 
-                        className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                        aria-label="equipped-items-grid"
-                      >
-                        {equippedItems.map((item) => renderItemCard(item, true))}
-                      </div>
-                    )}
-                  </ScrollArea>
+                  {equippedItems.length === 0 ? (
+                    <div className="text-center text-gray-400 py-8">
+                      No items equipped
+                    </div>
+                  ) : (
+                    <div 
+                      className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                      aria-label="equipped-items-grid"
+                    >
+                      {equippedItems.map((item) => renderItemCard(item, true))}
+                    </div>
+                  )}
                 </TabsContent>
                 
                 <TabsContent value="stored" className="mt-4">
-                  <ScrollArea 
-                    className="h-[calc(100vh-20rem)] rounded-md border border-amber-800/20 p-4"
-                    aria-label="stored-items-scroll-area"
-                  >
-                    {storedItems.length === 0 ? (
-                      <Card className="bg-black/50 border-amber-800/30 border-dashed">
-                        <CardContent className="flex flex-col items-center justify-center py-12 px-6 text-center">
-                          <div className="w-16 h-16 mb-4 rounded-full bg-amber-900/30 flex items-center justify-center">
-                            <span className="text-2xl">🎒</span>
-                          </div>
-                          <h3 className="text-amber-500 font-semibold text-lg mb-2">Your bag is empty</h3>
-                          <p className="text-gray-400 text-sm leading-relaxed">
-                            Keep traversing the land and buy new items to be better equipped.
-                          </p>
-                        </CardContent>
-                      </Card>
-                    ) : (
-                      <div 
-                        className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                        aria-label="stored-items-grid"
-                      >
-                        {storedItems.map((item) => renderItemCard(item, false))}
-                      </div>
-                    )}
-                  </ScrollArea>
+                  {storedItems.length === 0 ? (
+                    <Card className="bg-black/50 border-amber-800/30 border-dashed">
+                      <CardContent className="flex flex-col items-center justify-center py-12 px-6 text-center">
+                        <div className="w-16 h-16 mb-4 rounded-full bg-amber-900/30 flex items-center justify-center">
+                          <span className="text-2xl">🎒</span>
+                        </div>
+                        <h3 className="text-amber-500 font-semibold text-lg mb-2">Your bag is empty</h3>
+                        <p className="text-gray-400 text-sm leading-relaxed">
+                          Keep traversing the land and buy new items to be better equipped.
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <div 
+                      className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                      aria-label="stored-items-grid"
+                    >
+                      {storedItems.map((item) => renderItemCard(item, false))}
+                    </div>
+                  )}
                 </TabsContent>
               </Tabs>
             </CardContent>
