@@ -77,6 +77,9 @@ const AccountMenu = () => {
             Stored Data
           </Link>
         </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/account/reveal-test" aria-label="Reveal Test Page">Reveal Test</Link>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <button

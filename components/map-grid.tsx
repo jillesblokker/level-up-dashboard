@@ -410,21 +410,42 @@ export function MapGrid({
     return () => window.removeEventListener('mystery-event-completed', handler);
   }, [grid, lastMysteryTile]);
 
+  // Helper to detect small mobile portrait (not iPad/desktop)
+  const isSmallMobilePortrait = isMobilePortrait && typeof window !== 'undefined' && window.innerWidth <= 480;
+
   if (grid.length === 0) {
     return <div>Loading map...</div>;
   }
 
   return (
-    <div
-      className="relative w-full h-full overflow-hidden"
-      role="application"
-      aria-label="map-grid"
-    >
-      <div 
-        className="w-full h-full overflow-auto"
+    <div className={cn("relative w-full h-full overflow-hidden rounded-lg border border-amber-800/20", isMovementMode && "ring-2 ring-amber-500")}
+      aria-label="map-container">
+      <div
+        ref={gridRef}
+        className="absolute inset-0 overflow-auto map-grid-scroll"
         aria-label="map-grid-scroll-area"
+        style={isSmallMobilePortrait ? { width: '100vw', maxWidth: '100vw', minWidth: '100vw', touchAction: 'pan-x pan-y' } : isMobilePortrait ? { width: '100vw', maxWidth: '100vw', minWidth: '100vw' } : {}}
       >
-        <div aria-label="map-rows">
+        <div
+          className="relative map-grid-container"
+          style={{
+            width: isSmallMobilePortrait
+              ? `${Math.max(grid[0]?.length ?? 0, 6) * 128}px`
+              : isMobilePortrait
+                ? `${Math.max(grid[0]?.length ?? 0, 6) * 64}px`
+                : grid[0] ? `${grid[0].length * 64}px` : '0px',
+            height: isSmallMobilePortrait
+              ? `${grid.length * 128}px`
+              : `${grid.length * 64}px`,
+            display: 'grid',
+            gridTemplateColumns: grid[0] ? `repeat(${grid[0].length}, ${isSmallMobilePortrait ? '128px' : '64px'})` : 'none',
+            gridTemplateRows: `repeat(${grid.length}, ${isSmallMobilePortrait ? '128px' : '64px'})`,
+            gap: '0px',
+            ...(isSmallMobilePortrait ? { minWidth: `${6 * 128}px`, maxWidth: `${6 * 128}px` } : isMobilePortrait ? { minWidth: `${6 * 64}px`, maxWidth: `${6 * 64}px` } : {})
+          }}
+          aria-label="map-grid-container"
+          role="grid"
+        >
           {grid.map((row: Tile[], y: number) => (
             <div
               key={y}
