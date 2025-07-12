@@ -325,19 +325,10 @@ export function KingdomClient({ userId }: { userId: string | null }) {
         aria-label="kingdom-main-content"
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Kingdom Stats */}
-          <Card 
-            className="bg-black border-amber-800/50"
-            aria-label="kingdom-stats-card"
-          >
-            <CardHeader>
-              <CardTitle className="text-amber-500">Kingdom stats</CardTitle>
-              <CardDescription className="text-gray-400">Track your realm&apos;s growth</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <KingdomStatsGraph userId={userId} />
-            </CardContent>
-          </Card>
+          {/* Kingdom Stats - remove outer Card, render graph directly */}
+          <div className="w-full" aria-label="kingdom-stats-graph-container">
+            <KingdomStatsGraph userId={userId} />
+          </div>
 
           {/* Inventory */}
           <Card 
