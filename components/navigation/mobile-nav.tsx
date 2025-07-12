@@ -135,7 +135,9 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
       <div className="flex flex-1 items-center justify-between gap-2 w-full">
         {/* Logo (left) */}
         <div className="flex items-center">
-          <Logo variant="icon" size="md" />
+          <Link href="/kingdom" aria-label="Go to Kingdom (Home)">
+            <Logo variant="icon" size="md" />
+          </Link>
         </div>
         {/* Centered Thrivehaven title */}
         <div className="flex-1 flex justify-center items-center">

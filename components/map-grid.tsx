@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -62,6 +62,38 @@ export function MapGrid({
   const [lastMysteryTile, setLastMysteryTile] = useState<{ x: number; y: number } | null>(null);
   // Add hoveredTile state for delete icon
   const [hoveredTile, setHoveredTileLocal] = useState<{x: number, y: number} | null>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [isMobilePortrait, setIsMobilePortrait] = useState(false);
+
+  // Detect mobile portrait mode
+  useEffect(() => {
+    function handleResize() {
+      const isPortrait = window.innerHeight > window.innerWidth;
+      const isMobile = window.innerWidth <= 768;
+      setIsMobilePortrait(isMobile && isPortrait);
+    }
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Pan to keep character in view
+  useEffect(() => {
+    if (!gridRef.current) return;
+    const tileSize = 64;
+    let containerWidth = gridRef.current.clientWidth;
+    const containerHeight = gridRef.current.clientHeight;
+    if (isMobilePortrait) {
+      containerWidth = 6 * tileSize;
+    }
+    const newX = (character.x * tileSize - containerWidth / 2);
+    const newY = (character.y * tileSize - containerHeight / 2);
+    gridRef.current.scrollTo({
+      left: newX,
+      top: newY,
+      behavior: 'smooth'
+    });
+  }, [character.x, character.y, isMobilePortrait]);
 
   // Defensive fallback for character
   const safeCharacter = character && typeof character.x === 'number' && typeof character.y === 'number' ? character : { x: 0, y: 0 };
