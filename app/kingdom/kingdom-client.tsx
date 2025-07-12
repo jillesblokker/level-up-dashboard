@@ -1,7 +1,6 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { KingdomStatsGraph } from "@/components/kingdom-stats-graph"
 import Image from "next/image"
 import { useState, useEffect } from "react"
 import { Badge } from "@/components/ui/badge"
