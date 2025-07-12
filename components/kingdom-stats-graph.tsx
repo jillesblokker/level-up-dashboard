@@ -76,56 +76,103 @@ function EmptyState({ tab }: EmptyStateProps) {
   );
 }
 
-export function KingdomStatsGraph({ userId }: { userId: string | null }) {
-  const { getToken } = useAuth()
-  const [activeTab, setActiveTab] = useState<'challenges' | 'quests' | 'gold' | 'experience'>('challenges')
-  const [timePeriod, setTimePeriod] = useState<TimePeriod>('week')
-  const [graphData, setGraphData] = useState<Array<{ day: string; value: number }>>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const uid = userId
+// --- Empty State Components for Each Tab ---
+function QuestsEmptyState() {
+  return (
+    <section className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden" aria-label="kingdom-stats-empty-state-section">
+      <Image src="/images/quests-header.jpg" alt="Empty quests placeholder" className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none" width={400} height={300} aria-hidden="true" />
+      <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
+      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3">
+        <div className="text-amber-500 text-xl font-bold drop-shadow-md">No quests yet</div>
+        <div className="text-gray-100 text-base">Start habit building now to see your kingdom flourish!</div>
+        <Link href="/quests?tab=quests" passHref legacyBehavior>
+          <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md" aria-label="Start your first quest" tabIndex={0} role="button">Start Your First Quest</a>
+        </Link>
+      </div>
+    </section>
+  );
+}
+function ChallengesEmptyState() {
+  return (
+    <section className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden" aria-label="kingdom-stats-empty-state-section">
+      <Image src="/images/quests-header.jpg" alt="Empty challenges placeholder" className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none" width={400} height={300} aria-hidden="true" />
+      <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
+      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3">
+        <div className="text-amber-500 text-xl font-bold drop-shadow-md">No challenges yet</div>
+        <div className="text-gray-100 text-base">Start a challenge to see your kingdom grow!</div>
+        <Link href="/quests?tab=challenges" passHref legacyBehavior>
+          <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md" aria-label="Start your first challenge" tabIndex={0} role="button">Start Your First Challenge</a>
+        </Link>
+      </div>
+    </section>
+  );
+}
+function MilestonesEmptyState() {
+  return (
+    <section className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden" aria-label="kingdom-stats-empty-state-section">
+      <Image src="/images/quests-header.jpg" alt="Empty milestones placeholder" className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none" width={400} height={300} aria-hidden="true" />
+      <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
+      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3">
+        <div className="text-amber-500 text-xl font-bold drop-shadow-md">No milestones yet</div>
+        <div className="text-gray-100 text-base">Start a milestone to see your kingdom flourish!</div>
+        <Link href="/quests?tab=milestones" passHref legacyBehavior>
+          <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md" aria-label="Start your first milestone" tabIndex={0} role="button">Start Your First Milestone</a>
+        </Link>
+      </div>
+    </section>
+  );
+}
+function GoldEmptyState() {
+  return (
+    <section className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden" aria-label="king-stats-empty-state-section">
+      <Image src="/images/quests-header.jpg" alt="Empty gold placeholder" className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none" width={400} height={300} aria-hidden="true" />
+      <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
+      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3">
+        <div className="text-amber-500 text-xl font-bold drop-shadow-md">No gold earned yet</div>
+        <div className="text-gray-100 text-base">Complete quests to earn gold!</div>
+        <Link href="/quests?tab=quests" passHref legacyBehavior>
+          <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md" aria-label="Start your first quest" tabIndex={0} role="button">Start Your First Quest</a>
+        </Link>
+      </div>
+    </section>
+  );
+}
+function ExperienceEmptyState() {
+  return (
+    <section className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden" aria-label="king-stats-empty-state-section">
+      <Image src="/images/quests-header.jpg" alt="Empty experience placeholder" className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none" width={400} height={300} aria-hidden="true" />
+      <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
+      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3">
+        <div className="text-amber-500 text-xl font-bold drop-shadow-md">No experience earned yet</div>
+        <div className="text-gray-100 text-base">Complete quests to earn experience!</div>
+        <Link href="/quests?tab=quests" passHref legacyBehavior>
+          <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md" aria-label="Start your first quest" tabIndex={0} role="button">Start Your First Quest</a>
+        </Link>
+      </div>
+    </section>
+  );
+}
 
-  // Helper to get date ranges for each period
-  function getDateRange(period: TimePeriod) {
-    const now = new Date();
-    let days: string[] = [];
-    if (period === 'week') {
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        days.push(d.toISOString().slice(0, 10));
-      }
-    } else if (period === 'month') {
-      for (let i = 29; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        days.push(d.toISOString().slice(0, 10));
-      }
-    } else if (period === 'year') {
-      // Group by month for the last 12 months
-      for (let i = 11; i >= 0; i--) {
-        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        days.push(d.toISOString().slice(0, 7)); // YYYY-MM
-      }
-    } else if (period === 'all') {
-      // Just one bar for all time
-      days = ['all'];
-    }
-    return days;
-  }
+// --- Block 1: KingdomStatsBlock ---
+export function KingdomStatsBlock({ userId }: { userId: string | null }) {
+  const [activeTab, setActiveTab] = useState<'quests' | 'challenges' | 'milestones'>('quests');
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>('week');
+  const [graphData, setGraphData] = useState<Array<{ day: string; value: number }>>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const uid = userId;
 
-  // Fetch and aggregate data for the selected tab and period
+  // Fetch and aggregate data for the selected tab and period (keep as is for now)
   useEffect(() => {
     if (!uid) return;
     setIsLoading(true);
-    const days = getDateRange(timePeriod);
     const fetchData = async () => {
       try {
         const res = await fetch(`/api/kingdom-stats?userId=${uid}&tab=${activeTab}&period=${timePeriod}`);
         if (!res.ok) throw new Error('Failed to fetch stats');
         const { data } = await res.json();
-        setGraphData(data || days.map(day => ({ day, value: 0 })));
+        setGraphData(data || []);
       } catch (err) {
-        setGraphData(days.map(day => ({ day, value: 0 })));
+        setGraphData([]);
       } finally {
         setIsLoading(false);
       }
@@ -133,10 +180,8 @@ export function KingdomStatsGraph({ userId }: { userId: string | null }) {
     fetchData();
   }, [activeTab, uid, timePeriod]);
 
-  // Check if there is any data
   const hasData = graphData.some(d => d.value > 0);
 
-  // Render
   return (
     <Card className="bg-black border-amber-800">
       <CardHeader>
@@ -176,34 +221,28 @@ export function KingdomStatsGraph({ userId }: { userId: string | null }) {
               value={activeTab}
               onChange={e => setActiveTab(e.target.value as typeof activeTab)}
             >
-              <option value="challenges">Challenges</option>
               <option value="quests">Quests</option>
-              <option value="gold">Gold</option>
-              <option value="experience">Experience</option>
+              <option value="challenges">Challenges</option>
+              <option value="milestones">Milestones</option>
             </select>
           </div>
           <Tabs value={activeTab} onValueChange={v => setActiveTab(v as typeof activeTab)} className="mb-4 hidden md:block">
             <TabsList aria-label="kingdom-stats-tabs">
-              <TabsTrigger value="challenges" aria-label="challenges-tab">Challenges</TabsTrigger>
               <TabsTrigger value="quests" aria-label="quests-tab">Quests</TabsTrigger>
-              <TabsTrigger value="gold" aria-label="gold-tab">Gold</TabsTrigger>
-              <TabsTrigger value="experience" aria-label="experience-tab">Experience</TabsTrigger>
+              <TabsTrigger value="challenges" aria-label="challenges-tab">Challenges</TabsTrigger>
+              <TabsTrigger value="milestones" aria-label="milestones-tab">Milestones</TabsTrigger>
             </TabsList>
           </Tabs>
           {isLoading ? (
             <div className="h-64 flex items-center justify-center text-gray-400">Loading...</div>
           ) : !hasData ? (
-            <EmptyState tab={activeTab} />
+            activeTab === 'quests' ? <QuestsEmptyState /> : activeTab === 'challenges' ? <ChallengesEmptyState /> : <MilestonesEmptyState />
           ) : (
             <div className="h-64 flex items-end gap-2 w-full px-4">
               {graphData.map((d, i) => (
                 <div key={d.day} className="flex flex-col items-center justify-end flex-1">
-                  <div
-                    className="w-full rounded-t bg-amber-500 transition-all"
-                    style={{ height: `${d.value === 0 ? 8 : d.value * 32}px`, minHeight: 8 }}
-                    aria-label={`bar-${d.day}`}
-                  />
-                  <div className="text-xs text-gray-300 mt-1">{timePeriod === 'year' ? d.day : new Date(d.day).toLocaleDateString()}</div>
+                  <div className="w-full rounded-t bg-amber-500 transition-all" style={{ height: `${d.value === 0 ? 8 : d.value * 32}px`, minHeight: 8 }} aria-label={`bar-${d.day}`} />
+                  <div className="text-xs text-gray-300 mt-1">{d.day}</div>
                   <div className="text-lg text-white font-bold">{d.value}</div>
                 </div>
               ))}
@@ -212,5 +251,104 @@ export function KingdomStatsGraph({ userId }: { userId: string | null }) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
+}
+
+// --- Block 2: KingStatsBlock ---
+export function KingStatsBlock({ userId }: { userId: string | null }) {
+  const [activeTab, setActiveTab] = useState<'gold' | 'experience'>('gold');
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>('week');
+  const [graphData, setGraphData] = useState<Array<{ day: string; value: number }>>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const uid = userId;
+
+  // Fetch and aggregate data for the selected tab and period (keep as is for now)
+  useEffect(() => {
+    if (!uid) return;
+    setIsLoading(true);
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`/api/kingdom-stats?userId=${uid}&tab=${activeTab}&period=${timePeriod}`);
+        if (!res.ok) throw new Error('Failed to fetch stats');
+        const { data } = await res.json();
+        setGraphData(data || []);
+      } catch (err) {
+        setGraphData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [activeTab, uid, timePeriod]);
+
+  const hasData = graphData.some(d => d.value > 0);
+
+  return (
+    <Card className="bg-black border-amber-800">
+      <CardHeader>
+        <div className="flex items-center justify-between gap-4">
+          <CardTitle className="text-amber-500 text-2xl font-bold">King stats</CardTitle>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" aria-label="Select time period" className="ml-2">
+                {(() => {
+                  if (timePeriod === 'week') return 'Week';
+                  if (timePeriod === 'month') return 'Month';
+                  if (timePeriod === 'year') return 'Year';
+                  return 'All time';
+                })()}
+                <ChevronDown className="ml-2 w-4 h-4" aria-hidden="true" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent aria-label="king-stats-time-period-dropdown">
+              <DropdownMenuItem onSelect={() => setTimePeriod('week')} aria-label="Week">Week</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setTimePeriod('month')} aria-label="Month">Month</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setTimePeriod('year')} aria-label="Year">Year</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setTimePeriod('all')} aria-label="All time">All time</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <CardDescription className="text-gray-300">Track your gold and experience</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="py-4">
+          {/* Mobile tab selector */}
+          <div className="mb-4 md:hidden">
+            <label htmlFor="king-stats-tab-select" className="sr-only">Select king stats tab</label>
+            <select
+              id="king-stats-tab-select"
+              aria-label="King stats tab selector"
+              className="w-full rounded-md border border-amber-800/20 bg-black text-white p-2"
+              value={activeTab}
+              onChange={e => setActiveTab(e.target.value as typeof activeTab)}
+            >
+              <option value="gold">Gold</option>
+              <option value="experience">Experience</option>
+            </select>
+          </div>
+          <Tabs value={activeTab} onValueChange={v => setActiveTab(v as typeof activeTab)} className="mb-4 hidden md:block">
+            <TabsList aria-label="king-stats-tabs">
+              <TabsTrigger value="gold" aria-label="gold-tab">Gold</TabsTrigger>
+              <TabsTrigger value="experience" aria-label="experience-tab">Experience</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          {isLoading ? (
+            <div className="h-64 flex items-center justify-center text-gray-400">Loading...</div>
+          ) : !hasData ? (
+            activeTab === 'gold' ? <GoldEmptyState /> : <ExperienceEmptyState />
+          ) : (
+            <div className="h-64 flex items-end gap-2 w-full px-4">
+              {graphData.map((d, i) => (
+                <div key={d.day} className="flex flex-col items-center justify-end flex-1">
+                  <div className="w-full rounded-t bg-amber-500 transition-all" style={{ height: `${d.value === 0 ? 8 : d.value * 32}px`, minHeight: 8 }} aria-label={`bar-${d.day}`} />
+                  <div className="text-xs text-gray-300 mt-1">{d.day}</div>
+                  <div className="text-lg text-white font-bold">{d.value}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
