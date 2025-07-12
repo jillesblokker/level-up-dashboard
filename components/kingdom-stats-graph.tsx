@@ -141,23 +141,23 @@ export function KingdomStatsGraph({ userId }: { userId: string | null }) {
     <Card className="bg-black border-amber-800">
       <CardHeader>
         <div className="flex items-center justify-between gap-4">
-          <CardTitle className="text-amber-500 text-2xl font-bold">Kingdom Statistics</CardTitle>
+          <CardTitle className="text-amber-500 text-2xl font-bold">Kingdom stats</CardTitle>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" aria-label="Select time period" className="ml-2">
                 {(() => {
-                  if (timePeriod === 'week') return 'This week';
-                  if (timePeriod === 'month') return 'This month';
-                  if (timePeriod === 'year') return 'This year';
+                  if (timePeriod === 'week') return 'Week';
+                  if (timePeriod === 'month') return 'Month';
+                  if (timePeriod === 'year') return 'Year';
                   return 'All time';
                 })()}
                 <ChevronDown className="ml-2 w-4 h-4" aria-hidden="true" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent aria-label="kingdom-stats-time-period-dropdown">
-              <DropdownMenuItem onSelect={() => setTimePeriod('week')} aria-label="This week">This week</DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setTimePeriod('month')} aria-label="This month">This month</DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setTimePeriod('year')} aria-label="This year">This year</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setTimePeriod('week')} aria-label="Week">Week</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setTimePeriod('month')} aria-label="Month">Month</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setTimePeriod('year')} aria-label="Year">Year</DropdownMenuItem>
               <DropdownMenuItem onSelect={() => setTimePeriod('all')} aria-label="All time">All time</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
