@@ -14,7 +14,7 @@ import { createTileFromNumeric, numericToTileType, tileTypeToNumeric } from "@/l
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { X, Hammer, Move, Package, Settings, Save, Trash2 } from 'lucide-react'
+import { X, Hammer, Move, Package, Settings, Save, Trash2, RotateCcw, PlusCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { EnterLocationModal } from '@/components/enter-location-modal'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
@@ -1032,7 +1032,7 @@ export default function RealmPage() {
                         className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
                         aria-label="expand-map-button"
                       >
-                        <Settings className="w-4 h-4" />
+                        <PlusCircle className="w-4 h-4" />
                         <span className="hidden sm:inline">Expand Map</span>
                       </Button>
                       <Button
@@ -1062,7 +1062,7 @@ export default function RealmPage() {
                         className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
                         aria-label="reset-position-button"
                       >
-                        <Move className="w-4 h-4" />
+                        <RotateCcw className="w-4 h-4" />
                         <span className="hidden sm:inline">Reset Position</span>
                       </Button>
                     </div>
@@ -1099,7 +1099,7 @@ export default function RealmPage() {
                 </div>
                 {/* Side Inventory Panel */}
                 {showInventory && (
-                    <div id="tile-inventory-panel" role="dialog" aria-modal="true" aria-label="Tile Inventory Panel" className="absolute top-[48px] right-0 h-[calc(100%-48px)] w-96 max-w-[90vw] bg-gray-800/90 backdrop-blur-sm border-l border-gray-700 flex flex-col z-20 p-2 border-4 border-blue-500">
+                    <div id="tile-inventory-panel" role="dialog" aria-modal="true" aria-label="Tile Inventory Panel" className="absolute top-[48px] right-0 h-[calc(100%-48px)] w-96 max-w-[90vw] bg-gray-800/90 backdrop-blur-sm border-l border-gray-700 flex flex-col z-20 p-2">
                         <div className="p-4 border-b border-gray-700 flex items-center justify-between">
                             <h2 className="text-lg font-semibold">Tile Inventory</h2>
                             <Button

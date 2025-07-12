@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Tile } from "@/types/tiles";
 
@@ -46,13 +46,29 @@ const getTileImage = (tileType: string) => {
 
 export function MapGrid({ grid, playerPosition, onTileClick }: MapGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
+  const [isMobilePortrait, setIsMobilePortrait] = useState(false);
+
+  // Detect mobile portrait mode
+  useEffect(() => {
+    function handleResize() {
+      const isPortrait = window.innerHeight > window.innerWidth;
+      const isMobile = window.innerWidth <= 768;
+      setIsMobilePortrait(isMobile && isPortrait);
+    }
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handlePan = (dx: number, dy: number) => {
     if (!gridRef.current) return;
 
     const tileSize = 64;
-    const containerWidth = gridRef.current.clientWidth;
+    let containerWidth = gridRef.current.clientWidth;
     const containerHeight = gridRef.current.clientHeight;
+    if (isMobilePortrait) {
+      containerWidth = 6 * tileSize;
+    }
 
     // Calculate the new scroll position
     const newX = (playerPosition.x * tileSize - containerWidth / 2) + dx;
@@ -71,7 +87,7 @@ export function MapGrid({ grid, playerPosition, onTileClick }: MapGridProps) {
     if (gridRef.current) {
       handlePan(0, 0);
     }
-  }, [playerPosition.x, playerPosition.y]);
+  }, [playerPosition.x, playerPosition.y, isMobilePortrait]);
 
   return (
     <div className="relative w-full h-[calc(100vh-8rem)] overflow-hidden rounded-lg border border-amber-800/20" aria-label="map-container">
@@ -79,16 +95,20 @@ export function MapGrid({ grid, playerPosition, onTileClick }: MapGridProps) {
         ref={gridRef}
         className="absolute inset-0 overflow-auto map-grid-scroll"
         aria-label="map-grid-scroll-area"
+        style={isMobilePortrait ? { width: '100vw', maxWidth: '100vw', minWidth: '100vw' } : {}}
       >
-        <div 
-          className="relative map-grid-container" 
-          style={{ 
-            width: grid[0] ? `${grid[0].length * 64}px` : '0px',
+        <div
+          className="relative map-grid-container"
+          style={{
+            width: isMobilePortrait
+              ? `${Math.max(grid[0]?.length ?? 0, 6) * 64}px`
+              : grid[0] ? `${grid[0].length * 64}px` : '0px',
             height: `${grid.length * 64}px`,
             display: 'grid',
             gridTemplateColumns: grid[0] ? `repeat(${grid[0].length}, 64px)` : 'none',
             gridTemplateRows: `repeat(${grid.length}, 64px)`,
-            gap: '0px'
+            gap: '0px',
+            ...(isMobilePortrait ? { minWidth: `${6 * 64}px`, maxWidth: `${6 * 64}px` } : {})
           }}
           aria-label="map-grid-container"
           role="grid"

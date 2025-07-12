@@ -306,7 +306,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
           };
           reader.readAsDataURL(file);
         }}
-        className="border-4 border-red-500"
+        className=""
       />
 
       <AlertDialog open={modalOpen} onOpenChange={setModalOpen}>
