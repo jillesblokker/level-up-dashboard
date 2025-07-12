@@ -288,26 +288,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      <HeaderSection
-        title="KINGDOM"
-        imageSrc={coverImage}
-        canEdit={!!userId}
-        onImageUpload={(file) => {
-          // handleImageUpload logic here
-          const reader = new FileReader();
-          reader.onload = (event: ProgressEvent<FileReader>) => {
-            const result = event.target?.result as string;
-            setCoverImage(result);
-            localStorage.setItem("kingdom-header-image", result);
-            if (typeof window !== 'undefined') {
-              const win = window as WindowWithHeaderImages;
-              win.headerImages = win.headerImages || {};
-              win.headerImages['kingdom'] = result;
-            }
-          };
-          reader.readAsDataURL(file);
-        }}
-      />
+      
 
       <AlertDialog open={modalOpen} onOpenChange={setModalOpen}>
         <AlertDialogContent>

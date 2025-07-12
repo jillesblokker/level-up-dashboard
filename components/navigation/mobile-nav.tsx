@@ -33,6 +33,7 @@ import {
 import { cn } from "@/lib/utils"
 import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience } from "@/types/character"
 import { Logo } from "@/components/logo";
+import { useUser } from "@clerk/nextjs";
 
 interface MobileNavProps {
   tabs?: { value: string; label: string }[]
@@ -254,8 +255,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
 // ExpandableAccountSettings component
 function ExpandableAccountSettings() {
   const [expanded, setExpanded] = useState(false);
-  // Use UserNav logic, but render as a panel
-  const { user, isLoaded } = require("@clerk/nextjs").useUser();
+  const { user, isLoaded } = useUser();
   const getAvatarInitial = () => {
     const name = (user?.unsafeMetadata?.['user_name'] as string) || user?.username || user?.emailAddresses?.[0]?.emailAddress || '';
     return name && typeof name === 'string' ? name.charAt(0).toUpperCase() : 'U';
@@ -265,7 +265,7 @@ function ExpandableAccountSettings() {
       <button
         className="flex items-center gap-3 px-6 py-4 w-full text-left text-white font-semibold focus:outline-none"
         onClick={() => setExpanded((v) => !v)}
-        aria-expanded={`${expanded}`}
+        aria-expanded={expanded ? "true" : "false"}
         aria-controls="account-settings-panel"
       >
         <div className="flex items-center">
