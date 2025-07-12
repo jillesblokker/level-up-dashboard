@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience } from "@/types/character"
+import { Logo } from "@/components/logo";
 
 interface MobileNavProps {
   tabs?: { value: string; label: string }[]
@@ -130,10 +131,16 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black border-b border-gray-800 h-16 flex items-center justify-between px-2">
       {/* Mobile nav bar: logo, hamburger */}
-      <div className="flex flex-1 items-center justify-between gap-2">
-        {/* Castle icon (left) - use SVG as on web */}
-        <span className="pl-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7 text-white"><path strokeLinecap="round" strokeLinejoin="round" d="M3 21V7.5a.75.75 0 01.75-.75h.75V3.75A.75.75 0 015.25 3h1.5a.75.75 0 01.75.75V6.75h1.5V3.75A.75.75 0 0110.25 3h1.5a.75.75 0 01.75.75V6.75h1.5V3.75A.75.75 0 0114.75 3h1.5a.75.75 0 01.75.75V6.75h.75a.75.75 0 01.75.75V21" /><path strokeLinecap="round" strokeLinejoin="round" d="M3 21h18M3 21v-2.25A2.25 2.25 0 015.25 16.5h13.5A2.25 2.25 0 0121 18.75V21" /></svg></span>
-        {/* Hamburger menu (far right) */}
+      <div className="flex flex-1 items-center justify-between gap-2 w-full">
+        {/* Logo (left) */}
+        <div className="flex items-center">
+          <Logo variant="icon" size="md" />
+        </div>
+        {/* Centered Thrivehaven title */}
+        <div className="flex-1 flex justify-center items-center">
+          <span className="text-2xl font-bold text-amber-400 tracking-wide">Thrivehaven</span>
+        </div>
+        {/* Hamburger menu (right) */}
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <Button
@@ -221,32 +228,9 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                   </Link>
                 ))}
               </div>
-              {/* Account Section (now includes avatar/user nav) */}
+              {/* Account Settings - Expandable Section */}
               <div className="py-2">
-                <div className="px-6 py-2 flex items-center gap-3">
-                  {/* Avatar/UserNav */}
-                  <div>
-                    {/* @ts-ignore-next-line */}
-                    {typeof window !== 'undefined' && require('@/components/user-nav').UserNav && (
-                      require('@/components/user-nav').UserNav()
-                    )}
-                  </div>
-                  <span className="font-semibold text-white">Account settings</span>
-                </div>
-                {accountItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 px-6 py-4 text-gray-400 hover:bg-gray-800/50 transition-colors border-b border-gray-800",
-                      isActive(item.href) && "text-amber-400 bg-gray-800/50"
-                    )}
-                  >
-                    <item.icon className="h-5 w-5" />
-                    <span className="font-cardo">{item.label}</span>
-                  </Link>
-                ))}
+                <ExpandableAccountSettings />
               </div>
               {/* Single Close Button (remove any duplicate/tiny close) */}
               <Button
@@ -265,4 +249,49 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
       </div>
     </nav>
   )
+} 
+
+// ExpandableAccountSettings component
+function ExpandableAccountSettings() {
+  const [expanded, setExpanded] = useState(false);
+  // Use UserNav logic, but render as a panel
+  const { user, isLoaded } = require("@clerk/nextjs").useUser();
+  const getAvatarInitial = () => {
+    const name = (user?.unsafeMetadata?.['user_name'] as string) || user?.username || user?.emailAddresses?.[0]?.emailAddress || '';
+    return name && typeof name === 'string' ? name.charAt(0).toUpperCase() : 'U';
+  };
+  return (
+    <div>
+      <button
+        className="flex items-center gap-3 px-6 py-4 w-full text-left text-white font-semibold focus:outline-none"
+        onClick={() => setExpanded((v) => !v)}
+        aria-expanded={`${expanded}`}
+        aria-controls="account-settings-panel"
+      >
+        <div className="flex items-center">
+          <img
+            src={user?.imageUrl || ''}
+            alt="avatar"
+            className="h-8 w-8 rounded-full object-cover object-center border border-amber-400"
+            onError={(e) => { (e.target as HTMLImageElement).src = ''; }}
+          />
+        </div>
+        <span>Account settings</span>
+        <ChevronDown className={`ml-auto transition-transform ${expanded ? 'rotate-180' : ''}`} />
+      </button>
+      {expanded && (
+        <div id="account-settings-panel" className="bg-gray-800 rounded-b-md px-6 py-4 space-y-2">
+          <div className="font-medium text-white">{String(user?.unsafeMetadata?.['user_name'] || user?.username || user?.emailAddresses?.[0]?.emailAddress || '')}</div>
+          <div className="text-xs text-gray-400 mb-2">{String(user?.emailAddresses?.[0]?.emailAddress || '')}</div>
+          <Link href="/profile" className="block py-2 text-gray-200 hover:text-amber-400">Profile</Link>
+          <Link href="/requirements" className="block py-2 text-gray-200 hover:text-amber-400">Requirements</Link>
+          <Link href="/design-system" className="block py-2 text-gray-200 hover:text-amber-400">Design System</Link>
+          <Link href="/stored-data" className="block py-2 text-gray-200 hover:text-amber-400">Stored Data</Link>
+          <form action={require('@/app/actions/auth').logout} className="mt-2">
+            <button type="submit" className="w-full text-left text-red-400 hover:text-red-600 py-2">Log out</button>
+          </form>
+        </div>
+      )}
+    </div>
+  );
 } 
