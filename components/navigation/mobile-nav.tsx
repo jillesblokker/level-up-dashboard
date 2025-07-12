@@ -129,8 +129,29 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
   
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black border-b border-gray-800 h-16 flex items-center justify-between px-2">
-      {/* Only show menu icon in the top bar on mobile */}
-      <div className="flex-1 flex items-center justify-end">
+      {/* Mobile nav bar: logo, notification, avatar, hamburger */}
+      <div className="flex flex-1 items-center justify-between gap-2">
+        {/* Logo (left) */}
+        <span className="text-lg md:text-2xl font-cardo text-amber-400 pl-2">Thrivehaven</span>
+        {/* Notification icon (center) */}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="relative">
+            {/* Import and use NotificationCenter here */}
+            {/* @ts-ignore-next-line */}
+            {typeof window !== 'undefined' && require('@/components/notification-center').NotificationCenter && (
+              require('@/components/notification-center').NotificationCenter()
+            )}
+          </div>
+        </div>
+        {/* Avatar (right) */}
+        <div className="flex items-center">
+          {/* Import and use UserNav here */}
+          {/* @ts-ignore-next-line */}
+          {typeof window !== 'undefined' && require('@/components/user-nav').UserNav && (
+            require('@/components/user-nav').UserNav()
+          )}
+        </div>
+        {/* Hamburger menu (far right) */}
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <Button
@@ -149,10 +170,6 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
             aria-label="main-menu-sheet"
           >
             <div className="flex flex-col h-full">
-              {/* Logo at the top of the menu */}
-              <div className="flex items-center justify-center py-4 border-b border-gray-800">
-                <span className="text-lg md:text-2xl font-cardo text-amber-400">Thrivehaven</span>
-              </div>
               {/* Stats section */}
               <div className="flex items-center justify-center gap-6 py-4 border-b border-gray-800">
                 <div className="flex items-center gap-1.5">
