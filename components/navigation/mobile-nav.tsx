@@ -155,7 +155,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
           </SheetTrigger>
           <SheetContent 
             side="right" 
-            className="w-full max-w-[90vw] sm:max-w-[320px] p-2 bg-gray-900 border-gray-800 border-4 border-orange-500"
+            className="w-full max-w-[90vw] sm:max-w-[320px] p-2 bg-gray-900 border-gray-800"
             aria-modal="true"
             aria-label="main-menu-sheet"
           >

@@ -109,8 +109,6 @@ export function NavBar({ session }: NavBarProps) {
   return (
     <div className="border-b">
       <div className="flex h-16 items-center px-4">
-        {/* White castle logo always left */}
-        <Castle className="h-6 w-6 mr-4 text-white" />
         {/* Desktop Navigation */}
         <div className="hidden md:flex">
           <MainNav />
