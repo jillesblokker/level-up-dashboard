@@ -28,20 +28,25 @@ function Page() {
       setTimeout(() => setShowOverlay(false), 500); // Remove overlay quickly
       return;
     }
+    // Shorten all animation timings for a much faster reveal
+    const DOOR_ANIMATION_DURATION = 2000; // 2s
+    const BG_SCALE_START = 500; // Start scaling background after 0.5s
+    const BG_FADE_DURATION = 1000; // 1s
+
     const timer = setTimeout(() => {
       setDoorOpen(true);
       setAnnounce('The door is opening.');
-      // Wait for door animation (6s), then remove overlay immediately
+      // Wait for door animation (2s), then remove overlay immediately
       setTimeout(() => {
         setShowOverlay(false); // Remove overlay as soon as door is gone
         setFadeBackground(true);
         setHideBackground(true);
-      }, 6000); // door animation duration
-    }, 2000);
-    // Camera move-forward effect: scale background after 3s
+      }, DOOR_ANIMATION_DURATION); // door animation duration
+    }, 500); // Initial delay before door starts opening
+    // Camera move-forward effect: scale background after 0.5s
     const scaleTimer = setTimeout(() => {
       setScaleBackground(true);
-    }, 3000);
+    }, BG_SCALE_START);
     return () => {
       clearTimeout(timer);
       clearTimeout(scaleTimer);
@@ -83,7 +88,7 @@ function Page() {
           transform: doorOpen ? 'translateY(-100%)' : 'translateY(0)',
           opacity: doorOpen ? 0 : 1,
           transitionProperty: 'transform, opacity',
-          transitionDuration: prefersReducedMotion ? '0ms' : '6000ms',
+          transitionDuration: prefersReducedMotion ? '0ms' : '2000ms',
           transitionTimingFunction: prefersReducedMotion ? 'linear' : 'cubic-bezier(0.32, 0.72, 0, 1)',
           willChange: 'transform, opacity',
           width: '100%',
@@ -106,10 +111,10 @@ function Page() {
           <img
             src="/images/Reveal/reveal-background.png"
             alt="Reveal Background"
-            className={`object-cover w-full h-full transition-transform duration-[4000ms] ease-in-out ${scaleBackground ? 'scale-[4.5]' : 'scale-100'}`}
+            className={`object-cover w-full h-full transition-transform duration-[1000ms] ease-in-out ${scaleBackground ? 'scale-[4.5]' : 'scale-100'}`}
             draggable={false}
             style={{
-              transition: 'opacity 2.5s, transform 4s cubic-bezier(0.32, 0.72, 0, 1)',
+              transition: 'opacity 1s, transform 1s cubic-bezier(0.32, 0.72, 0, 1)',
               borderRadius: 0
             }}
           />
