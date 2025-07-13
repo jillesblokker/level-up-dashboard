@@ -31,14 +31,11 @@ function Page() {
     const timer = setTimeout(() => {
       setDoorOpen(true);
       setAnnounce('The door is opening.');
-      // Wait for door animation (6s), then start background fade
+      // Wait for door animation (6s), then remove overlay immediately
       setTimeout(() => {
+        setShowOverlay(false); // Remove overlay as soon as door is gone
         setFadeBackground(true);
-        setAnnounce('Entering the world.');
-        setTimeout(() => {
-          setHideBackground(true);
-          setShowOverlay(false); // Remove overlay immediately after fade
-        }, 2500); // fade duration
+        setHideBackground(true);
       }, 6000); // door animation duration
     }, 2000);
     // Camera move-forward effect: scale background after 3s
@@ -79,24 +76,9 @@ function Page() {
           style={{ borderRadius: 0 }}
         />
       </div>
-      {/* Main background image above static, fade out after animation */}
-      {!hideBackground && (
-        <div className={`absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden w-full h-full transition-opacity duration-[2500ms] ${fadeBackground ? 'opacity-0' : 'opacity-100'}`}>
-          <img
-            src="/images/Reveal/reveal-background.png"
-            alt="Reveal Background"
-            className={`object-cover w-full h-full transition-transform duration-[4000ms] ease-in-out ${scaleBackground ? 'scale-[4.5]' : 'scale-100'}`}
-            draggable={false}
-            style={{
-              transition: 'opacity 2.5s, transform 4s cubic-bezier(0.32, 0.72, 0, 1)',
-              borderRadius: 0
-            }}
-          />
-        </div>
-      )}
-      {/* Door image as the top layer, animating upwards */}
+      {/* Door image as the middle layer, animating upwards */}
       <div
-        className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none"
+        className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none"
         style={{
           transform: doorOpen ? 'translateY(-100%)' : 'translateY(0)',
           opacity: doorOpen ? 0 : 1,
@@ -118,6 +100,21 @@ function Page() {
           draggable={false}
         />
       </div>
+      {/* Main background image above door, fade out after animation */}
+      {!hideBackground && (
+        <div className={`absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden w-full h-full transition-opacity duration-[2500ms] ${fadeBackground ? 'opacity-0' : 'opacity-100'}`}>
+          <img
+            src="/images/Reveal/reveal-background.png"
+            alt="Reveal Background"
+            className={`object-cover w-full h-full transition-transform duration-[4000ms] ease-in-out ${scaleBackground ? 'scale-[4.5]' : 'scale-100'}`}
+            draggable={false}
+            style={{
+              transition: 'opacity 2.5s, transform 4s cubic-bezier(0.32, 0.72, 0, 1)',
+              borderRadius: 0
+            }}
+          />
+        </div>
+      )}
       {/* Fade-in animation keyframes */}
       <style jsx global>{`
         @keyframes fade-in {
