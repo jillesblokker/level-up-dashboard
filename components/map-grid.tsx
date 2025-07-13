@@ -517,7 +517,7 @@ export function MapGrid({
                   <div className="flex flex-col items-center mt-2">
                     {eventOutcome.reward.item.filter(i => i.type === 'artifact').map(artifact => (
                       <div key={artifact.id} className="flex flex-col items-center">
-                        <img src={artifact.image || '/images/items/artifact/crown/artifact-crowny.png'} alt={artifact.name} className="w-16 h-16 mb-2" />
+                        <img src={artifact.image || '/images/placeholders/item-placeholder.svg'} alt={artifact.name} className="w-16 h-16 mb-2" />
                         <div className="text-amber-400 font-bold">{artifact.name}</div>
                         <div className="text-sm text-gray-300 text-center">{artifact.description}</div>
                       </div>

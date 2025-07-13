@@ -6,6 +6,7 @@ import { InventoryItem } from "@/lib/inventory-manager"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { storageService } from '@/lib/storage-service'
+import Image from "next/image"
 
 // Emoji mappings for different item types and specific items
 const typeEmojis: Record<string, string> = {
@@ -143,6 +144,16 @@ export function Inventory() {
                 {filteredItems.map((item) => (
                   <Card key={item.id} className="overflow-hidden" aria-label={`${item.name}-card`}>
                     <CardHeader>
+                      <div className="w-full h-32 mb-3 rounded-md overflow-hidden border border-amber-800/30 relative group">
+                        <Image
+                          src={item.image || "/images/placeholders/item-placeholder.svg"}
+                          alt={item.name + ' image'}
+                          fill
+                          className="object-contain w-full h-full bg-black"
+                          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
+                          aria-label={`${item.name}-image`}
+                        />
+                      </div>
                       <CardTitle className="text-lg flex items-center gap-2">
                         <span className="text-xl">{getItemEmoji(item)}</span>
                         {item.name ?? ''}
