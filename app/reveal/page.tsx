@@ -27,9 +27,9 @@ export default function RevealPage() {
         setAnnounce('Entering the world.');
         setTimeout(() => {
           setHideBackground(true);
-        }, 1200); // fade duration
+        }, 2500); // fade duration
       }, 6000); // door animation duration
-    }, 5000);
+    }, 2000);
     return () => clearTimeout(timer);
   }, [prefersReducedMotion]);
 
