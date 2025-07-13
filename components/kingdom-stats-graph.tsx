@@ -19,6 +19,13 @@ import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useAuth } from '@clerk/nextjs'
 import { withToken } from '@/lib/supabase/client'
 
+// ---
+// KingdomStatsBlock and KingStatsBlock are now fully data-driven.
+// They fetch real, time-aggregated data for all tabs (quests, challenges, milestones, gold, experience)
+// from the /api/kingdom-stats endpoint. The UI will update reactively as soon as the user completes
+// a quest, challenge, milestone, or earns gold/experience. Empty/data states are handled automatically.
+// ---
+
 // Time period types
 type TimePeriod = 'week' | 'month' | 'year' | 'all'
 
