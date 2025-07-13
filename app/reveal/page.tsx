@@ -76,15 +76,34 @@ function Page() {
     >
       {/* ARIA live region for screen readers */}
       <div className="sr-only" aria-live="polite">{announce}</div>
-      {/* Door image as the bottom layer, animating upwards */}
+      {/* Static image as the very bottom layer, always visible until overlay is removed */}
+      <div className="absolute inset-0 z-0 pointer-events-none w-full h-full">
+        <img
+          src="/images/Reveal/reveal-static.png"
+          alt="Reveal Static Background"
+          className="object-cover w-full h-full"
+          draggable={false}
+          style={{ borderRadius: 0 }}
+        />
+      </div>
+      {/* Main background image above static, fade out after animation */}
+      {!hideBackground && (
+        <div className={`absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden w-full h-full transition-opacity duration-[2500ms] ${fadeBackground ? 'opacity-0' : 'opacity-100'}`}>
+          <img
+            src="/images/Reveal/reveal-background.png"
+            alt="Reveal Background"
+            className={`object-cover w-full h-full transition-transform duration-[4000ms] ease-in-out ${scaleBackground ? 'scale-[4.5]' : 'scale-100'}`}
+            draggable={false}
+            style={{
+              transition: 'opacity 2.5s, transform 4s cubic-bezier(0.32, 0.72, 0, 1)',
+              borderRadius: 0
+            }}
+          />
+        </div>
+      )}
+      {/* Door image as the top layer, animating upwards */}
       <div
-        // Door animation logic:
-        // - The door starts at translateY(0) (closed)
-        // - After 2 seconds, doorOpen becomes true, triggering the transform
-        // - The door animates upwards to translateY(-100%) over 6 seconds (6000ms)
-        // - Custom cubic-bezier for heavy feel
-        // - No shadow or background added
-        className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none"
+        className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none"
         style={{
           transform: doorOpen ? 'translateY(-100%)' : 'translateY(0)',
           opacity: doorOpen ? 0 : 1,
@@ -106,27 +125,6 @@ function Page() {
           draggable={false}
         />
       </div>
-      {/* Main background image above the door, fade out after animation */}
-      {!hideBackground && (
-        <div className={`absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden w-full h-full transition-opacity duration-[2500ms] ${fadeBackground ? 'opacity-0' : 'opacity-100'}`}>
-          {/*
-            Scale animation logic:
-            - The background image starts at scale 1.
-            - After 3 seconds, it animates to scale 1.15 over 2.5s.
-            - This creates a camera move-forward effect, independent of the door animation.
-          */}
-          <img
-            src="/images/Reveal/reveal-background.png"
-            alt="Reveal Background"
-            className={`object-cover w-full h-full transition-transform duration-[4000ms] ease-in-out ${scaleBackground ? 'scale-[4.5]' : 'scale-100'}`}
-            draggable={false}
-            style={{
-              transition: 'opacity 2.5s, transform 4s cubic-bezier(0.32, 0.72, 0, 1)',
-              borderRadius: 0
-            }}
-          />
-        </div>
-      )}
       {/* Fade-in animation keyframes */}
       <style jsx global>{`
         @keyframes fade-in {
