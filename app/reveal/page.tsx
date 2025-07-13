@@ -5,11 +5,20 @@ import Image from 'next/image';
 
 export default function RevealPage() {
   const [doorOpen, setDoorOpen] = useState(false);
+  const [hideBackground, setHideBackground] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setDoorOpen(true), 5000);
     return () => clearTimeout(timer);
   }, []);
+
+  // After the door animation (6s after doorOpen), hide the background
+  useEffect(() => {
+    if (doorOpen) {
+      const hideTimer = setTimeout(() => setHideBackground(true), 6000);
+      return () => clearTimeout(hideTimer);
+    }
+  }, [doorOpen]);
 
   return (
     <div className="min-h-screen min-w-screen flex items-center justify-center relative overflow-hidden" style={{ background: '#10281a' }}>
@@ -39,16 +48,18 @@ export default function RevealPage() {
           priority
         />
       </div>
-      {/* Main background image above the door */}
-      <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden w-full h-full">
-        <Image
-          src="/images/Reveal/reveal-background.png"
-          alt="Reveal Background"
-          fill
-          className="object-cover w-full h-full"
-          priority
-        />
-      </div>
+      {/* Main background image above the door, hidden after animation */}
+      {!hideBackground && (
+        <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden w-full h-full">
+          <Image
+            src="/images/Reveal/reveal-background.png"
+            alt="Reveal Background"
+            fill
+            className="object-cover w-full h-full"
+            priority
+          />
+        </div>
+      )}
     </div>
   );
 } 
