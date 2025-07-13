@@ -106,6 +106,27 @@ function Page() {
           draggable={false}
         />
       </div>
+      {/* Main background image above the door, fade out after animation */}
+      {!hideBackground && (
+        <div className={`absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden w-full h-full transition-opacity duration-[2500ms] ${fadeBackground ? 'opacity-0' : 'opacity-100'}`}>
+          {/*
+            Scale animation logic:
+            - The background image starts at scale 1.
+            - After 3 seconds, it animates to scale 1.15 over 2.5s.
+            - This creates a camera move-forward effect, independent of the door animation.
+          */}
+          <img
+            src="/images/Reveal/reveal-background.png"
+            alt="Reveal Background"
+            className={`object-cover w-full h-full transition-transform duration-[4000ms] ease-in-out ${scaleBackground ? 'scale-[4.5]' : 'scale-100'}`}
+            draggable={false}
+            style={{
+              transition: 'opacity 2.5s, transform 4s cubic-bezier(0.32, 0.72, 0, 1)',
+              borderRadius: 0
+            }}
+          />
+        </div>
+      )}
       {/* Fade-in animation keyframes */}
       <style jsx global>{`
         @keyframes fade-in {
