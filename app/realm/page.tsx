@@ -24,7 +24,7 @@ import { gainExperience } from '@/lib/experience-manager'
 import { useCreatureStore } from '@/stores/creatureStore'
 import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 import dynamic from 'next/dynamic';
-const RevealOverlay = dynamic(() => import('../reveal/page').then(mod => mod.RevealOverlay), { ssr: false });
+const RevealOverlay = dynamic(() => import('../reveal/page'), { ssr: false });
 
 // Constants
 const GRID_COLS = 13;
