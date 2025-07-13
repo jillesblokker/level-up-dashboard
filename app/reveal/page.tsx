@@ -10,8 +10,26 @@ function Page() {
   const [scaleBackground, setScaleBackground] = useState(false);
   const [showOverlay, setShowOverlay] = useState(true);
   const [announce, setAnnounce] = useState('');
+  const [isMobilePortrait, setIsMobilePortrait] = useState(false);
   const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Detect mobile portrait mode
+  useEffect(() => {
+    function checkMobilePortrait() {
+      if (typeof window === 'undefined') return;
+      const isPortrait = window.matchMedia('(orientation: portrait)').matches;
+      const isMobile = window.innerWidth <= 600; // You can adjust this threshold
+      setIsMobilePortrait(isMobile && isPortrait);
+    }
+    checkMobilePortrait();
+    window.addEventListener('resize', checkMobilePortrait);
+    window.addEventListener('orientationchange', checkMobilePortrait);
+    return () => {
+      window.removeEventListener('resize', checkMobilePortrait);
+      window.removeEventListener('orientationchange', checkMobilePortrait);
+    };
+  }, []);
 
   // Always show the animation on mount
   useEffect(() => {
@@ -60,7 +78,7 @@ function Page() {
     }
   }, [announce]);
 
-  if (!showOverlay) return null;
+  if (!showOverlay || isMobilePortrait) return null;
 
   return (
     <div
