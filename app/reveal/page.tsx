@@ -6,9 +6,13 @@ import Image from 'next/image';
 export default function RevealPage() {
   const [doorOpen, setDoorOpen] = useState(false);
   const [hideBackground, setHideBackground] = useState(false);
+  const [zoom, setZoom] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setDoorOpen(true), 5000);
+    const timer = setTimeout(() => {
+      setDoorOpen(true);
+      setZoom(true);
+    }, 5000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -56,7 +60,7 @@ export default function RevealPage() {
             src="/images/Reveal/reveal-background.png"
             alt="Reveal Background"
             fill
-            className="object-cover w-full h-full"
+            className={`object-cover w-full h-full transition-transform duration-[6000ms] ease-in-out ${zoom ? 'scale-[1.15]' : 'scale-100'}`}
             priority
           />
         </div>
