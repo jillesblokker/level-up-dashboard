@@ -90,6 +90,76 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res.status(200).json({ data });
       return;
     }
+    // Gold tab: aggregate gold_earned from quest_completion
+    if (tab === 'gold') {
+      let { data: completions, error } = await supabaseServer
+        .from('quest_completion')
+        .select('gold_earned, date')
+        .eq('user_id', userId)
+        .eq('completed', true);
+      if (error) {
+        res.status(500).json({ error: error.message });
+        return;
+      }
+      let sums: Record<string, number> = {};
+      if (period === 'year') {
+        days.forEach(month => { sums[month] = 0; });
+        completions?.forEach((c: any) => {
+          if (c.date) {
+            const month = c.date.slice(0, 7);
+            if (sums[month] !== undefined) sums[month] += c.gold_earned || 0;
+          }
+        });
+      } else if (period === 'all') {
+        sums['all'] = completions?.reduce((acc: number, c: any) => acc + (c.gold_earned || 0), 0) || 0;
+      } else {
+        days.forEach(day => { sums[day] = 0; });
+        completions?.forEach((c: any) => {
+          if (c.date) {
+            const day = c.date.slice(0, 10);
+            if (sums[day] !== undefined) sums[day] += c.gold_earned || 0;
+          }
+        });
+      }
+      const data = days.map(day => ({ day, value: sums[day] || 0 }));
+      res.status(200).json({ data });
+      return;
+    }
+    // Experience tab: aggregate xp_earned from quest_completion
+    if (tab === 'experience') {
+      let { data: completions, error } = await supabaseServer
+        .from('quest_completion')
+        .select('xp_earned, date')
+        .eq('user_id', userId)
+        .eq('completed', true);
+      if (error) {
+        res.status(500).json({ error: error.message });
+        return;
+      }
+      let sums: Record<string, number> = {};
+      if (period === 'year') {
+        days.forEach(month => { sums[month] = 0; });
+        completions?.forEach((c: any) => {
+          if (c.date) {
+            const month = c.date.slice(0, 7);
+            if (sums[month] !== undefined) sums[month] += c.xp_earned || 0;
+          }
+        });
+      } else if (period === 'all') {
+        sums['all'] = completions?.reduce((acc: number, c: any) => acc + (c.xp_earned || 0), 0) || 0;
+      } else {
+        days.forEach(day => { sums[day] = 0; });
+        completions?.forEach((c: any) => {
+          if (c.date) {
+            const day = c.date.slice(0, 10);
+            if (sums[day] !== undefined) sums[day] += c.xp_earned || 0;
+          }
+        });
+      }
+      const data = days.map(day => ({ day, value: sums[day] || 0 }));
+      res.status(200).json({ data });
+      return;
+    }
     // For other tabs, return dummy data
     const data = days.map(day => ({ day, value: 0 }));
     res.status(200).json({ data });
