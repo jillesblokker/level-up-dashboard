@@ -18,6 +18,7 @@ export default function RevealPage() {
       const hideTimer = setTimeout(() => setHideBackground(true), 6000);
       return () => clearTimeout(hideTimer);
     }
+    return undefined;
   }, [doorOpen]);
 
   return (
