@@ -13,17 +13,9 @@ function Page() {
   const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Only show the animation once per session
+  // Always show the animation on mount
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (sessionStorage.getItem('reveal-animation-shown')) {
-        setShowOverlay(false);
-        return;
-      } else {
-        sessionStorage.setItem('reveal-animation-shown', 'true');
-        setShowOverlay(true);
-      }
-    }
+    setShowOverlay(true);
   }, []);
 
   useEffect(() => {
@@ -33,6 +25,7 @@ function Page() {
       setFadeBackground(true);
       setHideBackground(true);
       setAnnounce('World revealed.');
+      setTimeout(() => setShowOverlay(false), 500); // Remove overlay quickly
       return;
     }
     const timer = setTimeout(() => {
@@ -44,7 +37,7 @@ function Page() {
         setAnnounce('Entering the world.');
         setTimeout(() => {
           setHideBackground(true);
-          setTimeout(() => setShowOverlay(false), 500); // Remove overlay after fade
+          setShowOverlay(false); // Remove overlay immediately after fade
         }, 2500); // fade duration
       }, 6000); // door animation duration
     }, 2000);
