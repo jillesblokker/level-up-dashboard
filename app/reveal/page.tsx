@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 
-export function RevealOverlay() {
+function Page() {
   const [doorOpen, setDoorOpen] = useState(false);
   const [hideBackground, setHideBackground] = useState(false);
   const [fadeBackground, setFadeBackground] = useState(false);
@@ -141,4 +141,4 @@ export function RevealOverlay() {
   );
 }
 
-export default RevealOverlay; 
+export default Page; 
