@@ -7,6 +7,7 @@ export default function RevealPage() {
   const [doorOpen, setDoorOpen] = useState(false);
   const [hideBackground, setHideBackground] = useState(false);
   const [fadeBackground, setFadeBackground] = useState(false);
+  const [scaleBackground, setScaleBackground] = useState(false);
   const [announce, setAnnounce] = useState('');
   const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -22,7 +23,7 @@ export default function RevealPage() {
     const timer = setTimeout(() => {
       setDoorOpen(true);
       setAnnounce('The door is opening.');
-      // Wait for door animation (6s), then start background scale/fade
+      // Wait for door animation (6s), then start background fade
       setTimeout(() => {
         setFadeBackground(true);
         setAnnounce('Entering the world.');
@@ -31,7 +32,14 @@ export default function RevealPage() {
         }, 2500); // fade duration
       }, 6000); // door animation duration
     }, 2000);
-    return () => clearTimeout(timer);
+    // Camera move-forward effect: scale background after 3s
+    const scaleTimer = setTimeout(() => {
+      setScaleBackground(true);
+    }, 3000);
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(scaleTimer);
+    };
   }, [prefersReducedMotion]);
 
   // Accessibility: ARIA live region
@@ -82,10 +90,16 @@ export default function RevealPage() {
       {/* Main background image above the door, fade out after animation */}
       {!hideBackground && (
         <div className={`absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden w-full h-full transition-opacity duration-[2500ms] ${fadeBackground ? 'opacity-0' : 'opacity-100'}`}>
+          {/*
+            Scale animation logic:
+            - The background image starts at scale 1.
+            - After 3 seconds, it animates to scale 1.15 over 2.5s.
+            - This creates a camera move-forward effect, independent of the door animation.
+          */}
           <img
             src="/images/Reveal/reveal-background.png"
             alt="Reveal Background"
-            className={`object-cover w-full h-full transition-transform duration-[2500ms] ease-in-out ${fadeBackground ? 'scale-[1.15]' : 'scale-100'}`}
+            className={`object-cover w-full h-full transition-transform duration-[2500ms] ease-in-out ${scaleBackground ? 'scale-[1.15]' : 'scale-100'}`}
             draggable={false}
             style={{
               transition: 'opacity 2.5s, transform 2.5s cubic-bezier(0.32, 0.72, 0, 1)',
