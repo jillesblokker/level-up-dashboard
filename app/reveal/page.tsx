@@ -8,11 +8,26 @@ export default function RevealPage() {
   const [hideBackground, setHideBackground] = useState(false);
   const [fadeBackground, setFadeBackground] = useState(false);
   const [scaleBackground, setScaleBackground] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(true);
   const [announce, setAnnounce] = useState('');
   const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Only show the animation once per session
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (sessionStorage.getItem('reveal-animation-shown')) {
+        setShowOverlay(false);
+        return;
+      } else {
+        sessionStorage.setItem('reveal-animation-shown', 'true');
+        setShowOverlay(true);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!showOverlay) return;
     if (prefersReducedMotion) {
       setDoorOpen(true);
       setFadeBackground(true);
@@ -29,6 +44,7 @@ export default function RevealPage() {
         setAnnounce('Entering the world.');
         setTimeout(() => {
           setHideBackground(true);
+          setTimeout(() => setShowOverlay(false), 500); // Remove overlay after fade
         }, 2500); // fade duration
       }, 6000); // door animation duration
     }, 2000);
@@ -40,7 +56,7 @@ export default function RevealPage() {
       clearTimeout(timer);
       clearTimeout(scaleTimer);
     };
-  }, [prefersReducedMotion]);
+  }, [prefersReducedMotion, showOverlay]);
 
   // Accessibility: ARIA live region
   useEffect(() => {
@@ -48,6 +64,8 @@ export default function RevealPage() {
       containerRef.current.setAttribute('aria-live', 'polite');
     }
   }, [announce]);
+
+  if (!showOverlay) return null;
 
   return (
     <div
@@ -99,7 +117,7 @@ export default function RevealPage() {
           <img
             src="/images/Reveal/reveal-background.png"
             alt="Reveal Background"
-            className={`object-cover w-full h-full transition-transform duration-[4000ms] ease-in-out ${scaleBackground ? 'scale-[4]' : 'scale-100'}`}
+            className={`object-cover w-full h-full transition-transform duration-[4000ms] ease-in-out ${scaleBackground ? 'scale-[4.5]' : 'scale-100'}`}
             draggable={false}
             style={{
               transition: 'opacity 2.5s, transform 4s cubic-bezier(0.32, 0.72, 0, 1)',
