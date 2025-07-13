@@ -82,14 +82,14 @@ export default function RevealPage() {
       </div>
       {/* Main background image above the door, fade out after animation */}
       {!hideBackground && (
-        <div className={`absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden w-full h-full transition-opacity duration-[1200ms] ${fadeBackground ? 'opacity-0' : 'opacity-100'}`}>
+        <div className={`absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden w-full h-full transition-opacity duration-[2500ms] ${fadeBackground ? 'opacity-0' : 'opacity-100'}`}>
           <img
             src="/images/Reveal/reveal-background.png"
             alt="Reveal Background"
-            className={`object-cover w-full h-full transition-transform duration-[1200ms] ease-in-out ${fadeBackground ? 'scale-[1.15]' : 'scale-100'}`}
+            className={`object-cover w-full h-full transition-transform duration-[2500ms] ease-in-out ${fadeBackground ? 'scale-[1.15]' : 'scale-100'}`}
             draggable={false}
             style={{
-              transition: 'opacity 1.2s, transform 1.2s cubic-bezier(0.32, 0.72, 0, 1)',
+              transition: 'opacity 2.5s, transform 2.5s cubic-bezier(0.32, 0.72, 0, 1)',
               borderRadius: 0
             }}
           />
