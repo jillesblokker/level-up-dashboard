@@ -70,7 +70,7 @@ function Page() {
   return (
     <div
       ref={containerRef}
-      className="min-h-screen min-w-screen flex items-center justify-center relative overflow-hidden bg-transparent"
+      className="min-h-screen min-w-screen flex items-center justify-center relative overflow-hidden"
       style={{}}
       aria-label="reveal-animation-container"
     >
