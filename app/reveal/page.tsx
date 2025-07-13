@@ -7,8 +7,6 @@ export default function RevealPage() {
   const [doorOpen, setDoorOpen] = useState(false);
   const [hideBackground, setHideBackground] = useState(false);
   const [fadeBackground, setFadeBackground] = useState(false);
-  const [showContent, setShowContent] = useState(false);
-  const [cameraPan, setCameraPan] = useState(false);
   const [announce, setAnnounce] = useState('');
   const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -18,8 +16,6 @@ export default function RevealPage() {
       setDoorOpen(true);
       setFadeBackground(true);
       setHideBackground(true);
-      setShowContent(true);
-      setCameraPan(false);
       setAnnounce('World revealed.');
       return;
     }
@@ -31,8 +27,6 @@ export default function RevealPage() {
         setAnnounce('Entering the world.');
         setTimeout(() => {
           setHideBackground(true);
-          setShowContent(true);
-          setCameraPan(true);
         }, 1200); // fade duration
       }, 6000); // door animation duration
     }, 5000);
@@ -49,8 +43,8 @@ export default function RevealPage() {
   return (
     <div
       ref={containerRef}
-      className={`min-h-screen min-w-screen flex items-center justify-center relative overflow-hidden transition-transform duration-[1800ms] ease-in-out ${cameraPan ? 'scale-[1.08]' : 'scale-100'}`}
-      style={{ background: '#10281a' }}
+      className="min-h-screen min-w-screen flex items-center justify-center relative overflow-hidden"
+      style={{}}
       aria-label="reveal-animation-container"
     >
       {/* ARIA live region for screen readers */}
@@ -92,21 +86,13 @@ export default function RevealPage() {
           <img
             src="/images/Reveal/reveal-background.png"
             alt="Reveal Background"
-            className="object-cover w-full h-full"
+            className={`object-cover w-full h-full transition-transform duration-[1200ms] ease-in-out ${fadeBackground ? 'scale-[1.15]' : 'scale-100'}`}
             draggable={false}
             style={{
-              transition: 'opacity 1.2s',
+              transition: 'opacity 1.2s, transform 1.2s cubic-bezier(0.32, 0.72, 0, 1)',
               borderRadius: 0
             }}
           />
-        </div>
-      )}
-      {/* Next content, animates in after reveal */}
-      {showContent && (
-        <div className="absolute inset-0 flex items-center justify-center z-30 animate-fade-in pointer-events-auto">
-          <div className="bg-black/60 rounded-xl p-12 text-white text-3xl font-bold shadow-xl animate-fade-in" style={{ animationDuration: '1200ms' }}>
-            Welcome to the world!
-          </div>
         </div>
       )}
       {/* Fade-in animation keyframes */}
