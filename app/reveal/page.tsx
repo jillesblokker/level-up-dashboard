@@ -22,6 +22,7 @@ export default function RevealPage() {
     const timer = setTimeout(() => {
       setDoorOpen(true);
       setAnnounce('The door is opening.');
+      // Wait for door animation (6s), then start background scale/fade
       setTimeout(() => {
         setFadeBackground(true);
         setAnnounce('Entering the world.');
@@ -53,10 +54,10 @@ export default function RevealPage() {
       <div
         // Door animation logic:
         // - The door starts at translateY(0) (closed)
-        // - After 5 seconds, doorOpen becomes true, triggering the transform
+        // - After 2 seconds, doorOpen becomes true, triggering the transform
         // - The door animates upwards to translateY(-100%) over 6 seconds (6000ms)
         // - Custom cubic-bezier for heavy feel
-        // - Drop shadow for depth
+        // - No shadow or background added
         className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none"
         style={{
           transform: doorOpen ? 'translateY(-100%)' : 'translateY(0)',
@@ -71,10 +72,8 @@ export default function RevealPage() {
         <img
           src="/images/Reveal/reveal-door.png"
           alt="Reveal Door"
-          className="object-cover w-full h-full shadow-2xl"
+          className="object-cover w-full h-full"
           style={{
-            boxShadow: '0 24px 64px 0 rgba(0,0,0,0.7)',
-            transition: 'box-shadow 0.6s',
             borderRadius: 0
           }}
           draggable={false}
