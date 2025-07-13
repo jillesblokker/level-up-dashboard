@@ -734,6 +734,7 @@ export default function RealmPage() {
                     setModalState({ isOpen: true, locationType: 'town', locationName: currentTile?.name ?? 'Riverwood' });
                     break;
                 case 'mystery':
+                    setLastMysteryTile({ x: characterPosition.x, y: characterPosition.y });
                     toast({
                         title: 'A Mystery!',
                         description: 'You stumble upon a hidden treasure chest. You find 50 gold!',

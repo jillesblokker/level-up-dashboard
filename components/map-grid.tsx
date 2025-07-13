@@ -363,35 +363,6 @@ export function MapGrid({
     });
   };
 
-  // Replace the tile with grass after the event, even if the character has moved away
-  useEffect(() => {
-    const handler = (e: any) => {
-      if (!lastMysteryTile) return;
-      const { x, y } = lastMysteryTile;
-      if (grid[y] && grid[y][x] && grid[y][x].type === 'mystery') {
-        const newGrid = grid.map(row => row.slice());
-        const row = grid[y];
-        if (row && isTile(row[x])) {
-          const tile = row[x];
-// @ts-expect-error: tile is guaranteed to be defined by the isTile guard above
-          newGrid[y][x] = {
-            ...tile,
-            type: 'grass',
-            name: 'Grass',
-            image: '/images/tiles/grass-tile.png',
-            isVisited: true,
-          };
-          if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('update-grid', { detail: { grid: newGrid } }));
-          }
-        }
-      }
-      setLastMysteryTile(null);
-    };
-    window.addEventListener('mystery-event-completed', handler);
-    return () => window.removeEventListener('mystery-event-completed', handler);
-  }, [grid, lastMysteryTile]);
-
   if (grid.length === 0) {
     return <div>Loading map...</div>;
   }
