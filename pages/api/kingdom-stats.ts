@@ -160,6 +160,76 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res.status(200).json({ data });
       return;
     }
+    // Challenges tab: aggregate completions from challenge_completion
+    if (tab === 'challenges') {
+      let { data: completions, error } = await supabaseServer
+        .from('challenge_completion')
+        .select('id, completed, date')
+        .eq('user_id', userId)
+        .eq('completed', true);
+      if (error) {
+        res.status(500).json({ error: error.message });
+        return;
+      }
+      let counts: Record<string, number> = {};
+      if (period === 'year') {
+        days.forEach(month => { counts[month] = 0; });
+        completions?.forEach((c: any) => {
+          if (c.date) {
+            const month = c.date.slice(0, 7);
+            if (counts[month] !== undefined) counts[month]++;
+          }
+        });
+      } else if (period === 'all') {
+        counts['all'] = completions?.length || 0;
+      } else {
+        days.forEach(day => { counts[day] = 0; });
+        completions?.forEach((c: any) => {
+          if (c.date) {
+            const day = c.date.slice(0, 10);
+            if (counts[day] !== undefined) counts[day]++;
+          }
+        });
+      }
+      const data = days.map(day => ({ day, value: counts[day] || 0 }));
+      res.status(200).json({ data });
+      return;
+    }
+    // Milestones tab: aggregate completions from milestone_completion
+    if (tab === 'milestones') {
+      let { data: completions, error } = await supabaseServer
+        .from('milestone_completion')
+        .select('id, completed, date')
+        .eq('user_id', userId)
+        .eq('completed', true);
+      if (error) {
+        res.status(500).json({ error: error.message });
+        return;
+      }
+      let counts: Record<string, number> = {};
+      if (period === 'year') {
+        days.forEach(month => { counts[month] = 0; });
+        completions?.forEach((c: any) => {
+          if (c.date) {
+            const month = c.date.slice(0, 7);
+            if (counts[month] !== undefined) counts[month]++;
+          }
+        });
+      } else if (period === 'all') {
+        counts['all'] = completions?.length || 0;
+      } else {
+        days.forEach(day => { counts[day] = 0; });
+        completions?.forEach((c: any) => {
+          if (c.date) {
+            const day = c.date.slice(0, 10);
+            if (counts[day] !== undefined) counts[day]++;
+          }
+        });
+      }
+      const data = days.map(day => ({ day, value: counts[day] || 0 }));
+      res.status(200).json({ data });
+      return;
+    }
     // For other tabs, return dummy data
     const data = days.map(day => ({ day, value: 0 }));
     res.status(200).json({ data });
