@@ -24,7 +24,12 @@ export default function RevealPage() {
         />
         {/* Door image layered above, clipped to background */}
         <div
-          className={`absolute inset-0 flex items-center justify-center z-20 pointer-events-none transition-transform duration-[3000ms] ease-in-out`}
+          // Door animation logic:
+          // - The door starts at translateY(0) (closed)
+          // - After 5 seconds, doorOpen becomes true, triggering the transform
+          // - The door animates upwards to translateY(-100%) over 6 seconds (6000ms)
+          // - You can tweak the duration by changing duration-[6000ms] below
+          className={`absolute inset-0 flex items-center justify-center z-20 pointer-events-none transition-transform duration-[6000ms] ease-in-out`}
           style={{
             transform: doorOpen ? 'translateY(-100%)' : 'translateY(0)',
             transitionProperty: 'transform',
