@@ -19,12 +19,12 @@ export default function RevealPage() {
           src="/images/Reveal/reveal-background.png"
           alt="Reveal Background"
           fill
-          className="object-cover w-full h-full"
+          className="object-contain w-full h-full"
           priority
         />
         {/* Door image layered above, clipped to background */}
         <div
-          className={`absolute inset-0 flex items-center justify-center z-20 pointer-events-none transition-transform duration-[2000ms] ease-in-out`}
+          className={`absolute inset-0 flex items-center justify-center z-20 pointer-events-none transition-transform duration-[3000ms] ease-in-out`}
           style={{
             transform: doorOpen ? 'translateY(-100%)' : 'translateY(0)',
             transitionProperty: 'transform',
@@ -35,7 +35,7 @@ export default function RevealPage() {
             src="/images/Reveal/reveal-door.png"
             alt="Reveal Door"
             fill
-            className="object-cover w-full h-full"
+            className="object-contain w-full h-full"
             priority
           />
         </div>
