@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 
-export default function RevealPage() {
+export function RevealOverlay() {
   const [doorOpen, setDoorOpen] = useState(false);
   const [hideBackground, setHideBackground] = useState(false);
   const [fadeBackground, setFadeBackground] = useState(false);
@@ -87,10 +87,11 @@ export default function RevealPage() {
         className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none"
         style={{
           transform: doorOpen ? 'translateY(-100%)' : 'translateY(0)',
-          transitionProperty: 'transform',
+          opacity: doorOpen ? 0 : 1,
+          transitionProperty: 'transform, opacity',
           transitionDuration: prefersReducedMotion ? '0ms' : '6000ms',
           transitionTimingFunction: prefersReducedMotion ? 'linear' : 'cubic-bezier(0.32, 0.72, 0, 1)',
-          willChange: 'transform',
+          willChange: 'transform, opacity',
           width: '100%',
           height: '100%'
         }}
@@ -138,4 +139,6 @@ export default function RevealPage() {
       `}</style>
     </div>
   );
-} 
+}
+
+export default RevealOverlay; 

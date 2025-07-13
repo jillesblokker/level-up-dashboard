@@ -23,6 +23,8 @@ import { gainGold } from '@/lib/gold-manager'
 import { gainExperience } from '@/lib/experience-manager'
 import { useCreatureStore } from '@/stores/creatureStore'
 import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
+import dynamic from 'next/dynamic';
+const RevealOverlay = dynamic(() => import('../reveal/page').then(mod => mod.RevealOverlay), { ssr: false });
 
 // Constants
 const GRID_COLS = 13;
@@ -995,6 +997,7 @@ export default function RealmPage() {
 
     return (
         <>
+            <RevealOverlay />
             <div className="flex flex-col h-screen bg-gray-900 text-white relative" aria-label="realm-map-section">
                 {/* Top Toolbar */}
                 <div className="flex items-center justify-between p-2 bg-gray-800/80 backdrop-blur-sm border-b border-gray-700 z-30">
