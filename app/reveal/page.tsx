@@ -99,7 +99,7 @@ export default function RevealPage() {
           <img
             src="/images/Reveal/reveal-background.png"
             alt="Reveal Background"
-            className={`object-cover w-full h-full transition-transform duration-[2500ms] ease-in-out ${scaleBackground ? 'scale-[1.15]' : 'scale-100'}`}
+            className={`object-cover w-full h-full transition-transform duration-[2500ms] ease-in-out ${scaleBackground ? 'scale-[2.3]' : 'scale-100'}`}
             draggable={false}
             style={{
               transition: 'opacity 2.5s, transform 2.5s cubic-bezier(0.32, 0.72, 0, 1)',
