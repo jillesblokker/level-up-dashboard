@@ -251,7 +251,7 @@ export default function QuestsPage() {
       // Update streak
       let streak = 0;
       for (let i = newHistory.length - 1; i >= 0; i--) {
-        if (newHistory[i].completed) streak++;
+        if (newHistory[i] && newHistory[i].completed) streak++;
         else break;
       }
       setQuestStreak(streak);
