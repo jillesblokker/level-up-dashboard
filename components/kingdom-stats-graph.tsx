@@ -18,6 +18,7 @@ import { useSupabaseRealtimeSync } from "@/hooks/useSupabaseRealtimeSync"
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useAuth } from '@clerk/nextjs'
 import { withToken } from '@/lib/supabase/client'
+import { format, parseISO, isThisWeek, isThisMonth, isThisYear } from 'date-fns';
 
 // ---
 // KingdomStatsBlock and KingStatsBlock are now fully data-driven.
@@ -160,6 +161,107 @@ function ExperienceEmptyState() {
   );
 }
 
+// Helper to format x-axis labels
+function formatXAxisLabel(dateStr: string, period: TimePeriod) {
+  let date: Date;
+  try {
+    date = parseISO(dateStr);
+  } catch {
+    return { day: '', date: dateStr };
+  }
+  let dayName = format(date, 'EEE');
+  let dayDate = format(date, 'dd-MM-yyyy');
+  if (period === 'year') {
+    dayName = format(date, 'MMM');
+    dayDate = format(date, 'yyyy');
+  } else if (period === 'all') {
+    // Could be week/month/year, fallback to month/year
+    if (dateStr.length === 4) {
+      dayName = '';
+      dayDate = dateStr;
+    } else if (dateStr.length === 7) {
+      dayName = format(date, 'MMM');
+      dayDate = format(date, 'yyyy');
+    }
+  }
+  return { day: dayName, date: dayDate };
+}
+
+// Helper to determine if a bar is in the current period
+function isCurrentPeriod(dateStr: string, period: TimePeriod) {
+  const date = parseISO(dateStr);
+  if (period === 'week') return isThisWeek(date, { weekStartsOn: 1 });
+  if (period === 'month') return isThisMonth(date);
+  if (period === 'year') return isThisYear(date);
+  return false;
+}
+
+// Bar chart rendering (shared for both blocks)
+function BarChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel }: {
+  graphData: Array<{ day: string; value: number }>,
+  timePeriod: TimePeriod,
+  highlightCurrent?: boolean,
+  ariaLabel: string
+}) {
+  // Animation: grow bars on mount
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  // Prevent overflow: scale bars to max height
+  const maxBarHeight = 160;
+  const maxValue = Math.max(...graphData.map(d => d.value), 1);
+  // For scroll: set min width per bar
+  let minBarWidth = 40;
+  let snapType = '';
+  if (timePeriod === 'week') {
+    minBarWidth = 48;
+    snapType = 'snap-x snap-mandatory';
+  } else if (timePeriod === 'month') {
+    minBarWidth = 36;
+    snapType = 'snap-x snap-mandatory';
+  } else if (timePeriod === 'year') {
+    minBarWidth = 56;
+    snapType = '';
+  } else if (timePeriod === 'all') {
+    minBarWidth = 48;
+    snapType = 'snap-x snap-mandatory';
+  }
+
+  return (
+    <div
+      className={`h-64 w-full flex items-end gap-2 px-4 overflow-x-auto ${snapType}`}
+      style={{ WebkitOverflowScrolling: 'touch' }}
+      aria-label={ariaLabel}
+      tabIndex={0}
+    >
+      {graphData.map((d, i) => {
+        const { day, date } = formatXAxisLabel(d.day, timePeriod);
+        const isCurrent = highlightCurrent && isCurrentPeriod(d.day, timePeriod);
+        const barHeight = Math.max(8, Math.round((d.value / maxValue) * maxBarHeight));
+        return (
+          <div
+            key={d.day}
+            className={`flex flex-col items-center justify-end flex-none ${snapType ? 'snap-start' : ''}`}
+            style={{ minWidth: minBarWidth }}
+            aria-label={`bar-group-${d.day}`}
+          >
+            <div
+              className={`w-full rounded-t transition-all duration-700 ${mounted ? 'scale-y-100' : 'scale-y-0'} origin-bottom bg-amber-500 shadow-lg ${isCurrent ? 'ring-2 ring-amber-400 ring-offset-2 ring-offset-black animate-pulse' : ''}`}
+              style={{ height: barHeight, minHeight: 8, maxHeight: maxBarHeight }}
+              aria-label={`bar-${d.day}`}
+            />
+            <div className="flex flex-col items-center mt-1 text-xs text-gray-300 select-none">
+              <span className="font-bold text-white" aria-label={`bar-label-day-${d.day}`}>{day}</span>
+              <span className="text-gray-400" aria-label={`bar-label-date-${d.day}`}>{date}</span>
+            </div>
+            <div className="text-lg text-white font-bold mt-1" aria-label={`bar-value-${d.day}`}>{d.value}</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // --- Block 1: KingdomStatsBlock ---
 export function KingdomStatsBlock({ userId }: { userId: string | null }) {
   const [activeTab, setActiveTab] = useState<'quests' | 'challenges' | 'milestones'>('quests');
@@ -247,15 +349,12 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
           ) : !hasData ? (
             activeTab === 'quests' ? <QuestsEmptyState /> : activeTab === 'challenges' ? <ChallengesEmptyState /> : <MilestonesEmptyState />
           ) : (
-            <div className="h-64 flex items-end gap-2 w-full px-4">
-              {graphData.map((d, i) => (
-                <div key={d.day} className="flex flex-col items-center justify-end flex-1">
-                  <div className="w-full rounded-t bg-amber-500 transition-all" style={{ height: `${d.value === 0 ? 8 : d.value * 32}px`, minHeight: 8 }} aria-label={`bar-${d.day}`} />
-                  <div className="text-xs text-gray-300 mt-1">{d.day}</div>
-                  <div className="text-lg text-white font-bold">{d.value}</div>
-                </div>
-              ))}
-            </div>
+            <BarChartBlock
+              graphData={graphData}
+              timePeriod={timePeriod}
+              highlightCurrent={true}
+              ariaLabel="kingdom-stats-bar-chart"
+            />
           )}
         </div>
       </CardContent>
@@ -348,15 +447,12 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
           ) : !hasData ? (
             activeTab === 'gold' ? <GoldEmptyState /> : <ExperienceEmptyState />
           ) : (
-            <div className="h-64 flex items-end gap-2 w-full px-4">
-              {graphData.map((d, i) => (
-                <div key={d.day} className="flex flex-col items-center justify-end flex-1">
-                  <div className="w-full rounded-t bg-amber-500 transition-all" style={{ height: `${d.value === 0 ? 8 : d.value * 32}px`, minHeight: 8 }} aria-label={`bar-${d.day}`} />
-                  <div className="text-xs text-gray-300 mt-1">{d.day}</div>
-                  <div className="text-lg text-white font-bold">{d.value}</div>
-                </div>
-              ))}
-            </div>
+            <BarChartBlock
+              graphData={graphData}
+              timePeriod={timePeriod}
+              highlightCurrent={true}
+              ariaLabel="king-stats-bar-chart"
+            />
           )}
         </div>
       </CardContent>
