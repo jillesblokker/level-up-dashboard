@@ -128,7 +128,7 @@ function getStreakScrollCount() {
     return 0;
   }
 }
-function useStreakBonus(streak: number) {
+function getStreakBonus(streak: number) {
   // 5 gold per day, capped at 50
   return Math.min(streak * 5, 50);
 }
@@ -693,18 +693,32 @@ export default function QuestsPage() {
                 ))}
               </select>
             </div>
+            {/* Streak Summary UI */}
+            <div className="mb-6">
+              <Card className="flex flex-col md:flex-row items-center gap-4 p-4 bg-gradient-to-r from-amber-900/80 to-yellow-900/60 border-amber-500 shadow-lg" aria-label="challenge-streak-summary-card">
+                <div className="flex items-center gap-3">
+                  <Sun className="w-10 h-10 text-amber-400 drop-shadow-glow animate-pulse" aria-hidden="true" />
+                  <div>
+                    <div className="text-lg font-bold text-amber-300" aria-label="current-streak-label">Current Streak:</div>
+                    <div className="text-2xl font-extrabold text-amber-200" aria-label="current-streak-value">{challengeStreaks[challengeCategory]?.length || 0} days</div>
+                  </div>
+                </div>
+                <div className="flex flex-col items-center md:items-start">
+                  <div className="text-lg font-bold text-yellow-300" aria-label="streak-bonus-label">Streak Bonus:</div>
+                  <div className="text-xl font-bold text-yellow-200" aria-label="streak-bonus-value">+{getStreakBonus(challengeStreaks[challengeCategory]?.length || 0)} gold/day</div>
+                  <div className="text-xs text-yellow-100">(Max 50 gold/day)</div>
+                </div>
+                <div className="flex flex-col items-center md:items-start">
+                  <div className="text-lg font-bold text-blue-200" aria-label="streak-scrolls-label">Streak Scrolls:</div>
+                  <div className="text-xl font-bold text-blue-100" aria-label="streak-scrolls-value">{getStreakScrollCount()}</div>
+                  <div className="text-xs text-blue-100">(Use to save a missed streak)</div>
+                </div>
+              </Card>
+            </div>
             <div className="space-y-4">
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                 {challenges.filter(c => c.category === challengeCategory).map((challenge) => {
-                  const currentStreak = challengeStreaks[challenge.category]?.length || 0;
-                  const streakBonus = useStreakBonus(currentStreak);
-                  if (streakBonus > 0) {
-                    gainGold(streakBonus, 'streak-bonus');
-                    toast({
-                      title: 'Streak Bonus!',
-                      description: `You earned a bonus of ${streakBonus} gold for your ${currentStreak}-day streak!`,
-                    });
-                  }
+                  // Remove streakBonus/gainGold/toast logic from here
                   return (
                     <CardWithProgress
                       key={challenge.id}
