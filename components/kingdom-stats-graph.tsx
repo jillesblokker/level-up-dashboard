@@ -397,7 +397,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
     <Card className="bg-black border-amber-800">
       <CardHeader>
         <div className="flex items-center justify-between gap-4">
-          <CardTitle className="text-amber-500 text-2xl font-bold">King stats</CardTitle>
+          <CardTitle className="text-amber-500 text-2xl font-bold">Gains</CardTitle>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" aria-label="Select time period" className="ml-2">
