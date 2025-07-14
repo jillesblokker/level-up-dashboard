@@ -19,7 +19,7 @@ import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useAuth } from '@clerk/nextjs'
 import { withToken } from '@/lib/supabase/client'
 import { format, parseISO, isThisWeek, isThisMonth, isThisYear } from 'date-fns';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart as RechartsBarChart, Bar, Legend, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart as RechartsBarChart, Bar, Legend, Cell, Area } from 'recharts';
 import { useRef } from 'react';
 
 // ---
@@ -198,6 +198,11 @@ function isCurrentPeriod(dateStr: string, period: TimePeriod) {
   return false;
 }
 
+// Helper to check if a string is a valid date (YYYY-MM-DD or YYYY-MM)
+function isValidDateString(str: string) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(str) || /^\d{4}-\d{2}$/.test(str);
+}
+
 // Chart type toggle
 function ChartTypeToggle({ chartType, setChartType }: { chartType: 'bar' | 'line', setChartType: (t: 'bar' | 'line') => void }) {
   return (
@@ -281,7 +286,10 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#444" />
             <XAxis
               dataKey="day"
-              tick={({ x, y, payload }) => {
+              tick={({ x, y, payload, index }) => {
+                const total = graphData.length;
+                if (index !== 0 && index !== total - 1) return <g />;
+                if (!isValidDateString(payload.value)) return <g />;
                 const { day, date } = formatXAxisLabel(payload.value, timePeriod);
                 return (
                   <g transform={`translate(${x},${y})`}>
@@ -333,10 +341,19 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
           </RechartsBarChart>
         ) : (
           <LineChart data={graphData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+            <defs>
+              <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#fbbf24" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="#fbbf24" stopOpacity={0} />
+              </linearGradient>
+            </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#444" />
             <XAxis
               dataKey="day"
-              tick={({ x, y, payload }) => {
+              tick={({ x, y, payload, index }) => {
+                const total = graphData.length;
+                if (index !== 0 && index !== total - 1) return <g />;
+                if (!isValidDateString(payload.value)) return <g />;
                 const { day, date } = formatXAxisLabel(payload.value, timePeriod);
                 return (
                   <g transform={`translate(${x},${y})`}>
@@ -359,6 +376,19 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
               strokeWidth={3}
               dot={{ r: 5, fill: '#fbbf24', stroke: '#a78bfa', strokeWidth: 2 }}
               activeDot={{ r: 7, fill: '#fbbf24', stroke: '#a78bfa', strokeWidth: 3 }}
+              isAnimationActive={mounted}
+              animationDuration={350}
+              animationEasing="ease-out"
+              fill="url(#lineGradient)"
+              fillOpacity={1}
+              strokeLinejoin="round"
+            />
+            {/* Area for gradient fill under the line */}
+            <Area
+              type="monotone"
+              dataKey="value"
+              fill="url(#lineGradient)"
+              fillOpacity={1}
               isAnimationActive={mounted}
               animationDuration={350}
               animationEasing="ease-out"
