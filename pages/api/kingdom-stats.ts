@@ -62,6 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .eq('user_id', userId)
         .eq('completed', true);
       if (error) {
+        console.error('Supabase error (quests):', error);
         res.status(500).json({ error: error.message });
         return;
       }
@@ -98,6 +99,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .eq('user_id', userId)
         .eq('completed', true);
       if (error) {
+        console.error('Supabase error (gold):', error);
         res.status(500).json({ error: error.message });
         return;
       }
@@ -133,6 +135,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .eq('user_id', userId)
         .eq('completed', true);
       if (error) {
+        console.error('Supabase error (experience):', error);
         res.status(500).json({ error: error.message });
         return;
       }
@@ -168,6 +171,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .eq('user_id', userId)
         .eq('completed', true);
       if (error) {
+        console.error('Supabase error (challenges):', error);
         res.status(500).json({ error: error.message });
         return;
       }
@@ -203,6 +207,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .eq('user_id', userId)
         .eq('completed', true);
       if (error) {
+        console.error('Supabase error (milestones):', error);
         res.status(500).json({ error: error.message });
         return;
       }
@@ -234,6 +239,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const data = days.map(day => ({ day, value: 0 }));
     res.status(200).json({ data });
   } catch (error) {
+    console.error('API kingdom-stats error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 } 
