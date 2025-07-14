@@ -251,7 +251,7 @@ export default function QuestsPage() {
       // Update streak
       let streak = 0;
       for (let i = newHistory.length - 1; i >= 0; i--) {
-        if (newHistory[i]?.completed) streak++;
+        if (newHistory[i]!.completed) streak++;
         else break;
       }
       setQuestStreak(streak);
@@ -687,24 +687,26 @@ export default function QuestsPage() {
             </div>
             {/* Quest Streak Summary Card */}
             <div className="mb-6">
-              <Card className="flex flex-col md:flex-row items-center gap-6 p-6 bg-gradient-to-r from-amber-900/80 to-yellow-900/60 border-amber-500 shadow-lg" aria-label="quest-streak-summary-card">
-                <div className="flex flex-col items-center justify-center bg-black/40 rounded-2xl p-6 min-w-[120px]">
-                  <Flame className="w-14 h-14 text-pink-400 drop-shadow-glow animate-pulse" aria-hidden="true" />
-                  <div className="text-3xl font-extrabold text-white mt-2" aria-label="quest-streak-value">{questStreak} days</div>
+              <Card className="flex flex-col md:flex-row items-center gap-6 p-6 bg-[#6b3a1c] border-2 border-amber-800/20 shadow-md" aria-label="quest-streak-summary-card">
+                {/* Streak Icon and Count */}
+                <div className="flex flex-col items-center justify-center bg-[#5a2d16] rounded-2xl p-6 min-w-[120px]">
+                  <Flame className="w-14 h-14 text-pink-400" aria-hidden="true" />
+                  <div className="text-4xl font-extrabold text-white mt-2" aria-label="quest-streak-value">{questStreak} days</div>
                   <div className="text-base text-gray-300">Day streak</div>
                 </div>
+                {/* Progress and Week Checks */}
                 <div className="flex-1 flex flex-col gap-2 w-full max-w-xl">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-bold text-white">{todaysCompleted}</span>
+                    <span className="text-4xl font-bold text-white">{todaysCompleted}</span>
                     <span className="text-lg text-gray-300">/ {todaysTotal} quests</span>
                   </div>
-                  <div className="w-full h-4 bg-gray-800 rounded-full overflow-hidden relative">
+                  <div className="w-full h-4 bg-[#a05a2c] rounded-full overflow-hidden relative">
                     <div className="h-full bg-gradient-to-r from-pink-400 to-pink-600 rounded-full transition-all duration-500" style={{ width: `${todaysTotal ? (todaysCompleted / todaysTotal) * 100 : 0}%` }} />
                   </div>
                   <div className="flex gap-2 mt-2 justify-between">
                     {paddedHistory.map((h, i) => (
                       <div key={h.date} className={`flex flex-col items-center w-8`}>
-                        <div className={`w-7 h-7 rounded-full flex items-center justify-center ${h.completed ? 'bg-pink-500' : 'bg-gray-800 border border-gray-700'}`}
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center ${h.completed ? 'bg-pink-400 text-white' : 'bg-[#232b33] text-gray-400'}`}
                           aria-label={h.completed ? `Completed on ${weekDays[i]}` : `Not completed on ${weekDays[i]}`}
                         >
                           {h.completed ? <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M5 10.5L9 14.5L15 7.5" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg> : null}
@@ -712,6 +714,19 @@ export default function QuestsPage() {
                         <span className="text-xs text-gray-400 mt-1">{weekDays[i]}</span>
                       </div>
                     ))}
+                  </div>
+                </div>
+                {/* Bonus and Scrolls */}
+                <div className="flex flex-col items-start gap-4 min-w-[180px]">
+                  <div>
+                    <div className="text-lg font-bold text-yellow-300">Streak Bonus:</div>
+                    <div className="text-2xl font-bold text-yellow-200">+{getStreakBonus(questStreak)} gold/day</div>
+                    <div className="text-xs text-yellow-100">(Max 50 gold/day)</div>
+                  </div>
+                  <div>
+                    <div className="text-lg font-bold text-blue-200">Streak Scrolls:</div>
+                    <div className="text-2xl font-bold text-blue-100">{getStreakScrollCount()}</div>
+                    <div className="text-xs text-blue-100">(Use to save a missed streak)</div>
                   </div>
                 </div>
               </Card>
@@ -771,29 +786,47 @@ export default function QuestsPage() {
             </div>
             {/* Challenge Streak Summary Card (new style) */}
             <div className="mb-6">
-              <Card className="flex flex-col md:flex-row items-center gap-6 p-6 bg-gradient-to-r from-amber-900/80 to-yellow-900/60 border-amber-500 shadow-lg" aria-label="challenge-streak-summary-card">
-                <div className="flex flex-col items-center justify-center bg-black/40 rounded-2xl p-6 min-w-[120px]">
-                  <Flame className="w-14 h-14 text-pink-400 drop-shadow-glow animate-pulse" aria-hidden="true" />
-                  <div className="text-3xl font-extrabold text-white mt-2" aria-label="challenge-streak-value">{challengeStreaks[challengeCategory]?.length || 0} days</div>
+              <Card className="flex flex-col md:flex-row items-center gap-6 p-6 bg-[#6b3a1c] border-2 border-amber-800/20 shadow-md" aria-label="challenge-streak-summary-card">
+                {/* Streak Icon and Count */}
+                <div className="flex flex-col items-center justify-center bg-[#5a2d16] rounded-2xl p-6 min-w-[120px]">
+                  <Flame className="w-14 h-14 text-pink-400" aria-hidden="true" />
+                  <div className="text-4xl font-extrabold text-white mt-2" aria-label="challenge-streak-value">{challengeStreaks[challengeCategory]?.length || 0} days</div>
                   <div className="text-base text-gray-300">Day streak</div>
                 </div>
+                {/* Progress and Week Checks */}
                 <div className="flex-1 flex flex-col gap-2 w-full max-w-xl">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-bold text-white">{challenges.filter(c => c.category === challengeCategory && c.completed).length}</span>
+                    <span className="text-4xl font-bold text-white">{challenges.filter(c => c.category === challengeCategory && c.completed).length}</span>
                     <span className="text-lg text-gray-300">/ {challenges.filter(c => c.category === challengeCategory).length} challenges</span>
                   </div>
-                  <div className="w-full h-4 bg-gray-800 rounded-full overflow-hidden relative">
+                  <div className="w-full h-4 bg-[#a05a2c] rounded-full overflow-hidden relative">
                     <div className="h-full bg-gradient-to-r from-pink-400 to-pink-600 rounded-full transition-all duration-500" style={{ width: `${challenges.filter(c => c.category === challengeCategory).length ? (challenges.filter(c => c.category === challengeCategory && c.completed).length / challenges.filter(c => c.category === challengeCategory).length) * 100 : 0}%` }} />
                   </div>
-                  {/* 7-day history for challenges (reuse questHistory logic if available, or skip for now) */}
+                  <div className="flex gap-2 mt-2 justify-between">
+                    {paddedHistory.map((h, i) => (
+                      <div key={h.date} className={`flex flex-col items-center w-8`}>
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center ${h.completed ? 'bg-pink-400 text-white' : 'bg-[#232b33] text-gray-400'}`}
+                          aria-label={h.completed ? `Completed on ${weekDays[i]}` : `Not completed on ${weekDays[i]}`}
+                        >
+                          {h.completed ? <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M5 10.5L9 14.5L15 7.5" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg> : null}
+                        </div>
+                        <span className="text-xs text-gray-400 mt-1">{weekDays[i]}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex flex-col items-center md:items-start">
-                  <div className="text-lg font-bold text-yellow-300" aria-label="streak-bonus-label">Streak Bonus:</div>
-                  <div className="text-xl font-bold text-yellow-200" aria-label="streak-bonus-value">+{getStreakBonus(challengeStreaks[challengeCategory]?.length || 0)} gold/day</div>
-                  <div className="text-xs text-yellow-100">(Max 50 gold/day)</div>
-                  <div className="text-lg font-bold text-blue-200 mt-4" aria-label="streak-scrolls-label">Streak Scrolls:</div>
-                  <div className="text-xl font-bold text-blue-100" aria-label="streak-scrolls-value">{getStreakScrollCount()}</div>
-                  <div className="text-xs text-blue-100">(Use to save a missed streak)</div>
+                {/* Bonus and Scrolls */}
+                <div className="flex flex-col items-start gap-4 min-w-[180px]">
+                  <div>
+                    <div className="text-lg font-bold text-yellow-300">Streak Bonus:</div>
+                    <div className="text-2xl font-bold text-yellow-200">+{getStreakBonus(challengeStreaks[challengeCategory]?.length || 0)} gold/day</div>
+                    <div className="text-xs text-yellow-100">(Max 50 gold/day)</div>
+                  </div>
+                  <div>
+                    <div className="text-lg font-bold text-blue-200">Streak Scrolls:</div>
+                    <div className="text-2xl font-bold text-blue-100">{getStreakScrollCount()}</div>
+                    <div className="text-xs text-blue-100">(Use to save a missed streak)</div>
+                  </div>
                 </div>
               </Card>
             </div>
