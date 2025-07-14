@@ -256,7 +256,8 @@ function ExpandableAccountSettings() {
       <button
         className="flex items-center gap-3 px-6 py-4 w-full text-left text-white font-semibold focus:outline-none"
         onClick={() => setExpanded((v) => !v)}
-        aria-expanded={expanded ? "true" : "false"}
+        // eslint-disable-next-line jsx-a11y/aria-proptypes
+        aria-expanded={expanded ? 'true' : 'false'}
         aria-controls="account-settings-panel"
       >
         <div className="flex items-center">
