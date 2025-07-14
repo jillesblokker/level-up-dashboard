@@ -100,7 +100,9 @@ export function gainExperience(amount: number, source: string, category: string 
     emitExperienceGained(totalAmount, source)
 
     // Create notification for experience gained
-    createExperienceGainedNotification(amount, source, perkBonus)
+    if (!source.startsWith('achievement-')) {
+      createExperienceGainedNotification(amount, source, perkBonus)
+    }
 
     // Check for level up and title unlocks
     if (newLevel > currentStats.level) {

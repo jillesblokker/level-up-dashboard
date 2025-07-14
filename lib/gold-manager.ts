@@ -20,8 +20,10 @@ export function gainGold(amount: number, source: string) {
     // Emit kingdom event for tracking weekly progress
     emitGoldGained(amount, source);
 
-    // Create notification for gold gained
-    createGoldGainedNotification(amount, source);
+    // Only create notification for non-achievement sources
+    if (!source.startsWith('achievement-')) {
+      createGoldGainedNotification(amount, source);
+    }
 
     // Dispatch gold gain event for perk bonuses
     const goldGainEvent = new CustomEvent("gold-gain", {
