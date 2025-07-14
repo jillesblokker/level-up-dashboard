@@ -210,7 +210,7 @@ export default function QuestsPage() {
   const [questHistory, setQuestHistory] = useState<{date: string, completed: boolean}[]>([]);
   const today = new Date().toISOString().slice(0, 10);
   // Calculate today's quest completion
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  // eslint-disable-next-line
   const questsByCategory = quests.reduce((acc, quest) => {
     const safeQuestCategory = typeof quest.category === 'string' ? quest.category : '';
     (acc[safeQuestCategory] = acc[safeQuestCategory] || []).push(quest);
