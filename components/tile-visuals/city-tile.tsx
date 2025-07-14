@@ -24,7 +24,7 @@ export function CityTile({ className, ariaLabel, onClick, isMainTile, citySize }
       aria-label={ariaLabel || "city-tile"}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); } : undefined}
-      role={onClick ? "button" : undefined}
+      {...(onClick ? { role: "button" } : {})}
     >
       <Building2 className={cn(
         "text-blue-400",

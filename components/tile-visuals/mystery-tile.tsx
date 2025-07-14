@@ -18,7 +18,7 @@ export function MysteryTile({ className, ariaLabel = "Mystery tile", onClick }: 
       onClick={onClick}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); } : undefined}
-      role={onClick ? "button" : undefined}
+      {...(onClick ? { role: "button" } : {})}
     >
       {/* Question mark */}
       <div className="absolute inset-0 flex items-center justify-center" aria-hidden="true">

@@ -17,7 +17,8 @@ export function GrassTile({ className, ariaLabel, onClick }: GrassTileProps) {
       onClick={onClick}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); } : undefined}
-      role={onClick ? "button" : undefined}
+      {...(onClick ? { role: "button" } : {})}
+      // Inline styles below are used for dynamic positioning of grass blades and cannot be moved to CSS.
     >
       <div className="absolute inset-0" aria-hidden="true">
         {Array.from({ length: 4 }).map((_, i) => (

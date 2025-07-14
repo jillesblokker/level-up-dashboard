@@ -12,7 +12,7 @@ export function WaterTile({ className, ariaLabel, onClick }: WaterTileProps) {
       onClick={onClick}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); } : undefined}
-      role={onClick ? "button" : undefined}
+      {...(onClick ? { role: "button" } : {})}
     >
       <svg viewBox="0 0 64 64" className="w-full h-full" aria-hidden="true">
         {/* Base water color */}
