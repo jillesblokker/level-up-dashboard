@@ -6,7 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
-import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, PersonStanding, Pencil } from 'lucide-react'
+import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, PersonStanding, Pencil, Flame } from 'lucide-react'
 import { HeaderSection } from '@/components/HeaderSection'
 import { useUser, useAuth } from '@clerk/nextjs'
 import { Milestones } from '@/components/milestones'
@@ -596,16 +596,61 @@ export default function QuestsPage() {
   }, {} as Record<string, Quest[]>);
 
   const questsByCategorySafe = typeof questsByCategory === 'object' && questsByCategory !== null ? questsByCategory : {};
-
   const getCategoryIcon = (category: string) => {
     return categoryIcons[category as keyof typeof categoryIcons] || Trophy;
   }
-
   const getCategoryLabel = (category: string) => {
     return categoryLabels[category as keyof typeof categoryLabels] || category.charAt(0).toUpperCase() + category.slice(1);
   }
-
   const safeQuestCategory = typeof questCategory === 'string' ? questCategory : '';
+
+  // --- Quest Streak Logic ---
+  const QUEST_STREAK_KEY = 'quest-streak-v1';
+  const QUEST_HISTORY_KEY = 'quest-history-v1';
+  const [questStreak, setQuestStreak] = useState(0);
+  const [questHistory, setQuestHistory] = useState<{date: string, completed: boolean}[]>([]);
+  const today = new Date().toISOString().slice(0, 10);
+  // Calculate today's quest completion
+  const todaysQuests = questsByCategorySafe[safeQuestCategory] ?? [];
+  const todaysCompleted = todaysQuests.filter(q => q.completed).length;
+  const todaysTotal = todaysQuests.length;
+  // 7-day history (Mon-Sun, most recent last)
+  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const paddedHistory = Array(7).fill(null).map((_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    const dateStr = d.toISOString().slice(0, 10);
+    const entry = questHistory.find(h => h.date === dateStr);
+    return { date: dateStr, completed: entry?.completed || false };
+  });
+  // On mount/load, load streak and history from localStorage
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const streak = Number(localStorage.getItem(QUEST_STREAK_KEY) || '0');
+    setQuestStreak(streak);
+    const hist = JSON.parse(localStorage.getItem(QUEST_HISTORY_KEY) || '[]');
+    setQuestHistory(hist);
+  }, [userId]);
+  // On quest completion change, update streak/history
+  useEffect(() => {
+    if (!userId || todaysTotal === 0) return;
+    if (typeof window === 'undefined') return;
+    // Only update if today is not already in history
+    if (!questHistory.find(h => h.date === today)) {
+      const completed = todaysCompleted === todaysTotal && todaysTotal > 0;
+      const newHistory = [...questHistory, { date: today, completed }].slice(-14); // keep 2 weeks
+      setQuestHistory(newHistory);
+      localStorage.setItem(QUEST_HISTORY_KEY, JSON.stringify(newHistory));
+      // Update streak
+      let streak = 0;
+      for (let i = newHistory.length - 1; i >= 0; i--) {
+        if (newHistory[i].completed) streak++;
+        else break;
+      }
+      setQuestStreak(streak);
+      localStorage.setItem(QUEST_STREAK_KEY, String(streak));
+    }
+  }, [todaysCompleted, todaysTotal, userId]);
 
   return (
     <div className="h-full">
@@ -639,6 +684,37 @@ export default function QuestsPage() {
                   <option key={category} value={category}>{getCategoryLabel(category)}</option>
                 ))}
               </select>
+            </div>
+            {/* Quest Streak Summary Card */}
+            <div className="mb-6">
+              <Card className="flex flex-col md:flex-row items-center gap-6 p-6 bg-gradient-to-r from-amber-900/80 to-yellow-900/60 border-amber-500 shadow-lg" aria-label="quest-streak-summary-card">
+                <div className="flex flex-col items-center justify-center bg-black/40 rounded-2xl p-6 min-w-[120px]">
+                  <Flame className="w-14 h-14 text-pink-400 drop-shadow-glow animate-pulse" aria-hidden="true" />
+                  <div className="text-3xl font-extrabold text-white mt-2" aria-label="quest-streak-value">{questStreak} days</div>
+                  <div className="text-base text-gray-300">Day streak</div>
+                </div>
+                <div className="flex-1 flex flex-col gap-2 w-full max-w-xl">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-white">{todaysCompleted}</span>
+                    <span className="text-lg text-gray-300">/ {todaysTotal} quests</span>
+                  </div>
+                  <div className="w-full h-4 bg-gray-800 rounded-full overflow-hidden relative">
+                    <div className="h-full bg-gradient-to-r from-pink-400 to-pink-600 rounded-full transition-all duration-500" style={{ width: `${todaysTotal ? (todaysCompleted / todaysTotal) * 100 : 0}%` }} />
+                  </div>
+                  <div className="flex gap-2 mt-2 justify-between">
+                    {paddedHistory.map((h, i) => (
+                      <div key={h.date} className={`flex flex-col items-center w-8`}>
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center ${h.completed ? 'bg-pink-500' : 'bg-gray-800 border border-gray-700'}`}
+                          aria-label={h.completed ? `Completed on ${weekDays[i]}` : `Not completed on ${weekDays[i]}`}
+                        >
+                          {h.completed ? <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M5 10.5L9 14.5L15 7.5" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg> : null}
+                        </div>
+                        <span className="text-xs text-gray-400 mt-1">{weekDays[i]}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Card>
             </div>
             <div className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -693,23 +769,29 @@ export default function QuestsPage() {
                 ))}
               </select>
             </div>
-            {/* Streak Summary UI */}
+            {/* Challenge Streak Summary Card (new style) */}
             <div className="mb-6">
-              <Card className="flex flex-col md:flex-row items-center gap-4 p-4 bg-gradient-to-r from-amber-900/80 to-yellow-900/60 border-amber-500 shadow-lg" aria-label="challenge-streak-summary-card">
-                <div className="flex items-center gap-3">
-                  <Sun className="w-10 h-10 text-amber-400 drop-shadow-glow animate-pulse" aria-hidden="true" />
-                  <div>
-                    <div className="text-lg font-bold text-amber-300" aria-label="current-streak-label">Current Streak:</div>
-                    <div className="text-2xl font-extrabold text-amber-200" aria-label="current-streak-value">{challengeStreaks[challengeCategory]?.length || 0} days</div>
+              <Card className="flex flex-col md:flex-row items-center gap-6 p-6 bg-gradient-to-r from-amber-900/80 to-yellow-900/60 border-amber-500 shadow-lg" aria-label="challenge-streak-summary-card">
+                <div className="flex flex-col items-center justify-center bg-black/40 rounded-2xl p-6 min-w-[120px]">
+                  <Flame className="w-14 h-14 text-pink-400 drop-shadow-glow animate-pulse" aria-hidden="true" />
+                  <div className="text-3xl font-extrabold text-white mt-2" aria-label="challenge-streak-value">{challengeStreaks[challengeCategory]?.length || 0} days</div>
+                  <div className="text-base text-gray-300">Day streak</div>
+                </div>
+                <div className="flex-1 flex flex-col gap-2 w-full max-w-xl">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-white">{challenges.filter(c => c.category === challengeCategory && c.completed).length}</span>
+                    <span className="text-lg text-gray-300">/ {challenges.filter(c => c.category === challengeCategory).length} challenges</span>
                   </div>
+                  <div className="w-full h-4 bg-gray-800 rounded-full overflow-hidden relative">
+                    <div className="h-full bg-gradient-to-r from-pink-400 to-pink-600 rounded-full transition-all duration-500" style={{ width: `${challenges.filter(c => c.category === challengeCategory).length ? (challenges.filter(c => c.category === challengeCategory && c.completed).length / challenges.filter(c => c.category === challengeCategory).length) * 100 : 0}%` }} />
+                  </div>
+                  {/* 7-day history for challenges (reuse questHistory logic if available, or skip for now) */}
                 </div>
                 <div className="flex flex-col items-center md:items-start">
                   <div className="text-lg font-bold text-yellow-300" aria-label="streak-bonus-label">Streak Bonus:</div>
                   <div className="text-xl font-bold text-yellow-200" aria-label="streak-bonus-value">+{getStreakBonus(challengeStreaks[challengeCategory]?.length || 0)} gold/day</div>
                   <div className="text-xs text-yellow-100">(Max 50 gold/day)</div>
-                </div>
-                <div className="flex flex-col items-center md:items-start">
-                  <div className="text-lg font-bold text-blue-200" aria-label="streak-scrolls-label">Streak Scrolls:</div>
+                  <div className="text-lg font-bold text-blue-200 mt-4" aria-label="streak-scrolls-label">Streak Scrolls:</div>
                   <div className="text-xl font-bold text-blue-100" aria-label="streak-scrolls-value">{getStreakScrollCount()}</div>
                   <div className="text-xs text-blue-100">(Use to save a missed streak)</div>
                 </div>
