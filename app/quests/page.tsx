@@ -134,6 +134,7 @@ function getStreakBonus(streak: number) {
 }
 
 export default function QuestsPage() {
+  // All hooks must be at the top
   const { user, isLoaded: isUserLoaded } = useUser();
   const { getToken, isLoaded: isClerkLoaded } = useAuth();
   const userId = user?.id;
@@ -202,6 +203,61 @@ export default function QuestsPage() {
   const [milestones, setMilestones] = useState<any[]>([]);
   const [challenges, setChallenges] = useState<any[]>([]);
   const [token, setToken] = useState<string | null>(null);
+  // --- Quest Streak Logic ---
+  const QUEST_STREAK_KEY = 'quest-streak-v1';
+  const QUEST_HISTORY_KEY = 'quest-history-v1';
+  const [questStreak, setQuestStreak] = useState(0);
+  const [questHistory, setQuestHistory] = useState<{date: string, completed: boolean}[]>([]);
+  const today = new Date().toISOString().slice(0, 10);
+  // Calculate today's quest completion
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  const questsByCategory = quests.reduce((acc, quest) => {
+    const safeQuestCategory = typeof quest.category === 'string' ? quest.category : '';
+    (acc[safeQuestCategory] = acc[safeQuestCategory] || []).push(quest);
+    return acc;
+  }, {} as Record<string, Quest[]>);
+  const questsByCategorySafe = typeof questsByCategory === 'object' && questsByCategory !== null ? questsByCategory : {};
+  const safeQuestCategory = typeof questCategory === 'string' ? questCategory : '';
+  const todaysQuests = questsByCategorySafe[safeQuestCategory] ?? [];
+  const todaysCompleted = todaysQuests.filter(q => q.completed).length;
+  const todaysTotal = todaysQuests.length;
+  // 7-day history (Mon-Sun, most recent last)
+  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const paddedHistory = Array(7).fill(null).map((_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    const dateStr = d.toISOString().slice(0, 10);
+    const entry = questHistory.find(h => h.date === dateStr);
+    return { date: dateStr, completed: entry?.completed || false };
+  });
+  // On mount/load, load streak and history from localStorage
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const streak = Number(localStorage.getItem(QUEST_STREAK_KEY) || '0');
+    setQuestStreak(streak);
+    const hist = JSON.parse(localStorage.getItem(QUEST_HISTORY_KEY) || '[]');
+    setQuestHistory(hist);
+  }, [userId]);
+  // On quest completion change, update streak/history
+  useEffect(() => {
+    if (!userId || todaysTotal === 0) return;
+    if (typeof window === 'undefined') return;
+    // Only update if today is not already in history
+    if (!questHistory.find(h => h.date === today)) {
+      const completed = todaysCompleted === todaysTotal && todaysTotal > 0;
+      const newHistory = [...questHistory, { date: today, completed }].slice(-14); // keep 2 weeks
+      setQuestHistory(newHistory);
+      localStorage.setItem(QUEST_HISTORY_KEY, JSON.stringify(newHistory));
+      // Update streak
+      let streak = 0;
+      for (let i = newHistory.length - 1; i >= 0; i--) {
+        if (newHistory[i].completed) streak++;
+        else break;
+      }
+      setQuestStreak(streak);
+      localStorage.setItem(QUEST_STREAK_KEY, String(streak));
+    }
+  }, [todaysCompleted, todaysTotal, userId]);
 
   // Acquire token only when Clerk is loaded and user is loaded
   useEffect(() => {
@@ -589,68 +645,12 @@ export default function QuestsPage() {
     );
   }
 
-  const questsByCategory = quests.reduce((acc, quest) => {
-    const safeQuestCategory = typeof quest.category === 'string' ? quest.category : '';
-    (acc[safeQuestCategory] = acc[safeQuestCategory] || []).push(quest);
-    return acc;
-  }, {} as Record<string, Quest[]>);
-
-  const questsByCategorySafe = typeof questsByCategory === 'object' && questsByCategory !== null ? questsByCategory : {};
   const getCategoryIcon = (category: string) => {
     return categoryIcons[category as keyof typeof categoryIcons] || Trophy;
   }
   const getCategoryLabel = (category: string) => {
     return categoryLabels[category as keyof typeof categoryLabels] || category.charAt(0).toUpperCase() + category.slice(1);
   }
-  const safeQuestCategory = typeof questCategory === 'string' ? questCategory : '';
-
-  // --- Quest Streak Logic ---
-  const QUEST_STREAK_KEY = 'quest-streak-v1';
-  const QUEST_HISTORY_KEY = 'quest-history-v1';
-  const [questStreak, setQuestStreak] = useState(0);
-  const [questHistory, setQuestHistory] = useState<{date: string, completed: boolean}[]>([]);
-  const today = new Date().toISOString().slice(0, 10);
-  // Calculate today's quest completion
-  const todaysQuests = questsByCategorySafe[safeQuestCategory] ?? [];
-  const todaysCompleted = todaysQuests.filter(q => q.completed).length;
-  const todaysTotal = todaysQuests.length;
-  // 7-day history (Mon-Sun, most recent last)
-  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const paddedHistory = Array(7).fill(null).map((_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (6 - i));
-    const dateStr = d.toISOString().slice(0, 10);
-    const entry = questHistory.find(h => h.date === dateStr);
-    return { date: dateStr, completed: entry?.completed || false };
-  });
-  // On mount/load, load streak and history from localStorage
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const streak = Number(localStorage.getItem(QUEST_STREAK_KEY) || '0');
-    setQuestStreak(streak);
-    const hist = JSON.parse(localStorage.getItem(QUEST_HISTORY_KEY) || '[]');
-    setQuestHistory(hist);
-  }, [userId]);
-  // On quest completion change, update streak/history
-  useEffect(() => {
-    if (!userId || todaysTotal === 0) return;
-    if (typeof window === 'undefined') return;
-    // Only update if today is not already in history
-    if (!questHistory.find(h => h.date === today)) {
-      const completed = todaysCompleted === todaysTotal && todaysTotal > 0;
-      const newHistory = [...questHistory, { date: today, completed }].slice(-14); // keep 2 weeks
-      setQuestHistory(newHistory);
-      localStorage.setItem(QUEST_HISTORY_KEY, JSON.stringify(newHistory));
-      // Update streak
-      let streak = 0;
-      for (let i = newHistory.length - 1; i >= 0; i--) {
-        if (newHistory[i].completed) streak++;
-        else break;
-      }
-      setQuestStreak(streak);
-      localStorage.setItem(QUEST_STREAK_KEY, String(streak));
-    }
-  }, [todaysCompleted, todaysTotal, userId]);
 
   return (
     <div className="h-full">
