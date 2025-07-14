@@ -29,6 +29,7 @@ function getDateRange(period: string): string[] {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  console.log('[DEPLOYMENT DEBUG] pages/api/kingdom-stats.ts loaded at', new Date().toISOString());
   if (req.method !== 'GET') {
     res.status(405).json({ error: 'Method not allowed' });
     return;
@@ -58,7 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Fetch completions
       let { data: completions, error } = await supabaseServer
         .from('quest_completion')
-        .select('id, completed, created_at')
+        .select('id, completed, completed_at')
         .eq('user_id', userId)
         .eq('completed', true);
       if (error) {
@@ -71,8 +72,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (period === 'year') {
         days.forEach(month => { counts[month] = 0; });
         completions?.forEach((c: any) => {
-          if (c.created_at) {
-            const month = c.created_at.slice(0, 7);
+          if (c.completed_at) {
+            const month = c.completed_at.slice(0, 7);
             if (counts[month] !== undefined) counts[month]++;
           }
         });
@@ -81,8 +82,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       } else {
         days.forEach(day => { counts[day] = 0; });
         completions?.forEach((c: any) => {
-          if (c.created_at) {
-            const day = c.created_at.slice(0, 10);
+          if (c.completed_at) {
+            const day = c.completed_at.slice(0, 10);
             if (counts[day] !== undefined) counts[day]++;
           }
         });
@@ -95,7 +96,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (tab === 'gold') {
       let { data: completions, error } = await supabaseServer
         .from('quest_completion')
-        .select('gold_earned, created_at')
+        .select('gold_earned, completed_at')
         .eq('user_id', userId)
         .eq('completed', true);
       if (error) {
@@ -107,8 +108,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (period === 'year') {
         days.forEach(month => { sums[month] = 0; });
         completions?.forEach((c: any) => {
-          if (c.created_at) {
-            const month = c.created_at.slice(0, 7);
+          if (c.completed_at) {
+            const month = c.completed_at.slice(0, 7);
             if (sums[month] !== undefined) sums[month] += c.gold_earned || 0;
           }
         });
@@ -117,8 +118,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       } else {
         days.forEach(day => { sums[day] = 0; });
         completions?.forEach((c: any) => {
-          if (c.created_at) {
-            const day = c.created_at.slice(0, 10);
+          if (c.completed_at) {
+            const day = c.completed_at.slice(0, 10);
             if (sums[day] !== undefined) sums[day] += c.gold_earned || 0;
           }
         });
@@ -131,7 +132,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (tab === 'experience') {
       let { data: completions, error } = await supabaseServer
         .from('quest_completion')
-        .select('xp_earned, created_at')
+        .select('xp_earned, completed_at')
         .eq('user_id', userId)
         .eq('completed', true);
       if (error) {
@@ -143,8 +144,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (period === 'year') {
         days.forEach(month => { sums[month] = 0; });
         completions?.forEach((c: any) => {
-          if (c.created_at) {
-            const month = c.created_at.slice(0, 7);
+          if (c.completed_at) {
+            const month = c.completed_at.slice(0, 7);
             if (sums[month] !== undefined) sums[month] += c.xp_earned || 0;
           }
         });
@@ -153,8 +154,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       } else {
         days.forEach(day => { sums[day] = 0; });
         completions?.forEach((c: any) => {
-          if (c.created_at) {
-            const day = c.created_at.slice(0, 10);
+          if (c.completed_at) {
+            const day = c.completed_at.slice(0, 10);
             if (sums[day] !== undefined) sums[day] += c.xp_earned || 0;
           }
         });
