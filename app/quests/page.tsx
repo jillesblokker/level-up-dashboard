@@ -234,24 +234,31 @@ export default function QuestsPage() {
     fetchQuests();
   }, [token]);
 
-  // Daily reset logic for non-milestone quests
+  // Daily reset logic for non-milestone quests and challenges (persisted in DB)
   useEffect(() => {
-    if (!loading && quests.length > 0) {
+    if (!loading && quests.length > 0 && userId) {
       const lastReset = localStorage.getItem('last-quest-reset-date');
       const today = new Date().toISOString().slice(0, 10);
       if (lastReset !== today) {
-        // Reset all non-milestone quests
-        setQuests(prev => prev.map(q =>
-          q.category !== 'milestones' ? { ...q, completed: false } : q
-        ));
-        localStorage.setItem('last-quest-reset-date', today);
-        toast({
-          title: 'Daily Reset',
-          description: 'Your daily quests have been reset! Time to build new habits.',
-        });
+        // Call backend to reset quests and challenges
+        fetch('/api/quests/reset-daily', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        })
+          .then(res => res.json())
+          .then(() => {
+            // After reset, refetch quests
+            setQuests(prev => prev.map(q => ({ ...q, completed: false })));
+            // Optionally, refetch challenges if needed
+            localStorage.setItem('last-quest-reset-date', today);
+            toast({
+              title: 'Daily Reset',
+              description: 'Your daily quests and challenges have been reset! Time to build new habits.',
+            });
+          });
       }
     }
-  }, [loading, quests.length]);
+  }, [loading, quests.length, userId]);
 
   // Persist streaks and last completed
   useEffect(() => {
