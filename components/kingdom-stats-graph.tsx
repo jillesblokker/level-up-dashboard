@@ -19,6 +19,8 @@ import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useAuth } from '@clerk/nextjs'
 import { withToken } from '@/lib/supabase/client'
 import { format, parseISO, isThisWeek, isThisMonth, isThisYear } from 'date-fns';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart as RechartsBarChart, Bar, Legend, Cell } from 'recharts';
+import { useRef } from 'react';
 
 // ---
 // KingdomStatsBlock and KingStatsBlock are now fully data-driven.
@@ -196,16 +198,59 @@ function isCurrentPeriod(dateStr: string, period: TimePeriod) {
   return false;
 }
 
-// Bar chart rendering (shared for both blocks)
-function BarChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel }: {
+// Chart type toggle
+function ChartTypeToggle({ chartType, setChartType }: { chartType: 'bar' | 'line', setChartType: (t: 'bar' | 'line') => void }) {
+  return (
+    <div className="flex gap-2 items-center">
+      <button
+        className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors duration-200 ${chartType === 'bar' ? 'bg-amber-700 text-white' : 'bg-gray-800 text-gray-300'}`}
+        onClick={() => setChartType('bar')}
+        aria-label="Bar chart view"
+      >
+        Bar
+      </button>
+      <button
+        className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors duration-200 ${chartType === 'line' ? 'bg-amber-700 text-white' : 'bg-gray-800 text-gray-300'}`}
+        onClick={() => setChartType('line')}
+        aria-label="Line chart view"
+      >
+        Line
+      </button>
+    </div>
+  );
+}
+
+// Custom tooltip for both chart types
+function CustomTooltip({ active, payload, label }: any) {
+  if (active && payload && payload.length) {
+    return (
+      <div className="rounded-lg border border-amber-700 bg-black/90 p-2 shadow-lg">
+        <div className="text-xs text-amber-400 font-bold mb-1">{label}</div>
+        {payload.map((entry: any, i: number) => (
+          <div key={i} className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full inline-block" style={{ background: entry.color }} />
+            <span className="text-white text-sm font-semibold">{entry.value}</span>
+            <span className="text-gray-400 text-xs">{entry.name}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return null;
+}
+
+// Bar/Line chart block
+function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartType }: {
   graphData: Array<{ day: string; value: number }>,
   timePeriod: TimePeriod,
   highlightCurrent?: boolean,
-  ariaLabel: string
+  ariaLabel: string,
+  chartType: 'bar' | 'line',
 }) {
-  // Animation: grow bars on mount
+  // Animation: grow bars/lines on mount
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
+  const chartRef = useRef<HTMLDivElement>(null);
 
   // Prevent overflow: scale bars to max height
   const maxBarHeight = 160;
@@ -227,37 +272,105 @@ function BarChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel }: {
     snapType = 'snap-x snap-mandatory';
   }
 
+  // Chart rendering
   return (
-    <div
-      className={`h-64 w-full flex items-end gap-2 px-4 overflow-x-auto ${snapType}`}
-      style={{ WebkitOverflowScrolling: 'touch' }}
-      aria-label={ariaLabel}
-      tabIndex={0}
-    >
-      {graphData.map((d, i) => {
-        const { day, date } = formatXAxisLabel(d.day, timePeriod);
-        const isCurrent = highlightCurrent && isCurrentPeriod(d.day, timePeriod);
-        const barHeight = Math.max(8, Math.round((d.value / maxValue) * maxBarHeight));
-        return (
-          <div
-            key={d.day}
-            className={`flex flex-col items-center justify-end flex-none ${snapType ? 'snap-start' : ''}`}
-            style={{ minWidth: minBarWidth }}
-            aria-label={`bar-group-${d.day}`}
-          >
-            <div
-              className={`w-full rounded-t transition-all duration-700 ${mounted ? 'scale-y-100' : 'scale-y-0'} origin-bottom bg-amber-500 shadow-lg ${isCurrent ? 'ring-2 ring-amber-400 ring-offset-2 ring-offset-black animate-pulse' : ''}`}
-              style={{ height: barHeight, minHeight: 8, maxHeight: maxBarHeight }}
-              aria-label={`bar-${d.day}`}
+    <div className="h-64 w-full px-4 overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }} aria-label={ariaLabel} tabIndex={0} ref={chartRef}>
+      <ResponsiveContainer width="100%" height="100%">
+        {chartType === 'bar' ? (
+          <RechartsBarChart data={graphData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }} barCategoryGap={"20%"}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#444" />
+            <XAxis
+              dataKey="day"
+              tick={({ x, y, payload }) => {
+                const { day, date } = formatXAxisLabel(payload.value, timePeriod);
+                return (
+                  <g transform={`translate(${x},${y})`}>
+                    <text x={0} y={-8} textAnchor="middle" fill="#fff" fontSize="12" fontWeight="bold">{day}</text>
+                    <text x={0} y={8} textAnchor="middle" fill="#bbb" fontSize="10">{date}</text>
+                  </g>
+                );
+              }}
+              axisLine={{ stroke: "#444" }}
+              tickLine={false}
+              interval={0}
+              minTickGap={minBarWidth}
             />
-            <div className="flex flex-col items-center mt-1 text-xs text-gray-300 select-none">
-              <span className="font-bold text-white" aria-label={`bar-label-day-${d.day}`}>{day}</span>
-              <span className="text-gray-400" aria-label={`bar-label-date-${d.day}`}>{date}</span>
-            </div>
-            <div className="text-lg text-white font-bold mt-1" aria-label={`bar-value-${d.day}`}>{d.value}</div>
-          </div>
-        );
-      })}
+            <YAxis tick={{ fill: "#888" }} axisLine={{ stroke: "#444" }} domain={[0, maxValue]} allowDecimals={false} />
+            <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: "#222", opacity: 0.1 }} />
+            <Bar
+              dataKey="value"
+              fill="#f59e42"
+              radius={[8, 8, 0, 0]}
+              isAnimationActive={mounted}
+              animationDuration={350}
+              animationEasing="ease-out"
+              minPointSize={4}
+              maxBarSize={maxBarHeight}
+              onMouseOver={(_, idx) => {
+                if (chartRef.current) {
+                  const bars = chartRef.current.querySelectorAll('.recharts-rectangle');
+                  if (bars[idx]) bars[idx].classList.add('bar-glow');
+                }
+              }}
+              onMouseOut={(_, idx) => {
+                if (chartRef.current) {
+                  const bars = chartRef.current.querySelectorAll('.recharts-rectangle');
+                  if (bars[idx]) bars[idx].classList.remove('bar-glow');
+                }
+              }}
+            >
+              {graphData.map((entry, idx) => {
+                const isCurrent = highlightCurrent && isCurrentPeriod(entry.day, timePeriod);
+                return (
+                  <Cell
+                    key={`cell-${idx}`}
+                    fill={isCurrent ? "#fbbf24" : "#f59e42"}
+                    className={isCurrent ? "bar-glow" : ""}
+                  />
+                );
+              })}
+            </Bar>
+          </RechartsBarChart>
+        ) : (
+          <LineChart data={graphData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#444" />
+            <XAxis
+              dataKey="day"
+              tick={({ x, y, payload }) => {
+                const { day, date } = formatXAxisLabel(payload.value, timePeriod);
+                return (
+                  <g transform={`translate(${x},${y})`}>
+                    <text x={0} y={-8} textAnchor="middle" fill="#fff" fontSize="12" fontWeight="bold">{day}</text>
+                    <text x={0} y={8} textAnchor="middle" fill="#bbb" fontSize="10">{date}</text>
+                  </g>
+                );
+              }}
+              axisLine={{ stroke: "#444" }}
+              tickLine={false}
+              interval={0}
+              minTickGap={minBarWidth}
+            />
+            <YAxis tick={{ fill: "#888" }} axisLine={{ stroke: "#444" }} domain={[0, maxValue]} allowDecimals={false} />
+            <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: "#222", opacity: 0.1 }} />
+            <Line
+              type="monotone"
+              dataKey="value"
+              stroke="#a78bfa"
+              strokeWidth={3}
+              dot={{ r: 5, fill: '#fbbf24', stroke: '#a78bfa', strokeWidth: 2 }}
+              activeDot={{ r: 7, fill: '#fbbf24', stroke: '#a78bfa', strokeWidth: 3 }}
+              isAnimationActive={mounted}
+              animationDuration={350}
+              animationEasing="ease-out"
+            />
+          </LineChart>
+        )}
+      </ResponsiveContainer>
+      <style jsx>{`
+        .bar-glow {
+          filter: drop-shadow(0 0 8px #fbbf24cc) drop-shadow(0 0 16px #fbbf24aa);
+        }
+      `}</style>
     </div>
   );
 }
@@ -269,6 +382,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
   const [graphData, setGraphData] = useState<Array<{ day: string; value: number }>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const uid = userId;
+  const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
 
   // Fetch and aggregate data for the selected tab and period (keep as is for now)
   useEffect(() => {
@@ -298,6 +412,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
       <CardHeader>
         <div className="flex items-center justify-between gap-4">
           <CardTitle className="text-amber-500 text-2xl font-bold">Kingdom stats</CardTitle>
+          <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" aria-label="Select time period" className="ml-2">
@@ -349,11 +464,12 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
           ) : !hasData ? (
             activeTab === 'quests' ? <QuestsEmptyState /> : activeTab === 'challenges' ? <ChallengesEmptyState /> : <MilestonesEmptyState />
           ) : (
-            <BarChartBlock
+            <ChartBlock
               graphData={graphData}
               timePeriod={timePeriod}
               highlightCurrent={true}
               ariaLabel="kingdom-stats-bar-chart"
+              chartType={chartType}
             />
           )}
         </div>
@@ -369,6 +485,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
   const [graphData, setGraphData] = useState<Array<{ day: string; value: number }>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const uid = userId;
+  const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
 
   // Fetch and aggregate data for the selected tab and period (keep as is for now)
   useEffect(() => {
@@ -398,6 +515,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
       <CardHeader>
         <div className="flex items-center justify-between gap-4">
           <CardTitle className="text-amber-500 text-2xl font-bold">Gains</CardTitle>
+          <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" aria-label="Select time period" className="ml-2">
@@ -447,11 +565,12 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
           ) : !hasData ? (
             activeTab === 'gold' ? <GoldEmptyState /> : <ExperienceEmptyState />
           ) : (
-            <BarChartBlock
+            <ChartBlock
               graphData={graphData}
               timePeriod={timePeriod}
               highlightCurrent={true}
               ariaLabel="king-stats-bar-chart"
+              chartType={chartType}
             />
           )}
         </div>
