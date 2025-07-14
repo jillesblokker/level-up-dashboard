@@ -16,6 +16,7 @@ import CardWithProgress from '@/components/quest-card'
 import React from 'react'
 import { SignedIn, SignedOut, SignIn } from '@clerk/nextjs'
 import { useSupabase } from '@/lib/hooks/useSupabase'
+import { gainGold } from '@/lib/gold-manager';
 
 interface Quest {
   id: string;
@@ -117,6 +118,20 @@ const workoutPlan = [
 
 const CHALLENGE_STREAKS_KEY = 'challenge-streaks-v1';
 const CHALLENGE_LAST_COMPLETED_KEY = 'challenge-last-completed-v1';
+
+// Helper to get streak scrolls from inventory
+function getStreakScrollCount() {
+  try {
+    const inv = JSON.parse(localStorage.getItem('tileInventory') || '{}');
+    return inv['streak-scroll']?.quantity || 0;
+  } catch {
+    return 0;
+  }
+}
+function useStreakBonus(streak: number) {
+  // 5 gold per day, capped at 50
+  return Math.min(streak * 5, 50);
+}
 
 export default function QuestsPage() {
   const { user, isLoaded: isUserLoaded } = useUser();
@@ -281,7 +296,20 @@ export default function QuestsPage() {
           if (!last) return 0;
           const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
           if (last === today || last === yesterday) return streak;
-          return 0; // missed a day
+          // Missed a day: forgiveness mechanic
+          const scrolls = getStreakScrollCount();
+          if (scrolls > 0 && window.confirm('You missed a day! Use a Streak Scroll to save your streak?')) {
+            // Consume a scroll
+            const inv = JSON.parse(localStorage.getItem('tileInventory') || '{}');
+            inv['streak-scroll'].quantity = Math.max(0, (inv['streak-scroll']?.quantity || 1) - 1);
+            localStorage.setItem('tileInventory', JSON.stringify(inv));
+            // Show toast
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new CustomEvent('toast', { detail: { title: 'Streak Saved!', description: 'You used a Streak Scroll to save your streak.' } }));
+            }
+            return streak;
+          }
+          return 0; // missed a day, no scroll
         });
       });
       return updated;
@@ -667,19 +695,30 @@ export default function QuestsPage() {
             </div>
             <div className="space-y-4">
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
-                {challenges.filter(c => c.category === challengeCategory).map((challenge) => (
-                  <CardWithProgress
-                    key={challenge.id}
-                    title={challenge.name}
-                    description={challenge.description}
-                    icon={React.createElement(getCategoryIcon(challenge.category))}
-                    completed={challenge.completed}
-                    onToggle={() => handleChallengeToggle(challenge.id, challenge.completed)}
-                    progress={challenge.completed ? 100 : 5}
-                    xp={challenge.xp ?? 0}
-                    gold={challenge.gold ?? 0}
-                  />
-                ))}
+                {challenges.filter(c => c.category === challengeCategory).map((challenge) => {
+                  const currentStreak = challengeStreaks[challenge.category]?.length || 0;
+                  const streakBonus = useStreakBonus(currentStreak);
+                  if (streakBonus > 0) {
+                    gainGold(streakBonus, 'streak-bonus');
+                    toast({
+                      title: 'Streak Bonus!',
+                      description: `You earned a bonus of ${streakBonus} gold for your ${currentStreak}-day streak!`,
+                    });
+                  }
+                  return (
+                    <CardWithProgress
+                      key={challenge.id}
+                      title={challenge.name}
+                      description={challenge.description}
+                      icon={React.createElement(getCategoryIcon(challenge.category))}
+                      completed={challenge.completed}
+                      onToggle={() => handleChallengeToggle(challenge.id, challenge.completed)}
+                      progress={challenge.completed ? 100 : 5}
+                      xp={challenge.xp ?? 0}
+                      gold={challenge.gold ?? 0}
+                    />
+                  );
+                })}
                 {challenges.filter(c => c.category === challengeCategory).length === 0 && (
                   <div className="text-center text-gray-400">No challenges found for this category.</div>
                 )}

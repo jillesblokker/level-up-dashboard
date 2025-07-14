@@ -24,6 +24,7 @@ import { gainExperience } from '@/lib/experience-manager'
 import { useCreatureStore } from '@/stores/creatureStore'
 import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 import dynamic from 'next/dynamic';
+import { getCharacterStats } from '@/lib/character-stats-manager';
 const RevealOverlay = dynamic(() => import('../reveal/page'), { ssr: false });
 
 // Constants
@@ -532,6 +533,14 @@ export default function RealmPage() {
 
     // Expand map function
     const expandMap = async () => {
+        if (!canExpand) {
+            toast({
+                title: 'Expansion Locked',
+                description: `Reach level ${nextExpansionLevel} to expand your realm map!`,
+                variant: 'destructive',
+            });
+            return;
+        }
         const currentRows = grid.length;
         const currentCols = grid[0]?.length || GRID_COLS;
         const newRows = currentRows + 3;
@@ -594,6 +603,11 @@ export default function RealmPage() {
         } catch (err) {
             toast({ title: 'Error', description: 'Failed to save expanded map tiles', variant: 'destructive' });
         }
+        setExpansions(prev => {
+            const newVal = prev + 1;
+            localStorage.setItem('realm-map-expansions', String(newVal));
+            return newVal;
+        });
         toast({
             title: "Map Expanded",
             description: "Your realm map has been expanded with 3 new rows!",
@@ -984,6 +998,22 @@ export default function RealmPage() {
       return () => clearInterval(interval);
     }, [grid, penguinPos, isPenguinPresent]);
 
+    // Expansion gating logic
+    const [expansions, setExpansions] = useState<number>(() => {
+      if (typeof window !== 'undefined') {
+        return parseInt(localStorage.getItem('realm-map-expansions') || '0', 10);
+      }
+      return 0;
+    });
+    const [playerLevel, setPlayerLevel] = useState<number>(1);
+    useEffect(() => {
+      // Get player level from character stats
+      const stats = getCharacterStats();
+      setPlayerLevel(stats.level || 1);
+    }, []);
+    const nextExpansionLevel = 5 + expansions * 5;
+    const canExpand = playerLevel >= nextExpansionLevel;
+
     if (isLoading) {
         return <div className="flex items-center justify-center h-screen bg-gray-900 text-white">Loading Realm...</div>;
     }
@@ -1033,8 +1063,10 @@ export default function RealmPage() {
                         variant="outline"
                         size="sm"
                         onClick={expandMap}
+                        disabled={!canExpand}
+                        aria-label="Expand Map"
+                        title={canExpand ? 'Expand your realm map' : `Reach level ${nextExpansionLevel} to expand`}
                         className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
-                        aria-label="expand-map-button"
                       >
                         <PlusCircle className="w-4 h-4" />
                         <span className="hidden sm:inline">Expand Map</span>
