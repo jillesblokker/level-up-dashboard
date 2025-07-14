@@ -687,10 +687,10 @@ export default function QuestsPage() {
             </div>
             {/* Quest Streak Summary Card */}
             <div className="mb-6">
-              <Card className="flex flex-col md:flex-row items-center gap-6 p-6 bg-[#6b3a1c] border-2 border-amber-800/20 shadow-md" aria-label="quest-streak-summary-card">
+              <Card className="flex flex-col md:flex-row items-center gap-6 p-6 bg-[#1C2634] border-2 border-amber-800/20 shadow-md" aria-label="quest-streak-summary-card">
                 {/* Streak Icon and Count */}
-                <div className="flex flex-col items-center justify-center bg-[#5a2d16] rounded-2xl p-6 min-w-[120px]">
-                  <Flame className="w-14 h-14 text-pink-400" aria-hidden="true" />
+                <div className="flex flex-col items-center justify-center bg-[#16202b] rounded-2xl p-6 min-w-[120px]">
+                  <Flame className="w-14 h-14 text-[#0D7200]" aria-hidden="true" />
                   <div className="text-4xl font-extrabold text-white mt-2" aria-label="quest-streak-value">{questStreak} days</div>
                   <div className="text-base text-gray-300">Day streak</div>
                 </div>
@@ -700,13 +700,13 @@ export default function QuestsPage() {
                     <span className="text-4xl font-bold text-white">{todaysCompleted}</span>
                     <span className="text-lg text-gray-300">/ {todaysTotal} quests</span>
                   </div>
-                  <div className="w-full h-4 bg-[#a05a2c] rounded-full overflow-hidden relative">
-                    <div className="h-full bg-gradient-to-r from-pink-400 to-pink-600 rounded-full transition-all duration-500" style={{ width: `${todaysTotal ? (todaysCompleted / todaysTotal) * 100 : 0}%` }} />
+                  <div className="w-full h-4 bg-[#233044] rounded-full overflow-hidden relative">
+                    <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${todaysTotal ? (todaysCompleted / todaysTotal) * 100 : 0}%` }} />
                   </div>
                   <div className="flex gap-2 mt-2 justify-between">
                     {paddedHistory.map((h, i) => (
                       <div key={h.date} className={`flex flex-col items-center w-8`}>
-                        <div className={`w-7 h-7 rounded-full flex items-center justify-center ${h.completed ? 'bg-pink-400 text-white' : 'bg-[#232b33] text-gray-400'}`}
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center ${h.completed ? 'bg-[#0D7200] text-white' : 'bg-[#232b33] text-gray-400'}`}
                           aria-label={h.completed ? `Completed on ${weekDays[i]}` : `Not completed on ${weekDays[i]}`}
                         >
                           {h.completed ? <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M5 10.5L9 14.5L15 7.5" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg> : null}
@@ -716,9 +716,9 @@ export default function QuestsPage() {
                     ))}
                   </div>
                 </div>
-                {/* Bonus and Scrolls */}
-                <div className="flex flex-col items-start gap-4 min-w-[180px]">
-                  <div>
+                {/* Bonus and Scrolls - side by side on md+ */}
+                <div className="flex flex-col md:flex-row items-start gap-4 min-w-[180px]">
+                  <div className="md:mr-8">
                     <div className="text-lg font-bold text-yellow-300">Streak Bonus:</div>
                     <div className="text-2xl font-bold text-yellow-200">+{getStreakBonus(questStreak)} gold/day</div>
                     <div className="text-xs text-yellow-100">(Max 50 gold/day)</div>
@@ -786,10 +786,10 @@ export default function QuestsPage() {
             </div>
             {/* Challenge Streak Summary Card (new style) */}
             <div className="mb-6">
-              <Card className="flex flex-col md:flex-row items-center gap-6 p-6 bg-[#6b3a1c] border-2 border-amber-800/20 shadow-md" aria-label="challenge-streak-summary-card">
+              <Card className="flex flex-col md:flex-row items-center gap-6 p-6 bg-[#1C2634] border-2 border-amber-800/20 shadow-md" aria-label="challenge-streak-summary-card">
                 {/* Streak Icon and Count */}
-                <div className="flex flex-col items-center justify-center bg-[#5a2d16] rounded-2xl p-6 min-w-[120px]">
-                  <Flame className="w-14 h-14 text-pink-400" aria-hidden="true" />
+                <div className="flex flex-col items-center justify-center bg-[#16202b] rounded-2xl p-6 min-w-[120px]">
+                  <Flame className="w-14 h-14 text-[#0D7200]" aria-hidden="true" />
                   <div className="text-4xl font-extrabold text-white mt-2" aria-label="challenge-streak-value">{challengeStreaks[challengeCategory]?.length || 0} days</div>
                   <div className="text-base text-gray-300">Day streak</div>
                 </div>
@@ -799,13 +799,13 @@ export default function QuestsPage() {
                     <span className="text-4xl font-bold text-white">{challenges.filter(c => c.category === challengeCategory && c.completed).length}</span>
                     <span className="text-lg text-gray-300">/ {challenges.filter(c => c.category === challengeCategory).length} challenges</span>
                   </div>
-                  <div className="w-full h-4 bg-[#a05a2c] rounded-full overflow-hidden relative">
-                    <div className="h-full bg-gradient-to-r from-pink-400 to-pink-600 rounded-full transition-all duration-500" style={{ width: `${challenges.filter(c => c.category === challengeCategory).length ? (challenges.filter(c => c.category === challengeCategory && c.completed).length / challenges.filter(c => c.category === challengeCategory).length) * 100 : 0}%` }} />
+                  <div className="w-full h-4 bg-[#233044] rounded-full overflow-hidden relative">
+                    <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${challenges.filter(c => c.category === challengeCategory).length ? (challenges.filter(c => c.category === challengeCategory && c.completed).length / challenges.filter(c => c.category === challengeCategory).length) * 100 : 0}%` }} />
                   </div>
                   <div className="flex gap-2 mt-2 justify-between">
                     {paddedHistory.map((h, i) => (
                       <div key={h.date} className={`flex flex-col items-center w-8`}>
-                        <div className={`w-7 h-7 rounded-full flex items-center justify-center ${h.completed ? 'bg-pink-400 text-white' : 'bg-[#232b33] text-gray-400'}`}
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center ${h.completed ? 'bg-[#0D7200] text-white' : 'bg-[#232b33] text-gray-400'}`}
                           aria-label={h.completed ? `Completed on ${weekDays[i]}` : `Not completed on ${weekDays[i]}`}
                         >
                           {h.completed ? <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M5 10.5L9 14.5L15 7.5" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg> : null}
@@ -815,9 +815,9 @@ export default function QuestsPage() {
                     ))}
                   </div>
                 </div>
-                {/* Bonus and Scrolls */}
-                <div className="flex flex-col items-start gap-4 min-w-[180px]">
-                  <div>
+                {/* Bonus and Scrolls - side by side on md+ */}
+                <div className="flex flex-col md:flex-row items-start gap-4 min-w-[180px]">
+                  <div className="md:mr-8">
                     <div className="text-lg font-bold text-yellow-300">Streak Bonus:</div>
                     <div className="text-2xl font-bold text-yellow-200">+{getStreakBonus(challengeStreaks[challengeCategory]?.length || 0)} gold/day</div>
                     <div className="text-xs text-yellow-100">(Max 50 gold/day)</div>
