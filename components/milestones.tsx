@@ -238,24 +238,24 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
 
   const handleDeleteMilestone = async (id: string) => {
     try {
-      // Find the milestone to get its name
-      const milestone = milestones.find(m => m.id === id);
-      if (!milestone) return;
-      
-      // Note: The current API doesn't support deletion, so we'll just remove from local state
-      // In a real implementation, you'd want to add a DELETE endpoint
+      if (!supabase) throw new Error('Supabase client not ready');
+      // Delete from Supabase
+      const { error } = await supabase.from('milestones').delete().eq('id', id);
+      if (error) throw error;
+      // Remove from local state
       setMilestones(prev => prev.filter(m => m.id !== id));
-      
       toast({
-        title: "Success",
-        description: "Milestone removed successfully!",
+        title: 'Success',
+        description: 'Milestone removed successfully!',
       });
+      // Optionally refetch milestones
+      // await fetchMilestones();
     } catch (error) {
       console.error('Error deleting milestone:', error);
       toast({
-        title: "Error",
-        description: "Failed to delete milestone. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to delete milestone. Please try again.',
+        variant: 'destructive',
       });
     }
   };
@@ -326,10 +326,34 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
   };
 
   // Handler to submit the edited milestone (for now, just closes the modal)
-  const handleEditMilestoneSubmit = (updatedMilestone: Milestone) => {
-    // TODO: Implement update logic (API call, state update)
-    setEditModalOpen(false);
-    setEditingMilestone(null);
+  const handleEditMilestoneSubmit = async (updatedMilestone: Milestone) => {
+    try {
+      if (!supabase) throw new Error('Supabase client not ready');
+      // Update in Supabase
+      const { error } = await supabase.from('milestones').update({
+        name: updatedMilestone.name,
+        experience: updatedMilestone.experience,
+        gold: updatedMilestone.gold,
+        // Add other fields as needed
+      }).eq('id', updatedMilestone.id);
+      if (error) throw error;
+      setMilestones(prev => prev.map(m => m.id === updatedMilestone.id ? { ...m, ...updatedMilestone } : m));
+      toast({
+        title: 'Success',
+        description: 'Milestone updated successfully!',
+      });
+      setEditModalOpen(false);
+      setEditingMilestone(null);
+      // Optionally refetch milestones
+      // await fetchMilestones();
+    } catch (error) {
+      console.error('Error updating milestone:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update milestone. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   // --- Handlers ---
