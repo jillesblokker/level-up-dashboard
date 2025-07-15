@@ -238,18 +238,23 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
 
   const handleDeleteMilestone = async (id: string) => {
     try {
-      if (!supabase) throw new Error('Supabase client not ready');
-      // Delete from Supabase
-      const { error } = await supabase.from('milestones').delete().eq('id', id);
-      if (error) throw error;
-      // Remove from local state
+      if (!token) throw new Error('No Clerk token');
+      // Call backend API to delete milestone
+      const response = await fetch(`/api/milestones/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        const err = await response.text();
+        throw new Error(err || 'Failed to delete milestone');
+      }
       setMilestones(prev => prev.filter(m => m.id !== id));
       toast({
         title: 'Success',
         description: 'Milestone removed successfully!',
       });
-      // Optionally refetch milestones
-      // await fetchMilestones();
     } catch (error) {
       console.error('Error deleting milestone:', error);
       toast({
@@ -328,15 +333,25 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
   // Handler to submit the edited milestone (for now, just closes the modal)
   const handleEditMilestoneSubmit = async (updatedMilestone: Milestone) => {
     try {
-      if (!supabase) throw new Error('Supabase client not ready');
-      // Update in Supabase
-      const { error } = await supabase.from('milestones').update({
-        name: updatedMilestone.name,
-        experience: updatedMilestone.experience,
-        gold: updatedMilestone.gold,
-        // Add other fields as needed
-      }).eq('id', updatedMilestone.id);
-      if (error) throw error;
+      if (!token) throw new Error('No Clerk token');
+      // Call backend API to update milestone
+      const response = await fetch(`/api/milestones/${updatedMilestone.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: updatedMilestone.name,
+          experience: updatedMilestone.experience,
+          gold: updatedMilestone.gold,
+          // Add other fields as needed
+        }),
+      });
+      if (!response.ok) {
+        const err = await response.text();
+        throw new Error(err || 'Failed to update milestone');
+      }
       setMilestones(prev => prev.map(m => m.id === updatedMilestone.id ? { ...m, ...updatedMilestone } : m));
       toast({
         title: 'Success',
@@ -344,8 +359,6 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       });
       setEditModalOpen(false);
       setEditingMilestone(null);
-      // Optionally refetch milestones
-      // await fetchMilestones();
     } catch (error) {
       console.error('Error updating milestone:', error);
       toast({

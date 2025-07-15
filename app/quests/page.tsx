@@ -17,6 +17,7 @@ import React from 'react'
 import { SignedIn, SignedOut, SignIn } from '@clerk/nextjs'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { gainGold } from '@/lib/gold-manager';
+import { useRef } from 'react';
 
 interface Quest {
   id: string;
@@ -206,6 +207,9 @@ export default function QuestsPage() {
   // --- Quest Streak Logic ---
   const QUEST_STREAK_KEY = 'quest-streak-v1';
   const QUEST_HISTORY_KEY = 'quest-history-v1';
+  const [streakData, setStreakData] = useState<{ streak_days: number, week_streaks: number } | null>(null);
+  const { supabase, isLoading: isSupabaseLoading } = useSupabase();
+  const streakSubscriptionRef = useRef<any>(null);
   const [questStreak, setQuestStreak] = useState(0);
   const [questHistory, setQuestHistory] = useState<{date: string, completed: boolean}[]>([]);
   const today = new Date().toISOString().slice(0, 10);
@@ -316,15 +320,30 @@ export default function QuestsPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
         })
-          .then(res => res.json())
-          .then(() => {
-            // After reset, refetch quests
+          .then(async res => {
+            if (!res.ok) {
+              const err = await res.text();
+              toast({
+                title: 'Daily Reset Error',
+                description: `Failed to reset daily quests: ${err || res.statusText}`,
+                variant: 'destructive',
+              });
+              return;
+            }
+            // Only parse JSON if response is OK
+            await res.json();
             setQuests(prev => prev.map(q => ({ ...q, completed: false })));
-            // Optionally, refetch challenges if needed
             localStorage.setItem('last-quest-reset-date', today);
             toast({
               title: 'Daily Reset',
               description: 'Your daily quests and challenges have been reset! Time to build new habits.',
+            });
+          })
+          .catch(err => {
+            toast({
+              title: 'Daily Reset Error',
+              description: `Network or server error: ${err.message || err}`,
+              variant: 'destructive',
             });
           });
       }
@@ -339,38 +358,77 @@ export default function QuestsPage() {
     localStorage.setItem(CHALLENGE_LAST_COMPLETED_KEY, JSON.stringify(challengeLastCompleted));
   }, [challengeLastCompleted]);
 
-  // Reset streaks if a day is missed (run on mount)
+  // Fetch streak from Supabase
   useEffect(() => {
-    const today = new Date().toISOString().slice(0, 10);
-    setChallengeStreaks(prevStreaks => {
-      const updated: Record<string, number[]> = { ...prevStreaks };
-      Object.keys(prevStreaks).forEach(category => {
-        const streakArr = prevStreaks[category] || [];
-        const lastArr = (challengeLastCompleted[category] || []);
-        updated[category] = streakArr.map((streak, idx) => {
-          const last = lastArr[idx];
-          if (!last) return 0;
-          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-          if (last === today || last === yesterday) return streak;
-          // Missed a day: forgiveness mechanic
-          const scrolls = getStreakScrollCount();
-          if (scrolls > 0 && window.confirm('You missed a day! Use a Streak Scroll to save your streak?')) {
-            // Consume a scroll
-            const inv = JSON.parse(localStorage.getItem('tileInventory') || '{}');
-            inv['streak-scroll'].quantity = Math.max(0, (inv['streak-scroll']?.quantity || 1) - 1);
-            localStorage.setItem('tileInventory', JSON.stringify(inv));
-            // Show toast
-            if (typeof window !== 'undefined') {
-              window.dispatchEvent(new CustomEvent('toast', { detail: { title: 'Streak Saved!', description: 'You used a Streak Scroll to save your streak.' } }));
-            }
-            return streak;
-          }
-          return 0; // missed a day, no scroll
-        });
-      });
-      return updated;
-    });
-  }, []);
+    if (!supabase || !userId || !questCategory) return;
+    let cancelled = false;
+    const fetchStreak = async () => {
+      const { data, error } = await supabase
+        .from('streaks')
+        .select('streak_days, week_streaks')
+        .eq('user_id', userId)
+        .eq('category', questCategory)
+        .single();
+      if (!cancelled) {
+        if (error) setStreakData({ streak_days: 0, week_streaks: 0 });
+        else setStreakData(data);
+      }
+    };
+    fetchStreak();
+    return () => { cancelled = true; };
+  }, [supabase, userId, questCategory]);
+  // Real-time subscription for streaks
+  useEffect(() => {
+    if (!supabase || !userId || !questCategory) return;
+    if (streakSubscriptionRef.current) {
+      supabase.removeChannel(streakSubscriptionRef.current);
+      streakSubscriptionRef.current = null;
+    }
+    const channel = supabase.channel('streaks-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'streaks',
+          filter: `user_id=eq.${userId},category=eq.${questCategory}`,
+        },
+        (payload) => {
+          // Refetch streak on any change
+          supabase
+            .from('streaks')
+            .select('streak_days, week_streaks')
+            .eq('user_id', userId)
+            .eq('category', questCategory)
+            .single()
+            .then(({ data, error }) => {
+              if (error) setStreakData({ streak_days: 0, week_streaks: 0 });
+              else setStreakData(data);
+            });
+        }
+      )
+      .subscribe();
+    streakSubscriptionRef.current = channel;
+    return () => {
+      if (streakSubscriptionRef.current) {
+        supabase.removeChannel(streakSubscriptionRef.current);
+        streakSubscriptionRef.current = null;
+      }
+    };
+  }, [supabase, userId, questCategory]);
+  // Update streak in Supabase when all quests completed for today
+  const updateStreak = async (newStreak: number, newWeekStreaks: number) => {
+    if (!supabase || !userId || !questCategory) return;
+    await supabase
+      .from('streaks')
+      .upsert({
+        user_id: userId,
+        category: questCategory,
+        streak_days: newStreak,
+        week_streaks: newWeekStreaks,
+        last_completed_at: new Date().toISOString(),
+      }, { onConflict: 'user_id,category' });
+  };
 
   // Mark quest as complete (sync with backend)
   const handleQuestToggle = async (questId: string, currentCompleted: boolean) => {
@@ -623,6 +681,125 @@ export default function QuestsPage() {
     fetchChallenges();
   }, [token]);
 
+  // --- Challenge Streaks (Supabase) ---
+  const [challengeStreakData, setChallengeStreakData] = useState<{ streak_days: number, week_streaks: number } | null>(null);
+  const challengeStreakSubscriptionRef = useRef<any>(null);
+
+  // Fetch challenge streak from Supabase
+  useEffect(() => {
+    if (!supabase || !userId || !challengeCategory) return;
+    let cancelled = false;
+    const fetchChallengeStreak = async () => {
+      const { data, error } = await supabase
+        .from('streaks')
+        .select('streak_days, week_streaks')
+        .eq('user_id', userId)
+        .eq('category', challengeCategory)
+        .single();
+      if (!cancelled) {
+        if (error) setChallengeStreakData({ streak_days: 0, week_streaks: 0 });
+        else setChallengeStreakData(data);
+      }
+    };
+    fetchChallengeStreak();
+    return () => { cancelled = true; };
+  }, [supabase, userId, challengeCategory]);
+  // Real-time subscription for challenge streaks
+  useEffect(() => {
+    if (!supabase || !userId || !challengeCategory) return;
+    if (challengeStreakSubscriptionRef.current) {
+      supabase.removeChannel(challengeStreakSubscriptionRef.current);
+      challengeStreakSubscriptionRef.current = null;
+    }
+    const channel = supabase.channel('challenge-streaks-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'streaks',
+          filter: `user_id=eq.${userId},category=eq.${challengeCategory}`,
+        },
+        (payload) => {
+          supabase
+            .from('streaks')
+            .select('streak_days, week_streaks')
+            .eq('user_id', userId)
+            .eq('category', challengeCategory)
+            .single()
+            .then(({ data, error }) => {
+              if (error) setChallengeStreakData({ streak_days: 0, week_streaks: 0 });
+              else setChallengeStreakData(data);
+            });
+        }
+      )
+      .subscribe();
+    challengeStreakSubscriptionRef.current = channel;
+    return () => {
+      if (challengeStreakSubscriptionRef.current) {
+        supabase.removeChannel(challengeStreakSubscriptionRef.current);
+        challengeStreakSubscriptionRef.current = null;
+      }
+    };
+  }, [supabase, userId, challengeCategory]);
+  // Update challenge streak in Supabase when all challenges completed for today
+  const updateChallengeStreak = async (newStreak: number, newWeekStreaks: number) => {
+    if (!supabase || !userId || !challengeCategory) return;
+    await supabase
+      .from('streaks')
+      .upsert({
+        user_id: userId,
+        category: challengeCategory,
+        streak_days: newStreak,
+        week_streaks: newWeekStreaks,
+        last_completed_at: new Date().toISOString(),
+      }, { onConflict: 'user_id,category' });
+  };
+
+  // --- Automatically trigger updateStreak in quest completion logic ---
+  // In the useEffect that updates quest streak/history, after updating streak, call updateStreak(streak, weekStreaks) with the new values.
+  useEffect(() => {
+    if (!userId || todaysTotal === 0) return;
+    if (typeof window === 'undefined') return;
+    // Only update if today is not already in history
+    if (!questHistory.find(h => h.date === today)) {
+      const completed = todaysCompleted === todaysTotal && todaysTotal > 0;
+      const newHistory = [...questHistory, { date: today, completed }].slice(-14); // keep 2 weeks
+      setQuestHistory(newHistory);
+      localStorage.setItem(QUEST_HISTORY_KEY, JSON.stringify(newHistory));
+      // Update streak
+      let streak = 0;
+      for (let i = newHistory.length - 1; i >= 0; i--) {
+        if (newHistory[i]!.completed) streak++;
+        else break;
+      }
+      setQuestStreak(streak);
+      localStorage.setItem(QUEST_STREAK_KEY, String(streak));
+      updateStreak(streak, 0); // Assuming week_streaks is 0 for daily quests
+    }
+  }, [todaysCompleted, todaysTotal, userId]);
+
+  // --- Automatically trigger updateStreak in challenge completion logic ---
+  useEffect(() => {
+    if (!challenges.length) return;
+    const challengesForCategory = challenges.filter(c => c.category === challengeCategory);
+    const allChallengesCompleted = challengesForCategory.length > 0 && challengesForCategory.every(c => c.completed);
+
+    if (allChallengesCompleted) {
+      const newStreak = challengeStreakData?.streak_days ?? 0;
+      const newWeekStreaks = challengeStreakData?.week_streaks ?? 0;
+      updateChallengeStreak(newStreak + 1, newWeekStreaks + 1);
+      setChallengeStreaks(prev => ({ ...prev, [challengeCategory]: [...(prev[challengeCategory] || []), newStreak + 1] }));
+      setChallengeLastCompleted(prev => ({ ...prev, [challengeCategory]: [...(prev[challengeCategory] || []), new Date().toISOString()] }));
+      localStorage.setItem(CHALLENGE_STREAKS_KEY, JSON.stringify(challengeStreaks));
+      localStorage.setItem(CHALLENGE_LAST_COMPLETED_KEY, JSON.stringify(challengeLastCompleted));
+      toast({
+        title: 'Challenge Streak',
+        description: `You completed all challenges for ${challengeCategory}! Streak increased to ${newStreak + 1} days.`,
+      });
+    }
+  }, [challenges.length, challengeCategory, challengeStreakData, challengeStreaks, challengeLastCompleted]);
+
   if (!isClerkLoaded || !isUserLoaded) {
     console.log('Waiting for auth and Clerk client...');
     return (
@@ -691,7 +868,7 @@ export default function QuestsPage() {
                 {/* Streak Icon and Count */}
                 <div className="flex flex-col items-center justify-center bg-[#16202b] rounded-2xl p-6 min-w-[120px]">
                   <Flame className="w-14 h-14 text-[#0D7200]" aria-hidden="true" />
-                  <div className="text-4xl font-extrabold text-white mt-2" aria-label="quest-streak-value">{questStreak} days</div>
+                  <div className="text-4xl font-extrabold text-white mt-2" aria-label="quest-streak-value">{streakData?.streak_days ?? 0} days</div>
                   <div className="text-base text-gray-300">Day streak</div>
                 </div>
                 {/* Progress and Week Checks */}
@@ -720,7 +897,7 @@ export default function QuestsPage() {
                 <div className="flex flex-col md:flex-row items-start gap-4 min-w-[180px]">
                   <div className="md:mr-8">
                     <div className="text-lg font-bold text-yellow-300">Streak Bonus:</div>
-                    <div className="text-2xl font-bold text-yellow-200">+{getStreakBonus(questStreak)} gold/day</div>
+                    <div className="text-2xl font-bold text-yellow-200">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
                     <div className="text-xs text-yellow-100">(Max 50 gold/day)</div>
                   </div>
                   <div>
@@ -790,7 +967,7 @@ export default function QuestsPage() {
                 {/* Streak Icon and Count */}
                 <div className="flex flex-col items-center justify-center bg-[#16202b] rounded-2xl p-6 min-w-[120px]">
                   <Flame className="w-14 h-14 text-[#0D7200]" aria-hidden="true" />
-                  <div className="text-4xl font-extrabold text-white mt-2" aria-label="challenge-streak-value">{challengeStreaks[challengeCategory]?.length || 0} days</div>
+                  <div className="text-4xl font-extrabold text-white mt-2" aria-label="challenge-streak-value">{challengeStreakData?.streak_days ?? 0} days</div>
                   <div className="text-base text-gray-300">Day streak</div>
                 </div>
                 {/* Progress and Week Checks */}
@@ -819,7 +996,7 @@ export default function QuestsPage() {
                 <div className="flex flex-col md:flex-row items-start gap-4 min-w-[180px]">
                   <div className="md:mr-8">
                     <div className="text-lg font-bold text-yellow-300">Streak Bonus:</div>
-                    <div className="text-2xl font-bold text-yellow-200">+{getStreakBonus(challengeStreaks[challengeCategory]?.length || 0)} gold/day</div>
+                    <div className="text-2xl font-bold text-yellow-200">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
                     <div className="text-xs text-yellow-100">(Max 50 gold/day)</div>
                   </div>
                   <div>
