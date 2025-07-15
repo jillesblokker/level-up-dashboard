@@ -358,25 +358,46 @@ export default function QuestsPage() {
     localStorage.setItem(CHALLENGE_LAST_COMPLETED_KEY, JSON.stringify(challengeLastCompleted));
   }, [challengeLastCompleted]);
 
-  // Fetch streak from Supabase
+  // Fetch streak from Supabase (now via API route)
   useEffect(() => {
-    if (!supabase || !userId || !questCategory) return;
+    if (!token || !userId || !questCategory) return;
     let cancelled = false;
     const fetchStreak = async () => {
-      const { data, error } = await supabase
-        .from('streaks')
-        .select('streak_days, week_streaks')
-        .eq('user_id', userId)
-        .eq('category', questCategory)
-        .single();
-      if (!cancelled) {
-        if (error) setStreakData({ streak_days: 0, week_streaks: 0 });
-        else setStreakData(data);
+      try {
+        const res = await fetch(`/api/streaks?user_id=${userId}&category=${encodeURIComponent(questCategory)}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error('Failed to fetch streak');
+        const data = await res.json();
+        if (!cancelled) setStreakData(data);
+      } catch (error) {
+        if (!cancelled) setStreakData({ streak_days: 0, week_streaks: 0 });
       }
     };
     fetchStreak();
     return () => { cancelled = true; };
-  }, [supabase, userId, questCategory]);
+  }, [token, userId, questCategory]);
+
+  // Fetch challenge streak from Supabase (now via API route)
+  useEffect(() => {
+    if (!token || !userId || !challengeCategory) return;
+    let cancelled = false;
+    const fetchChallengeStreak = async () => {
+      try {
+        const res = await fetch(`/api/streaks?user_id=${userId}&category=${encodeURIComponent(challengeCategory)}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error('Failed to fetch challenge streak');
+        const data = await res.json();
+        if (!cancelled) setChallengeStreakData(data);
+      } catch (error) {
+        if (!cancelled) setChallengeStreakData({ streak_days: 0, week_streaks: 0 });
+      }
+    };
+    fetchChallengeStreak();
+    return () => { cancelled = true; };
+  }, [token, userId, challengeCategory]);
+
   // Real-time subscription for streaks
   useEffect(() => {
     if (!supabase || !userId || !questCategory) return;
@@ -685,25 +706,6 @@ export default function QuestsPage() {
   const [challengeStreakData, setChallengeStreakData] = useState<{ streak_days: number, week_streaks: number } | null>(null);
   const challengeStreakSubscriptionRef = useRef<any>(null);
 
-  // Fetch challenge streak from Supabase
-  useEffect(() => {
-    if (!supabase || !userId || !challengeCategory) return;
-    let cancelled = false;
-    const fetchChallengeStreak = async () => {
-      const { data, error } = await supabase
-        .from('streaks')
-        .select('streak_days, week_streaks')
-        .eq('user_id', userId)
-        .eq('category', challengeCategory)
-        .single();
-      if (!cancelled) {
-        if (error) setChallengeStreakData({ streak_days: 0, week_streaks: 0 });
-        else setChallengeStreakData(data);
-      }
-    };
-    fetchChallengeStreak();
-    return () => { cancelled = true; };
-  }, [supabase, userId, challengeCategory]);
   // Real-time subscription for challenge streaks
   useEffect(() => {
     if (!supabase || !userId || !challengeCategory) return;
