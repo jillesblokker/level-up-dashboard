@@ -2,6 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { Tile } from '@/types/tiles';
 import { cn } from '@/lib/utils';
+import { useEffect, useCallback, useState } from 'react';
 
 interface KingdomGridProps {
   grid: Tile[][];
@@ -12,20 +13,55 @@ interface KingdomGridProps {
 
 export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }: KingdomGridProps) {
   const wallImage = '/images/kingdom-tiles/Wall.png';
-  const gridCols = grid[0]?.length || 6;
-  const gridRows = grid.length;
-  // Wall size is 1/4 of a tile, so if grid is 6x6, wall is 1/24 of the grid width/height
-  const wallFrac = 1 / (gridCols + 0.5); // 0.5 for two 1/4 walls
-  const wallPercent = `${(100 * wallFrac * 0.25).toFixed(2)}%`;
-  // --- WALL BORDER LOGIC ---
-  // We want a border of wall tiles (mini tiles) around the grid, so the grid is surrounded by a full row/column of wall tiles on each side.
-  // We'll render a (N+2)x(N+2) grid, where the outermost tiles are wall tiles, and the inner N x N are the actual grid tiles.
   const wallTile = {
     image: wallImage,
     name: 'Wall',
     ariaLabel: 'Wall tile',
     id: 'wall',
   };
+  const [propertiesOpen, setPropertiesOpen] = React.useState(false);
+
+  // Add state for build tokens and property inventory
+  const [buildTokens, setBuildTokens] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
+      return stats.buildTokens || 0;
+    }
+    return 0;
+  });
+  const [propertyInventory, setPropertyInventory] = useState<Tile[]>(() => {
+    // You may want to pass this as a prop from the parent, but for now, initialize here
+    // (You can refactor to lift state up if needed)
+    return [];
+  });
+
+  // Handler for buying a property tile
+  const handleBuyProperty = (tile: Tile) => {
+    if (buildTokens < (tile.cost || 1)) return;
+    setBuildTokens((prev: number) => {
+      const newTokens = prev - (tile.cost || 1);
+      if (typeof window !== 'undefined') {
+        const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
+        stats.buildTokens = newTokens;
+        localStorage.setItem('character-stats', JSON.stringify(stats));
+      }
+      return newTokens;
+    });
+    setPropertyInventory((prev) => prev.map(t => t.id === tile.id ? { ...t, quantity: (t.quantity || 0) + 1 } : t));
+  };
+
+  // Keyboard shortcut for opening properties
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'p' || e.key === 'P') {
+        setPropertiesOpen((open) => !open);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // --- WALL BORDER LOGIC ---
   const renderGridWithWall = () => {
     const rows = grid.length;
     const cols = grid[0]?.length || 0;
@@ -33,14 +69,13 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
     const fullCols = cols + 2;
     return (
       <div
-        className="grid"
+        className="grid gap-0"
         style={{
           gridTemplateColumns: `repeat(${fullCols}, 1fr)`,
           gridTemplateRows: `repeat(${fullRows}, 1fr)`,
           width: '100%',
           height: '100%',
           aspectRatio: '1/1',
-          gap: 0,
           background: 'none',
         }}
         aria-label="thrivehaven-grid"
@@ -57,6 +92,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
                     fill
                     className="object-cover"
                     draggable={false}
+                    onError={(e) => { e.currentTarget.src = '/images/placeholders/item-placeholder.svg'; }}
                   />
                 </div>
               );
@@ -64,14 +100,13 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
             // Otherwise, render the actual grid tile
             const tile = grid[y - 1]?.[x - 1];
             if (!tile) {
-              // Fallback: render an empty div if tile is undefined
               return <div key={`empty-${x - 1}-${y - 1}`} className="w-full h-full aspect-square bg-black/40" />;
             }
             return (
               <button
                 key={`tile-${x - 1}-${y - 1}`}
                 className={cn(
-                  "relative w-full h-full aspect-square border border-amber-800/30 bg-black/60 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-amber-500",
+                  "relative w-full h-full aspect-square bg-black/60 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-amber-500",
                   selectedTile && "ring-2 ring-amber-500"
                 )}
                 aria-label={tile.ariaLabel || tile.name || `Tile ${x - 1},${y - 1}`}
@@ -82,8 +117,9 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
                   src={tile.image}
                   alt={tile.name}
                   fill
-                  className="object-contain"
+                  className="object-cover"
                   draggable={false}
+                  onError={(e) => { e.currentTarget.src = '/images/placeholders/item-placeholder.svg'; }}
                 />
               </button>
             );
@@ -92,9 +128,62 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
       </div>
     );
   };
+
   return (
-    <div className="w-full h-full flex items-center justify-center bg-neutral-900" style={{ padding: 0, margin: 0 }}>
-      {renderGridWithWall()}
+    <div className="w-full h-full flex flex-col items-center justify-center bg-neutral-900" style={{ padding: 0, margin: 0 }}>
+      <div className="w-full flex justify-end mb-2">
+        <button
+          className="bg-amber-700 text-white px-4 py-2 rounded shadow hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          aria-label="Open properties panel"
+          onClick={() => setPropertiesOpen(true)}
+        >
+          Properties
+        </button>
+      </div>
+      <div className="w-full h-full flex items-center justify-center">
+        {renderGridWithWall()}
+      </div>
+      {/* Side panel for properties */}
+      {propertiesOpen && (
+        <div className="fixed inset-y-0 right-0 w-full max-w-md bg-gray-900 z-50 shadow-lg border-l border-amber-800/40 flex flex-col" role="dialog" aria-modal="true" aria-label="Properties side panel">
+          <div className="flex justify-between items-center p-4 border-b border-amber-800/20">
+            <h3 className="text-2xl font-bold text-amber-400">Properties</h3>
+            <button onClick={() => setPropertiesOpen(false)} className="text-amber-400 hover:text-amber-200 text-2xl bg-black/40 rounded-full w-10 h-10 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-amber-500" aria-label="Close properties panel">×</button>
+          </div>
+          <div className="px-4 pt-2 pb-0">
+            <div className="text-lg font-bold text-amber-300 mb-2">Build Tokens: <span className="text-amber-400">{buildTokens}</span></div>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4">
+            <div className="grid grid-cols-2 gap-4">
+              {propertyInventory.map(tile => (
+                <div key={tile.id} className="relative flex flex-col items-center border border-amber-800/30 bg-black/60 rounded-lg p-2">
+                  <div className="aspect-square w-20 h-20 relative mb-2">
+                    <Image
+                      src={tile.image}
+                      alt={tile.name}
+                      fill
+                      className="object-contain rounded"
+                      draggable={false}
+                      onError={(e) => { e.currentTarget.src = '/images/placeholders/item-placeholder.svg'; }}
+                    />
+                  </div>
+                  <div className="text-sm font-semibold text-amber-300 text-center truncate w-full mb-1">{tile.name}</div>
+                  <div className="text-xs text-amber-200 mb-1">Cost: <span className="font-bold">{tile.cost}</span> 🏗️</div>
+                  <div className="text-xs text-amber-200 mb-2">Owned: <span className="font-bold">{tile.quantity || 0}</span></div>
+                  <button
+                    className="bg-amber-700 text-white px-2 py-1 rounded shadow hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 text-xs disabled:opacity-50"
+                    aria-label={`Buy ${tile.name}`}
+                    disabled={buildTokens < (tile.cost || 1)}
+                    onClick={() => handleBuyProperty(tile)}
+                  >
+                    Buy
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

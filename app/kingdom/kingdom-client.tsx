@@ -184,21 +184,48 @@ function createEmptyKingdomGrid(): Tile[][] {
   );
 }
 
-function getKingdomTileInventory(): Tile[] {
-  return KINGDOM_TILE_IMAGES.map((filename, idx) => ({
-    id: `kingdom-tile-${idx}`,
-    type: 'special' as TileType,
-    name: filename.replace('.png', ''),
-    description: `A special kingdom tile: ${filename.replace('.png', '')}`,
-    connections: [] as ConnectionDirection[],
-    rotation: 0,
-    revealed: true,
-    isVisited: false,
-    x: 0,
-    y: 0,
-    ariaLabel: `Kingdom tile: ${filename.replace('.png', '')}`,
-    image: `/images/kingdom-tiles/${filename}`,
-  }));
+// --- Build Token Logic ---
+function getBuildTokens(): number {
+  if (typeof window === 'undefined') return 0;
+  const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
+  return stats.buildTokens || 0;
+}
+function setBuildTokens(amount: number) {
+  if (typeof window === 'undefined') return;
+  const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
+  stats.buildTokens = amount;
+  localStorage.setItem('character-stats', JSON.stringify(stats));
+}
+function addBuildTokens(amount: number) {
+  setBuildTokens(getBuildTokens() + amount);
+}
+
+// --- Property Inventory Initialization ---
+function getKingdomTileInventoryWithBuildTokens(): Tile[] {
+  return KINGDOM_TILE_IMAGES.map((filename, idx) => {
+    const isCastle = filename === 'Castle.png';
+    return {
+      id: `kingdom-tile-${idx}`,
+      type: 'special' as TileType,
+      name: filename.replace('.png', ''),
+      description: `A special kingdom tile: ${filename.replace('.png', '')}`,
+      connections: [] as ConnectionDirection[],
+      rotation: 0,
+      revealed: true,
+      isVisited: false,
+      x: 0,
+      y: 0,
+      ariaLabel: `Kingdom tile: ${filename.replace('.png', '')}`,
+      image: `/images/kingdom-tiles/${filename}`,
+      cost: isCastle ? 0 : Math.floor(Math.random() * 3) + 1, // 1-3 build tokens
+      quantity: isCastle ? 1 : 0,
+    };
+  });
+}
+
+// --- Award build tokens for streaks (example: 1 per streak day) ---
+function awardBuildTokensForStreak(streak: number) {
+  addBuildTokens(streak); // You can adjust this logic as needed
 }
 
 export function KingdomClient({ userId }: { userId: string | null }) {
@@ -212,7 +239,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const [kingdomTab, setKingdomTab] = useState("thrivehaven");
   const [kingdomGrid, setKingdomGrid] = useState<Tile[][]>(createEmptyKingdomGrid());
   const [selectedKingdomTile, setSelectedKingdomTile] = useState<Tile | null>(null);
-  const kingdomTileInventory = getKingdomTileInventory();
+  const kingdomTileInventory = getKingdomTileInventoryWithBuildTokens();
   const [propertiesOpen, setPropertiesOpen] = useState(false);
 
   // Load inventory from localStorage on mount
