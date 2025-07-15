@@ -12,18 +12,19 @@ interface KingdomGridProps {
 
 export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }: KingdomGridProps) {
   return (
-    <div className="flex flex-col items-center">
-      <div className="grid grid-cols-6 gap-1" aria-label="thrivehaven-grid">
+    <div className="flex flex-col items-center w-full h-full">
+      <div className="grid grid-cols-6 gap-1 w-full h-full" aria-label="thrivehaven-grid" style={{ aspectRatio: '1 / 1', maxWidth: '100vw', maxHeight: '100vw' }}>
         {grid.map((row, y) =>
           row.map((tile, x) => (
             <button
               key={`${x}-${y}`}
               className={cn(
-                "relative w-16 h-16 md:w-20 md:h-20 border border-amber-800/30 bg-black/60 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-amber-500",
+                "relative w-full h-full aspect-square border border-amber-800/30 bg-black/60 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-amber-500",
                 selectedTile && "ring-2 ring-amber-500"
               )}
               aria-label={tile.ariaLabel || tile.name || `Tile ${x},${y}`}
               onClick={() => selectedTile && onTilePlace(x, y, selectedTile)}
+              style={{ minWidth: 0, minHeight: 0 }}
             >
               <Image
                 src={tile.image}
