@@ -241,6 +241,30 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const [selectedKingdomTile, setSelectedKingdomTile] = useState<Tile | null>(null);
   const kingdomTileInventory = getKingdomTileInventoryWithBuildTokens();
   const [propertiesOpen, setPropertiesOpen] = useState(false);
+  const [showEntrance, setShowEntrance] = useState(true);
+
+  useEffect(() => {
+    setShowEntrance(true);
+    const timeout = setTimeout(() => setShowEntrance(false), 2000);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  if (showEntrance) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black" style={{ width: '100vw', height: '100vh' }}>
+        <div className="relative w-full h-full" style={{ overflow: 'hidden' }}>
+          <Image
+            src="/images/kingdom-tiles/Entrance.png"
+            alt="Kingdom Entrance"
+            fill
+            className="object-cover transition-transform duration-2000 ease-in-out scale-150 animate-zoom-in"
+            style={{ transition: 'transform 2s cubic-bezier(0.4,0,0.2,1)', transform: 'scale(1.5)' }}
+            unoptimized
+          />
+        </div>
+      </div>
+    );
+  }
 
   // Load inventory from localStorage on mount
   useEffect(() => {
