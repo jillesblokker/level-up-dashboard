@@ -112,17 +112,15 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
             // If on the border, render wall tile
             if (y === 0 || y === fullRows - 1 || x === 0 || x === fullCols - 1) {
               return (
-                <div key={`wall-${x}-${y}`} className="relative w-full h-full aspect-square flex items-center justify-center" style={{ minWidth: 0, minHeight: 0, borderRadius: 0, margin: 0, padding: 0 }}>
-                  <div style={{ width: '25%', height: '25%', position: 'relative' }}>
-                    <Image
-                      src={wallTile.image}
-                      alt={wallTile.name}
-                      fill
-                      className="object-cover"
-                      draggable={false}
-                      unoptimized
-                    />
-                  </div>
+                <div key={`wall-${x}-${y}`} className="relative w-full h-full aspect-square" style={{ minWidth: 0, minHeight: 0, borderRadius: 0, margin: 0, padding: 0 }}>
+                  <Image
+                    src={wallTile.image}
+                    alt={wallTile.name}
+                    fill
+                    className="object-cover"
+                    draggable={false}
+                    unoptimized
+                  />
                 </div>
               );
             }
