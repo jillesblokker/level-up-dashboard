@@ -22,6 +22,8 @@ import {
 import type { InventoryItem as DefaultInventoryItem } from "@/app/lib/default-inventory"
 import type { InventoryItem as ManagerInventoryItem } from "@/lib/inventory-manager"
 import { KingdomStatsBlock, KingStatsBlock } from "@/components/kingdom-stats-graph";
+import { KingdomGrid } from '@/components/kingdom-grid';
+import type { Tile, TileType, ConnectionDirection } from '@/types/tiles';
 
 type KingdomInventoryItem = (DefaultInventoryItem | ManagerInventoryItem) & { 
   stats?: Record<string, number>, 
@@ -155,6 +157,49 @@ function isEquippable(item: KingdomInventoryItem): boolean {
   return false;
 }
 
+const KINGDOM_GRID_ROWS = 6;
+const KINGDOM_GRID_COLS = 6;
+const VACANT_TILE_IMAGE = '/images/kingdom-tiles/Vacant.png';
+const KINGDOM_TILE_IMAGES = [
+  'Archery.png', 'Blacksmith.png', 'Castle.png', 'Fisherman.png', 'Foodcourt.png', 'Fountain.png', 'Grocery.png', 'House.png', 'Inn.png', 'Jousting.png', 'Mansion.png', 'Mayor.png', 'Pond.png', 'Sawmill.png', 'Temple.png', 'Vegetables.png', 'Watchtower.png', 'Well.png', 'Windmill.png', 'Wizard.png'
+];
+
+function createEmptyKingdomGrid(): Tile[][] {
+  return Array.from({ length: KINGDOM_GRID_ROWS }, (_, y) =>
+    Array.from({ length: KINGDOM_GRID_COLS }, (_, x) => ({
+      id: `vacant-${x}-${y}`,
+      type: 'empty' as TileType,
+      name: 'Vacant',
+      description: 'An empty plot of land.',
+      connections: [] as ConnectionDirection[],
+      rotation: 0,
+      revealed: true,
+      isVisited: false,
+      x,
+      y,
+      ariaLabel: `Vacant tile at ${x},${y}`,
+      image: VACANT_TILE_IMAGE,
+    }))
+  );
+}
+
+function getKingdomTileInventory(): Tile[] {
+  return KINGDOM_TILE_IMAGES.map((filename, idx) => ({
+    id: `kingdom-tile-${idx}`,
+    type: 'special' as TileType,
+    name: filename.replace('.png', ''),
+    description: `A special kingdom tile: ${filename.replace('.png', '')}`,
+    connections: [] as ConnectionDirection[],
+    rotation: 0,
+    revealed: true,
+    isVisited: false,
+    x: 0,
+    y: 0,
+    ariaLabel: `Kingdom tile: ${filename.replace('.png', '')}`,
+    image: `/images/kingdom-tiles/${filename}`,
+  }));
+}
+
 export function KingdomClient({ userId }: { userId: string | null }) {
   const [coverImage, setCoverImage] = useState("/images/kingdom-header.jpg")
   const [equippedItems, setEquippedItems] = useState<KingdomInventoryItem[]>([])
@@ -164,6 +209,9 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const [modalText, setModalText] = useState("")
   const [activeTab, setActiveTab] = useState("equipped")
   const [kingdomTab, setKingdomTab] = useState("thrivehaven");
+  const [kingdomGrid, setKingdomGrid] = useState<Tile[][]>(createEmptyKingdomGrid());
+  const [selectedKingdomTile, setSelectedKingdomTile] = useState<Tile | null>(null);
+  const kingdomTileInventory = getKingdomTileInventory();
 
   // Load inventory from localStorage on mount
   useEffect(() => {
@@ -287,6 +335,16 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     </Card>
   )
 
+  function handlePlaceKingdomTile(x: number, y: number, tile: Tile) {
+    setKingdomGrid(prev => {
+      const newGrid = prev.map(row => row.slice());
+      if (newGrid[y]) {
+        newGrid[y][x] = { ...tile, x, y, id: `${tile.id}-${x}-${y}` };
+      }
+      return newGrid;
+    });
+  }
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <HeaderSection
@@ -331,7 +389,14 @@ export function KingdomClient({ userId }: { userId: string | null }) {
           <TabsContent value="thrivehaven">
             <div className="flex flex-col items-center justify-center min-h-[300px]">
               <h2 className="text-2xl font-bold text-amber-500 mb-4">Thrivehaven</h2>
-              <p className="text-gray-400">This will be a grid where you can add buildings and objects gained from streaks. (Coming soon!)</p>
+              <p className="text-gray-400 mb-4">This will be a grid where you can add buildings and objects gained from streaks. (Coming soon!)</p>
+              <KingdomGrid
+                grid={kingdomGrid}
+                onTilePlace={handlePlaceKingdomTile}
+                selectedTile={selectedKingdomTile}
+                setSelectedTile={setSelectedKingdomTile}
+                inventory={kingdomTileInventory}
+              />
             </div>
           </TabsContent>
           <TabsContent value="progress">
