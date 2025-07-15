@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 
@@ -7,14 +8,14 @@ const supabase = createClient(
   process.env['SUPABASE_SERVICE_ROLE_KEY']!
 );
 
-export async function PATCH(req: NextRequest, context: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, context: { params: { id: string } }) {
   try {
-    const { userId } = await getAuth(req);
+    const { userId } = await getAuth(request);
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    const { id } = context.params;
-    const body = await req.json();
+    const id = context.params.id;
+    const body = await request.json();
     const { error } = await supabase
       .from('milestones')
       .update(body)
@@ -28,13 +29,13 @@ export async function PATCH(req: NextRequest, context: { params: { id: string } 
   }
 }
 
-export async function DELETE(req: NextRequest, context: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, context: { params: { id: string } }) {
   try {
-    const { userId } = await getAuth(req);
+    const { userId } = await getAuth(request);
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    const { id } = context.params;
+    const id = context.params.id;
     const { error } = await supabase
       .from('milestones')
       .delete()
