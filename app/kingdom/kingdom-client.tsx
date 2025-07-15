@@ -389,13 +389,15 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             <TabsTrigger value="inventory">Kingdom Inventory</TabsTrigger>
           </TabsList>
           <TabsContent value="thrivehaven">
-            <div className="flex flex-col items-center justify-center min-h-[300px]">
-              <KingdomGrid
-                grid={kingdomGrid}
-                onTilePlace={handlePlaceKingdomTile}
-                selectedTile={selectedKingdomTile}
-                setSelectedTile={setSelectedKingdomTile}
-              />
+            <div className="flex flex-col items-center justify-center min-h-[calc(100vh-6rem)] w-full">
+              <div className="flex-1 flex items-center justify-center w-full">
+                <KingdomGrid
+                  grid={kingdomGrid}
+                  onTilePlace={handlePlaceKingdomTile}
+                  selectedTile={selectedKingdomTile}
+                  setSelectedTile={setSelectedKingdomTile}
+                />
+              </div>
               <button
                 className="mt-6 px-6 py-2 bg-amber-700 text-white rounded-lg font-bold hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 onClick={() => setPropertiesOpen(true)}
