@@ -144,7 +144,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                         min="1"
                         value={buyQuantities[tile.type] || 1}
                         onChange={(e) => handleQuantityChange(tile.type, e.target.value)}
-                        className="w-20 h-8"
+                        className="w-12 h-8 text-sm px-1"
                         id={`buy-quantity-${tile.type}`}
                         name={`buy-quantity-${tile.type}`}
                       />
@@ -201,7 +201,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                         min="1"
                         value={buyQuantities[tile.type] || 1}
                         onChange={(e) => handleQuantityChange(tile.type, e.target.value)}
-                        className="w-20 h-8"
+                        className="w-12 h-8 text-sm px-1"
                         id={`buy-quantity-${tile.type}`}
                         name={`buy-quantity-${tile.type}`}
                       />
@@ -256,7 +256,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                           min="1"
                           value={buyQuantities[tile.type] || 1}
                           onChange={(e) => handleQuantityChange(tile.type, e.target.value)}
-                          className="w-20 h-8"
+                          className="w-12 h-8 text-sm px-1"
                           id={`buy-quantity-${tile.type}`}
                           name={`buy-quantity-${tile.type}`}
                         />

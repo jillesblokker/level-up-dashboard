@@ -11,31 +11,61 @@ interface KingdomGridProps {
 }
 
 export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }: KingdomGridProps) {
+  const tileCount = grid.length;
+  const wallImage = '/images/kingdom-tiles/wall.png';
+  // Calculate wall size as 1/4 of a tile
   return (
     <div className="flex flex-col items-center w-full h-full">
-      <div className="grid grid-cols-6 gap-1 w-full h-full" aria-label="thrivehaven-grid" style={{ aspectRatio: '1 / 1', maxWidth: '100vw', maxHeight: '100vw' }}>
-        {grid.map((row, y) =>
-          row.map((tile, x) => (
-            <button
-              key={`${x}-${y}`}
-              className={cn(
-                "relative w-full h-full aspect-square border border-amber-800/30 bg-black/60 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-amber-500",
-                selectedTile && "ring-2 ring-amber-500"
-              )}
-              aria-label={tile.ariaLabel || tile.name || `Tile ${x},${y}`}
-              onClick={() => selectedTile && onTilePlace(x, y, selectedTile)}
-              style={{ minWidth: 0, minHeight: 0 }}
-            >
-              <Image
-                src={tile.image}
-                alt={tile.name}
-                fill
-                className="object-contain rounded"
-                draggable={false}
-              />
-            </button>
-          ))
-        )}
+      {/* Top wall */}
+      <div className="flex w-full" style={{ height: '6.25%' }}>
+        {Array.from({ length: tileCount }).map((_, i) => (
+          <div key={`wall-top-${i}`} style={{ flex: 1, backgroundImage: `url(${wallImage})`, backgroundSize: 'cover', backgroundRepeat: 'repeat', backgroundPosition: 'center', minWidth: 0, minHeight: 0 }} />
+        ))}
+      </div>
+      <div className="flex w-full h-full">
+        {/* Left wall */}
+        <div className="flex flex-col h-full" style={{ width: '6.25%' }}>
+          {Array.from({ length: tileCount }).map((_, i) => (
+            <div key={`wall-left-${i}`} style={{ flex: 1, backgroundImage: `url(${wallImage})`, backgroundSize: 'cover', backgroundRepeat: 'repeat', backgroundPosition: 'center', minWidth: 0, minHeight: 0 }} />
+          ))}
+        </div>
+        {/* Grid */}
+        <div className="grid grid-cols-6 w-full h-full" aria-label="thrivehaven-grid" style={{ aspectRatio: '1 / 1', maxWidth: '100vw', maxHeight: '100vw' }}>
+          {grid.map((row, y) =>
+            row.map((tile, x) => (
+              <button
+                key={`${x}-${y}`}
+                className={cn(
+                  "relative w-full h-full aspect-square border border-amber-800/30 bg-black/60 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-amber-500",
+                  selectedTile && "ring-2 ring-amber-500"
+                )}
+                aria-label={tile.ariaLabel || tile.name || `Tile ${x},${y}`}
+                onClick={() => selectedTile && onTilePlace(x, y, selectedTile)}
+                style={{ minWidth: 0, minHeight: 0, borderRadius: 0, margin: 0, padding: 0 }}
+              >
+                <Image
+                  src={tile.image}
+                  alt={tile.name}
+                  fill
+                  className="object-contain"
+                  draggable={false}
+                />
+              </button>
+            ))
+          )}
+        </div>
+        {/* Right wall */}
+        <div className="flex flex-col h-full" style={{ width: '6.25%' }}>
+          {Array.from({ length: tileCount }).map((_, i) => (
+            <div key={`wall-right-${i}`} style={{ flex: 1, backgroundImage: `url(${wallImage})`, backgroundSize: 'cover', backgroundRepeat: 'repeat', backgroundPosition: 'center', minWidth: 0, minHeight: 0 }} />
+          ))}
+        </div>
+      </div>
+      {/* Bottom wall */}
+      <div className="flex w-full" style={{ height: '6.25%' }}>
+        {Array.from({ length: tileCount }).map((_, i) => (
+          <div key={`wall-bottom-${i}`} style={{ flex: 1, backgroundImage: `url(${wallImage})`, backgroundSize: 'cover', backgroundRepeat: 'repeat', backgroundPosition: 'center', minWidth: 0, minHeight: 0 }} />
+        ))}
       </div>
     </div>
   );
