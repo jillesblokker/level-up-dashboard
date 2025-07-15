@@ -1,8 +1,15 @@
 import React from "react";
 import Image from "next/image";
-import { Tile } from '@/types/tiles';
+import { Tile, TileType } from '@/types/tiles';
 import { cn } from '@/lib/utils';
 import { useEffect, useCallback, useState } from 'react';
+
+const tileImageFiles = [
+  'Archery.png', 'Blacksmith.png', 'Castle.png', 'Fisherman.png', 'Foodcourt.png', 'Fountain.png', 'Grocery.png', 'House.png', 'Inn.png', 'Jousting.png', 'Mansion.png', 'Mayor.png', 'Pond.png', 'Sawmill.png', 'Temple.png', 'Vegetables.png', 'Watchtower.png', 'Well.png', 'Windmill.png', 'Wizard.png',
+];
+const tileNames: Record<string, string> = {
+  Archery: 'Archery', Blacksmith: 'Blacksmith', Castle: 'Castle', Fisherman: 'Fisherman', Foodcourt: 'Foodcourt', Fountain: 'Fountain', Grocery: 'Grocery', House: 'House', Inn: 'Inn', Jousting: 'Jousting', Mansion: 'Mansion', Mayor: 'Mayor', Pond: 'Pond', Sawmill: 'Sawmill', Temple: 'Temple', Vegetables: 'Vegetables', Watchtower: 'Watchtower', Well: 'Well', Windmill: 'Windmill', Wizard: 'Wizard',
+};
 
 interface KingdomGridProps {
   grid: Tile[][];
@@ -29,10 +36,27 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
     }
     return 0;
   });
+  // Dynamically generate property inventory
   const [propertyInventory, setPropertyInventory] = useState<Tile[]>(() => {
-    // You may want to pass this as a prop from the parent, but for now, initialize here
-    // (You can refactor to lift state up if needed)
-    return [];
+    return tileImageFiles.map((file) => {
+      const name = file.replace('.png', '');
+      return {
+        id: name.toLowerCase(),
+        type: name.toLowerCase() as TileType,
+        name: tileNames[name] || name,
+        description: '',
+        connections: [],
+        rotation: 0,
+        revealed: true,
+        isVisited: false,
+        x: 0,
+        y: 0,
+        ariaLabel: `${tileNames[name] || name} property tile`,
+        image: `/images/kingdom-tiles/${file}`,
+        cost: name === 'Castle' ? 0 : Math.floor(Math.random() * 3) + 1,
+        quantity: name === 'Castle' ? 1 : 0,
+      };
+    });
   });
 
   // Handler for buying a property tile
