@@ -11,26 +11,43 @@ interface KingdomGridProps {
 }
 
 export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }: KingdomGridProps) {
-  const tileCount = grid.length;
-  const wallImage = '/images/kingdom-tiles/wall.png';
-  // Calculate wall size as 1/4 of a tile
+  const wallImage = '/images/kingdom-tiles/Wall.png';
+  const gridCols = grid[0]?.length || 6;
+  const gridRows = grid.length;
+  // Wall size is 1/4 of a tile, so if grid is 6x6, wall is 1/24 of the grid width/height
+  const wallFrac = 1 / (gridCols + 0.5); // 0.5 for two 1/4 walls
+  const wallPercent = `${(100 * wallFrac * 0.25).toFixed(2)}%`;
   return (
-    <div className="flex flex-col items-center w-full h-full">
+    <div className="flex flex-col items-center justify-center w-full h-full bg-neutral-900" style={{ padding: 0, margin: 0 }}>
       {/* Top wall */}
-      <div className="flex w-full" style={{ height: '6.25%' }}>
-        {Array.from({ length: tileCount }).map((_, i) => (
-          <div key={`wall-top-${i}`} style={{ flex: 1, backgroundImage: `url(${wallImage})`, backgroundSize: 'cover', backgroundRepeat: 'repeat', backgroundPosition: 'center', minWidth: 0, minHeight: 0 }} />
+      <div className="flex" style={{ width: `calc(100% - 2 * ${wallPercent})`, height: wallPercent, marginLeft: wallPercent, marginRight: wallPercent }}>
+        {Array.from({ length: gridCols }).map((_, i) => (
+          <div key={`wall-top-${i}`} style={{ flex: 1, aspectRatio: '1/1', backgroundImage: `url(${wallImage})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }} />
         ))}
       </div>
-      <div className="flex w-full h-full">
+      <div className="flex w-full h-full" style={{ flex: 1, minHeight: 0, minWidth: 0 }}>
         {/* Left wall */}
-        <div className="flex flex-col h-full" style={{ width: '6.25%' }}>
-          {Array.from({ length: tileCount }).map((_, i) => (
-            <div key={`wall-left-${i}`} style={{ flex: 1, backgroundImage: `url(${wallImage})`, backgroundSize: 'cover', backgroundRepeat: 'repeat', backgroundPosition: 'center', minWidth: 0, minHeight: 0 }} />
+        <div className="flex flex-col" style={{ width: wallPercent, height: '100%' }}>
+          {Array.from({ length: gridRows }).map((_, i) => (
+            <div key={`wall-left-${i}`} style={{ flex: 1, aspectRatio: '1/1', backgroundImage: `url(${wallImage})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }} />
           ))}
         </div>
         {/* Grid */}
-        <div className="grid grid-cols-6 w-full h-full" aria-label="thrivehaven-grid" style={{ aspectRatio: '1 / 1', maxWidth: '100vw', maxHeight: '100vw' }}>
+        <div
+          className="grid"
+          style={{
+            gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
+            gridTemplateRows: `repeat(${gridRows}, 1fr)`,
+            width: `calc(100% - 2 * ${wallPercent})`,
+            height: `calc(100% - 2 * ${wallPercent})`,
+            aspectRatio: '1/1',
+            minWidth: 0,
+            minHeight: 0,
+            gap: 0,
+            background: 'none',
+          }}
+          aria-label="thrivehaven-grid"
+        >
           {grid.map((row, y) =>
             row.map((tile, x) => (
               <button
@@ -55,16 +72,16 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
           )}
         </div>
         {/* Right wall */}
-        <div className="flex flex-col h-full" style={{ width: '6.25%' }}>
-          {Array.from({ length: tileCount }).map((_, i) => (
-            <div key={`wall-right-${i}`} style={{ flex: 1, backgroundImage: `url(${wallImage})`, backgroundSize: 'cover', backgroundRepeat: 'repeat', backgroundPosition: 'center', minWidth: 0, minHeight: 0 }} />
+        <div className="flex flex-col" style={{ width: wallPercent, height: '100%' }}>
+          {Array.from({ length: gridRows }).map((_, i) => (
+            <div key={`wall-right-${i}`} style={{ flex: 1, aspectRatio: '1/1', backgroundImage: `url(${wallImage})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }} />
           ))}
         </div>
       </div>
       {/* Bottom wall */}
-      <div className="flex w-full" style={{ height: '6.25%' }}>
-        {Array.from({ length: tileCount }).map((_, i) => (
-          <div key={`wall-bottom-${i}`} style={{ flex: 1, backgroundImage: `url(${wallImage})`, backgroundSize: 'cover', backgroundRepeat: 'repeat', backgroundPosition: 'center', minWidth: 0, minHeight: 0 }} />
+      <div className="flex" style={{ width: `calc(100% - 2 * ${wallPercent})`, height: wallPercent, marginLeft: wallPercent, marginRight: wallPercent }}>
+        {Array.from({ length: gridCols }).map((_, i) => (
+          <div key={`wall-bottom-${i}`} style={{ flex: 1, aspectRatio: '1/1', backgroundImage: `url(${wallImage})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }} />
         ))}
       </div>
     </div>
