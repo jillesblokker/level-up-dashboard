@@ -22,7 +22,8 @@ import {
 import type { InventoryItem as DefaultInventoryItem } from "@/app/lib/default-inventory"
 import type { InventoryItem as ManagerInventoryItem } from "@/lib/inventory-manager"
 import { KingdomStatsBlock, KingStatsBlock } from "@/components/kingdom-stats-graph";
-import { KingdomGrid, PropertiesOverlay } from '@/components/kingdom-grid';
+import { KingdomGrid } from '@/components/kingdom-grid';
+import { KingdomPropertiesInventory } from '@/components/kingdom-properties-inventory';
 import type { Tile, TileType, ConnectionDirection } from '@/types/tiles';
 
 type KingdomInventoryItem = (DefaultInventoryItem | ManagerInventoryItem) & { 
@@ -402,10 +403,10 @@ export function KingdomClient({ userId }: { userId: string | null }) {
               >
                 Properties
               </button>
-              <PropertiesOverlay
+              <KingdomPropertiesInventory
                 open={propertiesOpen}
                 onClose={() => setPropertiesOpen(false)}
-                inventory={kingdomTileInventory}
+                tiles={kingdomTileInventory}
                 selectedTile={selectedKingdomTile}
                 setSelectedTile={setSelectedKingdomTile}
               />
