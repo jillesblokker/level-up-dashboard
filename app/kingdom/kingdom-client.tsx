@@ -22,7 +22,7 @@ import {
 import type { InventoryItem as DefaultInventoryItem } from "@/app/lib/default-inventory"
 import type { InventoryItem as ManagerInventoryItem } from "@/lib/inventory-manager"
 import { KingdomStatsBlock, KingStatsBlock } from "@/components/kingdom-stats-graph";
-import { KingdomGrid } from '@/components/kingdom-grid';
+import { KingdomGrid, PropertiesOverlay } from '@/components/kingdom-grid';
 import type { Tile, TileType, ConnectionDirection } from '@/types/tiles';
 
 type KingdomInventoryItem = (DefaultInventoryItem | ManagerInventoryItem) & { 
@@ -212,6 +212,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const [kingdomGrid, setKingdomGrid] = useState<Tile[][]>(createEmptyKingdomGrid());
   const [selectedKingdomTile, setSelectedKingdomTile] = useState<Tile | null>(null);
   const kingdomTileInventory = getKingdomTileInventory();
+  const [propertiesOpen, setPropertiesOpen] = useState(false);
 
   // Load inventory from localStorage on mount
   useEffect(() => {
@@ -388,14 +389,25 @@ export function KingdomClient({ userId }: { userId: string | null }) {
           </TabsList>
           <TabsContent value="thrivehaven">
             <div className="flex flex-col items-center justify-center min-h-[300px]">
-              <h2 className="text-2xl font-bold text-amber-500 mb-4">Thrivehaven</h2>
-              <p className="text-gray-400 mb-4">This will be a grid where you can add buildings and objects gained from streaks. (Coming soon!)</p>
               <KingdomGrid
                 grid={kingdomGrid}
                 onTilePlace={handlePlaceKingdomTile}
                 selectedTile={selectedKingdomTile}
                 setSelectedTile={setSelectedKingdomTile}
+              />
+              <button
+                className="mt-6 px-6 py-2 bg-amber-700 text-white rounded-lg font-bold hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                onClick={() => setPropertiesOpen(true)}
+                aria-label="Open Properties overlay"
+              >
+                Properties
+              </button>
+              <PropertiesOverlay
+                open={propertiesOpen}
+                onClose={() => setPropertiesOpen(false)}
                 inventory={kingdomTileInventory}
+                selectedTile={selectedKingdomTile}
+                setSelectedTile={setSelectedKingdomTile}
               />
             </div>
           </TabsContent>
