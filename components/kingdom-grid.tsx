@@ -17,47 +17,65 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
   // Wall size is 1/4 of a tile, so if grid is 6x6, wall is 1/24 of the grid width/height
   const wallFrac = 1 / (gridCols + 0.5); // 0.5 for two 1/4 walls
   const wallPercent = `${(100 * wallFrac * 0.25).toFixed(2)}%`;
-  return (
-    <div className="flex flex-col items-center justify-center w-full h-full bg-neutral-900" style={{ padding: 0, margin: 0 }}>
-      {/* Top wall */}
-      <div className="flex" style={{ width: `calc(100% - 2 * ${wallPercent})`, height: wallPercent, marginLeft: wallPercent, marginRight: wallPercent }}>
-        {Array.from({ length: gridCols }).map((_, i) => (
-          <div key={`wall-top-${i}`} style={{ flex: 1, aspectRatio: '1/1', backgroundImage: `url(${wallImage})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }} />
-        ))}
-      </div>
-      <div className="flex w-full h-full" style={{ flex: 1, minHeight: 0, minWidth: 0 }}>
-        {/* Left wall */}
-        <div className="flex flex-col" style={{ width: wallPercent, height: '100%' }}>
-          {Array.from({ length: gridRows }).map((_, i) => (
-            <div key={`wall-left-${i}`} style={{ flex: 1, aspectRatio: '1/1', backgroundImage: `url(${wallImage})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }} />
-          ))}
-        </div>
-        {/* Grid */}
-        <div
-          className="grid"
-          style={{
-            gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
-            gridTemplateRows: `repeat(${gridRows}, 1fr)`,
-            width: `calc(100% - 2 * ${wallPercent})`,
-            height: `calc(100% - 2 * ${wallPercent})`,
-            aspectRatio: '1/1',
-            minWidth: 0,
-            minHeight: 0,
-            gap: 0,
-            background: 'none',
-          }}
-          aria-label="thrivehaven-grid"
-        >
-          {grid.map((row, y) =>
-            row.map((tile, x) => (
+  // --- WALL BORDER LOGIC ---
+  // We want a border of wall tiles (mini tiles) around the grid, so the grid is surrounded by a full row/column of wall tiles on each side.
+  // We'll render a (N+2)x(N+2) grid, where the outermost tiles are wall tiles, and the inner N x N are the actual grid tiles.
+  const wallTile = {
+    image: wallImage,
+    name: 'Wall',
+    ariaLabel: 'Wall tile',
+    id: 'wall',
+  };
+  const renderGridWithWall = () => {
+    const rows = grid.length;
+    const cols = grid[0]?.length || 0;
+    const fullRows = rows + 2;
+    const fullCols = cols + 2;
+    return (
+      <div
+        className="grid"
+        style={{
+          gridTemplateColumns: `repeat(${fullCols}, 1fr)`,
+          gridTemplateRows: `repeat(${fullRows}, 1fr)`,
+          width: '100%',
+          height: '100%',
+          aspectRatio: '1/1',
+          gap: 0,
+          background: 'none',
+        }}
+        aria-label="thrivehaven-grid"
+      >
+        {Array.from({ length: fullRows }).map((_, y) =>
+          Array.from({ length: fullCols }).map((_, x) => {
+            // If on the border, render wall tile
+            if (y === 0 || y === fullRows - 1 || x === 0 || x === fullCols - 1) {
+              return (
+                <div key={`wall-${x}-${y}`} className="relative w-full h-full aspect-square" style={{ minWidth: 0, minHeight: 0, borderRadius: 0, margin: 0, padding: 0 }}>
+                  <Image
+                    src={wallTile.image}
+                    alt={wallTile.name}
+                    fill
+                    className="object-cover"
+                    draggable={false}
+                  />
+                </div>
+              );
+            }
+            // Otherwise, render the actual grid tile
+            const tile = grid[y - 1]?.[x - 1];
+            if (!tile) {
+              // Fallback: render an empty div if tile is undefined
+              return <div key={`empty-${x - 1}-${y - 1}`} className="w-full h-full aspect-square bg-black/40" />;
+            }
+            return (
               <button
-                key={`${x}-${y}`}
+                key={`tile-${x - 1}-${y - 1}`}
                 className={cn(
                   "relative w-full h-full aspect-square border border-amber-800/30 bg-black/60 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-amber-500",
                   selectedTile && "ring-2 ring-amber-500"
                 )}
-                aria-label={tile.ariaLabel || tile.name || `Tile ${x},${y}`}
-                onClick={() => selectedTile && onTilePlace(x, y, selectedTile)}
+                aria-label={tile.ariaLabel || tile.name || `Tile ${x - 1},${y - 1}`}
+                onClick={() => selectedTile && onTilePlace(x - 1, y - 1, selectedTile)}
                 style={{ minWidth: 0, minHeight: 0, borderRadius: 0, margin: 0, padding: 0 }}
               >
                 <Image
@@ -68,22 +86,15 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
                   draggable={false}
                 />
               </button>
-            ))
-          )}
-        </div>
-        {/* Right wall */}
-        <div className="flex flex-col" style={{ width: wallPercent, height: '100%' }}>
-          {Array.from({ length: gridRows }).map((_, i) => (
-            <div key={`wall-right-${i}`} style={{ flex: 1, aspectRatio: '1/1', backgroundImage: `url(${wallImage})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }} />
-          ))}
-        </div>
+            );
+          })
+        )}
       </div>
-      {/* Bottom wall */}
-      <div className="flex" style={{ width: `calc(100% - 2 * ${wallPercent})`, height: wallPercent, marginLeft: wallPercent, marginRight: wallPercent }}>
-        {Array.from({ length: gridCols }).map((_, i) => (
-          <div key={`wall-bottom-${i}`} style={{ flex: 1, aspectRatio: '1/1', backgroundImage: `url(${wallImage})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }} />
-        ))}
-      </div>
+    );
+  };
+  return (
+    <div className="w-full h-full flex items-center justify-center bg-neutral-900" style={{ padding: 0, margin: 0 }}>
+      {renderGridWithWall()}
     </div>
   );
 }

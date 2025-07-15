@@ -138,20 +138,21 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                       <span className="font-medium">Quantity: {tile.quantity}</span>
                       <span className="text-amber-500 font-medium">{tile.cost} gold</span>
                     </div>
-                    <div className="flex gap-2 mt-2">
+                    <div className="flex gap-2 mt-2 items-center justify-center">
                       <Input
                         type="number"
                         min="1"
                         value={buyQuantities[tile.type] || 1}
                         onChange={(e) => handleQuantityChange(tile.type, e.target.value)}
-                        className="w-12 h-8 text-sm px-1"
+                        className="w-14 h-10 text-sm text-center px-2 py-1 border border-gray-700 rounded-md focus:ring-amber-500 focus:border-amber-500"
                         id={`buy-quantity-${tile.type}`}
                         name={`buy-quantity-${tile.type}`}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                       />
                       <Button
                         variant="outline"
                         size="sm"
-                        className="flex-1 min-h-[44px]"
+                        className="flex-1 min-h-[40px] h-10"
                         onClick={(e) => handleBuyTile(tile, e)}
                         aria-label={`Buy ${buyQuantities[tile.type] || 1} ${tile.name || tile.type} tile${(buyQuantities[tile.type] || 1) > 1 ? 's' : ''}`}
                       >
@@ -195,20 +196,21 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                       <span className="font-medium">Quantity: {tile.quantity}</span>
                       <span className="text-amber-500 font-medium">{tile.cost} gold</span>
                     </div>
-                    <div className="flex gap-2 mt-2">
+                    <div className="flex gap-2 mt-2 items-center justify-center">
                       <Input
                         type="number"
                         min="1"
                         value={buyQuantities[tile.type] || 1}
                         onChange={(e) => handleQuantityChange(tile.type, e.target.value)}
-                        className="w-12 h-8 text-sm px-1"
+                        className="w-14 h-10 text-sm text-center px-2 py-1 border border-gray-700 rounded-md focus:ring-amber-500 focus:border-amber-500"
                         id={`buy-quantity-${tile.type}`}
                         name={`buy-quantity-${tile.type}`}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                       />
                       <Button
                         variant="outline"
                         size="sm"
-                        className="flex-1 min-h-[44px]"
+                        className="flex-1 min-h-[40px] h-10"
                         onClick={(e) => handleBuyTile(tile, e)}
                         aria-label={`Buy ${buyQuantities[tile.type] || 1} ${tile.name || tile.type} tile${(buyQuantities[tile.type] || 1) > 1 ? 's' : ''}`}
                       >
@@ -250,20 +252,21 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                         <span className="font-medium">Quantity: {tile.quantity}</span>
                         <span className="text-amber-500 font-medium">{tile.cost} gold</span>
                       </div>
-                      <div className="flex gap-2 mt-2">
+                      <div className="flex gap-2 mt-2 items-center justify-center">
                         <Input
                           type="number"
                           min="1"
                           value={buyQuantities[tile.type] || 1}
                           onChange={(e) => handleQuantityChange(tile.type, e.target.value)}
-                          className="w-12 h-8 text-sm px-1"
+                          className="w-14 h-10 text-sm text-center px-2 py-1 border border-gray-700 rounded-md focus:ring-amber-500 focus:border-amber-500"
                           id={`buy-quantity-${tile.type}`}
                           name={`buy-quantity-${tile.type}`}
+                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                         />
                         <Button
                           variant="outline"
                           size="sm"
-                          className="flex-1"
+                          className="flex-1 min-h-[40px] h-10"
                           onClick={(e) => handleBuyTile(tile, e)}
                           aria-label={`Buy ${buyQuantities[tile.type] || 1} ${tile.name || tile.type} tile${(buyQuantities[tile.type] || 1) > 1 ? 's' : ''}`}
                         >
