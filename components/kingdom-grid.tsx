@@ -93,7 +93,6 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
                     className="object-cover"
                     draggable={false}
                     unoptimized
-                    onError={(e) => { e.currentTarget.src = '/images/placeholders/item-placeholder.svg'; }}
                   />
                 </div>
               );
