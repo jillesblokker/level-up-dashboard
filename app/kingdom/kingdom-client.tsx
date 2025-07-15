@@ -248,8 +248,8 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   useEffect(() => {
     setShowEntrance(true);
     setZoomed(false);
-    const zoomTimeout = setTimeout(() => setZoomed(true), 50); // trigger zoom after mount
-    const hideTimeout = setTimeout(() => setShowEntrance(false), 2050); // hide after 2s
+    const zoomTimeout = setTimeout(() => setZoomed(true), 2000); // show still for 2s, then zoom
+    const hideTimeout = setTimeout(() => setShowEntrance(false), 5000); // hide after 5s total
     return () => {
       clearTimeout(zoomTimeout);
       clearTimeout(hideTimeout);
@@ -294,8 +294,8 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             src="/images/kingdom-tiles/Entrance.png"
             alt="Kingdom Entrance"
             fill
-            className={`object-cover transition-transform duration-[2000ms] ease-in-out`}
-            style={{ transform: zoomed ? 'scale(2)' : 'scale(1)', transition: 'transform 2s cubic-bezier(0.4,0,0.2,1)' }}
+            className={`object-cover transition-transform duration-[3000ms] ease-in-out`}
+            style={{ transform: zoomed ? 'scale(4)' : 'scale(1)', transition: 'transform 3s cubic-bezier(0.4,0,0.2,1)' }}
             unoptimized
           />
         </div>
@@ -451,20 +451,6 @@ export function KingdomClient({ userId }: { userId: string | null }) {
                   setSelectedTile={setSelectedKingdomTile}
                 />
               </div>
-              <button
-                className="mt-6 px-6 py-2 bg-amber-700 text-white rounded-lg font-bold hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                onClick={() => setPropertiesOpen(true)}
-                aria-label="Open Properties overlay"
-              >
-                Properties
-              </button>
-              <KingdomPropertiesInventory
-                open={propertiesOpen}
-                onClose={() => setPropertiesOpen(false)}
-                tiles={kingdomTileInventory}
-                selectedTile={selectedKingdomTile}
-                setSelectedTile={setSelectedKingdomTile}
-              />
             </div>
           </TabsContent>
           <TabsContent value="progress">
