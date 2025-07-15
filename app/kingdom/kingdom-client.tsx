@@ -163,6 +163,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const [modalOpen, setModalOpen] = useState(false)
   const [modalText, setModalText] = useState("")
   const [activeTab, setActiveTab] = useState("equipped")
+  const [kingdomTab, setKingdomTab] = useState("thrivehaven");
 
   // Load inventory from localStorage on mount
   useEffect(() => {
@@ -319,91 +320,90 @@ export function KingdomClient({ userId }: { userId: string | null }) {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Main Content */}
-      <div 
-        className="container mx-auto p-4 space-y-8"
-        aria-label="kingdom-main-content"
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Kingdom Stats Block */}
-          <div className="w-full" aria-label="kingdom-stats-block-container">
-            <KingdomStatsBlock userId={userId} />
-          </div>
-          {/* King Stats Block */}
-          <div className="w-full" aria-label="king-stats-block-container">
-            <KingStatsBlock userId={userId} />
-          </div>
-        </div>
-        {/* Inventory */}
-        <Card 
-          className="bg-black border-amber-800/50"
-          aria-label="kingdom-inventory-card"
-        >
-          <CardHeader>
-            <CardTitle className="text-amber-500">Kingdom Inventory</CardTitle>
-            <CardDescription className="text-gray-400">Your equipment and resources</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="equipped" value={activeTab} onValueChange={setActiveTab} className="w-full">
-              {/* Mobile tab selector */}
-              <div className="mb-4 md:hidden">
-                <label htmlFor="kingdom-inventory-tab-select" className="sr-only">Select inventory tab</label>
-                <select
-                  id="kingdom-inventory-tab-select"
-                  aria-label="Kingdom inventory tab selector"
-                  className="w-full rounded-md border border-amber-800/20 bg-black text-white p-2"
-                  value={activeTab}
-                  onChange={e => setActiveTab(e.target.value)}
-                >
-                  <option value="equipped">Equipped</option>
-                  <option value="stored">Stored</option>
-                </select>
+      {/* Main Content with Tabs */}
+      <div className="container mx-auto p-4 space-y-8" aria-label="kingdom-main-content">
+        <Tabs value={kingdomTab} onValueChange={setKingdomTab} className="w-full">
+          <TabsList className="mb-4 w-full grid grid-cols-3">
+            <TabsTrigger value="thrivehaven">Thrivehaven</TabsTrigger>
+            <TabsTrigger value="progress">Progress</TabsTrigger>
+            <TabsTrigger value="inventory">Kingdom Inventory</TabsTrigger>
+          </TabsList>
+          <TabsContent value="thrivehaven">
+            <div className="flex flex-col items-center justify-center min-h-[300px]">
+              <h2 className="text-2xl font-bold text-amber-500 mb-4">Thrivehaven</h2>
+              <p className="text-gray-400">This will be a grid where you can add buildings and objects gained from streaks. (Coming soon!)</p>
+            </div>
+          </TabsContent>
+          <TabsContent value="progress">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="w-full" aria-label="kingdom-stats-block-container">
+                <KingdomStatsBlock userId={userId} />
               </div>
-              <TabsList className="grid w-full grid-cols-2 bg-black border-amber-800/30 hidden md:grid">
-                <TabsTrigger value="equipped" aria-label="equipped-tab">Equipped</TabsTrigger>
-                <TabsTrigger value="stored" aria-label="stored-tab">Stored</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="equipped" className="mt-4">
-                {equippedItems.length === 0 ? (
-                  <div className="text-center text-gray-400 py-8">
-                    No items equipped
+              <div className="w-full" aria-label="king-stats-block-container">
+                <KingStatsBlock userId={userId} />
+              </div>
+            </div>
+          </TabsContent>
+          <TabsContent value="inventory">
+            <Card className="bg-black border-amber-800/50" aria-label="kingdom-inventory-card">
+              <CardHeader>
+                <CardTitle className="text-amber-500">Kingdom Inventory</CardTitle>
+                <CardDescription className="text-gray-400">Your equipment and resources</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="equipped" value={activeTab} onValueChange={setActiveTab} className="w-full">
+                  <div className="mb-4 md:hidden">
+                    <label htmlFor="kingdom-inventory-tab-select" className="sr-only">Select inventory tab</label>
+                    <select
+                      id="kingdom-inventory-tab-select"
+                      aria-label="Kingdom inventory tab selector"
+                      className="w-full rounded-md border border-amber-800/20 bg-black text-white p-2"
+                      value={activeTab}
+                      onChange={e => setActiveTab(e.target.value)}
+                    >
+                      <option value="equipped">Equipped</option>
+                      <option value="stored">Stored</option>
+                    </select>
                   </div>
-                ) : (
-                  <div 
-                    className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                    aria-label="equipped-items-grid"
-                  >
-                    {equippedItems.map((item) => renderItemCard(item, true))}
-                  </div>
-                )}
-              </TabsContent>
-              
-              <TabsContent value="stored" className="mt-4">
-                {storedItems.length === 0 ? (
-                  <Card className="bg-black/50 border-amber-800/30 border-dashed">
-                    <CardContent className="flex flex-col items-center justify-center py-12 px-6 text-center">
-                      <div className="w-16 h-16 mb-4 rounded-full bg-amber-900/30 flex items-center justify-center">
-                        <span className="text-2xl">🎒</span>
+                  <TabsList className="grid w-full grid-cols-2 bg-black border-amber-800/30 hidden md:grid">
+                    <TabsTrigger value="equipped" aria-label="equipped-tab">Equipped</TabsTrigger>
+                    <TabsTrigger value="stored" aria-label="stored-tab">Stored</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="equipped" className="mt-4">
+                    {equippedItems.length === 0 ? (
+                      <div className="text-center text-gray-400 py-8">
+                        No items equipped
                       </div>
-                      <h3 className="text-amber-500 font-semibold text-lg mb-2">Your bag is empty</h3>
-                      <p className="text-gray-400 text-sm leading-relaxed">
-                        Keep traversing the land and buy new items to be better equipped.
-                      </p>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <div 
-                    className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                    aria-label="stored-items-grid"
-                  >
-                    {storedItems.map((item) => renderItemCard(item, false))}
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4" aria-label="equipped-items-grid">
+                        {equippedItems.map((item) => renderItemCard(item, true))}
+                      </div>
+                    )}
+                  </TabsContent>
+                  <TabsContent value="stored" className="mt-4">
+                    {storedItems.length === 0 ? (
+                      <Card className="bg-black/50 border-amber-800/30 border-dashed">
+                        <CardContent className="flex flex-col items-center justify-center py-12 px-6 text-center">
+                          <div className="w-16 h-16 mb-4 rounded-full bg-amber-900/30 flex items-center justify-center">
+                            <span className="text-2xl">🎒</span>
+                          </div>
+                          <h3 className="text-amber-500 font-semibold text-lg mb-2">Your bag is empty</h3>
+                          <p className="text-gray-400 text-sm leading-relaxed">
+                            Keep traversing the land and buy new items to be better equipped.
+                          </p>
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4" aria-label="stored-items-grid">
+                        {storedItems.map((item) => renderItemCard(item, false))}
+                      </div>
+                    )}
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   )

@@ -834,7 +834,7 @@ export default function QuestsPage() {
   return (
     <div className="h-full">
       <HeaderSection
-        title="Quest Log"
+        title="Message Board"
         subtitle="Embark on epic journeys and complete tasks to earn rewards."
         imageSrc="/images/quests-header.jpg"
         defaultBgColor="bg-amber-900"
@@ -843,7 +843,7 @@ export default function QuestsPage() {
         {error && <p className="text-red-500 bg-red-900/20 p-4 rounded-md mb-4">{error}</p>}
         <Tabs value={mainTab} onValueChange={v => setMainTab(v as 'quests' | 'challenges' | 'milestones')} className="space-y-4">
           <TabsList className="mb-4 w-full grid grid-cols-3">
-            <TabsTrigger value="quests">Quests</TabsTrigger>
+            <TabsTrigger value="quests">Tasks</TabsTrigger>
             <TabsTrigger value="challenges">Challenges</TabsTrigger>
             <TabsTrigger value="milestones">Milestones</TabsTrigger>
           </TabsList>
