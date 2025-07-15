@@ -243,11 +243,42 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const [propertiesOpen, setPropertiesOpen] = useState(false);
   const [showEntrance, setShowEntrance] = useState(true);
 
+  // All useEffect hooks at the top
   useEffect(() => {
     setShowEntrance(true);
     const timeout = setTimeout(() => setShowEntrance(false), 2000);
     return () => clearTimeout(timeout);
   }, []);
+
+  useEffect(() => {
+    const loadInventory = () => {
+      const equipped = getEquippedItems()
+      const stored = getStoredItems()
+      const stats = getTotalStats()
+      // Normalize items to always have a 'stats' property and description
+      const normalizeItems = (items: any[]) => items.map(item => ({
+        ...item,
+        stats: (item as any).stats || {},
+        description: (item as any).description || '',
+      }) as KingdomInventoryItem)
+      setEquippedItems(normalizeItems(equipped.filter(isEquippable)))
+      setStoredItems(normalizeItems(stored))
+      setTotalStats(stats)
+    }
+    loadInventory()
+    const handleInventoryUpdate = () => {
+      loadInventory();
+    };
+    window.addEventListener('character-inventory-update', handleInventoryUpdate)
+    return () => window.removeEventListener('character-inventory-update', handleInventoryUpdate)
+  }, [])
+
+  useEffect(() => {
+    const savedImage = localStorage.getItem("kingdom-header-image")
+    if (savedImage) {
+      setCoverImage(savedImage)
+    }
+  }, [])
 
   if (showEntrance) {
     return (
@@ -265,41 +296,6 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       </div>
     );
   }
-
-  // Load inventory from localStorage on mount
-  useEffect(() => {
-    const loadInventory = () => {
-      const equipped = getEquippedItems()
-      const stored = getStoredItems()
-      const stats = getTotalStats()
-      
-      // Normalize items to always have a 'stats' property and description
-      const normalizeItems = (items: any[]) => items.map(item => ({
-        ...item,
-        stats: (item as any).stats || {},
-        description: (item as any).description || '',
-      }) as KingdomInventoryItem)
-      
-      setEquippedItems(normalizeItems(equipped.filter(isEquippable)))
-      setStoredItems(normalizeItems(stored))
-      setTotalStats(stats)
-    }
-    
-    loadInventory()
-    const handleInventoryUpdate = () => {
-      loadInventory();
-    };
-    window.addEventListener('character-inventory-update', handleInventoryUpdate)
-    return () => window.removeEventListener('character-inventory-update', handleInventoryUpdate)
-  }, [])
-
-  // Load saved image from localStorage if available
-  useEffect(() => {
-    const savedImage = localStorage.getItem("kingdom-header-image")
-    if (savedImage) {
-      setCoverImage(savedImage)
-    }
-  }, [])
 
   const handleEquip = (item: KingdomInventoryItem) => {
     // For consumables, show modal
