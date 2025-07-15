@@ -8,13 +8,13 @@ const supabase = createClient(
   process.env['SUPABASE_SERVICE_ROLE_KEY']!
 );
 
-export async function PATCH(request: NextRequest, context: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, context: any) {
   try {
     const { userId } = await getAuth(request);
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    const id = context.params.id;
+    const id = context.params?.id;
     const body = await request.json();
     const { error } = await supabase
       .from('milestones')
@@ -29,13 +29,13 @@ export async function PATCH(request: NextRequest, context: { params: { id: strin
   }
 }
 
-export async function DELETE(request: NextRequest, context: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, context: any) {
   try {
     const { userId } = await getAuth(request);
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    const id = context.params.id;
+    const id = context.params?.id;
     const { error } = await supabase
       .from('milestones')
       .delete()
