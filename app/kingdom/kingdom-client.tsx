@@ -242,12 +242,18 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const kingdomTileInventory = getKingdomTileInventoryWithBuildTokens();
   const [propertiesOpen, setPropertiesOpen] = useState(false);
   const [showEntrance, setShowEntrance] = useState(true);
+  const [zoomed, setZoomed] = useState(false);
 
   // All useEffect hooks at the top
   useEffect(() => {
     setShowEntrance(true);
-    const timeout = setTimeout(() => setShowEntrance(false), 2000);
-    return () => clearTimeout(timeout);
+    setZoomed(false);
+    const zoomTimeout = setTimeout(() => setZoomed(true), 50); // trigger zoom after mount
+    const hideTimeout = setTimeout(() => setShowEntrance(false), 2050); // hide after 2s
+    return () => {
+      clearTimeout(zoomTimeout);
+      clearTimeout(hideTimeout);
+    };
   }, []);
 
   useEffect(() => {
@@ -288,8 +294,8 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             src="/images/kingdom-tiles/Entrance.png"
             alt="Kingdom Entrance"
             fill
-            className="object-cover transition-transform duration-2000 ease-in-out scale-150 animate-zoom-in"
-            style={{ transition: 'transform 2s cubic-bezier(0.4,0,0.2,1)', transform: 'scale(1.5)' }}
+            className={`object-cover transition-transform duration-[2000ms] ease-in-out`}
+            style={{ transform: zoomed ? 'scale(2)' : 'scale(1)', transition: 'transform 2s cubic-bezier(0.4,0,0.2,1)' }}
             unoptimized
           />
         </div>
