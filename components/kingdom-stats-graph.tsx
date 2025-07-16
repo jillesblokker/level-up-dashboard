@@ -350,24 +350,27 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#444" />
             <XAxis
               dataKey="day"
-              tick={({ x, y, payload, index }) => {
-                const total = graphData.length;
-                if (index !== 0 && index !== total - 1) return <g />;
-                if (!isValidDateString(payload.value)) return <g />;
-                const { day, date } = formatXAxisLabel(payload.value, timePeriod);
-                return (
-                  <g transform={`translate(${x},${y})`}>
-                    <text x={0} y={-18} textAnchor="middle" fill="#fff" fontSize="13" fontWeight="bold">{day}</text>
-                    <text x={0} y={8} textAnchor="middle" fill="#bbb" fontSize="12">{date}</text>
-                  </g>
-                );
-              }}
-              axisLine={{ stroke: "#444" }}
+              tick={({ x, y, payload, index }) => (
+                <text
+                  x={x}
+                  y={y + 16}
+                  textAnchor="middle"
+                  fontSize={14}
+                  fill="#fbbf24"
+                  aria-label={`x-axis-label-${payload.value}`}
+                >
+                  {payload.value}
+                </text>
+              )}
+              axisLine={false}
               tickLine={false}
-              interval={0}
-              minTickGap={minBarWidth}
             />
-            <YAxis tick={{ fill: "#888" }} axisLine={{ stroke: "#444" }} domain={[0, maxValue]} allowDecimals={false} />
+            <YAxis
+              tick={{ fontSize: 14, fill: '#fbbf24' }}
+              axisLine={false}
+              tickLine={false}
+              width={32}
+            />
             <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: "#222", opacity: 0.1 }} />
             <Area
               type="monotone"
@@ -375,23 +378,16 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
               stroke="none"
               fill="url(#lineGradient)"
               fillOpacity={1}
-              isAnimationActive={mounted}
-              animationDuration={350}
-              animationEasing="ease-out"
+              isAnimationActive={false}
             />
             <Line
               type="monotone"
               dataKey="value"
-              stroke="#f59e42"
+              stroke="#fbbf24"
               strokeWidth={3}
-              dot={{ r: 6, fill: '#f59e42', stroke: '#fff', strokeWidth: 2 }}
-              activeDot={{ r: 8, fill: '#fff', stroke: '#f59e42', strokeWidth: 3 }}
-              isAnimationActive={mounted}
-              animationDuration={350}
-              animationEasing="ease-out"
-              fill="url(#lineGradient)"
-              fillOpacity={1}
-              strokeLinejoin="round"
+              dot={{ r: 4, fill: '#fbbf24', stroke: '#fff', strokeWidth: 2 }}
+              activeDot={{ r: 6, fill: '#fbbf24', stroke: '#fff', strokeWidth: 2 }}
+              isAnimationActive={false}
             />
           </LineChart>
         )}
