@@ -343,8 +343,8 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
           <LineChart data={graphData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#fbbf24" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="#fbbf24" stopOpacity={0} />
+                <stop offset="0%" stopColor="#fbbf24" stopOpacity={0.5} />
+                <stop offset="100%" stopColor="#f59e42" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#444" />
@@ -369,6 +369,16 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
             />
             <YAxis tick={{ fill: "#888" }} axisLine={{ stroke: "#444" }} domain={[0, maxValue]} allowDecimals={false} />
             <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: "#222", opacity: 0.1 }} />
+            <Area
+              type="monotone"
+              dataKey="value"
+              stroke="none"
+              fill="url(#lineGradient)"
+              fillOpacity={1}
+              isAnimationActive={mounted}
+              animationDuration={350}
+              animationEasing="ease-out"
+            />
             <Line
               type="monotone"
               dataKey="value"
@@ -382,16 +392,6 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
               fill="url(#lineGradient)"
               fillOpacity={1}
               strokeLinejoin="round"
-            />
-            {/* Area for gradient fill under the line */}
-            <Area
-              type="monotone"
-              dataKey="value"
-              fill="url(#lineGradient)"
-              fillOpacity={1}
-              isAnimationActive={mounted}
-              animationDuration={350}
-              animationEasing="ease-out"
             />
           </LineChart>
         )}
