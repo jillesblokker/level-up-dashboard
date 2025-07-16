@@ -279,7 +279,7 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
 
   // Chart rendering
   return (
-    <div className="h-64 w-full px-4 overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }} aria-label={ariaLabel} tabIndex={0} ref={chartRef}>
+    <div className="h-64 w-full overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }} aria-label={ariaLabel} tabIndex={0} ref={chartRef}>
       <ResponsiveContainer width="100%" height="100%">
         {chartType === 'bar' ? (
           <RechartsBarChart data={graphData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }} barCategoryGap={"20%"}>
@@ -357,8 +357,8 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
                 const { day, date } = formatXAxisLabel(payload.value, timePeriod);
                 return (
                   <g transform={`translate(${x},${y})`}>
-                    <text x={0} y={-8} textAnchor="middle" fill="#fff" fontSize="12" fontWeight="bold">{day}</text>
-                    <text x={0} y={8} textAnchor="middle" fill="#bbb" fontSize="10">{date}</text>
+                    <text x={0} y={-18} textAnchor="middle" fill="#fff" fontSize="13" fontWeight="bold">{day}</text>
+                    <text x={0} y={8} textAnchor="middle" fill="#bbb" fontSize="12">{date}</text>
                   </g>
                 );
               }}
@@ -372,10 +372,10 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
             <Line
               type="monotone"
               dataKey="value"
-              stroke="#a78bfa"
+              stroke="#f59e42"
               strokeWidth={3}
-              dot={{ r: 5, fill: '#fbbf24', stroke: '#a78bfa', strokeWidth: 2 }}
-              activeDot={{ r: 7, fill: '#fbbf24', stroke: '#a78bfa', strokeWidth: 3 }}
+              dot={{ r: 6, fill: '#f59e42', stroke: '#fff', strokeWidth: 2 }}
+              activeDot={{ r: 8, fill: '#fff', stroke: '#f59e42', strokeWidth: 3 }}
               isAnimationActive={mounted}
               animationDuration={350}
               animationEasing="ease-out"
