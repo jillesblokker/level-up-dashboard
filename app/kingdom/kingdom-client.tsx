@@ -244,17 +244,21 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const [showEntrance, setShowEntrance] = useState(true);
   const [zoomed, setZoomed] = useState(false);
   const [fadeStage, setFadeStage] = useState<'none' | 'black' | 'white'>('none');
+  const [moveUp, setMoveUp] = useState(false);
 
   // All useEffect hooks at the top
   useEffect(() => {
     setShowEntrance(true);
     setZoomed(false);
     setFadeStage('none');
+    setMoveUp(false);
+    const moveUpTimeout = setTimeout(() => setMoveUp(true), 1000); // start moving up after 1s
     const zoomTimeout = setTimeout(() => setZoomed(true), 3000); // show still for 3s, then zoom
     const fadeBlackTimeout = setTimeout(() => setFadeStage('black'), 3000); // start fade to black with zoom
     const fadeWhiteTimeout = setTimeout(() => setFadeStage('white'), 5000); // start fade to white at 5s (overlap black/white)
     const hideTimeout = setTimeout(() => setShowEntrance(false), 7000); // hide after 7s total
     return () => {
+      clearTimeout(moveUpTimeout);
       clearTimeout(zoomTimeout);
       clearTimeout(fadeBlackTimeout);
       clearTimeout(fadeWhiteTimeout);
@@ -303,9 +307,13 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             className={`object-cover transition-transform duration-[4000ms] ease-in-out kingdom-entrance-img`}
             style={{
               transform: zoomed
-                ? 'scale(16) translateY(-10%)' // scale up and move up
-                : 'scale(1) translateY(0%)',
-              transition: 'transform 4s cubic-bezier(0.4,0,0.2,1)',
+                ? `scale(16) translateY(-10%)`
+                : moveUp
+                  ? 'scale(1) translateY(-10%)'
+                  : 'scale(1) translateY(0%)',
+              transition: moveUp
+                ? 'transform 3s cubic-bezier(0.4,0,0.2,1)' // move up over 3s
+                : 'transform 1s cubic-bezier(0.4,0,0.2,1)',
               objectPosition: 'top center',
               position: 'absolute',
               top: 0,
@@ -329,8 +337,15 @@ export function KingdomClient({ userId }: { userId: string | null }) {
                 : 'transparent',
               opacity: fadeStage === 'white' ? 0.95 : 0,
               mixBlendMode: 'lighten',
+              animation: fadeStage === 'white' ? 'fadeWhiteOut 1s 1s forwards' : undefined,
             }}
           />
+          <style jsx global>{`
+            @keyframes fadeWhiteOut {
+              0% { opacity: 0.95; }
+              100% { opacity: 0; }
+            }
+          `}</style>
         </div>
       </div>
     );
