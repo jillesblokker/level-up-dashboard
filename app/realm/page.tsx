@@ -1015,7 +1015,25 @@ export default function RealmPage() {
     const canExpand = playerLevel >= nextExpansionLevel;
 
     if (isLoading) {
-        return <div className="flex items-center justify-center h-screen bg-gray-900 text-white">Loading Realm...</div>;
+        return (
+            <div className="flex flex-col items-center justify-center h-screen bg-gray-900 text-white p-8">
+                <h2 className="text-2xl font-bold text-amber-700 mb-4">Exploring the lands of Valoreth</h2>
+                <div className="bg-black/70 border border-amber-800 rounded-lg p-6 max-w-lg text-center text-amber-100 text-lg shadow-lg">
+                    <p>
+                        In the mystical realm of Valoreth, King Aldric sought the legendary treasures of growth.<br/>
+                        Through rolling hills and ancient forests he wandered,<br/>
+                        Past crystal caves that whispered of hidden wisdom,<br/>
+                        Beyond desert sands that held secrets of endurance.<br/>
+                        Each terrain challenged his resolve and strengthened his spirit,<br/>
+                        For every step forward revealed new mysteries to unlock.<br/>
+                        The frozen peaks taught patience, the dark swamps resilience,<br/>
+                        And in the depths of forgotten dungeons lay the greatest prizes.<br/>
+                        Will you follow in his footsteps and claim your destiny?<br/>
+                        The realm awaits those brave enough to grow stronger each day.
+                    </p>
+                </div>
+            </div>
+        );
     }
 
     const inventoryAsItems: TileInventoryItem[] = Object.values(inventory)

@@ -337,8 +337,8 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     setMoveUp(false);
     // Linger for 2s, then start zoom (3.5s duration)
     const zoomTimeout = setTimeout(() => setZoomed(true), 2000);
-    // Start move up at 2.5s (3s duration)
-    const moveUpTimeout = setTimeout(() => setMoveUp(true), 2500);
+    // Start move up at 2s (3s duration) - 0.5s earlier
+    const moveUpTimeout = setTimeout(() => setMoveUp(true), 2000);
     // Fade to black at 5s (0.7s duration)
     const fadeBlackTimeout = setTimeout(() => setFadeStage('black'), 5000);
     // Fade to white at 5.7s (1.3s duration)
@@ -397,17 +397,17 @@ export function KingdomClient({ userId }: { userId: string | null }) {
               objectPosition: 'top center',
               transform:
                 zoomed
-                  ? `scale(16) translateY(-40%)`
+                  ? `scale(16) translateY(-50%)`
                   : moveUp
-                    ? 'scale(1) translateY(-40%)'
+                    ? 'scale(1) translateY(-50%)'
                     : 'scale(1) translateY(0%)',
               transition:
                 zoomed && moveUp
-                  ? 'transform 3s cubic-bezier(0.4,0,0.2,1) 2.5s, transform 3.5s cubic-bezier(0.4,0,0.2,1) 2s'
+                  ? 'transform 3s cubic-bezier(0.4,0,0.2,1) 2s, transform 3.5s cubic-bezier(0.4,0,0.2,1) 2s'
                   : zoomed
                     ? 'transform 3.5s cubic-bezier(0.4,0,0.2,1) 2s'
                     : moveUp
-                      ? 'transform 3s cubic-bezier(0.4,0,0.2,1) 2.5s'
+                      ? 'transform 3s cubic-bezier(0.4,0,0.2,1) 2s'
                       : 'none',
             }}
             unoptimized

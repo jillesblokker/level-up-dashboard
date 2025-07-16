@@ -9,6 +9,7 @@ import Image from 'next/image'
 import { HeaderSection } from '@/components/HeaderSection'
 import { useUser, SignedIn, SignedOut, SignIn, useAuth } from '@clerk/nextjs'
 import { supabase } from '@/lib/supabase/client'
+import LoadingAchievements from './loading'
 
 interface DbAchievement {
   id: string;
@@ -106,11 +107,7 @@ export default function Page() {
     );
   }
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-gray-900 text-white">
-        <p>Loading achievements...</p>
-      </div>
-    );
+    return <LoadingAchievements />;
   }
   if (error) {
     return (
