@@ -392,22 +392,22 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             src="/images/kingdom-tiles/Entrance.png"
             alt="Kingdom Entrance"
             fill
-            className={`object-cover transition-transform duration-[4000ms] ease-in-out kingdom-entrance-img`}
+            className={`object-cover transition-transform ease-in-out kingdom-entrance-img`}
             style={{
-              transform: zoomed
-                ? `scale(16) translateY(-20%)`
-                : moveUp
-                  ? 'scale(1) translateY(-20%)'
-                  : 'scale(1) translateY(0%)',
-              transition: moveUp
-                ? 'transform 3s cubic-bezier(0.4,0,0.2,1)' // move up over 3s
-                : 'transform 1s cubic-bezier(0.4,0,0.2,1)',
-              objectPosition: 'top center',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              margin: 0,
-              padding: 0,
+              transform:
+                zoomed
+                  ? `scale(16) translateY(-20%)`
+                  : moveUp
+                    ? 'scale(1) translateY(-20%)'
+                    : 'scale(1) translateY(0%)',
+              transition:
+                moveUp && zoomed
+                  ? 'transform 3s cubic-bezier(0.4,0,0.2,1) 1s, transform 4s cubic-bezier(0.4,0,0.2,1) 0s'
+                  : zoomed
+                    ? 'transform 4s cubic-bezier(0.4,0,0.2,1) 0s'
+                    : moveUp
+                      ? 'transform 3s cubic-bezier(0.4,0,0.2,1) 1s'
+                      : 'none',
             }}
             unoptimized
           />

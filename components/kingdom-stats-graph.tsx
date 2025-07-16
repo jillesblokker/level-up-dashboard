@@ -343,8 +343,9 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
           <LineChart data={graphData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#fbbf24" stopOpacity={0.8} />
-                <stop offset="100%" stopColor="#f59e42" stopOpacity={0} />
+                <stop offset="0%" stopColor="#ffb300" stopOpacity={1} />
+                <stop offset="80%" stopColor="#fbbf24" stopOpacity={0.7} />
+                <stop offset="100%" stopColor="#f59e42" stopOpacity={0.2} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#444" />
@@ -379,6 +380,8 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
               fill="url(#lineGradient)"
               fillOpacity={1}
               isAnimationActive={false}
+              // fallback solid fill if gradient fails
+              style={{ fill: 'rgba(251,191,36,0.5)' }}
             />
             <Line
               type="monotone"
