@@ -335,7 +335,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     setZoomed(false);
     setFadeStage('none');
     setMoveUp(false);
-    const moveUpTimeout = setTimeout(() => setMoveUp(true), 2000); // start moving up after 2s
+    const moveUpTimeout = setTimeout(() => setMoveUp(true), 3000); // start moving up after 3s
     const zoomTimeout = setTimeout(() => setZoomed(true), 3000); // show still for 3s, then zoom
     const fadeBlackTimeout = setTimeout(() => setFadeStage('black'), 3000); // start fade to black with zoom
     const fadeWhiteTimeout = setTimeout(() => setFadeStage('white'), 5000); // start fade to white at 5s (overlap black/white)
