@@ -335,16 +335,16 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     setZoomed(false);
     setFadeStage('none');
     setMoveUp(false);
-    // Start zoom immediately, lasts 4s
-    const zoomTimeout = setTimeout(() => setZoomed(true), 0);
-    // Start move up at 1s, lasts 3s (overlaps with zoom)
-    const moveUpTimeout = setTimeout(() => setMoveUp(true), 1000);
-    // Fade to black at 3.5s, lasts 1s
-    const fadeBlackTimeout = setTimeout(() => setFadeStage('black'), 3500);
-    // Fade to white at 4.5s, lasts 1.5s
-    const fadeWhiteTimeout = setTimeout(() => setFadeStage('white'), 4500);
-    // Hide overlay and show main content at 6s
-    const hideTimeout = setTimeout(() => setShowEntrance(false), 6000);
+    // Linger for 2s, then start zoom (3.5s duration)
+    const zoomTimeout = setTimeout(() => setZoomed(true), 2000);
+    // Start move up at 2.5s (3s duration)
+    const moveUpTimeout = setTimeout(() => setMoveUp(true), 2500);
+    // Fade to black at 5s (0.7s duration)
+    const fadeBlackTimeout = setTimeout(() => setFadeStage('black'), 5000);
+    // Fade to white at 5.7s (1.3s duration)
+    const fadeWhiteTimeout = setTimeout(() => setFadeStage('white'), 5700);
+    // Hide overlay and show main content at 7s
+    const hideTimeout = setTimeout(() => setShowEntrance(false), 7000);
     return () => {
       clearTimeout(zoomTimeout);
       clearTimeout(moveUpTimeout);
@@ -401,12 +401,12 @@ export function KingdomClient({ userId }: { userId: string | null }) {
                     ? 'scale(1) translateY(-20%)'
                     : 'scale(1) translateY(0%)',
               transition:
-                moveUp && zoomed
-                  ? 'transform 3s cubic-bezier(0.4,0,0.2,1) 1s, transform 4s cubic-bezier(0.4,0,0.2,1) 0s'
+                zoomed && moveUp
+                  ? 'transform 3s cubic-bezier(0.4,0,0.2,1) 2.5s, transform 3.5s cubic-bezier(0.4,0,0.2,1) 2s'
                   : zoomed
-                    ? 'transform 4s cubic-bezier(0.4,0,0.2,1) 0s'
+                    ? 'transform 3.5s cubic-bezier(0.4,0,0.2,1) 2s'
                     : moveUp
-                      ? 'transform 3s cubic-bezier(0.4,0,0.2,1) 1s'
+                      ? 'transform 3s cubic-bezier(0.4,0,0.2,1) 2.5s'
                       : 'none',
             }}
             unoptimized
