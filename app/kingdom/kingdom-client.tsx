@@ -158,76 +158,6 @@ function isEquippable(item: KingdomInventoryItem): boolean {
   return false;
 }
 
-const KINGDOM_GRID_ROWS = 6;
-const KINGDOM_GRID_COLS = 6;
-const VACANT_TILE_IMAGE = '/images/kingdom-tiles/Vacant.png';
-const KINGDOM_TILE_IMAGES = [
-  'Archery.png', 'Blacksmith.png', 'Castle.png', 'Fisherman.png', 'Foodcourt.png', 'Fountain.png', 'Grocery.png', 'House.png', 'Inn.png', 'Jousting.png', 'Mansion.png', 'Mayor.png', 'Pond.png', 'Sawmill.png', 'Temple.png', 'Vegetables.png', 'Watchtower.png', 'Well.png', 'Windmill.png', 'Wizard.png'
-];
-
-function createEmptyKingdomGrid(): Tile[][] {
-  return Array.from({ length: KINGDOM_GRID_ROWS }, (_, y) =>
-    Array.from({ length: KINGDOM_GRID_COLS }, (_, x) => ({
-      id: `vacant-${x}-${y}`,
-      type: 'empty' as TileType,
-      name: 'Vacant',
-      description: 'An empty plot of land.',
-      connections: [] as ConnectionDirection[],
-      rotation: 0,
-      revealed: true,
-      isVisited: false,
-      x,
-      y,
-      ariaLabel: `Vacant tile at ${x},${y}`,
-      image: VACANT_TILE_IMAGE,
-    }))
-  );
-}
-
-// --- Build Token Logic ---
-function getBuildTokens(): number {
-  if (typeof window === 'undefined') return 0;
-  const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
-  return stats.buildTokens || 0;
-}
-function setBuildTokens(amount: number) {
-  if (typeof window === 'undefined') return;
-  const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
-  stats.buildTokens = amount;
-  localStorage.setItem('character-stats', JSON.stringify(stats));
-}
-function addBuildTokens(amount: number) {
-  setBuildTokens(getBuildTokens() + amount);
-}
-
-// --- Property Inventory Initialization ---
-function getKingdomTileInventoryWithBuildTokens(): Tile[] {
-  return KINGDOM_TILE_IMAGES.map((filename, idx) => {
-    const isCastle = filename === 'Castle.png';
-    return {
-      id: `kingdom-tile-${idx}`,
-      type: 'special' as TileType,
-      name: filename.replace('.png', ''),
-      description: `A special kingdom tile: ${filename.replace('.png', '')}`,
-      connections: [] as ConnectionDirection[],
-      rotation: 0,
-      revealed: true,
-      isVisited: false,
-      x: 0,
-      y: 0,
-      ariaLabel: `Kingdom tile: ${filename.replace('.png', '')}`,
-      image: `/images/kingdom-tiles/${filename}`,
-      cost: isCastle ? 0 : Math.floor(Math.random() * 3) + 1, // 1-3 build tokens
-      quantity: isCastle ? 1 : 0,
-    };
-  });
-}
-
-// --- Award build tokens for streaks (example: 1 per streak day) ---
-function awardBuildTokensForStreak(streak: number) {
-  addBuildTokens(streak); // You can adjust this logic as needed
-}
-
 export function KingdomClient({ userId }: { userId: string | null }) {
   const [coverImage, setCoverImage] = useState("/images/kingdom-header.jpg")
   const [equippedItems, setEquippedItems] = useState<KingdomInventoryItem[]>([])
@@ -247,6 +177,108 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const [moveUp, setMoveUp] = useState(false);
   const [kingdomReady, setKingdomReady] = useState(false);
   const [kingdomContent, setKingdomContent] = useState<JSX.Element | null>(null);
+
+  // Helper to determine if an item is consumable
+  const isConsumable = (item: KingdomInventoryItem) => {
+    return item.type === 'artifact' || item.type === 'scroll' || (item.type === 'item' && !item.category);
+  };
+
+  // Handler for equipping items
+  const handleEquip = (item: KingdomInventoryItem) => {
+    // For consumables, show modal
+    if (item.type === 'artifact' || item.type === 'scroll' || (item.type === 'item' && !item.category)) {
+      setModalText(getConsumableEffect(item));
+      setModalOpen(true);
+    }
+    equipItem(item.id);
+  };
+
+  // Handler for unequipping items
+  const handleUnequip = (item: KingdomInventoryItem) => {
+    unequipItem(item.id);
+  };
+
+  // Restore handlePlaceKingdomTile for KingdomGrid
+  function handlePlaceKingdomTile(x: number, y: number, tile: Tile) {
+    setKingdomGrid(prev => {
+      const newGrid = prev.map(row => row.slice());
+      if (newGrid[y]) {
+        newGrid[y][x] = { ...tile, x, y, id: `${tile.id}-${x}-${y}` };
+      }
+      return newGrid;
+    });
+  }
+
+  // Restore renderItemCard for inventory display
+  const renderItemCard = (item: KingdomInventoryItem, isEquipped: boolean = false) => (
+    <Card 
+      key={item.id} 
+      className={`bg-black/60 border-2 border-amber-500 rounded-xl shadow-lg transition-all duration-200 ${isEquipped ? 'ring-2 ring-amber-500' : ''}`}
+      aria-label={`inventory-item-${item.id}`}
+    >
+      <CardHeader className="p-4">
+        <div 
+          className="flex flex-col items-center justify-center space-y-2"
+          aria-label={`item-header-${item.id}`}
+        >
+          <div className="w-full aspect-[4/3] relative mb-2">
+            <Image
+              src={getItemImagePath(item)}
+              alt={`${item.name} ${item.type}`}
+              fill
+              className="object-contain rounded"
+              aria-label={`${item.name}-image`}
+              onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
+            />
+          </div>
+          <div className="flex flex-col items-center">
+            <h4 className="text-amber-500 font-semibold text-lg">{item.name}</h4>
+            <p className="text-xs text-gray-400">{item.type}</p>
+            {item.category && (
+              <p className="text-xs text-amber-400">{item.category}</p>
+            )}
+          </div>
+        </div>
+        {Object.entries(item.stats ?? {}).map(([stat, value]) => (
+          <Badge key={stat} className="bg-amber-950/30 text-amber-500 border-amber-800/30 mt-2">
+            {stat} +{value}
+          </Badge>
+        ))}
+      </CardHeader>
+      <CardContent className="p-4 pt-0">
+        <p className="text-sm text-gray-400 mb-3">{item.description}</p>
+        <div className="flex justify-between items-center">
+          {/* Only show quantity for consumables */}
+          {isConsumable(item) ? (
+            <span className="text-xs text-gray-500">Qty: {item.quantity}</span>
+          ) : <span />}
+          <Button
+            size="sm"
+            variant={isEquipped ? "destructive" : isConsumable(item) ? "default" : "default"}
+            onClick={() => isEquipped ? handleUnequip(item) : (isEquippable(item) ? handleEquip(item) : undefined)}
+            aria-label={
+              isEquipped
+                ? `Unequip ${item.name}`
+                : isConsumable(item)
+                  ? `Use ${item.name}`
+                  : isEquippable(item)
+                    ? `Equip ${item.name}`
+                    : undefined
+            }
+            disabled={!isEquippable(item) && !isConsumable(item)}
+          >
+            {isEquipped
+              ? "Unequip"
+              : isConsumable(item)
+                ? "Use"
+                : isEquippable(item)
+                  ? "Equip"
+                  : null}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   // All useEffect hooks at the top
   useEffect(() => {
