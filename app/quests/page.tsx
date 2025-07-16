@@ -678,8 +678,63 @@ export default function QuestsPage() {
   }, [token]);
 
   // --- Challenge Streaks (Supabase) ---
-  const [challengeStreakData, setChallengeStreakData] = useState<{ streak_days: number, week_streaks: number } | null>(null);
+  const [streakData, setStreakData] = useState<{ streak_days: number; week_streaks: number }>({ streak_days: 0, week_streaks: 0 });
+  const [challengeStreakData, setChallengeStreakData] = useState<{ streak_days: number; week_streaks: number }>({ streak_days: 0, week_streaks: 0 });
+  const streakSubscriptionRef = useRef<any>(null);
   const challengeStreakSubscriptionRef = useRef<any>(null);
+  const { supabase } = useSupabase();
+
+  // Real-time subscription for streaks
+  useEffect(() => {
+    if (!supabase || !userId || !questCategory) return;
+    if (streakSubscriptionRef.current) {
+      supabase.removeChannel(streakSubscriptionRef.current);
+      streakSubscriptionRef.current = null;
+    }
+    const channel = supabase.channel('streaks-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'streaks',
+          filter: `user_id=eq.${userId},category=eq.${questCategory}`,
+        },
+        (payload) => {
+          supabase
+            .from('streaks')
+            .select('streak_days, week_streaks')
+            .eq('user_id', userId)
+            .eq('category', questCategory)
+            .single()
+            .then(({ data, error }) => {
+              if (error) setStreakData({ streak_days: 0, week_streaks: 0 });
+              else setStreakData(data);
+            });
+        }
+      )
+      .subscribe();
+    streakSubscriptionRef.current = channel;
+    return () => {
+      if (streakSubscriptionRef.current) {
+        supabase.removeChannel(streakSubscriptionRef.current);
+        streakSubscriptionRef.current = null;
+      }
+    };
+  }, [supabase, userId, questCategory]);
+  // Update streak in Supabase when all quests completed for today
+  const updateStreak = async (newStreak: number, newWeekStreaks: number) => {
+    if (!supabase || !userId || !questCategory) return;
+    await supabase
+      .from('streaks')
+      .upsert({
+        user_id: userId,
+        category: questCategory,
+        streak_days: newStreak,
+        week_streaks: newWeekStreaks,
+        last_completed_at: new Date().toISOString(),
+      }, { onConflict: 'user_id,category' });
+  };
 
   // Real-time subscription for challenge streaks
   useEffect(() => {

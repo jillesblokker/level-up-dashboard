@@ -241,12 +241,12 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       setModalText(getConsumableEffect(item));
       setModalOpen(true);
     }
-    equipItem(item.id);
+    if (userId) equipItem(userId, item.id);
   };
 
   // Handler for unequipping items
   const handleUnequip = (item: KingdomInventoryItem) => {
-    unequipItem(item.id);
+    if (userId) unequipItem(userId, item.id);
   };
 
   // Restore handlePlaceKingdomTile for KingdomGrid
