@@ -158,6 +158,55 @@ function isEquippable(item: KingdomInventoryItem): boolean {
   return false;
 }
 
+// Helper to create an empty kingdom grid
+function createEmptyKingdomGrid(): Tile[][] {
+  const KINGDOM_GRID_ROWS = 6;
+  const KINGDOM_GRID_COLS = 6;
+  const VACANT_TILE_IMAGE = '/images/kingdom-tiles/Vacant.png';
+  return Array.from({ length: KINGDOM_GRID_ROWS }, (_, y) =>
+    Array.from({ length: KINGDOM_GRID_COLS }, (_, x) => ({
+      id: `vacant-${x}-${y}`,
+      type: 'empty' as TileType,
+      name: 'Vacant',
+      description: 'An empty plot of land.',
+      connections: [] as ConnectionDirection[],
+      rotation: 0,
+      revealed: true,
+      isVisited: false,
+      x,
+      y,
+      ariaLabel: `Vacant tile at ${x},${y}`,
+      image: VACANT_TILE_IMAGE,
+    }))
+  );
+}
+
+// Helper to get the kingdom tile inventory with build tokens
+function getKingdomTileInventoryWithBuildTokens(): Tile[] {
+  const KINGDOM_TILE_IMAGES = [
+    'Archery.png', 'Blacksmith.png', 'Castle.png', 'Fisherman.png', 'Foodcourt.png', 'Fountain.png', 'Grocery.png', 'House.png', 'Inn.png', 'Jousting.png', 'Mansion.png', 'Mayor.png', 'Pond.png', 'Sawmill.png', 'Temple.png', 'Vegetables.png', 'Watchtower.png', 'Well.png', 'Windmill.png', 'Wizard.png'
+  ];
+  return KINGDOM_TILE_IMAGES.map((filename, idx) => {
+    const isCastle = filename === 'Castle.png';
+    return {
+      id: `kingdom-tile-${idx}`,
+      type: 'special' as TileType,
+      name: filename.replace('.png', ''),
+      description: `A special kingdom tile: ${filename.replace('.png', '')}`,
+      connections: [] as ConnectionDirection[],
+      rotation: 0,
+      revealed: true,
+      isVisited: false,
+      x: 0,
+      y: 0,
+      ariaLabel: `Kingdom tile: ${filename.replace('.png', '')}`,
+      image: `/images/kingdom-tiles/${filename}`,
+      cost: isCastle ? 0 : Math.floor(Math.random() * 3) + 1, // 1-3 build tokens
+      quantity: isCastle ? 1 : 0,
+    };
+  });
+}
+
 export function KingdomClient({ userId }: { userId: string | null }) {
   const [coverImage, setCoverImage] = useState("/images/kingdom-header.jpg")
   const [equippedItems, setEquippedItems] = useState<KingdomInventoryItem[]>([])
