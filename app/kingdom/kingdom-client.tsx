@@ -397,9 +397,9 @@ export function KingdomClient({ userId }: { userId: string | null }) {
               objectPosition: 'top center',
               transform:
                 zoomed
-                  ? `scale(16) translateY(-20%)`
+                  ? `scale(16) translateY(-40%)`
                   : moveUp
-                    ? 'scale(1) translateY(-20%)'
+                    ? 'scale(1) translateY(-40%)'
                     : 'scale(1) translateY(0%)',
               transition:
                 zoomed && moveUp

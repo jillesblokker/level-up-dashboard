@@ -545,7 +545,6 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
       <CardHeader>
         <div className="flex items-center justify-between gap-4">
           <CardTitle className="text-amber-500 text-2xl font-bold">Gains</CardTitle>
-          <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" aria-label="Select time period" className="ml-2">
@@ -553,18 +552,22 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
                   if (timePeriod === 'week') return 'Week';
                   if (timePeriod === 'month') return 'Month';
                   if (timePeriod === 'year') return 'Year';
-                  return 'All time';
+                  if (timePeriod === 'all') return 'All';
+                  return '';
                 })()}
-                <ChevronDown className="ml-2 w-4 h-4" aria-hidden="true" />
+                <ChevronDown className="ml-2 w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent aria-label="king-stats-time-period-dropdown">
-              <DropdownMenuItem onSelect={() => setTimePeriod('week')} aria-label="Week">Week</DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setTimePeriod('month')} aria-label="Month">Month</DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setTimePeriod('year')} aria-label="Year">Year</DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setTimePeriod('all')} aria-label="All time">All time</DropdownMenuItem>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setTimePeriod('week')}>Week</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTimePeriod('month')}>Month</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTimePeriod('year')}>Year</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTimePeriod('all')}>All</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+        </div>
+        <div className="flex justify-end mt-2">
+          <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
         </div>
         <CardDescription className="text-gray-300">Track your gold and experience</CardDescription>
       </CardHeader>
