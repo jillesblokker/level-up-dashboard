@@ -335,11 +335,16 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     setZoomed(false);
     setFadeStage('none');
     setMoveUp(false);
-    const zoomTimeout = setTimeout(() => setZoomed(true), 0); // start zoom immediately
-    const moveUpTimeout = setTimeout(() => setMoveUp(true), 500); // start moving up after 0.5s
-    const fadeBlackTimeout = setTimeout(() => setFadeStage('black'), 3000); // start fade to black with zoom
-    const fadeWhiteTimeout = setTimeout(() => setFadeStage('white'), 5000); // start fade to white at 5s (overlap black/white)
-    const hideTimeout = setTimeout(() => setShowEntrance(false), 6000); // hide after 6s total
+    // Start zoom immediately, lasts 4s
+    const zoomTimeout = setTimeout(() => setZoomed(true), 0);
+    // Start move up at 1s, lasts 3s (overlaps with zoom)
+    const moveUpTimeout = setTimeout(() => setMoveUp(true), 1000);
+    // Fade to black at 3.5s, lasts 1s
+    const fadeBlackTimeout = setTimeout(() => setFadeStage('black'), 3500);
+    // Fade to white at 4.5s, lasts 1.5s
+    const fadeWhiteTimeout = setTimeout(() => setFadeStage('white'), 4500);
+    // Hide overlay and show main content at 6s
+    const hideTimeout = setTimeout(() => setShowEntrance(false), 6000);
     return () => {
       clearTimeout(zoomTimeout);
       clearTimeout(moveUpTimeout);
