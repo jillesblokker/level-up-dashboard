@@ -1,3 +1,5 @@
+import { supabase } from '@/lib/supabase/client';
+
 export interface InventoryItem {
   name: string
   quantity: number
@@ -15,371 +17,247 @@ export interface InventoryItem {
   equipped?: boolean
 }
 
-const INVENTORY_KEY = 'character-inventory'
-const KINGDOM_INVENTORY_KEY = 'kingdom-inventory'
-const EQUIPPED_ITEMS_KEY = 'kingdom-equipped-items'
-
-export function getInventory(): InventoryItem[] {
-  if (typeof window === 'undefined') return []
-  
-  const savedInventory = localStorage.getItem(INVENTORY_KEY)
-  if (!savedInventory) return []
-  
-  try {
-    return JSON.parse(savedInventory)
-  } catch (err) {
-    console.error('Error parsing inventory:', err)
-    localStorage.removeItem(INVENTORY_KEY)
-    return []
+// Fetch all inventory items for the given user
+export async function getInventory(userId: string): Promise<InventoryItem[]> {
+  if (!userId) return [];
+  const { data, error } = await supabase
+    .from('inventory_items')
+    .select('*')
+    .eq('user_id', userId);
+  if (error) {
+    console.error('Error fetching inventory:', error);
+    return [];
   }
+  return (data || []).map(row => ({
+    ...row,
+    id: row.item_id,
+    equipped: row.equipped,
+    stats: row.stats || {},
+  }));
 }
 
-export function addToInventory(item: InventoryItem) {
-  if (typeof window === 'undefined') return
-  
-  const currentInventory = getInventory()
-  const existingItem = currentInventory.find(i => i.id === item.id)
-  
-  if (existingItem) {
-    existingItem.quantity += item.quantity
+// Add or update an inventory item
+export async function addToInventory(userId: string, item: InventoryItem) {
+  if (!userId) return;
+  // Check if item exists
+  const { data: existing, error: fetchError } = await supabase
+    .from('inventory_items')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('item_id', item.id)
+    .single();
+  if (fetchError && fetchError.code !== 'PGRST116') {
+    console.error('Error checking inventory:', fetchError);
+    return;
+  }
+  if (existing) {
+    // Update quantity
+    await supabase
+      .from('inventory_items')
+      .update({ quantity: existing.quantity + item.quantity })
+      .eq('user_id', userId)
+      .eq('item_id', item.id);
   } else {
-    currentInventory.push(item)
+    // Insert new item
+    await supabase
+      .from('inventory_items')
+      .insert({
+        user_id: userId,
+        item_id: item.id,
+        name: item.name,
+        type: item.type,
+        category: item.category,
+        description: item.description,
+        emoji: item.emoji,
+        image: item.image,
+        stats: item.stats,
+        quantity: item.quantity,
+        equipped: item.equipped || false,
+        is_default: false,
+      });
   }
-  
-  localStorage.setItem(INVENTORY_KEY, JSON.stringify(currentInventory))
-  window.dispatchEvent(new Event('character-inventory-update'))
+  window.dispatchEvent(new Event('character-inventory-update'));
 }
 
-export function removeFromInventory(itemId: string, quantity: number = 1) {
-  if (typeof window === 'undefined') return
-  
-  const currentInventory = getInventory()
-  const itemIndex = currentInventory.findIndex(i => i.id === itemId)
-  
-  if (itemIndex === -1) return
-  
-  const item = currentInventory[itemIndex]!
-  item.quantity -= quantity
-  
-  if (item.quantity <= 0) {
-    currentInventory.splice(itemIndex, 1)
-  }
-  
-  localStorage.setItem(INVENTORY_KEY, JSON.stringify(currentInventory))
-  window.dispatchEvent(new Event('character-inventory-update'))
-}
-
-export function clearInventory() {
-  if (typeof window === 'undefined') return
-  
-  localStorage.removeItem(INVENTORY_KEY)
-  window.dispatchEvent(new Event('character-inventory-update'))
-}
-
-export function getInventoryByType(type: string): InventoryItem[] {
-  try {
-    const inventory = getInventory()
-    return inventory.filter(item => item.type === type)
-  } catch (error) {
-    console.error("Error getting inventory by type:", error)
-    return []
-  }
-}
-
-export function getInventoryByCategory(category: string): InventoryItem[] {
-  try {
-    const inventory = getInventory()
-    return inventory.filter(item => item.category === category)
-  } catch (error) {
-    console.error("Error getting inventory by category:", error)
-    return []
-  }
-}
-
-export function getInventoryItem(id: string): InventoryItem | null {
-  try {
-    const inventory = getInventory()
-    return inventory.find(item => item.id === id) || null
-  } catch (error) {
-    console.error("Error getting inventory item:", error)
-    return null
-  }
-}
-
-export function hasItem(itemId: string): boolean {
-  const inventory = getInventory()
-  return inventory.some(item => item.id === itemId)
-}
-
-export function getItemQuantity(itemId: string): number {
-  const inventory = getInventory()
-  const item = inventory.find(i => i.id === itemId)
-  return item?.quantity || 0
-}
-
-export function getKingdomInventory(): InventoryItem[] {
-  if (typeof window === 'undefined') return []
-  
-  const savedInventory = localStorage.getItem(KINGDOM_INVENTORY_KEY)
-  let inventory: InventoryItem[] = []
-  if (savedInventory) {
-    try {
-      inventory = JSON.parse(savedInventory)
-    } catch (err) {
-      console.error('Error parsing kingdom inventory:', err)
-      localStorage.removeItem(KINGDOM_INVENTORY_KEY)
-      inventory = []
-    }
-  }
-
-  // Only add default items if inventory is empty
-  if (inventory.length === 0) {
-    inventory = getDefaultKingdomInventory()
-    localStorage.setItem(KINGDOM_INVENTORY_KEY, JSON.stringify(inventory))
-    
-    // Auto-equip default items on first load
-    const defaultItems = getDefaultKingdomInventory()
-    const equippedItems = defaultItems.map(item => ({ ...item, equipped: true }))
-    localStorage.setItem(EQUIPPED_ITEMS_KEY, JSON.stringify(equippedItems))
-  }
-
-  return inventory
-}
-
-export function addToKingdomInventory(item: InventoryItem) {
-  if (typeof window === 'undefined') return
-  
-  const currentInventory = getKingdomInventory()
-  const existingItem = currentInventory.find(i => i.id === item.id)
-  
-  if (existingItem) {
-    existingItem.quantity += item.quantity
+// Remove quantity or delete item
+export async function removeFromInventory(userId: string, itemId: string, quantity: number = 1) {
+  if (!userId) return;
+  const { data: existing, error: fetchError } = await supabase
+    .from('inventory_items')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('item_id', itemId)
+    .single();
+  if (fetchError || !existing) return;
+  if (existing.quantity > quantity) {
+    await supabase
+      .from('inventory_items')
+      .update({ quantity: existing.quantity - quantity })
+      .eq('user_id', userId)
+      .eq('item_id', itemId);
   } else {
-    // Get default inventory items
-    const defaultInventory = getDefaultKingdomInventory()
-    const defaultItem = defaultInventory.find(i => i.id === item.id)
-    
-    if (defaultItem) {
-      // If item exists in default inventory, add to its quantity
-      const existingDefaultItem = currentInventory.find(i => i.id === defaultItem.id)
-      if (existingDefaultItem) {
-        existingDefaultItem.quantity += item.quantity
-      } else {
-        currentInventory.push({
-          ...defaultItem,
-          quantity: item.quantity
-        })
-      }
-    } else {
-      // If item doesn't exist in default inventory, add it as new
-      currentInventory.push(item)
-    }
+    await supabase
+      .from('inventory_items')
+      .delete()
+      .eq('user_id', userId)
+      .eq('item_id', itemId);
   }
-  
-  localStorage.setItem(KINGDOM_INVENTORY_KEY, JSON.stringify(currentInventory))
-  window.dispatchEvent(new Event('character-inventory-update'))
+  window.dispatchEvent(new Event('character-inventory-update'));
 }
 
-// Helper function to get default kingdom inventory
-function getDefaultKingdomInventory(): InventoryItem[] {
-  return [
-    {
-      id: "stelony",
-      name: "Stelony",
-      type: "creature",
-      quantity: 1,
-      description: "A sturdy pony with basic armor - your trusty starter mount",
-      emoji: "🐴",
-      image: "/images/items/horse/horse-stelony.png",
-      category: "mount",
-      stats: { movement: 5 },
-    },
-    {
-      id: "twig",
-      name: "Twig",
-      type: "item",
-      quantity: 1,
-      description: "A simple wooden sword - every adventurer starts somewhere",
-      emoji: "🪵",
-      image: "/images/items/sword/sword-twig.png",
-      category: "weapon",
-      stats: { attack: 2 },
-    },
-    {
-      id: "reflecto",
-      name: "Reflecto",
-      type: "item",
-      quantity: 1,
-      description: "A basic wooden shield - it may not look like much, but it gets the job done",
-      emoji: "🛡️",
-      image: "/images/items/shield/shield-reflecto.png",
-      category: "shield",
-      stats: { defense: 2 },
-    },
-    {
-      id: "normalo",
-      name: "Normalo",
-      type: "item",
-      quantity: 1,
-      description: "Standard issue armor for new adventurers",
-      emoji: "🥋",
-      image: "/images/items/armor/armor-normalo.png",
-      category: "armor",
-      stats: { defense: 1 },
-    }
-  ]
+export async function clearInventory(userId: string) {
+  if (!userId) return;
+  await supabase
+    .from('inventory_items')
+    .delete()
+    .eq('user_id', userId);
+  window.dispatchEvent(new Event('character-inventory-update'));
 }
 
-export function getEquippedItems(): InventoryItem[] {
-  if (typeof window === 'undefined') return []
-  
-  const savedEquipped = localStorage.getItem(EQUIPPED_ITEMS_KEY)
-  if (!savedEquipped) {
-    // If no equipped items are saved, auto-equip default items
-    const defaultItems = getDefaultKingdomInventory()
-    const equippedItems = defaultItems.map(item => ({ ...item, equipped: true }))
-    localStorage.setItem(EQUIPPED_ITEMS_KEY, JSON.stringify(equippedItems))
-    return equippedItems
+export async function getInventoryByType(userId: string, type: string): Promise<InventoryItem[]> {
+  if (!userId) return [];
+  const { data, error } = await supabase
+    .from('inventory_items')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('type', type);
+  if (error) {
+    console.error('Error fetching inventory by type:', error);
+    return [];
   }
-  
-  try {
-    return JSON.parse(savedEquipped)
-  } catch (err) {
-    console.error('Error parsing equipped items:', err)
-    localStorage.removeItem(EQUIPPED_ITEMS_KEY)
-    // Auto-equip default items if there's an error
-    const defaultItems = getDefaultKingdomInventory()
-    const equippedItems = defaultItems.map(item => ({ ...item, equipped: true }))
-    localStorage.setItem(EQUIPPED_ITEMS_KEY, JSON.stringify(equippedItems))
-    return equippedItems
+  return (data || []).map(row => ({ ...row, id: row.item_id, equipped: row.equipped, stats: row.stats || {} }));
+}
+
+export async function getInventoryByCategory(userId: string, category: string): Promise<InventoryItem[]> {
+  if (!userId) return [];
+  const { data, error } = await supabase
+    .from('inventory_items')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('category', category);
+  if (error) {
+    console.error('Error fetching inventory by category:', error);
+    return [];
   }
+  return (data || []).map(row => ({ ...row, id: row.item_id, equipped: row.equipped, stats: row.stats || {} }));
 }
 
-export function getStoredItems(): InventoryItem[] {
-  const allItems = getKingdomInventory()
-  const equippedItems = getEquippedItems()
-  
-  // Filter out equipped items and return the rest
-  return allItems.filter(item => 
-    !equippedItems.some(equipped => equipped.id === item.id)
-  )
-}
-
-export function equipItem(itemId: string): boolean {
-  if (typeof window === 'undefined') return false
-  
-  const allItems = getKingdomInventory()
-  const item = allItems.find(i => i.id === itemId)
-  
-  if (!item) return false
-  
-  // Check if item is consumable (artifacts, scrolls, potions)
-  const isConsumable = item.type === 'artifact' || item.type === 'scroll' || 
-                      (item.type === 'item' && !item.category)
-  
-  if (isConsumable) {
-    // For consumables, just remove them from inventory (use them)
-    removeFromKingdomInventory(itemId, 1)
-    return true
+export async function getInventoryItem(userId: string, id: string): Promise<InventoryItem | null> {
+  if (!userId) return null;
+  const { data, error } = await supabase
+    .from('inventory_items')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('item_id', id)
+    .single();
+  if (error) {
+    return null;
   }
-  
-  // For equipment, check category restrictions
-  const equippedItems = getEquippedItems()
-  const updatedEquippedItems = [...equippedItems]
-  const category = item.category
-  if (category && ['weapon', 'armor', 'shield', 'mount'].includes(category)) {
-    // Unequip any existing item of the same category
-    const existingIndex = equippedItems.findIndex(i => i.category === category)
-    if (existingIndex !== -1) {
-      const oldEquipped = equippedItems[existingIndex]
-      if (oldEquipped) {
-        // Remove from equipped
-        updatedEquippedItems.splice(existingIndex, 1)
-        // Add old equipped back to stored inventory (increment quantity if already present)
-        const kingdomInventory = getKingdomInventory()
-        const storedIndex = kingdomInventory.findIndex(i => i.id === oldEquipped.id)
-        if (storedIndex !== -1 && kingdomInventory[storedIndex]) {
-          kingdomInventory[storedIndex].quantity += 1
-        } else {
-          kingdomInventory.push({
-            ...oldEquipped,
-            quantity: 1,
-            equipped: false,
-            name: oldEquipped.name,
-            type: oldEquipped.type,
-            id: oldEquipped.id,
-            category: oldEquipped.category ?? '',
-            description: oldEquipped.description ?? '',
-            emoji: oldEquipped.emoji ?? '',
-            image: oldEquipped.image ?? '',
-            stats: oldEquipped.stats ?? {},
-          })
-        }
-        localStorage.setItem(KINGDOM_INVENTORY_KEY, JSON.stringify(kingdomInventory))
-      }
-    }
-    // Remove one from stored inventory for the new item
-    const kingdomInventory = getKingdomInventory()
-    const storedIndex = kingdomInventory.findIndex(i => i.id === item.id)
-    if (storedIndex !== -1 && kingdomInventory[storedIndex]) {
-      kingdomInventory[storedIndex].quantity -= 1
-      if (kingdomInventory[storedIndex] && kingdomInventory[storedIndex].quantity <= 0) {
-        kingdomInventory.splice(storedIndex, 1)
-      }
-      localStorage.setItem(KINGDOM_INVENTORY_KEY, JSON.stringify(kingdomInventory))
-    }
+  return { ...data, id: data.item_id, equipped: data.equipped, stats: data.stats || {} };
+}
+
+export async function hasItem(userId: string, itemId: string): Promise<boolean> {
+  if (!userId) return false;
+  const { data, error } = await supabase
+    .from('inventory_items')
+    .select('item_id')
+    .eq('user_id', userId)
+    .eq('item_id', itemId)
+    .single();
+  return !!data;
+}
+
+export async function getItemQuantity(userId: string, itemId: string): Promise<number> {
+  if (!userId) return 0;
+  const { data, error } = await supabase
+    .from('inventory_items')
+    .select('quantity')
+    .eq('user_id', userId)
+    .eq('item_id', itemId)
+    .single();
+  if (error || !data) return 0;
+  return data.quantity;
+}
+
+// For kingdom inventory, use the same inventory_items table but filter by type/category if needed
+export async function getKingdomInventory(userId: string): Promise<InventoryItem[]> {
+  return getInventory(userId);
+}
+
+export async function addToKingdomInventory(userId: string, item: InventoryItem) {
+  await addToInventory(userId, item);
+}
+
+export async function removeFromKingdomInventory(userId: string, itemId: string, quantity: number = 1) {
+  await removeFromInventory(userId, itemId, quantity);
+}
+
+// Equipped items: filter inventory_items where equipped = true
+export async function getEquippedItems(userId: string): Promise<InventoryItem[]> {
+  if (!userId) return [];
+  const { data, error } = await supabase
+    .from('inventory_items')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('equipped', true);
+  if (error) return [];
+  return (data || []).map(row => ({ ...row, id: row.item_id, equipped: row.equipped, stats: row.stats || {} }));
+}
+
+export async function getStoredItems(userId: string): Promise<InventoryItem[]> {
+  const allItems = await getKingdomInventory(userId);
+  const equippedItems = await getEquippedItems(userId);
+  return allItems.filter(item => !equippedItems.some(equipped => equipped.id === item.id));
+}
+
+export async function equipItem(userId: string, itemId: string): Promise<boolean> {
+  if (!userId) return false;
+  // Find the item
+  const { data: item, error } = await supabase
+    .from('inventory_items')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('item_id', itemId)
+    .single();
+  if (error || !item) return false;
+  // Unequip any existing item of the same category
+  if (item.category) {
+    await supabase
+      .from('inventory_items')
+      .update({ equipped: false })
+      .eq('user_id', userId)
+      .eq('category', item.category)
+      .eq('equipped', true);
   }
-  // Add to equipped items
-  updatedEquippedItems.push({ ...item, equipped: true })
-  localStorage.setItem(EQUIPPED_ITEMS_KEY, JSON.stringify(updatedEquippedItems))
-  window.dispatchEvent(new Event('character-inventory-update'))
-  return true
+  // Equip the new item
+  await supabase
+    .from('inventory_items')
+    .update({ equipped: true })
+    .eq('user_id', userId)
+    .eq('item_id', itemId);
+  window.dispatchEvent(new Event('character-inventory-update'));
+  return true;
 }
 
-export function unequipItem(itemId: string): boolean {
-  if (typeof window === 'undefined') return false
-  
-  const equippedItems = getEquippedItems()
-  const itemIndex = equippedItems.findIndex(i => i.id === itemId)
-  
-  if (itemIndex === -1) return false
-  
-  // Remove from equipped items
-  equippedItems.splice(itemIndex, 1)
-  localStorage.setItem(EQUIPPED_ITEMS_KEY, JSON.stringify(equippedItems))
-  window.dispatchEvent(new Event('character-inventory-update'))
-  
-  return true
+export async function unequipItem(userId: string, itemId: string): Promise<boolean> {
+  if (!userId) return false;
+  await supabase
+    .from('inventory_items')
+    .update({ equipped: false })
+    .eq('user_id', userId)
+    .eq('item_id', itemId);
+  window.dispatchEvent(new Event('character-inventory-update'));
+  return true;
 }
 
-export function removeFromKingdomInventory(itemId: string, quantity: number = 1) {
-  if (typeof window === 'undefined') return
-  
-  const currentInventory = getKingdomInventory()
-  const itemIndex = currentInventory.findIndex(i => i.id === itemId)
-  
-  if (itemIndex === -1) return
-  
-  const item = currentInventory[itemIndex]!
-  item.quantity -= quantity
-  
-  if (item.quantity <= 0) {
-    currentInventory.splice(itemIndex, 1)
-  }
-  
-  localStorage.setItem(KINGDOM_INVENTORY_KEY, JSON.stringify(currentInventory))
-  window.dispatchEvent(new Event('character-inventory-update'))
-}
-
-export function getTotalStats(): { movement: number; attack: number; defense: number } {
-  const equippedItems = getEquippedItems()
-  
+export async function getTotalStats(userId: string): Promise<{ movement: number; attack: number; defense: number }> {
+  const equippedItems = await getEquippedItems(userId);
   return equippedItems.reduce((total, item) => {
     if (item.stats) {
-      total.movement += item.stats.movement || 0
-      total.attack += item.stats.attack || 0
-      total.defense += item.stats.defense || 0
+      total.movement += item.stats.movement || 0;
+      total.attack += item.stats.attack || 0;
+      total.defense += item.stats.defense || 0;
     }
-    return total
-  }, { movement: 0, attack: 0, defense: 0 })
+    return total;
+  }, { movement: 0, attack: 0, defense: 0 });
 } 

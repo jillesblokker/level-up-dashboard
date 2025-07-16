@@ -6,33 +6,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-const STORAGE_KEYS = [
-  { key: "checked-quests", label: "Checked Quests" },
-  { key: "checked-milestones", label: "Checked Milestones" },
-  { key: "tilemap", label: "Tilemap" },
-  { key: "kingdom-inventory", label: "Kingdom Inventory" },
-  { key: "achievements", label: "Achievements Unlocked" },
-  { key: "titles", label: "Titles Gained/Set" },
-  { key: "perks", label: "Perks Gained/Set" },
-  { key: "character-stats", label: "Character Stats" },
-  { key: "kingdom-time-series-data", label: "Kingdom Time Series Data" },
-  { key: "tile-counts", label: "Tile Counts" },
-  { key: "tile-inventory", label: "Tile Inventory" },
-  { key: "grid", label: "Realm Grid" },
-];
-
-function getStoredData() {
-  return STORAGE_KEYS.map(({ key, label }) => {
-    let value = null;
-    try {
-      value = localStorage.getItem(key);
-    } catch (error) {
-      // Error handling intentionally left empty to avoid breaking the UI if stored data fails to load
-    }
-    return { key, label, value };
-  });
-}
-
 function summarizeData(key: string, value: any) {
   if (!value) return null;
   try {
@@ -75,95 +48,22 @@ function summarizeData(key: string, value: any) {
 }
 
 export default function StoredDataPage() {
-  const [data, setData] = useState(() => getStoredData());
+  // Only show Supabase-backed data
   const [characterStats, setCharacterStats] = useState<any>(null)
   const [characterTitles, setCharacterTitles] = useState<any>(null)
   const [characterPerks, setCharacterPerks] = useState<any>(null)
   const [characterStrengths, setCharacterStrengths] = useState<any>(null)
 
-  const refresh = () => setData(getStoredData());
-
-  const handleCopy = (value: string | null) => {
-    if (value) navigator.clipboard.writeText(value);
-  };
-
-  const handleClear = (key: string) => {
-    localStorage.removeItem(key);
-    refresh();
-  };
-
-  useEffect(() => {
-    // Load character strengths data
-    try {
-      const strengthsData = localStorage.getItem('character-strengths');
-      if (strengthsData) {
-        setCharacterStrengths(JSON.parse(strengthsData));
-      }
-    } catch (error) {
-      console.error('Error loading character strengths:', error);
-    }
-  }, []);
-
-  useEffect(() => {
-    // Load character perks data
-    try {
-      const perksData = localStorage.getItem('character-perks');
-      if (perksData) {
-        setCharacterPerks(JSON.parse(perksData));
-      }
-    } catch (error) {
-      console.error('Error loading character perks:', error);
-    }
-  }, []);
-
-  useEffect(() => {
-    // Load character stats data
-    try {
-      const statsData = localStorage.getItem('character-stats');
-      if (statsData) {
-        setCharacterStats(JSON.parse(statsData));
-      }
-    } catch (error) {
-      console.error('Error loading character stats:', error);
-    }
-  }, []);
-
-  useEffect(() => {
-    // Load character titles data
-    try {
-      const titlesData = localStorage.getItem('character-titles');
-      if (titlesData) {
-        setCharacterTitles(JSON.parse(titlesData));
-      }
-    } catch (error) {
-      console.error('Error loading character titles:', error);
-    }
-  }, []);
-
+  // Remove all localStorage UI and logic
+  // Only keep Supabase data display logic
   return (
     <main className="container mx-auto p-4" aria-label="stored-data-section">
       <h1 className="text-2xl font-bold mb-4">Stored Data</h1>
-      <Button onClick={refresh} className="mb-4" aria-label="refresh-stored-data">Refresh</Button>
       <Card className="p-4" aria-label="stored-data-card">
         <ScrollArea className="h-[600px]" aria-label="stored-data-scroll-area">
-          <div className="space-y-8">
-            {data.map(({ key, label, value }) => (
-              <section key={key} aria-label={`${label}-section`}>
-                <div className="flex items-center gap-2 mb-2">
-                  <h2 className="text-lg font-semibold">{label}</h2>
-                  <Badge>{key}</Badge>
-                  <Button size="sm" variant="outline" onClick={() => handleCopy(value)} aria-label={`copy-${key}`}>Copy</Button>
-                  <Button size="sm" variant="destructive" onClick={() => handleClear(key)} aria-label={`clear-${key}`}>Clear</Button>
-                </div>
-                <div className="mb-2">
-                  {value ? summarizeData(key, value) : <span>No data stored.</span>}
-                </div>
-                <pre className="bg-black/60 rounded p-2 text-xs text-white overflow-x-auto max-w-full" aria-label={`${label}-data`}>
-                  {value || "<empty>"}
-                </pre>
-              </section>
-            ))}
-          </div>
+          {/* Display Supabase-backed data here */}
+          {/* Example: */}
+          <div>Supabase data will be shown here.</div>
         </ScrollArea>
       </Card>
 

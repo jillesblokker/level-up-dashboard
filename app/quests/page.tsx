@@ -166,26 +166,8 @@ export default function QuestsPage() {
     weight: '',
   });
   const [customChallenges, setCustomChallenges] = useState<Record<string, any[]>>({});
-  const [challengeStreaks, setChallengeStreaks] = useState<Record<string, number[]>>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        return JSON.parse(localStorage.getItem(CHALLENGE_STREAKS_KEY) || '{}');
-      } catch {
-        return {};
-      }
-    }
-    return {};
-  });
-  const [challengeLastCompleted, setChallengeLastCompleted] = useState<Record<string, string[]>>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        return JSON.parse(localStorage.getItem(CHALLENGE_LAST_COMPLETED_KEY) || '{}');
-      } catch {
-        return {};
-      }
-    }
-    return {};
-  });
+  const [challengeStreaks, setChallengeStreaks] = useState<Record<string, number[]>>({});
+  const [challengeLastCompleted, setChallengeLastCompleted] = useState<Record<string, string[]>>({});
   const [editCustomChallengeIdx, setEditCustomChallengeIdx] = useState<number | null>(null);
   const [editCustomChallengeData, setEditCustomChallengeData] = useState<any | null>(null);
   const [addQuestModalOpen, setAddQuestModalOpen] = useState(false);
@@ -205,11 +187,7 @@ export default function QuestsPage() {
   const [challenges, setChallenges] = useState<any[]>([]);
   const [token, setToken] = useState<string | null>(null);
   // --- Quest Streak Logic ---
-  const QUEST_STREAK_KEY = 'quest-streak-v1';
-  const QUEST_HISTORY_KEY = 'quest-history-v1';
-  const [streakData, setStreakData] = useState<{ streak_days: number, week_streaks: number } | null>(null);
-  const { supabase, isLoading: isSupabaseLoading } = useSupabase();
-  const streakSubscriptionRef = useRef<any>(null);
+  // Remove localStorage fallback for streak/history
   const [questStreak, setQuestStreak] = useState(0);
   const [questHistory, setQuestHistory] = useState<{date: string, completed: boolean}[]>([]);
   const today = new Date().toISOString().slice(0, 10);
@@ -237,10 +215,7 @@ export default function QuestsPage() {
   // On mount/load, load streak and history from localStorage
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const streak = Number(localStorage.getItem(QUEST_STREAK_KEY) || '0');
-    setQuestStreak(streak);
-    const hist = JSON.parse(localStorage.getItem(QUEST_HISTORY_KEY) || '[]');
-    setQuestHistory(hist);
+    // Only use Supabase for streak/history
   }, [userId]);
   // On quest completion change, update streak/history
   useEffect(() => {
@@ -251,7 +226,7 @@ export default function QuestsPage() {
       const completed = todaysCompleted === todaysTotal && todaysTotal > 0;
       const newHistory = [...questHistory, { date: today, completed }].slice(-14); // keep 2 weeks
       setQuestHistory(newHistory);
-      localStorage.setItem(QUEST_HISTORY_KEY, JSON.stringify(newHistory));
+      // localStorage.setItem(QUEST_HISTORY_KEY, JSON.stringify(newHistory)); // Removed localStorage
       // Update streak
       let streak = 0;
       for (let i = newHistory.length - 1; i >= 0; i--) {
@@ -259,7 +234,7 @@ export default function QuestsPage() {
         else break;
       }
       setQuestStreak(streak);
-      localStorage.setItem(QUEST_STREAK_KEY, String(streak));
+      // localStorage.setItem(QUEST_STREAK_KEY, String(streak)); // Removed localStorage
     }
   }, [todaysCompleted, todaysTotal, userId]);
 
@@ -768,7 +743,7 @@ export default function QuestsPage() {
       const completed = todaysCompleted === todaysTotal && todaysTotal > 0;
       const newHistory = [...questHistory, { date: today, completed }].slice(-14); // keep 2 weeks
       setQuestHistory(newHistory);
-      localStorage.setItem(QUEST_HISTORY_KEY, JSON.stringify(newHistory));
+      // localStorage.setItem(QUEST_HISTORY_KEY, JSON.stringify(newHistory)); // Removed localStorage
       // Update streak
       let streak = 0;
       for (let i = newHistory.length - 1; i >= 0; i--) {
@@ -776,7 +751,7 @@ export default function QuestsPage() {
         else break;
       }
       setQuestStreak(streak);
-      localStorage.setItem(QUEST_STREAK_KEY, String(streak));
+      // localStorage.setItem(QUEST_STREAK_KEY, String(streak)); // Removed localStorage
       updateStreak(streak, 0); // Assuming week_streaks is 0 for daily quests
     }
   }, [todaysCompleted, todaysTotal, userId]);

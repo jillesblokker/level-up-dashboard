@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils"
 import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience } from "@/types/character"
 import { Logo } from "@/components/logo";
 import { useUser } from "@clerk/nextjs";
+import { getCharacterStats } from '@/lib/character-data-manager';
 
 interface MobileNavProps {
   tabs?: { value: string; label: string }[]
@@ -61,55 +62,33 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
   })
 
   useEffect(() => {
-    // Load character stats from localStorage
-    const loadCharacterStats = () => {
-      try {
-        const savedStats = localStorage.getItem("character-stats")
-        if (savedStats) {
-          const stats = JSON.parse(savedStats) as CharacterStats
-          // Initialize with default gold if not set
-          if (typeof stats.gold === 'undefined') {
-            stats.gold = 1000
-            localStorage.setItem("character-stats", JSON.stringify(stats))
-          }
-          const currentLevel = calculateLevelFromExperience(stats.experience)
-          setCharacterStats({
-            ...stats,
-            level: currentLevel,
-            experienceToNextLevel: calculateExperienceForLevel(currentLevel)
-          })
-        } else {
-          // If no stats exist, create initial stats
-          const initialStats: CharacterStats = {
-            level: 1,
-            experience: 0,
-            experienceToNextLevel: 100,
-            gold: 1000,
-            titles: {
-              equipped: "Novice Adventurer",
-              unlocked: 5,
-              total: 20
-            },
-            perks: {
-              active: 3,
-              total: 10
-            }
-          }
-          localStorage.setItem("character-stats", JSON.stringify(initialStats))
-          setCharacterStats(initialStats)
+    // Load character stats from Supabase
+    async function loadCharacterStats() {
+      // TODO: get userId from context/auth
+      const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined;
+      if (!userId) return;
+      const stats = await getCharacterStats(userId);
+      setCharacterStats(stats || {
+        level: 1,
+        experience: 0,
+        experienceToNextLevel: 100,
+        gold: 1000,
+        titles: {
+          equipped: "Novice Adventurer",
+          unlocked: 5,
+          total: 20
+        },
+        perks: {
+          active: 3,
+          total: 10
         }
-      } catch (error) {
-        console.error("Error loading character stats:", error)
-      }
+      });
     }
-    loadCharacterStats()
-
+    loadCharacterStats();
     // Listen for character stats updates
-    const handleStatsUpdate = () => loadCharacterStats()
-    window.addEventListener("character-stats-update", handleStatsUpdate)
-    
+    window.addEventListener("character-stats-update", loadCharacterStats)
     return () => {
-      window.removeEventListener("character-stats-update", handleStatsUpdate)
+      window.removeEventListener("character-stats-update", loadCharacterStats)
     }
   }, [])
   

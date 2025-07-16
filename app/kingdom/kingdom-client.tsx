@@ -19,6 +19,7 @@ import {
   getTotalStats,
   type InventoryItem 
 } from "@/lib/inventory-manager"
+import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager';
 import type { InventoryItem as DefaultInventoryItem } from "@/app/lib/default-inventory"
 import type { InventoryItem as ManagerInventoryItem } from "@/lib/inventory-manager"
 import { KingdomStatsBlock, KingStatsBlock } from "@/components/kingdom-stats-graph";
@@ -208,10 +209,10 @@ function getKingdomTileInventoryWithBuildTokens(): Tile[] {
 }
 
 export function KingdomClient({ userId }: { userId: string | null }) {
-  const [coverImage, setCoverImage] = useState("/images/kingdom-header.jpg")
-  const [equippedItems, setEquippedItems] = useState<KingdomInventoryItem[]>([])
-  const [storedItems, setStoredItems] = useState<KingdomInventoryItem[]>([])
-  const [totalStats, setTotalStats] = useState({ movement: 0, attack: 0, defense: 0 })
+  const [coverImage, setCoverImage] = useState<string | undefined>(undefined);
+  const [equippedItems, setEquippedItems] = useState<KingdomInventoryItem[]>([]);
+  const [storedItems, setStoredItems] = useState<KingdomInventoryItem[]>([]);
+  const [totalStats, setTotalStats] = useState<{ movement: number; attack: number; defense: number }>({ movement: 0, attack: 0, defense: 0 });
   const [modalOpen, setModalOpen] = useState(false)
   const [modalText, setModalText] = useState("")
   const [activeTab, setActiveTab] = useState("equipped")
@@ -225,6 +226,8 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const [moveUp, setMoveUp] = useState(false);
   const [kingdomReady, setKingdomReady] = useState(false);
   const [kingdomContent, setKingdomContent] = useState<JSX.Element | null>(null);
+  const [inventoryLoading, setInventoryLoading] = useState(true);
+  const [coverImageLoading, setCoverImageLoading] = useState(true);
 
   // Helper to determine if an item is consumable
   const isConsumable = (item: KingdomInventoryItem) => {
@@ -347,34 +350,43 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   }, []);
 
   useEffect(() => {
-    const loadInventory = () => {
-      const equipped = getEquippedItems()
-      const stored = getStoredItems()
-      const stats = getTotalStats()
+    if (!userId) return;
+    setInventoryLoading(true);
+    const loadInventory = async () => {
+      const equipped = await getEquippedItems(userId);
+      const stored = await getStoredItems(userId);
+      const stats = await getTotalStats(userId);
       // Normalize items to always have a 'stats' property and description
       const normalizeItems = (items: any[]) => items.map(item => ({
         ...item,
         stats: (item as any).stats || {},
         description: (item as any).description || '',
-      }) as KingdomInventoryItem)
-      setEquippedItems(normalizeItems(equipped.filter(isEquippable)))
-      setStoredItems(normalizeItems(stored))
-      setTotalStats(stats)
-    }
-    loadInventory()
+      }) as KingdomInventoryItem);
+      setEquippedItems(normalizeItems(equipped.filter(isEquippable)));
+      setStoredItems(normalizeItems(stored));
+      setTotalStats(stats);
+      setInventoryLoading(false);
+    };
+    loadInventory();
     const handleInventoryUpdate = () => {
       loadInventory();
     };
-    window.addEventListener('character-inventory-update', handleInventoryUpdate)
-    return () => window.removeEventListener('character-inventory-update', handleInventoryUpdate)
-  }, [])
+    window.addEventListener('character-inventory-update', handleInventoryUpdate);
+    return () => window.removeEventListener('character-inventory-update', handleInventoryUpdate);
+  }, [userId]);
 
   useEffect(() => {
-    const savedImage = localStorage.getItem("kingdom-header-image")
-    if (savedImage) {
-      setCoverImage(savedImage)
-    }
-  }, [])
+    if (!userId) return;
+    setCoverImageLoading(true);
+    const loadCoverImage = async () => {
+      const pref = await getUserPreference(userId, 'kingdom-header-image');
+      if (pref && pref.value) {
+        setCoverImage(pref.value);
+      }
+      setCoverImageLoading(false);
+    };
+    loadCoverImage();
+  }, [userId]);
 
   if (showEntrance) {
     return (
@@ -414,18 +426,15 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       {/* Main Content with Tabs */}
       <HeaderSection
         title="KINGDOM"
-        imageSrc={coverImage}
+        imageSrc={coverImage || ""}
         canEdit={!!userId}
-        onImageUpload={(file) => {
+        onImageUpload={async (file) => {
           const reader = new FileReader();
-          reader.onload = (event: ProgressEvent<FileReader>) => {
+          reader.onload = async (event: ProgressEvent<FileReader>) => {
             const result = event.target?.result as string;
             setCoverImage(result);
-            localStorage.setItem("kingdom-header-image", result);
-            if (typeof window !== 'undefined') {
-              const win = window as WindowWithHeaderImages;
-              win.headerImages = win.headerImages || {};
-              win.headerImages['kingdom'] = result;
+            if (userId) {
+              await setUserPreference(userId, 'kingdom-header-image', result);
             }
           };
           reader.readAsDataURL(file);
@@ -498,36 +507,42 @@ export function KingdomClient({ userId }: { userId: string | null }) {
                     <TabsTrigger value="equipped" aria-label="equipped-tab">Equipped</TabsTrigger>
                     <TabsTrigger value="stored" aria-label="stored-tab">Stored</TabsTrigger>
                   </TabsList>
-                  <TabsContent value="equipped" className="mt-4">
-                    {equippedItems.length === 0 ? (
-                      <div className="text-center text-gray-400 py-8">
-                        No items equipped
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4" aria-label="equipped-items-grid">
-                        {equippedItems.map((item) => renderItemCard(item, true))}
-                      </div>
-                    )}
-                  </TabsContent>
-                  <TabsContent value="stored" className="mt-4">
-                    {storedItems.length === 0 ? (
-                      <Card className="bg-black/50 border-amber-800/30 border-dashed">
-                        <CardContent className="flex flex-col items-center justify-center py-12 px-6 text-center">
-                          <div className="w-16 h-16 mb-4 rounded-full bg-amber-900/30 flex items-center justify-center">
-                            <span className="text-2xl">🎒</span>
+                  {inventoryLoading ? (
+                    <div className="text-center text-gray-400 py-8">Loading inventory...</div>
+                  ) : (
+                    <>
+                      <TabsContent value="equipped" className="mt-4">
+                        {equippedItems.length === 0 ? (
+                          <div className="text-center text-gray-400 py-8">
+                            No items equipped
                           </div>
-                          <h3 className="text-amber-500 font-semibold text-lg mb-2">Your bag is empty</h3>
-                          <p className="text-gray-400 text-sm leading-relaxed">
-                            Keep traversing the land and buy new items to be better equipped.
-                          </p>
-                        </CardContent>
-                      </Card>
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4" aria-label="stored-items-grid">
-                        {storedItems.map((item) => renderItemCard(item, false))}
-                      </div>
-                    )}
-                  </TabsContent>
+                        ) : (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4" aria-label="equipped-items-grid">
+                            {equippedItems.map((item) => renderItemCard(item, true))}
+                          </div>
+                        )}
+                      </TabsContent>
+                      <TabsContent value="stored" className="mt-4">
+                        {storedItems.length === 0 ? (
+                          <Card className="bg-black/50 border-amber-800/30 border-dashed">
+                            <CardContent className="flex flex-col items-center justify-center py-12 px-6 text-center">
+                              <div className="w-16 h-16 mb-4 rounded-full bg-amber-900/30 flex items-center justify-center">
+                                <span className="text-2xl">🎒</span>
+                              </div>
+                              <h3 className="text-amber-500 font-semibold text-lg mb-2">Your bag is empty</h3>
+                              <p className="text-gray-400 text-sm leading-relaxed">
+                                Keep traversing the land and buy new items to be better equipped.
+                              </p>
+                            </CardContent>
+                          </Card>
+                        ) : (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4" aria-label="stored-items-grid">
+                            {storedItems.map((item) => renderItemCard(item, false))}
+                          </div>
+                        )}
+                      </TabsContent>
+                    </>
+                  )}
                 </Tabs>
               </CardContent>
             </Card>

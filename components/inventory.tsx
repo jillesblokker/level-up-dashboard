@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { InventoryItem } from "@/lib/inventory-manager"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { storageService } from '@/lib/storage-service'
+import { getInventory } from '@/lib/inventory-manager';
 import Image from "next/image"
 
 // Emoji mappings for different item types and specific items
@@ -75,17 +75,17 @@ export function Inventory() {
   const [selectedType, setSelectedType] = useState<string>("all")
 
   useEffect(() => {
-    // Load inventory from localStorage
-    const loadInventory = () => {
-      const savedInventory = storageService.get<InventoryItem[]>('kingdom-inventory', [])
-      setInventory(savedInventory)
+    // Load inventory from Supabase
+    async function loadInventory() {
+      // TODO: get userId from context/auth
+      const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined;
+      if (!userId) return;
+      const items = await getInventory(userId);
+      setInventory(items || []);
     }
-
-    loadInventory()
-
+    loadInventory();
     // Listen for inventory updates
     window.addEventListener("character-inventory-update", loadInventory)
-    
     return () => {
       window.removeEventListener("character-inventory-update", loadInventory)
     }
