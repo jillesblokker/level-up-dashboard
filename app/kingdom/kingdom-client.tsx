@@ -294,10 +294,22 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             src="/images/kingdom-tiles/Entrance.png"
             alt="Kingdom Entrance"
             fill
-            className={`object-cover transition-transform duration-[3000ms] ease-in-out`}
+            className={`object-cover transition-transform duration-[3000ms] ease-in-out kingdom-entrance-img`}
             style={{ transform: zoomed ? 'scale(4)' : 'scale(1)', transition: 'transform 3s cubic-bezier(0.4,0,0.2,1)' }}
             unoptimized
           />
+          <style jsx global>{`
+            @media (min-width: 768px) {
+              .kingdom-entrance-img {
+                margin-top: 64px;
+              }
+            }
+            @media (max-width: 767px) {
+              .kingdom-entrance-img {
+                margin-top: env(safe-area-inset-top, 0px);
+              }
+            }
+          `}</style>
         </div>
       </div>
     );
@@ -434,16 +446,16 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       </AlertDialog>
 
       {/* Main Content with Tabs */}
-      <div className="container mx-auto p-4 space-y-8" aria-label="kingdom-main-content">
+      <div className="container mx-auto p-4" aria-label="kingdom-main-content">
         <Tabs value={kingdomTab} onValueChange={setKingdomTab} className="w-full">
-          <TabsList className="mb-4 w-full grid grid-cols-3">
+          <TabsList className="mb-2 w-full grid grid-cols-3">
             <TabsTrigger value="thrivehaven">Thrivehaven</TabsTrigger>
             <TabsTrigger value="progress">Progress</TabsTrigger>
-            <TabsTrigger value="inventory">Kingdom Inventory</TabsTrigger>
+            <TabsTrigger value="inventory">Inventory</TabsTrigger>
           </TabsList>
           <TabsContent value="thrivehaven">
-            <div className="flex flex-col items-center justify-center min-h-[calc(100vh-6rem)] w-full">
-              <div className="flex-1 flex items-center justify-center w-full">
+            <div className="flex flex-col items-center justify-center w-full">
+              <div className="flex items-center justify-center w-full">
                 <KingdomGrid
                   grid={kingdomGrid}
                   onTilePlace={handlePlaceKingdomTile}
