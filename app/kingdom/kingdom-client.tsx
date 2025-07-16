@@ -243,15 +243,21 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const [propertiesOpen, setPropertiesOpen] = useState(false);
   const [showEntrance, setShowEntrance] = useState(true);
   const [zoomed, setZoomed] = useState(false);
+  const [fadeStage, setFadeStage] = useState<'none' | 'black' | 'white'>('none');
 
   // All useEffect hooks at the top
   useEffect(() => {
     setShowEntrance(true);
     setZoomed(false);
+    setFadeStage('none');
     const zoomTimeout = setTimeout(() => setZoomed(true), 3000); // show still for 3s, then zoom
-    const hideTimeout = setTimeout(() => setShowEntrance(false), 6000); // hide after 6s total
+    const fadeBlackTimeout = setTimeout(() => setFadeStage('black'), 6000); // start fade to black at 6s
+    const fadeWhiteTimeout = setTimeout(() => setFadeStage('white'), 7000); // start fade to white at 7s
+    const hideTimeout = setTimeout(() => setShowEntrance(false), 8000); // hide after 8s total
     return () => {
       clearTimeout(zoomTimeout);
+      clearTimeout(fadeBlackTimeout);
+      clearTimeout(fadeWhiteTimeout);
       clearTimeout(hideTimeout);
     };
   }, []);
@@ -294,9 +300,18 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             src="/images/kingdom-tiles/Entrance.png"
             alt="Kingdom Entrance"
             fill
-            className={`object-cover transition-transform duration-[3000ms] ease-in-out kingdom-entrance-img`}
-            style={{ transform: zoomed ? 'scale(8)' : 'scale(1)', transition: 'transform 3s cubic-bezier(0.4,0,0.2,1)' }}
+            className={`object-cover transition-transform duration-[4000ms] ease-in-out kingdom-entrance-img`}
+            style={{ transform: zoomed ? 'scale(16)' : 'scale(1)', transition: 'transform 4s cubic-bezier(0.4,0,0.2,1)' }}
             unoptimized
+          />
+          {/* Fade overlays */}
+          <div
+            className={`pointer-events-none absolute inset-0 z-20 transition-opacity duration-1000 ${fadeStage === 'black' ? 'opacity-100 bg-black' : 'opacity-0'}`}
+            style={{ transition: 'opacity 1s linear' }}
+          />
+          <div
+            className={`pointer-events-none absolute inset-0 z-30 transition-opacity duration-1000 ${fadeStage === 'white' ? 'opacity-100 bg-white' : 'opacity-0'}`}
+            style={{ transition: 'opacity 1s linear' }}
           />
           <style jsx global>{`
             @media (min-width: 768px) {
