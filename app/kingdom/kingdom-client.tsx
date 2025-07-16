@@ -302,7 +302,9 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             fill
             className={`object-cover transition-transform duration-[4000ms] ease-in-out kingdom-entrance-img`}
             style={{
-              transform: zoomed ? 'scale(16)' : 'scale(1)',
+              transform: zoomed
+                ? 'scale(16) translateY(-10%)' // scale up and move up
+                : 'scale(1) translateY(0%)',
               transition: 'transform 4s cubic-bezier(0.4,0,0.2,1)',
               objectPosition: 'top center',
               position: 'absolute',
