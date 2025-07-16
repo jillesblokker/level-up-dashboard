@@ -248,8 +248,8 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   useEffect(() => {
     setShowEntrance(true);
     setZoomed(false);
-    const zoomTimeout = setTimeout(() => setZoomed(true), 2000); // show still for 2s, then zoom
-    const hideTimeout = setTimeout(() => setShowEntrance(false), 5000); // hide after 5s total
+    const zoomTimeout = setTimeout(() => setZoomed(true), 3000); // show still for 3s, then zoom
+    const hideTimeout = setTimeout(() => setShowEntrance(false), 6000); // hide after 6s total
     return () => {
       clearTimeout(zoomTimeout);
       clearTimeout(hideTimeout);
@@ -295,7 +295,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             alt="Kingdom Entrance"
             fill
             className={`object-cover transition-transform duration-[3000ms] ease-in-out kingdom-entrance-img`}
-            style={{ transform: zoomed ? 'scale(4)' : 'scale(1)', transition: 'transform 3s cubic-bezier(0.4,0,0.2,1)' }}
+            style={{ transform: zoomed ? 'scale(8)' : 'scale(1)', transition: 'transform 3s cubic-bezier(0.4,0,0.2,1)' }}
             unoptimized
           />
           <style jsx global>{`
