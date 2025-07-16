@@ -394,6 +394,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             fill
             className={`object-cover transition-transform ease-in-out kingdom-entrance-img`}
             style={{
+              objectPosition: 'top center',
               transform:
                 zoomed
                   ? `scale(16) translateY(-20%)`
