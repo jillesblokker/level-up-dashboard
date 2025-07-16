@@ -250,10 +250,10 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     setShowEntrance(true);
     setZoomed(false);
     setFadeStage('none');
+    const fadeBlackTimeout = setTimeout(() => setFadeStage('black'), 0); // Start fade to black immediately
     const zoomTimeout = setTimeout(() => setZoomed(true), 3000); // show still for 3s, then zoom
-    const fadeBlackTimeout = setTimeout(() => setFadeStage('black'), 5000); // start fade to black at 5s (was 6s)
-    const fadeWhiteTimeout = setTimeout(() => setFadeStage('white'), 6000); // start fade to white at 6s (was 7s)
-    const hideTimeout = setTimeout(() => setShowEntrance(false), 7000); // hide after 7s total (was 8s)
+    const fadeWhiteTimeout = setTimeout(() => setFadeStage('white'), 6000); // start fade to white at 6s
+    const hideTimeout = setTimeout(() => setShowEntrance(false), 7000); // hide after 7s total
     return () => {
       clearTimeout(zoomTimeout);
       clearTimeout(fadeBlackTimeout);
@@ -304,16 +304,15 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             style={{
               transform: zoomed ? 'scale(16)' : 'scale(1)',
               transition: 'transform 4s cubic-bezier(0.4,0,0.2,1)',
-              objectPosition: 'center top', // Ensure top is visible
-              top: '10%', // Move image lower (10% from top)
+              objectPosition: 'top center', // Always show the top of the image
               position: 'absolute',
             }}
             unoptimized
           />
           {/* Fade overlays */}
           <div
-            className={`pointer-events-none absolute inset-0 z-20 transition-opacity duration-1000 ${fadeStage === 'black' ? 'opacity-100 bg-black' : 'opacity-0'}`}
-            style={{ transition: 'opacity 1s linear' }}
+            className={`pointer-events-none absolute inset-0 z-20 transition-opacity duration-[4000ms] ${fadeStage === 'black' ? 'opacity-100 bg-black' : 'opacity-0'}`}
+            style={{ transition: 'opacity 4s linear' }}
           />
           <div
             className={`pointer-events-none absolute inset-0 z-30 transition-opacity duration-1000 ${fadeStage === 'white' ? 'opacity-100' : 'opacity-0'}`}
