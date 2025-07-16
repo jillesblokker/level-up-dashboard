@@ -208,18 +208,18 @@ function ChartTypeToggle({ chartType, setChartType }: { chartType: 'bar' | 'line
   return (
     <div className="flex gap-2 items-center">
       <button
-        className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors duration-200 ${chartType === 'bar' ? 'bg-amber-700 text-white' : 'bg-gray-800 text-gray-300'}`}
+        className={`px-3 py-1 rounded-md text-xl font-semibold transition-colors duration-200 ${chartType === 'bar' ? 'bg-amber-700 text-white' : 'bg-gray-800 text-gray-300'}`}
         onClick={() => setChartType('bar')}
         aria-label="Bar chart view"
       >
-        Bar
+        <span role="img" aria-label="Bar chart">📊</span>
       </button>
       <button
-        className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors duration-200 ${chartType === 'line' ? 'bg-amber-700 text-white' : 'bg-gray-800 text-gray-300'}`}
+        className={`px-3 py-1 rounded-md text-xl font-semibold transition-colors duration-200 ${chartType === 'line' ? 'bg-amber-700 text-white' : 'bg-gray-800 text-gray-300'}`}
         onClick={() => setChartType('line')}
         aria-label="Line chart view"
       >
-        Line
+        <span role="img" aria-label="Line chart">📈</span>
       </button>
     </div>
   );
@@ -439,7 +439,6 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
       <CardHeader>
         <div className="flex items-center justify-between gap-4">
           <CardTitle className="text-amber-500 text-2xl font-bold">Kingdom stats</CardTitle>
-          <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" aria-label="Select time period" className="ml-2">
@@ -447,18 +446,22 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
                   if (timePeriod === 'week') return 'Week';
                   if (timePeriod === 'month') return 'Month';
                   if (timePeriod === 'year') return 'Year';
-                  return 'All time';
+                  if (timePeriod === 'all') return 'All';
+                  return '';
                 })()}
-                <ChevronDown className="ml-2 w-4 h-4" aria-hidden="true" />
+                <ChevronDown className="ml-2 w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent aria-label="kingdom-stats-time-period-dropdown">
-              <DropdownMenuItem onSelect={() => setTimePeriod('week')} aria-label="Week">Week</DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setTimePeriod('month')} aria-label="Month">Month</DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setTimePeriod('year')} aria-label="Year">Year</DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setTimePeriod('all')} aria-label="All time">All time</DropdownMenuItem>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setTimePeriod('week')}>Week</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTimePeriod('month')}>Month</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTimePeriod('year')}>Year</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTimePeriod('all')}>All</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+        </div>
+        <div className="flex justify-end mt-2">
+          <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
         </div>
         <CardDescription className="text-gray-300">Track your realm&apos;s growth</CardDescription>
       </CardHeader>
