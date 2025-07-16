@@ -343,14 +343,14 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
           <LineChart data={graphData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#fbbf24" stopOpacity={0.5} />
+                <stop offset="0%" stopColor="#fbbf24" stopOpacity={0.7} />
                 <stop offset="100%" stopColor="#f59e42" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#444" />
             <XAxis
               dataKey="day"
-              tick={({ x, y, payload, index }) => (
+              tick={({ x, y, payload }) => (
                 <text
                   x={x}
                   y={y + 16}
