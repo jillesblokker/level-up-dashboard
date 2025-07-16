@@ -252,7 +252,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     setFadeStage('none');
     const zoomTimeout = setTimeout(() => setZoomed(true), 3000); // show still for 3s, then zoom
     const fadeBlackTimeout = setTimeout(() => setFadeStage('black'), 3000); // start fade to black with zoom
-    const fadeWhiteTimeout = setTimeout(() => setFadeStage('white'), 6000); // start fade to white at 6s
+    const fadeWhiteTimeout = setTimeout(() => setFadeStage('white'), 5000); // start fade to white at 5s (overlap black/white)
     const hideTimeout = setTimeout(() => setShowEntrance(false), 7000); // hide after 7s total
     return () => {
       clearTimeout(zoomTimeout);
@@ -294,8 +294,8 @@ export function KingdomClient({ userId }: { userId: string | null }) {
 
   if (showEntrance) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black" style={{ width: '100vw', height: '100vh' }}>
-        <div className="relative w-full h-full" style={{ overflow: 'hidden' }}>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black" style={{ width: '100vw', height: '100vh', padding: 0, margin: 0 }}>
+        <div className="relative w-full h-full" style={{ overflow: 'hidden', padding: 0, margin: 0 }}>
           <Image
             src="/images/kingdom-tiles/Entrance.png"
             alt="Kingdom Entrance"
@@ -304,9 +304,12 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             style={{
               transform: zoomed ? 'scale(16)' : 'scale(1)',
               transition: 'transform 4s cubic-bezier(0.4,0,0.2,1)',
-              objectPosition: 'top center', // Always show the top of the image
+              objectPosition: 'top center',
               position: 'absolute',
-              top: 0, // Top aligned, no gap
+              top: 0,
+              left: 0,
+              margin: 0,
+              padding: 0,
             }}
             unoptimized
           />
@@ -316,24 +319,16 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             style={{ transition: 'opacity 3s linear' }}
           />
           <div
-            className={`pointer-events-none absolute inset-0 z-30 transition-opacity duration-1000 ${fadeStage === 'white' ? 'opacity-100' : 'opacity-0'}`}
+            className={`pointer-events-none absolute inset-0 z-30 transition-opacity duration-[2000ms] ${fadeStage === 'white' ? 'opacity-100' : 'opacity-0'}`}
             style={{
-              transition: 'opacity 1s linear',
-              background: fadeStage === 'white' ? 'linear-gradient(0deg, #f8fafc 0%, #e2e8f0 100%)' : 'transparent', // Soft white gradient
+              transition: 'opacity 2s linear',
+              background: fadeStage === 'white'
+                ? 'radial-gradient(ellipse at center, #f8fafc 0%, #e2e8f0 60%, #000 100%)'
+                : 'transparent',
+              opacity: fadeStage === 'white' ? 0.95 : 0,
+              mixBlendMode: 'lighten',
             }}
           />
-          <style jsx global>{`
-            @media (min-width: 768px) {
-              .kingdom-entrance-img {
-                margin-top: 64px;
-              }
-            }
-            @media (max-width: 767px) {
-              .kingdom-entrance-img {
-                margin-top: env(safe-area-inset-top, 0px);
-              }
-            }
-          `}</style>
         </div>
       </div>
     );
