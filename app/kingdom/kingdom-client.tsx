@@ -222,7 +222,6 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const [propertiesOpen, setPropertiesOpen] = useState(false);
   const [showEntrance, setShowEntrance] = useState(true);
   const [zoomed, setZoomed] = useState(false);
-  const [fadeStage, setFadeStage] = useState<'none' | 'black' | 'white'>('none');
   const [moveUp, setMoveUp] = useState(false);
   const [kingdomReady, setKingdomReady] = useState(false);
   const [kingdomContent, setKingdomContent] = useState<JSX.Element | null>(null);
@@ -333,23 +332,16 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   useEffect(() => {
     setShowEntrance(true);
     setZoomed(false);
-    setFadeStage('none');
     setMoveUp(false);
     // Linger for 2s, then start zoom (3.5s duration)
     const zoomTimeout = setTimeout(() => setZoomed(true), 2000);
     // Start move up at 2s (3s duration) - 0.5s earlier
     const moveUpTimeout = setTimeout(() => setMoveUp(true), 2000);
-    // Fade to black at 5s (0.7s duration)
-    const fadeBlackTimeout = setTimeout(() => setFadeStage('black'), 5000);
-    // Fade to white at 5.7s (1.3s duration)
-    const fadeWhiteTimeout = setTimeout(() => setFadeStage('white'), 5700);
-    // Hide overlay and show main content at 7s
-    const hideTimeout = setTimeout(() => setShowEntrance(false), 7000);
+    // Hide overlay and show main content after animation completes (5.5s)
+    const hideTimeout = setTimeout(() => setShowEntrance(false), 5500);
     return () => {
       clearTimeout(zoomTimeout);
       clearTimeout(moveUpTimeout);
-      clearTimeout(fadeBlackTimeout);
-      clearTimeout(fadeWhiteTimeout);
       clearTimeout(hideTimeout);
     };
   }, []);
@@ -412,29 +404,6 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             }}
             unoptimized
           />
-          {/* Fade overlays */}
-          <div
-            className={`pointer-events-none absolute inset-0 z-20 transition-opacity duration-[3000ms] ${fadeStage === 'black' ? 'opacity-100 bg-black' : 'opacity-0'}`}
-            style={{ transition: 'opacity 3s linear' }}
-          />
-          <div
-            className={`pointer-events-none absolute inset-0 z-30 transition-opacity duration-[2000ms] ${fadeStage === 'white' ? 'opacity-100' : 'opacity-0'}`}
-            style={{
-              transition: 'opacity 2s linear',
-              background: fadeStage === 'white'
-                ? 'radial-gradient(ellipse at center, #f8fafc 0%, #e2e8f0 60%, #000 100%)'
-                : 'transparent',
-              opacity: fadeStage === 'white' ? 0.95 : 0,
-              mixBlendMode: 'lighten',
-              animation: fadeStage === 'white' ? 'fadeWhiteOut 1s 1s forwards' : undefined,
-            }}
-          />
-          <style jsx global>{`
-            @keyframes fadeWhiteOut {
-              0% { opacity: 0.95; }
-              100% { opacity: 0; }
-            }
-          `}</style>
         </div>
       </div>
     );
