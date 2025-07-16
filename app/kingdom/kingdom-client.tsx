@@ -245,6 +245,8 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const [zoomed, setZoomed] = useState(false);
   const [fadeStage, setFadeStage] = useState<'none' | 'black' | 'white'>('none');
   const [moveUp, setMoveUp] = useState(false);
+  const [kingdomReady, setKingdomReady] = useState(false);
+  const [kingdomContent, setKingdomContent] = useState<JSX.Element | null>(null);
 
   // All useEffect hooks at the top
   useEffect(() => {
@@ -252,7 +254,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     setZoomed(false);
     setFadeStage('none');
     setMoveUp(false);
-    const moveUpTimeout = setTimeout(() => setMoveUp(true), 1000); // start moving up after 1s
+    const moveUpTimeout = setTimeout(() => setMoveUp(true), 2000); // start moving up after 2s
     const zoomTimeout = setTimeout(() => setZoomed(true), 3000); // show still for 3s, then zoom
     const fadeBlackTimeout = setTimeout(() => setFadeStage('black'), 3000); // start fade to black with zoom
     const fadeWhiteTimeout = setTimeout(() => setFadeStage('white'), 5000); // start fade to white at 5s (overlap black/white)
@@ -350,106 +352,10 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       </div>
     );
   }
-
-  const handleEquip = (item: KingdomInventoryItem) => {
-    // For consumables, show modal
-    if (item.type === 'artifact' || item.type === 'scroll' || (item.type === 'item' && !item.category)) {
-      setModalText(getConsumableEffect(item))
-      setModalOpen(true)
-    }
-    equipItem(item.id)
-  }
-
-  const handleUnequip = (item: KingdomInventoryItem) => {
-    unequipItem(item.id)
-  }
-
-  const isConsumable = (item: KingdomInventoryItem) => {
-    return item.type === 'artifact' || item.type === 'scroll' || (item.type === 'item' && !item.category)
-  }
-
-  const renderItemCard = (item: KingdomInventoryItem, isEquipped: boolean = false) => (
-    <Card 
-      key={item.id} 
-      className={`bg-black/60 border-2 border-amber-500 rounded-xl shadow-lg transition-all duration-200 ${isEquipped ? 'ring-2 ring-amber-500' : ''}`}
-      aria-label={`inventory-item-${item.id}`}
-    >
-      <CardHeader className="p-4">
-        <div 
-          className="flex flex-col items-center justify-center space-y-2"
-          aria-label={`item-header-${item.id}`}
-        >
-          <div className="w-full aspect-[4/3] relative mb-2">
-            <Image
-              src={getItemImagePath(item)}
-              alt={`${item.name} ${item.type}`}
-              fill
-              className="object-contain rounded"
-              aria-label={`${item.name}-image`}
-              onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
-            />
-          </div>
-          <div className="flex flex-col items-center">
-            <h4 className="text-amber-500 font-semibold text-lg">{item.name}</h4>
-            <p className="text-xs text-gray-400">{item.type}</p>
-            {item.category && (
-              <p className="text-xs text-amber-400">{item.category}</p>
-            )}
-          </div>
-        </div>
-        {Object.entries(item.stats ?? {}).map(([stat, value]) => (
-          <Badge key={stat} className="bg-amber-950/30 text-amber-500 border-amber-800/30 mt-2">
-            {stat} +{value}
-          </Badge>
-        ))}
-      </CardHeader>
-      <CardContent className="p-4 pt-0">
-        <p className="text-sm text-gray-400 mb-3">{item.description}</p>
-        <div className="flex justify-between items-center">
-          {/* Only show quantity for consumables */}
-          {isConsumable(item) ? (
-            <span className="text-xs text-gray-500">Qty: {item.quantity}</span>
-          ) : <span />}
-          <Button
-            size="sm"
-            variant={isEquipped ? "destructive" : isConsumable(item) ? "default" : "default"}
-            onClick={() => isEquipped ? handleUnequip(item) : (isEquippable(item) ? handleEquip(item) : undefined)}
-            aria-label={
-              isEquipped
-                ? `Unequip ${item.name}`
-                : isConsumable(item)
-                  ? `Use ${item.name}`
-                  : isEquippable(item)
-                    ? `Equip ${item.name}`
-                    : undefined
-            }
-            disabled={!isEquippable(item) && !isConsumable(item)}
-          >
-            {isEquipped
-              ? "Unequip"
-              : isConsumable(item)
-                ? "Use"
-                : isEquippable(item)
-                  ? "Equip"
-                  : null}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  )
-
-  function handlePlaceKingdomTile(x: number, y: number, tile: Tile) {
-    setKingdomGrid(prev => {
-      const newGrid = prev.map(row => row.slice());
-      if (newGrid[y]) {
-        newGrid[y][x] = { ...tile, x, y, id: `${tile.id}-${x}-${y}` };
-      }
-      return newGrid;
-    });
-  }
-
+  // After animation, show the main content immediately
   return (
     <div className="min-h-screen">
+      {/* Main Content with Tabs */}
       <HeaderSection
         title="KINGDOM"
         imageSrc={coverImage}
@@ -573,5 +479,5 @@ export function KingdomClient({ userId }: { userId: string | null }) {
         </Tabs>
       </div>
     </div>
-  )
+  );
 } 
