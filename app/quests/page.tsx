@@ -411,8 +411,6 @@ export default function QuestsPage() {
         streakSubscriptionRef.current = null;
       }
     };
-  }, [supabase, userId, questCategory]);
-  // Update streak in Supabase when all quests completed for today
         last_completed_at: new Date().toISOString(),
       }, { onConflict: 'user_id,category' });
   };
