@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react";
+import { useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,6 +25,7 @@ export default function InventoryPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
   const { toast } = useToast();
+  const { user } = useUser();
 
   // Tabs configuration for navigation
   const tabOptions = [
@@ -32,11 +34,13 @@ export default function InventoryPage() {
   ];
 
   useEffect(() => {
-    function loadItems() {
+    async function loadItems() {
       try {
         setIsLoading(true);
-        const inventoryItems = getInventory();
-        setItems(inventoryItems);
+        if (user?.id) {
+          const inventoryItems = await getInventory(user.id);
+          setItems(inventoryItems || []);
+        }
       } catch (error) {
         console.error("Error loading inventory items:", error);
         toast({
@@ -54,17 +58,17 @@ export default function InventoryPage() {
     return () => {
       window.removeEventListener("character-inventory-update", loadItems);
     };
-  }, []);
+  }, [user?.id]);
 
   // --- Supabase real-time sync for inventory_items ---
   useSupabaseRealtimeSync({
     table: 'inventory_items',
-    userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
-    onChange: () => {
+    userId: user?.id,
+    onChange: async () => {
       // Re-fetch inventory items and update state
-      if (typeof window !== 'undefined') {
-        const inventoryItems = getInventory();
-        setItems(inventoryItems);
+      if (user?.id) {
+        const inventoryItems = await getInventory(user.id);
+        setItems(inventoryItems || []);
       }
     }
   });
