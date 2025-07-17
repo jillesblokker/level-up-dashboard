@@ -391,17 +391,15 @@ export default function QuestsPage() {
           filter: `user_id=eq.${userId},category=eq.${questCategory}`,
         },
         (payload) => {
-          // Refetch streak on any change
-          supabase
-            .from('streaks')
-            .select('streak_days, week_streaks')
-            .eq('user_id', userId)
-            .eq('category', questCategory)
-            .single()
-            .then(({ data, error }) => {
-              if (error) setStreakData({ streak_days: 0, week_streaks: 0 });
-              else setStreakData(data);
-            });
+          // Refetch streak on any change via API route
+          if (token) {
+            fetch(`/api/streaks?user_id=${userId}&category=${encodeURIComponent(questCategory)}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+            .then(res => res.ok ? res.json() : { streak_days: 0, week_streaks: 0 })
+            .then(data => setStreakData(data))
+            .catch(() => setStreakData({ streak_days: 0, week_streaks: 0 }));
+          }
         }
       )
       .subscribe();
@@ -710,18 +708,25 @@ export default function QuestsPage() {
       }
     };
   }, [supabase, userId, questCategory]);
-  // Update streak in Supabase when all quests completed for today
+  // Update streak via API route when all quests completed for today
   const updateStreak = async (newStreak: number, newWeekStreaks: number) => {
-    if (!supabase || !userId || !questCategory) return;
-    await supabase
-      .from('streaks')
-      .upsert({
-        user_id: userId,
-        category: questCategory,
-        streak_days: newStreak,
-        week_streaks: newWeekStreaks,
-        last_completed_at: new Date().toISOString(),
-      }, { onConflict: 'user_id,category' });
+    if (!token || !userId || !questCategory) return;
+    try {
+      await fetch('/api/streaks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          category: questCategory,
+          streak_days: newStreak,
+          week_streaks: newWeekStreaks,
+        }),
+      });
+    } catch (error) {
+      console.error('Failed to update streak:', error);
+    }
   };
 
   // Real-time subscription for challenge streaks
@@ -741,16 +746,15 @@ export default function QuestsPage() {
           filter: `user_id=eq.${userId},category=eq.${challengeCategory}`,
         },
         (payload) => {
-          supabase
-            .from('streaks')
-            .select('streak_days, week_streaks')
-            .eq('user_id', userId)
-            .eq('category', challengeCategory)
-            .single()
-            .then(({ data, error }) => {
-              if (error) setChallengeStreakData({ streak_days: 0, week_streaks: 0 });
-              else setChallengeStreakData(data);
-            });
+          // Refetch challenge streak on any change via API route
+          if (token) {
+            fetch(`/api/streaks?user_id=${userId}&category=${encodeURIComponent(challengeCategory)}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+            .then(res => res.ok ? res.json() : { streak_days: 0, week_streaks: 0 })
+            .then(data => setChallengeStreakData(data))
+            .catch(() => setChallengeStreakData({ streak_days: 0, week_streaks: 0 }));
+          }
         }
       )
       .subscribe();
@@ -762,18 +766,25 @@ export default function QuestsPage() {
       }
     };
   }, [supabase, userId, challengeCategory]);
-  // Update challenge streak in Supabase when all challenges completed for today
+  // Update challenge streak via API route when all challenges completed for today
   const updateChallengeStreak = async (newStreak: number, newWeekStreaks: number) => {
-    if (!supabase || !userId || !challengeCategory) return;
-    await supabase
-      .from('streaks')
-      .upsert({
-        user_id: userId,
-        category: challengeCategory,
-        streak_days: newStreak,
-        week_streaks: newWeekStreaks,
-        last_completed_at: new Date().toISOString(),
-      }, { onConflict: 'user_id,category' });
+    if (!token || !userId || !challengeCategory) return;
+    try {
+      await fetch('/api/streaks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          category: challengeCategory,
+          streak_days: newStreak,
+          week_streaks: newWeekStreaks,
+        }),
+      });
+    } catch (error) {
+      console.error('Failed to update challenge streak:', error);
+    }
   };
 
   // --- Automatically trigger updateStreak in quest completion logic ---

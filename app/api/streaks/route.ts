@@ -34,4 +34,46 @@ export async function GET(req: NextRequest) {
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Unknown error' }, { status: 500 });
   }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { category, streak_days, week_streaks } = body;
+
+    if (!category || streak_days === undefined || week_streaks === undefined) {
+      return NextResponse.json({ 
+        error: 'Missing required fields: category, streak_days, week_streaks' 
+      }, { status: 400 });
+    }
+
+    // Use authenticated Supabase query with proper Clerk JWT verification
+    const result = await authenticatedSupabaseQuery(req, async (supabase, userId) => {
+      const { data, error } = await supabase
+        .from('streaks')
+        .upsert({
+          user_id: userId,
+          category: category,
+          streak_days: streak_days,
+          week_streaks: week_streaks,
+          last_completed_at: new Date().toISOString(),
+        }, { onConflict: 'user_id,category' })
+        .select()
+        .single();
+        
+      if (error) {
+        throw error;
+      }
+      
+      return data;
+    });
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 401 });
+    }
+
+    return NextResponse.json({ success: true, data: result.data });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message || 'Unknown error' }, { status: 500 });
+  }
 } 
