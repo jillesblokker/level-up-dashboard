@@ -1,12 +1,14 @@
 'use client'
 
 import { useState, useEffect } from "react"
+import { useUser } from "@clerk/nextjs"
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Building, ShoppingBag, Swords, BookOpen, Home, Footprints } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
 import { addToInventory, getInventory, addToKingdomInventory, InventoryItem } from "@/lib/inventory-manager"
+import { getCharacterStats, updateCharacterStats } from "@/lib/character-data-manager"
 import { HeaderSection } from "@/components/HeaderSection"
 import Image from "next/image"
 
@@ -66,20 +68,19 @@ const locationData: Record<string, {
 export default function LocationClient({ slug, locationId }: Props) {
   const router = useRouter()
   const { toast } = useToast()
+  const { user } = useUser()
   const [gold, setGold] = useState(0)
   const [inventory, setInventory] = useState<InventoryItem[]>([])
 
   useEffect(() => {
-    // Load character stats from localStorage
-    const loadStats = () => {
+    const loadStats = async () => {
       try {
-        const savedStats = localStorage.getItem("character-stats")
-        if (savedStats) {
-          const stats = JSON.parse(savedStats)
-          setGold(stats.gold || 0)
+        if (user?.id) {
+          const stats = await getCharacterStats(user.id)
+          setGold(stats?.gold || 0)
+          const inventoryItems = await getInventory(user.id)
+          setInventory(inventoryItems || [])
         }
-
-        setInventory(getInventory())
       } catch (error) {
         console.error("Failed to load character stats:", error)
       }
@@ -95,7 +96,7 @@ export default function LocationClient({ slug, locationId }: Props) {
       window.removeEventListener("character-stats-update", loadStats)
       window.removeEventListener("character-inventory-update", loadStats)
     }
-  }, [])
+  }, [user?.id])
 
   const location = locationData[locationId]
   useEffect(() => {
@@ -125,28 +126,27 @@ export default function LocationClient({ slug, locationId }: Props) {
 
     // Update gold
     const newGold = gold - item.price
-    const stats = JSON.parse(localStorage.getItem("character-stats") || "{}")
-    stats.gold = newGold
-    localStorage.setItem("character-stats", JSON.stringify(stats))
+    if (user?.id) {
+      updateCharacterStats(user.id, { gold: newGold })
+    }
     setGold(newGold)
 
     // Add item to inventory
-    addToInventory({
-      id: item.id,
-      name: item.name,
-      type: item.type as 'resource' | 'item' | 'creature' | 'scroll',
-      quantity: 1,
-      description: item.description,
-      category: item.type
-    })
-    addToKingdomInventory({
-      id: item.id,
-      name: item.name,
-      type: item.type as 'resource' | 'item' | 'creature' | 'scroll',
-      quantity: 1,
-      description: item.description,
-      category: item.type
-    })
+    if (user?.id) {
+      addToInventory(user.id, {
+        ...item,
+        type: item.type as "artifact" | "scroll" | "book" | "creature" | "resource" | "item" | "equipment",
+        quantity: 1,
+        image: `/images/items/${item.type}/${item.id}.png`,
+      })
+      
+      addToKingdomInventory(user.id, {
+        ...item,
+        type: item.type as "artifact" | "scroll" | "book" | "creature" | "resource" | "item" | "equipment",
+        quantity: 1,
+        image: `/images/items/${item.type}/${item.id}.png`,
+      })
+    }
 
     // Dispatch update event
     window.dispatchEvent(new Event("character-stats-update"))
