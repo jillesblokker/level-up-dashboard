@@ -46,7 +46,7 @@ export default function StoredDataPage() {
         setInventoryItems(inventory || []);
 
         // Load achievements
-        const userAchievements = await getUserAchievements(user.id);
+        const userAchievements = await getUserAchievements();
         setAchievements(userAchievements || []);
 
         // Set summary data

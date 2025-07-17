@@ -1,68 +1,127 @@
 import { GameState } from '../types/game'
-import { supabase } from '@/lib/supabase/client';
-// TODO: Replace all Prisma logic with Supabase client logic
-// TODO: Implement all database logic with Supabase client here
+// Replaced all Supabase direct calls with API routes for authentication flow
+// All database logic now uses authenticated API routes
 
 export type GameData = GameState
+
+async function getClerkToken(): Promise<string | null> {
+  if (typeof window === 'undefined') {
+    console.error('[Game Data Sync] getClerkToken called on server side');
+    return null;
+  }
+
+  try {
+    // Access Clerk from window if available
+    const clerk = (window as any).__clerk;
+    if (!clerk) {
+      console.error('[Game Data Sync] Clerk not available on window');
+      return null;
+    }
+
+    const session = clerk.session;
+    if (!session) {
+      console.error('[Game Data Sync] No active Clerk session');
+      return null;
+    }
+
+    const token = await session.getToken();
+    console.log('[Game Data Sync] Got Clerk token:', token ? 'present' : 'null');
+    return token;
+  } catch (error) {
+    console.error('[Game Data Sync] Error getting Clerk token:', error);
+    return null;
+  }
+}
 
 export async function syncGameData(
   localData: GameData,
   userId: string
 ): Promise<void> {
-  try {
-    // Get existing data from the database
-    const { data: existingData, error } = await supabase
-      .from('realm_map')
-      .select('grid')
-      .eq('user_id', userId)
-      .single();
+  if (!userId) {
+    console.error('[Game Data Sync] No user ID provided');
+    return;
+  }
 
-    if (error) {
-      console.error('Error fetching realm map:', error);
-      throw error;
+  try {
+    const token = await getClerkToken();
+    if (!token) {
+      console.error('[Game Data Sync] No authentication token available');
+      return;
     }
 
-    // Parse existing grid JSON string if present
-    const existingGrid = existingData?.grid ? JSON.parse(existingData.grid) : {}
+    // First, get existing data
+    const getResponse = await fetch('/api/game-data', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    let existingData = {};
+    if (getResponse.ok) {
+      const responseData = await getResponse.json();
+      existingData = responseData?.realmMap || {};
+    }
 
     // Merge local data with existing data
     const mergedData = {
-      ...existingGrid,
+      ...existingData,
       ...localData,
       last_sync: new Date().toISOString(),
-    }
+    };
 
     // Update the database
-    await supabase
-      .from('realm_map')
-      .upsert({
-        user_id: userId,
-        grid: JSON.stringify(mergedData),
-      })
-      .eq('user_id', userId)
+    const saveResponse = await fetch('/api/game-data', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        realmMap: mergedData,
+      }),
+    });
+
+    if (!saveResponse.ok) {
+      console.error('[Game Data Sync] Failed to sync game data:', saveResponse.status, saveResponse.statusText);
+      throw new Error('Failed to sync game data');
+    }
+
+    console.log('[Game Data Sync] Successfully synced game data');
   } catch (error) {
-    console.error('Error syncing game data:', error)
-    throw error
+    console.error('[Game Data Sync] Error syncing game data:', error);
+    throw error;
   }
 }
 
 export async function loadGameData(userId: string): Promise<GameData | null> {
-  try {
-    const { data: existingData, error } = await supabase
-      .from('realm_map')
-      .select('grid')
-      .eq('user_id', userId)
-      .single();
+  if (!userId) {
+    console.error('[Game Data Sync] No user ID provided');
+    return null;
+  }
 
-    if (error) {
-      console.error('Error fetching realm map:', error);
+  try {
+    const token = await getClerkToken();
+    if (!token) {
+      console.error('[Game Data Sync] No authentication token available');
       return null;
     }
 
-    return existingData?.grid ? JSON.parse(existingData.grid) : null;
+    const response = await fetch('/api/game-data', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      console.error('[Game Data Sync] Failed to load game data:', response.status, response.statusText);
+      return null;
+    }
+
+    const data = await response.json();
+    return data?.realmMap || null;
   } catch (error) {
-    console.error('Error loading game data:', error)
-    throw error
+    console.error('[Game Data Sync] Error loading game data:', error);
+    throw error;
   }
 }
 

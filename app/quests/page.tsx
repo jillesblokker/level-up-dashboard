@@ -704,16 +704,24 @@ export default function QuestsPage() {
           filter: `user_id=eq.${userId},category=eq.${questCategory}`,
         },
         (payload) => {
-          supabase
-            .from('streaks')
-            .select('streak_days, week_streaks')
-            .eq('user_id', userId)
-            .eq('category', questCategory)
-            .single()
-            .then(({ data, error }) => {
-              if (error) setStreakData({ streak_days: 0, week_streaks: 0 });
-              else setStreakData(data);
+          // Refetch streak on any change via API route
+          if (token) {
+            fetch(`/api/streaks?category=${encodeURIComponent(questCategory)}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+            .then(res => {
+              if (!res.ok) {
+                console.error('[Streaks RT Legacy] Failed to refetch streak:', res.status, res.statusText);
+                return { streak_days: 0, week_streaks: 0 };
+              }
+              return res.json();
+            })
+            .then(data => setStreakData(data))
+            .catch(error => {
+              console.error('[Streaks RT Legacy] Error refetching streak:', error);
+              setStreakData({ streak_days: 0, week_streaks: 0 });
             });
+          }
         }
       )
       .subscribe();

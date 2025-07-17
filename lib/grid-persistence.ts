@@ -1,88 +1,165 @@
-import { SupabaseClient } from "@supabase/supabase-js";
-import { Database } from "@/types/supabase";
-import { Tile } from "@/types/tiles";
-import { numericToTileType, tileTypeToNumeric, createTileFromNumeric } from "./grid-loader";
+import { Tile } from '@/types/tiles';
+import { TileType } from '@/types/tiles';
+// Replaced all Supabase direct calls with API routes for authentication flow
+// All database logic now uses authenticated API routes
 
-const GRID_COLS = 13;
-const INITIAL_ROWS = 7;
+// Convert tile type to numeric value for database storage
+const tileTypeToNumeric: Record<TileType, number> = {
+  empty: 0,
+  grass: 1,
+  water: 2,
+  mountain: 3,
+  forest: 4,
+  desert: 5,
+  city: 6,
+  cave: 7,
+  treasure: 8,
+  castle: 9,
+  dungeon: 10,
+  town: 11,
+  mystery: 12,
+  'portal-entrance': 13,
+  'portal-exit': 14,
+  snow: 15,
+  ice: 16,
+  lava: 17,
+  volcano: 18,
+  sheep: 19,
+  horse: 20,
+  special: 21,
+  swamp: 22,
+  monster: 23,
+};
 
-function createDefaultGrid(): Tile[][] {
-    const grid: Tile[][] = [];
-    for (let y = 0; y < INITIAL_ROWS; y++) {
-        const row: Tile[] = [];
-        for (let x = 0; x < GRID_COLS; x++) {
-            row.push(createTileFromNumeric(2, x, y)); // Default to grass
-        }
-        grid.push(row);
-    }
-    return grid;
+// Convert numeric value back to tile type
+const numericToTileType = Object.fromEntries(
+  Object.entries(tileTypeToNumeric).map(([key, value]) => [value, key])
+) as Record<number, TileType>;
+
+function createTileFromNumeric(numeric: number, x: number, y: number): Tile {
+  return {
+    type: numericToTileType[numeric] || 'empty',
+    id: `${x}-${y}`,
+    name: '',
+    description: '',
+    connections: [],
+    rotation: 0,
+    revealed: true,
+    isVisited: false,
+    x,
+    y,
+    ariaLabel: '',
+    image: '',
+  };
 }
 
-export async function loadGridFromSupabase(supabase: SupabaseClient<Database>, userId: string): Promise<Tile[][] | null> {
-    console.log('Attempting to load grid from Supabase for user:', userId);
-    const { data, error } = await supabase
-        .from('realm_grids')
-        .select('grid')
-        .eq('user_id', userId)
-        .order('updated_at', { ascending: false })
-        .limit(1)
-        .single();
+async function getClerkToken(): Promise<string | null> {
+  if (typeof window === 'undefined') {
+    console.error('[Grid Persistence] getClerkToken called on server side');
+    return null;
+  }
 
-    if (error) {
-        console.error('Error loading grid from Supabase:', error.message);
-        return null;
+  try {
+    // Access Clerk from window if available
+    const clerk = (window as any).__clerk;
+    if (!clerk) {
+      console.error('[Grid Persistence] Clerk not available on window');
+      return null;
     }
 
+    const session = clerk.session;
+    if (!session) {
+      console.error('[Grid Persistence] No active Clerk session');
+      return null;
+    }
+
+    const token = await session.getToken();
+    console.log('[Grid Persistence] Got Clerk token:', token ? 'present' : 'null');
+    return token;
+  } catch (error) {
+    console.error('[Grid Persistence] Error getting Clerk token:', error);
+    return null;
+  }
+}
+
+export async function loadGridFromSupabase(userId: string): Promise<Tile[][] | null> {
+  if (!userId) {
+    console.error('[Grid Persistence] No user ID provided');
+    return null;
+  }
+
+  try {
+    const token = await getClerkToken();
+    if (!token) {
+      console.error('[Grid Persistence] No authentication token available');
+      return null;
+    }
+
+    console.log('[Grid Persistence] Attempting to load grid from API for user:', userId);
+    const response = await fetch('/api/realm', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      console.error('[Grid Persistence] Failed to load grid:', response.status, response.statusText);
+      return null;
+    }
+
+    const data = await response.json();
     if (!data || !data.grid) {
-        console.log('No grid found in Supabase for user.');
-        return null;
+      console.log('[Grid Persistence] No grid found in API response for user.');
+      return null;
     }
 
-    console.log('Successfully loaded grid from Supabase.');
+    console.log('[Grid Persistence] Successfully loaded grid from API.');
     return data.grid.map((row: number[], y: number) =>
-        row.map((numeric: number, x: number) => createTileFromNumeric(numeric, x, y))
+      row.map((numeric: number, x: number) => createTileFromNumeric(numeric, x, y))
     );
+  } catch (error) {
+    console.error('[Grid Persistence] Error loading grid:', error);
+    return null;
+  }
 }
 
-export async function loadGridFromLocalStorage(): Promise<Tile[][]> {
-    console.log('Attempting to load grid from localStorage.');
-    const savedGrid = localStorage.getItem('grid');
-    if (savedGrid) {
-        console.log('Found grid in localStorage.');
-        try {
-            // It's already stored as Tile[][], so just parse
-            return JSON.parse(savedGrid);
-        } catch (e) {
-            console.error("Failed to parse grid from localStorage", e);
-            return createDefaultGrid();
-        }
+export async function saveGridToSupabase(userId: string, grid: Tile[][]): Promise<void> {
+  if (!userId) {
+    console.error('[Grid Persistence] No user ID provided');
+    return;
+  }
+
+  try {
+    const token = await getClerkToken();
+    if (!token) {
+      console.error('[Grid Persistence] No authentication token available');
+      return;
     }
-    console.log('No grid in localStorage. Creating default grid.');
-    return createDefaultGrid();
-}
 
-export async function saveGridToSupabase(supabase: SupabaseClient<Database>, userId: string, grid: Tile[][]): Promise<void> {
-    console.log('Attempting to save grid to Supabase for user:', userId);
+    console.log('[Grid Persistence] Attempting to save grid to API for user:', userId);
     const numericGrid = grid.map(row =>
-        row.map(tile => tileTypeToNumeric[tile.type])
+      row.map(tile => tileTypeToNumeric[tile.type])
     );
 
-    const { error } = await supabase
-        .from('realm_grids')
-        .upsert({
-            user_id: userId,
-            grid: numericGrid,
-            updated_at: new Date().toISOString()
-        }, { onConflict: 'user_id' });
+    const response = await fetch('/api/realm', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        grid: numericGrid,
+      }),
+    });
 
-    if (error) {
-        console.error('Error saving grid to Supabase:', error.message);
-        throw new Error(error.message);
+    if (!response.ok) {
+      console.error('[Grid Persistence] Failed to save grid:', response.status, response.statusText);
+      throw new Error('Failed to save grid to API');
     }
-    console.log('Successfully saved grid to Supabase.');
-}
 
-export async function saveGridToLocalStorage(grid: Tile[][]): Promise<void> {
-    console.log('Saving grid to localStorage.');
-    localStorage.setItem('grid', JSON.stringify(grid));
+    console.log('[Grid Persistence] Successfully saved grid to API.');
+  } catch (error) {
+    console.error('[Grid Persistence] Error saving grid:', error);
+    throw error;
+  }
 } 
