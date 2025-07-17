@@ -411,9 +411,7 @@ export default function QuestsPage() {
         streakSubscriptionRef.current = null;
       }
     };
-        last_completed_at: new Date().toISOString(),
-      }, { onConflict: 'user_id,category' });
-  };
+  }, [supabase, userId, questCategory]);
 
   // Mark quest as complete (sync with backend)
   const handleQuestToggle = async (questId: string, currentCompleted: boolean) => {
