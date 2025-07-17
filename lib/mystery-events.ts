@@ -390,7 +390,7 @@ export function generateMysteryEvent(): MysteryEvent {
   return (event ? event : possibleEvents[0]) as MysteryEvent;
 }
 
-export const handleEventOutcome = (event: MysteryEvent, choice: string) => {
+export const handleEventOutcome = (event: MysteryEvent, choice: string, userId?: string) => {
   const outcome = event.outcomes[choice];
   if (!outcome) {
     toast({
@@ -429,7 +429,9 @@ export const handleEventOutcome = (event: MysteryEvent, choice: string) => {
     experienceGained = 25;
     gainExperience(experienceGained, 'mystery-events', 'general');
     
-    reward.item.forEach(item => addToInventory(item));
+    if (userId) {
+      reward.item.forEach(item => addToInventory(userId, item));
+    }
     const firstItem = reward.item[0];
     if (firstItem) {
       toast({
@@ -447,14 +449,16 @@ export const handleEventOutcome = (event: MysteryEvent, choice: string) => {
     experienceGained = 25;
     gainExperience(experienceGained, 'mystery-events', 'general');
     
-    addToInventory({
-      type: 'scroll',
-      name: reward.scroll.name,
-      description: reward.scroll.content,
-      id: reward.scroll.id,
-      quantity: 1,
-      category: reward.scroll.category
-    });
+    if (userId) {
+      addToInventory(userId, {
+        type: 'scroll',
+        name: reward.scroll.name,
+        description: reward.scroll.content,
+        id: reward.scroll.id,
+        quantity: 1,
+        category: reward.scroll.category
+      });
+    }
     
     toast({
       title: "Scroll Discovered!",
