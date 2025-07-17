@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react"
 import { ArrowLeft, Building, ShoppingBag, Swords, BookOpen, Home } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
+import { useUser } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
 import { addToInventory, getInventory, addToKingdomInventory } from "@/lib/inventory-manager"
+import { getCharacterStats, updateCharacterStats } from "@/lib/character-data-manager"
 import { HeaderSection } from "@/components/HeaderSection"
 import Image from "next/image"
 
@@ -286,21 +288,23 @@ export default function CityLocationPage() {
   const params = useParams() as { cityName: string; locationId: string }
   const router = useRouter()
   const { toast } = useToast()
+  const { user } = useUser()
   const [gold, setGold] = useState(0)
   const [purchasedItems, setPurchasedItems] = useState<string[]>([])
 
   useEffect(() => {
     // Load character stats from localStorage
-    const loadStats = () => {
+    const loadStats = async () => {
       try {
-        const savedStats = localStorage.getItem("character-stats")
-        if (savedStats) {
-          const stats = JSON.parse(savedStats)
-          setGold(stats.gold || 0)
+        if (user?.id) {
+          const stats = await getCharacterStats(user.id)
+          setGold(stats?.gold || 0)
         }
 
         // Load inventory but don't store in state since it's not used
-        getInventory()
+        if (user?.id) {
+          getInventory(user.id)
+        }
       } catch (error) {
         console.error("Failed to load character stats:", error)
       }
@@ -316,7 +320,7 @@ export default function CityLocationPage() {
       window.removeEventListener("character-stats-update", loadStats)
       window.removeEventListener("character-inventory-update", loadStats)
     }
-  }, [])
+  }, [user?.id])
 
   const location = locationData[params.locationId]
   if (!location) {
@@ -336,48 +340,50 @@ export default function CityLocationPage() {
 
     // Update gold
     const newGold = gold - item.price
-    const stats = JSON.parse(localStorage.getItem("character-stats") || "{}")
-    stats.gold = newGold
-    localStorage.setItem("character-stats", JSON.stringify(stats))
+    if (user?.id) {
+      updateCharacterStats(user.id, { gold: newGold })
+    }
     setGold(newGold)
 
     // Add item to inventory
-    addToInventory({
-      ...item,
-      quantity: 1,
-      image: item.image ? item.image : getItemImagePath(item) as string,
-      stats: item.stats || {
-        ...(item.movement !== undefined ? { movement: item.movement } : {}),
-        ...(item.attack !== undefined ? { attack: item.attack } : {}),
-        ...(item.defense !== undefined ? { defense: item.defense } : {}),
-      },
-    })
-    // If the item is a horse/creature, ensure unique id and type
-    if (params.locationId === 'royal-stables' && item.type === 'creature') {
-      const { image, ...rest } = item;
-      addToKingdomInventory({
-        ...rest,
-        id: `horse-${item.id}-${Date.now()}`,
-        type: 'creature',
-        quantity: 1,
-        image: item.image ? item.image : getItemImagePath(item),
-        stats: item.stats || {
-          ...(item.movement !== undefined ? { movement: item.movement } : {}),
-          ...(item.attack !== undefined ? { attack: item.attack } : {}),
-          ...(item.defense !== undefined ? { defense: item.defense } : {}),
-        },
-      })
-    } else {
-      addToKingdomInventory({
+    if (user?.id) {
+      addToInventory(user.id, {
         ...item,
         quantity: 1,
-        image: item.image ? item.image : getItemImagePath(item),
+        image: item.image ? item.image : getItemImagePath(item) as string,
         stats: item.stats || {
           ...(item.movement !== undefined ? { movement: item.movement } : {}),
           ...(item.attack !== undefined ? { attack: item.attack } : {}),
           ...(item.defense !== undefined ? { defense: item.defense } : {}),
         },
       })
+      // If the item is a horse/creature, ensure unique id and type
+      if (params.locationId === 'royal-stables' && item.type === 'creature') {
+        const { image, ...rest } = item;
+        addToKingdomInventory(user.id, {
+          ...rest,
+          id: `horse-${item.id}-${Date.now()}`,
+          type: 'creature',
+          quantity: 1,
+          image: item.image ? item.image : getItemImagePath(item),
+          stats: item.stats || {
+            ...(item.movement !== undefined ? { movement: item.movement } : {}),
+            ...(item.attack !== undefined ? { attack: item.attack } : {}),
+            ...(item.defense !== undefined ? { defense: item.defense } : {}),
+          },
+        })
+      } else {
+        addToKingdomInventory(user.id, {
+          ...item,
+          quantity: 1,
+          image: item.image ? item.image : getItemImagePath(item),
+          stats: item.stats || {
+            ...(item.movement !== undefined ? { movement: item.movement } : {}),
+            ...(item.attack !== undefined ? { attack: item.attack } : {}),
+            ...(item.defense !== undefined ? { defense: item.defense } : {}),
+          },
+        })
+      }
     }
 
     // Dispatch update event
