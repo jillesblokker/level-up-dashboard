@@ -95,34 +95,22 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
     target: 1,
   });
   const { toast } = useToast();
-  const [checkedMilestones, setCheckedMilestones] = useState<string[]>(() => {
-    return storageService.get<string[]>('checked-milestones', []);
-  });
+  const [checkedMilestones, setCheckedMilestones] = useState<string[]>([]);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(null);
-  const [customMilestones, setCustomMilestones] = useState<Record<string, Milestone[]>>(() => {
-    return storageService.get<Record<string, Milestone[]>>(CUSTOM_MILESTONES_KEY, {});
-  });
-  const [progress, setProgress] = useState<Record<string, number>>(() => {
-    return storageService.get<Record<string, number>>(MILESTONE_PROGRESS_KEY, {});
-  });
-  const [completed, setCompleted] = useState<Record<string, boolean>>(() => {
-    return storageService.get<Record<string, boolean>>("milestone-completed-v2", {});
-  });
-  const [streaks, setStreaks] = useState<Record<string, number>>(() => {
-    return storageService.get<Record<string, number>>(MILESTONE_STREAKS_KEY, {});
-  });
-  const [completionDates, setCompletionDates] = useState<Record<string, string>>(() => {
-    return storageService.get<Record<string, string>>("milestone-completion-dates-v2", {});
-  });
+  const [customMilestones, setCustomMilestones] = useState<Record<string, Milestone[]>>({});
+  const [progress, setProgress] = useState<Record<string, number>>({});
+  const [completed, setCompleted] = useState<Record<string, boolean>>({});
+  const [streaks, setStreaks] = useState<Record<string, number>>({});
+  const [completionDates, setCompletionDates] = useState<Record<string, string>>({});
   const [addModalOpen, setAddModalOpen] = useState<string | null>(null);
 
-  // Persist all state changes
-  useEffect(() => { storageService.set(CUSTOM_MILESTONES_KEY, customMilestones); }, [customMilestones]);
-  useEffect(() => { storageService.set(MILESTONE_PROGRESS_KEY, progress); }, [progress]);
-  useEffect(() => { storageService.set("milestone-completed-v2", completed); }, [completed]);
-  useEffect(() => { storageService.set(MILESTONE_STREAKS_KEY, streaks); }, [streaks]);
-  useEffect(() => { storageService.set("milestone-completion-dates-v2", completionDates); }, [completionDates]);
+  // Remove all persistence effects - components will use temporary state
+  // useEffect(() => { storageService.set(CUSTOM_MILESTONES_KEY, customMilestones); }, [customMilestones]); // Removed
+  // useEffect(() => { storageService.set(MILESTONE_PROGRESS_KEY, progress); }, [progress]); // Removed
+  // useEffect(() => { storageService.set("milestone-completed-v2", completed); }, [completed]); // Removed
+  // useEffect(() => { storageService.set(MILESTONE_STREAKS_KEY, streaks); }, [streaks]); // Removed
+  // useEffect(() => { storageService.set("milestone-completion-dates-v2", completionDates); }, [completionDates]); // Removed
 
   useEffect(() => {
     if (!userId || !supabase || isSupabaseLoading || !token) {
@@ -163,13 +151,13 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
     if (milestones && milestones.length > 0) {
       const completedIds = milestones.filter(m => m.completed).map(m => m.id);
       setCheckedMilestones(completedIds);
-      storageService.set('checked-milestones', completedIds);
+      // storageService.set('checked-milestones', completedIds); // Removed
     }
   }, [milestones]);
 
   // When checkedMilestones changes, update localStorage
   useEffect(() => {
-    storageService.set('checked-milestones', checkedMilestones);
+    // storageService.set('checked-milestones', checkedMilestones); // Removed
   }, [checkedMilestones]);
 
   const handleAddMilestone = async () => {

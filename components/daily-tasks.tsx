@@ -34,7 +34,8 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
 
   // Load tasks from localStorage
   useEffect(() => {
-    const savedTasks = storageService.get<Task[]>('daily-tasks', [])
+    // const savedTasks = storageService.get<Task[]>('daily-tasks', []) // Removed
+    const savedTasks: Task[] = []; // Temporary
     if (savedTasks.length > 0) {
       setTasks(savedTasks)
     } else {
@@ -114,14 +115,14 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
         },
       ]
       setTasks(defaultTasks)
-      storageService.set('daily-tasks', defaultTasks)
+      // storageService.set('daily-tasks', defaultTasks) // Removed
     }
   }, [])
 
   // Save tasks to localStorage whenever they change
   useEffect(() => {
     if (tasks.length > 0) {
-      storageService.set('daily-tasks', tasks)
+      // storageService.set('daily-tasks', tasks) // Removed
     }
   }, [tasks])
 

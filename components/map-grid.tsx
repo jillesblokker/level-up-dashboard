@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useEffect, useRef } from "react";
+import { useUser } from "@clerk/nextjs";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -56,6 +57,7 @@ export function MapGrid({
   onTileDelete
 }: MapGridProps) {
   const { toast } = useToast();
+  const { user } = useUser();
   const [localCurrentEvent, setLocalCurrentEvent] = useState<MysteryEvent | null>(null);
   const [eventOutcome, setEventOutcome] = useState<MysteryEventOutcome | null>(null);
   // Track last triggered mystery tile position
@@ -100,8 +102,8 @@ export function MapGrid({
     // If the outcome is an artifact, add it to the kingdom inventory
     if (eventOutcome && eventOutcome.reward && eventOutcome.reward.type === 'item' && eventOutcome.reward.item) {
       const artifact = eventOutcome.reward.item.find(i => i.type === 'artifact');
-      if (artifact) {
-        addToKingdomInventory(artifact);
+      if (artifact && user?.id) {
+        addToKingdomInventory(user.id, artifact);
       }
     }
     setLocalCurrentEvent(null);

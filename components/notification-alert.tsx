@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { storageService } from '@/lib/storage-service'
+// import { storageService } from '@/lib/storage-service' // Removed
 
 interface Notification {
   id: string
@@ -28,7 +28,8 @@ export function NotificationAlert() {
 
   // Load notifications from localStorage
   useEffect(() => {
-    const storedNotifications = storageService.get<Notification[]>('notifications', [])
+    // const storedNotifications = storageService.get<Notification[]>('notifications', []) // Removed
+    const storedNotifications: Notification[] = []; // Temporary
     setNotifications(storedNotifications)
 
     // Listen for new notifications
@@ -45,7 +46,7 @@ export function NotificationAlert() {
 
   // Save notifications to localStorage when they change
   useEffect(() => {
-    storageService.set('notifications', notifications)
+    // storageService.set('notifications', notifications) // Removed
   }, [notifications])
 
   const markAsRead = (id: string) => {

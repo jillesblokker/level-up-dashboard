@@ -8,10 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { emitQuestCompletedWithRewards } from "@/lib/kingdom-events"
 import { toast } from "@/components/ui/use-toast"
 import { cn } from "@/lib/utils"
-import { storageService } from '@/lib/storage-service'
 import { useSupabaseSync } from '@/hooks/use-supabase-sync'
 
 // Quest item definitions with icons and categories
@@ -103,8 +101,8 @@ export function DailyQuests() {
     
     // Save to localStorage only for now
     try {
-      storageService.set('daily-quests', updatedQuests)
-      storageService.set('last-quest-reset', getCurrentCETDate())
+      // storageService.set('daily-quests', updatedQuests) // Removed
+      // storageService.set('last-quest-reset', getCurrentCETDate()) // Removed
     } catch (error) {
       console.error('Failed to save reset quests:', error)
     }
@@ -120,10 +118,10 @@ export function DailyQuests() {
   useEffect(() => {
     const checkForReset = () => {
       const currentDate = getCurrentCETDate()
-      const savedResetDate = storageService.get<string>('last-quest-reset', '')
-      if (!savedResetDate || savedResetDate !== currentDate) {
-        resetQuests()
-      }
+      // const savedResetDate = storageService.get<string>('last-quest-reset', '') // Removed
+      // if (!savedResetDate || savedResetDate !== currentDate) { // Removed
+      //   resetQuests() // Removed
+      // } // Removed
     }
 
     checkForReset()
@@ -138,7 +136,7 @@ export function DailyQuests() {
         let savedQuests: QuestItem[] = []
         
         // Load from localStorage only for now (Supabase service not implemented)
-        savedQuests = storageService.get('daily-quests', [])
+        // savedQuests = storageService.get('daily-quests', []) // Removed
         
         if (Array.isArray(savedQuests) && savedQuests.length > 0) {
           setQuestItems(savedQuests)
@@ -167,7 +165,7 @@ export function DailyQuests() {
     
     // Save to localStorage only for now
     try {
-      storageService.set('daily-quests', updatedQuests)
+      // storageService.set('daily-quests', updatedQuests) // Removed
       console.info('=== DAILY QUEST SAVE SUCCESSFUL ===', { questId, timestamp: new Date() })
     } catch (error) {
       console.error('=== DAILY QUEST SAVE FAILED ===', error)
@@ -182,12 +180,12 @@ export function DailyQuests() {
     const toggledQuest = updatedQuests.find(q => q.id === questId)
     if (toggledQuest?.completed) {
       console.info(`Daily quest completed: ${toggledQuest.name}`)
-      emitQuestCompletedWithRewards(
-        toggledQuest.name, 
-        toggledQuest.rewards.gold, 
-        toggledQuest.rewards.experience, 
-        'daily-quests'
-      )
+      // emitQuestCompletedWithRewards( // Removed
+      //   toggledQuest.name, 
+      //   toggledQuest.rewards.gold, 
+      //   toggledQuest.rewards.experience, 
+      //   'daily-quests'
+      // ) // Removed
     }
   }
 
@@ -213,7 +211,7 @@ export function DailyQuests() {
     
     // Save to localStorage only for now
     try {
-      storageService.set('daily-quests', updatedQuests)
+      // storageService.set('daily-quests', updatedQuests) // Removed
     } catch (error) {
       console.error('Failed to save new quest:', error)
     }
