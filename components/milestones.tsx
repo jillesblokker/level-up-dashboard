@@ -476,23 +476,27 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
           const defaultCard = defaultMilestoneCards[selectedCategoryObj.key];
           if (!defaultCard) return null;
           const colorClass = selectedCategoryObj.iconClass + ' border-2 ' + selectedCategoryObj.iconClass.replace('text-', 'border-');
-          // Default milestone as a pseudo-milestone object
-          const defaultMilestone: Milestone = {
-            id: `default-${selectedCategoryObj.key}`,
-            name: defaultCard.title,
-            category: selectedCategoryObj.key,
-            icon: '',
-            experience: 500,
-            gold: 250,
-            frequency: 'once',
-            progress: progress[`default-${selectedCategoryObj.key}`] || 0,
-            target: 1,
-            completed: completed[`default-${selectedCategoryObj.key}`] || false,
-          };
           // Filter milestones and custom milestones by selected category
           const filteredMilestones = milestones.filter(m => m.category?.toLowerCase() === selectedCategoryObj.key.toLowerCase());
           const filteredCustomMilestones = (customMilestones[selectedCategoryObj.key] || []);
-          const allMilestones = [defaultMilestone, ...filteredMilestones, ...filteredCustomMilestones];
+          
+          // Create default milestone only if no milestones exist for this category
+          const allMilestones = [...filteredMilestones, ...filteredCustomMilestones];
+          if (allMilestones.length === 0) {
+            const defaultMilestone: Milestone = {
+              id: `local-default-${selectedCategoryObj.key}-${Date.now()}`, // Use timestamp for unique local ID
+              name: defaultCard.title,
+              category: selectedCategoryObj.key,
+              icon: '',
+              experience: 500,
+              gold: 250,
+              frequency: 'once',
+              progress: progress[`local-default-${selectedCategoryObj.key}`] || 0,
+              target: 1,
+              completed: completed[`local-default-${selectedCategoryObj.key}`] || false,
+            };
+            allMilestones.push(defaultMilestone);
+          }
           return (
             <div key={selectedCategoryObj.key}>
               <div className="flex items-center gap-2 mb-4">

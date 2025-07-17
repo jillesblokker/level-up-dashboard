@@ -382,6 +382,9 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       const pref = await getUserPreference(userId, 'kingdom-header-image');
       if (pref && pref.value) {
         setCoverImage(pref.value);
+      } else {
+        // Set default kingdom header image
+        setCoverImage('/images/kingdom-header.jpg');
       }
       setCoverImageLoading(false);
     };
