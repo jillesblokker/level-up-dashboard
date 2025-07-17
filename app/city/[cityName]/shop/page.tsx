@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { ChevronLeft } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
+import { useUser } from "@clerk/nextjs"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,6 +16,7 @@ import { addToKingdomInventory } from '@/lib/inventory-manager'
 export default function ShopPage() {
   const params = useParams()
   const { gold, updateGold } = useGoldStore()
+  const { user } = useUser()
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -169,15 +171,17 @@ Current gold: ${gold}`,
                     }
                     updateGold(-item.price)
                     // Add to kingdom inventory
-                    addToKingdomInventory({
-                      id: item.id,
-                      name: item.name,
-                      description: item.description,
-                      type: 'item',
-                      quantity: 1,
-                      image: item.image,
-                      emoji: item.emoji
-                    })
+                    if (user?.id) {
+                      addToKingdomInventory(user.id, {
+                        id: item.id,
+                        name: item.name,
+                        description: item.description,
+                        type: 'item',
+                        quantity: 1,
+                        image: item.image,
+                        emoji: item.emoji
+                      })
+                    }
                     window.dispatchEvent(new Event('character-inventory-update'))
                     toast({
                       title: "Purchase successful",
