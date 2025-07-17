@@ -3,12 +3,43 @@ import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
 export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const type = searchParams.get('type');
+    const category = searchParams.get('category');
+    const itemId = searchParams.get('itemId');
+    const equipped = searchParams.get('equipped');
+
     const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('inventory_items')
         .select('*')
         .eq('user_id', userId);
-        
+
+      // Apply filters based on query parameters
+      if (type) {
+        query = query.eq('type', type);
+      }
+      if (category) {
+        query = query.eq('category', category);
+      }
+      if (itemId) {
+        query = query.eq('item_id', itemId);
+        const { data, error } = await query.single();
+        if (error && error.code !== 'PGRST116') {
+          throw error;
+        }
+        return data ? {
+          ...data,
+          id: data.item_id,
+          equipped: data.equipped,
+          stats: data.stats || {},
+        } : null;
+      }
+      if (equipped === 'true') {
+        query = query.eq('equipped', true);
+      }
+
+      const { data, error } = await query;
       if (error) {
         throw error;
       }
@@ -92,6 +123,155 @@ export async function POST(request: Request) {
           
         if (error) throw error;
         return data;
+      }
+    });
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 401 });
+    }
+
+    return NextResponse.json(result.data);
+  } catch (error) {
+    console.error('[Inventory API] Error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' }, 
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const body = await request.json();
+    const { action, itemId } = body;
+    
+    if (!action || !itemId) {
+      return NextResponse.json({ error: 'Action and itemId are required' }, { status: 400 });
+    }
+
+    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      if (action === 'equip') {
+        // Find the item to get its category
+        const { data: item, error: fetchError } = await supabase
+          .from('inventory_items')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('item_id', itemId)
+          .single();
+        
+        if (fetchError || !item) {
+          throw new Error('Item not found');
+        }
+
+        // Unequip any existing item of the same category
+        if (item.category) {
+          await supabase
+            .from('inventory_items')
+            .update({ equipped: false })
+            .eq('user_id', userId)
+            .eq('category', item.category)
+            .eq('equipped', true);
+        }
+
+        // Equip the new item
+        const { data, error } = await supabase
+          .from('inventory_items')
+          .update({ equipped: true })
+          .eq('user_id', userId)
+          .eq('item_id', itemId)
+          .select()
+          .single();
+          
+        if (error) throw error;
+        return data;
+        
+      } else if (action === 'unequip') {
+        const { data, error } = await supabase
+          .from('inventory_items')
+          .update({ equipped: false })
+          .eq('user_id', userId)
+          .eq('item_id', itemId)
+          .select()
+          .single();
+          
+        if (error) throw error;
+        return data;
+      }
+      
+      throw new Error('Invalid action');
+    });
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 401 });
+    }
+
+    return NextResponse.json(result.data);
+  } catch (error) {
+    console.error('[Inventory API] Error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' }, 
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const body = await request.json();
+    const { itemId, quantity, clearAll } = body;
+
+    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      if (clearAll) {
+        // Clear all inventory
+        const { error } = await supabase
+          .from('inventory_items')
+          .delete()
+          .eq('user_id', userId);
+          
+        if (error) throw error;
+        return { message: 'Inventory cleared' };
+      }
+      
+      if (!itemId) {
+        throw new Error('itemId is required');
+      }
+
+      // Get current item
+      const { data: existing, error: fetchError } = await supabase
+        .from('inventory_items')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('item_id', itemId)
+        .single();
+        
+      if (fetchError || !existing) {
+        throw new Error('Item not found');
+      }
+
+      const removeQuantity = quantity || 1;
+
+      if (existing.quantity > removeQuantity) {
+        // Update quantity
+        const { data, error } = await supabase
+          .from('inventory_items')
+          .update({ quantity: existing.quantity - removeQuantity })
+          .eq('user_id', userId)
+          .eq('item_id', itemId)
+          .select()
+          .single();
+          
+        if (error) throw error;
+        return data;
+      } else {
+        // Delete item completely
+        const { error } = await supabase
+          .from('inventory_items')
+          .delete()
+          .eq('user_id', userId)
+          .eq('item_id', itemId);
+          
+        if (error) throw error;
+        return { message: 'Item removed' };
       }
     });
 

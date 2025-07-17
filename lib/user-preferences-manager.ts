@@ -7,14 +7,44 @@ export interface UserPreference {
 
 // Helper to get Clerk token
 async function getClerkToken(): Promise<string> {
-  if (typeof window !== 'undefined' && (window as any).Clerk) {
+  if (typeof window !== 'undefined') {
     try {
-      return await (window as any).Clerk.session?.getToken() || '';
+      // Try multiple approaches to get the Clerk token
+      const clerkInstance = (window as any).Clerk;
+      
+      if (!clerkInstance) {
+        console.warn('[Clerk Token] Clerk instance not found on window');
+        return '';
+      }
+
+      // Check if user is signed in
+      if (!clerkInstance.user) {
+        console.warn('[Clerk Token] No user signed in');
+        return '';
+      }
+
+      // Get the token from the session
+      const session = clerkInstance.session;
+      if (!session) {
+        console.warn('[Clerk Token] No active session');
+        return '';
+      }
+
+      const token = await session.getToken();
+      
+      if (!token) {
+        console.warn('[Clerk Token] Failed to get token from session');
+        return '';
+      }
+
+      console.log('[Clerk Token] Successfully retrieved token:', token.slice(0, 20) + '...');
+      return token;
     } catch (error) {
-      console.error('Error getting Clerk token:', error);
+      console.error('[Clerk Token] Error getting Clerk token:', error);
       return '';
     }
   }
+  console.warn('[Clerk Token] Not in browser environment');
   return '';
 }
 
