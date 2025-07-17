@@ -340,13 +340,17 @@ export default function QuestsPage() {
     let cancelled = false;
     const fetchStreak = async () => {
       try {
-        const res = await fetch(`/api/streaks?user_id=${userId}&category=${encodeURIComponent(questCategory)}`, {
+        const res = await fetch(`/api/streaks?category=${encodeURIComponent(questCategory)}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (!res.ok) throw new Error('Failed to fetch streak');
+        if (!res.ok) {
+          console.error('[Streaks] Failed to fetch streak:', res.status, res.statusText);
+          throw new Error('Failed to fetch streak');
+        }
         const data = await res.json();
         if (!cancelled) setStreakData(data);
       } catch (error) {
+        console.error('[Streaks] Error fetching streak:', error);
         if (!cancelled) setStreakData({ streak_days: 0, week_streaks: 0 });
       }
     };
@@ -360,13 +364,17 @@ export default function QuestsPage() {
     let cancelled = false;
     const fetchChallengeStreak = async () => {
       try {
-        const res = await fetch(`/api/streaks?user_id=${userId}&category=${encodeURIComponent(challengeCategory)}`, {
+        const res = await fetch(`/api/streaks?category=${encodeURIComponent(challengeCategory)}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (!res.ok) throw new Error('Failed to fetch challenge streak');
+        if (!res.ok) {
+          console.error('[Challenge Streaks] Failed to fetch challenge streak:', res.status, res.statusText);
+          throw new Error('Failed to fetch challenge streak');
+        }
         const data = await res.json();
         if (!cancelled) setChallengeStreakData(data);
       } catch (error) {
+        console.error('[Challenge Streaks] Error fetching challenge streak:', error);
         if (!cancelled) setChallengeStreakData({ streak_days: 0, week_streaks: 0 });
       }
     };
@@ -393,12 +401,21 @@ export default function QuestsPage() {
         (payload) => {
           // Refetch streak on any change via API route
           if (token) {
-            fetch(`/api/streaks?user_id=${userId}&category=${encodeURIComponent(questCategory)}`, {
+            fetch(`/api/streaks?category=${encodeURIComponent(questCategory)}`, {
               headers: { Authorization: `Bearer ${token}` },
             })
-            .then(res => res.ok ? res.json() : { streak_days: 0, week_streaks: 0 })
+            .then(res => {
+              if (!res.ok) {
+                console.error('[Streaks RT] Failed to refetch streak:', res.status, res.statusText);
+                return { streak_days: 0, week_streaks: 0 };
+              }
+              return res.json();
+            })
             .then(data => setStreakData(data))
-            .catch(() => setStreakData({ streak_days: 0, week_streaks: 0 }));
+            .catch(error => {
+              console.error('[Streaks RT] Error refetching streak:', error);
+              setStreakData({ streak_days: 0, week_streaks: 0 });
+            });
           }
         }
       )
@@ -748,12 +765,21 @@ export default function QuestsPage() {
         (payload) => {
           // Refetch challenge streak on any change via API route
           if (token) {
-            fetch(`/api/streaks?user_id=${userId}&category=${encodeURIComponent(challengeCategory)}`, {
+            fetch(`/api/streaks?category=${encodeURIComponent(challengeCategory)}`, {
               headers: { Authorization: `Bearer ${token}` },
             })
-            .then(res => res.ok ? res.json() : { streak_days: 0, week_streaks: 0 })
+            .then(res => {
+              if (!res.ok) {
+                console.error('[Challenge Streaks RT] Failed to refetch challenge streak:', res.status, res.statusText);
+                return { streak_days: 0, week_streaks: 0 };
+              }
+              return res.json();
+            })
             .then(data => setChallengeStreakData(data))
-            .catch(() => setChallengeStreakData({ streak_days: 0, week_streaks: 0 }));
+            .catch(error => {
+              console.error('[Challenge Streaks RT] Error refetching challenge streak:', error);
+              setChallengeStreakData({ streak_days: 0, week_streaks: 0 });
+            });
           }
         }
       )

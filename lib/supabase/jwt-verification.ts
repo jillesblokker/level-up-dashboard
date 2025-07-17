@@ -32,26 +32,34 @@ export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
 
     // Extract Authorization header
     const authHeader = nextReq.headers.get('authorization');
+    console.log('[JWT Verification] URL:', nextReq.url);
     console.log('[JWT Verification] Authorization header present:', !!authHeader);
+    console.log('[JWT Verification] Authorization header (first 20 chars):', authHeader?.substring(0, 20));
     
     if (!authHeader) {
+      console.error('[JWT Verification] Missing authorization header');
       return { success: false, error: 'Missing authorization header' };
     }
 
     // Validate Bearer token format
     const token = authHeader.replace(/^Bearer /i, '');
     if (!token || token === authHeader) {
+      console.error('[JWT Verification] Invalid token format:', authHeader.substring(0, 20));
       return { success: false, error: 'Invalid token format' };
     }
 
+    console.log('[JWT Verification] Token extracted (first 20 chars):', token.substring(0, 20));
+
     // Verify with Clerk
     const { userId } = await getAuth(nextReq);
-    console.log('[JWT Verification] Clerk userId:', userId);
+    console.log('[JWT Verification] Clerk userId from getAuth:', userId);
     
     if (!userId) {
+      console.error('[JWT Verification] getAuth returned no userId');
       return { success: false, error: 'Invalid or expired JWT' };
     }
 
+    console.log('[JWT Verification] Success! UserId:', userId);
     return { success: true, userId };
   } catch (error) {
     console.error('[JWT Verification] Clerk verification failed:', error);
