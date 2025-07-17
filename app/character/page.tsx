@@ -489,7 +489,6 @@ export default function CharacterPage() {
       gold: characterStats.gold - perk.activationCost
     };
     setCharacterStats(newStats);
-    storageService.set("character-stats", newStats);
     
     // Save perks to localStorage for database
     localStorage.setItem('character-perks', JSON.stringify(updatedPerks));
@@ -568,7 +567,6 @@ export default function CharacterPage() {
       gold: characterStats.gold - perk.upgradeCost
     };
     setCharacterStats(newStats);
-    storageService.set("character-stats", newStats);
     
     // Save perks to localStorage for database
     localStorage.setItem('character-perks', JSON.stringify(updatedPerks));

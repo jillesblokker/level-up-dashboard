@@ -135,6 +135,7 @@ function getStreakBonus(streak: number) {
 }
 
 export default function QuestsPage() {
+  const { supabase } = useSupabase();
   // All hooks must be at the top
   const { user, isLoaded: isUserLoaded } = useUser();
   const { getToken, isLoaded: isClerkLoaded } = useAuth();
@@ -669,7 +670,7 @@ export default function QuestsPage() {
   const [challengeStreakData, setChallengeStreakData] = useState<{ streak_days: number; week_streaks: number }>({ streak_days: 0, week_streaks: 0 });
   const streakSubscriptionRef = useRef<any>(null);
   const challengeStreakSubscriptionRef = useRef<any>(null);
-  const { supabase } = useSupabase();
+  // const { supabase } = useSupabase(); // This line is moved to the top
 
   // Real-time subscription for streaks
   useEffect(() => {
