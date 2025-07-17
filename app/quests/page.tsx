@@ -413,15 +413,6 @@ export default function QuestsPage() {
     };
   }, [supabase, userId, questCategory]);
   // Update streak in Supabase when all quests completed for today
-  const updateStreak = async (newStreak: number, newWeekStreaks: number) => {
-    if (!supabase || !userId || !questCategory) return;
-    await supabase
-      .from('streaks')
-      .upsert({
-        user_id: userId,
-        category: questCategory,
-        streak_days: newStreak,
-        week_streaks: newWeekStreaks,
         last_completed_at: new Date().toISOString(),
       }, { onConflict: 'user_id,category' });
   };
