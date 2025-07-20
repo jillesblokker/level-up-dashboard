@@ -1,5 +1,4 @@
 import type { CharacterStats, Perk } from '@/types/character';
-import { authenticatedFetch } from './auth-helpers';
 
 // Minimal interfaces for strengths and titles
 export interface CharacterStrength {
@@ -19,6 +18,16 @@ export interface CharacterTitle {
   equipped: boolean;
   unlocked: boolean;
 }
+
+async function getClerkToken(): Promise<string | null> {
+  if (typeof window === 'undefined') {
+    console.error('[Character Data] getClerkToken called on server side');
+    return null;
+  }
+
+  try {
+    // Access Clerk from window if available
+    const clerk = (window as any).__clerk;
     if (!clerk) {
       console.error('[Character Data] Clerk not available on window');
       return null;
