@@ -353,24 +353,43 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     if (!userId) return;
     setInventoryLoading(true);
     const loadInventory = async () => {
-      const equipped = await getEquippedItems(userId);
-      const stored = await getStoredItems(userId);
-      const stats = await getTotalStats(userId);
-      // Normalize items to always have a 'stats' property and description
-      const normalizeItems = (items: any[]) => items.map(item => ({
-        ...item,
-        stats: (item as any).stats || {},
-        description: (item as any).description || '',
-      }) as KingdomInventoryItem);
-      setEquippedItems(normalizeItems(equipped.filter(isEquippable)));
-      setStoredItems(normalizeItems(stored));
-      setTotalStats(stats);
-      setInventoryLoading(false);
+      try {
+        console.log('[Kingdom] Loading inventory for user:', userId);
+        const equipped = await getEquippedItems(userId);
+        const stored = await getStoredItems(userId);
+        const stats = await getTotalStats(userId);
+        
+        // Normalize items to always have a 'stats' property and description
+        const normalizeItems = (items: any[]) => items.map(item => ({
+          ...item,
+          stats: (item as any).stats || {},
+          description: (item as any).description || '',
+        }) as KingdomInventoryItem);
+        
+        setEquippedItems(normalizeItems(equipped.filter(isEquippable)));
+        setStoredItems(normalizeItems(stored));
+        setTotalStats(stats);
+        console.log('[Kingdom] Successfully loaded inventory');
+      } catch (error) {
+        console.error('[Kingdom] Error loading inventory:', error);
+        // Set empty arrays on error to prevent infinite loops
+        setEquippedItems([]);
+        setStoredItems([]);
+        setTotalStats({ movement: 0, attack: 0, defense: 0 });
+      } finally {
+        setInventoryLoading(false);
+      }
     };
+    
     loadInventory();
+    
     const handleInventoryUpdate = () => {
-      loadInventory();
+      // Only reload if not currently loading to prevent rapid fire requests
+      if (!document.querySelector('[data-inventory-loading="true"]')) {
+        loadInventory();
+      }
     };
+    
     window.addEventListener('character-inventory-update', handleInventoryUpdate);
     return () => window.removeEventListener('character-inventory-update', handleInventoryUpdate);
   }, [userId]);

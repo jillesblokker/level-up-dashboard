@@ -1,45 +1,4 @@
-// Helper to get Clerk token
-async function getClerkToken(): Promise<string> {
-  if (typeof window !== 'undefined') {
-    try {
-      // Try multiple approaches to get the Clerk token
-      const clerkInstance = (window as any).Clerk;
-      
-      if (!clerkInstance) {
-        console.warn('[Clerk Token] Clerk instance not found on window');
-        return '';
-      }
-
-      // Check if user is signed in
-      if (!clerkInstance.user) {
-        console.warn('[Clerk Token] No user signed in');
-        return '';
-      }
-
-      // Get the token from the session
-      const session = clerkInstance.session;
-      if (!session) {
-        console.warn('[Clerk Token] No active session');
-        return '';
-      }
-
-      const token = await session.getToken();
-      
-      if (!token) {
-        console.warn('[Clerk Token] Failed to get token from session');
-        return '';
-      }
-
-      console.log('[Clerk Token] Successfully retrieved token:', token.slice(0, 20) + '...');
-      return token;
-    } catch (error) {
-      console.error('[Clerk Token] Error getting Clerk token:', error);
-      return '';
-    }
-  }
-  console.warn('[Clerk Token] Not in browser environment');
-  return '';
-}
+import { authenticatedFetch, getClerkToken, hasRecentAuthError, isAuthError, markAuthError } from './auth-helpers';
 
 export interface InventoryItem {
   name: string
@@ -62,15 +21,32 @@ export interface InventoryItem {
 export async function getInventory(userId: string): Promise<InventoryItem[]> {
   if (!userId) return [];
   
+  const endpoint = '/api/inventory';
+  if (hasRecentAuthError(endpoint)) {
+    console.warn('[Inventory] Skipping request due to recent auth error');
+    return [];
+  }
+  
   try {
     const token = await getClerkToken();
-    const response = await fetch(`/api/inventory`, {
+    if (!token) {
+      console.warn('[Inventory] No authentication token available, skipping request');
+      return [];
+    }
+
+    const response = await fetch(endpoint, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     });
+    
+    if (isAuthError(response)) {
+      console.error('[Inventory] Authentication failed, marking endpoint');
+      markAuthError(endpoint);
+      return [];
+    }
     
     if (!response.ok) {
       throw new Error(`Failed to fetch inventory: ${response.status}`);
@@ -87,9 +63,20 @@ export async function getInventory(userId: string): Promise<InventoryItem[]> {
 export async function addToInventory(userId: string, item: InventoryItem) {
   if (!userId) return;
   
+  const endpoint = '/api/inventory';
+  if (hasRecentAuthError(endpoint + '_POST')) {
+    console.warn('[Add Inventory] Skipping request due to recent auth error');
+    return;
+  }
+  
   try {
     const token = await getClerkToken();
-    const response = await fetch('/api/inventory', {
+    if (!token) {
+      console.warn('[Add Inventory] No authentication token available, skipping request');
+      return;
+    }
+
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -97,6 +84,12 @@ export async function addToInventory(userId: string, item: InventoryItem) {
       },
       body: JSON.stringify({ item }),
     });
+    
+    if (isAuthError(response)) {
+      console.error('[Add Inventory] Authentication failed, marking endpoint');
+      markAuthError(endpoint + '_POST');
+      return;
+    }
     
     if (!response.ok) {
       throw new Error(`Failed to add inventory item: ${response.status}`);
@@ -262,14 +255,12 @@ export async function getEquippedItems(userId: string): Promise<InventoryItem[]>
   if (!userId) return [];
   
   try {
-    const token = await getClerkToken();
-    const response = await fetch(`/api/inventory?equipped=true`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await authenticatedFetch('/api/inventory?equipped=true', {}, 'Equipped Items');
+    
+    if (!response) {
+      // authenticatedFetch returns null for auth errors or no token
+      return [];
+    }
     
     if (!response.ok) {
       throw new Error(`Failed to fetch equipped items: ${response.status}`);
@@ -291,9 +282,20 @@ export async function getStoredItems(userId: string): Promise<InventoryItem[]> {
 export async function equipItem(userId: string, itemId: string): Promise<boolean> {
   if (!userId) return false;
   
+  const endpoint = '/api/inventory';
+  if (hasRecentAuthError(endpoint + '_PATCH')) {
+    console.warn('[Equip Item] Skipping request due to recent auth error');
+    return false;
+  }
+  
   try {
     const token = await getClerkToken();
-    const response = await fetch('/api/inventory', {
+    if (!token) {
+      console.warn('[Equip Item] No authentication token available, skipping request');
+      return false;
+    }
+
+    const response = await fetch(endpoint, {
       method: 'PATCH',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -301,6 +303,12 @@ export async function equipItem(userId: string, itemId: string): Promise<boolean
       },
       body: JSON.stringify({ action: 'equip', itemId }),
     });
+    
+    if (isAuthError(response)) {
+      console.error('[Equip Item] Authentication failed, marking endpoint');
+      markAuthError(endpoint + '_PATCH');
+      return false;
+    }
     
     if (!response.ok) {
       throw new Error(`Failed to equip item: ${response.status}`);

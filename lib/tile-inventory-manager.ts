@@ -1,5 +1,5 @@
 import { InventoryItem } from '@/lib/inventory-manager';
-import { useAuth } from '@clerk/nextjs';
+import { authenticatedFetch } from './auth-helpers';
 
 export interface TileInventoryItem extends InventoryItem {
   cost?: number;
@@ -9,50 +9,15 @@ export interface TileInventoryItem extends InventoryItem {
   version?: number;
 }
 
-async function getClerkToken(): Promise<string | null> {
-  if (typeof window === 'undefined') {
-    console.error('[Tile Inventory] getClerkToken called on server side');
-    return null;
-  }
-
-  try {
-    // Access Clerk from window if available
-    const clerk = (window as any).__clerk;
-    if (!clerk) {
-      console.error('[Tile Inventory] Clerk not available on window');
-      return null;
-    }
-
-    const session = clerk.session;
-    if (!session) {
-      console.error('[Tile Inventory] No active Clerk session');
-      return null;
-    }
-
-    const token = await session.getToken();
-    console.log('[Tile Inventory] Got Clerk token:', token ? 'present' : 'null');
-    return token;
-  } catch (error) {
-    console.error('[Tile Inventory] Error getting Clerk token:', error);
-    return null;
-  }
-}
-
 export async function getTileInventory(userId: string): Promise<TileInventoryItem[]> {
   if (!userId) return [];
   
   try {
-    const token = await getClerkToken();
-    if (!token) {
-      console.error('[Tile Inventory] No authentication token available');
+    const response = await authenticatedFetch('/api/tile-inventory', {}, 'Tile Inventory');
+    
+    if (!response) {
       return [];
     }
-
-    const response = await fetch('/api/tile-inventory', {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    });
 
     if (!response.ok) {
       console.error('[Tile Inventory] Failed to fetch tile inventory:', response.status, response.statusText);
@@ -71,20 +36,14 @@ export async function addTileToInventory(userId: string, tile: TileInventoryItem
   if (!userId) return;
   
   try {
-    const token = await getClerkToken();
-    if (!token) {
-      console.error('[Tile Inventory] No authentication token available');
+    const response = await authenticatedFetch('/api/tile-inventory', {
+      method: 'POST',
+      body: JSON.stringify({ tile }),
+    }, 'Add Tile Inventory');
+
+    if (!response) {
       return;
     }
-
-    const response = await fetch('/api/tile-inventory', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({ tile }),
-    });
 
     if (!response.ok) {
       console.error('[Tile Inventory] Failed to add tile to inventory:', response.status, response.statusText);
@@ -102,18 +61,13 @@ export async function removeTileFromInventory(userId: string, tileId: string, qu
   if (!userId) return;
   
   try {
-    const token = await getClerkToken();
-    if (!token) {
-      console.error('[Tile Inventory] No authentication token available');
+    const response = await authenticatedFetch(`/api/tile-inventory?tileId=${encodeURIComponent(tileId)}&quantity=${quantity}`, {
+      method: 'DELETE',
+    }, 'Remove Tile Inventory');
+
+    if (!response) {
       return;
     }
-
-    const response = await fetch(`/api/tile-inventory?tileId=${encodeURIComponent(tileId)}&quantity=${quantity}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    });
 
     if (!response.ok) {
       console.error('[Tile Inventory] Failed to remove tile from inventory:', response.status, response.statusText);
