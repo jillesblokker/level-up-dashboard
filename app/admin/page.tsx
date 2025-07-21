@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from 'react'
+import { useAuth } from '@clerk/nextjs'
+import { toast } from '@/components/ui/use-toast'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -10,6 +12,44 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 
 export default function AdminPage() {
   const [selectedTab, setSelectedTab] = useState('realm')
+  const [seedingChallenges, setSeedingChallenges] = useState(false)
+  const { getToken } = useAuth()
+
+  const seedChallenges = async () => {
+    setSeedingChallenges(true)
+    try {
+      const token = await getToken()
+      const response = await fetch('/api/seed-challenges?key=seed123', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        toast({
+          title: 'Success!',
+          description: data.message || 'Challenges seeded successfully',
+        })
+      } else {
+        const error = await response.json()
+        toast({
+          title: 'Error',
+          description: error.error || 'Failed to seed challenges',
+          variant: 'destructive',
+        })
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Network error occurred',
+        variant: 'destructive',
+      })
+    } finally {
+      setSeedingChallenges(false)
+    }
+  }
 
   return (
     <div className="container mx-auto p-4">
@@ -173,9 +213,10 @@ export default function AdminPage() {
                   </p>
                   <Button 
                     className="w-full" 
-                    onClick={() => window.open('/api/seed-challenges?key=seed123', '_blank')}
+                    onClick={seedChallenges}
+                    disabled={seedingChallenges}
                   >
-                    Seed Workout Challenges
+                    {seedingChallenges ? 'Seeding...' : 'Seed Workout Challenges'}
                   </Button>
                 </div>
               </div>
