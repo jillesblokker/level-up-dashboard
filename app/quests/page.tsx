@@ -519,8 +519,8 @@ export default function QuestsPage() {
         setLoading(false);
         return;
       }
-      console.log('[Milestones Debug] Fetching /api/milestones');
-      const fetchRes = await fetch('/api/milestones', {
+              console.log('[Milestones Debug] Fetching /api/milestones-direct');
+        const fetchRes = await fetch('/api/milestones-direct', {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (fetchRes.ok) {
@@ -636,8 +636,8 @@ export default function QuestsPage() {
     async function fetchMilestones() {
       try {
         if (!token) return; // Guard for linter
-        console.log('[Milestones Debug] Fetching /api/milestones with token:', token.slice(0, 10), '...');
-        const res = await fetch('/api/milestones', {
+        console.log('[Milestones Debug] Fetching /api/milestones-direct with token:', token.slice(0, 10), '...');
+        const res = await fetch('/api/milestones-direct', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -846,11 +846,31 @@ export default function QuestsPage() {
 
   // --- Automatically trigger updateStreak in challenge completion logic ---
   useEffect(() => {
-    if (!challenges.length) return;
+    console.log('[Streak Debug] Effect triggered:', {
+      challengesLength: challenges.length,
+      challengeCategory,
+      challengeStreakData,
+      challenges: challenges.map(c => ({ id: c.id, category: c.category, completed: c.completed }))
+    });
+
+    if (!challenges.length) {
+      console.log('[Streak Debug] No challenges loaded yet');
+      return;
+    }
+
     const challengesForCategory = challenges.filter(c => c.category === challengeCategory);
+    console.log('[Streak Debug] Challenges for category:', {
+      category: challengeCategory,
+      total: challengesForCategory.length,
+      completed: challengesForCategory.filter(c => c.completed).length,
+      challengesForCategory: challengesForCategory.map(c => ({ id: c.id, name: c.name, completed: c.completed }))
+    });
+
     const allChallengesCompleted = challengesForCategory.length > 0 && challengesForCategory.every(c => c.completed);
+    console.log('[Streak Debug] All challenges completed?', allChallengesCompleted);
 
     if (allChallengesCompleted) {
+      console.log('[Streak Debug] 🎉 ALL CHALLENGES COMPLETED! Updating streak...');
       const newStreak = challengeStreakData?.streak_days ?? 0;
       const newWeekStreaks = challengeStreakData?.week_streaks ?? 0;
       updateChallengeStreak(newStreak + 1, newWeekStreaks + 1);
