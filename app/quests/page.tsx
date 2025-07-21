@@ -519,8 +519,8 @@ export default function QuestsPage() {
         setLoading(false);
         return;
       }
-              console.log('[Milestones Debug] Fetching /api/milestones-simple');
-        const fetchRes = await fetch('/api/milestones-simple', {
+              console.log('[Milestones Debug] Fetching /api/milestones-direct');
+        const fetchRes = await fetch('/api/milestones-direct', {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (fetchRes.ok) {
@@ -636,8 +636,8 @@ export default function QuestsPage() {
     async function fetchMilestones() {
       try {
         if (!token) return; // Guard for linter
-                 console.log('[Milestones Debug] Fetching /api/milestones-simple with token:', token.slice(0, 10), '...');
-         const res = await fetch('/api/milestones-simple', {
+                 console.log('[Milestones Debug] Fetching /api/milestones-direct with token:', token.slice(0, 10), '...');
+         const res = await fetch('/api/milestones-direct', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
