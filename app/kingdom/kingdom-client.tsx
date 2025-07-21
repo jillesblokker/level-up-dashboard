@@ -366,16 +366,66 @@ export function KingdomClient({ userId }: { userId: string | null }) {
           description: (item as any).description || '',
         }) as KingdomInventoryItem);
         
-        setEquippedItems(normalizeItems(equipped.filter(isEquippable)));
+        let equippedItemsToShow = normalizeItems(equipped.filter(isEquippable));
+        
+        // 🎯 SHOW DEFAULT ITEMS if no items are equipped
+        if (equippedItemsToShow.length === 0) {
+          console.log('[Kingdom] No equipped items found, showing default items');
+          equippedItemsToShow = defaultInventoryItems.map(item => ({
+            ...item,
+            stats: item.stats || {},
+            description: item.description || '',
+            equipped: true,
+            type: item.type as any, // Convert to compatible type
+            category: item.type,
+          })) as KingdomInventoryItem[];
+        }
+        
+        setEquippedItems(equippedItemsToShow);
         setStoredItems(normalizeItems(stored));
-        setTotalStats(stats);
-        console.log('[Kingdom] Successfully loaded inventory');
+        
+        // 🎯 CALCULATE STATS from equipped items (including defaults)
+        const calculatedStats = equippedItemsToShow.reduce(
+          (totals, item) => {
+            const itemStats = item.stats || {};
+            return {
+              movement: totals.movement + (itemStats.movement || 0),
+              attack: totals.attack + (itemStats.attack || 0),
+              defense: totals.defense + (itemStats.defense || 0),
+            };
+          },
+          { movement: 0, attack: 0, defense: 0 }
+        );
+        
+        setTotalStats(calculatedStats);
+        console.log('[Kingdom] Successfully loaded inventory with stats:', calculatedStats);
       } catch (error) {
         console.error('[Kingdom] Error loading inventory:', error);
-        // Set empty arrays on error to prevent infinite loops
-        setEquippedItems([]);
+        // Show default items on error too
+        const defaultItems = defaultInventoryItems.map(item => ({
+          ...item,
+          stats: item.stats || {},
+          description: item.description || '',
+          equipped: true,
+          type: item.type as any,
+          category: item.type,
+        })) as KingdomInventoryItem[];
+        setEquippedItems(defaultItems);
         setStoredItems([]);
-        setTotalStats({ movement: 0, attack: 0, defense: 0 });
+        
+        // Calculate stats from default items
+        const defaultStats = defaultItems.reduce(
+          (totals, item) => {
+            const itemStats = item.stats || {};
+            return {
+              movement: totals.movement + (itemStats.movement || 0),
+              attack: totals.attack + (itemStats.attack || 0),
+              defense: totals.defense + (itemStats.defense || 0),
+            };
+          },
+          { movement: 0, attack: 0, defense: 0 }
+        );
+        setTotalStats(defaultStats);
       } finally {
         setInventoryLoading(false);
       }
@@ -391,7 +441,30 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     };
     
     window.addEventListener('character-inventory-update', handleInventoryUpdate);
-    return () => window.removeEventListener('character-inventory-update', handleInventoryUpdate);
+    
+    // 🎯 LISTEN FOR QUEST COMPLETION GOLD/XP UPDATES
+    const handleGoldUpdate = (event: CustomEvent) => {
+      console.log('[Kingdom] Gold gained from quest:', event.detail);
+      // Force refresh kingdom stats when gold is gained
+      loadInventory();
+    };
+    
+    const handleXPUpdate = (event: CustomEvent) => {
+      console.log('[Kingdom] XP gained from quest:', event.detail);
+      // Force refresh kingdom stats when XP is gained  
+      loadInventory();
+    };
+    
+    window.addEventListener('kingdom:goldGained', handleGoldUpdate as EventListener);
+    window.addEventListener('kingdom:experienceGained', handleXPUpdate as EventListener);
+    window.addEventListener('character-stats-update', handleInventoryUpdate);
+    
+    return () => {
+      window.removeEventListener('character-inventory-update', handleInventoryUpdate);
+      window.removeEventListener('kingdom:goldGained', handleGoldUpdate as EventListener);
+      window.removeEventListener('kingdom:experienceGained', handleXPUpdate as EventListener);
+      window.removeEventListener('character-stats-update', handleInventoryUpdate);
+    };
   }, [userId]);
 
   useEffect(() => {

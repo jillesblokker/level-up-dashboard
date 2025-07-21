@@ -468,6 +468,45 @@ export default function QuestsPage() {
         setLoading(false);
         return;
       }
+      // 🎯 APPLY QUEST REWARDS when completing quest
+      if (!currentCompleted) { // Quest is being completed (was false, now true)
+        const questRewards = quest.gold || 0;
+        const questXP = quest.xp || 0;
+        
+        if (questRewards > 0 || questXP > 0) {
+          console.log('[Quest Rewards] Applying rewards:', { gold: questRewards, xp: questXP });
+          
+          // Update character stats
+          const currentStats = getCharacterStats();
+          updateCharacterStats({
+            gold: (currentStats.gold || 0) + questRewards,
+            experience: (currentStats.experience || 0) + questXP
+          });
+          
+          // Trigger kingdom stats update
+          window.dispatchEvent(new CustomEvent('kingdom:goldGained', { detail: questRewards }));
+          window.dispatchEvent(new CustomEvent('kingdom:experienceGained', { detail: questXP }));
+          
+          // Show reward toast
+          if (questRewards > 0 && questXP > 0) {
+            toast({ 
+              title: 'Quest Completed!', 
+              description: `Earned ${questRewards} gold and ${questXP} XP!` 
+            });
+          } else if (questRewards > 0) {
+            toast({ 
+              title: 'Quest Completed!', 
+              description: `Earned ${questRewards} gold!` 
+            });
+          } else if (questXP > 0) {
+            toast({ 
+              title: 'Quest Completed!', 
+              description: `Earned ${questXP} XP!` 
+            });
+          }
+        }
+      }
+      
       // Re-fetch quests from backend
       const fetchRes = await fetch('/api/quests', {
         headers: { Authorization: `Bearer ${token}` },
