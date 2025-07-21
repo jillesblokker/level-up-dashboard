@@ -1,68 +1,76 @@
 // Shared authentication helpers for API calls
 // This prevents infinite loops when 401 errors occur
 
-// Helper to get Clerk token
-export async function getClerkToken(): Promise<string> {
-  if (typeof window !== 'undefined') {
-    try {
-      // Try multiple approaches to get the Clerk token
-      const clerkInstance = (window as any).Clerk;
-      
-      if (!clerkInstance) {
-        console.warn('[Clerk Token] Clerk instance not found on window');
-        return '';
-      }
+import { useAuth } from '@clerk/nextjs';
 
-      // Check if user is signed in
-      if (!clerkInstance.user) {
-        console.warn('[Clerk Token] No user signed in');
-        return '';
-      }
+// Circuit breaker to prevent infinite auth error loops
+const authErrorTimestamps: Map<string, number> = new Map();
+const CIRCUIT_BREAKER_TIMEOUT = 5 * 60 * 1000; // 5 minutes
 
-      // Get the token from the session
-      const session = clerkInstance.session;
-      if (!session) {
-        console.warn('[Clerk Token] No active session');
-        return '';
-      }
-
-      const token = await session.getToken();
-      
-      if (!token) {
-        console.warn('[Clerk Token] Failed to get token from session');
-        return '';
-      }
-
-      console.log('[Clerk Token] Successfully retrieved token:', token.slice(0, 20) + '...');
-      return token;
-    } catch (error) {
-      console.error('[Clerk Token] Error getting Clerk token:', error);
-      return '';
-    }
+export function hasRecentAuthError(endpoint: string): boolean {
+  const lastError = authErrorTimestamps.get(endpoint);
+  if (!lastError) return false;
+  
+  const timeSinceError = Date.now() - lastError;
+  if (timeSinceError > CIRCUIT_BREAKER_TIMEOUT) {
+    authErrorTimestamps.delete(endpoint);
+    return false;
   }
-  console.warn('[Clerk Token] Not in browser environment');
-  return '';
-}
-
-// Authentication error tracker to prevent infinite loops
-const authErrors = new Set<string>();
-
-export function isAuthError(response: Response): boolean {
-  return response.status === 401;
+  
+  return true;
 }
 
 export function markAuthError(endpoint: string): void {
-  authErrors.add(endpoint);
-  console.warn(`[Auth Circuit Breaker] Marking ${endpoint} as failed, will retry in 5 minutes`);
-  // Clear the error after 5 minutes to allow retry
-  setTimeout(() => {
-    authErrors.delete(endpoint);
-    console.log(`[Auth Circuit Breaker] Cleared auth error for ${endpoint}, allowing retries`);
-  }, 5 * 60 * 1000);
+  authErrorTimestamps.set(endpoint, Date.now());
 }
 
-export function hasRecentAuthError(endpoint: string): boolean {
-  return authErrors.has(endpoint);
+export function isAuthError(response: Response): boolean {
+  return response.status === 401 || response.status === 403;
+}
+
+// FIXED: Proper Clerk token retrieval using the official Clerk hooks
+export async function getClerkToken(): Promise<string> {
+  if (typeof window === 'undefined') {
+    console.warn('[Clerk Token] Not in browser environment');
+    return '';
+  }
+
+  try {
+    // Use the proper Clerk instance from window
+    const clerkInstance = (window as any).Clerk;
+    
+    if (!clerkInstance) {
+      console.warn('[Clerk Token] Clerk instance not found on window');
+      return '';
+    }
+
+    // Check if user is signed in
+    if (!clerkInstance.user) {
+      console.warn('[Clerk Token] No user signed in');
+      return '';
+    }
+
+    // Get the current session
+    const session = clerkInstance.session;
+    if (!session) {
+      console.warn('[Clerk Token] No active session');
+      return '';
+    }
+
+    // Get token WITHOUT template (for API routes, not Supabase RLS)
+    const token = await session.getToken();
+    
+    if (!token) {
+      console.warn('[Clerk Token] Failed to get token from session');
+      return '';
+    }
+
+    console.log('[Clerk Token] Successfully retrieved token:', token.slice(0, 20) + '...');
+    return token;
+  } catch (error) {
+    console.error('[Clerk Token] Error getting Clerk token:', error);
+    return '';
+  }
 }
 
 // Shared fetch wrapper with authentication and circuit breaker
@@ -85,6 +93,8 @@ export async function authenticatedFetch(
     return null;
   }
 
+  console.log(`[${contextName}] Making authenticated request to ${endpoint} with token: ${token.slice(0, 20)}...`);
+
   // Make authenticated request
   const response = await fetch(endpoint, {
     ...options,
@@ -94,6 +104,8 @@ export async function authenticatedFetch(
       ...options.headers,
     },
   });
+
+  console.log(`[${contextName}] Response status: ${response.status}`);
 
   // Check for auth error and mark circuit breaker
   if (isAuthError(response)) {

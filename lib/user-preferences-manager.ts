@@ -1,3 +1,5 @@
+import { authenticatedFetch } from './auth-helpers';
+
 export interface UserPreference {
   id: string;
   user_id: string;
@@ -5,64 +7,18 @@ export interface UserPreference {
   value: string;
 }
 
-// Helper to get Clerk token
-async function getClerkToken(): Promise<string> {
-  if (typeof window !== 'undefined') {
-    try {
-      // Try multiple approaches to get the Clerk token
-      const clerkInstance = (window as any).Clerk;
-      
-      if (!clerkInstance) {
-        console.warn('[Clerk Token] Clerk instance not found on window');
-        return '';
-      }
-
-      // Check if user is signed in
-      if (!clerkInstance.user) {
-        console.warn('[Clerk Token] No user signed in');
-        return '';
-      }
-
-      // Get the token from the session
-      const session = clerkInstance.session;
-      if (!session) {
-        console.warn('[Clerk Token] No active session');
-        return '';
-      }
-
-      const token = await session.getToken();
-      
-      if (!token) {
-        console.warn('[Clerk Token] Failed to get token from session');
-        return '';
-      }
-
-      console.log('[Clerk Token] Successfully retrieved token:', token.slice(0, 20) + '...');
-      return token;
-    } catch (error) {
-      console.error('[Clerk Token] Error getting Clerk token:', error);
-      return '';
-    }
-  }
-  console.warn('[Clerk Token] Not in browser environment');
-  return '';
-}
-
 export async function getUserPreferences(userId: string): Promise<UserPreference[]> {
   if (!userId) return [];
   
   try {
-    const token = await getClerkToken();
-    const response = await fetch(`/api/user-preferences?all=true`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await authenticatedFetch(`/api/user-preferences?all=true`, {}, 'User Preferences');
+    
+    if (!response) {
+      return [];
+    }
     
     if (!response.ok) {
-      throw new Error(`Failed to fetch preferences: ${response.status}`);
+      throw new Error(`Failed to fetch user preferences: ${response.status}`);
     }
     
     return await response.json();
@@ -72,77 +28,94 @@ export async function getUserPreferences(userId: string): Promise<UserPreference
   }
 }
 
-export async function getUserPreference(userId: string, key: string): Promise<UserPreference | null> {
-  if (!userId) return null;
+export async function getUserPreference(userId: string, preferenceKey: string): Promise<string | null> {
+  if (!userId || !preferenceKey) return null;
   
   try {
-    const token = await getClerkToken();
-    const response = await fetch(`/api/user-preferences?preference_key=${encodeURIComponent(key)}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await authenticatedFetch(`/api/user-preferences?preference_key=${encodeURIComponent(preferenceKey)}`, {}, 'User Preference');
     
-    if (!response.ok) {
-      if (response.status === 404) return null;
-      throw new Error(`Failed to fetch preference: ${response.status}`);
+    if (!response) {
+      return null;
     }
     
-    return await response.json();
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null; // Preference doesn't exist
+      }
+      throw new Error(`Failed to fetch user preference: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data?.value || null;
   } catch (error) {
     console.error('Error fetching user preference:', error);
     return null;
   }
 }
 
-export async function setUserPreference(userId: string, key: string, value: string) {
-  if (!userId) return;
+export async function setUserPreference(userId: string, preferenceKey: string, value: string): Promise<boolean> {
+  if (!userId || !preferenceKey) return false;
   
   try {
-    const token = await getClerkToken();
-    const response = await fetch('/api/user-preferences', {
+    const response = await authenticatedFetch('/api/user-preferences', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        preference_key: key,
-        preference_value: value,
-      }),
-    });
+      body: JSON.stringify({ preference_key: preferenceKey, value }),
+    }, 'Set User Preference');
     
-    if (!response.ok) {
-      throw new Error(`Failed to set preference: ${response.status}`);
+    if (!response) {
+      return false;
     }
     
-    window.dispatchEvent(new Event('user-preferences-update'));
+    if (!response.ok) {
+      throw new Error(`Failed to set user preference: ${response.status}`);
+    }
+    
+    console.log('Successfully set user preference:', preferenceKey);
+    return true;
   } catch (error) {
     console.error('Error setting user preference:', error);
+    return false;
   }
 }
 
-export async function removeUserPreference(userId: string, key: string) {
-  if (!userId) return;
+export async function deleteUserPreference(userId: string, preferenceKey: string): Promise<boolean> {
+  if (!userId || !preferenceKey) return false;
   
   try {
-    const token = await getClerkToken();
-    const response = await fetch(`/api/user-preferences?preference_key=${encodeURIComponent(key)}`, {
+    const response = await authenticatedFetch('/api/user-preferences', {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+      body: JSON.stringify({ preference_key: preferenceKey }),
+    }, 'Delete User Preference');
     
-    if (!response.ok) {
-      throw new Error(`Failed to remove preference: ${response.status}`);
+    if (!response) {
+      return false;
     }
     
-    window.dispatchEvent(new Event('user-preferences-update'));
+    if (!response.ok) {
+      throw new Error(`Failed to delete user preference: ${response.status}`);
+    }
+    
+    console.log('Successfully deleted user preference:', preferenceKey);
+    return true;
   } catch (error) {
-    console.error('Error removing user preference:', error);
+    console.error('Error deleting user preference:', error);
+    return false;
   }
+}
+
+// Helper functions for common preferences
+export async function getKingdomHeaderImage(userId: string): Promise<string | null> {
+  return await getUserPreference(userId, 'kingdom-header-image');
+}
+
+export async function setKingdomHeaderImage(userId: string, imageUrl: string): Promise<boolean> {
+  return await setUserPreference(userId, 'kingdom-header-image', imageUrl);
+}
+
+export async function getThemePreference(userId: string): Promise<string | null> {
+  return await getUserPreference(userId, 'theme');
+}
+
+export async function setThemePreference(userId: string, theme: string): Promise<boolean> {
+  return await setUserPreference(userId, 'theme', theme);
 } 

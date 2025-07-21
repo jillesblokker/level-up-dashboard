@@ -135,11 +135,14 @@ export async function getInventoryByCategory(userId: string, category: string): 
   if (!userId) return [];
   
   try {
-    const response = await authenticatedFetch(`/api/inventory?category=${encodeURIComponent(category)}`, {}, 'Inventory By Category');
-    
-    if (!response) {
-      return [];
-    }
+    const token = await getClerkToken();
+    const response = await fetch(`/api/inventory?category=${encodeURIComponent(category)}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
     
     if (!response.ok) {
       throw new Error(`Failed to fetch inventory by category: ${response.status}`);
@@ -152,16 +155,115 @@ export async function getInventoryByCategory(userId: string, category: string): 
   }
 }
 
+export async function getInventoryItem(userId: string, id: string): Promise<InventoryItem | null> {
+  if (!userId) return null;
+  
+  try {
+    const token = await getClerkToken();
+    const response = await fetch(`/api/inventory?itemId=${encodeURIComponent(id)}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      if (response.status === 404) return null;
+      throw new Error(`Failed to fetch inventory item: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching inventory item:', error);
+    return null;
+  }
+}
+
+export async function hasItem(userId: string, itemId: string): Promise<boolean> {
+  if (!userId) return false;
+  
+  const item = await getInventoryItem(userId, itemId);
+  return !!item;
+}
+
+export async function getItemQuantity(userId: string, itemId: string): Promise<number> {
+  if (!userId) return 0;
+  
+  const item = await getInventoryItem(userId, itemId);
+  return item?.quantity || 0;
+}
+
+// For kingdom inventory, use the same inventory_items table but filter by type/category if needed
+export async function getKingdomInventory(userId: string): Promise<InventoryItem[]> {
+  return getInventory(userId);
+}
+
+export async function addToKingdomInventory(userId: string, item: InventoryItem) {
+  await addToInventory(userId, item);
+}
+
+export async function removeFromKingdomInventory(userId: string, itemId: string, quantity: number = 1) {
+  await removeFromInventory(userId, itemId, quantity);
+}
+
+// Equipped items: filter inventory_items where equipped = true
+export async function getEquippedItems(userId: string): Promise<InventoryItem[]> {
+  if (!userId) return [];
+  
+  try {
+    const response = await authenticatedFetch('/api/inventory?equipped=true', {}, 'Equipped Items');
+    
+    if (!response) {
+      // authenticatedFetch returns null for auth errors or no token
+      return [];
+    }
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch equipped items: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching equipped items:', error);
+    return [];
+  }
+}
+
+export async function getStoredItems(userId: string): Promise<InventoryItem[]> {
+  const allItems = await getKingdomInventory(userId);
+  const equippedItems = await getEquippedItems(userId);
+  return allItems.filter(item => !equippedItems.some(equipped => equipped.id === item.id));
+}
+
 export async function equipItem(userId: string, itemId: string): Promise<boolean> {
   if (!userId) return false;
   
+  const endpoint = '/api/inventory';
+  if (hasRecentAuthError(endpoint + '_PATCH')) {
+    console.warn('[Equip Item] Skipping request due to recent auth error');
+    return false;
+  }
+  
   try {
-    const response = await authenticatedFetch('/api/inventory', {
+    const token = await getClerkToken();
+    if (!token) {
+      console.warn('[Equip Item] No authentication token available, skipping request');
+      return false;
+    }
+
+    const response = await fetch(endpoint, {
       method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ action: 'equip', itemId }),
-    }, 'Equip Item');
+    });
     
-    if (!response) {
+    if (isAuthError(response)) {
+      console.error('[Equip Item] Authentication failed, marking endpoint');
+      markAuthError(endpoint + '_PATCH');
       return false;
     }
     
@@ -181,14 +283,15 @@ export async function unequipItem(userId: string, itemId: string): Promise<boole
   if (!userId) return false;
   
   try {
-    const response = await authenticatedFetch('/api/inventory', {
+    const token = await getClerkToken();
+    const response = await fetch('/api/inventory', {
       method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ action: 'unequip', itemId }),
-    }, 'Unequip Item');
-    
-    if (!response) {
-      return false;
-    }
+    });
     
     if (!response.ok) {
       throw new Error(`Failed to unequip item: ${response.status}`);
@@ -202,91 +305,14 @@ export async function unequipItem(userId: string, itemId: string): Promise<boole
   }
 }
 
-// Check if user has specific item
-export async function hasItem(userId: string, itemId: string): Promise<boolean> {
-  if (!userId) return false;
-  
-  try {
-    const response = await authenticatedFetch(`/api/inventory?itemId=${encodeURIComponent(itemId)}`, {}, 'Has Item Check');
-    
-    if (!response) {
-      return false;
-    }
-    
-    if (!response.ok) {
-      return false;
-    }
-    
-    const item = await response.json();
-    return !!item;
-  } catch (error) {
-    console.error('Error checking for item:', error);
-    return false;
-  }
-}
-
-// Get equipped items: filter inventory_items where equipped = true
-export async function getEquippedItems(userId: string): Promise<InventoryItem[]> {
-  if (!userId) return [];
-  
-  try {
-    const response = await authenticatedFetch('/api/inventory?equipped=true', {}, 'Equipped Items');
-    
-    if (!response) {
-      return [];
-    }
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch equipped items: ${response.status}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching equipped items:', error);
-    return [];
-  }
-}
-
-// Get stored (non-equipped) items
-export async function getStoredItems(userId: string): Promise<InventoryItem[]> {
-  if (!userId) return [];
-  
-  try {
-    const response = await authenticatedFetch('/api/inventory?equipped=false', {}, 'Stored Items');
-    
-    if (!response) {
-      return [];
-    }
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch stored items: ${response.status}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching stored items:', error);
-    return [];
-  }
-}
-
-// Calculate total stats from equipped items
 export async function getTotalStats(userId: string): Promise<{ movement: number; attack: number; defense: number }> {
   const equippedItems = await getEquippedItems(userId);
-  
-  return equippedItems.reduce(
-    (totals, item) => {
-      const stats = item.stats || {};
-      return {
-        movement: totals.movement + (stats.movement || 0),
-        attack: totals.attack + (stats.attack || 0),
-        defense: totals.defense + (stats.defense || 0),
-      };
-    },
-    { movement: 0, attack: 0, defense: 0 }
-  );
-}
-
-// Filter items by whether they can be equipped
-export function isEquippable(item: InventoryItem): boolean {
-  return item.type === 'equipment' || item.type === 'artifact';
+  return equippedItems.reduce((total, item) => {
+    if (item.stats) {
+      total.movement += item.stats.movement || 0;
+      total.attack += item.stats.attack || 0;
+      total.defense += item.stats.defense || 0;
+    }
+    return total;
+  }, { movement: 0, attack: 0, defense: 0 });
 } 
