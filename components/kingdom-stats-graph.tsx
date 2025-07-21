@@ -429,6 +429,27 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
       }
     };
     fetchData();
+
+    // 🎯 LISTEN FOR REAL-TIME UPDATES when challenges/milestones are completed
+    const handleDataUpdate = () => {
+      console.log('[KingdomStatsBlock] Data updated, refetching...');
+      fetchData();
+    };
+
+    // Listen for completion events
+    window.addEventListener('kingdom:challengeCompleted', handleDataUpdate);
+    window.addEventListener('kingdom:milestoneCompleted', handleDataUpdate);
+    window.addEventListener('kingdom:questCompleted', handleDataUpdate);
+    window.addEventListener('kingdom:goldGained', handleDataUpdate);
+    window.addEventListener('kingdom:experienceGained', handleDataUpdate);
+
+    return () => {
+      window.removeEventListener('kingdom:challengeCompleted', handleDataUpdate);
+      window.removeEventListener('kingdom:milestoneCompleted', handleDataUpdate);
+      window.removeEventListener('kingdom:questCompleted', handleDataUpdate);
+      window.removeEventListener('kingdom:goldGained', handleDataUpdate);
+      window.removeEventListener('kingdom:experienceGained', handleDataUpdate);
+    };
   }, [activeTab, uid, timePeriod]);
 
   // Show chart if there is at least one non-zero value in the data
@@ -535,6 +556,27 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
       }
     };
     fetchData();
+
+    // 🎯 LISTEN FOR REAL-TIME UPDATES when challenges/milestones are completed  
+    const handleDataUpdate = () => {
+      console.log('[KingStatsBlock] Data updated, refetching...');
+      fetchData();
+    };
+
+    // Listen for completion events
+    window.addEventListener('kingdom:challengeCompleted', handleDataUpdate);
+    window.addEventListener('kingdom:milestoneCompleted', handleDataUpdate);
+    window.addEventListener('kingdom:questCompleted', handleDataUpdate);
+    window.addEventListener('kingdom:goldGained', handleDataUpdate);
+    window.addEventListener('kingdom:experienceGained', handleDataUpdate);
+
+    return () => {
+      window.removeEventListener('kingdom:challengeCompleted', handleDataUpdate);
+      window.removeEventListener('kingdom:milestoneCompleted', handleDataUpdate);
+      window.removeEventListener('kingdom:questCompleted', handleDataUpdate);
+      window.removeEventListener('kingdom:goldGained', handleDataUpdate);
+      window.removeEventListener('kingdom:experienceGained', handleDataUpdate);
+    };
   }, [activeTab, uid, timePeriod]);
 
   // Show chart if there is at least one non-zero value in the data

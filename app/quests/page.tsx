@@ -566,6 +566,11 @@ export default function QuestsPage() {
         const data = await fetchRes.json();
         console.log('[Milestones Debug] fetched milestones:', data);
         setMilestones(data || []);
+        
+        // 🎯 EMIT KINGDOM EVENT for real-time stats updates
+        window.dispatchEvent(new CustomEvent('kingdom:milestoneCompleted', { 
+          detail: { milestoneId, completed: !currentCompleted }
+        }));
       }
     } catch (err: any) {
       toast({ title: 'Error', description: '[Milestones Debug] ' + (err.message || 'Failed to update milestone') });
@@ -619,6 +624,11 @@ export default function QuestsPage() {
         const data = await fetchRes.json();
         console.log('[Challenges Debug] fetched challenges:', data);
         setChallenges(data || []);
+        
+        // 🎯 EMIT KINGDOM EVENT for real-time stats updates
+        window.dispatchEvent(new CustomEvent('kingdom:challengeCompleted', { 
+          detail: { challengeId, completed: !currentCompleted }
+        }));
       }
     } catch (err: any) {
       toast({ title: 'Error', description: '[Challenges Debug] ' + (err.message || 'Failed to update challenge') });
