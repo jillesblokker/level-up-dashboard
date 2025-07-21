@@ -289,4 +289,17 @@ export async function getTotalStats(userId: string): Promise<{ movement: number;
 // Filter items by whether they can be equipped
 export function isEquippable(item: InventoryItem): boolean {
   return item.type === 'equipment' || item.type === 'artifact';
+}
+
+// Kingdom inventory wrapper functions (for backwards compatibility)
+export async function getKingdomInventory(userId: string): Promise<InventoryItem[]> {
+  return getInventory(userId);
+}
+
+export async function addToKingdomInventory(userId: string, item: InventoryItem) {
+  await addToInventory(userId, item);
+}
+
+export async function removeFromKingdomInventory(userId: string, itemId: string, quantity: number = 1) {
+  await removeFromInventory(userId, itemId, quantity);
 } 
