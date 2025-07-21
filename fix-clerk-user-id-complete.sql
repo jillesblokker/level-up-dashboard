@@ -57,7 +57,9 @@ GRANT EXECUTE ON FUNCTION auth.get_user_id() TO authenticated;
 GRANT EXECUTE ON FUNCTION auth.get_user_id() TO anon;
 GRANT EXECUTE ON FUNCTION set_user_context(TEXT) TO service_role;
 
-RAISE NOTICE 'Created auth functions';
+DO $$ BEGIN
+    RAISE NOTICE 'Created auth functions';
+END $$;
 
 -- STEP 2: DROP ALL EXISTING POLICIES
 DO $$
