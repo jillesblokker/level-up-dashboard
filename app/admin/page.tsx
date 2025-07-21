@@ -158,6 +158,29 @@ export default function AdminPage() {
               </div>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Database Seeding</CardTitle>
+              <CardDescription>Initialize database with default data</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <Label>Seed Challenges</Label>
+                  <p className="text-sm text-gray-400 mb-2">
+                    Populate the challenges table with 24 workout challenges across 5 categories
+                  </p>
+                  <Button 
+                    className="w-full" 
+                    onClick={() => window.open('/api/seed-challenges?key=seed123', '_blank')}
+                  >
+                    Seed Workout Challenges
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
