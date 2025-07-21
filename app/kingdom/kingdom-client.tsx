@@ -399,8 +399,8 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     setCoverImageLoading(true);
     const loadCoverImage = async () => {
       const pref = await getUserPreference(userId, 'kingdom-header-image');
-      if (pref && pref.value) {
-        setCoverImage(pref.value);
+      if (pref) {
+        setCoverImage(pref);
       } else {
         // Set default kingdom header image
         setCoverImage('/images/kingdom-header.jpg');
