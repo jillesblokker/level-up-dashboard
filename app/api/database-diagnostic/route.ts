@@ -66,7 +66,7 @@ export async function GET() {
 
     // Test 3: Check RPC function
     try {
-      await supabaseServer.rpc('set_user_context', { user_id: 'test_user_123' });
+      await supabaseServer.rpc('public.set_user_context', { user_id: 'test_user_123' });
       diagnostics.rpcFunctionExists = true;
     } catch (err: any) {
       diagnostics.rpcFunctionExists = false;
