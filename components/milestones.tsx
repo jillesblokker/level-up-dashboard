@@ -146,19 +146,25 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
     fetchMilestones();
   }, [userId, supabase, isSupabaseLoading, token, newQuestCategory, toast]);
 
-  // When milestones are loaded, sync checkedMilestones with completed milestones
+  // When milestones are loaded, sync ALL UI state with database state
   useEffect(() => {
     if (milestones && milestones.length > 0) {
       const completedIds = milestones.filter(m => m.completed).map(m => m.id);
       setCheckedMilestones(completedIds);
-      // storageService.set('checked-milestones', completedIds); // Removed
+      
+      // Sync local completed and progress state with database state
+      const completedState: Record<string, boolean> = {};
+      const progressState: Record<string, number> = {};
+      
+      milestones.forEach(milestone => {
+        completedState[milestone.id] = milestone.completed;
+        progressState[milestone.id] = milestone.progress;
+      });
+      
+      setCompleted(completedState);
+      setProgress(progressState);
     }
   }, [milestones]);
-
-  // When checkedMilestones changes, update localStorage
-  useEffect(() => {
-    // storageService.set('checked-milestones', checkedMilestones); // Removed
-  }, [checkedMilestones]);
 
   const handleAddMilestone = async () => {
     if (!userId || !newMilestone.name || !newQuestCategory) {
