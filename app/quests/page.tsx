@@ -737,6 +737,7 @@ export default function QuestsPage() {
   const updateStreak = async (newStreak: number, newWeekStreaks: number) => {
     if (!token || !userId || !questCategory) return;
     try {
+      console.log('[Quest Streak Update] Updating streak to:', newStreak, 'for category:', questCategory);
       await fetch('/api/streaks-direct', {
         method: 'POST',
         headers: {
@@ -749,6 +750,17 @@ export default function QuestsPage() {
           week_streaks: newWeekStreaks,
         }),
       });
+      
+      // ⭐ IMMEDIATELY REFETCH the updated streak to refresh UI
+      console.log('[Quest Streak Update] Refetching streak data...');
+      const res = await fetch(`/api/streaks-direct?category=${encodeURIComponent(questCategory)}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const updatedData = await res.json();
+        console.log('[Quest Streak Update] Refetched data:', updatedData);
+        setStreakData(updatedData);
+      }
     } catch (error) {
       console.error('Failed to update streak:', error);
     }
@@ -804,6 +816,7 @@ export default function QuestsPage() {
   const updateChallengeStreak = async (newStreak: number, newWeekStreaks: number) => {
     if (!token || !userId || !challengeCategory) return;
     try {
+      console.log('[Streak Update] Updating streak to:', newStreak, 'for category:', challengeCategory);
       await fetch('/api/streaks-direct', {
         method: 'POST',
         headers: {
@@ -816,6 +829,17 @@ export default function QuestsPage() {
           week_streaks: newWeekStreaks,
         }),
       });
+      
+      // ⭐ IMMEDIATELY REFETCH the updated streak to refresh UI
+      console.log('[Streak Update] Refetching streak data...');
+      const res = await fetch(`/api/streaks-direct?category=${encodeURIComponent(challengeCategory)}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const updatedData = await res.json();
+        console.log('[Streak Update] Refetched data:', updatedData);
+        setChallengeStreakData(updatedData);
+      }
     } catch (error) {
       console.error('Failed to update challenge streak:', error);
     }
