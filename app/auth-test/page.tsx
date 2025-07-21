@@ -1,13 +1,14 @@
 "use client";
 
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { authenticatedFetch } from "@/lib/auth-helpers";
 
 export default function AuthTestPage() {
-  const { getToken, isLoaded } = useAuth();
+  const { getToken, isLoaded, isSignedIn } = useAuth();
+  const { user } = useUser();
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [result2, setResult2] = useState<any>(null);
@@ -19,10 +20,21 @@ export default function AuthTestPage() {
     
     try {
       // Get Clerk token
+      console.log("Getting Clerk token...");
       const token = await getToken();
       
+      console.log("Token received:", token ? `${token.slice(0, 20)}... (length: ${token.length})` : "null");
+      
       if (!token) {
-        setResult({ error: "No Clerk token available" });
+        setResult({ 
+          error: "No Clerk token available",
+          debug: {
+            isLoaded,
+            isSignedIn,
+            userId: user?.id,
+            userEmail: user?.emailAddresses?.[0]?.emailAddress
+          }
+        });
         return;
       }
 
@@ -37,7 +49,9 @@ export default function AuthTestPage() {
         },
       });
 
+      console.log("Response status:", response.status);
       const data = await response.json();
+      console.log("Response data:", data);
       setResult(data);
 
     } catch (error) {
@@ -92,14 +106,29 @@ export default function AuthTestPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex gap-4">
-            <Button onClick={runAuthTest} disabled={loading}>
-              {loading ? "Testing..." : "Run Direct Auth Test"}
-            </Button>
-            <Button onClick={runAuthTestWithHelper} disabled={loading2} variant="outline">
-              {loading2 ? "Testing..." : "Run Helper Auth Test"}
-            </Button>
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+            <h4 className="font-semibold mb-2">Auth Status:</h4>
+            <div className="space-y-1 text-sm">
+              <div>Clerk Loaded: {isLoaded ? "✅" : "❌"}</div>
+              <div>Signed In: {isSignedIn ? "✅" : "❌"}</div>
+              <div>User ID: {user?.id || "None"}</div>
+              <div>User Email: {user?.emailAddresses?.[0]?.emailAddress || "None"}</div>
+            </div>
           </div>
+          {!isSignedIn ? (
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+              <p className="text-sm">⚠️ You need to sign in to test authentication. Please sign in first.</p>
+            </div>
+          ) : (
+            <div className="flex gap-4">
+              <Button onClick={runAuthTest} disabled={loading}>
+                {loading ? "Testing..." : "Run Direct Auth Test"}
+              </Button>
+              <Button onClick={runAuthTestWithHelper} disabled={loading2} variant="outline">
+                {loading2 ? "Testing..." : "Run Helper Auth Test"}
+              </Button>
+            </div>
+          )}
           
           {result && (
             <div className="mt-4">
