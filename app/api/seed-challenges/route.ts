@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '../../../pages/api/server-client';
 
-export async function POST(request: Request) {
+export async function GET(request: Request) {
   try {
     console.log('[Seed Challenges] Starting database seeding...');
     
