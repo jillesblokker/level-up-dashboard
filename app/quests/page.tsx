@@ -18,6 +18,7 @@ import { SignedIn, SignedOut, SignIn } from '@clerk/nextjs'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { gainGold } from '@/lib/gold-manager';
 import { useRef } from 'react';
+import { StreakRecovery } from '@/components/streak-recovery';
 
 interface Quest {
   id: string;
@@ -151,7 +152,7 @@ export default function QuestsPage() {
   const [allCategories, setAllCategories] = useState<string[]>(questCategories);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingQuest, setEditingQuest] = useState<Quest | null>(null);
-  const [mainTab, setMainTab] = useState<'quests' | 'challenges' | 'milestones'>('quests');
+  const [mainTab, setMainTab] = useState<'quests' | 'challenges' | 'milestones' | 'recovery'>('quests');
   const [questCategory, setQuestCategory] = useState(questCategories[0]);
   const [challengeCategory, setChallengeCategory] = useState<string>(
     workoutPlan[0]?.category ?? ""
@@ -1077,11 +1078,12 @@ export default function QuestsPage() {
       />
       <div className="p-4 md:p-8">
         {error && <p className="text-red-500 bg-red-900/20 p-4 rounded-md mb-4">{error}</p>}
-        <Tabs value={mainTab} onValueChange={v => setMainTab(v as 'quests' | 'challenges' | 'milestones')} className="space-y-4">
-          <TabsList className="mb-4 w-full grid grid-cols-3">
+        <Tabs value={mainTab} onValueChange={v => setMainTab(v as 'quests' | 'challenges' | 'milestones' | 'recovery')} className="space-y-4">
+          <TabsList className="mb-4 w-full grid grid-cols-4">
             <TabsTrigger value="quests">Tasks</TabsTrigger>
             <TabsTrigger value="challenges">Challenges</TabsTrigger>
             <TabsTrigger value="milestones">Milestones</TabsTrigger>
+            <TabsTrigger value="recovery">Recovery</TabsTrigger>
           </TabsList>
 
           {/* Quests Tab */}
@@ -1301,6 +1303,45 @@ export default function QuestsPage() {
               </select>
             </div>
             <Milestones key={milestoneCategory} token={token} category={milestoneCategory} onUpdateProgress={handleMilestoneToggle} />
+          </TabsContent>
+
+          {/* Recovery Tab */}
+          <TabsContent value="recovery">
+            <div className="mb-4">
+              <label htmlFor="recovery-category-select" className="sr-only">Select category for streak recovery</label>
+              <select
+                id="recovery-category-select"
+                className="w-full rounded border p-2 bg-black text-white"
+                aria-label="Recovery category dropdown"
+                value={challengeCategory}
+                onChange={e => setChallengeCategory(e.target.value)}
+              >
+                {workoutPlan.map(day => (
+                  <option key={day.category} value={day.category}>{day.category}</option>
+                ))}
+              </select>
+            </div>
+            {token && (
+              <StreakRecovery
+                token={token}
+                category={challengeCategory}
+                streakData={challengeStreakData}
+                onStreakUpdate={() => {
+                  // Refetch streak data when recovery actions are taken
+                  if (token && challengeCategory) {
+                    fetch(`/api/streaks-direct?category=${encodeURIComponent(challengeCategory)}`, {
+                      headers: { Authorization: `Bearer ${token}` },
+                    })
+                    .then(res => {
+                      if (res.ok) return res.json();
+                      throw new Error('Failed to refetch');
+                    })
+                    .then(data => setChallengeStreakData(data))
+                    .catch(error => console.error('Error refetching streak:', error));
+                  }
+                }}
+              />
+            )}
           </TabsContent>
         </Tabs>
       </div>
