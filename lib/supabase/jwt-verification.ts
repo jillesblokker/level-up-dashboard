@@ -84,8 +84,8 @@ export async function querySupabaseWithServiceKey<T>(
 
     // Set user context for RLS policies
     try {
-      await supabaseServer.rpc('public.set_user_context', { user_id: userId });
-      console.log('[Supabase Query] Set user context for RLS:', userId);
+      // TEMPORARILY DISABLED: await supabaseServer.rpc('public.set_user_context', { user_id: userId });
+      console.log('[Supabase Query] Skipping set user context for debugging, userId:', userId);
     } catch (contextError) {
       console.warn('[Supabase Query] Failed to set user context (continuing anyway):', contextError);
     }
