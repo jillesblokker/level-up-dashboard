@@ -1,4 +1,4 @@
-import { supabaseServer } from '../../../pages/api/server-client';
+import { supabaseServer } from '../../../lib/supabase/server-client';
 
 type KingdomEventType = 'quest' | 'challenge' | 'gold' | 'exp' | 'reward';
 

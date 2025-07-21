@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { supabaseServer } from '../../../../pages/api/server-client';
+import { supabaseServer } from '../../../../lib/supabase/server-client';
 import { grantReward, RewardType } from '../../kingdom/grantReward';
 
 export async function POST(request: Request) {

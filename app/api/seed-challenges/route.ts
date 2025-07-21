@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabaseServer } from '../../../pages/api/server-client';
+import { supabaseServer } from '../../../lib/supabase/server-client';
 
 export async function GET(request: Request) {
   try {

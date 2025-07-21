@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { supabaseServer } from '../../../pages/api/server-client';
+import { supabaseServer } from '../../../lib/supabase/server-client';
 
 // Tile type legend:
 // 0 = empty

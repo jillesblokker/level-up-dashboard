@@ -14,7 +14,7 @@ import { env } from '@/lib/env';
 import { getAuth } from '@clerk/nextjs/server';
 import { logKingdomEvent } from '../kingdom/logKingdomEvent';
 import { grantReward } from '../kingdom/grantReward';
-import { supabaseServer } from '../../../pages/api/server-client';
+import { supabaseServer } from '../../../lib/supabase/server-client';
 
 const supabase = supabaseServer;
 
@@ -32,15 +32,7 @@ const questUpdateSchema = z.object({
 // Helper to extract and verify Clerk JWT, returns userId or null
 async function getUserIdFromRequest(request: Request): Promise<string | null> {
   try {
-    // Convert to NextRequest for Clerk compatibility
-    const nextReq = request instanceof NextRequest ? request : new NextRequest(request.url, { headers: request.headers, method: request.method, body: (request as any).body });
-    const authHeader = nextReq.headers.get('authorization');
-    console.log('[getUserIdFromRequest] Authorization header:', authHeader);
-    if (!authHeader) return null;
-    // Clerk expects 'Bearer <token>'
-    const token = authHeader.replace(/^Bearer /i, '');
-    const { userId } = getAuth(nextReq);
-    console.log('[getUserIdFromRequest] Extracted userId:', userId);
+    const { userId } = getAuth(request as NextRequest);
     return userId || null;
   } catch (e) {
     console.error('[Clerk] JWT verification failed:', e);
