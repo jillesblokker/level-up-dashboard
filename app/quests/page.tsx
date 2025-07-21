@@ -846,16 +846,23 @@ export default function QuestsPage() {
   };
 
   // --- Automatically trigger updateStreak in quest completion logic ---
-  // In the useEffect that updates quest streak/history, after updating streak, call updateStreak(streak, weekStreaks) with the new values.
+  const [questStreakUpdatedToday, setQuestStreakUpdatedToday] = useState<Record<string, string>>({});
+
   useEffect(() => {
     if (!userId || todaysTotal === 0) return;
     if (typeof window === 'undefined') return;
-    // Only update if today is not already in history
-    if (!questHistory.find(h => h.date === today)) {
+    
+    // 🎯 PREVENT INFINITE LOOP: Check if we already updated quest streak today
+    const today = new Date().toISOString().slice(0, 10);
+    const alreadyUpdatedToday = questCategory ? questStreakUpdatedToday[questCategory] === today : false;
+    
+    // Only update if today is not already in history AND not already updated today
+    if (!questHistory.find(h => h.date === today) && !alreadyUpdatedToday) {
       const completed = todaysCompleted === todaysTotal && todaysTotal > 0;
       const newHistory = [...questHistory, { date: today, completed }].slice(-14); // keep 2 weeks
       setQuestHistory(newHistory);
       // localStorage.setItem(QUEST_HISTORY_KEY, JSON.stringify(newHistory)); // Removed localStorage
+      
       // Update streak
       let streak = 0;
       for (let i = newHistory.length - 1; i >= 0; i--) {
@@ -864,11 +871,18 @@ export default function QuestsPage() {
       }
       setQuestStreak(streak);
       // localStorage.setItem(QUEST_STREAK_KEY, String(streak)); // Removed localStorage
-      updateStreak(streak, 0); // Assuming week_streaks is 0 for daily quests
+      
+      if (completed && questCategory) {
+        // Mark as updated today to prevent infinite loop
+        setQuestStreakUpdatedToday(prev => ({ ...prev, [questCategory]: today }));
+        updateStreak(streak, 0); // Assuming week_streaks is 0 for daily quests
+      }
     }
   }, [todaysCompleted, todaysTotal, userId]);
 
   // --- Automatically trigger updateStreak in challenge completion logic ---
+  const [streakUpdatedToday, setStreakUpdatedToday] = useState<Record<string, string>>({});
+
   useEffect(() => {
     console.log('[Streak Debug] Effect triggered:', {
       challengesLength: challenges.length,
@@ -893,11 +907,19 @@ export default function QuestsPage() {
     const allChallengesCompleted = challengesForCategory.length > 0 && challengesForCategory.every(c => c.completed);
     console.log('[Streak Debug] All challenges completed?', allChallengesCompleted);
 
-    if (allChallengesCompleted) {
+    // 🎯 PREVENT INFINITE LOOP: Check if we already updated streak today
+    const today = new Date().toISOString().slice(0, 10);
+    const alreadyUpdatedToday = challengeCategory ? streakUpdatedToday[challengeCategory] === today : false;
+    console.log('[Streak Debug] Already updated today?', alreadyUpdatedToday);
+
+    if (allChallengesCompleted && !alreadyUpdatedToday && challengeCategory) {
       console.log('[Streak Debug] 🎉 ALL CHALLENGES COMPLETED! Updating streak...');
       const newStreak = challengeStreakData?.streak_days ?? 0;
       const newWeekStreaks = challengeStreakData?.week_streaks ?? 0;
       updateChallengeStreak(newStreak + 1, newWeekStreaks + 1);
+      
+      // Mark as updated today to prevent infinite loop
+      setStreakUpdatedToday(prev => ({ ...prev, [challengeCategory]: today }));
       
       // Update state without causing infinite loop
       const newStreakData = { [challengeCategory]: [...(challengeStreaks[challengeCategory] || []), newStreak + 1] };
