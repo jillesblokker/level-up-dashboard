@@ -1,9 +1,16 @@
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '../../../pages/api/server-client';
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     console.log('[Seed Challenges] Starting database seeding...');
+    
+    // Simple key protection for seeding
+    const { searchParams } = new URL(request.url);
+    const key = searchParams.get('key');
+    if (key !== 'seed123') {
+      return NextResponse.json({ error: 'Unauthorized - invalid key' }, { status: 401 });
+    }
     
     // First clear existing challenges
     const { error: deleteError } = await supabaseServer
