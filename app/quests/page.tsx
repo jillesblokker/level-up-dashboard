@@ -849,36 +849,48 @@ export default function QuestsPage() {
   const [questStreakUpdatedToday, setQuestStreakUpdatedToday] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (!userId || todaysTotal === 0) return;
+    console.log('[Quest Streak Debug] Effect triggered:', {
+      userId,
+      todaysTotal,
+      todaysCompleted,
+      questCategory,
+      questHistory: questHistory.length,
+      questStreakUpdatedToday
+    });
+
+    if (!userId || todaysTotal === 0) {
+      console.log('[Quest Streak Debug] Bailing early - no userId or no quests');
+      return;
+    }
     if (typeof window === 'undefined') return;
     
-    // 🎯 PREVENT INFINITE LOOP: Check if we already updated quest streak today
     const today = new Date().toISOString().slice(0, 10);
-    const alreadyUpdatedToday = questCategory ? questStreakUpdatedToday[questCategory] === today : false;
+    const allQuestsCompleted = todaysCompleted === todaysTotal && todaysTotal > 0;
+    console.log('[Quest Streak Debug] All quests completed?', allQuestsCompleted);
     
-    // Only update if today is not already in history AND not already updated today
-    if (!questHistory.find(h => h.date === today) && !alreadyUpdatedToday) {
-      const completed = todaysCompleted === todaysTotal && todaysTotal > 0;
-      const newHistory = [...questHistory, { date: today, completed }].slice(-14); // keep 2 weeks
-      setQuestHistory(newHistory);
-      // localStorage.setItem(QUEST_HISTORY_KEY, JSON.stringify(newHistory)); // Removed localStorage
+    // 🎯 SIMPLIFIED: Just check if all quests are completed and we haven't updated today
+    const alreadyUpdatedToday = questCategory ? questStreakUpdatedToday[questCategory] === today : false;
+    console.log('[Quest Streak Debug] Already updated today?', alreadyUpdatedToday);
+    
+    if (allQuestsCompleted && !alreadyUpdatedToday && questCategory) {
+      console.log('[Quest Streak Debug] 🎉 ALL QUESTS COMPLETED! Updating streak...');
       
-      // Update streak
-      let streak = 0;
-      for (let i = newHistory.length - 1; i >= 0; i--) {
-        if (newHistory[i]!.completed) streak++;
-        else break;
-      }
-      setQuestStreak(streak);
-      // localStorage.setItem(QUEST_STREAK_KEY, String(streak)); // Removed localStorage
+      // Mark as updated today to prevent infinite loop
+      setQuestStreakUpdatedToday(prev => ({ ...prev, [questCategory]: today }));
       
-      if (completed && questCategory) {
-        // Mark as updated today to prevent infinite loop
-        setQuestStreakUpdatedToday(prev => ({ ...prev, [questCategory]: today }));
-        updateStreak(streak, 0); // Assuming week_streaks is 0 for daily quests
-      }
+      // Get current streak from state and increment
+      const currentStreak = streakData?.streak_days ?? 0;
+      const newStreak = currentStreak + 1;
+      console.log('[Quest Streak Debug] Updating from', currentStreak, 'to', newStreak);
+      
+      updateStreak(newStreak, 0);
+      
+      toast({
+        title: 'Quest Streak',
+        description: `You completed all quests for ${questCategory}! Streak increased to ${newStreak} days.`,
+      });
     }
-  }, [todaysCompleted, todaysTotal, userId]);
+  }, [todaysCompleted, todaysTotal, userId, questCategory, streakData]);
 
   // --- Automatically trigger updateStreak in challenge completion logic ---
   const [streakUpdatedToday, setStreakUpdatedToday] = useState<Record<string, string>>({});
