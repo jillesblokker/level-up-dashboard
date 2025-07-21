@@ -340,7 +340,7 @@ export default function QuestsPage() {
     let cancelled = false;
     const fetchStreak = async () => {
       try {
-        const res = await fetch(`/api/streaks?category=${encodeURIComponent(questCategory)}`, {
+        const res = await fetch(`/api/streaks-direct?category=${encodeURIComponent(questCategory)}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) {
@@ -364,7 +364,7 @@ export default function QuestsPage() {
     let cancelled = false;
     const fetchChallengeStreak = async () => {
       try {
-        const res = await fetch(`/api/streaks?category=${encodeURIComponent(challengeCategory)}`, {
+        const res = await fetch(`/api/streaks-direct?category=${encodeURIComponent(challengeCategory)}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) {
@@ -401,7 +401,7 @@ export default function QuestsPage() {
         (payload) => {
           // Refetch streak on any change via API route
           if (token) {
-            fetch(`/api/streaks?category=${encodeURIComponent(questCategory)}`, {
+            fetch(`/api/streaks-direct?category=${encodeURIComponent(questCategory)}`, {
               headers: { Authorization: `Bearer ${token}` },
             })
             .then(res => {
@@ -706,7 +706,7 @@ export default function QuestsPage() {
         (payload) => {
           // Refetch streak on any change via API route
           if (token) {
-            fetch(`/api/streaks?category=${encodeURIComponent(questCategory)}`, {
+            fetch(`/api/streaks-direct?category=${encodeURIComponent(questCategory)}`, {
               headers: { Authorization: `Bearer ${token}` },
             })
             .then(res => {
@@ -737,7 +737,7 @@ export default function QuestsPage() {
   const updateStreak = async (newStreak: number, newWeekStreaks: number) => {
     if (!token || !userId || !questCategory) return;
     try {
-      await fetch('/api/streaks', {
+      await fetch('/api/streaks-direct', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -773,7 +773,7 @@ export default function QuestsPage() {
         (payload) => {
           // Refetch challenge streak on any change via API route
           if (token) {
-            fetch(`/api/streaks?category=${encodeURIComponent(challengeCategory)}`, {
+            fetch(`/api/streaks-direct?category=${encodeURIComponent(challengeCategory)}`, {
               headers: { Authorization: `Bearer ${token}` },
             })
             .then(res => {
@@ -804,7 +804,7 @@ export default function QuestsPage() {
   const updateChallengeStreak = async (newStreak: number, newWeekStreaks: number) => {
     if (!token || !userId || !challengeCategory) return;
     try {
-      await fetch('/api/streaks', {
+      await fetch('/api/streaks-direct', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
