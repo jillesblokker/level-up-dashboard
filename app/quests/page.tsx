@@ -874,16 +874,22 @@ export default function QuestsPage() {
       const newStreak = challengeStreakData?.streak_days ?? 0;
       const newWeekStreaks = challengeStreakData?.week_streaks ?? 0;
       updateChallengeStreak(newStreak + 1, newWeekStreaks + 1);
-      setChallengeStreaks(prev => ({ ...prev, [challengeCategory]: [...(prev[challengeCategory] || []), newStreak + 1] }));
-      setChallengeLastCompleted(prev => ({ ...prev, [challengeCategory]: [...(prev[challengeCategory] || []), new Date().toISOString()] }));
-      localStorage.setItem(CHALLENGE_STREAKS_KEY, JSON.stringify(challengeStreaks));
-      localStorage.setItem(CHALLENGE_LAST_COMPLETED_KEY, JSON.stringify(challengeLastCompleted));
+      
+      // Update state without causing infinite loop
+      const newStreakData = { [challengeCategory]: [...(challengeStreaks[challengeCategory] || []), newStreak + 1] };
+      const newLastCompletedData = { [challengeCategory]: [...(challengeLastCompleted[challengeCategory] || []), new Date().toISOString()] };
+      
+      setChallengeStreaks(prev => ({ ...prev, ...newStreakData }));
+      setChallengeLastCompleted(prev => ({ ...prev, ...newLastCompletedData }));
+      localStorage.setItem(CHALLENGE_STREAKS_KEY, JSON.stringify({ ...challengeStreaks, ...newStreakData }));
+      localStorage.setItem(CHALLENGE_LAST_COMPLETED_KEY, JSON.stringify({ ...challengeLastCompleted, ...newLastCompletedData }));
+      
       toast({
         title: 'Challenge Streak',
         description: `You completed all challenges for ${challengeCategory}! Streak increased to ${newStreak + 1} days.`,
       });
     }
-  }, [challenges.length, challengeCategory, challengeStreakData, challengeStreaks, challengeLastCompleted]);
+  }, [challenges.length, challengeCategory, challengeStreakData]);
 
   if (!isClerkLoaded || !isUserLoaded) {
     console.log('Waiting for auth and Clerk client...');
