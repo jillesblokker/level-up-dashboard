@@ -85,7 +85,29 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    
+    // 🎯 LISTEN FOR BUILD TOKEN UPDATES from quest completion
+    const handleBuildTokensGained = (event: CustomEvent) => {
+      console.log('[Kingdom Grid] Build tokens gained from quest:', event.detail);
+      // Refresh build tokens from localStorage
+      const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
+      setBuildTokens(stats.buildTokens || 0);
+    };
+    
+    const handleStatsUpdate = () => {
+      // Refresh build tokens when character stats update
+      const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
+      setBuildTokens(stats.buildTokens || 0);
+    };
+    
+    window.addEventListener('kingdom:buildTokensGained', handleBuildTokensGained as EventListener);
+    window.addEventListener('character-stats-update', handleStatsUpdate);
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('kingdom:buildTokensGained', handleBuildTokensGained as EventListener);
+      window.removeEventListener('character-stats-update', handleStatsUpdate);
+    };
   }, []);
 
   // --- WALL BORDER LOGIC ---

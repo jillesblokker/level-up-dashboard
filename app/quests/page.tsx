@@ -924,9 +924,29 @@ export default function QuestsPage() {
       
       updateStreak(newStreak, 0);
       
+      // 🎯 AWARD BUILD TOKENS for completing all quests + streak achievements
+      let buildTokensEarned = 1; // 1 token for completing all quests in category
+      
+      // Bonus tokens for streak milestones (every 5 streak days)
+      if (newStreak % 5 === 0) {
+        buildTokensEarned += 1; // Extra token for streak milestone
+      }
+      
+      console.log('[Build Tokens] Awarding', buildTokensEarned, 'build tokens for quest completion + streak', newStreak);
+      
+      // Update build tokens in localStorage (same pattern as kingdom grid)
+      const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
+      const currentBuildTokens = stats.buildTokens || 0;
+      stats.buildTokens = currentBuildTokens + buildTokensEarned;
+      localStorage.setItem('character-stats', JSON.stringify(stats));
+      
+      // Trigger kingdom update for build tokens
+      window.dispatchEvent(new CustomEvent('kingdom:buildTokensGained', { detail: buildTokensEarned }));
+      window.dispatchEvent(new Event('character-stats-update'));
+      
       toast({
         title: 'Quest Streak',
-        description: `You completed all quests for ${questCategory}! Streak increased to ${newStreak} days.`,
+        description: `You completed all quests for ${questCategory}! Streak increased to ${newStreak} days. Earned ${buildTokensEarned} build token(s)!`,
       });
     }
   }, [todaysCompleted, todaysTotal, userId, questCategory, streakData]);
@@ -972,6 +992,26 @@ export default function QuestsPage() {
       // Mark as updated today to prevent infinite loop
       setStreakUpdatedToday(prev => ({ ...prev, [challengeCategory]: today }));
       
+      // 🎯 AWARD BUILD TOKENS for completing all challenges + streak achievements
+      let buildTokensEarned = 1; // 1 token for completing all challenges in category
+      
+      // Bonus tokens for streak milestones (every 5 streak days)
+      if ((newStreak + 1) % 5 === 0) {
+        buildTokensEarned += 1; // Extra token for streak milestone
+      }
+      
+      console.log('[Build Tokens] Awarding', buildTokensEarned, 'build tokens for challenge completion + streak', newStreak + 1);
+      
+      // Update build tokens in localStorage (same pattern as kingdom grid)
+      const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
+      const currentBuildTokens = stats.buildTokens || 0;
+      stats.buildTokens = currentBuildTokens + buildTokensEarned;
+      localStorage.setItem('character-stats', JSON.stringify(stats));
+      
+      // Trigger kingdom update for build tokens
+      window.dispatchEvent(new CustomEvent('kingdom:buildTokensGained', { detail: buildTokensEarned }));
+      window.dispatchEvent(new Event('character-stats-update'));
+      
       // Update state without causing infinite loop
       const newStreakData = { [challengeCategory]: [...(challengeStreaks[challengeCategory] || []), newStreak + 1] };
       const newLastCompletedData = { [challengeCategory]: [...(challengeLastCompleted[challengeCategory] || []), new Date().toISOString()] };
@@ -983,7 +1023,7 @@ export default function QuestsPage() {
       
       toast({
         title: 'Challenge Streak',
-        description: `You completed all challenges for ${challengeCategory}! Streak increased to ${newStreak + 1} days.`,
+        description: `You completed all challenges for ${challengeCategory}! Streak increased to ${newStreak + 1} days. Earned ${buildTokensEarned} build token(s)!`,
       });
     }
   }, [challenges.length, challengeCategory, challengeStreakData]);
