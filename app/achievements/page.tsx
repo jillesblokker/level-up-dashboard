@@ -55,6 +55,92 @@ export default function Page() {
           console.error('Failed to fetch achievement definitions:', response.status);
           // Fallback to hardcoded definitions if API fails
           const fallbackDefinitions: AchievementDefinition[] = [
+            // Original creature achievements (000-006)
+            {
+              id: '000',
+              name: 'Necrion',
+              description: 'A mysterious poisonous creature that appears when first exploring the realm.',
+              category: 'creature',
+              difficulty: 'easy',
+              xp_reward: 50,
+              gold_reward: 25,
+              image_url: '/images/creatures/000.png',
+              is_hidden: false,
+              unlock_condition: 'Navigating to the realm map'
+            },
+            {
+              id: '001',
+              name: 'Flamio',
+              description: 'A fiery creature awakened by the destruction of forests.',
+              category: 'creature',
+              difficulty: 'medium',
+              xp_reward: 75,
+              gold_reward: 50,
+              image_url: '/images/creatures/001.png',
+              is_hidden: false,
+              unlock_condition: 'Destroy 1 forest tile'
+            },
+            {
+              id: '002',
+              name: 'Embera',
+              description: 'A more powerful fire entity born from continued forest destruction.',
+              category: 'creature',
+              difficulty: 'medium',
+              xp_reward: 100,
+              gold_reward: 75,
+              image_url: '/images/creatures/002.png',
+              is_hidden: false,
+              unlock_condition: 'Destroy 5 forest tiles'
+            },
+            {
+              id: '003',
+              name: 'Vulcana',
+              description: 'The ultimate fire creature, master of forest destruction.',
+              category: 'creature',
+              difficulty: 'hard',
+              xp_reward: 150,
+              gold_reward: 100,
+              image_url: '/images/creatures/003.png',
+              is_hidden: false,
+              unlock_condition: 'Destroy 10 forest tiles'
+            },
+            {
+              id: '004',
+              name: 'Aquarius',
+              description: 'A water spirit that emerges when water tiles are placed.',
+              category: 'creature',
+              difficulty: 'easy',
+              xp_reward: 60,
+              gold_reward: 30,
+              image_url: '/images/creatures/004.png',
+              is_hidden: false,
+              unlock_condition: 'Place 1 water tile'
+            },
+            {
+              id: '005',
+              name: 'Terra',
+              description: 'An earth elemental that appears when mountains are placed.',
+              category: 'creature',
+              difficulty: 'medium',
+              xp_reward: 80,
+              gold_reward: 60,
+              image_url: '/images/creatures/005.png',
+              is_hidden: false,
+              unlock_condition: 'Place 3 mountain tiles'
+            },
+            {
+              id: '006',
+              name: 'Cryo',
+              description: 'An ice spirit that manifests when snow tiles are placed.',
+              category: 'creature',
+              difficulty: 'hard',
+              xp_reward: 120,
+              gold_reward: 80,
+              image_url: '/images/creatures/006.png',
+              is_hidden: false,
+              unlock_condition: 'Place 5 snow tiles'
+            },
+            // New monster achievements (201-206)
             {
               id: '201',
               name: 'Ancient Dragon Slayer',
@@ -134,6 +220,92 @@ export default function Page() {
         console.error('Error fetching achievement definitions:', error);
         // Use fallback definitions on error too
         const fallbackDefinitions: AchievementDefinition[] = [
+          // Original creature achievements (000-006)
+          {
+            id: '000',
+            name: 'Necrion',
+            description: 'A mysterious poisonous creature that appears when first exploring the realm.',
+            category: 'creature',
+            difficulty: 'easy',
+            xp_reward: 50,
+            gold_reward: 25,
+            image_url: '/images/creatures/000.png',
+            is_hidden: false,
+            unlock_condition: 'Navigating to the realm map'
+          },
+          {
+            id: '001',
+            name: 'Flamio',
+            description: 'A fiery creature awakened by the destruction of forests.',
+            category: 'creature',
+            difficulty: 'medium',
+            xp_reward: 75,
+            gold_reward: 50,
+            image_url: '/images/creatures/001.png',
+            is_hidden: false,
+            unlock_condition: 'Destroy 1 forest tile'
+          },
+          {
+            id: '002',
+            name: 'Embera',
+            description: 'A more powerful fire entity born from continued forest destruction.',
+            category: 'creature',
+            difficulty: 'medium',
+            xp_reward: 100,
+            gold_reward: 75,
+            image_url: '/images/creatures/002.png',
+            is_hidden: false,
+            unlock_condition: 'Destroy 5 forest tiles'
+          },
+          {
+            id: '003',
+            name: 'Vulcana',
+            description: 'The ultimate fire creature, master of forest destruction.',
+            category: 'creature',
+            difficulty: 'hard',
+            xp_reward: 150,
+            gold_reward: 100,
+            image_url: '/images/creatures/003.png',
+            is_hidden: false,
+            unlock_condition: 'Destroy 10 forest tiles'
+          },
+          {
+            id: '004',
+            name: 'Aquarius',
+            description: 'A water spirit that emerges when water tiles are placed.',
+            category: 'creature',
+            difficulty: 'easy',
+            xp_reward: 60,
+            gold_reward: 30,
+            image_url: '/images/creatures/004.png',
+            is_hidden: false,
+            unlock_condition: 'Place 1 water tile'
+          },
+          {
+            id: '005',
+            name: 'Terra',
+            description: 'An earth elemental that appears when mountains are placed.',
+            category: 'creature',
+            difficulty: 'medium',
+            xp_reward: 80,
+            gold_reward: 60,
+            image_url: '/images/creatures/005.png',
+            is_hidden: false,
+            unlock_condition: 'Place 3 mountain tiles'
+          },
+          {
+            id: '006',
+            name: 'Cryo',
+            description: 'An ice spirit that manifests when snow tiles are placed.',
+            category: 'creature',
+            difficulty: 'hard',
+            xp_reward: 120,
+            gold_reward: 80,
+            image_url: '/images/creatures/006.png',
+            is_hidden: false,
+            unlock_condition: 'Place 5 snow tiles'
+          },
+          // New monster achievements (201-206)
           {
             id: '201',
             name: 'Ancient Dragon Slayer',
@@ -330,7 +502,9 @@ export default function Page() {
                   aria-label={`achievement-card-${achievement.id}`}
                 >
                   <CardHeader className="w-full flex flex-col items-center text-center">
-                    <CardTitle className="font-serif text-2xl text-amber-400">{achievement.name}</CardTitle>
+                    <CardTitle className="font-serif text-2xl text-amber-400">
+                      {achievement.category === 'creature' ? `${achievement.name} #${achievement.id}` : achievement.name}
+                    </CardTitle>
                     {!unlocked && (
                       <Badge variant="secondary" className="mt-2" aria-label={`achievement-${achievement.id}-undiscovered-badge`}>
                         Undiscovered
