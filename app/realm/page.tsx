@@ -500,9 +500,10 @@ export default function RealmPage() {
                             const pos = spawnResult.position!;
                             const monsterType = spawnResult.monsterType;
                             const row = newGrid[pos.y];
-                            if (row && row[pos.x] && monsterType) {
-                                row[pos.x].hasMonster = monsterType as any;
-                                row[pos.x].monsterAchievementId = getMonsterAchievementId(monsterType);
+                            const tile = row?.[pos.x];
+                            if (row && tile && monsterType) {
+                                tile.hasMonster = monsterType as any;
+                                tile.monsterAchievementId = getMonsterAchievementId(monsterType);
                             }
                             return newGrid;
                         });
