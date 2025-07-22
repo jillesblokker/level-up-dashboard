@@ -226,10 +226,30 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
   const safetyNetUsed = streakData.safety_net_used || false;
   const missedDaysThisWeek = streakData.missed_days_this_week || 0;
   const isStreakBroken = !!streakData.streak_broken_date;
-  const maxStreakAchieved = streakData.max_streak_achieved || 0;
+  const maxStreakAchieved = streakData.max_streak_achieved || streakData.streak_days || 0;
+  
+  // Check if recovery features are available (new database fields exist)
+  const recoveryFeaturesAvailable = streakData.hasOwnProperty('resilience_points');
 
   return (
     <div className="space-y-4">
+      {/* Migration Notice */}
+      {!recoveryFeaturesAvailable && (
+        <Card className="border-yellow-800/30 bg-yellow-900/10" aria-label="migration-notice-card">
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-2 text-yellow-200">
+              <AlertTriangle className="w-5 h-5" />
+              <div>
+                <h3 className="font-medium">Recovery Features Not Available</h3>
+                <p className="text-sm text-yellow-300/80 mt-1">
+                  Run the database migration to enable streak recovery features. Check the README for migration instructions.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
       {/* Resilience Points & Safety Net Status */}
       <Card className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border-blue-800/30" aria-label="streak-recovery-status-card">
         <CardHeader className="pb-3">
@@ -283,7 +303,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
       {/* Recovery Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Safety Net */}
-        {!safetyNetUsed && missedDaysThisWeek === 0 && (
+        {recoveryFeaturesAvailable && !safetyNetUsed && missedDaysThisWeek === 0 && (
           <Card className="border-green-800/30 bg-green-900/10" aria-label="safety-net-card">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-green-400">
@@ -307,7 +327,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
         )}
 
         {/* Streak Reconstruction */}
-        {isStreakBroken && maxStreakAchieved > 0 && (
+        {recoveryFeaturesAvailable && isStreakBroken && maxStreakAchieved > 0 && (
           <Card className="border-purple-800/30 bg-purple-900/10" aria-label="streak-reconstruction-card">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-purple-400">
@@ -337,7 +357,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
       </div>
 
       {/* Comeback Challenges */}
-      {qualifiesForComeback && comebackChallenges.length > 0 && (
+      {recoveryFeaturesAvailable && qualifiesForComeback && comebackChallenges.length > 0 && (
         <Card className="border-orange-800/30 bg-orange-900/10" aria-label="comeback-challenges-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-orange-400">
