@@ -18,7 +18,8 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('Error fetching quest favorites:', error);
-      return NextResponse.json({ error: 'Failed to fetch quest favorites' }, { status: 500 });
+      // Return empty array instead of error for better UX
+      return NextResponse.json({ favorites: [] });
     }
 
     const favoritedQuestIds = data?.map(item => item.quest_id) || [];
@@ -26,7 +27,8 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Error in quest favorites API:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    // Return empty array instead of error for better UX
+    return NextResponse.json({ favorites: [] });
   }
 }
 
