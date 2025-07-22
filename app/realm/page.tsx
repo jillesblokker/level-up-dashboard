@@ -465,10 +465,23 @@ export default function RealmPage() {
         });
         // Save only the changed tile
         try {
+            if (!selectedTile?.type) {
+                console.error('No tile type selected');
+                toast({ title: 'Error', description: 'No tile type selected', variant: 'destructive' });
+                return;
+            }
+            
+            const tileTypeNum = tileTypeToNumeric[selectedTile.type];
+            if (typeof tileTypeNum === 'undefined') {
+                console.error('Invalid tile type:', selectedTile.type);
+                toast({ title: 'Error', description: `Invalid tile type: ${selectedTile.type}`, variant: 'destructive' });
+                return;
+            }
+            
             const res = await fetch('/api/realm-tiles', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ x, y, tile_type: tileTypeToNumeric[selectedTile.type] })
+                body: JSON.stringify({ x, y, tile_type: tileTypeNum })
             });
             if (!res.ok) {
                 const err = await res.json();

@@ -49,12 +49,165 @@ export default function Page() {
         const response = await fetch('/api/achievement-definitions');
         if (response.ok) {
           const data = await response.json();
+          console.log('Fetched achievement definitions:', data);
           setAchievementDefinitions(data);
         } else {
-          console.error('Failed to fetch achievement definitions');
+          console.error('Failed to fetch achievement definitions:', response.status);
+          // Fallback to hardcoded definitions if API fails
+          const fallbackDefinitions: AchievementDefinition[] = [
+            {
+              id: '201',
+              name: 'Ancient Dragon Slayer',
+              description: 'Defeat Dragoni in a Simon Says battle',
+              category: 'combat',
+              difficulty: 'hard',
+              xp_reward: 100,
+              gold_reward: 100,
+              image_url: '/images/achievements/201.png',
+              is_hidden: false,
+              unlock_condition: 'Complete Simon Says battle against Dragon'
+            },
+            {
+              id: '202',
+              name: 'Goblin Hunter',
+              description: 'Defeat Orci in a Simon Says battle',
+              category: 'combat',
+              difficulty: 'easy',
+              xp_reward: 100,
+              gold_reward: 100,
+              image_url: '/images/achievements/202.png',
+              is_hidden: false,
+              unlock_condition: 'Complete Simon Says battle against Goblin'
+            },
+            {
+              id: '203',
+              name: 'Troll Crusher',
+              description: 'Defeat Trollie in a Simon Says battle',
+              category: 'combat',
+              difficulty: 'medium',
+              xp_reward: 100,
+              gold_reward: 100,
+              image_url: '/images/achievements/203.png',
+              is_hidden: false,
+              unlock_condition: 'Complete Simon Says battle against Troll'
+            },
+            {
+              id: '204',
+              name: 'Dark Wizard Vanquisher',
+              description: 'Defeat Sorcero in a Simon Says battle',
+              category: 'combat',
+              difficulty: 'hard',
+              xp_reward: 100,
+              gold_reward: 100,
+              image_url: '/images/achievements/204.png',
+              is_hidden: false,
+              unlock_condition: 'Complete Simon Says battle against Wizard'
+            },
+            {
+              id: '205',
+              name: 'Pegasus Tamer',
+              description: 'Defeat Peggie in a Simon Says battle',
+              category: 'combat',
+              difficulty: 'medium',
+              xp_reward: 100,
+              gold_reward: 100,
+              image_url: '/images/achievements/205.png',
+              is_hidden: false,
+              unlock_condition: 'Complete Simon Says battle against Pegasus'
+            },
+            {
+              id: '206',
+              name: 'Fairy Friend',
+              description: 'Defeat Fairiel in a Simon Says battle',
+              category: 'combat',
+              difficulty: 'easy',
+              xp_reward: 100,
+              gold_reward: 100,
+              image_url: '/images/achievements/206.png',
+              is_hidden: false,
+              unlock_condition: 'Complete Simon Says battle against Fairy'
+            }
+          ];
+          setAchievementDefinitions(fallbackDefinitions);
         }
       } catch (error) {
         console.error('Error fetching achievement definitions:', error);
+        // Use fallback definitions on error too
+        const fallbackDefinitions: AchievementDefinition[] = [
+          {
+            id: '201',
+            name: 'Ancient Dragon Slayer',
+            description: 'Defeat Dragoni in a Simon Says battle',
+            category: 'combat',
+            difficulty: 'hard',
+            xp_reward: 100,
+            gold_reward: 100,
+            image_url: '/images/achievements/201.png',
+            is_hidden: false,
+            unlock_condition: 'Complete Simon Says battle against Dragon'
+          },
+          {
+            id: '202',
+            name: 'Goblin Hunter',
+            description: 'Defeat Orci in a Simon Says battle',
+            category: 'combat',
+            difficulty: 'easy',
+            xp_reward: 100,
+            gold_reward: 100,
+            image_url: '/images/achievements/202.png',
+            is_hidden: false,
+            unlock_condition: 'Complete Simon Says battle against Goblin'
+          },
+          {
+            id: '203',
+            name: 'Troll Crusher',
+            description: 'Defeat Trollie in a Simon Says battle',
+            category: 'combat',
+            difficulty: 'medium',
+            xp_reward: 100,
+            gold_reward: 100,
+            image_url: '/images/achievements/203.png',
+            is_hidden: false,
+            unlock_condition: 'Complete Simon Says battle against Troll'
+          },
+          {
+            id: '204',
+            name: 'Dark Wizard Vanquisher',
+            description: 'Defeat Sorcero in a Simon Says battle',
+            category: 'combat',
+            difficulty: 'hard',
+            xp_reward: 100,
+            gold_reward: 100,
+            image_url: '/images/achievements/204.png',
+            is_hidden: false,
+            unlock_condition: 'Complete Simon Says battle against Wizard'
+          },
+          {
+            id: '205',
+            name: 'Pegasus Tamer',
+            description: 'Defeat Peggie in a Simon Says battle',
+            category: 'combat',
+            difficulty: 'medium',
+            xp_reward: 100,
+            gold_reward: 100,
+            image_url: '/images/achievements/205.png',
+            is_hidden: false,
+            unlock_condition: 'Complete Simon Says battle against Pegasus'
+          },
+          {
+            id: '206',
+            name: 'Fairy Friend',
+            description: 'Defeat Fairiel in a Simon Says battle',
+            category: 'combat',
+            difficulty: 'easy',
+            xp_reward: 100,
+            gold_reward: 100,
+            image_url: '/images/achievements/206.png',
+            is_hidden: false,
+            unlock_condition: 'Complete Simon Says battle against Fairy'
+          }
+        ];
+        setAchievementDefinitions(fallbackDefinitions);
       }
     };
 
