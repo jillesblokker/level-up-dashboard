@@ -286,7 +286,29 @@ export default function QuestsPage() {
       }
     }
     fetchQuests();
+    fetchFavorites();
   }, [token]);
+
+  // Fetch user's favorited quests
+  const fetchFavorites = async () => {
+    try {
+      const token = await getToken();
+      if (!token) return;
+
+      const response = await fetch('/api/quests/favorites', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setFavoritedQuests(new Set(data.favorites || []));
+      }
+    } catch (error) {
+      console.error('Error fetching favorites:', error);
+    }
+  };
 
   // Daily reset logic for non-milestone quests and challenges (persisted in DB)
   useEffect(() => {
@@ -526,16 +548,72 @@ export default function QuestsPage() {
   };
 
   // Handle quest favorite toggle
-  const handleQuestFavorite = (questId: string) => {
-    setFavoritedQuests(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(questId)) {
-        newSet.delete(questId);
+  const handleQuestFavorite = async (questId: string) => {
+    try {
+      const token = await getToken();
+      if (!token) throw new Error('No Clerk token');
+
+      const isCurrentlyFavorited = favoritedQuests.has(questId);
+      
+      if (isCurrentlyFavorited) {
+        // Remove from favorites
+        const response = await fetch('/api/quests/favorites', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ questId }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to remove quest from favorites');
+        }
+
+        setFavoritedQuests(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(questId);
+          return newSet;
+        });
+
+        toast({
+          title: "Removed from Favorites",
+          description: "Quest removed from your favorites",
+        });
       } else {
-        newSet.add(questId);
+        // Add to favorites
+        const response = await fetch('/api/quests/favorites', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ questId }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to add quest to favorites');
+        }
+
+        setFavoritedQuests(prev => {
+          const newSet = new Set(prev);
+          newSet.add(questId);
+          return newSet;
+        });
+
+        toast({
+          title: "Added to Favorites",
+          description: "Quest added to your favorites",
+        });
       }
-      return newSet;
-    });
+    } catch (error: any) {
+      console.error('Error toggling quest favorite:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update favorites",
+        variant: "destructive",
+      });
+    }
   };
 
   // Handle bulk completion of favorited quests

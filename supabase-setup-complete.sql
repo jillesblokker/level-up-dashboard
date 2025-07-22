@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS monster_spawns CASCADE;
 DROP TABLE IF EXISTS user_progress CASCADE;
 DROP TABLE IF EXISTS tile_placements CASCADE;
 DROP TABLE IF EXISTS game_events CASCADE;
+DROP TABLE IF EXISTS quest_favorites CASCADE;
 
 -- 1. Achievement Definitions Table (for monster battle achievements)
 CREATE TABLE IF NOT EXISTS achievement_definitions (
@@ -106,6 +107,17 @@ CREATE TABLE game_events (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 7. Quest Favorites Table (for tracking user's favorited quests)
+CREATE TABLE quest_favorites (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    quest_id TEXT NOT NULL,
+    favorited_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(user_id, quest_id)
+);
+
 -- Enable Row Level Security (RLS) on all tables
 ALTER TABLE achievement_definitions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE monster_spawns ENABLE ROW LEVEL SECURITY;
@@ -113,6 +125,7 @@ ALTER TABLE achievements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_progress ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tile_placements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE game_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE quest_favorites ENABLE ROW LEVEL SECURITY;
 
 -- Drop existing policies if they exist
 DROP POLICY IF EXISTS "achievement_definitions_read_policy" ON achievement_definitions;
@@ -121,6 +134,7 @@ DROP POLICY IF EXISTS "achievements_user_policy" ON achievements;
 DROP POLICY IF EXISTS "user_progress_user_policy" ON user_progress;
 DROP POLICY IF EXISTS "tile_placements_user_policy" ON tile_placements;
 DROP POLICY IF EXISTS "game_events_user_policy" ON game_events;
+DROP POLICY IF EXISTS "quest_favorites_user_policy" ON quest_favorites;
 
 -- Create RLS policies for achievement_definitions (read-only for all authenticated users)
 CREATE POLICY "achievement_definitions_read_policy" ON achievement_definitions
@@ -146,6 +160,10 @@ CREATE POLICY "tile_placements_user_policy" ON tile_placements
 CREATE POLICY "game_events_user_policy" ON game_events
     FOR ALL USING (user_id = auth.uid());
 
+-- Create RLS policies for quest_favorites (users can only see their own favorites)
+CREATE POLICY "quest_favorites_user_policy" ON quest_favorites
+    FOR ALL USING (user_id = auth.uid());
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_monster_spawns_user_id ON monster_spawns(user_id);
 CREATE INDEX IF NOT EXISTS idx_monster_spawns_coordinates ON monster_spawns(x, y);
@@ -155,6 +173,8 @@ CREATE INDEX IF NOT EXISTS idx_tile_placements_user_id ON tile_placements(user_i
 CREATE INDEX IF NOT EXISTS idx_tile_placements_tile_type ON tile_placements(tile_type);
 CREATE INDEX IF NOT EXISTS idx_game_events_user_id ON game_events(user_id);
 CREATE INDEX IF NOT EXISTS idx_game_events_event_type ON game_events(event_type);
+CREATE INDEX IF NOT EXISTS idx_quest_favorites_user_id ON quest_favorites(user_id);
+CREATE INDEX IF NOT EXISTS idx_quest_favorites_quest_id ON quest_favorites(quest_id);
 
 -- Drop existing functions if they exist
 DROP FUNCTION IF EXISTS get_user_tile_count(TEXT, VARCHAR);
