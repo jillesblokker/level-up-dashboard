@@ -1044,10 +1044,10 @@ export default function RealmPage() {
             <RevealOverlay />
             <div className="flex flex-col h-screen bg-gray-900 text-white relative" aria-label="realm-map-section">
                 {/* Top Toolbar */}
-                <div className="flex items-center justify-between p-2 bg-gray-800/80 backdrop-blur-sm border-b border-gray-700 z-30">
+                <div className="flex items-center justify-between p-2 bg-gray-800/80 backdrop-blur-sm border-b border-gray-700 z-30 overflow-visible">
                   {/* On mobile, make action rows horizontally scrollable and touch-friendly */}
-                  <div className="flex flex-1 flex-col gap-2">
-                    <div className="flex items-center gap-2 overflow-x-auto flex-nowrap md:gap-4 md:overflow-visible md:flex-wrap" style={{ WebkitOverflowScrolling: 'touch' }}>
+                  <div className="flex flex-1 flex-col gap-2 overflow-visible">
+                    <div className="flex items-center gap-2 overflow-x-auto flex-nowrap md:gap-4 md:overflow-visible md:flex-wrap overflow-visible" style={{ WebkitOverflowScrolling: 'touch' }}>
                       <Button
                         variant={gameMode === 'move' ? 'default' : 'outline'}
                         size="sm"
@@ -1079,13 +1079,13 @@ export default function RealmPage() {
                         disabled={!canExpand}
                         aria-label="Expand Map"
                         title={canExpand ? 'Expand your realm map' : `Become level ${nextExpansionLevel} to unlock 3 more rows`}
-                        className="flex items-center gap-2 min-w-[44px] min-h-[44px] group relative"
+                        className="flex items-center gap-2 min-w-[44px] min-h-[44px] group relative overflow-visible"
                       >
                         <PlusCircle className="w-4 h-4" />
                         <span className="hidden sm:inline">Expand Map</span>
                         {/* Custom tooltip for disabled state */}
                         {!canExpand && (
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-[9999]">
                             Become level {nextExpansionLevel} to unlock 3 more rows
                             <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                           </div>

@@ -1209,10 +1209,10 @@ export default function QuestsPage() {
                   aria-label="Complete all favorited quests in this category"
                 >
                   <Star className="w-4 h-4 mr-2" />
-                  Complete Favorites
+                  Complete {quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length} Favorites
                 </Button>
                 <div className="text-sm text-gray-400">
-                  {quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length} favorited quests available
+                  {favoritedQuests.size} total favorites across all categories
                 </div>
               </div>
               
