@@ -351,12 +351,12 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     setShowEntrance(true);
     setZoomed(false);
     setMoveUp(false);
-    // Linger for 2s, then start zoom (3.5s duration)
-    const zoomTimeout = setTimeout(() => setZoomed(true), 2000);
-    // Start move up at 2s (3s duration) - 0.5s earlier
-    const moveUpTimeout = setTimeout(() => setMoveUp(true), 2000);
-    // Hide overlay and show main content after animation completes (5.5s)
-    const hideTimeout = setTimeout(() => setShowEntrance(false), 5500);
+    // Linger for 1.5s, then start zoom (3.5s duration) - 0.5s shorter
+    const zoomTimeout = setTimeout(() => setZoomed(true), 1500);
+    // Start move up at 1.5s (3s duration) - 0.5s shorter
+    const moveUpTimeout = setTimeout(() => setMoveUp(true), 1500);
+    // Hide overlay and show main content after animation completes (5s total)
+    const hideTimeout = setTimeout(() => setShowEntrance(false), 5000);
     return () => {
       clearTimeout(zoomTimeout);
       clearTimeout(moveUpTimeout);
