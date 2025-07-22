@@ -4,17 +4,10 @@ import { supabaseServer } from '../../../lib/supabase/server-client'
 
 // Check if recovery columns exist in the database
 async function checkRecoveryColumnsExist(): Promise<boolean> {
-  try {
-    // Try to query with recovery columns - if they don't exist, we'll get an error
-    const testResult = await supabaseServer
-      .from('streaks')
-      .select('resilience_points')
-      .limit(1);
-    
-    return !testResult.error;
-  } catch {
-    return false;
-  }
+  // TEMPORARY: Disable recovery features to fix 500 errors
+  // TODO: Re-enable after basic functionality is working
+  console.log('[Recovery Check] Recovery features temporarily disabled for stability');
+  return false;
 }
 
 // Get column list based on what's available
@@ -46,26 +39,41 @@ function addDefaultRecoveryValues(data: any) {
 
 export async function GET(req: NextRequest) {
   try {
+    console.log('[Streaks Direct GET] Starting request...');
+    
     const { userId } = await getAuth(req)
+    console.log('[Streaks Direct GET] User ID:', userId ? 'present' : 'missing');
+    
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { searchParams } = new URL(req.url)
     const category = searchParams.get('category') || 'test'
+    console.log('[Streaks Direct GET] Category:', category);
 
     // Check if recovery columns exist
+    console.log('[Streaks Direct GET] Checking recovery columns...');
     const hasRecoveryColumns = await checkRecoveryColumnsExist();
     console.log('[Streaks Direct GET] Recovery columns available:', hasRecoveryColumns);
 
     // Query with appropriate columns
     const columnList = getColumnList(hasRecoveryColumns);
+    console.log('[Streaks Direct GET] Column list:', columnList);
+    
+    console.log('[Streaks Direct GET] Executing database query...');
     const { data, error } = await supabaseServer
       .from('streaks')
       .select(columnList)
       .eq('user_id', userId)
       .eq('category', category)
       .single();
+
+    console.log('[Streaks Direct GET] Query result:', { 
+      hasData: !!data, 
+      errorCode: error?.code, 
+      errorMessage: error?.message 
+    });
 
     if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
       console.error('[Streaks Direct GET] Database error:', error);

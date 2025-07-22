@@ -1,100 +1,96 @@
-import { NextResponse } from 'next/server';
-import { supabaseServer } from '@/lib/supabase/server-client';
+import { NextRequest, NextResponse } from 'next/server'
+import { getAuth } from '@clerk/nextjs/server'
+import { supabaseServer } from '../../../lib/supabase/server-client'
 
-/**
- * Database diagnostic endpoint to check:
- * 1. Supabase connection
- * 2. Available tables
- * 3. Environment variables
- * 4. Schema information
- */
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const diagnostics: any = {
-      timestamp: new Date().toISOString(),
-      supabaseUrl: process.env['NEXT_PUBLIC_SUPABASE_URL']?.substring(0, 30) + '...',
-      serviceKeyPresent: !!process.env['SUPABASE_SERVICE_ROLE_KEY'],
-      serviceKeyLength: process.env['SUPABASE_SERVICE_ROLE_KEY']?.length || 0,
-    };
+    console.log('[Database Diagnostic] Starting diagnostic...');
+    
+    // Test 1: Check authentication
+    const { userId } = await getAuth(req);
+    console.log('[Database Diagnostic] Auth check:', userId ? 'OK' : 'FAILED');
+    
+    if (!userId) {
+      return NextResponse.json({ 
+        error: 'Unauthorized',
+        test: 'auth',
+        status: 'failed' 
+      }, { status: 401 });
+    }
 
-    // Test 1: Basic connection
-    try {
-      const { data: testQuery, error: testError } = await supabaseServer
-        .from('information_schema.tables')
-        .select('table_schema, table_name')
-        .eq('table_schema', 'public')
-        .limit(10);
+    // Test 2: Basic database connection
+    console.log('[Database Diagnostic] Testing basic connection...');
+    const basicTest = await supabaseServer
+      .from('streaks')
+      .select('count')
+      .limit(1);
       
-      diagnostics.basicConnection = testError ? 'Failed' : 'Success';
-      diagnostics.connectionError = testError?.message;
-      diagnostics.foundTables = testQuery?.length || 0;
-    } catch (err) {
-      diagnostics.basicConnection = 'Failed';
-      diagnostics.connectionError = (err as Error).message;
-    }
-
-    // Test 2: Check for specific tables we need
-    const expectedTables = [
-      'inventory_items',
-      'user_preferences', 
-      'character_stats',
-      'quest_completion',
-      'tile_inventory'
-    ];
-
-    diagnostics.tableCheck = {};
-    for (const tableName of expectedTables) {
-      try {
-        const { data, error } = await supabaseServer
-          .from(tableName)
-          .select('*')
-          .limit(1);
-        
-        diagnostics.tableCheck[tableName] = {
-          exists: !error || error.code !== '42P01', // 42P01 = relation does not exist
-          error: error?.code,
-          message: error?.message
-        };
-      } catch (err) {
-        diagnostics.tableCheck[tableName] = {
-          exists: false,
-          error: 'Exception',
-          message: (err as Error).message
-        };
-      }
-    }
-
-    // Test 3: Check RPC function
-    try {
-      await supabaseServer.rpc('public.set_user_context', { user_id: 'test_user_123' });
-      diagnostics.rpcFunctionExists = true;
-    } catch (err: any) {
-      diagnostics.rpcFunctionExists = false;
-      diagnostics.rpcError = err.message;
-    }
-
-    // Test 4: List all public tables
-    try {
-      const { data: allTables } = await supabaseServer
-        .from('information_schema.tables')
-        .select('table_name')
-        .eq('table_schema', 'public')
-        .order('table_name');
-      
-      diagnostics.allPublicTables = allTables?.map(t => t.table_name) || [];
-    } catch (err) {
-      diagnostics.allTablesError = (err as Error).message;
-    }
-
-    return NextResponse.json({
-      status: 'Diagnostic completed',
-      diagnostics
+    console.log('[Database Diagnostic] Basic test result:', {
+      error: basicTest.error,
+      hasData: !!basicTest.data
     });
 
-  } catch (error) {
+    // Test 3: Check if streaks table exists with basic columns
+    console.log('[Database Diagnostic] Testing basic columns...');
+    const basicColumnsTest = await supabaseServer
+      .from('streaks')
+      .select('streak_days, week_streaks, last_activity_date')
+      .limit(1);
+      
+    console.log('[Database Diagnostic] Basic columns test:', {
+      error: basicColumnsTest.error,
+      hasData: !!basicColumnsTest.data
+    });
+
+    // Test 4: Check if new recovery columns exist
+    console.log('[Database Diagnostic] Testing recovery columns...');
+    const recoveryTest = await supabaseServer
+      .from('streaks')
+      .select('resilience_points, safety_net_used')
+      .limit(1);
+      
+    console.log('[Database Diagnostic] Recovery columns test:', {
+      error: recoveryTest.error,
+      hasData: !!recoveryTest.data
+    });
+
+    // Test 5: Check user's data specifically
+    console.log('[Database Diagnostic] Testing user data...');
+    const userTest = await supabaseServer
+      .from('streaks')
+      .select('*')
+      .eq('user_id', userId)
+      .limit(1);
+      
+    console.log('[Database Diagnostic] User data test:', {
+      error: userTest.error,
+      hasData: !!userTest.data,
+      count: userTest.data?.length
+    });
+
     return NextResponse.json({
-      status: 'Diagnostic failed',
-      error: error instanceof Error ? error.message : String(error)
+      status: 'diagnostic_complete',
+      tests: {
+        auth: userId ? 'passed' : 'failed',
+        basic_connection: basicTest.error ? 'failed' : 'passed',
+        basic_columns: basicColumnsTest.error ? 'failed' : 'passed', 
+        recovery_columns: recoveryTest.error ? 'failed' : 'passed',
+        user_data: userTest.error ? 'failed' : 'passed'
+      },
+      errors: {
+        basic_connection: basicTest.error?.message,
+        basic_columns: basicColumnsTest.error?.message,
+        recovery_columns: recoveryTest.error?.message,
+        user_data: userTest.error?.message
+      },
+      userId: userId
+    });
+
+  } catch (err: any) {
+    console.error('[Database Diagnostic] Exception:', err);
+    return NextResponse.json({
+      error: err.message || 'Unknown error',
+      status: 'exception'
     }, { status: 500 });
   }
 } 
