@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Tile, TileType } from '@/types/tiles';
 import { cn } from '@/lib/utils';
 import { useEffect, useCallback, useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 const tileImageFiles = [
   'Archery.png', 'Blacksmith.png', 'Castle.png', 'Fisherman.png', 'Foodcourt.png', 'Fountain.png', 'Grocery.png', 'House.png', 'Inn.png', 'Jousting.png', 'Mansion.png', 'Mayor.png', 'Pond.png', 'Sawmill.png', 'Temple.png', 'Vegetables.png', 'Watchtower.png', 'Well.png', 'Windmill.png', 'Wizard.png',
@@ -200,7 +201,32 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
             <button onClick={() => setPropertiesOpen(false)} className="text-amber-400 hover:text-amber-200 text-2xl bg-black/40 rounded-full w-10 h-10 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-amber-500" aria-label="Close properties panel">×</button>
           </div>
           <div className="px-4 pt-2 pb-0">
-            <div className="text-lg font-bold text-amber-300 mb-2">Build Tokens: <span className="text-amber-400">{buildTokens}</span></div>
+            <div className="text-lg font-bold text-amber-300 mb-2 flex items-center justify-between">
+              <span>Build Tokens: <span className="text-amber-400">{buildTokens}</span></span>
+              <Button
+                onClick={() => {
+                  const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
+                  if (stats.gold >= 1000) {
+                    stats.gold -= 1000;
+                    stats.buildTokens = (stats.buildTokens || 0) + 1;
+                    localStorage.setItem('character-stats', JSON.stringify(stats));
+                    setBuildTokens(stats.buildTokens);
+                    // Trigger gold update event
+                    window.dispatchEvent(new CustomEvent('goldUpdate', { detail: stats.gold }));
+                  } else {
+                    // Show error toast or alert
+                    alert('You need 1000 gold to buy a build token!');
+                  }
+                }}
+                className="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 text-sm"
+                disabled={(() => {
+                  const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
+                  return (stats.gold || 0) < 1000;
+                })()}
+              >
+                Buy (1000g)
+              </Button>
+            </div>
             {/* Tabs for Place and Buy */}
             <div className="flex gap-2 mb-4">
               <button

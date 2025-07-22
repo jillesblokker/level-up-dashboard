@@ -25,7 +25,7 @@ import { useCreatureStore } from '@/stores/creatureStore'
 import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 import dynamic from 'next/dynamic';
 import { getCharacterStats } from '@/lib/character-stats-manager';
-import { checkMonsterSpawn, spawnMonsterOnTile, getMonsterAchievementId } from '@/lib/monster-spawn-manager';
+import { checkMonsterSpawn, spawnMonsterOnTile, getMonsterAchievementId, MonsterType } from '@/lib/monster-spawn-manager';
 const RevealOverlay = dynamic(() => import('../reveal/page'), { ssr: false });
 
 // Constants
@@ -502,8 +502,8 @@ export default function RealmPage() {
                             const row = newGrid[pos.y];
                             const tile = row?.[pos.x];
                             if (row && tile && monsterType) {
-                                tile.hasMonster = monsterType as any;
-                                tile.monsterAchievementId = getMonsterAchievementId(monsterType);
+                                tile.hasMonster = monsterType as MonsterType;
+                                tile.monsterAchievementId = getMonsterAchievementId(monsterType as MonsterType);
                             }
                             return newGrid;
                         });

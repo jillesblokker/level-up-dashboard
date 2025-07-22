@@ -392,6 +392,19 @@ export default function Page() {
                   if (!achievement) return null;
                   const unlocked = isUnlocked(achievement.id);
                   const unlockDate = getUnlockDate(achievement.id);
+                  
+                  // Map achievement IDs to monster names
+                  const monsterNames: Record<string, string> = {
+                    '201': 'Dragoni',
+                    '202': 'Orci', 
+                    '203': 'Trollie',
+                    '204': 'Sorcero',
+                    '205': 'Peggie',
+                    '206': 'Fairiel'
+                  };
+                  
+                  const monsterName = monsterNames[achievement.id] || achievement.name;
+                  
                   return (
                     <Card
                       key={achievement.id}
@@ -399,15 +412,12 @@ export default function Page() {
                       aria-label={`achievement-card-${achievement.id}`}
                     >
                       <CardHeader className="w-full flex flex-col items-center text-center">
-                        <CardTitle className="font-serif text-2xl text-amber-400">{achievement.name}</CardTitle>
+                        <CardTitle className="font-serif text-2xl text-amber-400">{monsterName} #{achievement.id}</CardTitle>
                         {!unlocked && (
                           <Badge variant="secondary" className="mt-2" aria-label={`achievement-${achievement.id}-undiscovered-badge`}>
                             Undiscovered
                           </Badge>
                         )}
-                        <Badge variant="outline" className="mt-1 text-xs">
-                          {achievement.difficulty} • {achievement.category}
-                        </Badge>
                       </CardHeader>
                       <CardContent className="flex flex-col items-center w-full">
                         <div className="relative w-full aspect-[5/7] mb-4 flex items-center justify-center">
@@ -415,7 +425,7 @@ export default function Page() {
                             <div className="absolute inset-0">
                               <Image 
                                 src={achievement.image_url} 
-                                alt={achievement.name}
+                                alt={monsterName}
                                 fill
                                 className="object-cover rounded-lg"
                               />
@@ -424,27 +434,31 @@ export default function Page() {
                             <Image src={'/images/undiscovered.png'} alt="Undiscovered Achievement" fill sizes="(max-width: 768px) 100vw, 340px" className="object-cover rounded-lg opacity-50" />
                           )}
                         </div>
-                        <div className="text-center text-sm text-gray-300 mb-2">
-                          <p>{achievement.description}</p>
-                        </div>
-                        {unlocked && unlockDate && unlockDate !== "Invalid Date" && (
-                          <div className="mt-2 text-sm text-gray-400" aria-label={`unlock-date-for-${achievement.id}`}>
-                            <span>Unlocked on {unlockDate}</span>
-                          </div>
+                        {unlocked && (
+                          <>
+                            <div className="text-center text-sm text-gray-300 mb-2">
+                              <p>{achievement.description}</p>
+                            </div>
+                            {unlockDate && unlockDate !== "Invalid Date" && (
+                              <div className="mt-2 text-sm text-gray-400" aria-label={`unlock-date-for-${achievement.id}`}>
+                                <span>Unlocked on {unlockDate}</span>
+                              </div>
+                            )}
+                            {achievement.unlock_condition && (
+                              <div className="mt-2 text-center text-xs text-amber-400" aria-label={`achievement-card-${achievement.id}-requirement`}>
+                                <span>{achievement.unlock_condition}</span>
+                              </div>
+                            )}
+                            <div className="mt-2 flex gap-2">
+                              <Badge variant="outline" className="text-xs">
+                                +{achievement.xp_reward} XP
+                              </Badge>
+                              <Badge variant="outline" className="text-xs">
+                                +{achievement.gold_reward} Gold
+                              </Badge>
+                            </div>
+                          </>
                         )}
-                        {achievement.unlock_condition && (
-                          <div className="mt-2 text-center text-xs text-amber-400" aria-label={`achievement-card-${achievement.id}-requirement`}>
-                            <span>{achievement.unlock_condition}</span>
-                          </div>
-                        )}
-                        <div className="mt-2 flex gap-2">
-                          <Badge variant="outline" className="text-xs">
-                            +{achievement.xp_reward} XP
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            +{achievement.gold_reward} Gold
-                          </Badge>
-                        </div>
                       </CardContent>
                     </Card>
                   );
