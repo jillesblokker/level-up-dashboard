@@ -1,0 +1,14 @@
+I have a quest_favorites table that's causing errors. The error is:
+
+"invalid input syntax for type uuid: 'user_2z5XXhrBfLdbU0P6AUCBco0CJWC'"
+
+The issue is that my table was created with user_id as UUID, but I'm using Clerk authentication which provides user IDs as TEXT strings.
+
+Please provide SQL to:
+1. Drop the existing quest_favorites table
+2. Recreate it with user_id as TEXT (not UUID)
+3. Enable RLS with proper policy using auth.uid()
+4. Add indexes for performance
+5. Grant proper permissions
+
+The table should have: id (UUID), user_id (TEXT), quest_id (TEXT), favorited_at, created_at, updated_at, and unique constraint on (user_id, quest_id). 

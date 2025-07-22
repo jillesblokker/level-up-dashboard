@@ -1,0 +1,18 @@
+Create a SQL script for a quest favorites system in Supabase. I need a `quest_favorites` table with:
+
+- UUID primary key with auto-generation
+- user_id (TEXT for Clerk authentication)
+- quest_id (TEXT)
+- favorited_at timestamp
+- created_at/updated_at timestamps
+- Unique constraint on (user_id, quest_id)
+
+Enable Row Level Security with policy: users can only access their own favorites using auth.uid().
+
+Add indexes on user_id and quest_id for performance.
+
+Include proper permissions for authenticated users.
+
+The table will be used for API operations: GET (fetch user's favorites), POST (add favorite), DELETE (remove favorite).
+
+Generate complete SQL with table creation, RLS, policies, indexes, and permissions. 
