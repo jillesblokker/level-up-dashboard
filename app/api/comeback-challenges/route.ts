@@ -40,10 +40,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Category parameter required' }, { status: 400 });
     }
 
-    // Check if user qualifies for comeback challenges
+    // Check if user qualifies for comeback challenges (only use existing columns)
     const { data: streak, error: streakError } = await supabaseServer
       .from('streaks')
-      .select('streak_days, streak_broken_date, last_activity_date, missed_days_this_week')
+      .select('streak_days, week_streaks')
       .eq('user_id', userId)
       .eq('category', category)
       .single();
@@ -52,33 +52,19 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: streakError.message }, { status: 500 });
     }
 
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    
+    // Simplified qualification logic (recovery features require database migration)
     let qualifiesForComeback = false;
     let reason = '';
 
     if (!streak || streak.streak_days === 0) {
       qualifiesForComeback = true;
       reason = 'No current streak - perfect time for a fresh start!';
-    } else if (streak.streak_broken_date) {
-      const brokenDate = new Date(streak.streak_broken_date);
-      const daysSinceBroken = Math.floor((today.getTime() - brokenDate.getTime()) / (1000 * 60 * 60 * 24));
-      if (daysSinceBroken >= 1 && daysSinceBroken <= 7) {
-        qualifiesForComeback = true;
-        reason = `Streak broken ${daysSinceBroken} day(s) ago - let\'s rebuild momentum!`;
-      }
-    } else if (streak.missed_days_this_week > 0) {
+    } else if (streak.streak_days < 3) {
       qualifiesForComeback = true;
-      reason = 'Missed some days this week - comeback challenges can help you get back on track!';
-    } else if (streak.last_activity_date) {
-      const lastActivity = new Date(streak.last_activity_date);
-      const daysSinceActivity = Math.floor((today.getTime() - lastActivity.getTime()) / (1000 * 60 * 60 * 24));
-      if (daysSinceActivity >= 2) {
-        qualifiesForComeback = true;
-        reason = `${daysSinceActivity} days since last activity - ease back in with comeback challenges!`;
-      }
+      reason = 'Short streak - comeback challenges can help build momentum!';
+    } else {
+      qualifiesForComeback = false;
+      reason = 'Great streak going! Keep it up with regular challenges.';
     }
 
     const challenges = comebackChallenges[category as keyof typeof comebackChallenges] || [];
@@ -127,35 +113,27 @@ export async function POST(req: NextRequest) {
       // Award XP and gold for completing comeback challenge
       // This would integrate with your character stats system
       
-      // Get current streak data
+      // Get current streak data (only existing columns)
       const { data: currentStreak, error: fetchError } = await supabaseServer
         .from('streaks')
-        .select('*')
+        .select('streak_days, week_streaks')
         .eq('user_id', userId)
         .eq('category', category)
         .single();
 
-      const today = new Date().toISOString().slice(0, 10);
-      
-      // If this is their first activity after a break, start rebuilding streak
-      let newStreakDays = 1;
-      if (currentStreak && currentStreak.last_activity_date === today) {
-        // Already active today, don't increment
-        newStreakDays = currentStreak.streak_days || 1;
-      }
+      // Simple streak increment (more advanced logic requires database migration)
+      let newStreakDays = (currentStreak?.streak_days || 0) + 1;
 
-      // Update streak with comeback progress
+      // Update streak with basic progress
       const { data: updatedStreak, error: updateError } = await supabaseServer
         .from('streaks')
         .upsert({
           user_id: userId,
           category: category,
           streak_days: newStreakDays,
-          last_activity_date: today,
-          missed_days_this_week: Math.max(0, (currentStreak?.missed_days_this_week || 0) - 1), // Reduce missed days
-          streak_broken_date: null // Clear broken status
+          week_streaks: currentStreak?.week_streaks || 0
         }, { onConflict: 'user_id,category' })
-        .select()
+        .select('streak_days, week_streaks')
         .single();
 
       if (updateError) {
