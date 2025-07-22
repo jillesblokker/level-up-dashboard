@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { useCreatureStore } from '@/stores/creatureStore'
+import { CreatureCard } from '@/components/creature-card'
 import Image from 'next/image'
 import { HeaderSection } from '@/components/HeaderSection'
 import { useUser, SignedIn, SignedOut, SignIn, useAuth } from '@clerk/nextjs'
@@ -33,6 +35,7 @@ interface DbAchievement {
 }
 
 export default function Page() {
+  const { creatures } = useCreatureStore()
   const [achievementDefinitions, setAchievementDefinitions] = useState<AchievementDefinition[]>([]);
   const [unlockedAchievements, setUnlockedAchievements] = useState<Map<string, DbAchievement>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
@@ -42,7 +45,7 @@ export default function Page() {
   const [showAllUnlocked, setShowAllUnlocked] = useState(false);
   const { getToken, isLoaded: isClerkLoaded } = useAuth();
 
-  // Fetch achievement definitions
+  // Fetch new monster achievement definitions (201-206)
   useEffect(() => {
     const fetchAchievementDefinitions = async () => {
       try {
@@ -55,91 +58,6 @@ export default function Page() {
           console.error('Failed to fetch achievement definitions:', response.status);
           // Fallback to hardcoded definitions if API fails
           const fallbackDefinitions: AchievementDefinition[] = [
-            // Original creature achievements (000-006)
-            {
-              id: '000',
-              name: 'Necrion',
-              description: 'A mysterious poisonous creature that appears when first exploring the realm.',
-              category: 'creature',
-              difficulty: 'easy',
-              xp_reward: 50,
-              gold_reward: 25,
-              image_url: '/images/creatures/000.png',
-              is_hidden: false,
-              unlock_condition: 'Navigating to the realm map'
-            },
-            {
-              id: '001',
-              name: 'Flamio',
-              description: 'A fiery creature awakened by the destruction of forests.',
-              category: 'creature',
-              difficulty: 'medium',
-              xp_reward: 75,
-              gold_reward: 50,
-              image_url: '/images/creatures/001.png',
-              is_hidden: false,
-              unlock_condition: 'Destroy 1 forest tile'
-            },
-            {
-              id: '002',
-              name: 'Embera',
-              description: 'A more powerful fire entity born from continued forest destruction.',
-              category: 'creature',
-              difficulty: 'medium',
-              xp_reward: 100,
-              gold_reward: 75,
-              image_url: '/images/creatures/002.png',
-              is_hidden: false,
-              unlock_condition: 'Destroy 5 forest tiles'
-            },
-            {
-              id: '003',
-              name: 'Vulcana',
-              description: 'The ultimate fire creature, master of forest destruction.',
-              category: 'creature',
-              difficulty: 'hard',
-              xp_reward: 150,
-              gold_reward: 100,
-              image_url: '/images/creatures/003.png',
-              is_hidden: false,
-              unlock_condition: 'Destroy 10 forest tiles'
-            },
-            {
-              id: '004',
-              name: 'Aquarius',
-              description: 'A water spirit that emerges when water tiles are placed.',
-              category: 'creature',
-              difficulty: 'easy',
-              xp_reward: 60,
-              gold_reward: 30,
-              image_url: '/images/creatures/004.png',
-              is_hidden: false,
-              unlock_condition: 'Place 1 water tile'
-            },
-            {
-              id: '005',
-              name: 'Terra',
-              description: 'An earth elemental that appears when mountains are placed.',
-              category: 'creature',
-              difficulty: 'medium',
-              xp_reward: 80,
-              gold_reward: 60,
-              image_url: '/images/creatures/005.png',
-              is_hidden: false,
-              unlock_condition: 'Place 3 mountain tiles'
-            },
-            {
-              id: '006',
-              name: 'Cryo',
-              description: 'An ice spirit that manifests when snow tiles are placed.',
-              category: 'creature',
-              difficulty: 'hard',
-              xp_reward: 120,
-              gold_reward: 80,
-              image_url: '/images/creatures/006.png',
-              is_hidden: false,
-              unlock_condition: 'Place 5 snow tiles'
-            },
             // New monster achievements (201-206)
             {
               id: '201',
@@ -220,91 +138,6 @@ export default function Page() {
         console.error('Error fetching achievement definitions:', error);
         // Use fallback definitions on error too
         const fallbackDefinitions: AchievementDefinition[] = [
-          // Original creature achievements (000-006)
-          {
-            id: '000',
-            name: 'Necrion',
-            description: 'A mysterious poisonous creature that appears when first exploring the realm.',
-            category: 'creature',
-            difficulty: 'easy',
-            xp_reward: 50,
-            gold_reward: 25,
-            image_url: '/images/creatures/000.png',
-            is_hidden: false,
-            unlock_condition: 'Navigating to the realm map'
-          },
-          {
-            id: '001',
-            name: 'Flamio',
-            description: 'A fiery creature awakened by the destruction of forests.',
-            category: 'creature',
-            difficulty: 'medium',
-            xp_reward: 75,
-            gold_reward: 50,
-            image_url: '/images/creatures/001.png',
-            is_hidden: false,
-            unlock_condition: 'Destroy 1 forest tile'
-          },
-          {
-            id: '002',
-            name: 'Embera',
-            description: 'A more powerful fire entity born from continued forest destruction.',
-            category: 'creature',
-            difficulty: 'medium',
-            xp_reward: 100,
-            gold_reward: 75,
-            image_url: '/images/creatures/002.png',
-            is_hidden: false,
-            unlock_condition: 'Destroy 5 forest tiles'
-          },
-          {
-            id: '003',
-            name: 'Vulcana',
-            description: 'The ultimate fire creature, master of forest destruction.',
-            category: 'creature',
-            difficulty: 'hard',
-            xp_reward: 150,
-            gold_reward: 100,
-            image_url: '/images/creatures/003.png',
-            is_hidden: false,
-            unlock_condition: 'Destroy 10 forest tiles'
-          },
-          {
-            id: '004',
-            name: 'Aquarius',
-            description: 'A water spirit that emerges when water tiles are placed.',
-            category: 'creature',
-            difficulty: 'easy',
-            xp_reward: 60,
-            gold_reward: 30,
-            image_url: '/images/creatures/004.png',
-            is_hidden: false,
-            unlock_condition: 'Place 1 water tile'
-          },
-          {
-            id: '005',
-            name: 'Terra',
-            description: 'An earth elemental that appears when mountains are placed.',
-            category: 'creature',
-            difficulty: 'medium',
-            xp_reward: 80,
-            gold_reward: 60,
-            image_url: '/images/creatures/005.png',
-            is_hidden: false,
-            unlock_condition: 'Place 3 mountain tiles'
-          },
-          {
-            id: '006',
-            name: 'Cryo',
-            description: 'An ice spirit that manifests when snow tiles are placed.',
-            category: 'creature',
-            difficulty: 'hard',
-            xp_reward: 120,
-            gold_reward: 80,
-            image_url: '/images/creatures/006.png',
-            is_hidden: false,
-            unlock_condition: 'Place 5 snow tiles'
-          },
           // New monster achievements (201-206)
           {
             id: '201',
@@ -453,6 +286,11 @@ export default function Page() {
     return achievement ? new Date(achievement.unlocked_at).toLocaleDateString() : null;
   }
 
+  const isCreatureUnlocked = (creatureId: string) => {
+    if (showAllUnlocked) return true;
+    return unlockedAchievements.has(creatureId);
+  }
+
   if (!isClerkLoaded || !isAuthLoaded) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-900 text-white">
@@ -470,91 +308,150 @@ export default function Page() {
       </div>
     );
   }
-  if (!achievementDefinitions || achievementDefinitions.length === 0) {
+  if (!creatures || creatures.length === 0) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-900 text-white">
-        <p>No achievements defined.</p>
+        <p>No creatures defined.</p>
       </div>
     );
   }
-  const hasAnyUnlocked = achievementDefinitions.some(a => unlockedAchievements.has(a.id));
+  const hasAnyUnlocked = creatures.some(c => unlockedAchievements.has(c.id)) || achievementDefinitions.some(a => unlockedAchievements.has(a.id));
   return (
     <>
       <SignedIn>
         <HeaderSection
-          title="Achievement Collection"
+          title="Creature Collection"
           imageSrc="/images/achievements-header.jpg"
           canEdit={true}
         />
         <main className="container mx-auto p-6" aria-label="achievements-section">
           {!hasAnyUnlocked && !showAllUnlocked && (
-            <div className="text-center text-gray-400 mb-8">No achievements unlocked yet. Start exploring to discover achievements!</div>
+            <div className="text-center text-gray-400 mb-8">No achievements unlocked yet. Start exploring to discover creatures!</div>
           )}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3" aria-label="achievement-cards-grid">
-            {achievementDefinitions.map(achievement => {
-              if (!achievement) return null;
-              const unlocked = isUnlocked(achievement.id);
-              const unlockDate = getUnlockDate(achievement.id);
-              return (
-                <Card
-                  key={achievement.id}
-                  className={`medieval-card flex flex-col items-center justify-center min-h-[420px] p-4 shadow-lg border-2 rounded-xl transition-all duration-300 ${unlocked ? 'border-amber-500 bg-gray-800' : 'border-gray-700 bg-gray-900 opacity-70'}`}
-                  aria-label={`achievement-card-${achievement.id}`}
-                >
-                  <CardHeader className="w-full flex flex-col items-center text-center">
-                    <CardTitle className="font-serif text-2xl text-amber-400">
-                      {achievement.category === 'creature' ? `${achievement.name} #${achievement.id}` : achievement.name}
-                    </CardTitle>
-                    {!unlocked && (
-                      <Badge variant="secondary" className="mt-2" aria-label={`achievement-${achievement.id}-undiscovered-badge`}>
-                        Undiscovered
-                      </Badge>
-                    )}
-                    <Badge variant="outline" className="mt-1 text-xs">
-                      {achievement.difficulty} • {achievement.category}
-                    </Badge>
-                  </CardHeader>
-                  <CardContent className="flex flex-col items-center w-full">
-                    <div className="relative w-full aspect-[5/7] mb-4 flex items-center justify-center">
-                      {unlocked ? (
-                        <div className="absolute inset-0">
-                          <Image 
-                            src={achievement.image_url} 
-                            alt={achievement.name}
-                            fill
-                            className="object-cover rounded-lg"
-                          />
-                        </div>
-                      ) : (
-                        <Image src={'/images/undiscovered.png'} alt="Undiscovered Achievement" fill sizes="(max-width: 768px) 100vw, 340px" className="object-cover rounded-lg opacity-50" />
+          
+          {/* Original Creatures Section */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-serif text-amber-400 mb-4">Creatures</h2>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3" aria-label="creature-cards-grid">
+              {creatures.map(creature => {
+                if (!creature) return null;
+                const unlocked = isCreatureUnlocked(creature.id);
+                const unlockDate = getUnlockDate(creature.id);
+                return (
+                  <Card
+                    key={creature.id}
+                    className={`medieval-card flex flex-col items-center justify-center min-h-[420px] p-4 shadow-lg border-2 rounded-xl transition-all duration-300 ${unlocked ? 'border-amber-500 bg-gray-800' : 'border-gray-700 bg-gray-900 opacity-70'}`}
+                    aria-label={`creature-card-${creature.id}`}
+                  >
+                    <CardHeader className="w-full flex flex-col items-center text-center">
+                      <CardTitle className="font-serif text-2xl text-amber-400">{creature.name} {creature.number}</CardTitle>
+                      {!unlocked && (
+                        <Badge variant="secondary" className="mt-2" aria-label={`creature-${creature.id}-undiscovered-badge`}>
+                          Undiscovered
+                        </Badge>
                       )}
-                    </div>
-                    <div className="text-center text-sm text-gray-300 mb-2">
-                      <p>{achievement.description}</p>
-                    </div>
-                    {unlocked && unlockDate && unlockDate !== "Invalid Date" && (
-                      <div className="mt-2 text-sm text-gray-400" aria-label={`unlock-date-for-${achievement.id}`}>
-                        <span>Unlocked on {unlockDate}</span>
+                    </CardHeader>
+                    <CardContent className="flex flex-col items-center w-full">
+                      <div className="relative w-full aspect-[5/7] mb-4 flex items-center justify-center">
+                        {unlocked ? (
+                          <div className="absolute inset-0">
+                            <CreatureCard
+                              creature={creature}
+                              discovered={true}
+                              showCard={true}
+                              previewMode={false}
+                            />
+                          </div>
+                        ) : (
+                          <Image src={'/images/undiscovered.png'} alt="Undiscovered Card" fill sizes="(max-width: 768px) 100vw, 340px" className="object-cover rounded-lg opacity-50" />
+                        )}
                       </div>
-                    )}
-                    {achievement.unlock_condition && (
-                      <div className="mt-2 text-center text-xs text-amber-400" aria-label={`achievement-card-${achievement.id}-requirement`}>
-                        <span>{achievement.unlock_condition}</span>
-                      </div>
-                    )}
-                    <div className="mt-2 flex gap-2">
-                      <Badge variant="outline" className="text-xs">
-                        +{achievement.xp_reward} XP
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        +{achievement.gold_reward} Gold
-                      </Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                      {unlocked && unlockDate && unlockDate !== "Invalid Date" && (
+                        <div className="mt-2 text-sm text-gray-400" aria-label={`unlock-date-for-${creature.id}`}>
+                          <span>Unlocked on {unlockDate}</span>
+                        </div>
+                      )}
+                      {unlocked && creature.requirement && (
+                        <div className="mt-2 text-center text-base text-white" aria-label={`creature-card-${creature.id}-requirement`}>
+                          <span>Requirement: {creature.requirement}</span>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
           </div>
+
+          {/* New Monster Achievements Section */}
+          {achievementDefinitions.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-2xl font-serif text-amber-400 mb-4">Monster Battles</h2>
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3" aria-label="achievement-cards-grid">
+                {achievementDefinitions.map(achievement => {
+                  if (!achievement) return null;
+                  const unlocked = isUnlocked(achievement.id);
+                  const unlockDate = getUnlockDate(achievement.id);
+                  return (
+                    <Card
+                      key={achievement.id}
+                      className={`medieval-card flex flex-col items-center justify-center min-h-[420px] p-4 shadow-lg border-2 rounded-xl transition-all duration-300 ${unlocked ? 'border-amber-500 bg-gray-800' : 'border-gray-700 bg-gray-900 opacity-70'}`}
+                      aria-label={`achievement-card-${achievement.id}`}
+                    >
+                      <CardHeader className="w-full flex flex-col items-center text-center">
+                        <CardTitle className="font-serif text-2xl text-amber-400">{achievement.name}</CardTitle>
+                        {!unlocked && (
+                          <Badge variant="secondary" className="mt-2" aria-label={`achievement-${achievement.id}-undiscovered-badge`}>
+                            Undiscovered
+                          </Badge>
+                        )}
+                        <Badge variant="outline" className="mt-1 text-xs">
+                          {achievement.difficulty} • {achievement.category}
+                        </Badge>
+                      </CardHeader>
+                      <CardContent className="flex flex-col items-center w-full">
+                        <div className="relative w-full aspect-[5/7] mb-4 flex items-center justify-center">
+                          {unlocked ? (
+                            <div className="absolute inset-0">
+                              <Image 
+                                src={achievement.image_url} 
+                                alt={achievement.name}
+                                fill
+                                className="object-cover rounded-lg"
+                              />
+                            </div>
+                          ) : (
+                            <Image src={'/images/undiscovered.png'} alt="Undiscovered Achievement" fill sizes="(max-width: 768px) 100vw, 340px" className="object-cover rounded-lg opacity-50" />
+                          )}
+                        </div>
+                        <div className="text-center text-sm text-gray-300 mb-2">
+                          <p>{achievement.description}</p>
+                        </div>
+                        {unlocked && unlockDate && unlockDate !== "Invalid Date" && (
+                          <div className="mt-2 text-sm text-gray-400" aria-label={`unlock-date-for-${achievement.id}`}>
+                            <span>Unlocked on {unlockDate}</span>
+                          </div>
+                        )}
+                        {achievement.unlock_condition && (
+                          <div className="mt-2 text-center text-xs text-amber-400" aria-label={`achievement-card-${achievement.id}-requirement`}>
+                            <span>{achievement.unlock_condition}</span>
+                          </div>
+                        )}
+                        <div className="mt-2 flex gap-2">
+                          <Badge variant="outline" className="text-xs">
+                            +{achievement.xp_reward} XP
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            +{achievement.gold_reward} Gold
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </main>
         <div className="flex justify-center mt-8" aria-label="achievements-toggle-container">
           <button
