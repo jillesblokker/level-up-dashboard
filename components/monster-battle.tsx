@@ -25,52 +25,52 @@ interface Weapon {
 }
 
 const weapons: Weapon[] = [
-  { id: 'shield', name: 'Shield', icon: <Shield className="w-8 h-8" />, color: 'bg-blue-500' },
-  { id: 'sword', name: 'Sword', icon: <Sword className="w-8 h-8" />, color: 'bg-red-500' },
-  { id: 'armor', name: 'Armor', icon: <Armor className="w-8 h-8" />, color: 'bg-gray-500' },
-  { id: 'artifact', name: 'Artifact', icon: <Zap className="w-8 h-8" />, color: 'bg-purple-500' },
-  { id: 'potion', name: 'Potion', icon: <Heart className="w-8 h-8" />, color: 'bg-green-500' },
+  { id: 'shield', name: 'Shield', icon: <img src="/images/items/shield.png" alt="Shield" className="w-8 h-8" />, color: 'bg-blue-500' },
+  { id: 'sword', name: 'Sword', icon: <img src="/images/items/sword.png" alt="Sword" className="w-8 h-8" />, color: 'bg-red-500' },
+  { id: 'armor', name: 'Armor', icon: <img src="/images/items/armor.png" alt="Armor" className="w-8 h-8" />, color: 'bg-gray-500' },
+  { id: 'artifact', name: 'Artifact', icon: <img src="/images/items/artifact.png" alt="Artifact" className="w-8 h-8" />, color: 'bg-purple-500' },
+  { id: 'potion', name: 'Potion', icon: <img src="/images/items/potion.png" alt="Potion" className="w-8 h-8" />, color: 'bg-green-500' },
 ]
 
 const monsterData = {
   dragon: {
-    name: 'Ancient Dragon',
-    image: '/images/creatures/dragon.png',
+    name: 'Dragoni',
+    image: '/images/Monsters/201.png',
     description: 'A fearsome dragon with scales as hard as steel',
     difficulty: 'Hard',
     achievementId: '201'
   },
   goblin: {
-    name: 'Crafty Goblin',
-    image: '/images/creatures/goblin.png',
+    name: 'Orci',
+    image: '/images/Monsters/202.png',
     description: 'A sneaky goblin with sharp daggers',
     difficulty: 'Easy',
     achievementId: '202'
   },
   troll: {
-    name: 'Mountain Troll',
-    image: '/images/creatures/troll.png',
+    name: 'Trollie',
+    image: '/images/Monsters/203.png',
     description: 'A massive troll with incredible strength',
     difficulty: 'Medium',
     achievementId: '203'
   },
   wizard: {
-    name: 'Dark Wizard',
-    image: '/images/creatures/wizard.png',
+    name: 'Sorcero',
+    image: '/images/Monsters/204.png',
     description: 'A powerful wizard with dark magic',
     difficulty: 'Hard',
     achievementId: '204'
   },
   pegasus: {
-    name: 'Mystical Pegasus',
-    image: '/images/creatures/pegasus.png',
+    name: 'Peggie',
+    image: '/images/Monsters/205.png',
     description: 'A majestic winged horse with divine powers',
     difficulty: 'Medium',
     achievementId: '205'
   },
   fairy: {
-    name: 'Enchanted Fairy',
-    image: '/images/creatures/fairy.png',
+    name: 'Fairiel',
+    image: '/images/Monsters/206.png',
     description: 'A magical fairy with nature magic',
     difficulty: 'Easy',
     achievementId: '206'
@@ -252,8 +252,12 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
         <CardContent className="space-y-6">
           {/* Monster Card */}
           <div className="flex items-center gap-4 p-4 bg-gray-800 rounded-lg border border-amber-800/20">
-            <div className="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center">
-              <span className="text-2xl">🐉</span>
+            <div className="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
+              <img 
+                src={monster.image} 
+                alt={monster.name}
+                className="w-full h-full object-cover"
+              />
             </div>
             <div>
               <h3 className="font-bold text-lg">{monster.name}</h3>

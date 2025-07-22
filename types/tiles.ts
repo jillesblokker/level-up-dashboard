@@ -56,6 +56,8 @@ export interface Tile {
   tileSize?: 1 | 2 | undefined;
   cost?: number | undefined;
   quantity?: number | undefined;
+  hasMonster?: 'dragon' | 'goblin' | 'troll' | 'wizard' | 'pegasus' | 'fairy' | undefined;
+  monsterAchievementId?: string | undefined;
 }
 
 // Interface for an item in the player's inventory
