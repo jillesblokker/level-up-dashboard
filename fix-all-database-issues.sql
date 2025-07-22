@@ -3,28 +3,85 @@
 -- Run this in your Supabase SQL editor to fix all 500 errors
 
 -- 1. Fix quest_favorites table (drop and recreate with best practices)
+-- First, backup existing data if table exists
+CREATE TABLE IF NOT EXISTS quest_favorites_backup AS 
+SELECT * FROM quest_favorites WHERE 1=0;
+
+-- Copy existing data to backup (if table exists)
+DO $$
+BEGIN
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'quest_favorites') THEN
+        INSERT INTO quest_favorites_backup 
+        SELECT * FROM quest_favorites;
+    END IF;
+END $$;
+
+-- Drop the existing table
 DROP TABLE IF EXISTS quest_favorites CASCADE;
 
+-- Create new table with proper structure
 CREATE TABLE quest_favorites (
     id bigint primary key generated always as identity,
     user_id text not null, -- TEXT for Clerk authentication (not UUID)
     quest_id text not null,
     favorited_at timestamp with time zone default now(),
     created_at timestamp with time zone default now(),
-    updated_at timestamp with time zone default now(),
-    unique(user_id, quest_id)
+    updated_at timestamp with time zone default now()
 );
 
+-- Add unique constraint after table creation
+ALTER TABLE quest_favorites ADD CONSTRAINT unique_user_quest UNIQUE (user_id, quest_id);
+
+-- Restore data from backup, removing duplicates
+INSERT INTO quest_favorites (user_id, quest_id, favorited_at, created_at, updated_at)
+SELECT DISTINCT ON (user_id, quest_id) 
+    user_id, 
+    quest_id, 
+    favorited_at, 
+    created_at, 
+    updated_at
+FROM quest_favorites_backup
+ORDER BY user_id, quest_id, created_at DESC;
+
+-- Drop backup table
+DROP TABLE IF EXISTS quest_favorites_backup;
+
 -- 2. Create kingdom_grid table with best practices
+-- First, backup existing data if table exists
+CREATE TABLE IF NOT EXISTS kingdom_grid_backup AS 
+SELECT * FROM kingdom_grid WHERE 1=0;
+
+-- Copy existing data to backup (if table exists)
+DO $$
+BEGIN
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'kingdom_grid') THEN
+        INSERT INTO kingdom_grid_backup 
+        SELECT * FROM kingdom_grid;
+    END IF;
+END $$;
+
+-- Drop the existing table
 DROP TABLE IF EXISTS kingdom_grid CASCADE;
 
+-- Create new table with proper structure
 CREATE TABLE kingdom_grid (
     id bigint primary key generated always as identity,
-    user_id text not null unique, -- TEXT for Clerk authentication (not UUID)
+    user_id text not null, -- TEXT for Clerk authentication (not UUID)
     grid jsonb not null default '[]'::jsonb,
     created_at timestamp with time zone default now(),
     updated_at timestamp with time zone default now()
 );
+
+-- Add unique constraint after table creation
+ALTER TABLE kingdom_grid ADD CONSTRAINT unique_user_kingdom_grid UNIQUE (user_id);
+
+-- Restore data from backup
+INSERT INTO kingdom_grid (user_id, grid, created_at, updated_at)
+SELECT user_id, grid, created_at, updated_at
+FROM kingdom_grid_backup;
+
+-- Drop backup table
+DROP TABLE IF EXISTS kingdom_grid_backup;
 
 -- 3. Enable Row Level Security on both tables
 ALTER TABLE quest_favorites ENABLE ROW LEVEL SECURITY;
@@ -74,9 +131,25 @@ GRANT ALL ON quest_favorites TO authenticated;
 GRANT ALL ON kingdom_grid TO authenticated;
 
 -- 8. Create user_progress table with best practices
-CREATE TABLE IF NOT EXISTS user_progress (
+-- First, backup existing data if table exists
+CREATE TABLE IF NOT EXISTS user_progress_backup AS 
+SELECT * FROM user_progress WHERE 1=0;
+
+-- Copy existing data to backup (if table exists)
+DO $$
+BEGIN
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'user_progress') THEN
+        INSERT INTO user_progress_backup 
+        SELECT * FROM user_progress;
+    END IF;
+END $$;
+
+-- Drop and recreate the table
+DROP TABLE IF EXISTS user_progress CASCADE;
+
+CREATE TABLE user_progress (
     id bigint primary key generated always as identity,
-    user_id text not null unique, -- TEXT for Clerk authentication (not UUID)
+    user_id text not null, -- TEXT for Clerk authentication (not UUID)
     level integer default 1,
     experience integer default 0,
     gold integer default 0,
@@ -89,6 +162,30 @@ CREATE TABLE IF NOT EXISTS user_progress (
     created_at timestamp with time zone default now(),
     updated_at timestamp with time zone default now()
 );
+
+-- Add unique constraint after table creation
+ALTER TABLE user_progress ADD CONSTRAINT unique_user_progress UNIQUE (user_id);
+
+-- Restore data from backup, removing duplicates
+INSERT INTO user_progress (user_id, level, experience, gold, build_tokens, tiles_placed, creatures_discovered, achievements_unlocked, quests_completed, challenges_completed, created_at, updated_at)
+SELECT DISTINCT ON (user_id) 
+    user_id, 
+    level, 
+    experience, 
+    gold, 
+    build_tokens, 
+    tiles_placed, 
+    creatures_discovered, 
+    achievements_unlocked, 
+    quests_completed, 
+    challenges_completed, 
+    created_at, 
+    updated_at
+FROM user_progress_backup
+ORDER BY user_id, created_at DESC;
+
+-- Drop backup table
+DROP TABLE IF EXISTS user_progress_backup;
 
 -- Enable RLS on user_progress
 ALTER TABLE user_progress ENABLE ROW LEVEL SECURITY;
@@ -117,7 +214,23 @@ CREATE INDEX IF NOT EXISTS idx_user_progress_user_id ON user_progress(user_id);
 GRANT ALL ON user_progress TO authenticated;
 
 -- 9. Create achievements table with best practices
-CREATE TABLE IF NOT EXISTS achievements (
+-- First, backup existing data if table exists
+CREATE TABLE IF NOT EXISTS achievements_backup AS 
+SELECT * FROM achievements WHERE 1=0;
+
+-- Copy existing data to backup (if table exists)
+DO $$
+BEGIN
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'achievements') THEN
+        INSERT INTO achievements_backup 
+        SELECT * FROM achievements;
+    END IF;
+END $$;
+
+-- Drop and recreate the table
+DROP TABLE IF EXISTS achievements CASCADE;
+
+CREATE TABLE achievements (
     id bigint primary key generated always as identity,
     user_id text not null, -- TEXT for Clerk authentication (not UUID)
     achievement_id varchar(10) not null,
@@ -125,9 +238,27 @@ CREATE TABLE IF NOT EXISTS achievements (
     description text,
     unlocked_at timestamp with time zone default now(),
     created_at timestamp with time zone default now(),
-    updated_at timestamp with time zone default now(),
-    unique(user_id, achievement_id)
+    updated_at timestamp with time zone default now()
 );
+
+-- Add unique constraint after table creation
+ALTER TABLE achievements ADD CONSTRAINT unique_user_achievement UNIQUE (user_id, achievement_id);
+
+-- Restore data from backup, removing duplicates
+INSERT INTO achievements (user_id, achievement_id, achievement_name, description, unlocked_at, created_at, updated_at)
+SELECT DISTINCT ON (user_id, achievement_id) 
+    user_id, 
+    achievement_id, 
+    achievement_name, 
+    description, 
+    unlocked_at, 
+    created_at, 
+    updated_at
+FROM achievements_backup
+ORDER BY user_id, achievement_id, created_at DESC;
+
+-- Drop backup table
+DROP TABLE IF EXISTS achievements_backup;
 
 -- Enable RLS on achievements
 ALTER TABLE achievements ENABLE ROW LEVEL SECURITY;
@@ -243,7 +374,23 @@ CREATE INDEX IF NOT EXISTS idx_monster_spawns_coordinates ON monster_spawns(x, y
 GRANT ALL ON monster_spawns TO authenticated;
 
 -- 12. Create tile_placements table with best practices
-CREATE TABLE IF NOT EXISTS tile_placements (
+-- First, backup existing data if table exists
+CREATE TABLE IF NOT EXISTS tile_placements_backup AS 
+SELECT * FROM tile_placements WHERE 1=0;
+
+-- Copy existing data to backup (if table exists)
+DO $$
+BEGIN
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'tile_placements') THEN
+        INSERT INTO tile_placements_backup 
+        SELECT * FROM tile_placements;
+    END IF;
+END $$;
+
+-- Drop and recreate the table
+DROP TABLE IF EXISTS tile_placements CASCADE;
+
+CREATE TABLE tile_placements (
     id bigint primary key generated always as identity,
     user_id text not null, -- TEXT for Clerk authentication (not UUID)
     x integer not null,
@@ -251,9 +398,27 @@ CREATE TABLE IF NOT EXISTS tile_placements (
     tile_type integer not null,
     placed_at timestamp with time zone default now(),
     created_at timestamp with time zone default now(),
-    updated_at timestamp with time zone default now(),
-    unique(user_id, x, y)
+    updated_at timestamp with time zone default now()
 );
+
+-- Add unique constraint after table creation
+ALTER TABLE tile_placements ADD CONSTRAINT unique_user_tile_position UNIQUE (user_id, x, y);
+
+-- Restore data from backup, removing duplicates
+INSERT INTO tile_placements (user_id, x, y, tile_type, placed_at, created_at, updated_at)
+SELECT DISTINCT ON (user_id, x, y) 
+    user_id, 
+    x, 
+    y, 
+    tile_type, 
+    placed_at, 
+    created_at, 
+    updated_at
+FROM tile_placements_backup
+ORDER BY user_id, x, y, created_at DESC;
+
+-- Drop backup table
+DROP TABLE IF EXISTS tile_placements_backup;
 
 -- Enable RLS on tile_placements
 ALTER TABLE tile_placements ENABLE ROW LEVEL SECURITY;
