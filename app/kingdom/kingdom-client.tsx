@@ -258,6 +258,21 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       }
       return newGrid;
     });
+    
+    // Save the updated grid
+    const updatedGrid = kingdomGrid.map(row => row.slice());
+    if (updatedGrid[y]) {
+      updatedGrid[y][x] = { ...tile, x, y, id: `${tile.id}-${x}-${y}` };
+    }
+    
+    // Save to API
+    fetch('/api/kingdom-grid', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ grid: updatedGrid })
+    }).catch(error => {
+      console.error('Failed to save kingdom grid:', error);
+    });
   }
 
   // Restore renderItemCard for inventory display
@@ -348,6 +363,27 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       clearTimeout(hideTimeout);
     };
   }, []);
+
+  // Load kingdom grid on mount
+  useEffect(() => {
+    if (!userId) return;
+    
+    const loadKingdomGrid = async () => {
+      try {
+        const response = await fetch('/api/kingdom-grid');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.grid) {
+            setKingdomGrid(data.grid);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load kingdom grid:', error);
+      }
+    };
+
+    loadKingdomGrid();
+  }, [userId]);
 
   useEffect(() => {
     if (!userId) return;

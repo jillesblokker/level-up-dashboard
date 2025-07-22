@@ -25,6 +25,7 @@ import { useCreatureStore } from '@/stores/creatureStore'
 import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 import dynamic from 'next/dynamic';
 import { getCharacterStats } from '@/lib/character-stats-manager';
+import { checkMonsterSpawn, spawnMonsterOnTile, getMonsterAchievementId } from '@/lib/monster-spawn-manager';
 const RevealOverlay = dynamic(() => import('../reveal/page'), { ssr: false });
 
 // Constants
@@ -474,6 +475,33 @@ export default function RealmPage() {
                 toast({ title: 'Error', description: `Failed to save tile: ${err.error}`, variant: 'destructive' });
                 console.error('Tile save error:', err);
             } else {
+                // Check for monster spawns after successful tile placement
+                const spawnResult = checkMonsterSpawn(grid, selectedTile.type);
+                if (spawnResult.shouldSpawn && spawnResult.position && spawnResult.monsterType) {
+                    // Spawn the monster
+                    const success = spawnMonsterOnTile(grid, spawnResult.position.x, spawnResult.position.y, spawnResult.monsterType as any);
+                    if (success) {
+                        // Update grid to show monster
+                        setGrid(prevGrid => {
+                            const newGrid = prevGrid.map(row => row.slice());
+                            const pos = spawnResult.position!;
+                            const monsterType = spawnResult.monsterType;
+                            const row = newGrid[pos.y];
+                            if (row && row[pos.x] && monsterType) {
+                                row[pos.x].hasMonster = monsterType as any;
+                                row[pos.x].monsterAchievementId = getMonsterAchievementId(monsterType);
+                            }
+                            return newGrid;
+                        });
+                        
+                        // Show notification
+                        toast({
+                            title: "Monster Appeared!",
+                            description: `A ${spawnResult.monsterType} has appeared on the map!`,
+                        });
+                    }
+                }
+                
                 // Unlock achievement for special tiles
                 const tileTypeToAchievement: Record<string, string> = {
                     'ice': '013', // Example: 013 = first ice tile placed

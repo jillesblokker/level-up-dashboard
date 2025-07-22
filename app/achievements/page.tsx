@@ -3,13 +3,24 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { useCreatureStore } from '@/stores/creatureStore'
-import { CreatureCard } from '@/components/creature-card'
 import Image from 'next/image'
 import { HeaderSection } from '@/components/HeaderSection'
 import { useUser, SignedIn, SignedOut, SignIn, useAuth } from '@clerk/nextjs'
 import { supabase } from '@/lib/supabase/client'
 import LoadingAchievements from './loading'
+
+interface AchievementDefinition {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  difficulty: string;
+  xp_reward: number;
+  gold_reward: number;
+  image_url: string;
+  is_hidden: boolean;
+  unlock_condition: string;
+}
 
 interface DbAchievement {
   id: string;
@@ -22,7 +33,7 @@ interface DbAchievement {
 }
 
 export default function Page() {
-  const { creatures } = useCreatureStore()
+  const [achievementDefinitions, setAchievementDefinitions] = useState<AchievementDefinition[]>([]);
   const [unlockedAchievements, setUnlockedAchievements] = useState<Map<string, DbAchievement>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,6 +41,25 @@ export default function Page() {
   const userId = user?.id;
   const [showAllUnlocked, setShowAllUnlocked] = useState(false);
   const { getToken, isLoaded: isClerkLoaded } = useAuth();
+
+  // Fetch achievement definitions
+  useEffect(() => {
+    const fetchAchievementDefinitions = async () => {
+      try {
+        const response = await fetch('/api/achievement-definitions');
+        if (response.ok) {
+          const data = await response.json();
+          setAchievementDefinitions(data);
+        } else {
+          console.error('Failed to fetch achievement definitions');
+        }
+      } catch (error) {
+        console.error('Error fetching achievement definitions:', error);
+      }
+    };
+
+    fetchAchievementDefinitions();
+  }, []);
 
   // Fetch unlocked achievements from the API
   useEffect(() => {
@@ -51,7 +81,6 @@ export default function Page() {
           const achievementMap = new Map(data.filter(Boolean).map(ach => [ach.achievementId, ach]));
 
           console.log("Fetched achievements:", data);
-          console.log("Creature IDs:", creatures.map(c => c.id));
           console.log("Unlocked Achievement IDs:", Array.from(achievementMap.keys()));
 
           setUnlockedAchievements(achievementMap);
@@ -89,13 +118,13 @@ export default function Page() {
     };
   }, [isClerkLoaded, isAuthLoaded, userId, getToken]);
   
-  const isUnlocked = (creatureId: string) => {
+  const isUnlocked = (achievementId: string) => {
     if (showAllUnlocked) return true;
-    return unlockedAchievements.has(creatureId);
+    return unlockedAchievements.has(achievementId);
   }
 
-  const getUnlockDate = (creatureId: string) => {
-    const achievement = unlockedAchievements.get(creatureId);
+  const getUnlockDate = (achievementId: string) => {
+    const achievement = unlockedAchievements.get(achievementId);
     return achievement ? new Date(achievement.unlocked_at).toLocaleDateString() : null;
   }
 
@@ -116,70 +145,84 @@ export default function Page() {
       </div>
     );
   }
-  if (!creatures || creatures.length === 0) {
+  if (!achievementDefinitions || achievementDefinitions.length === 0) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-900 text-white">
-        <p>No creatures defined.</p>
+        <p>No achievements defined.</p>
       </div>
     );
   }
-  const hasAnyUnlocked = creatures.some(c => unlockedAchievements.has(c.id));
+  const hasAnyUnlocked = achievementDefinitions.some(a => unlockedAchievements.has(a.id));
   return (
     <>
       <SignedIn>
         <HeaderSection
-          title="Creature Collection"
+          title="Achievement Collection"
           imageSrc="/images/achievements-header.jpg"
           canEdit={true}
         />
         <main className="container mx-auto p-6" aria-label="achievements-section">
           {!hasAnyUnlocked && !showAllUnlocked && (
-            <div className="text-center text-gray-400 mb-8">No achievements unlocked yet. Start exploring to discover creatures!</div>
+            <div className="text-center text-gray-400 mb-8">No achievements unlocked yet. Start exploring to discover achievements!</div>
           )}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3" aria-label="creature-cards-grid">
-            {creatures.map(creature => {
-              if (!creature) return null;
-              const unlocked = isUnlocked(creature.id);
-              const unlockDate = getUnlockDate(creature.id);
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3" aria-label="achievement-cards-grid">
+            {achievementDefinitions.map(achievement => {
+              if (!achievement) return null;
+              const unlocked = isUnlocked(achievement.id);
+              const unlockDate = getUnlockDate(achievement.id);
               return (
                 <Card
-                  key={creature.id}
+                  key={achievement.id}
                   className={`medieval-card flex flex-col items-center justify-center min-h-[420px] p-4 shadow-lg border-2 rounded-xl transition-all duration-300 ${unlocked ? 'border-amber-500 bg-gray-800' : 'border-gray-700 bg-gray-900 opacity-70'}`}
-                  aria-label={`creature-card-${creature.id}`}
+                  aria-label={`achievement-card-${achievement.id}`}
                 >
                   <CardHeader className="w-full flex flex-col items-center text-center">
-                    <CardTitle className="font-serif text-2xl text-amber-400">{creature.name}</CardTitle>
+                    <CardTitle className="font-serif text-2xl text-amber-400">{achievement.name}</CardTitle>
                     {!unlocked && (
-                      <Badge variant="secondary" className="mt-2" aria-label={`creature-${creature.id}-undiscovered-badge`}>
+                      <Badge variant="secondary" className="mt-2" aria-label={`achievement-${achievement.id}-undiscovered-badge`}>
                         Undiscovered
                       </Badge>
                     )}
+                    <Badge variant="outline" className="mt-1 text-xs">
+                      {achievement.difficulty} • {achievement.category}
+                    </Badge>
                   </CardHeader>
                   <CardContent className="flex flex-col items-center w-full">
                     <div className="relative w-full aspect-[5/7] mb-4 flex items-center justify-center">
                       {unlocked ? (
                         <div className="absolute inset-0">
-                          <CreatureCard
-                            creature={creature}
-                            discovered={true}
-                            showCard={true}
-                            previewMode={false}
+                          <Image 
+                            src={achievement.image_url} 
+                            alt={achievement.name}
+                            fill
+                            className="object-cover rounded-lg"
                           />
                         </div>
                       ) : (
-                        <Image src={'/images/undiscovered.png'} alt="Undiscovered Card" fill sizes="(max-width: 768px) 100vw, 340px" className="object-cover rounded-lg opacity-50" />
+                        <Image src={'/images/undiscovered.png'} alt="Undiscovered Achievement" fill sizes="(max-width: 768px) 100vw, 340px" className="object-cover rounded-lg opacity-50" />
                       )}
                     </div>
+                    <div className="text-center text-sm text-gray-300 mb-2">
+                      <p>{achievement.description}</p>
+                    </div>
                     {unlocked && unlockDate && unlockDate !== "Invalid Date" && (
-                      <div className="mt-2 text-sm text-gray-400" aria-label={`unlock-date-for-${creature.id}`}>
+                      <div className="mt-2 text-sm text-gray-400" aria-label={`unlock-date-for-${achievement.id}`}>
                         <span>Unlocked on {unlockDate}</span>
                       </div>
                     )}
-                    {unlocked && creature.requirement && (
-                      <div className="mt-2 text-center text-base text-white" aria-label={`creature-card-${creature.id}-requirement`}>
-                        <span>Requirement: {creature.requirement}</span>
+                    {achievement.unlock_condition && (
+                      <div className="mt-2 text-center text-xs text-amber-400" aria-label={`achievement-card-${achievement.id}-requirement`}>
+                        <span>{achievement.unlock_condition}</span>
                       </div>
                     )}
+                    <div className="mt-2 flex gap-2">
+                      <Badge variant="outline" className="text-xs">
+                        +{achievement.xp_reward} XP
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        +{achievement.gold_reward} Gold
+                      </Badge>
+                    </div>
                   </CardContent>
                 </Card>
               );
