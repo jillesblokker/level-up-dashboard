@@ -6,7 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
-import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, PersonStanding, Pencil, Flame } from 'lucide-react'
+import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, PersonStanding, Pencil, Flame, Star } from 'lucide-react'
 import { HeaderSection } from '@/components/HeaderSection'
 import { useUser, useAuth } from '@clerk/nextjs'
 import { Milestones } from '@/components/milestones'
@@ -30,6 +30,7 @@ interface Quest {
   xp?: number;
   gold?: number;
   completed: boolean;
+  favorited?: boolean;
   date?: Date;
   isNew: boolean;
   completionId?: string;
@@ -185,6 +186,7 @@ export default function QuestsPage() {
   const [addQuestLoading, setAddQuestLoading] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [questToDelete, setQuestToDelete] = useState<Quest | null>(null);
+  const [favoritedQuests, setFavoritedQuests] = useState<Set<string>>(new Set());
   const [milestones, setMilestones] = useState<any[]>([]);
   const [challenges, setChallenges] = useState<any[]>([]);
   const [token, setToken] = useState<string | null>(null);
@@ -518,6 +520,115 @@ export default function QuestsPage() {
       }
     } catch (err: any) {
       toast({ title: 'Error', description: err.message || 'Failed to update quest' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle quest favorite toggle
+  const handleQuestFavorite = (questId: string) => {
+    setFavoritedQuests(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(questId)) {
+        newSet.delete(questId);
+      } else {
+        newSet.add(questId);
+      }
+      return newSet;
+    });
+  };
+
+  // Handle bulk completion of favorited quests
+  const handleBulkCompleteFavorites = async () => {
+    const favoritedQuestsInCategory = quests.filter(q => 
+      q.category === questCategory && 
+      favoritedQuests.has(q.id) && 
+      !q.completed
+    );
+
+    if (favoritedQuestsInCategory.length === 0) {
+      toast({
+        title: "No Favorites to Complete",
+        description: "You have no favorited quests in this category to complete.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const token = await getToken();
+      if (!token) throw new Error('No Clerk token');
+
+      // Complete all favorited quests
+      const completionPromises = favoritedQuestsInCategory.map(quest =>
+        fetch('/api/quests/completion', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ questId: quest.id }),
+        }).then(res => {
+          if (!res.ok) throw new Error(`Failed to complete quest ${quest.id}`);
+          return fetch('/api/quests/completion', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ questId: quest.id, completed: true }),
+          });
+        })
+      );
+
+      await Promise.all(completionPromises);
+
+      // Handle rewards for all completed quests
+      let totalXP = 0;
+      let totalGold = 0;
+      
+      favoritedQuestsInCategory.forEach(quest => {
+        if (quest.xp) totalXP += quest.xp;
+        if (quest.gold) totalGold += quest.gold;
+      });
+
+      if (totalXP > 0 || totalGold > 0) {
+        const currentStats = getCharacterStats();
+        updateCharacterStats({
+          gold: (currentStats.gold || 0) + totalGold,
+          experience: (currentStats.experience || 0) + totalXP
+        });
+        
+        // Trigger kingdom stats update
+        if (totalGold > 0) {
+          window.dispatchEvent(new CustomEvent('kingdom:goldGained', { detail: totalGold }));
+        }
+        if (totalXP > 0) {
+          window.dispatchEvent(new CustomEvent('kingdom:experienceGained', { detail: totalXP }));
+        }
+      }
+
+      toast({
+        title: "Bulk Completion Successful!",
+        description: `Completed ${favoritedQuestsInCategory.length} favorited quests! ${totalXP > 0 ? `+${totalXP} XP ` : ''}${totalGold > 0 ? `+${totalGold} gold` : ''}`,
+      });
+
+      // Re-fetch quests from backend
+      const fetchRes = await fetch('/api/quests', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (fetchRes.ok) {
+        const data = await fetchRes.json();
+        setQuests(data || []);
+      }
+
+    } catch (err: any) {
+      toast({ 
+        title: 'Error', 
+        description: err.message || 'Failed to complete favorited quests',
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
@@ -1088,19 +1199,38 @@ export default function QuestsPage() {
 
           {/* Quests Tab */}
           <TabsContent value="quests">
-            <div className="mb-4">
-              <label htmlFor="quest-category-select" className="sr-only">Select quest category</label>
-              <select
-                id="quest-category-select"
-                className="w-full rounded border p-2 bg-black text-white"
-                aria-label="Quest category dropdown"
-                value={questCategory}
-                onChange={e => setQuestCategory(e.target.value)}
-              >
-                {questCategories.map((category: string) => (
-                  <option key={category} value={category}>{getCategoryLabel(category)}</option>
-                ))}
-              </select>
+            <div className="mb-4 space-y-4">
+              {/* Bulk Complete Favorites Button */}
+              <div className="flex justify-between items-center">
+                <Button
+                  onClick={handleBulkCompleteFavorites}
+                  disabled={loading || quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length === 0}
+                  className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                  aria-label="Complete all favorited quests in this category"
+                >
+                  <Star className="w-4 h-4 mr-2" />
+                  Complete Favorites
+                </Button>
+                <div className="text-sm text-gray-400">
+                  {quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length} favorited quests available
+                </div>
+              </div>
+              
+              {/* Category Dropdown */}
+              <div>
+                <label htmlFor="quest-category-select" className="sr-only">Select quest category</label>
+                <select
+                  id="quest-category-select"
+                  className="w-full rounded border p-2 bg-black text-white"
+                  aria-label="Quest category dropdown"
+                  value={questCategory}
+                  onChange={e => setQuestCategory(e.target.value)}
+                >
+                  {questCategories.map((category: string) => (
+                    <option key={category} value={category}>{getCategoryLabel(category)}</option>
+                  ))}
+                </select>
+              </div>
             </div>
             {/* Quest Streak Summary Card */}
             <div className="mb-6">
@@ -1166,6 +1296,8 @@ export default function QuestsPage() {
                       onToggle={() => handleQuestToggle(quest.id, quest.completed)}
                       onEdit={() => handleEditQuest(quest)}
                       onDelete={() => handleDeleteQuest(quest.id)}
+                      onFavorite={() => handleQuestFavorite(quest.id)}
+                      isFavorited={favoritedQuests.has(quest.id)}
                       progress={quest.completed ? 100 : 5}
                       xp={quest.xp ?? 0}
                       gold={quest.gold ?? 0}

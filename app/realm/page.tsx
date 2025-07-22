@@ -1078,11 +1078,18 @@ export default function RealmPage() {
                         onClick={expandMap}
                         disabled={!canExpand}
                         aria-label="Expand Map"
-                        title={canExpand ? 'Expand your realm map' : `Reach level ${nextExpansionLevel} to expand`}
-                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                        title={canExpand ? 'Expand your realm map' : `Become level ${nextExpansionLevel} to unlock 3 more rows`}
+                        className="flex items-center gap-2 min-w-[44px] min-h-[44px] group relative"
                       >
                         <PlusCircle className="w-4 h-4" />
                         <span className="hidden sm:inline">Expand Map</span>
+                        {/* Custom tooltip for disabled state */}
+                        {!canExpand && (
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                            Become level {nextExpansionLevel} to unlock 3 more rows
+                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        )}
                       </Button>
                       <Button
                         variant="outline"

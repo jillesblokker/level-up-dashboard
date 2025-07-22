@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Checkbox } from './ui/checkbox';
 import { Progress } from './ui/progress';
 import { Button } from './ui/button';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, Star } from 'lucide-react';
 
 interface UnifiedCardProps {
   title: string;
@@ -14,6 +14,8 @@ interface UnifiedCardProps {
   onToggle: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
+  onFavorite?: () => void;
+  isFavorited?: boolean;
   progress?: number; // 0-100
   xp?: number;
   gold?: number;
@@ -30,6 +32,8 @@ const CardWithProgress: React.FC<UnifiedCardProps> = ({
   onToggle,
   onEdit,
   onDelete,
+  onFavorite,
+  isFavorited = false,
   progress = 5,
   xp,
   gold,
@@ -79,6 +83,22 @@ const CardWithProgress: React.FC<UnifiedCardProps> = ({
           </CardTitle>
         </div>
         <div className="flex items-center gap-2">
+          {onFavorite && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "h-5 w-5 transition-colors",
+                isFavorited ? "text-yellow-400 hover:text-yellow-300" : "text-gray-500 hover:text-yellow-400"
+              )}
+              aria-label={`${isFavorited ? 'Remove' : 'Add'} ${title} to favorites`}
+              onClick={e => { e.stopPropagation(); onFavorite(); }}
+              tabIndex={-1}
+              data-no-toggle
+            >
+              <Star className={cn("w-4 h-4", isFavorited && "fill-current")} />
+            </Button>
+          )}
           {onEdit && (
             <Button
               variant="ghost"
