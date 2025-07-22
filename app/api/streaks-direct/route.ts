@@ -14,24 +14,57 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get('category') || 'test';
 
-    // Query database with all streak recovery fields
-    const { data, error } = await supabaseServer
-      .from('streaks')
-      .select(`
-        streak_days, 
-        week_streaks, 
-        resilience_points, 
-        safety_net_used, 
-        missed_days_this_week, 
-        last_missed_date, 
-        consecutive_weeks_completed, 
-        streak_broken_date, 
-        max_streak_achieved,
-        last_activity_date
-      `)
-      .eq('user_id', userId)
-      .eq('category', category)
-      .single();
+    // Query database - try new fields first, fallback to basic fields if they don't exist
+    let data, error;
+    try {
+      // Try to select all fields including new recovery fields
+      const result = await supabaseServer
+        .from('streaks')
+        .select(`
+          streak_days, 
+          week_streaks, 
+          resilience_points, 
+          safety_net_used, 
+          missed_days_this_week, 
+          last_missed_date, 
+          consecutive_weeks_completed, 
+          streak_broken_date, 
+          max_streak_achieved,
+          last_activity_date
+        `)
+        .eq('user_id', userId)
+        .eq('category', category)
+        .single();
+      
+      data = result.data;
+      error = result.error;
+    } catch (newFieldsError) {
+      // If new fields don't exist, fallback to basic fields only
+      console.log('[Streaks Direct] New fields not available, using basic fields:', newFieldsError);
+      const fallbackResult = await supabaseServer
+        .from('streaks')
+        .select('streak_days, week_streaks, last_activity_date')
+        .eq('user_id', userId)
+        .eq('category', category)
+        .single();
+      
+      data = fallbackResult.data;
+      error = fallbackResult.error;
+      
+      // Add default values for missing recovery fields
+      if (data) {
+        data = {
+          ...data,
+          resilience_points: 0,
+          safety_net_used: false,
+          missed_days_this_week: 0,
+          last_missed_date: null,
+          consecutive_weeks_completed: 0,
+          streak_broken_date: null,
+          max_streak_achieved: data.streak_days || 0
+        };
+      }
+    }
         
     if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
       return NextResponse.json({ 
@@ -115,12 +148,39 @@ export async function POST(req: NextRequest) {
     if (streak_broken_date !== undefined) updateData.streak_broken_date = streak_broken_date;
     if (max_streak_achieved !== undefined) updateData.max_streak_achieved = Math.max(max_streak_achieved, streak_days || 0);
 
-    // Insert/update directly (RLS is disabled)
-    const { data, error } = await supabaseServer
-      .from('streaks')
-      .upsert(updateData, { onConflict: 'user_id,category' })
-      .select()
-      .single();
+    // Insert/update directly (RLS is disabled) - handle backward compatibility
+    let data, error;
+    try {
+      const result = await supabaseServer
+        .from('streaks')
+        .upsert(updateData, { onConflict: 'user_id,category' })
+        .select()
+        .single();
+      data = result.data;
+      error = result.error;
+    } catch (upsertError) {
+      // If new fields don't exist, try with basic fields only
+      console.log('[Streaks Direct POST] New fields not available, using basic fields');
+      const basicUpdateData: any = {
+        user_id: userId,
+        category: category,
+        last_activity_date: today
+      };
+      
+      // Only include fields that are defined and exist in old schema
+      if (streak_days !== undefined) basicUpdateData.streak_days = streak_days;
+      if (week_streaks !== undefined) basicUpdateData.week_streaks = week_streaks;
+      
+      const fallbackResult = await supabaseServer
+        .from('streaks')
+        .upsert(basicUpdateData, { onConflict: 'user_id,category' })
+        .select()
+        .single();
+      
+      data = fallbackResult.data;
+      error = fallbackResult.error;
+      resilienceBonus = 0; // Can't calculate resilience bonus without new fields
+    }
         
     if (error) {
       return NextResponse.json({ 
@@ -160,13 +220,40 @@ export async function PUT(req: NextRequest) {
       }, { status: 400 });
     }
 
-    // Get current streak data
-    const { data: currentStreak, error: fetchError } = await supabaseServer
-      .from('streaks')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('category', category)
-      .single();
+    // Get current streak data - handle backward compatibility
+    let currentStreak, fetchError;
+    try {
+      const result = await supabaseServer
+        .from('streaks')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('category', category)
+        .single();
+      currentStreak = result.data;
+      fetchError = result.error;
+    } catch (selectError) {
+      // If new fields don't exist, get basic fields only
+      const fallbackResult = await supabaseServer
+        .from('streaks')
+        .select('streak_days, week_streaks, last_activity_date')
+        .eq('user_id', userId)
+        .eq('category', category)
+        .single();
+      
+      currentStreak = fallbackResult.data;
+      fetchError = fallbackResult.error;
+      
+      // Add default recovery values
+      if (currentStreak) {
+        currentStreak = {
+          ...currentStreak,
+          safety_net_used: false,
+          missed_days_this_week: 0,
+          streak_broken_date: null,
+          max_streak_achieved: currentStreak.streak_days || 0
+        };
+      }
+    }
 
     if (fetchError && fetchError.code !== 'PGRST116') {
       return NextResponse.json({ error: fetchError.message }, { status: 500 });
