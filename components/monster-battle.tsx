@@ -13,7 +13,7 @@ import { toast } from '@/components/ui/use-toast'
 interface MonsterBattleProps {
   isOpen: boolean
   onClose: () => void
-  monsterType: 'dragon' | 'goblin' | 'troll' | 'wizard'
+  monsterType: 'dragon' | 'goblin' | 'troll' | 'wizard' | 'pegasus' | 'fairy'
   onBattleComplete: (won: boolean, goldEarned: number, xpEarned: number) => void
 }
 
@@ -37,25 +37,43 @@ const monsterData = {
     name: 'Ancient Dragon',
     image: '/images/creatures/dragon.png',
     description: 'A fearsome dragon with scales as hard as steel',
-    difficulty: 'Hard'
+    difficulty: 'Hard',
+    achievementId: '201'
   },
   goblin: {
     name: 'Crafty Goblin',
     image: '/images/creatures/goblin.png',
     description: 'A sneaky goblin with sharp daggers',
-    difficulty: 'Easy'
+    difficulty: 'Easy',
+    achievementId: '202'
   },
   troll: {
     name: 'Mountain Troll',
     image: '/images/creatures/troll.png',
     description: 'A massive troll with incredible strength',
-    difficulty: 'Medium'
+    difficulty: 'Medium',
+    achievementId: '203'
   },
   wizard: {
     name: 'Dark Wizard',
     image: '/images/creatures/wizard.png',
     description: 'A powerful wizard with dark magic',
-    difficulty: 'Hard'
+    difficulty: 'Hard',
+    achievementId: '204'
+  },
+  pegasus: {
+    name: 'Mystical Pegasus',
+    image: '/images/creatures/pegasus.png',
+    description: 'A majestic winged horse with divine powers',
+    difficulty: 'Medium',
+    achievementId: '205'
+  },
+  fairy: {
+    name: 'Enchanted Fairy',
+    image: '/images/creatures/fairy.png',
+    description: 'A magical fairy with nature magic',
+    difficulty: 'Easy',
+    achievementId: '206'
   }
 }
 
@@ -169,9 +187,20 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     gainGold(earnedGold, 'monster-battle-win')
     updateCharacterStats({ experience: earnedXP })
     
+    // Unlock achievement for defeating this monster
+    if (monster.achievementId) {
+      fetch('/api/achievements/unlock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ achievementId: monster.achievementId })
+      }).catch(error => {
+        console.error('Failed to unlock achievement:', error)
+      })
+    }
+    
     toast({
       title: "Victory!",
-      description: `You defeated the ${monster.name}! Earned ${earnedGold} gold and ${earnedXP} XP!`,
+      description: `You defeated the ${monster.name}! Earned ${earnedGold} gold and ${earnedXP} XP! Achievement unlocked!`,
     })
     
     setTimeout(() => {

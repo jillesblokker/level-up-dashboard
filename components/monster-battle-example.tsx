@@ -8,7 +8,7 @@ import { Sword } from 'lucide-react'
 // Example component showing how to integrate monster battles
 export function MonsterBattleExample() {
   const [battleOpen, setBattleOpen] = useState(false)
-  const [monsterType, setMonsterType] = useState<'dragon' | 'goblin' | 'troll' | 'wizard'>('dragon')
+  const [monsterType, setMonsterType] = useState<'dragon' | 'goblin' | 'troll' | 'wizard' | 'pegasus' | 'fairy'>('dragon')
 
   const handleBattleComplete = (won: boolean, goldEarned: number, xpEarned: number) => {
     console.log(`Battle ${won ? 'won' : 'lost'}! Gold: ${goldEarned}, XP: ${xpEarned}`)
@@ -19,7 +19,7 @@ export function MonsterBattleExample() {
     <div className="space-y-4">
       <h2 className="text-xl font-bold">Monster Battle Test</h2>
       
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap">
         <Button onClick={() => { setMonsterType('dragon'); setBattleOpen(true) }}>
           <Sword className="w-4 h-4 mr-2" />
           Fight Dragon
@@ -35,6 +35,14 @@ export function MonsterBattleExample() {
         <Button onClick={() => { setMonsterType('wizard'); setBattleOpen(true) }}>
           <Sword className="w-4 h-4 mr-2" />
           Fight Wizard
+        </Button>
+        <Button onClick={() => { setMonsterType('pegasus'); setBattleOpen(true) }}>
+          <Sword className="w-4 h-4 mr-2" />
+          Fight Pegasus
+        </Button>
+        <Button onClick={() => { setMonsterType('fairy'); setBattleOpen(true) }}>
+          <Sword className="w-4 h-4 mr-2" />
+          Fight Fairy
         </Button>
       </div>
 

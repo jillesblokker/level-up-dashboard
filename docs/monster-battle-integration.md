@@ -27,7 +27,9 @@ const monsterTiles = [
   { x: 5, y: 3, type: 'dragon' },
   { x: 8, y: 7, type: 'goblin' },
   { x: 12, y: 2, type: 'troll' },
-  { x: 3, y: 9, type: 'wizard' }
+  { x: 3, y: 9, type: 'wizard' },
+  { x: 7, y: 5, type: 'pegasus' },
+  { x: 10, y: 8, type: 'fairy' }
 ]
 ```
 
@@ -35,12 +37,12 @@ const monsterTiles = [
 ```typescript
 // In your realm page, add monster battle state
 const [battleOpen, setBattleOpen] = useState(false)
-const [currentMonster, setCurrentMonster] = useState<'dragon' | 'goblin' | 'troll' | 'wizard'>('dragon')
+const [currentMonster, setCurrentMonster] = useState<'dragon' | 'goblin' | 'troll' | 'wizard' | 'pegasus' | 'fairy'>('dragon')
 
 // Handle tile click
 const handleTileClick = (x: number, y: number) => {
   const tile = grid[y][x]
-  if (tile.type === 'dragon' || tile.type === 'goblin' || tile.type === 'troll' || tile.type === 'wizard') {
+  if (tile.type === 'dragon' || tile.type === 'goblin' || tile.type === 'troll' || tile.type === 'wizard' || tile.type === 'pegasus' || tile.type === 'fairy') {
     setCurrentMonster(tile.type)
     setBattleOpen(true)
   }
@@ -75,9 +77,18 @@ const handleTileClick = (x: number, y: number) => {
 - **Round 5**: 7 items in sequence
 
 ### Rewards
-- **Victory**: +100 gold, +100 XP
+- **Victory**: +100 gold, +100 XP + Achievement Card
 - **Round Loss**: -10 gold (continues to next round)
 - **Game Loss**: Total gold lost from all failed rounds
+
+### Achievement Cards
+Each monster unlocks a unique achievement card when defeated:
+- **Dragon** (201.png) - Ancient Dragon Slayer
+- **Goblin** (202.png) - Goblin Hunter
+- **Troll** (203.png) - Troll Crusher
+- **Wizard** (204.png) - Dark Wizard Vanquisher
+- **Pegasus** (205.png) - Pegasus Tamer
+- **Fairy** (206.png) - Fairy Friend
 
 ### Weapons
 1. **Shield** (Blue) - Defensive weapon
@@ -97,7 +108,8 @@ const monsterData = {
     name: 'New Monster',
     image: '/images/creatures/new-monster.png',
     description: 'Description of new monster',
-    difficulty: 'Medium'
+    difficulty: 'Medium',
+    achievementId: '207' // Next available achievement ID
   }
 }
 ```
