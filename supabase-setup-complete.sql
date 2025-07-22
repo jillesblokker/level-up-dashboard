@@ -39,7 +39,7 @@ ON CONFLICT (id) DO UPDATE SET
 -- 2. Monster Spawns Table (for tracking monster spawns on the map)
 CREATE TABLE IF NOT EXISTS monster_spawns (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    user_id UUID NOT NULL,
+    user_id TEXT NOT NULL,
     x INTEGER NOT NULL,
     y INTEGER NOT NULL,
     monster_type VARCHAR(50) NOT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS monster_spawns (
 -- 3. User Achievements Table (if not exists - for tracking unlocked achievements)
 CREATE TABLE IF NOT EXISTS achievements (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    user_id UUID NOT NULL,
+    user_id TEXT NOT NULL,
     achievement_id VARCHAR(10) NOT NULL,
     achievement_name VARCHAR(255),
     description TEXT,
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS achievements (
 -- 4. User Progress Table (for tracking various game progress metrics)
 CREATE TABLE IF NOT EXISTS user_progress (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    user_id UUID NOT NULL UNIQUE,
+    user_id TEXT NOT NULL UNIQUE,
     level INTEGER DEFAULT 1,
     experience INTEGER DEFAULT 0,
     gold INTEGER DEFAULT 0,
@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS user_progress (
 -- 5. Tile Placement History Table (for tracking tile placement for monster spawning)
 CREATE TABLE IF NOT EXISTS tile_placements (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    user_id UUID NOT NULL,
+    user_id TEXT NOT NULL,
     tile_type VARCHAR(50) NOT NULL,
     x INTEGER NOT NULL,
     y INTEGER NOT NULL,
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS tile_placements (
 -- 6. Game Events Table (for tracking various game events)
 CREATE TABLE IF NOT EXISTS game_events (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    user_id UUID NOT NULL,
+    user_id TEXT NOT NULL,
     event_type VARCHAR(100) NOT NULL,
     event_data JSONB,
     occurred_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -113,23 +113,23 @@ CREATE POLICY "achievement_definitions_read_policy" ON achievement_definitions
 
 -- Create RLS policies for monster_spawns (users can only see their own spawns)
 CREATE POLICY "monster_spawns_user_policy" ON monster_spawns
-    FOR ALL USING (user_id = auth.uid()::UUID);
+    FOR ALL USING (user_id = auth.uid());
 
 -- Create RLS policies for achievements (users can only see their own achievements)
 CREATE POLICY "achievements_user_policy" ON achievements
-    FOR ALL USING (user_id = auth.uid()::UUID);
+    FOR ALL USING (user_id = auth.uid());
 
 -- Create RLS policies for user_progress (users can only see their own progress)
 CREATE POLICY "user_progress_user_policy" ON user_progress
-    FOR ALL USING (user_id = auth.uid()::UUID);
+    FOR ALL USING (user_id = auth.uid());
 
 -- Create RLS policies for tile_placements (users can only see their own placements)
 CREATE POLICY "tile_placements_user_policy" ON tile_placements
-    FOR ALL USING (user_id = auth.uid()::UUID);
+    FOR ALL USING (user_id = auth.uid());
 
 -- Create RLS policies for game_events (users can only see their own events)
 CREATE POLICY "game_events_user_policy" ON game_events
-    FOR ALL USING (user_id = auth.uid()::UUID);
+    FOR ALL USING (user_id = auth.uid());
 
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_monster_spawns_user_id ON monster_spawns(user_id);
@@ -144,7 +144,7 @@ CREATE INDEX IF NOT EXISTS idx_game_events_event_type ON game_events(event_type)
 -- Create functions for common operations
 
 -- Function to get user's tile count by type
-CREATE OR REPLACE FUNCTION get_user_tile_count(user_uuid UUID, tile_type_filter VARCHAR)
+CREATE OR REPLACE FUNCTION get_user_tile_count(user_uuid TEXT, tile_type_filter VARCHAR)
 RETURNS INTEGER AS $$
 BEGIN
     RETURN (
@@ -156,7 +156,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to check if monster should spawn
-CREATE OR REPLACE FUNCTION should_spawn_monster(user_uuid UUID, tile_type_filter VARCHAR)
+CREATE OR REPLACE FUNCTION should_spawn_monster(user_uuid TEXT, tile_type_filter VARCHAR)
 RETURNS BOOLEAN AS $$
 DECLARE
     tile_count INTEGER;
@@ -197,7 +197,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to unlock achievement
-CREATE OR REPLACE FUNCTION unlock_achievement(user_uuid UUID, achievement_id_filter VARCHAR)
+CREATE OR REPLACE FUNCTION unlock_achievement(user_uuid TEXT, achievement_id_filter VARCHAR)
 RETURNS BOOLEAN AS $$
 BEGIN
     INSERT INTO achievements (user_id, achievement_id, achievement_name, unlocked_at)
