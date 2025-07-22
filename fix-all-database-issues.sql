@@ -2,6 +2,28 @@
 -- Following Supabase/Postgres best practices with Clerk compatibility
 -- Run this in your Supabase SQL editor to fix all 500 errors
 
+-- Clean up any existing constraints that might cause conflicts
+DO $$
+BEGIN
+    -- Drop constraints if they exist
+    ALTER TABLE IF EXISTS quest_favorites DROP CONSTRAINT IF EXISTS unique_user_quest;
+    ALTER TABLE IF EXISTS kingdom_grid DROP CONSTRAINT IF EXISTS unique_user_kingdom_grid;
+    ALTER TABLE IF EXISTS user_progress DROP CONSTRAINT IF EXISTS unique_user_progress;
+    ALTER TABLE IF EXISTS achievements DROP CONSTRAINT IF EXISTS unique_user_achievement;
+    ALTER TABLE IF EXISTS tile_placements DROP CONSTRAINT IF EXISTS unique_user_tile_position;
+    
+    -- Drop any other potential constraint names
+    ALTER TABLE IF EXISTS quest_favorites DROP CONSTRAINT IF EXISTS quest_favorites_user_id_quest_id_key;
+    ALTER TABLE IF EXISTS kingdom_grid DROP CONSTRAINT IF EXISTS kingdom_grid_user_id_key;
+    ALTER TABLE IF EXISTS user_progress DROP CONSTRAINT IF EXISTS user_progress_user_id_key;
+    ALTER TABLE IF EXISTS achievements DROP CONSTRAINT IF EXISTS achievements_user_id_achievement_id_key;
+    ALTER TABLE IF EXISTS tile_placements DROP CONSTRAINT IF EXISTS tile_placements_user_id_x_y_key;
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Ignore errors if constraints don't exist
+        NULL;
+END $$;
+
 -- 1. Fix quest_favorites table (drop and recreate with best practices)
 -- First, backup existing data if table exists
 CREATE TABLE IF NOT EXISTS quest_favorites_backup AS 
@@ -29,7 +51,8 @@ CREATE TABLE quest_favorites (
     updated_at timestamp with time zone default now()
 );
 
--- Add unique constraint after table creation
+-- Add unique constraint after table creation (drop if exists first)
+ALTER TABLE quest_favorites DROP CONSTRAINT IF EXISTS unique_user_quest;
 ALTER TABLE quest_favorites ADD CONSTRAINT unique_user_quest UNIQUE (user_id, quest_id);
 
 -- Restore data from backup, removing duplicates
@@ -72,7 +95,8 @@ CREATE TABLE kingdom_grid (
     updated_at timestamp with time zone default now()
 );
 
--- Add unique constraint after table creation
+-- Add unique constraint after table creation (drop if exists first)
+ALTER TABLE kingdom_grid DROP CONSTRAINT IF EXISTS unique_user_kingdom_grid;
 ALTER TABLE kingdom_grid ADD CONSTRAINT unique_user_kingdom_grid UNIQUE (user_id);
 
 -- Restore data from backup
@@ -163,7 +187,8 @@ CREATE TABLE user_progress (
     updated_at timestamp with time zone default now()
 );
 
--- Add unique constraint after table creation
+-- Add unique constraint after table creation (drop if exists first)
+ALTER TABLE user_progress DROP CONSTRAINT IF EXISTS unique_user_progress;
 ALTER TABLE user_progress ADD CONSTRAINT unique_user_progress UNIQUE (user_id);
 
 -- Restore data from backup, removing duplicates
@@ -241,7 +266,8 @@ CREATE TABLE achievements (
     updated_at timestamp with time zone default now()
 );
 
--- Add unique constraint after table creation
+-- Add unique constraint after table creation (drop if exists first)
+ALTER TABLE achievements DROP CONSTRAINT IF EXISTS unique_user_achievement;
 ALTER TABLE achievements ADD CONSTRAINT unique_user_achievement UNIQUE (user_id, achievement_id);
 
 -- Restore data from backup, removing duplicates
@@ -401,7 +427,8 @@ CREATE TABLE tile_placements (
     updated_at timestamp with time zone default now()
 );
 
--- Add unique constraint after table creation
+-- Add unique constraint after table creation (drop if exists first)
+ALTER TABLE tile_placements DROP CONSTRAINT IF EXISTS unique_user_tile_position;
 ALTER TABLE tile_placements ADD CONSTRAINT unique_user_tile_position UNIQUE (user_id, x, y);
 
 -- Restore data from backup, removing duplicates
