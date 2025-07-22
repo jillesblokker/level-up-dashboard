@@ -250,84 +250,91 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
         </Card>
       )}
       
-      {/* Resilience Points & Safety Net Status */}
-      <Card className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border-blue-800/30" aria-label="streak-recovery-status-card">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Heart className="w-5 h-5 text-blue-400" />
-            Streak Recovery System
-          </CardTitle>
-          <CardDescription>
-            Build resilience and protect your streaks with recovery tools
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Resilience Points */}
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-1 mb-1">
-                <Zap className="w-4 h-4 text-yellow-400" />
-                <span className="text-sm font-medium text-gray-300">Resilience Points</span>
-              </div>
-              <div className="text-2xl font-bold text-yellow-400">{resiliencePoints}</div>
-              <div className="text-xs text-gray-400">Earned by completing weeks</div>
-            </div>
-
-            {/* Safety Net Status */}
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-1 mb-1">
-                <Shield className={`w-4 h-4 ${safetyNetUsed ? 'text-gray-400' : 'text-green-400'}`} />
-                <span className="text-sm font-medium text-gray-300">Safety Net</span>
-              </div>
-              <Badge variant={safetyNetUsed ? 'outline' : 'default'} className={safetyNetUsed ? 'text-gray-400' : 'text-green-400'}>
-                {safetyNetUsed ? 'Used This Week' : 'Available'}
-              </Badge>
-              <div className="text-xs text-gray-400 mt-1">
-                Missed days: {missedDaysThisWeek}/1
-              </div>
-            </div>
-
-            {/* Max Streak */}
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-1 mb-1">
-                <Award className="w-4 h-4 text-purple-400" />
-                <span className="text-sm font-medium text-gray-300">Best Streak</span>
-              </div>
-              <div className="text-2xl font-bold text-purple-400">{maxStreakAchieved}</div>
-              <div className="text-xs text-gray-400">days achieved</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Recovery Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Safety Net */}
-        {recoveryFeaturesAvailable && !safetyNetUsed && missedDaysThisWeek === 0 && (
-          <Card className="border-green-800/30 bg-green-900/10" aria-label="safety-net-card">
+      {/* Main Recovery Section - Side by side on desktop */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Streak Recovery System - Takes 2/3 width on desktop */}
+        <div className="lg:col-span-2">
+          <Card className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border-blue-800/30 h-full" aria-label="streak-recovery-status-card">
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-green-400">
-                <Shield className="w-5 h-5" />
-                Safety Net Available
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Heart className="w-5 h-5 text-blue-400" />
+                Streak Recovery System
               </CardTitle>
               <CardDescription>
-                Protect your streak from the first missed day this week
+                Build resilience and protect your streaks with recovery tools
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button
-                onClick={handleUseSafetyNet}
-                disabled={loadingAction === 'safety_net'}
-                className="w-full bg-green-600 hover:bg-green-700"
-              >
-                {loadingAction === 'safety_net' ? 'Activating...' : 'Use Safety Net'}
-              </Button>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Resilience Points */}
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <Zap className="w-4 h-4 text-yellow-400" />
+                    <span className="text-sm font-medium text-gray-300">Resilience Points</span>
+                  </div>
+                  <div className="text-2xl font-bold text-yellow-400">{resiliencePoints}</div>
+                  <div className="text-xs text-gray-400">Earned by completing weeks</div>
+                </div>
+
+                {/* Safety Net Status */}
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <Shield className={`w-4 h-4 ${safetyNetUsed ? 'text-gray-400' : 'text-green-400'}`} />
+                    <span className="text-sm font-medium text-gray-300">Safety Net</span>
+                  </div>
+                  <Badge variant={safetyNetUsed ? 'outline' : 'default'} className={safetyNetUsed ? 'text-gray-400' : 'text-green-400'}>
+                    {safetyNetUsed ? 'Used This Week' : 'Available'}
+                  </Badge>
+                  <div className="text-xs text-gray-400 mt-1">
+                    Missed days: {missedDaysThisWeek}/1
+                  </div>
+                </div>
+
+                {/* Max Streak */}
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <Award className="w-4 h-4 text-purple-400" />
+                    <span className="text-sm font-medium text-gray-300">Best Streak</span>
+                  </div>
+                  <div className="text-2xl font-bold text-purple-400">{maxStreakAchieved}</div>
+                  <div className="text-xs text-gray-400">days achieved</div>
+                </div>
+              </div>
             </CardContent>
           </Card>
-        )}
+        </div>
 
-        {/* Streak Reconstruction */}
-        {recoveryFeaturesAvailable && isStreakBroken && maxStreakAchieved > 0 && (
+        {/* Safety Net Action - Takes 1/3 width on desktop */}
+        {recoveryFeaturesAvailable && !safetyNetUsed && missedDaysThisWeek === 0 && (
+          <div className="lg:col-span-1">
+            <Card className="border-green-800/30 bg-green-900/10 h-full" aria-label="safety-net-card">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-green-400">
+                  <Shield className="w-5 h-5" />
+                  Safety Net Available
+                </CardTitle>
+                <CardDescription>
+                  Protect your streak from the first missed day this week
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  onClick={handleUseSafetyNet}
+                  disabled={loadingAction === 'safety_net'}
+                  className="w-full bg-green-600 hover:bg-green-700"
+                >
+                  {loadingAction === 'safety_net' ? 'Activating...' : 'Use Safety Net'}
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
+
+      {/* Additional Recovery Actions - Full width below */}
+      {(recoveryFeaturesAvailable && isStreakBroken && maxStreakAchieved > 0) && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Streak Reconstruction */}
           <Card className="border-purple-800/30 bg-purple-900/10" aria-label="streak-reconstruction-card">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-purple-400">
@@ -353,8 +360,8 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
               </Button>
             </CardContent>
           </Card>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Comeback Challenges */}
       {recoveryFeaturesAvailable && qualifiesForComeback && comebackChallenges.length > 0 && (
