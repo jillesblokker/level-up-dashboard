@@ -1,6 +1,12 @@
 -- Complete Supabase Setup for Level Up Game
 -- Run this script in your Supabase SQL editor to set up all required tables and connections
 
+-- First, let's check and drop existing tables if they have wrong data types
+DROP TABLE IF EXISTS monster_spawns CASCADE;
+DROP TABLE IF EXISTS user_progress CASCADE;
+DROP TABLE IF EXISTS tile_placements CASCADE;
+DROP TABLE IF EXISTS game_events CASCADE;
+
 -- 1. Achievement Definitions Table (for monster battle achievements)
 CREATE TABLE IF NOT EXISTS achievement_definitions (
     id VARCHAR(10) PRIMARY KEY,
@@ -37,7 +43,7 @@ ON CONFLICT (id) DO UPDATE SET
     updated_at = NOW();
 
 -- 2. Monster Spawns Table (for tracking monster spawns on the map)
-CREATE TABLE IF NOT EXISTS monster_spawns (
+CREATE TABLE monster_spawns (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id TEXT NOT NULL,
     x INTEGER NOT NULL,
@@ -49,6 +55,7 @@ CREATE TABLE IF NOT EXISTS monster_spawns (
 );
 
 -- 3. User Achievements Table (if not exists - for tracking unlocked achievements)
+-- Note: We don't drop this one as it might have existing data
 CREATE TABLE IF NOT EXISTS achievements (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id TEXT NOT NULL,
@@ -62,7 +69,7 @@ CREATE TABLE IF NOT EXISTS achievements (
 );
 
 -- 4. User Progress Table (for tracking various game progress metrics)
-CREATE TABLE IF NOT EXISTS user_progress (
+CREATE TABLE user_progress (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id TEXT NOT NULL UNIQUE,
     level INTEGER DEFAULT 1,
@@ -79,7 +86,7 @@ CREATE TABLE IF NOT EXISTS user_progress (
 );
 
 -- 5. Tile Placement History Table (for tracking tile placement for monster spawning)
-CREATE TABLE IF NOT EXISTS tile_placements (
+CREATE TABLE tile_placements (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id TEXT NOT NULL,
     tile_type VARCHAR(50) NOT NULL,
@@ -90,7 +97,7 @@ CREATE TABLE IF NOT EXISTS tile_placements (
 );
 
 -- 6. Game Events Table (for tracking various game events)
-CREATE TABLE IF NOT EXISTS game_events (
+CREATE TABLE game_events (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id TEXT NOT NULL,
     event_type VARCHAR(100) NOT NULL,
@@ -106,6 +113,14 @@ ALTER TABLE achievements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_progress ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tile_placements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE game_events ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "achievement_definitions_read_policy" ON achievement_definitions;
+DROP POLICY IF EXISTS "monster_spawns_user_policy" ON monster_spawns;
+DROP POLICY IF EXISTS "achievements_user_policy" ON achievements;
+DROP POLICY IF EXISTS "user_progress_user_policy" ON user_progress;
+DROP POLICY IF EXISTS "tile_placements_user_policy" ON tile_placements;
+DROP POLICY IF EXISTS "game_events_user_policy" ON game_events;
 
 -- Create RLS policies for achievement_definitions (read-only for all authenticated users)
 CREATE POLICY "achievement_definitions_read_policy" ON achievement_definitions
@@ -140,6 +155,13 @@ CREATE INDEX IF NOT EXISTS idx_tile_placements_user_id ON tile_placements(user_i
 CREATE INDEX IF NOT EXISTS idx_tile_placements_tile_type ON tile_placements(tile_type);
 CREATE INDEX IF NOT EXISTS idx_game_events_user_id ON game_events(user_id);
 CREATE INDEX IF NOT EXISTS idx_game_events_event_type ON game_events(event_type);
+
+-- Drop existing functions if they exist
+DROP FUNCTION IF EXISTS get_user_tile_count(TEXT, VARCHAR);
+DROP FUNCTION IF EXISTS should_spawn_monster(TEXT, VARCHAR);
+DROP FUNCTION IF EXISTS get_monster_type_for_tile(VARCHAR);
+DROP FUNCTION IF EXISTS unlock_achievement(TEXT, VARCHAR);
+DROP FUNCTION IF EXISTS trigger_monster_achievement_unlock();
 
 -- Create functions for common operations
 
@@ -235,6 +257,9 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Drop existing trigger if it exists
+DROP TRIGGER IF EXISTS monster_spawn_achievement_trigger ON monster_spawns;
 
 CREATE TRIGGER monster_spawn_achievement_trigger
     AFTER INSERT ON monster_spawns
