@@ -1,17 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
 
 export async function POST(request: NextRequest) {
   try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { x, y, monsterType } = await request.json();
     
     if (typeof x !== 'number' || typeof y !== 'number' || !monsterType) {
       return NextResponse.json({ error: 'Invalid monster spawn data' }, { status: 400 });
     }
-
-    // Get the user from the request (you'll need to implement auth)
-    // For now, we'll use a placeholder user ID
-    const userId = 'placeholder-user-id';
 
     // Save monster spawn to Supabase
     const { data, error } = await supabaseServer

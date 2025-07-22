@@ -134,4 +134,14 @@ async function saveMonsterToSupabase(x: number, y: number, monsterType: MonsterT
   } catch (error) {
     console.error('Error saving monster to Supabase:', error);
   }
+}
+
+// Get monster type from tile
+export function getTileMonsterType(tile: Tile): MonsterType | null {
+  return tile.hasMonster || null;
+}
+
+// Check if a tile has a monster
+export function tileHasMonster(tile: Tile): boolean {
+  return !!tile.hasMonster;
 } 
