@@ -236,6 +236,15 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     gainGold(earnedGold, 'monster-battle-win')
     updateCharacterStats({ experience: earnedXP })
     
+    // Add success animation class
+    const battleContainer = document.querySelector('.monster-battle-container')
+    if (battleContainer) {
+      battleContainer.classList.add('animate-pulse', 'bg-green-500/20', 'border-green-500')
+      setTimeout(() => {
+        battleContainer.classList.remove('animate-pulse', 'bg-green-500/20', 'border-green-500')
+      }, 1000)
+    }
+    
     // Unlock achievement for defeating this monster
     if (monster.achievementId) {
       console.log('Attempting to unlock monster achievement:', monster.achievementId, 'for monster:', monster.name)
@@ -283,7 +292,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <Card className="w-full max-w-2xl bg-gray-900 border-amber-800/30 text-white">
+      <Card className="monster-battle-container w-full max-w-2xl bg-gray-900 border-amber-800/30 text-white transition-all duration-300">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-amber-400">
             Battle Against {monster.name}

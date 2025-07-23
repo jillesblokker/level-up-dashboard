@@ -364,7 +364,7 @@ export default function NotificationsPage() {
                   filteredNotifications.map((notification) => (
                     <Card
                       key={notification.id}
-                      className={`bg-gradient-to-b from-black to-gray-900 border-amber-800/20 w-full min-h-[120px] md:min-h-[100px] ${
+                      className={`bg-gradient-to-b from-black to-gray-900 border-amber-800/20 w-full min-h-[120px] md:min-h-[100px] hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-200 hover:-translate-y-1 ${
                         !notification.read ? "border-l-4 border-l-amber-500" : ""
                       }`}
                       onClick={() => markAsRead(notification.id)}
@@ -480,7 +480,7 @@ export default function NotificationsPage() {
                     .map((notification) => (
                       <Card
                         key={notification.id}
-                        className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20 border-l-4 border-l-amber-500 w-full min-h-[120px] md:min-h-[100px]"
+                        className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20 border-l-4 border-l-amber-500 w-full min-h-[120px] md:min-h-[100px] hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-200 hover:-translate-y-1"
                         onClick={() => markAsRead(notification.id)}
                       >
                         <CardContent className="p-4 h-full flex flex-col justify-center">
