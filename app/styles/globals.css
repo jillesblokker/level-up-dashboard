@@ -416,26 +416,6 @@ main {
   color: #b71c1c !important;
 }
 
-.scroll-toast::before,
-.scroll-toast::after {
-  content: '';
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  background: #8b4513;
-  border-radius: 50%;
-}
-
-.scroll-toast::before {
-  top: -10px;
-  left: -10px;
-}
-
-.scroll-toast::after {
-  bottom: -10px;
-  right: -10px;
-}
-
 .scroll-toast [data-radix-toast-title] {
   color: #4a2511 !important;
   font-family: var(--font-cinzel) !important;
@@ -842,4 +822,18 @@ main {
 
 .list-item > .flex-fill {
   @apply flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap;
+}
+
+/* Remove background images from form elements and ensure browser default arrows */
+select,
+input,
+textarea {
+  background-image: none !important;
+}
+
+/* Ensure browser default arrow shows for select elements */
+select {
+  appearance: auto !important;
+  -webkit-appearance: auto !important;
+  -moz-appearance: auto !important;
 } 
