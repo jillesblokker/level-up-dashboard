@@ -35,7 +35,7 @@ const weapons: Weapon[] = [
 const monsterData = {
   dragon: {
     name: 'Dragoni',
-    image: '/images/Monsters/Dragoni.png',
+    image: '/images/monsters/dragoni.png',
     description: 'A fearsome dragon with scales as hard as steel',
     difficulty: 'Hard',
     achievementId: '201'
@@ -88,6 +88,9 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
   const [goldLost, setGoldLost] = useState(0)
 
   const monster = monsterData[monsterType]
+  
+  // Debug logging
+  console.log('Monster battle props:', { isOpen, monsterType, monster })
 
   // Generate new sequence for current round
   const generateSequence = useCallback(() => {
@@ -257,6 +260,16 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
                 src={monster.image} 
                 alt={monster.name}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  console.error('Failed to load monster image:', monster.image);
+                  // Try alternative path
+                  const altPath = monster.image.replace('/images/Monsters/', '/images/Monsters/');
+                  if (e.currentTarget.src !== altPath) {
+                    e.currentTarget.src = altPath;
+                  } else {
+                    e.currentTarget.style.display = 'none';
+                  }
+                }}
               />
             </div>
             <div>
@@ -277,8 +290,8 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
           {/* Game Status */}
           <div className="text-center">
             {isShowingSequence && (
-              <div className="text-amber-400 font-bold">
-                Watch the sequence carefully...
+              <div className="text-amber-400 font-bold text-lg animate-pulse">
+                👀 Watch the sequence carefully... (Step {sequence.length > 0 ? sequence.length : 1})
               </div>
             )}
             {isPlayerTurn && !isShowingSequence && (
@@ -307,7 +320,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
                 disabled={!isPlayerTurn || isShowingSequence || gameState !== 'playing'}
                 className={cn(
                   "h-20 flex flex-col items-center justify-center gap-2 transition-all duration-200",
-                  highlightedWeapon === weapon.id && "ring-4 ring-yellow-400 bg-yellow-600",
+                  highlightedWeapon === weapon.id && "ring-4 ring-orange-500 bg-orange-600 scale-110 shadow-lg",
                   isPlayerTurn && !isShowingSequence && "hover:bg-opacity-80",
                   weapon.color
                 )}
