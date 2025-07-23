@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { cardStyles, typography, colors } from "@/lib/design-tokens"
+import { cardStyles, typography, colors, lineHeights } from "@/lib/design-tokens"
 
 const Card = React.forwardRef<
   HTMLDivElement,
@@ -38,7 +38,7 @@ const CardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      `${typography['2xl']} ${typography.semibold} ${typography.lineTight} ${colors.text.primary}`,
+      `${typography['2xl']} ${typography.semibold} ${lineHeights.tight} ${colors.text.primary}`,
       className
     )}
     {...props}

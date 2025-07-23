@@ -29,22 +29,24 @@ export const typography = {
   sans: 'font-sans',
   serif: 'font-serif',
   mono: 'font-mono',
+} as const
 
-  // Line Heights
-  lineNone: 'leading-none',     // 1
-  lineTight: 'leading-tight',   // 1.25
-  lineSnug: 'leading-snug',     // 1.375
-  lineNormal: 'leading-normal', // 1.5
-  lineRelaxed: 'leading-relaxed', // 1.625
-  lineLoose: 'leading-loose',   // 2
+export const lineHeights = {
+  none: 'leading-none',     // 1
+  tight: 'leading-tight',   // 1.25
+  snug: 'leading-snug',     // 1.375
+  normal: 'leading-normal', // 1.5
+  relaxed: 'leading-relaxed', // 1.625
+  loose: 'leading-loose',   // 2
+} as const
 
-  // Letter Spacing
-  letterTighter: 'tracking-tighter',
-  letterTight: 'tracking-tight',
-  letterNormal: 'tracking-normal',
-  letterWide: 'tracking-wide',
-  letterWider: 'tracking-wider',
-  letterWidest: 'tracking-widest',
+export const letterSpacing = {
+  tighter: 'tracking-tighter',
+  tight: 'tracking-tight',
+  normal: 'tracking-normal',
+  wide: 'tracking-wide',
+  wider: 'tracking-wider',
+  widest: 'tracking-widest',
 } as const
 
 export const spacing = {
@@ -223,20 +225,20 @@ export const hover = {
 type TypographySize = 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl'
 type TypographyWeight = 'thin' | 'extralight' | 'light' | 'normal' | 'medium' | 'semibold' | 'bold' | 'extrabold' | 'black'
 type TypographyFamily = 'sans' | 'serif' | 'mono'
-type TypographyLineHeight = 'lineNone' | 'lineTight' | 'lineSnug' | 'lineNormal' | 'lineRelaxed' | 'lineLoose'
-type TypographyLetterSpacing = 'letterTighter' | 'letterTight' | 'letterNormal' | 'letterWide' | 'letterWider' | 'letterWidest'
+type LineHeight = keyof typeof lineHeights
+type LetterSpacing = keyof typeof letterSpacing
 
 // Utility Functions
 export const createTypographyClass = (
   size: TypographySize,
   weight: TypographyWeight = 'normal',
   family: TypographyFamily = 'sans',
-  lineHeight?: TypographyLineHeight,
-  letterSpacing?: TypographyLetterSpacing
+  lineHeight?: LineHeight,
+  letterSpacingValue?: LetterSpacing
 ) => {
-  const classes = [typography[size], typography[weight], typography[family]]
-  if (lineHeight) classes.push(typography[lineHeight])
-  if (letterSpacing) classes.push(typography[letterSpacing])
+  const classes: string[] = [typography[size], typography[weight], typography[family]]
+  if (lineHeight) classes.push(lineHeights[lineHeight])
+  if (letterSpacingValue) classes.push(letterSpacing[letterSpacingValue])
   return classes.join(' ')
 }
 
@@ -246,9 +248,10 @@ export const createSpacingClass = (value: keyof typeof spacing) => {
 
 export const createColorClass = (
   type: keyof typeof colors,
-  variant: keyof typeof colors.success = 'default'
+  variant: string = 'default'
 ) => {
-  return colors[type][variant]
+  const colorObj = colors[type] as any
+  return colorObj[variant] || colorObj.default
 }
 
 export const createAnimationClass = (
