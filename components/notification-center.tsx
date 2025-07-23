@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Bell } from "lucide-react"
+import { Bell, Mail, Trophy, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -79,6 +79,79 @@ export function NotificationCenter() {
     }
   }
 
+  // Enhanced Empty State Component
+  const EmptyState = () => (
+    <div className="flex flex-col items-center justify-center h-full p-6 relative overflow-hidden">
+      {/* Background with medieval theme */}
+      <div className="absolute inset-0 bg-gradient-to-br from-amber-900/5 via-transparent to-amber-900/5" />
+      
+      {/* Animated background elements */}
+      <div className="absolute top-4 left-4 w-2 h-2 bg-amber-500/20 rounded-full animate-bounce"></div>
+      <div className="absolute top-8 right-6 w-1.5 h-1.5 bg-amber-400/30 rounded-full animate-ping"></div>
+      <div className="absolute bottom-6 left-6 w-2 h-2 bg-amber-300/20 rounded-full animate-bounce" style={{ animationDelay: '0.5s' }}></div>
+      
+      {/* Main content */}
+      <div className="relative z-10 text-center w-full max-w-sm mx-auto">
+        {/* Medieval mailbox illustration */}
+        <div className="relative mb-8">
+          <div className="w-32 h-32 mx-auto relative">
+            {/* Castle background */}
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-24 h-16">
+              <div className="absolute bottom-0 left-0 w-8 h-16 bg-gradient-to-b from-gray-600 to-gray-800 rounded-t-lg border border-gray-700"></div>
+              <div className="absolute bottom-0 left-8 w-8 h-12 bg-gradient-to-b from-gray-500 to-gray-700 rounded-t-lg border border-gray-600"></div>
+              <div className="absolute bottom-0 left-16 w-8 h-18 bg-gradient-to-b from-gray-600 to-gray-800 rounded-t-lg border border-gray-700"></div>
+              {/* Castle towers */}
+              <div className="absolute top-0 left-1 w-4 h-6 bg-gradient-to-b from-amber-800 to-amber-900 rounded-t-full border border-amber-700"></div>
+              <div className="absolute top-0 left-9 w-4 h-8 bg-gradient-to-b from-amber-800 to-amber-900 rounded-t-full border border-amber-700"></div>
+              <div className="absolute top-0 left-17 w-4 h-7 bg-gradient-to-b from-amber-800 to-amber-900 rounded-t-full border border-amber-700"></div>
+            </div>
+            
+            {/* Mailbox */}
+            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 w-20 h-24">
+              {/* Mailbox base */}
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-20 bg-gradient-to-b from-amber-800 to-amber-900 rounded-t-lg border-2 border-amber-700 shadow-lg"></div>
+              {/* Mailbox door */}
+              <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-12 h-16 bg-gradient-to-b from-amber-600 to-amber-700 rounded-t-md border border-amber-500"></div>
+              {/* Mailbox post */}
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3 h-6 bg-gradient-to-b from-gray-700 to-gray-800 rounded"></div>
+              {/* Empty interior glow */}
+              <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 w-10 h-12 bg-gradient-to-b from-amber-200/20 to-transparent rounded-t-sm"></div>
+              {/* Mailbox flag */}
+              <div className="absolute top-1 right-1 w-5 h-1 bg-amber-500 rounded-full"></div>
+              <div className="absolute top-0 right-1 w-1 h-5 bg-amber-500 rounded-full"></div>
+            </div>
+            
+            {/* Floating particles */}
+            <div className="absolute top-0 left-0 w-full h-full">
+              <div className="absolute top-2 left-3 w-0.5 h-0.5 bg-amber-300/60 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
+              <div className="absolute top-4 right-2 w-0.5 h-0.5 bg-amber-400/50 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
+              <div className="absolute top-6 left-4 w-0.5 h-0.5 bg-amber-500/40 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Text content */}
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <h3 className="text-xl font-bold text-amber-400 font-serif tracking-wide">
+              No Messages Await
+            </h3>
+            <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto"></div>
+          </div>
+          
+          <div className="space-y-2">
+            <p className="text-gray-200 leading-relaxed font-medium">
+              The courier has not yet arrived with news from your kingdom.
+            </p>
+            <p className="text-gray-400 text-sm leading-relaxed">
+              Complete quests and explore your realm to receive notifications from your loyal subjects.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
@@ -92,91 +165,90 @@ export function NotificationCenter() {
           <span className="sr-only">Notifications</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" aria-label="notification-center-sidepanel" className="w-96 max-w-full bg-black border-l border-amber-800/20 max-w-[90vw] p-4" aria-modal="true">
-        <SheetHeader>
-          <SheetTitle className="text-amber-500">Notifications</SheetTitle>
-        </SheetHeader>
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-xs text-muted-foreground">Game Events & Progress</span>
-          {notifications.length > 0 && (
-            <button
-              onClick={() => {
-                notificationService.markAllAsRead()
-                setNotifications(notificationService.getNotifications())
-              }}
-              className="text-xs text-amber-500 hover:text-amber-400 min-w-[44px] min-h-[44px]"
-              aria-label="Mark all notifications as read"
-            >
-              Mark all read
-            </button>
-          )}
-        </div>
-        <div className="divide-y divide-amber-800/10 max-h-[80vh] overflow-auto">
-          {notifications.length === 0 ? (
-            <div className="flex justify-center items-center h-full p-8">
-              <div className="flex flex-col items-center bg-gray-900/50 rounded-xl border border-gray-800 p-8 w-full max-w-md mx-auto h-[480px]">
-                <img
-                  src="/images/Notifications/no-mail.png"
-                  alt="No mail"
-                  className="mx-auto w-full h-full max-h-[340px] object-cover rounded-lg mb-4"
-                  width={320}
-                  height={340}
-                  onError={(e) => { e.currentTarget.src = '/images/placeholders/item-placeholder.svg'; e.currentTarget.alt = 'Image not found'; }}
-                />
-                <p className="text-muted-foreground text-center max-w-xs mx-auto mt-2">
-                  You must have just missed the courier. No messages from your loyal subjects at this moment
-                </p>
+      <SheetContent side="right" aria-label="notification-center-sidepanel" className="w-96 max-w-full bg-black border-l border-amber-800/20 max-w-[90vw] p-0" aria-modal="true">
+        {/* Enhanced Header */}
+        <div className="relative p-6 border-b border-amber-800/20">
+          <div className="absolute inset-0 bg-gradient-to-r from-amber-900/10 via-transparent to-amber-900/10"></div>
+          <div className="relative flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-700 rounded-lg flex items-center justify-center shadow-lg">
+                <Mail className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <SheetTitle className="text-xl font-bold text-amber-400 font-serif">Notifications</SheetTitle>
+                <p className="text-gray-400 text-sm font-medium">Kingdom Messages & Updates</p>
               </div>
             </div>
+            {notifications.length > 0 && (
+              <button
+                onClick={() => {
+                  notificationService.markAllAsRead()
+                  setNotifications(notificationService.getNotifications())
+                }}
+                className="text-xs text-amber-500 hover:text-amber-400 min-w-[44px] min-h-[44px] px-2 py-1 rounded border border-amber-800/30 hover:bg-amber-900/20 transition-colors"
+                aria-label="Mark all notifications as read"
+              >
+                Mark all read
+              </button>
+            )}
+          </div>
+        </div>
+        
+        {/* Content Area */}
+        <div className="flex-1 overflow-auto">
+          {notifications.length === 0 ? (
+            <EmptyState />
           ) : (
-            notifications.map((notification) => (
-              <div key={notification.id} className={cn("p-3 relative", !notification.read && "bg-amber-900/10")}>
-                <div className="flex items-start gap-3">
-                  <div className="text-lg">{getNotificationIcon(notification.type)}</div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <h4 className={cn("font-medium text-sm flex items-center", getNotificationColor(notification.type))}>
-                        {getPriorityBadge(notification.priority)}
-                        {notification.title}
-                      </h4>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(notification.timestamp).toLocaleString()}
-                      </span>
-                      <button
-                        onClick={() => handleDelete(notification.id)}
-                        className="text-red-500 hover:text-red-400 text-lg ml-2"
-                        aria-label="Delete notification"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">
-                      {notification.message}
-                    </p>
-                    {notification.action && (
-                      <button
-                        onClick={() => {
-                          window.location.href = notification.action!.href
-                        }}
-                        className="text-xs text-amber-500 hover:text-amber-400 mt-2"
-                      >
-                        {notification.action.label} →
-                      </button>
-                    )}
-                    <div className="flex gap-2 mt-2">
-                      {!notification.read && (
+            <div className="divide-y divide-amber-800/10">
+              {notifications.map((notification) => (
+                <div key={notification.id} className={cn("p-4 relative hover:bg-gray-900/30 transition-colors", !notification.read && "bg-amber-900/10")}>
+                  <div className="flex items-start gap-3">
+                    <div className="text-lg mt-1">{getNotificationIcon(notification.type)}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <h4 className={cn("font-medium text-sm flex items-center", getNotificationColor(notification.type))}>
+                          {getPriorityBadge(notification.priority)}
+                          {notification.title}
+                        </h4>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(notification.timestamp).toLocaleString()}
+                        </span>
                         <button
-                          onClick={() => handleMarkAsRead(notification.id)}
-                          className="text-xs text-blue-500 hover:text-blue-400"
+                          onClick={() => handleDelete(notification.id)}
+                          className="text-red-500 hover:text-red-400 text-lg ml-2 p-1 rounded hover:bg-red-900/20 transition-colors"
+                          aria-label="Delete notification"
                         >
-                          Mark read
+                          🗑️
+                        </button>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-2 whitespace-pre-line leading-relaxed">
+                        {notification.message}
+                      </p>
+                      {notification.action && (
+                        <button
+                          onClick={() => {
+                            window.location.href = notification.action!.href
+                          }}
+                          className="text-xs text-amber-500 hover:text-amber-400 mt-3 px-3 py-1 rounded border border-amber-800/30 hover:bg-amber-900/20 transition-colors"
+                        >
+                          {notification.action.label} →
                         </button>
                       )}
+                      <div className="flex gap-2 mt-3">
+                        {!notification.read && (
+                          <button
+                            onClick={() => handleMarkAsRead(notification.id)}
+                            className="text-xs text-blue-500 hover:text-blue-400 px-2 py-1 rounded border border-blue-800/30 hover:bg-blue-900/20 transition-colors"
+                          >
+                            Mark read
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
         </div>
       </SheetContent>
