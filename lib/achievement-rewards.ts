@@ -40,6 +40,7 @@ export function grantAchievementRewards(creatureId: string, creatureName: string
     "Achievement Unlocked! 🏆",
     `You've discovered ${creatureName}! You earned ${rewards.gold} gold and ${rewards.experience} experience!`,
     "achievement",
+    "high",
     {
       label: "View Achievements",
       href: "/achievements",

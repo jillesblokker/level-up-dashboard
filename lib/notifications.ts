@@ -5,6 +5,7 @@ export function createAchievementNotification(achievementName: string) {
     "Achievement Unlocked!",
     `You've earned the '${achievementName}' achievement!`,
     "achievement",
+    "high",
     {
       label: "View Achievement",
       href: "/character",
@@ -17,6 +18,7 @@ export function createQuestNotification(questName: string, goldReward: number) {
     "Quest Completed",
     `You've successfully completed '${questName}' and earned ${goldReward} gold!`,
     "quest",
+    "high",
     {
       label: "View Rewards",
       href: "/quests",
@@ -28,7 +30,8 @@ export function createEventNotification(title: string, message: string) {
   notificationService.addNotification(
     title,
     message,
-    "event"
+    "event",
+    "medium"
   )
 }
 
@@ -37,6 +40,7 @@ export function createLevelUpNotification(toLevel: number) {
     "Level Up! 🎉",
     `Congratulations! You've reached Level ${toLevel}! Your journey continues...`,
     "levelup",
+    "high",
     {
       label: "View Character",
       href: "/character",
@@ -58,6 +62,7 @@ export function createExperienceGainedNotification(amount: number, source: strin
     "Experience Gained! ⭐",
     message,
     "success",
+    "medium",
     {
       label: "View Progress",
       href: "/character",
@@ -70,6 +75,7 @@ export function createGoldGainedNotification(amount: number, source: string) {
     "Gold Gained! 💰",
     `You earned ${amount} gold from ${source}!`,
     "success",
+    "medium",
     {
       label: "View Treasury",
       href: "/treasury",

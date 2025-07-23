@@ -64,7 +64,18 @@ export function NotificationCenter() {
       case 'success': return 'text-green-500'
       case 'event': return 'text-purple-500'
       case 'discovery': return 'text-orange-500'
+      case 'monster': return 'text-red-500'
+      case 'system': return 'text-gray-500'
       default: return 'text-gray-500'
+    }
+  }
+
+  const getPriorityBadge = (priority: 'high' | 'medium' | 'low' = 'medium') => {
+    switch (priority) {
+      case 'high': return <span className="inline-block w-2 h-2 bg-red-500 rounded-full mr-2" />
+      case 'medium': return <span className="inline-block w-2 h-2 bg-amber-500 rounded-full mr-2" />
+      case 'low': return <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2" />
+      default: return <span className="inline-block w-2 h-2 bg-amber-500 rounded-full mr-2" />
     }
   }
 
@@ -124,7 +135,8 @@ export function NotificationCenter() {
                   <div className="text-lg">{getNotificationIcon(notification.type)}</div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <h4 className={cn("font-medium text-sm", getNotificationColor(notification.type))}>
+                      <h4 className={cn("font-medium text-sm flex items-center", getNotificationColor(notification.type))}>
+                        {getPriorityBadge(notification.priority)}
                         {notification.title}
                       </h4>
                       <span className="text-xs text-muted-foreground">

@@ -118,6 +118,7 @@ export function gainExperience(amount: number, source: string, category: string 
           "New Title Unlocked! 👑",
           `Congratulations! You are now a ${newTitle.name}! ${newTitle.description}`,
           "achievement",
+          "high",
           {
             label: "View Character",
             href: "/character",

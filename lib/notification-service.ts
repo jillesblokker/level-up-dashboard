@@ -4,7 +4,8 @@ export interface NotificationData {
   id: string
   title: string
   message: string
-  type: "achievement" | "quest" | "friend" | "system" | "success" | "warning" | "danger" | "info" | "discovery" | "event" | "levelup"
+  type: "achievement" | "quest" | "friend" | "system" | "success" | "warning" | "danger" | "info" | "discovery" | "event" | "levelup" | "monster"
+  priority: "high" | "medium" | "low"
   read: boolean
   timestamp: string
   action?: { label: string; href: string } | undefined
@@ -65,6 +66,7 @@ class NotificationService {
     title: string,
     message: string,
     type: NotificationData["type"],
+    priority: "high" | "medium" | "low" = "medium",
     action?: { label: string; href: string },
     image?: string
   ) {
@@ -73,6 +75,7 @@ class NotificationService {
       title,
       message,
       type,
+      priority,
       read: false,
       timestamp: new Date().toISOString(),
       ...(action !== undefined ? { action } : {}),
@@ -103,7 +106,7 @@ class NotificationService {
       rewards.items ? `\nItems: ${rewards.items.join(", ")}` : ""
     }`
 
-    this.addNotification("Quest Complete!", message, "quest", {
+    this.addNotification("Quest Complete!", message, "quest", "high", {
       label: "View Quests",
       href: "/quests",
     })
@@ -112,14 +115,14 @@ class NotificationService {
   public addAchievement(description: string, rewards: { gold: number; experience: number }) {
     const message = `${description}\n+${rewards.experience} XP\n+${rewards.gold} Gold`
 
-    this.addNotification("Achievement Unlocked!", message, "achievement", {
+    this.addNotification("Achievement Unlocked!", message, "achievement", "high", {
       label: "View Achievements",
       href: "/character",
     })
   }
 
   public addDiscovery(title: string, message: string) {
-    this.addNotification(title, message, "discovery", {
+    this.addNotification(title, message, "discovery", "medium", {
       label: "View Realm",
       href: "/realm",
     })
