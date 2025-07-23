@@ -95,6 +95,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
   console.log('Monster image path:', monster?.image)
   console.log('Monster data:', monsterData)
   console.log('Monster type:', monsterType)
+  console.log('Sequence state:', { sequence, highlightedWeapon, isShowingSequence, isPlayerTurn })
 
   // Generate new sequence for current round
   const generateSequence = useCallback(() => {
@@ -121,9 +122,9 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
       const weaponId = sequence[i]
       if (weaponId) {
         setHighlightedWeapon(weaponId)
-        await new Promise(resolve => setTimeout(resolve, 800))
+        await new Promise(resolve => setTimeout(resolve, 1000)) // Show each weapon for 1 second
         setHighlightedWeapon(null)
-        await new Promise(resolve => setTimeout(resolve, 200))
+        await new Promise(resolve => setTimeout(resolve, 300)) // Brief pause between weapons
       }
     }
     
@@ -294,7 +295,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
           <div className="text-center">
             {isShowingSequence && (
               <div className="text-amber-400 font-bold text-lg animate-pulse">
-                👀 Watch the sequence carefully... (Step {sequence.length > 0 ? sequence.length : 1})
+                👀 Watch the sequence carefully... ({sequence.length} items)
               </div>
             )}
             {isPlayerTurn && !isShowingSequence && (
@@ -322,8 +323,8 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
                 onClick={() => handleWeaponClick(weapon.id)}
                 disabled={!isPlayerTurn || isShowingSequence || gameState !== 'playing'}
                 className={cn(
-                  "h-20 flex flex-col items-center justify-center gap-2 transition-all duration-200",
-                  highlightedWeapon === weapon.id && "ring-4 ring-orange-500 bg-orange-600 scale-110 shadow-lg",
+                  "h-20 flex flex-col items-center justify-center gap-2 transition-all duration-300",
+                  highlightedWeapon === weapon.id && "ring-4 ring-orange-500 bg-orange-600 scale-125 shadow-xl animate-pulse",
                   isPlayerTurn && !isShowingSequence && "hover:bg-opacity-80",
                   weapon.color
                 )}
