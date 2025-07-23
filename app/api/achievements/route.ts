@@ -8,67 +8,66 @@
 // Health check endpoint: GET /api/achievements?health=1
 
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'];
-const supabaseServiceRoleKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
-
-if (!supabaseUrl) {
-  console.error('[ACHIEVEMENTS][INIT] NEXT_PUBLIC_SUPABASE_URL is missing from environment variables.');
-}
-if (!supabaseServiceRoleKey) {
-  console.error('[ACHIEVEMENTS][INIT] SUPABASE_SERVICE_ROLE_KEY is missing from environment variables.');
-}
-
-let supabase: ReturnType<typeof createClient> | null = null;
-if (supabaseUrl && supabaseServiceRoleKey) {
-  supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
-}
+import { auth } from '@clerk/nextjs/server';
+import { supabaseServer } from '../../../lib/supabase/server-client';
 
 // Health check endpoint
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
+    
+    // Health check endpoint
     if (searchParams.get('health') === '1') {
       return NextResponse.json({
         status: 'healthy',
-        supabaseUrl,
-        supabaseServiceRoleKeyPresent: !!supabaseServiceRoleKey,
-        supabaseClientInitialized: !!supabase,
+        supabaseUrl: process.env['NEXT_PUBLIC_SUPABASE_URL'],
+        supabaseServiceRoleKeyPresent: !!process.env['SUPABASE_SERVICE_ROLE_KEY'],
       });
     }
-    // Optionally check for Authorization header
-    const authHeader = request.headers.get('authorization');
-    console.log('[ACHIEVEMENTS][GET] Authorization header:', authHeader);
-    if (!authHeader) {
-      console.error('[ACHIEVEMENTS][GET] Missing Authorization header');
+
+    // Get user ID from Clerk auth
+    const { userId } = await auth();
+    console.log('[ACHIEVEMENTS][GET] User ID from Clerk:', userId);
+
+    if (!userId) {
+      console.log('[ACHIEVEMENTS][GET] No userId found in auth');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    if (!supabaseUrl || !supabaseServiceRoleKey) {
-      console.error('[ACHIEVEMENTS][GET] Supabase env vars missing:', { supabaseUrl, supabaseServiceRoleKey });
-      return NextResponse.json({ error: 'Supabase environment variables missing.' }, { status: 500 });
-    }
-    if (!supabase) {
-      console.error('[ACHIEVEMENTS][GET] Supabase client not initialized.');
-      return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
-    }
-    const userId = searchParams.get('userId');
-    // Fetch all achievements (optionally filter by userId)
-    let query = supabase.from('achievements').select('*').order('unlocked_at', { ascending: false });
-    if (userId) {
-      query = query.eq('user_id', userId);
-    }
-    const { data, error } = await query;
+
+    // Get userId from query params (for backward compatibility)
+    const queryUserId = searchParams.get('userId');
+    console.log('[ACHIEVEMENTS][GET] Query userId:', queryUserId);
+
+    // Use query userId if provided, otherwise use auth userId
+    const targetUserId = queryUserId || userId;
+
+    console.log('[ACHIEVEMENTS][GET] Fetching achievements for user:', targetUserId);
+
+    // Fetch achievements from Supabase
+    const { data, error } = await supabaseServer
+      .from('achievements')
+      .select('*')
+      .eq('user_id', targetUserId)
+      .order('unlocked_at', { ascending: false });
+
     if (error) {
-      console.error('[ACHIEVEMENTS][GET] Query error:', error);
+      console.error('[ACHIEVEMENTS][GET] Supabase query error:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
+
+    console.log('[ACHIEVEMENTS][GET] Raw data from Supabase:', data);
+
     const achievements = (data || []).map(row => ({
-      achievementId: row['achievement_id'],
-      unlockedAt: row['unlocked_at'],
-      achievementName: row['achievement_name'],
-      description: row['description'],
+      id: row.id,
+      userId: row.user_id,
+      achievementId: row.achievement_id,
+      unlockedAt: row.unlocked_at,
+      achievementName: row.achievement_name,
+      description: row.description,
     }));
+
+    console.log('[ACHIEVEMENTS][GET] Processed achievements:', achievements);
+
     return NextResponse.json(achievements);
   } catch (error) {
     console.error('[ACHIEVEMENTS][GET] Internal server error:', error instanceof Error ? error.stack : error);

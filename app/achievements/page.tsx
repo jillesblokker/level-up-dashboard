@@ -229,11 +229,7 @@ export default function Page() {
       setIsLoading(true);
       setError(null);
       try {
-        const token = await getToken();
-        if (!token) throw new Error('No Clerk token');
-        const response = await fetch(`/api/achievements?userId=${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await fetch(`/api/achievements?userId=${userId}`);
         if (response.ok) {
           const data: DbAchievement[] = await response.json();
           const achievementMap = new Map(data.filter(Boolean).map(ach => [ach.achievementId, ach]));
