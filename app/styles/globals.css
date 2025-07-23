@@ -108,6 +108,11 @@
     width: 100vw;
     height: 100vh;
     background: linear-gradient(135deg, var(--background-start), var(--background-end));
+    background-image: url('/images/backgroundi.png'), linear-gradient(135deg, var(--background-start), var(--background-end));
+    background-size: cover, cover;
+    background-position: center, center;
+    background-repeat: no-repeat, no-repeat;
+    background-attachment: fixed, fixed;
     color: white;
     position: relative;
   }
