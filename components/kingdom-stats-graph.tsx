@@ -17,7 +17,7 @@ import Link from 'next/link'
 import { useSupabaseRealtimeSync } from "@/hooks/useSupabaseRealtimeSync"
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useAuth } from '@clerk/nextjs'
-import { withToken } from '@/lib/supabase/client'
+
 import { format, parseISO, isThisWeek, isThisMonth, isThisYear } from 'date-fns';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart as RechartsBarChart, Bar, Legend, Cell, Area } from 'recharts';
 import { useRef } from 'react';
