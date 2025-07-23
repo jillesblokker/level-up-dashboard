@@ -556,129 +556,526 @@ export default function DesignSystemPage() {
                         demonstrating consistent design patterns and interactions.
                       </p>
                       
-                      {/* HeaderSection Component */}
+                      {/* Basic UI Components */}
                       <div className="mb-8">
-                        <h3 className="text-xl font-semibold text-white mb-4">HeaderSection</h3>
-                        <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
-                          <CardContent className="p-4">
-                            <HeaderSection
-                              title="KINGDOM"
-                              subtitle="Your realm overview and progress"
-                              imageSrc="/images/kingdom-header.jpg"
-                              canEdit={false}
-                            />
-                          </CardContent>
-                        </Card>
-                        <p className="text-sm text-gray-400">
-                          <strong>HeaderSection</strong> is used as the main header/banner for most major pages. 
-                          It supports a title, optional subtitle, and an optional image. If <code>canEdit</code> is true, 
-                          an edit button appears for uploading a new banner image.
-                        </p>
+                        <h3 className="text-xl font-semibold text-white mb-4">Basic UI Components</h3>
+                        
+                        {/* Buttons */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">Buttons</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4">
+                              <div className="flex flex-wrap gap-3">
+                                <Button>Default Button</Button>
+                                <Button variant="secondary">Secondary</Button>
+                                <Button variant="outline">Outline</Button>
+                                <Button variant="ghost">Ghost</Button>
+                                <Button variant="destructive">Destructive</Button>
+                                <Button size="sm">Small</Button>
+                                <Button size="lg">Large</Button>
+                                <Button disabled>Disabled</Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>Button</strong> component with multiple variants (default, secondary, outline, ghost, destructive) 
+                            and sizes (default, sm, lg, icon). Includes proper accessibility attributes and hover states.
+                          </p>
+                        </div>
+
+                        {/* Inputs */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">Inputs & Forms</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4 space-y-4">
+                              <div>
+                                <Label htmlFor="example-input">Input Field</Label>
+                                <Input id="example-input" placeholder="Enter text..." />
+                              </div>
+                              <div>
+                                <Label htmlFor="example-textarea">Textarea</Label>
+                                <textarea 
+                                  id="example-textarea" 
+                                  placeholder="Enter longer text..."
+                                  className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                />
+                              </div>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>Input</strong> and <strong>Textarea</strong> components with consistent styling, 
+                            focus states, and proper accessibility labels.
+                          </p>
+                        </div>
+
+                        {/* Cards */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">Cards</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Card className="bg-gray-800/50 border-amber-800/20">
+                                  <CardHeader>
+                                    <CardTitle>Card Title</CardTitle>
+                                    <CardDescription>Card description text</CardDescription>
+                                  </CardHeader>
+                                  <CardContent>
+                                    <p>Card content goes here</p>
+                                  </CardContent>
+                                </Card>
+                                <Card className="bg-gray-800/50 border-amber-800/20">
+                                  <CardContent className="p-4">
+                                    <p>Simple card with just content</p>
+                                  </CardContent>
+                                </Card>
+                              </div>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>Card</strong> components with header, content, and footer sections. 
+                            Used for displaying content in organized containers throughout the app.
+                          </p>
+                        </div>
+
+                        {/* Badges */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">Badges</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4">
+                              <div className="flex flex-wrap gap-2">
+                                <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80">Default</span>
+                                <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">Secondary</span>
+                                <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80">Destructive</span>
+                                <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground">Outline</span>
+                              </div>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>Badge</strong> components for displaying status, categories, and labels. 
+                            Available in default, secondary, destructive, and outline variants.
+                          </p>
+                        </div>
+
+                        {/* Progress */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">Progress Indicators</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4 space-y-4">
+                              <div>
+                                <div className="flex justify-between text-sm mb-2">
+                                  <span>Progress Bar</span>
+                                  <span>75%</span>
+                                </div>
+                                <div className="relative h-4 w-full overflow-hidden rounded-full bg-secondary">
+                                  <div className="h-full w-full flex-1 bg-primary transition-all" style={{ transform: `translateX(-25%)` }}></div>
+                                </div>
+                              </div>
+                              <div>
+                                <div className="flex justify-between text-sm mb-2">
+                                  <span>Loading State</span>
+                                  <span>Loading...</span>
+                                </div>
+                                <div className="animate-pulse rounded-md bg-gray-800/50 h-4 w-full"></div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>Progress</strong> bars and loading states for showing completion status 
+                            and loading indicators throughout the application.
+                          </p>
+                        </div>
+
+                        {/* Checkboxes */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">Checkboxes</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4">
+                              <div className="flex items-center space-x-4">
+                                <div className="flex items-center space-x-2">
+                                  <input type="checkbox" id="checkbox-1" className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground" />
+                                  <label htmlFor="checkbox-1" className="text-sm">Unchecked</label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <input type="checkbox" id="checkbox-2" checked className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground" />
+                                  <label htmlFor="checkbox-2" className="text-sm">Checked</label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <input type="checkbox" id="checkbox-3" disabled className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground" />
+                                  <label htmlFor="checkbox-3" className="text-sm">Disabled</label>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>Checkbox</strong> components for boolean inputs with proper accessibility 
+                            and visual states for checked, unchecked, and disabled states.
+                          </p>
+                        </div>
                       </div>
 
-                      {/* TileVisual Component */}
+                      {/* Navigation Components */}
                       <div className="mb-8">
-                        <h3 className="text-xl font-semibold text-white mb-4">TileVisual</h3>
-                        <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
-                          <CardContent className="p-4">
-                            <div className="flex space-x-4">
-                              <TileVisual
-                                tile={{
-                                  id: 'tile-1',
-                                  type: 'forest' as TileType,
-                                  name: 'Forest Tile',
-                                  description: 'A lush forest tile.',
-                                  connections: [],
-                                  rotation: 0 as 0 | 90 | 180 | 270,
-                                  revealed: true,
-                                  isVisited: false,
-                                  ariaLabel: 'Forest tile',
-                                  x: 0,
-                                  y: 0,
-                                  image: '/images/tiles/forest-tile.png'
-                                }}
-                                isSelected={false}
-                                isHovered={false}
-                                isCharacterPresent={false}
-                                onClick={() => {}}
-                                onHover={() => {}}
-                                onHoverEnd={() => {}}
-                              />
-                              <TileVisual
-                                tile={{
-                                  id: 'tile-2',
-                                  type: 'water' as TileType,
-                                  name: 'Water Tile',
-                                  description: 'A water tile.',
-                                  connections: [],
-                                  rotation: 0 as 0 | 90 | 180 | 270,
-                                  revealed: true,
-                                  isVisited: false,
-                                  ariaLabel: 'Water tile',
-                                  x: 0,
-                                  y: 0,
-                                  image: '/images/tiles/water-tile.png'
-                                }}
-                                isSelected={true}
-                                isHovered={false}
-                                isCharacterPresent={false}
-                                onClick={() => {}}
-                                onHover={() => {}}
-                                onHoverEnd={() => {}}
-                              />
-                            </div>
-                          </CardContent>
-                        </Card>
-                        <p className="text-sm text-gray-400">
-                          <strong>TileVisual</strong> displays tile visuals with proper accessibility attributes. 
-                          Used for rendering tiles in the realm and map views, with support for selection, 
-                          hover states, and character presence.
-                        </p>
+                        <h3 className="text-xl font-semibold text-white mb-4">Navigation Components</h3>
+                        
+                        {/* Tabs */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">Tabs</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4">
+                              <div className="inline-flex h-10 items-center justify-center rounded-md bg-gray-900 border-amber-800/20 p-1 text-muted-foreground">
+                                <button className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-amber-900/20 data-[state=active]:text-amber-500 data-[state=active]:shadow-sm bg-amber-900/20 text-amber-500">Overview</button>
+                                <button className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-amber-900/20 data-[state=active]:text-amber-500 data-[state=active]:shadow-sm">Settings</button>
+                                <button className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-amber-900/20 data-[state=active]:text-amber-500 data-[state=active]:shadow-sm">Profile</button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>Tabs</strong> component for organizing content into sections. 
+                            Includes proper keyboard navigation and accessibility features.
+                          </p>
+                        </div>
+
+                        {/* Scroll Area */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">Scroll Area</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4">
+                              <div className="relative overflow-hidden h-32 w-full rounded-[inherit]">
+                                <div className="h-full w-full rounded-[inherit]">
+                                  <div className="space-y-2">
+                                    {Array.from({ length: 10 }).map((_, i) => (
+                                      <div key={i} className="h-8 bg-gray-800 rounded flex items-center px-3">
+                                        Scrollable Item {i + 1}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                                <div className="absolute right-0 top-0 h-full w-2.5 border-l border-l-transparent p-[1px]">
+                                  <div className="relative flex-1 rounded-full bg-border w-2"></div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>ScrollArea</strong> component for custom scrollable content areas 
+                            with styled scrollbars and proper overflow handling.
+                          </p>
+                        </div>
                       </div>
 
-                      {/* CreatureCard Component */}
+                      {/* Game-Specific Components */}
                       <div className="mb-8">
-                        <h3 className="text-xl font-semibold text-white mb-4">CreatureCard</h3>
-                        <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
-                          <CardContent className="p-4">
-                            <div className={styles['creatureCardBox']}>
-                              <CreatureCard
-                                creature={{
-                                  id: '001',
-                                  number: '#001',
-                                  name: 'Flamio',
-                                  description: 'A fiery creature awakened by the destruction of forests.',
-                                  image: '/images/creatures/001.png',
-                                  category: 'fire',
-                                  discovered: true,
-                                  stats: { hp: 64, attack: 16, defense: 8, speed: 12, type: 'Fire' },
-                                  requirement: 'Destroy 1 forest tile'
-                                }}
-                                discovered={true}
-                                showCard={true}
-                                previewMode={false}
+                        <h3 className="text-xl font-semibold text-white mb-4">Game-Specific Components</h3>
+                        
+                        {/* HeaderSection Component */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">HeaderSection</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4">
+                              <HeaderSection
+                                title="KINGDOM"
+                                subtitle="Your realm overview and progress"
+                                imageSrc="/images/kingdom-header.jpg"
+                                canEdit={false}
                               />
-                            </div>
-                          </CardContent>
-                        </Card>
-                        <p className="text-sm text-gray-400">
-                          <strong>CreatureCard</strong> displays information about a creature, including its name, 
-                          description, image, rarity, and discovery status. Used in the collection and discovery pages.
-                        </p>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>HeaderSection</strong> is used as the main header/banner for most major pages. 
+                            It supports a title, optional subtitle, and an optional image. If <code>canEdit</code> is true, 
+                            an edit button appears for uploading a new banner image.
+                          </p>
+                        </div>
+
+                        {/* TileVisual Component */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">TileVisual</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4">
+                              <div className="flex space-x-4">
+                                <TileVisual
+                                  tile={{
+                                    id: 'tile-1',
+                                    type: 'forest' as TileType,
+                                    name: 'Forest Tile',
+                                    description: 'A lush forest tile.',
+                                    connections: [],
+                                    rotation: 0 as 0 | 90 | 180 | 270,
+                                    revealed: true,
+                                    isVisited: false,
+                                    ariaLabel: 'Forest tile',
+                                    x: 0,
+                                    y: 0,
+                                    image: '/images/tiles/forest-tile.png'
+                                  }}
+                                  isSelected={false}
+                                  isHovered={false}
+                                  isCharacterPresent={false}
+                                  onClick={() => {}}
+                                  onHover={() => {}}
+                                  onHoverEnd={() => {}}
+                                />
+                                <TileVisual
+                                  tile={{
+                                    id: 'tile-2',
+                                    type: 'water' as TileType,
+                                    name: 'Water Tile',
+                                    description: 'A water tile.',
+                                    connections: [],
+                                    rotation: 0 as 0 | 90 | 180 | 270,
+                                    revealed: true,
+                                    isVisited: false,
+                                    ariaLabel: 'Water tile',
+                                    x: 0,
+                                    y: 0,
+                                    image: '/images/tiles/water-tile.png'
+                                  }}
+                                  isSelected={true}
+                                  isHovered={false}
+                                  isCharacterPresent={false}
+                                  onClick={() => {}}
+                                  onHover={() => {}}
+                                  onHoverEnd={() => {}}
+                                />
+                              </div>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>TileVisual</strong> displays tile visuals with proper accessibility attributes. 
+                            Used for rendering tiles in the realm and map views, with support for selection, 
+                            hover states, and character presence.
+                          </p>
+                        </div>
+
+                        {/* CreatureCard Component */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">CreatureCard</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4">
+                              <div className={styles['creatureCardBox']}>
+                                <CreatureCard
+                                  creature={{
+                                    id: '001',
+                                    number: '#001',
+                                    name: 'Flamio',
+                                    description: 'A fiery creature awakened by the destruction of forests.',
+                                    image: '/images/creatures/001.png',
+                                    category: 'fire',
+                                    discovered: true,
+                                    stats: { hp: 64, attack: 16, defense: 8, speed: 12, type: 'Fire' },
+                                    requirement: 'Destroy 1 forest tile'
+                                  }}
+                                  discovered={true}
+                                  showCard={true}
+                                  previewMode={false}
+                                />
+                              </div>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>CreatureCard</strong> displays information about a creature, including its name, 
+                            description, image, rarity, and discovery status. Used in the collection and discovery pages.
+                          </p>
+                        </div>
+
+                        {/* Quest Card */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">Quest Card</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4">
+                              <CardWithProgress
+                                title="Defeat the Dragon"
+                                description="A mighty dragon has appeared in the realm"
+                                completed={false}
+                                onToggle={() => {}}
+                                progress={25}
+                                xp={100}
+                                gold={50}
+                              />
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>QuestCard</strong> displays quest information with progress tracking, 
+                            completion status, and rewards. Includes interactive elements for toggling completion.
+                          </p>
+                        </div>
                       </div>
 
-                      {/* Toast Notifications */}
+                      {/* Feedback Components */}
                       <div className="mb-8">
-                        <h3 className="text-xl font-semibold text-white mb-4">Toast Notifications</h3>
-                        <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
-                          <CardContent className="p-4">
-                            <Button onClick={showToastExample}>Show Toast Example</Button>
-                          </CardContent>
-                        </Card>
-                        <p className="text-sm text-gray-400">
-                          <strong>Toast Notifications</strong> provide user feedback for actions and events. 
-                          Used throughout the app for notifications and alerts with consistent styling and behavior.
-                        </p>
+                        <h3 className="text-xl font-semibold text-white mb-4">Feedback Components</h3>
+                        
+                        {/* Toast Notifications */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">Toast Notifications</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4">
+                              <Button onClick={showToastExample}>Show Toast Example</Button>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>Toast Notifications</strong> provide user feedback for actions and events. 
+                            Used throughout the app for notifications and alerts with consistent styling and behavior.
+                          </p>
+                        </div>
+
+                        {/* Alerts */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">Alerts</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4 space-y-4">
+                              <div className="relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground bg-background text-foreground">
+                                <div className="text-sm [&_p]:leading-relaxed">This is a default alert message.</div>
+                              </div>
+                              <div className="relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive">
+                                <div className="text-sm [&_p]:leading-relaxed">This is a destructive alert message.</div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>Alert</strong> components for displaying important messages and warnings. 
+                            Available in default and destructive variants with proper iconography.
+                          </p>
+                        </div>
+
+                        {/* Skeleton Loading */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">Skeleton Loading</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4">
+                              <div className="space-y-3">
+                                <div className="animate-pulse rounded-md bg-gray-800/50 h-4 w-3/4"></div>
+                                <div className="animate-pulse rounded-md bg-gray-800/50 h-4 w-1/2"></div>
+                                <div className="animate-pulse rounded-md bg-gray-800/50 h-4 w-5/6"></div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>Skeleton</strong> loading components for showing loading states 
+                            while content is being fetched or processed.
+                          </p>
+                        </div>
+
+                        {/* Dialog/Modal */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">Dialog/Modal</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4">
+                              <div className="space-y-4">
+                                <div className="rounded-lg border bg-background p-6 shadow-lg">
+                                  <div className="flex flex-col space-y-1.5 text-center sm:text-left mb-4">
+                                    <h3 className="text-lg font-semibold leading-none tracking-tight">Dialog Title</h3>
+                                    <p className="text-sm text-muted-foreground">Dialog description and content</p>
+                                  </div>
+                                  <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+                                    <Button variant="outline" size="sm">Cancel</Button>
+                                    <Button size="sm">Confirm</Button>
+                                  </div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>Dialog</strong> components for modal dialogs and overlays. 
+                            Includes proper focus management, backdrop, and accessibility features.
+                          </p>
+                        </div>
+
+                        {/* Select Dropdown */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">Select Dropdown</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4">
+                              <div className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 pr-8 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                                <span>Select an option</span>
+                                <svg className="h-4 w-4 opacity-50 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                              </div>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>Select</strong> dropdown components for choosing from predefined options. 
+                            Includes keyboard navigation and proper accessibility support.
+                          </p>
+                        </div>
+
+                        {/* Hover Card */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">Hover Card</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-sm font-medium">Hover over me</span>
+                                <div className="relative">
+                                  <div className="z-50 w-64 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none">
+                                    <div className="space-y-2">
+                                      <h4 className="text-sm font-medium">Hover Card Title</h4>
+                                      <p className="text-sm text-muted-foreground">Additional information appears on hover</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>HoverCard</strong> components for displaying additional information 
+                            when hovering over elements. Includes proper positioning and animations.
+                          </p>
+                        </div>
+
+                        {/* Sheet/Sidebar */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">Sheet/Sidebar</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4">
+                              <div className="border border-amber-800/20 rounded-lg p-4 bg-gray-800/50">
+                                <div className="flex items-center justify-between mb-4">
+                                  <h3 className="text-lg font-semibold">Sidebar Content</h3>
+                                  <button className="text-gray-400 hover:text-white">×</button>
+                                </div>
+                                <div className="space-y-2">
+                                  <div className="h-4 bg-gray-700 rounded"></div>
+                                  <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+                                  <div className="h-4 bg-gray-700 rounded w-1/2"></div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>Sheet</strong> components for slide-out panels and sidebars. 
+                            Available in different positions (top, right, bottom, left) with smooth animations.
+                          </p>
+                        </div>
+
+                        {/* Command Palette */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">Command Palette</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4">
+                              <div className="rounded-md bg-popover text-popover-foreground p-2">
+                                <div className="flex items-center border-b px-3 py-2">
+                                  <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                  </svg>
+                                  <input 
+                                    placeholder="Search commands..." 
+                                    className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                                  />
+                                </div>
+                                <div className="py-2">
+                                  <div className="px-2 py-1.5 text-sm text-muted-foreground">Recent</div>
+                                  <div className="px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm cursor-pointer">Open Kingdom</div>
+                                  <div className="px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm cursor-pointer">View Quests</div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>Command</strong> palette for quick actions and navigation. 
+                            Includes search functionality and keyboard shortcuts.
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
