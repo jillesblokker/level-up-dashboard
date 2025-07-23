@@ -763,7 +763,7 @@ export default function CharacterPage() {
                     {perks.filter((p) => p.active && p.unlocked).length === 0 && (
                       <Card className="bg-black/50 border-amber-800/30 h-full min-h-[200px] flex items-center justify-center">
                         <CardContent className="pt-6 flex items-center justify-center h-full">
-                          <p className="text-center text-muted-foreground">No active perks. Activate perks to gain bonuses.</p>
+                          <p className="text-center text-muted-foreground font-serif">No enchanted blessings active. Seek the mystic arts to unlock your true potential.</p>
                         </CardContent>
                       </Card>
                     )}
