@@ -25,17 +25,17 @@ interface Weapon {
 }
 
 const weapons: Weapon[] = [
-  { id: 'shield', name: 'Shield', icon: <img src="/images/items/shield.png" alt="Shield" className="w-8 h-8" />, color: 'bg-blue-500' },
-  { id: 'sword', name: 'Sword', icon: <img src="/images/items/sword.png" alt="Sword" className="w-8 h-8" />, color: 'bg-red-500' },
-  { id: 'armor', name: 'Armor', icon: <img src="/images/items/armor.png" alt="Armor" className="w-8 h-8" />, color: 'bg-gray-500' },
-  { id: 'artifact', name: 'Artifact', icon: <img src="/images/items/artifact.png" alt="Artifact" className="w-8 h-8" />, color: 'bg-purple-500' },
-  { id: 'potion', name: 'Potion', icon: <img src="/images/items/potion.png" alt="Potion" className="w-8 h-8" />, color: 'bg-green-500' },
+  { id: 'shield', name: 'Shield', icon: <Shield className="w-8 h-8" />, color: 'bg-blue-500' },
+  { id: 'sword', name: 'Sword', icon: <Sword className="w-8 h-8" />, color: 'bg-red-500' },
+  { id: 'armor', name: 'Armor', icon: <Armor className="w-8 h-8" />, color: 'bg-gray-500' },
+  { id: 'artifact', name: 'Artifact', icon: <Zap className="w-8 h-8" />, color: 'bg-purple-500' },
+  { id: 'potion', name: 'Potion', icon: <Heart className="w-8 h-8" />, color: 'bg-green-500' },
 ]
 
 const monsterData = {
   dragon: {
     name: 'Dragoni',
-    image: '/images/Monsters/201.png',
+    image: '/images/Monsters/Dragoni.png',
     description: 'A fearsome dragon with scales as hard as steel',
     difficulty: 'Hard',
     achievementId: '201'
@@ -307,8 +307,8 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
                 disabled={!isPlayerTurn || isShowingSequence || gameState !== 'playing'}
                 className={cn(
                   "h-20 flex flex-col items-center justify-center gap-2 transition-all duration-200",
-                  highlightedWeapon === weapon.id && "scale-110 ring-4 ring-yellow-400",
-                  isPlayerTurn && !isShowingSequence && "hover:scale-105",
+                  highlightedWeapon === weapon.id && "ring-4 ring-yellow-400 bg-yellow-600",
+                  isPlayerTurn && !isShowingSequence && "hover:bg-opacity-80",
                   weapon.color
                 )}
                 aria-label={`Select ${weapon.name}`}
