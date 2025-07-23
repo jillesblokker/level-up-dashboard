@@ -49,6 +49,26 @@ export function checkMonsterSpawn(grid: Tile[][], placedTileType: string): Spawn
     return { shouldSpawn: false };
   }
 
+  // Check if a monster of this type already exists
+  let monsterAlreadyExists = false;
+  for (let y = 0; y < grid.length; y++) {
+    const row = grid[y];
+    if (!row) continue;
+    for (let x = 0; x < row.length; x++) {
+      const tile = row[x];
+      if (tile?.hasMonster === condition.monsterType) {
+        monsterAlreadyExists = true;
+        break;
+      }
+    }
+    if (monsterAlreadyExists) break;
+  }
+
+  // If monster already exists, don't spawn another one
+  if (monsterAlreadyExists) {
+    return { shouldSpawn: false };
+  }
+
   // Count tiles of the placed type
   let tileCount = 0;
   for (let y = 0; y < grid.length; y++) {
