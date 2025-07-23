@@ -166,7 +166,15 @@ html {
 }
 
 .content-container {
-  @apply relative max-w-md mx-auto p-8 rounded-xl backdrop-blur-md bg-black/60 text-white border border-white/10 shadow-xl;
+  position: relative;
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 2rem;
+  border-radius: 0.75rem;
+  background-color: #4d0000; /* Dark red from design system */
+  color: #ffffff;
+  border: 2px solid #3d0000;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
 }
 
 .content-container h2 {
@@ -256,89 +264,137 @@ main {
   }
 }
 
-/* Custom styles */
+/* Medieval Card Styles - Solid Colors for Authentic Look */
 .card {
-  background-color: var(--card-background);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: #4d0000; /* Dark red from design system - WCAG AA compliant with white text */
+  border: 2px solid #3d0000; /* Darker red border */
   border-radius: 0.5rem;
   padding: 1rem;
   transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .card .card {
-  background-color: var(--card-background);
+  background-color: #240014; /* Dark purple-red for nested cards */
+  border: 2px solid #1a000e;
 }
 
 .card .card .card {
-  background-color: var(--card-background);
+  background-color: #2d1300; /* Dark brown for deeper nesting */
+  border: 2px solid #1f0d00;
 }
 
 .card .card .card .card {
-  background-color: var(--card-background);
+  background-color: #00003c; /* Dark navy for deepest nesting */
+  border: 2px solid #00002a;
 }
 
 .card .card .card .card .card {
-  background-color: var(--card-background);
+  background-color: #190037; /* Dark indigo for maximum nesting */
+  border: 2px solid #0f0024;
 }
 
 .card-header {
-  @apply border-b border-amber-800/20;
+  border-bottom: 2px solid #3d0000;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
 }
 
 .card-title {
-  @apply text-white font-serif tracking-wide;
+  color: #ffffff; /* Pure white for maximum contrast - WCAG AAA */
+  font-family: var(--font-cardo), serif;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  font-size: 1.25rem;
 }
 
 .card-description {
-  @apply text-gray-300;
+  color: #f0f0f0; /* Light gray - WCAG AA compliant */
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
 .card-content {
-  @apply text-white;
+  color: #ffffff; /* Pure white for maximum contrast - WCAG AAA */
+  line-height: 1.6;
 }
 
-/* Dark mode adjustments - ensure they don't override our solid background */
+/* Dark mode adjustments - maintain medieval colors */
 .dark .card {
-  background-color: var(--card-background);
+  background-color: #4d0000;
+  border-color: #3d0000;
 }
 
 .dark .card .card {
-  background-color: var(--card-background);
+  background-color: #240014;
+  border-color: #1a000e;
 }
 
 .dark .card .card .card {
-  background-color: var(--card-background);
+  background-color: #2d1300;
+  border-color: #1f0d00;
 }
 
 .dark .card .card .card .card {
-  background-color: var(--card-background);
+  background-color: #00003c;
+  border-color: #00002a;
 }
 
 .dark .card .card .card .card .card {
-  background-color: var(--card-background);
+  background-color: #190037;
+  border-color: #0f0024;
 }
 
 .text-muted {
-  @apply text-gray-400;
+  color: #d0d0d0; /* Light gray - WCAG AA compliant */
 }
 
-/* Button styling */
+/* Medieval Button Styling */
 .btn-primary {
-  @apply bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white;
+  background: linear-gradient(135deg, #92400e, #78350f);
+  color: #ffffff;
+  border: 2px solid #b45309;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #78350f, #5c2d0b);
+  border-color: #92400e;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
 
 .btn-secondary {
-  @apply bg-gray-900 hover:bg-gray-800 text-white border border-amber-800/20;
+  background-color: #00003c; /* Dark navy from design system */
+  color: #ffffff;
+  border: 2px solid #0c0047;
+  transition: all 0.2s ease-in-out;
 }
 
-/* Progress bars */
+.btn-secondary:hover {
+  background-color: #0c0047;
+  border-color: #14004a;
+  transform: translateY(-1px);
+}
+
+/* Medieval Progress Bars */
 .progress-bar {
-  @apply bg-gradient-to-r from-amber-600 to-amber-800;
+  background: linear-gradient(90deg, #92400e, #b45309);
+  border: 1px solid #78350f;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-/* Badge styling */
+/* Medieval Badge Styling */
 .badge {
-  @apply bg-amber-900/30 text-white border border-amber-800/20;
+  background-color: #240014; /* Dark purple-red from design system */
+  color: #ffffff;
+  border: 1px solid #3d0000;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* Hover effects */
@@ -778,10 +834,21 @@ main {
   @apply flex-1 min-w-0 whitespace-nowrap;
 }
 
-/* Card layout consistency */
+/* Medieval Card Layout Consistency */
 .card {
-  @apply relative border border-amber-800/20 rounded-lg p-4 shadow-lg transition-all duration-200 hover:shadow-amber-800/10 hover:border-amber-800/30;
-  background: linear-gradient(to bottom, var(--card-gradient-start), var(--card-gradient-end));
+  position: relative;
+  border: 2px solid #3d0000;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease-in-out;
+  background-color: #4d0000;
+}
+
+.card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+  border-color: #5c0000;
+  transform: translateY(-2px);
 }
 
 /* Card content layout */
