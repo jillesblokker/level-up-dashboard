@@ -450,6 +450,14 @@ export default function RealmPage() {
 
     // Place tile: update grid and send only the changed tile to backend
     const handlePlaceTile = async (x: number, y: number) => {
+        // Check for monster battle first (regardless of game mode)
+        const clickedTile = grid[y]?.[x];
+        if (clickedTile?.hasMonster) {
+            setCurrentMonster(clickedTile.hasMonster);
+            setBattleOpen(true);
+            return;
+        }
+        
         if (gameMode !== 'build' || !selectedTile) return;
         const tileToPlace = inventory[selectedTile.type];
         if (!tileToPlace || (tileToPlace.quantity ?? 0) <= 0) return;
@@ -742,6 +750,13 @@ export default function RealmPage() {
                 return;
             }
             
+            // Check for monster battle
+            if (targetTile?.hasMonster) {
+                setCurrentMonster(targetTile.hasMonster);
+                setBattleOpen(true);
+                return;
+            }
+            
             if (newX !== currentPos.x || newY !== currentPos.y) {
                 setCharacterPosition({ x: newX, y: newY });
             }
@@ -756,6 +771,13 @@ export default function RealmPage() {
         if (!grid.length || !grid[characterPosition.y]?.[characterPosition.x]) return;
         const currentTile = grid[characterPosition.y]?.[characterPosition.x];
         if (currentTile) {
+            // Check for monster battle first
+            if (currentTile.hasMonster) {
+                setCurrentMonster(currentTile.hasMonster);
+                setBattleOpen(true);
+                return;
+            }
+            
             switch (currentTile.type) {
                 case 'castle': {
                     setCastleEvent({ open: true });
