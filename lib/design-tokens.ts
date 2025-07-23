@@ -31,20 +31,20 @@ export const typography = {
   mono: 'font-mono',
 
   // Line Heights
-  none: 'leading-none',     // 1
-  tight: 'leading-tight',   // 1.25
-  snug: 'leading-snug',     // 1.375
-  normal: 'leading-normal', // 1.5
-  relaxed: 'leading-relaxed', // 1.625
-  loose: 'leading-loose',   // 2
+  lineNone: 'leading-none',     // 1
+  lineTight: 'leading-tight',   // 1.25
+  lineSnug: 'leading-snug',     // 1.375
+  lineNormal: 'leading-normal', // 1.5
+  lineRelaxed: 'leading-relaxed', // 1.625
+  lineLoose: 'leading-loose',   // 2
 
   // Letter Spacing
-  tighter: 'tracking-tighter',
-  tight: 'tracking-tight',
-  normal: 'tracking-normal',
-  wide: 'tracking-wide',
-  wider: 'tracking-wider',
-  widest: 'tracking-widest',
+  letterTighter: 'tracking-tighter',
+  letterTight: 'tracking-tight',
+  letterNormal: 'tracking-normal',
+  letterWide: 'tracking-wide',
+  letterWider: 'tracking-wider',
+  letterWidest: 'tracking-widest',
 } as const
 
 export const spacing = {
@@ -219,13 +219,20 @@ export const hover = {
   glow: 'hover:shadow-amber-800/20',
 } as const
 
+// Type definitions for typography parameters
+type TypographySize = 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl'
+type TypographyWeight = 'thin' | 'extralight' | 'light' | 'normal' | 'medium' | 'semibold' | 'bold' | 'extrabold' | 'black'
+type TypographyFamily = 'sans' | 'serif' | 'mono'
+type TypographyLineHeight = 'lineNone' | 'lineTight' | 'lineSnug' | 'lineNormal' | 'lineRelaxed' | 'lineLoose'
+type TypographyLetterSpacing = 'letterTighter' | 'letterTight' | 'letterNormal' | 'letterWide' | 'letterWider' | 'letterWidest'
+
 // Utility Functions
 export const createTypographyClass = (
-  size: keyof typeof typography,
-  weight: keyof typeof typography = 'normal',
-  family: keyof typeof typography = 'sans',
-  lineHeight?: keyof typeof typography,
-  letterSpacing?: keyof typeof typography
+  size: TypographySize,
+  weight: TypographyWeight = 'normal',
+  family: TypographyFamily = 'sans',
+  lineHeight?: TypographyLineHeight,
+  letterSpacing?: TypographyLetterSpacing
 ) => {
   const classes = [typography[size], typography[weight], typography[family]]
   if (lineHeight) classes.push(typography[lineHeight])
