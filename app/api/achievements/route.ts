@@ -8,6 +8,7 @@
 // Health check endpoint: GET /api/achievements?health=1
 // Test endpoint: GET /api/achievements?test=1
 // Debug endpoint: GET /api/achievements?debug=1
+// FORCE DEPLOYMENT: This comment ensures fresh deployment
 
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
