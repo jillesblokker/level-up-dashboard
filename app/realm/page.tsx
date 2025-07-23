@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { X, Hammer, Move, Package, Settings, Save, Trash2, RotateCcw, PlusCircle } from 'lucide-react'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useRouter } from 'next/navigation'
 import { EnterLocationModal } from '@/components/enter-location-modal'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
@@ -1199,25 +1200,32 @@ export default function RealmPage() {
                         <Switch id="auto-save-switch" checked={autoSave} onCheckedChange={setAutoSave} />
                         <label htmlFor="auto-save-switch" className="text-sm">Auto Save</label>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={expandMap}
-                        disabled={!canExpand}
-                        aria-label="Expand Map"
-                        title={canExpand ? 'Expand your realm map' : `Become level ${nextExpansionLevel} to unlock 3 more rows`}
-                        className="flex items-center gap-2 min-w-[44px] min-h-[44px] group relative overflow-visible"
-                      >
-                        <PlusCircle className="w-4 h-4" />
-                        <span className="hidden sm:inline">Expand Map</span>
-                        {/* Custom tooltip for disabled state */}
-                        {!canExpand && (
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-[9999]">
-                            Become level {nextExpansionLevel} to unlock 3 more rows
-                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                          </div>
-                        )}
-                      </Button>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={expandMap}
+                              disabled={!canExpand}
+                              aria-label="Expand Map"
+                              className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                            >
+                              <PlusCircle className="w-4 h-4" />
+                              <span className="hidden sm:inline">Expand Map</span>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent 
+                            side="top" 
+                            className="bg-gray-900 text-white border-amber-800/30"
+                          >
+                            {canExpand 
+                              ? 'Expand your realm map to unlock 3 more rows' 
+                              : `Become level ${nextExpansionLevel} to unlock 3 more rows`
+                            }
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                       <Button
                         variant="outline"
                         size="sm"

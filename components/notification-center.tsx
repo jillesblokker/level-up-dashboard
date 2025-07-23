@@ -92,9 +92,9 @@ export function NotificationCenter() {
           <img
             src="/images/Notifications/no-mail.png"
             alt="No mail"
-            className="mx-auto w-full h-full max-h-[280px] object-cover rounded-lg"
+            className="mx-auto w-full h-auto max-h-[400px] object-contain rounded-lg"
             width={320}
-            height={340}
+            height={400}
             onError={(e) => { e.currentTarget.src = '/images/placeholders/item-placeholder.svg'; e.currentTarget.alt = 'Image not found'; }}
           />
         </div>
