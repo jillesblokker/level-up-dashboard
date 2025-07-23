@@ -157,7 +157,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
                 key={`tile-${x - 1}-${y - 1}`}
                 className={cn(
                   "relative w-full h-full aspect-square bg-black/60 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-amber-500",
-                  selectedTile && "ring-2 ring-amber-500"
+                  selectedTile && propertiesOpen && "ring-2 ring-amber-500"
                 )}
                 aria-label={tile.ariaLabel || tile.name || `Tile ${x - 1},${y - 1}`}
                 onClick={() => selectedTile && onTilePlace(x - 1, y - 1, selectedTile)}

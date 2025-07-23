@@ -712,6 +712,101 @@ export default function QuestsPage() {
     }
   };
 
+  // Bulk complete all favorited quests across all categories
+  const handleBulkCompleteAllFavorites = async () => {
+    const allFavoritedQuests = quests.filter(q => 
+      favoritedQuests.has(q.id) && 
+      !q.completed
+    );
+
+    if (allFavoritedQuests.length === 0) {
+      toast({
+        title: "No Favorites to Complete",
+        description: "You have no favorited quests to complete across all categories.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const token = await getToken();
+      if (!token) throw new Error('No Clerk token');
+
+      // Complete all favorited quests across all categories
+      const completionPromises = allFavoritedQuests.map(quest =>
+        fetch('/api/quests/completion', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ questId: quest.id }),
+        }).then(res => {
+          if (!res.ok) throw new Error(`Failed to complete quest ${quest.id}`);
+          return fetch('/api/quests/completion', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ questId: quest.id, completed: true }),
+          });
+        })
+      );
+
+      await Promise.all(completionPromises);
+
+      // Handle rewards for all completed quests
+      let totalXP = 0;
+      let totalGold = 0;
+      
+      allFavoritedQuests.forEach(quest => {
+        if (quest.xp) totalXP += quest.xp;
+        if (quest.gold) totalGold += quest.gold;
+      });
+
+      if (totalXP > 0 || totalGold > 0) {
+        const currentStats = getCharacterStats();
+        updateCharacterStats({
+          gold: (currentStats.gold || 0) + totalGold,
+          experience: (currentStats.experience || 0) + totalXP
+        });
+        
+        // Trigger kingdom stats update
+        if (totalGold > 0) {
+          window.dispatchEvent(new CustomEvent('kingdom:goldGained', { detail: totalGold }));
+        }
+        if (totalXP > 0) {
+          window.dispatchEvent(new CustomEvent('kingdom:experienceGained', { detail: totalXP }));
+        }
+      }
+
+      toast({
+        title: "All Favorites Completed!",
+        description: `Completed ${allFavoritedQuests.length} favorited quests across all categories! ${totalXP > 0 ? `+${totalXP} XP ` : ''}${totalGold > 0 ? `+${totalGold} gold` : ''}`,
+      });
+
+      // Re-fetch quests from backend
+      const fetchRes = await fetch('/api/quests', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (fetchRes.ok) {
+        const data = await fetchRes.json();
+        setQuests(data || []);
+      }
+
+    } catch (err: any) {
+      toast({ 
+        title: 'Error', 
+        description: err.message || 'Failed to complete all favorited quests',
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Mark milestone as complete (sync with backend)
   const handleMilestoneToggle = async (milestoneId: string, currentCompleted: boolean) => {
     try {
@@ -1289,9 +1384,15 @@ export default function QuestsPage() {
                   <Star className="w-4 h-4 mr-2" />
                   Complete {quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length} Favorites
                 </Button>
-                <div className="text-sm text-gray-400">
-                  {favoritedQuests.size} total favorites across all categories
-                </div>
+                <Button
+                  onClick={handleBulkCompleteAllFavorites}
+                  disabled={loading || quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length === 0}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  aria-label="Complete all favorited quests across all categories"
+                >
+                  <Star className="w-4 h-4 mr-2" />
+                  Complete {quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length} Total Favorites
+                </Button>
               </div>
               
               {/* Category Dropdown */}
