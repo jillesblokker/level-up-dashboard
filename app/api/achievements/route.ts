@@ -7,6 +7,7 @@
 //
 // Health check endpoint: GET /api/achievements?health=1
 // Test endpoint: GET /api/achievements?test=1
+// Debug endpoint: GET /api/achievements?debug=1
 
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
@@ -55,6 +56,29 @@ export async function GET(request: Request) {
         return NextResponse.json({ 
           test: 'exception', 
           error: testError instanceof Error ? testError.message : 'Unknown error'
+        }, { status: 500 });
+      }
+    }
+
+    // Debug endpoint
+    if (searchParams.get('debug') === '1') {
+      console.log('[ACHIEVEMENTS][DEBUG] Testing Clerk auth...');
+      try {
+        const { userId } = await auth();
+        console.log('[ACHIEVEMENTS][DEBUG] Clerk auth result:', { userId });
+        
+        return NextResponse.json({
+          debug: 'success',
+          clerkUserId: userId,
+          hasUserId: !!userId,
+          timestamp: new Date().toISOString()
+        });
+      } catch (authError) {
+        console.error('[ACHIEVEMENTS][DEBUG] Clerk auth error:', authError);
+        return NextResponse.json({
+          debug: 'auth_error',
+          error: authError instanceof Error ? authError.message : 'Unknown auth error',
+          timestamp: new Date().toISOString()
         }, { status: 500 });
       }
     }
