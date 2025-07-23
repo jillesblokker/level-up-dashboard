@@ -246,7 +246,7 @@ export default function MarketPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="space-y-4">
-            <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
+            <Card className="medieval-card">
               <CardHeader>
                 <CardTitle className="font-serif">Filters</CardTitle>
               </CardHeader>
@@ -334,7 +334,7 @@ export default function MarketPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
+            <Card className="medieval-card">
               <CardHeader>
                 <CardTitle className="font-serif">Cart</CardTitle>
                 <CardDescription>{cart.length} items</CardDescription>

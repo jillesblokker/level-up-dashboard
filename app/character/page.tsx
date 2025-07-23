@@ -881,12 +881,12 @@ export default function CharacterPage() {
                       return (
                         <Card
                           key={title.id}
-                          className={`medieval-card w-full ${
+                          className={`w-full ${
                             !isUnlocked
-                              ? "opacity-60"
+                              ? "medieval-card-undiscovered"
                               : isCurrent
-                                ? "border-amber-500 bg-amber-50/30 dark:bg-amber-900/20"
-                                : ""
+                                ? "medieval-card border-amber-500"
+                                : "medieval-card"
                           }`}
                         >
                           <CardHeader className="pb-2">
@@ -950,12 +950,12 @@ export default function CharacterPage() {
                     {perks.map((perk) => (
                       <Card
                         key={perk.id}
-                        className={`medieval-card w-full ${
+                        className={`w-full ${
                           !perk.unlocked
-                            ? "opacity-60 border-gray-500"
+                            ? "medieval-card-undiscovered"
                             : perk.active
-                              ? "border-purple-500 bg-purple-50/30 dark:bg-purple-900/20"
-                              : ""
+                              ? "medieval-card border-purple-500"
+                              : "medieval-card"
                         }`}
                       >
                         <CardHeader className="pb-2">

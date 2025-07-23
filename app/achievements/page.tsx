@@ -336,7 +336,7 @@ export default function Page() {
                 return (
                   <Card
                     key={creature.id}
-                    className={`medieval-card flex flex-col items-center justify-center min-h-[420px] p-4 shadow-lg border-2 rounded-xl transition-all duration-300 ${unlocked ? 'border-amber-500 bg-gray-800' : 'border-gray-700 bg-gray-900 opacity-70'}`}
+                    className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-center justify-center min-h-[420px] p-4 shadow-lg border-2 rounded-xl transition-all duration-300`}
                     aria-label={`creature-card-${creature.id}`}
                   >
                     <CardHeader className="w-full flex flex-col items-center text-center">
@@ -410,7 +410,7 @@ export default function Page() {
                   return (
                     <Card
                       key={achievement.id}
-                      className={`medieval-card flex flex-col items-center justify-center min-h-[420px] p-4 shadow-lg border-2 rounded-xl transition-all duration-300 ${unlocked ? 'border-amber-500 bg-gray-800' : 'border-gray-700 bg-gray-900 opacity-70'}`}
+                      className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-center justify-center min-h-[420px] p-4 shadow-lg border-2 rounded-xl transition-all duration-300`}
                       aria-label={`achievement-card-${achievement.id}`}
                     >
                       <CardHeader className="w-full flex flex-col items-center text-center">

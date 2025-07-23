@@ -204,7 +204,7 @@ export function Equipment() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Character Preview */}
-        <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20 col-span-1">
+                    <Card className="medieval-card col-span-1">
           <CardHeader>
             <CardTitle className="font-serif">Character</CardTitle>
             <CardDescription>Your equipped items and stats</CardDescription>
@@ -336,7 +336,7 @@ export function Equipment() {
         </Card>
 
         {/* Equipment List */}
-        <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20 col-span-1 lg:col-span-2">
+                    <Card className="medieval-card col-span-1 lg:col-span-2">
           <CardHeader>
             <CardTitle className="font-serif">Available Equipment</CardTitle>
             <CardDescription>Select items to equip your character</CardDescription>

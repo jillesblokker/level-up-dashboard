@@ -1415,7 +1415,7 @@ export default function QuestsPage() {
             </div>
             {/* Quest Streak Summary Card */}
             <div className="mb-6">
-              <Card className="flex flex-col md:flex-row items-center gap-6 p-6 bg-[#1C2634] border-2 border-amber-800/20 shadow-md" aria-label="quest-streak-summary-card">
+              <Card className="medieval-card-royal flex flex-col md:flex-row items-center gap-6 p-6 shadow-md" aria-label="quest-streak-summary-card">
                 {/* Streak Icon and Count */}
                 <div className="flex flex-col items-center justify-center bg-[#16202b] rounded-2xl p-6 min-w-[120px]">
                   <Flame className="w-14 h-14 text-[#0D7200]" aria-hidden="true" />
@@ -1488,7 +1488,7 @@ export default function QuestsPage() {
                 {(questsByCategorySafe[safeQuestCategory] ?? []).length === 0 && (
                   <div className="text-center text-gray-400">No quests found for this category.</div>
                 )}
-                <Card className="border-2 border-dashed border-gray-700 hover:border-amber-500 transition-colors cursor-pointer flex items-center justify-center min-h-[160px]" onClick={() => setAddQuestModalOpen(true)} tabIndex={0} role="button" aria-label="add-custom-quest-card" onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setAddQuestModalOpen(true); } }}>
+                <Card className="medieval-card-nested border-2 border-dashed border-gray-600 hover:border-gray-400 transition-colors cursor-pointer flex items-center justify-center min-h-[160px]" onClick={() => setAddQuestModalOpen(true)} tabIndex={0} role="button" aria-label="add-custom-quest-card" onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setAddQuestModalOpen(true); } }}>
                   <div className="text-center text-gray-500">
                     <Plus className="w-8 h-8 mx-auto mb-2" />
                     <p>Add Custom Quest</p>
@@ -1516,7 +1516,7 @@ export default function QuestsPage() {
             </div>
             {/* Challenge Streak Summary Card (new style) */}
             <div className="mb-6">
-              <Card className="flex flex-col md:flex-row items-center gap-6 p-6 bg-[#1C2634] border-2 border-amber-800/20 shadow-md" aria-label="challenge-streak-summary-card">
+                              <Card className="medieval-card-royal flex flex-col md:flex-row items-center gap-6 p-6 shadow-md" aria-label="challenge-streak-summary-card">
                 {/* Streak Icon and Count */}
                 <div className="flex flex-col items-center justify-center bg-[#16202b] rounded-2xl p-6 min-w-[120px]">
                   <Flame className="w-14 h-14 text-[#0D7200]" aria-hidden="true" />

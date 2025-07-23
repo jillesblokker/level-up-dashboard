@@ -51,8 +51,8 @@ const CardWithProgress: React.FC<UnifiedCardProps> = ({
   return (
     <Card
       className={cn(
-        'flex flex-col border-2 border-amber-800/20 bg-black/30 shadow-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500',
-        completed ? 'bg-green-900/30' : '',
+        'medieval-card-task flex flex-col shadow-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500',
+        completed ? 'medieval-card-deep' : '',
         className
       )}
       tabIndex={0}

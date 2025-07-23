@@ -254,7 +254,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Streak Recovery System - Takes 2/3 width on desktop */}
         <div className="lg:col-span-2">
-          <Card className="bg-gradient-to-br from-blue-900/30 via-purple-900/20 to-blue-900/30 border-blue-800/50 h-full shadow-lg" aria-label="streak-recovery-status-card">
+                          <Card className="medieval-card-royal h-full shadow-lg" aria-label="streak-recovery-status-card">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-3 text-xl font-bold text-blue-200">
                 <Heart className="w-6 h-6 text-blue-400" />
@@ -307,7 +307,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
         {/* Safety Net Action - Takes 1/3 width on desktop */}
         {recoveryFeaturesAvailable && !safetyNetUsed && missedDaysThisWeek === 0 && (
           <div className="lg:col-span-1">
-            <Card className="border-green-800/50 bg-gradient-to-br from-green-900/30 to-emerald-900/20 h-full shadow-lg" aria-label="safety-net-card">
+                            <Card className="medieval-card-deep h-full shadow-lg" aria-label="safety-net-card">
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center gap-3 text-xl font-bold text-green-200">
                   <Shield className="w-6 h-6 text-green-400" />
@@ -365,7 +365,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
 
       {/* Comeback Challenges */}
       {recoveryFeaturesAvailable && qualifiesForComeback && comebackChallenges.length > 0 && (
-        <Card className="border-orange-800/50 bg-gradient-to-br from-orange-900/30 to-amber-900/20 shadow-lg" aria-label="comeback-challenges-card">
+                        <Card className="medieval-card-earth shadow-lg" aria-label="comeback-challenges-card">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-3 text-xl font-bold text-orange-200">
               <AlertTriangle className="w-6 h-6 text-orange-400" />
