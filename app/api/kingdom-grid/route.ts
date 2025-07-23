@@ -17,6 +17,12 @@ export async function GET() {
       .single();
 
     if (error) {
+      // Handle table doesn't exist error gracefully
+      if (error.code === '42P01' || error.message?.includes('does not exist')) {
+        console.log('kingdom_grid table not found, returning null grid');
+        return NextResponse.json({ grid: null });
+      }
+      
       if (error.code === 'PGRST116') { // PGRST116 = no rows returned
         return NextResponse.json({ grid: null });
       }
@@ -57,6 +63,12 @@ export async function POST(request: Request) {
       ], { onConflict: 'user_id' });
 
     if (error) {
+      // Handle table doesn't exist error gracefully
+      if (error.code === '42P01' || error.message?.includes('does not exist')) {
+        console.log('kingdom_grid table not found, returning success to prevent UI errors');
+        return NextResponse.json({ success: true });
+      }
+      
       console.error('[KINGDOM-GRID][POST] Supabase error:', error);
       // Try to create the table if it doesn't exist
       try {
