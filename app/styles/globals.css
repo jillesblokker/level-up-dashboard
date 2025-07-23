@@ -107,7 +107,6 @@
     overflow-y: auto;
     width: 100vw;
     height: 100vh;
-    background: linear-gradient(135deg, var(--background-start), var(--background-end));
     background-image: url('/images/backgroundi.png'), linear-gradient(135deg, var(--background-start), var(--background-end));
     background-size: cover, cover;
     background-position: center, center;
@@ -123,8 +122,17 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
   }
+}
+
+/* Custom background override to ensure image shows */
+body {
+  background-image: url('/images/backgroundi.png'), linear-gradient(135deg, var(--background-start), var(--background-end)) !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+  background-repeat: no-repeat, no-repeat !important;
+  background-attachment: fixed, fixed !important;
 }
 
 /* Custom styles */

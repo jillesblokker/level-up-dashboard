@@ -42,13 +42,13 @@
 
 /* Base styles */
 body {
-  background-color: var(--parchment-light);
+  background-color: transparent;
   font-family: var(--font-body);
   color: #333;
 }
 
 .dark body {
-  background-color: #1a1a1a;
+  background-color: transparent;
   color: #e0e0e0;
 }
 
