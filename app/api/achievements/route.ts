@@ -8,6 +8,7 @@
 // Health check endpoint: GET /api/achievements?health=1
 // Test endpoint: GET /api/achievements?test=1
 // Debug endpoint: GET /api/achievements?debug=1
+// Schema test endpoint: GET /api/achievements?schema=1
 // FORCE DEPLOYMENT: This comment ensures fresh deployment
 
 import { NextResponse } from 'next/server';
@@ -61,6 +62,46 @@ export async function GET(request: Request) {
       }
     }
 
+    // Schema test endpoint
+    if (searchParams.get('schema') === '1') {
+      console.log('[ACHIEVEMENTS][SCHEMA] Testing table schema...');
+      try {
+        // Try to select all columns to see what exists
+        const { data, error } = await supabaseServer
+          .from('achievements')
+          .select('*')
+          .limit(1);
+        
+        if (error) {
+          console.error('[ACHIEVEMENTS][SCHEMA] Schema test error:', error);
+          return NextResponse.json({ 
+            schema: 'error', 
+            error: error.message,
+            code: error.code,
+            details: error.details
+          }, { status: 500 });
+        }
+        
+        // Get column information
+        const { data: columns, error: columnError } = await supabaseServer
+          .rpc('get_table_columns', { table_name: 'achievements' })
+          .single();
+        
+        return NextResponse.json({ 
+          schema: 'success', 
+          data: data,
+          columns: columnError ? 'Could not get column info' : columns,
+          timestamp: new Date().toISOString()
+        });
+      } catch (schemaError) {
+        console.error('[ACHIEVEMENTS][SCHEMA] Schema test exception:', schemaError);
+        return NextResponse.json({ 
+          schema: 'exception', 
+          error: schemaError instanceof Error ? schemaError.message : 'Unknown error'
+        }, { status: 500 });
+      }
+    }
+
     // Debug endpoint
     if (searchParams.get('debug') === '1') {
       console.log('[ACHIEVEMENTS][DEBUG] Testing Clerk auth...');
@@ -102,12 +143,11 @@ export async function GET(request: Request) {
 
     console.log('[ACHIEVEMENTS][GET] Fetching achievements for user:', targetUserId);
 
-    // Fetch achievements from Supabase
+    // Fetch achievements from Supabase - try without ordering first
     const { data, error } = await supabaseServer
       .from('achievements')
       .select('*')
-      .eq('user_id', targetUserId)
-      .order('unlocked_at', { ascending: false });
+      .eq('user_id', targetUserId);
 
     if (error) {
       console.error('[ACHIEVEMENTS][GET] Supabase query error:', error);
