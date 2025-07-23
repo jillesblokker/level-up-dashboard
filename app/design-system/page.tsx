@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState } from "react"
@@ -63,13 +62,13 @@ export default function DesignSystemPage() {
   const { startColor, endColor, updateGradient } = useGradient()
 
   const [colors, setColors] = useState<ColorItem[]>([
-    { name: "Primary", class: "bg-amber-500", description: "Main accent color", value: "#f59e0b" },
-    { name: "Secondary", class: "bg-amber-900/20", description: "Secondary accent color", value: "#78350f33" },
-    { name: "Background", class: "bg-black", description: "Main background color", value: "#000000" },
-    { name: "Card Background", class: "bg-gray-900", description: "Card and component background", value: "#111827" },
-    { name: "Border", class: "border-amber-800/20", description: "Border color for components", value: "#92400e33" },
-    { name: "Text Primary", class: "text-white", description: "Primary text color", value: "#ffffff" },
-    { name: "Text Secondary", class: "text-gray-400", description: "Secondary text color", value: "#9ca3af" },
+    { name: "Primary", class: "bg-amber-500", description: "Main accent color for buttons, links, and highlights", value: "#f59e0b" },
+    { name: "Secondary", class: "bg-amber-900/20", description: "Secondary accent for subtle backgrounds", value: "#78350f33" },
+    { name: "Background", class: "bg-black", description: "Main application background", value: "#000000" },
+    { name: "Card Background", class: "bg-gray-900", description: "Card and component backgrounds", value: "#111827" },
+    { name: "Border", class: "border-amber-800/20", description: "Border color for components and dividers", value: "#92400e33" },
+    { name: "Text Primary", class: "text-white", description: "Primary text for headings and important content", value: "#ffffff" },
+    { name: "Text Secondary", class: "text-gray-400", description: "Secondary text for descriptions and captions", value: "#9ca3af" },
   ])
 
   const [gradients, setGradients] = useState<GradientItem[]>([
@@ -126,7 +125,7 @@ export default function DesignSystemPage() {
     },
   ])
 
-  const [activeTab, setActiveTab] = useState<string>("colors")
+  const [activeTab, setActiveTab] = useState<string>("overview")
 
   const handleColorChange = (index: number, newValue: string) => {
     if (!colors[index]) return;
@@ -172,481 +171,522 @@ export default function DesignSystemPage() {
 
   return (
     <div className="min-h-screen bg-black">
-      <div className="container max-w-4xl py-6">
-        <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
-          <CardHeader>
-            <CardTitle className="font-serif text-2xl text-white">Design System</CardTitle>
-            <CardDescription className="text-gray-400">UI components and styling guidelines</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="colors" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-              {/* Mobile tab selector */}
-              <div className="mb-4 md:hidden">
-                <label htmlFor="design-system-tab-select" className="sr-only">Select design system tab</label>
-                <select
-                  id="design-system-tab-select"
-                  aria-label="Design system tab selector"
-                  className="w-full rounded-md border border-amber-800/20 bg-black text-white p-2"
-                  value={activeTab}
-                  onChange={e => setActiveTab(e.target.value)}
-                >
-                  <option value="colors">Colors</option>
-                  <option value="gradients">Gradients</option>
-                  <option value="typography">Typography</option>
-                  <option value="tokens">Design Tokens</option>
-                  <option value="components">Components</option>
-                </select>
-              </div>
-              <TabsList className="bg-gray-900/50 p-1 gap-1 hidden md:flex">
-                <TabsTrigger value="colors">Colors</TabsTrigger>
-                <TabsTrigger value="gradients">Gradients</TabsTrigger>
-                <TabsTrigger value="typography">Typography</TabsTrigger>
-                <TabsTrigger value="tokens">Design Tokens</TabsTrigger>
-                <TabsTrigger value="components">Components</TabsTrigger>
-              </TabsList>
+      {/* Hero Section */}
+      <div className="bg-gradient-to-b from-amber-900/20 to-black border-b border-amber-800/20">
+        <div className="container max-w-7xl py-12 px-6">
+          <div className="text-center space-y-4">
+            <h1 className="font-serif text-5xl font-bold text-amber-400 tracking-wide">
+              Thrivehaven Design System
+            </h1>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              A comprehensive design system for the medieval kingdom management game. 
+              Built with consistency, accessibility, and user experience in mind.
+            </p>
+            <div className="flex items-center justify-center space-x-6 text-sm text-gray-400">
+              <span>🎨 Design Tokens</span>
+              <span>📱 Mobile First</span>
+              <span>♿ Accessibility</span>
+              <span>⚡ Performance</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-              <TabsContent value="colors" className="space-y-4">
-                {colors.map((color: ColorItem, index) => (
-                  <div key={index} className="flex items-center gap-4">
-                    <div className={`${styles['colorBox']} ${styles[`preview-${color.name.toLowerCase()}`]}`} />
-                    <div className="flex-1">
-                      <h3 className="text-white font-medium">{color.name ?? ''}</h3>
-                      <p className="text-gray-400 text-sm mb-2">{color.description ?? ''}</p>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          type="color"
-                          value={color.value ?? ''}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleColorChange(index, e.target.value)}
-                          className="w-16 h-8"
-                        />
-                        <Input
-                          type="text"
-                          value={color.value ?? ''}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleColorChange(index, e.target.value)}
-                          className="w-32"
-                        />
+      {/* Main Content */}
+      <div className="container max-w-7xl py-8 px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Sidebar Navigation */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-8">
+              <Card className="bg-gray-900/50 border-amber-800/20">
+                <CardHeader>
+                  <CardTitle className="text-lg text-amber-400">Navigation</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <button
+                    onClick={() => setActiveTab("overview")}
+                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                      activeTab === "overview" 
+                        ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" 
+                        : "text-gray-300 hover:bg-gray-800/50"
+                    }`}
+                  >
+                    Overview
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("colors")}
+                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                      activeTab === "colors" 
+                        ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" 
+                        : "text-gray-300 hover:bg-gray-800/50"
+                    }`}
+                  >
+                    Colors
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("typography")}
+                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                      activeTab === "typography" 
+                        ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" 
+                        : "text-gray-300 hover:bg-gray-800/50"
+                    }`}
+                  >
+                    Typography
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("spacing")}
+                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                      activeTab === "spacing" 
+                        ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" 
+                        : "text-gray-300 hover:bg-gray-800/50"
+                    }`}
+                  >
+                    Spacing
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("tokens")}
+                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                      activeTab === "tokens" 
+                        ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" 
+                        : "text-gray-300 hover:bg-gray-800/50"
+                    }`}
+                  >
+                    Design Tokens
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("components")}
+                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                      activeTab === "components" 
+                        ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" 
+                        : "text-gray-300 hover:bg-gray-800/50"
+                    }`}
+                  >
+                    Components
+                  </button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Main Content Area */}
+          <div className="lg:col-span-3">
+            <Card className="bg-gradient-to-b from-gray-900/50 to-black border-amber-800/20">
+              <CardContent className="p-8">
+                {/* Content Sections */}
+                {activeTab === "overview" && (
+                  <div className="space-y-8">
+                    <div>
+                      <h2 className="text-3xl font-bold text-amber-400 mb-6">Design System Overview</h2>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Card className="bg-gray-900/50 border-amber-800/20">
+                          <CardHeader>
+                            <CardTitle className="text-amber-400">🎨 Design Philosophy</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-gray-300 leading-relaxed">
+                              Our design system emphasizes medieval aesthetics while maintaining modern usability. 
+                              We prioritize accessibility, performance, and consistent user experience across all platforms.
+                            </p>
+                          </CardContent>
+                        </Card>
+                        <Card className="bg-gray-900/50 border-amber-800/20">
+                          <CardHeader>
+                            <CardTitle className="text-amber-400">📱 Mobile First</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-gray-300 leading-relaxed">
+                              Built with mobile devices in mind, ensuring touch-friendly interactions and 
+                              responsive layouts that work seamlessly across all screen sizes.
+                            </p>
+                          </CardContent>
+                        </Card>
+                        <Card className="bg-gray-900/50 border-amber-800/20">
+                          <CardHeader>
+                            <CardTitle className="text-amber-400">♿ Accessibility</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-gray-300 leading-relaxed">
+                              WCAG 2.1 AA compliant with proper keyboard navigation, screen reader support, 
+                              and high contrast ratios for inclusive user experience.
+                            </p>
+                          </CardContent>
+                        </Card>
+                        <Card className="bg-gray-900/50 border-amber-800/20">
+                          <CardHeader>
+                            <CardTitle className="text-amber-400">⚡ Performance</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-gray-300 leading-relaxed">
+                              Optimized for speed with efficient animations, lazy loading, and minimal 
+                              bundle sizes to ensure smooth gameplay experience.
+                            </p>
+                          </CardContent>
+                        </Card>
                       </div>
                     </div>
                   </div>
-                ))}
-              </TabsContent>
+                )}
 
-              <TabsContent value="gradients" className="space-y-4">
-                {gradients.map((gradient: GradientItem, index) => (
-                  <div key={index} className="flex items-center gap-4">
-                    <div className={`${styles['gradientBox']} ${styles[`preview-gradient${index+1}`]}`} />
-                    <div className="flex-1">
-                      <h3 className="text-white font-medium">{gradient.name}</h3>
-                      <p className="text-gray-400 text-sm mb-2">{gradient.description}</p>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label className="text-sm text-gray-400">Start Color</Label>
-                          <div className="flex items-center gap-2">
-                            <Input
-                              type="color"
-                              value={gradient.startColor}
-                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleGradientChange(index, 'startColor', e.target.value)}
-                              className="w-16 h-8"
-                            />
-                            <Input
-                              type="text"
-                              value={gradient.startColor}
-                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleGradientChange(index, 'startColor', e.target.value)}
-                              className="w-32"
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <Label className="text-sm text-gray-400">End Color</Label>
-                          <div className="flex items-center gap-2">
-                            <Input
-                              type="color"
-                              value={gradient.endColor === 'transparent' ? '#ffffff' : gradient.endColor}
-                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleGradientChange(index, 'endColor', e.target.value)}
-                              className="w-16 h-8"
-                            />
-                            <Input
-                              type="text"
-                              value={gradient.endColor}
-                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleGradientChange(index, 'endColor', e.target.value)}
-                              className="w-32"
-                            />
-                          </div>
+                {activeTab === "colors" && (
+                  <div className="space-y-8">
+                    <div>
+                      <h2 className="text-3xl font-bold text-amber-400 mb-6">Color Palette</h2>
+                      <p className="text-gray-300 mb-8 leading-relaxed">
+                        Our color system is built around a medieval amber theme with carefully chosen 
+                        semantic colors for different states and interactions.
+                      </p>
+                      
+                      {/* Brand Colors */}
+                      <div className="mb-8">
+                        <h3 className="text-xl font-semibold text-white mb-4">Brand Colors</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {colors.map((color: ColorItem, index) => (
+                            <Card key={index} className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <div className="flex items-center space-x-3 mb-3">
+                                  <div className={`w-8 h-8 rounded-lg ${color.class} border border-gray-700`}></div>
+                                  <div>
+                                    <h4 className="font-medium text-white">{color.name}</h4>
+                                    <p className="text-sm text-gray-400">{color.value}</p>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-gray-300">{color.description}</p>
+                              </CardContent>
+                            </Card>
+                          ))}
                         </div>
                       </div>
-                      <div className="mt-2">
-                        <Label htmlFor="gradient-direction-select" className="text-sm text-gray-400">Direction</Label>
-                        <select
-                          id="gradient-direction-select"
-                          title="Gradient Direction"
-                          value={gradient.direction}
-                          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleGradientChange(index, 'direction', e.target.value)}
-                          className="w-full mt-1 bg-gray-900 border border-gray-800 rounded-md text-white p-2"
-                        >
-                          <option value="to-r">Horizontal</option>
-                          <option value="to-b">Vertical</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </TabsContent>
 
-              <TabsContent value="typography" className="space-y-6">
-                {typography.map((type: TypographyItem, index) => (
-                  <div key={index} className="space-y-4">
-                    <div className="flex justify-between items-start">
+                      {/* Semantic Colors */}
                       <div>
-                        <h3 className="text-white font-medium">{type.name}</h3>
-                        <p className={`${type.class} text-white mt-2`}>{type.example}</p>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4">
-                        <div>
-                          <Label htmlFor={`typography-size-select-${index}`} className="text-sm text-gray-400">Size</Label>
-                          <select
-                            id={`typography-size-select-${index}`}
-                            title="Typography Size"
-                            value={type.fontSize}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleTypographyChange(index, 'fontSize', e.target.value)}
-                            className="w-full mt-1 bg-gray-900 border border-gray-800 rounded-md text-white p-2"
-                          >
-                            <option value="text-xs">Extra Small</option>
-                            <option value="text-sm">Small</option>
-                            <option value="text-base">Base</option>
-                            <option value="text-lg">Large</option>
-                            <option value="text-xl">Extra Large</option>
-                            <option value="text-2xl">2XL</option>
-                            <option value="text-3xl">3XL</option>
-                            <option value="text-4xl">4XL</option>
-                          </select>
-                        </div>
-                        <div>
-                          <Label htmlFor={`typography-weight-select-${index}`} className="text-sm text-gray-400">Weight</Label>
-                          <select
-                            id={`typography-weight-select-${index}`}
-                            title="Typography Weight"
-                            value={type.fontWeight}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleTypographyChange(index, 'fontWeight', e.target.value)}
-                            className="w-full mt-1 bg-gray-900 border border-gray-800 rounded-md text-white p-2"
-                          >
-                            <option value="font-normal">Normal</option>
-                            <option value="font-medium">Medium</option>
-                            <option value="font-semibold">Semi-Bold</option>
-                            <option value="font-bold">Bold</option>
-                          </select>
-                        </div>
-                        <div>
-                          <Label htmlFor={`typography-family-select-${index}`} className="text-sm text-gray-400">Family</Label>
-                          <select
-                            id={`typography-family-select-${index}`}
-                            title="Typography Family"
-                            value={type.fontFamily}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleTypographyChange(index, 'fontFamily', e.target.value)}
-                            className="w-full mt-1 bg-gray-900 border border-gray-800 rounded-md text-white p-2"
-                          >
-                            <option value="font-sans">Sans-Serif</option>
-                            <option value="font-serif">Serif</option>
-                            <option value="font-mono">Monospace</option>
-                          </select>
+                        <h3 className="text-xl font-semibold text-white mb-4">Semantic Colors</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                          <Card className="bg-gray-900/50 border-amber-800/20">
+                            <CardContent className="p-4 text-center">
+                              <div className="w-12 h-12 bg-green-500 rounded-lg mx-auto mb-3"></div>
+                              <h4 className="font-medium text-white mb-1">Success</h4>
+                              <p className="text-sm text-gray-400">Positive actions and achievements</p>
+                            </CardContent>
+                          </Card>
+                          <Card className="bg-gray-900/50 border-amber-800/20">
+                            <CardContent className="p-4 text-center">
+                              <div className="w-12 h-12 bg-amber-500 rounded-lg mx-auto mb-3"></div>
+                              <h4 className="font-medium text-white mb-1">Warning</h4>
+                              <p className="text-sm text-gray-400">Important notices and alerts</p>
+                            </CardContent>
+                          </Card>
+                          <Card className="bg-gray-900/50 border-amber-800/20">
+                            <CardContent className="p-4 text-center">
+                              <div className="w-12 h-12 bg-red-500 rounded-lg mx-auto mb-3"></div>
+                              <h4 className="font-medium text-white mb-1">Error</h4>
+                              <p className="text-sm text-gray-400">Errors and destructive actions</p>
+                            </CardContent>
+                          </Card>
+                          <Card className="bg-gray-900/50 border-amber-800/20">
+                            <CardContent className="p-4 text-center">
+                              <div className="w-12 h-12 bg-blue-500 rounded-lg mx-auto mb-3"></div>
+                              <h4 className="font-medium text-white mb-1">Info</h4>
+                              <p className="text-sm text-gray-400">Informational content</p>
+                            </CardContent>
+                          </Card>
                         </div>
                       </div>
                     </div>
                   </div>
-                ))}
-              </TabsContent>
+                )}
 
-              <TabsContent value="tokens" className="space-y-8">
-                <div>
-                  <h3 className="text-lg font-medium mb-4 text-white">Design Token System</h3>
-                  <div className="grid gap-6">
-                    {/* Typography Tokens */}
-                    <div className="p-4 rounded-lg bg-gray-900/50">
-                      <h4 className="text-md font-medium mb-3 text-white">Typography Scale</h4>
-                      <div className="space-y-2">
-                        {[
-                          { key: 'xs', value: designTokens.xs, label: 'Extra Small Text' },
-                          { key: 'sm', value: designTokens.sm, label: 'Small Text' },
-                          { key: 'base', value: designTokens.base, label: 'Base Text' },
-                          { key: 'lg', value: designTokens.lg, label: 'Large Text' },
-                          { key: 'xl', value: designTokens.xl, label: 'Extra Large Text' },
-                          { key: '2xl', value: designTokens['2xl'], label: '2XL Text' },
-                          { key: '3xl', value: designTokens['3xl'], label: '3XL Text' },
-                          { key: '4xl', value: designTokens['4xl'], label: '4XL Text' },
-                          { key: '5xl', value: designTokens['5xl'], label: '5XL Text' },
-                        ].map(({ key, value, label }) => (
-                          <div key={key} className="flex items-center justify-between">
-                            <span className="text-gray-400 text-sm">{key}:</span>
-                            <span className={`${value} text-white`}>{label}</span>
-                          </div>
-                        ))}
+                {activeTab === "typography" && (
+                  <div className="space-y-8">
+                    <div>
+                      <h2 className="text-3xl font-bold text-amber-400 mb-6">Typography</h2>
+                      <p className="text-gray-300 mb-8 leading-relaxed">
+                        Our typography system uses a combination of serif and sans-serif fonts to create 
+                        a medieval aesthetic while maintaining excellent readability.
+                      </p>
+                      
+                      {/* Font Scale */}
+                      <div className="mb-8">
+                        <h3 className="text-xl font-semibold text-white mb-4">Font Scale</h3>
+                        <div className="space-y-4">
+                          {[
+                            { key: '5xl', value: designTokens['5xl'], label: 'Hero Headings', example: 'Thrivehaven Kingdom' },
+                            { key: '4xl', value: designTokens['4xl'], label: 'Page Headings', example: 'Welcome to Your Realm' },
+                            { key: '3xl', value: designTokens['3xl'], label: 'Section Headings', example: 'Character Stats' },
+                            { key: '2xl', value: designTokens['2xl'], label: 'Subsection Headings', example: 'Achievements' },
+                            { key: 'xl', value: designTokens.xl, label: 'Card Titles', example: 'Quest Complete' },
+                            { key: 'lg', value: designTokens.lg, label: 'Body Large', example: 'Important game text' },
+                            { key: 'base', value: designTokens.base, label: 'Body Text', example: 'Regular content and descriptions' },
+                            { key: 'sm', value: designTokens.sm, label: 'Small Text', example: 'Captions and metadata' },
+                            { key: 'xs', value: designTokens.xs, label: 'Micro Text', example: 'Tiny labels and notes' },
+                          ].map(({ key, value, label, example }) => (
+                            <Card key={key} className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <h4 className="font-medium text-white mb-1">{label}</h4>
+                                    <p className="text-sm text-gray-400">{key} • {value}</p>
+                                  </div>
+                                  <div className={`${value} text-white max-w-md`}>{example}</div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Font Families */}
+                      <div>
+                        <h3 className="text-xl font-semibold text-white mb-4">Font Families</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <Card className="bg-gray-900/50 border-amber-800/20">
+                            <CardContent className="p-4 text-center">
+                              <h4 className="font-serif text-2xl text-amber-400 mb-2">Serif</h4>
+                              <p className="text-sm text-gray-400">Headings and titles</p>
+                            </CardContent>
+                          </Card>
+                          <Card className="bg-gray-900/50 border-amber-800/20">
+                            <CardContent className="p-4 text-center">
+                              <h4 className="font-sans text-2xl text-amber-400 mb-2">Sans-Serif</h4>
+                              <p className="text-sm text-gray-400">Body text and UI</p>
+                            </CardContent>
+                          </Card>
+                          <Card className="bg-gray-900/50 border-amber-800/20">
+                            <CardContent className="p-4 text-center">
+                              <h4 className="font-mono text-2xl text-amber-400 mb-2">Monospace</h4>
+                              <p className="text-sm text-gray-400">Code and data</p>
+                            </CardContent>
+                          </Card>
+                        </div>
                       </div>
                     </div>
+                  </div>
+                )}
 
-                    {/* Spacing Tokens */}
-                    <div className="p-4 rounded-lg bg-gray-900/50">
-                      <h4 className="text-md font-medium mb-3 text-white">Spacing Scale</h4>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {activeTab === "spacing" && (
+                  <div className="space-y-8">
+                    <div>
+                      <h2 className="text-3xl font-bold text-amber-400 mb-6">Spacing System</h2>
+                      <p className="text-gray-300 mb-8 leading-relaxed">
+                        Our spacing system uses a 4px base unit to create consistent layouts and 
+                        maintain visual harmony throughout the application.
+                      </p>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                         {Object.entries(spacing).slice(0, 12).map(([key, value]) => (
-                          <div key={key} className="flex items-center gap-2">
-                            <div 
-                              className="bg-amber-500 rounded"
-                              style={{ 
-                                width: value === '0' ? '4px' : value,
-                                height: '16px'
-                              }}
-                            />
-                            <span className="text-gray-400 text-xs">{key}</span>
-                          </div>
+                          <Card key={key} className="bg-gray-900/50 border-amber-800/20">
+                            <CardContent className="p-4 text-center">
+                              <div 
+                                className="bg-amber-500 rounded mx-auto mb-2"
+                                style={{ 
+                                  width: value === '0' ? '4px' : value,
+                                  height: '16px'
+                                }}
+                              />
+                              <p className="text-sm font-medium text-white">{key}</p>
+                              <p className="text-xs text-gray-400">{value}</p>
+                            </CardContent>
+                          </Card>
                         ))}
-                      </div>
-                    </div>
-
-                    {/* Semantic Colors */}
-                    <div className="p-4 rounded-lg bg-gray-900/50">
-                      <h4 className="text-md font-medium mb-3 text-white">Semantic Colors</h4>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {Object.entries(designColors).map(([type, variants]) => (
-                          <div key={type} className="space-y-2">
-                            <h5 className="text-sm font-medium text-white capitalize">{type}</h5>
-                            {Object.entries(variants).map(([variant, className]) => (
-                              <div key={variant} className="flex items-center gap-2">
-                                <div className={`w-4 h-4 rounded ${className.replace('text-', 'bg-')}`} />
-                                <span className="text-gray-400 text-xs">{variant}</span>
-                              </div>
-                            ))}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Animation Tokens */}
-                    <div className="p-4 rounded-lg bg-gray-900/50">
-                      <h4 className="text-md font-medium mb-3 text-white">Animation Timing</h4>
-                      <div className="space-y-2">
-                        {Object.entries(animation).map(([key, value]) => {
-                          if (value.startsWith('duration-')) {
-                            return (
-                              <div key={key} className="flex items-center justify-between">
-                                <span className="text-gray-400 text-sm">{key}:</span>
-                                <span className="text-white text-sm">{value}</span>
-                              </div>
-                            )
-                          }
-                          return null
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Example Usage */}
-                    <div className="p-4 rounded-lg bg-gray-900/50">
-                      <h4 className="text-md font-medium mb-3 text-white">Example Usage</h4>
-                      <div className="space-y-2 text-sm">
-                        <div className="text-gray-400">
-                          <code className="text-amber-400">
-                            {createTypographyClass('2xl', 'bold', 'serif', 'lineTight', 'letterWide')}
-                          </code>
-                        </div>
-                        <div className="text-gray-400">
-                          <code className="text-amber-400">
-                            {`${designColors.success.default} ${spacing[16]}`}
-                          </code>
-                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </TabsContent>
+                )}
 
-              <TabsContent value="components" className="space-y-8">
-                <div>
-                  <h3 className="text-lg font-medium mb-4 text-white">Components</h3>
-                  <div className="grid gap-4">
-                    <div className="p-4 rounded-lg bg-gray-900/50">
-                      <p className="text-sm font-medium mb-2 text-white">HeaderSection</p>
-                      <div className="mb-2">
-                        <HeaderSection
-                          title="KINGDOM"
-                          subtitle="Your realm overview and progress"
-                          imageSrc="/images/kingdom-header.jpg"
-                          canEdit={false}
-                        />
-                      </div>
-                      <p className="text-sm text-gray-400 mt-2">
-                        <strong>HeaderSection</strong> is used as the main header/banner for most major pages (Kingdom, City, Town, Quests, Collection, etc). It supports a title, optional subtitle, and an optional image. If <code>canEdit</code> is true, an edit button appears for uploading a new banner image. Use this component for consistent, immersive page headers.
+                {activeTab === "tokens" && (
+                  <div className="space-y-8">
+                    <div>
+                      <h2 className="text-3xl font-bold text-amber-400 mb-6">Design Token System</h2>
+                      <p className="text-gray-300 mb-8 leading-relaxed">
+                        Our design tokens provide a systematic approach to design decisions, 
+                        ensuring consistency across all components and platforms.
                       </p>
-                    </div>
-
-                    <div className="p-4 rounded-lg bg-gray-900/50">
-                      <p className="text-sm font-medium mb-2 text-white">TileVisual</p>
-                      <div className="mb-2">
-                        <TileVisual
-                          tile={{
-                            id: 'tile-1',
-                            type: 'forest' as TileType,
-                            name: 'Forest Tile',
-                            description: 'A lush forest tile.',
-                            connections: [],
-                            rotation: 0 as 0 | 90 | 180 | 270,
-                            revealed: true,
-                            isVisited: false,
-                            ariaLabel: 'Forest tile',
-                            x: 0,
-                            y: 0,
-                            image: '/images/tiles/forest-tile.png'
-                          }}
-                          isSelected={false}
-                          isHovered={false}
-                          isCharacterPresent={false}
-                          onClick={() => {}}
-                          onHover={() => {}}
-                          onHoverEnd={() => {}}
-                        />
-                      </div>
-                      <p className="text-sm text-gray-400 mt-2">
-                        <strong>TileVisual</strong> displays tile visuals with proper accessibility attributes. Used for rendering tiles in the realm and map views, with support for selection, hover states, and character presence.
-                      </p>
-                    </div>
-
-                    <div className="p-4 rounded-lg bg-gray-900/50">
-                      <p className="text-sm font-medium mb-2 text-white">MapGrid</p>
-                      <div className="mb-2">
-                        <MapGrid
-                          selectedTile={null}
-                          grid={[ [
-                            { ...mockTile },
-                            {
-                              ...mockTile,
-                              id: 'tile-forest',
-                              type: 'forest' as TileType,
-                              name: 'Forest Tile',
-                              description: 'A lush forest tile.',
-                              image: '/images/tiles/forest-tile.png',
-                              rotation: 0 as 0 | 90 | 180 | 270
-                            },
-                            {
-                              ...mockTile,
-                              id: 'tile-water',
-                              type: 'water' as TileType,
-                              name: 'Water Tile',
-                              description: 'A water tile.',
-                              image: '/images/tiles/water-tile.png',
-                              rotation: 0 as 0 | 90 | 180 | 270
+                      
+                      {/* Animation Tokens */}
+                      <div className="mb-8">
+                        <h3 className="text-xl font-semibold text-white mb-4">Animation Timing</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {Object.entries(animation).map(([key, value]) => {
+                            if (value.startsWith('duration-')) {
+                              return (
+                                <Card key={key} className="bg-gray-900/50 border-amber-800/20">
+                                  <CardContent className="p-4">
+                                    <h4 className="font-medium text-white mb-1">{key}</h4>
+                                    <p className="text-sm text-gray-400">{value}</p>
+                                  </CardContent>
+                                </Card>
+                              )
                             }
-                          ],
-                          [
-                            {
-                              ...mockTile,
-                              id: 'tile-mountain',
-                              type: 'mountain' as TileType,
-                              name: 'Mountain Tile',
-                              description: 'A mountain tile.',
-                              image: '/images/tiles/mountain-tile.png',
-                              rotation: 0 as 0 | 90 | 180 | 270
-                            },
-                            {
-                              ...mockTile,
-                              id: 'tile-ice',
-                              type: 'ice' as TileType,
-                              name: 'Ice Tile',
-                              description: 'An ice tile.',
-                              image: '/images/tiles/ice-tile.png',
-                              rotation: 0 as 0 | 90 | 180 | 270
-                            },
-                            { ...mockTile }
-                          ] ]}
-                          character={{ x: 1, y: 1 }}
-                          onCharacterMove={() => {}}
-                          onTileClick={() => {}}
-                          onGridUpdate={() => {}}
-                          onGoldUpdate={() => {}}
-                          onExperienceUpdate={() => {}}
-                          onHover={() => {}}
-                          onHoverEnd={() => {}}
-                          onRotateTile={() => {}}
-                          isMovementMode={false}
-                          gridRotation={0}
-                          hoveredTile={null}
-                          setHoveredTile={() => {}}
-                          horsePos={null}
-                          sheepPos={null}
-                          eaglePos={null}
-                          penguinPos={null}
-                        />
-                      </div>
-                      <p className="text-sm text-gray-400 mt-2">
-                        <strong>MapGrid</strong> renders the interactive grid for the realm map. The main grid component for the realm, handling tile placement, character movement, and interactions.
-                      </p>
-                    </div>
-
-                    <div className="p-4 rounded-lg bg-gray-900/50">
-                      <p className="text-sm font-medium mb-2 text-white">TownView</p>
-                      <div className="mb-2">
-                        <TownView
-                          name="Medieval Town"
-                          isTown={true}
-                          onReturn={() => {}}
-                        />
-                      </div>
-                      <p className="text-sm text-gray-400 mt-2">
-                        <strong>TownView</strong> displays town-specific content and buildings. Used for rendering town-specific views, including buildings and interactive elements.
-                      </p>
-                    </div>
-
-                    <div className="p-4 rounded-lg bg-gray-900/50">
-                      <p className="text-sm font-medium mb-2 text-white">CreatureCard</p>
-                      <div className={`mb-2 ${styles['creatureCardBox']}`}>
-                        <CreatureCard
-                          creature={{
-                            id: '001',
-                            number: '#001',
-                            name: 'Flamio',
-                            description: 'A fiery creature awakened by the destruction of forests.',
-                            image: '/images/creatures/001.png',
-                            category: 'fire',
-                            discovered: true,
-                            stats: { hp: 64, attack: 16, defense: 8, speed: 12, type: 'Fire' },
-                            requirement: 'Destroy 1 forest tile'
-                          }}
-                          discovered={true}
-                          showCard={true}
-                          previewMode={false}
-                        />
-                      </div>
-                      <p className="text-sm text-gray-400 mt-2">
-                        <strong>CreatureCard</strong> displays information about a creature, including its name, description, image, rarity, and discovery status. Used in the collection and discovery pages.
-                      </p>
-                    </div>
-
-                    <div className="p-4 rounded-lg bg-gray-900/50">
-                      <p className="text-sm font-medium mb-2 text-white">CardWithProgress</p>
-                      <div className="flex gap-4 mb-2">
-                        <div className={styles['questCardBox']}>
-                          <CardWithProgress title="Defeat the Dragon" completed={false} onToggle={() => {}} />
-                        </div>
-                        <div className={styles['questCardBox']}>
-                          <CardWithProgress title="Rescue the Princess" completed={true} onToggle={() => {}} />
+                            return null
+                          }).filter(Boolean)}
                         </div>
                       </div>
-                      <p className="text-sm text-gray-400 mt-2">
-                        <strong>CardWithProgress</strong> is used for displaying quests in selection lists. The completed state is indicated by a checkmark.
-                      </p>
-                    </div>
 
-                    <div className="p-4 rounded-lg bg-gray-900/50">
-                      <p className="text-sm font-medium mb-2 text-white">Toast Notifications</p>
-                      <div className="mb-2">
-                        <Button onClick={showToastExample}>Show Toast</Button>
+                      {/* Example Usage */}
+                      <div>
+                        <h3 className="text-xl font-semibold text-white mb-4">Example Usage</h3>
+                        <div className="space-y-4">
+                          <Card className="bg-gray-900/50 border-amber-800/20">
+                            <CardContent className="p-4">
+                              <h4 className="font-medium text-white mb-2">Typography Combination</h4>
+                              <code className="text-amber-400 text-sm block bg-gray-800 p-3 rounded">
+                                {createTypographyClass('2xl', 'bold', 'serif', 'lineTight', 'letterWide')}
+                              </code>
+                            </CardContent>
+                          </Card>
+                          <Card className="bg-gray-900/50 border-amber-800/20">
+                            <CardContent className="p-4">
+                              <h4 className="font-medium text-white mb-2">Color & Spacing</h4>
+                              <code className="text-amber-400 text-sm block bg-gray-800 p-3 rounded">
+                                {`${designColors.success.default} ${spacing[16]}`}
+                              </code>
+                            </CardContent>
+                          </Card>
+                        </div>
                       </div>
-                      <p className="text-sm text-gray-400 mt-2">
-                        <strong>Toast Notifications</strong> provide user feedback for actions and events. Used throughout the app for notifications and alerts.
-                      </p>
                     </div>
                   </div>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+                )}
+
+                {activeTab === "components" && (
+                  <div className="space-y-8">
+                    <div>
+                      <h2 className="text-3xl font-bold text-amber-400 mb-6">Component Library</h2>
+                      <p className="text-gray-300 mb-8 leading-relaxed">
+                        Our component library showcases the building blocks used throughout the application, 
+                        demonstrating consistent design patterns and interactions.
+                      </p>
+                      
+                      {/* HeaderSection Component */}
+                      <div className="mb-8">
+                        <h3 className="text-xl font-semibold text-white mb-4">HeaderSection</h3>
+                        <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <CardContent className="p-4">
+                            <HeaderSection
+                              title="KINGDOM"
+                              subtitle="Your realm overview and progress"
+                              imageSrc="/images/kingdom-header.jpg"
+                              canEdit={false}
+                            />
+                          </CardContent>
+                        </Card>
+                        <p className="text-sm text-gray-400">
+                          <strong>HeaderSection</strong> is used as the main header/banner for most major pages. 
+                          It supports a title, optional subtitle, and an optional image. If <code>canEdit</code> is true, 
+                          an edit button appears for uploading a new banner image.
+                        </p>
+                      </div>
+
+                      {/* TileVisual Component */}
+                      <div className="mb-8">
+                        <h3 className="text-xl font-semibold text-white mb-4">TileVisual</h3>
+                        <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <CardContent className="p-4">
+                            <div className="flex space-x-4">
+                              <TileVisual
+                                tile={{
+                                  id: 'tile-1',
+                                  type: 'forest' as TileType,
+                                  name: 'Forest Tile',
+                                  description: 'A lush forest tile.',
+                                  connections: [],
+                                  rotation: 0 as 0 | 90 | 180 | 270,
+                                  revealed: true,
+                                  isVisited: false,
+                                  ariaLabel: 'Forest tile',
+                                  x: 0,
+                                  y: 0,
+                                  image: '/images/tiles/forest-tile.png'
+                                }}
+                                isSelected={false}
+                                isHovered={false}
+                                isCharacterPresent={false}
+                                onClick={() => {}}
+                                onHover={() => {}}
+                                onHoverEnd={() => {}}
+                              />
+                              <TileVisual
+                                tile={{
+                                  id: 'tile-2',
+                                  type: 'water' as TileType,
+                                  name: 'Water Tile',
+                                  description: 'A water tile.',
+                                  connections: [],
+                                  rotation: 0 as 0 | 90 | 180 | 270,
+                                  revealed: true,
+                                  isVisited: false,
+                                  ariaLabel: 'Water tile',
+                                  x: 0,
+                                  y: 0,
+                                  image: '/images/tiles/water-tile.png'
+                                }}
+                                isSelected={true}
+                                isHovered={false}
+                                isCharacterPresent={false}
+                                onClick={() => {}}
+                                onHover={() => {}}
+                                onHoverEnd={() => {}}
+                              />
+                            </div>
+                          </CardContent>
+                        </Card>
+                        <p className="text-sm text-gray-400">
+                          <strong>TileVisual</strong> displays tile visuals with proper accessibility attributes. 
+                          Used for rendering tiles in the realm and map views, with support for selection, 
+                          hover states, and character presence.
+                        </p>
+                      </div>
+
+                      {/* CreatureCard Component */}
+                      <div className="mb-8">
+                        <h3 className="text-xl font-semibold text-white mb-4">CreatureCard</h3>
+                        <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <CardContent className="p-4">
+                            <div className={styles['creatureCardBox']}>
+                              <CreatureCard
+                                creature={{
+                                  id: '001',
+                                  number: '#001',
+                                  name: 'Flamio',
+                                  description: 'A fiery creature awakened by the destruction of forests.',
+                                  image: '/images/creatures/001.png',
+                                  category: 'fire',
+                                  discovered: true,
+                                  stats: { hp: 64, attack: 16, defense: 8, speed: 12, type: 'Fire' },
+                                  requirement: 'Destroy 1 forest tile'
+                                }}
+                                discovered={true}
+                                showCard={true}
+                                previewMode={false}
+                              />
+                            </div>
+                          </CardContent>
+                        </Card>
+                        <p className="text-sm text-gray-400">
+                          <strong>CreatureCard</strong> displays information about a creature, including its name, 
+                          description, image, rarity, and discovery status. Used in the collection and discovery pages.
+                        </p>
+                      </div>
+
+                      {/* Toast Notifications */}
+                      <div className="mb-8">
+                        <h3 className="text-xl font-semibold text-white mb-4">Toast Notifications</h3>
+                        <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <CardContent className="p-4">
+                            <Button onClick={showToastExample}>Show Toast Example</Button>
+                          </CardContent>
+                        </Card>
+                        <p className="text-sm text-gray-400">
+                          <strong>Toast Notifications</strong> provide user feedback for actions and events. 
+                          Used throughout the app for notifications and alerts with consistent styling and behavior.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   )
