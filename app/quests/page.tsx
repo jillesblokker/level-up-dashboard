@@ -1625,7 +1625,7 @@ export default function QuestsPage() {
               <div className="relative">
                 <select
                   id="recovery-category-select"
-                  className="w-full rounded-lg border-2 border-amber-800/30 bg-black/80 text-amber-200 p-3 pr-10 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-colors appearance-none"
+                  className="w-full rounded-lg border-2 border-amber-800/30 bg-black/80 text-amber-200 p-3 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-colors"
                   aria-label="Recovery category dropdown"
                   value={challengeCategory}
                   onChange={e => setChallengeCategory(e.target.value)}
@@ -1636,11 +1636,6 @@ export default function QuestsPage() {
                     </option>
                   ))}
                 </select>
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
               </div>
             </div>
             {token && (
