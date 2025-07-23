@@ -155,6 +155,8 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
       
       return () => clearTimeout(timer)
     }
+    // Return empty cleanup function when modal is not open
+    return () => {}
   }, [isOpen, generateSequence, showSequence])
 
   // Handle weapon click
