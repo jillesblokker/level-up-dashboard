@@ -123,7 +123,6 @@
 
 /* Custom background override to ensure image shows */
 body {
-  background-color: red !important; /* Test color to see if CSS is working */
   background-image: url('/images/backgroundi.png'), linear-gradient(135deg, var(--background-start), var(--background-end)) !important;
   background-size: cover, cover !important;
   background-position: center, center !important;
