@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, PersonStanding, Pencil, Flame, Star } from 'lucide-react'
 import { HeaderSection } from '@/components/HeaderSection'
 import { useUser, useAuth } from '@clerk/nextjs'
@@ -1398,17 +1399,18 @@ export default function QuestsPage() {
               {/* Category Dropdown */}
               <div>
                 <label htmlFor="quest-category-select" className="sr-only">Select quest category</label>
-                <select
-                  id="quest-category-select"
-                  className="w-full rounded border p-2 bg-black text-white"
-                  aria-label="Quest category dropdown"
-                  value={questCategory}
-                  onChange={e => setQuestCategory(e.target.value)}
-                >
-                  {questCategories.map((category: string) => (
-                    <option key={category} value={category}>{getCategoryLabel(category)}</option>
-                  ))}
-                </select>
+                <Select value={questCategory || ''} onValueChange={setQuestCategory}>
+                  <SelectTrigger className="w-full" aria-label="Quest category dropdown">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {questCategories.map((category: string) => (
+                      <SelectItem key={category} value={category}>
+                        {getCategoryLabel(category)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             {/* Quest Streak Summary Card */}
