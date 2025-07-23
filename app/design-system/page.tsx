@@ -15,6 +15,7 @@ import { TileVisual } from "@/components/tile-visual"
 import { MapGrid } from "@/components/map-grid"
 import { TownView } from "@/components/town-view"
 import { TileType } from '@/types/tiles'
+import { typography as designTokens, spacing, colors as designColors, animation, shadows, borderRadius, createTypographyClass } from '@/lib/design-tokens'
 import styles from './styles.module.css'
 
 type ColorItem = {
@@ -192,6 +193,7 @@ export default function DesignSystemPage() {
                   <option value="colors">Colors</option>
                   <option value="gradients">Gradients</option>
                   <option value="typography">Typography</option>
+                  <option value="tokens">Design Tokens</option>
                   <option value="components">Components</option>
                 </select>
               </div>
@@ -199,6 +201,7 @@ export default function DesignSystemPage() {
                 <TabsTrigger value="colors">Colors</TabsTrigger>
                 <TabsTrigger value="gradients">Gradients</TabsTrigger>
                 <TabsTrigger value="typography">Typography</TabsTrigger>
+                <TabsTrigger value="tokens">Design Tokens</TabsTrigger>
                 <TabsTrigger value="components">Components</TabsTrigger>
               </TabsList>
 
@@ -350,6 +353,108 @@ export default function DesignSystemPage() {
                     </div>
                   </div>
                 ))}
+              </TabsContent>
+
+              <TabsContent value="tokens" className="space-y-8">
+                <div>
+                  <h3 className="text-lg font-medium mb-4 text-white">Design Token System</h3>
+                  <div className="grid gap-6">
+                    {/* Typography Tokens */}
+                    <div className="p-4 rounded-lg bg-gray-900/50">
+                      <h4 className="text-md font-medium mb-3 text-white">Typography Scale</h4>
+                      <div className="space-y-2">
+                        {[
+                          { key: 'xs', value: designTokens.xs, label: 'Extra Small Text' },
+                          { key: 'sm', value: designTokens.sm, label: 'Small Text' },
+                          { key: 'base', value: designTokens.base, label: 'Base Text' },
+                          { key: 'lg', value: designTokens.lg, label: 'Large Text' },
+                          { key: 'xl', value: designTokens.xl, label: 'Extra Large Text' },
+                          { key: '2xl', value: designTokens['2xl'], label: '2XL Text' },
+                          { key: '3xl', value: designTokens['3xl'], label: '3XL Text' },
+                          { key: '4xl', value: designTokens['4xl'], label: '4XL Text' },
+                          { key: '5xl', value: designTokens['5xl'], label: '5XL Text' },
+                        ].map(({ key, value, label }) => (
+                          <div key={key} className="flex items-center justify-between">
+                            <span className="text-gray-400 text-sm">{key}:</span>
+                            <span className={`${value} text-white`}>{label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Spacing Tokens */}
+                    <div className="p-4 rounded-lg bg-gray-900/50">
+                      <h4 className="text-md font-medium mb-3 text-white">Spacing Scale</h4>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {Object.entries(spacing).slice(0, 12).map(([key, value]) => (
+                          <div key={key} className="flex items-center gap-2">
+                            <div 
+                              className="bg-amber-500 rounded"
+                              style={{ 
+                                width: value === '0' ? '4px' : value,
+                                height: '16px'
+                              }}
+                            />
+                            <span className="text-gray-400 text-xs">{key}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Semantic Colors */}
+                    <div className="p-4 rounded-lg bg-gray-900/50">
+                      <h4 className="text-md font-medium mb-3 text-white">Semantic Colors</h4>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {Object.entries(designColors).map(([type, variants]) => (
+                          <div key={type} className="space-y-2">
+                            <h5 className="text-sm font-medium text-white capitalize">{type}</h5>
+                            {Object.entries(variants).map(([variant, className]) => (
+                              <div key={variant} className="flex items-center gap-2">
+                                <div className={`w-4 h-4 rounded ${className.replace('text-', 'bg-')}`} />
+                                <span className="text-gray-400 text-xs">{variant}</span>
+                              </div>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Animation Tokens */}
+                    <div className="p-4 rounded-lg bg-gray-900/50">
+                      <h4 className="text-md font-medium mb-3 text-white">Animation Timing</h4>
+                      <div className="space-y-2">
+                        {Object.entries(animation).map(([key, value]) => {
+                          if (value.startsWith('duration-')) {
+                            return (
+                              <div key={key} className="flex items-center justify-between">
+                                <span className="text-gray-400 text-sm">{key}:</span>
+                                <span className="text-white text-sm">{value}</span>
+                              </div>
+                            )
+                          }
+                          return null
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Example Usage */}
+                    <div className="p-4 rounded-lg bg-gray-900/50">
+                      <h4 className="text-md font-medium mb-3 text-white">Example Usage</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="text-gray-400">
+                          <code className="text-amber-400">
+                            {createTypographyClass('2xl', 'bold', 'serif', 'lineTight', 'letterWide')}
+                          </code>
+                        </div>
+                        <div className="text-gray-400">
+                          <code className="text-amber-400">
+                            {`${designColors.success.default} ${spacing[16]}`}
+                          </code>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </TabsContent>
 
               <TabsContent value="components" className="space-y-8">
