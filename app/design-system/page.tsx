@@ -529,7 +529,7 @@ export default function DesignSystemPage() {
                             <CardContent className="p-4">
                               <h4 className="font-medium text-white mb-2">Typography Combination</h4>
                               <code className="text-amber-400 text-sm block bg-gray-800 p-3 rounded">
-                                {createTypographyClass('2xl', 'bold', 'serif', 'lineTight', 'letterWide')}
+                                {createTypographyClass('2xl', 'bold', 'serif', 'tight', 'wide')}
                               </code>
                             </CardContent>
                           </Card>

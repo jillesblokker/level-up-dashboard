@@ -125,15 +125,19 @@ function Page() {
       </div>
       {/* Main background image above door, fade out after animation */}
       {!hideBackground && (
-        <div className={`absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden w-full h-full transition-opacity duration-[1500ms] ${fadeBackground ? 'opacity-0' : 'opacity-100'}`}>
+        <div 
+          className={`absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden w-full h-full transition-opacity ${fadeBackground ? 'opacity-0' : 'opacity-100'}`}
+          style={{ transitionDuration: '1500ms' }}
+        >
           <img
             src="/images/Reveal/reveal-background.png"
             alt="Reveal Background"
-            className={`object-cover w-full h-full transition-transform duration-[1500ms] ease-in-out ${scaleBackground ? 'scale-[4.5]' : 'scale-100'}`}
+            className={`object-cover w-full h-full transition-transform ease-in-out ${scaleBackground ? 'scale-[4.5]' : 'scale-100'}`}
             draggable={false}
             style={{
               transition: 'opacity 1s, transform 1.5s cubic-bezier(0.32, 0.72, 0, 1)',
-              borderRadius: 0
+              borderRadius: 0,
+              transitionDuration: '1500ms'
             }}
           />
         </div>
