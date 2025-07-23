@@ -566,7 +566,7 @@ export default function NotificationsPage() {
                         </h3>
                         <div className="max-w-sm mx-auto">
                           <p className="text-gray-300 leading-relaxed font-medium">
-                            You've caught up on all your kingdom's news and updates.
+                            You&apos;ve caught up on all your kingdom&apos;s news and updates.
                           </p>
                           <p className="text-gray-400 text-sm mt-2 leading-relaxed">
                             Continue your adventures to receive new notifications from your realm.

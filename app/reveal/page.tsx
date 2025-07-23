@@ -46,22 +46,22 @@ function Page() {
       setTimeout(() => setShowOverlay(false), 500); // Remove overlay quickly
       return;
     }
-    // Door animation: 3s, background scale starts after 2s and lasts 2s
-    const DOOR_ANIMATION_DURATION = 3000; // 3s
-    const BG_SCALE_START = 2000; // Start scaling background after 2s
+    // Door animation: 2.5s, background scale starts after 1s and lasts 2s
+    const DOOR_ANIMATION_DURATION = 2500; // 2.5s (was 3s)
+    const BG_SCALE_START = 1000; // Start scaling background after 1s (was 2s)
     const BG_SCALE_DURATION = 2000; // 2s
 
     const timer = setTimeout(() => {
       setDoorOpen(true);
       setAnnounce('The door is opening.');
-      // Wait for door animation (3s), then remove overlay immediately
+      // Wait for door animation (2.5s), then remove overlay immediately
       setTimeout(() => {
         setShowOverlay(false); // Remove overlay as soon as door is gone
         setFadeBackground(true);
         setHideBackground(true);
       }, DOOR_ANIMATION_DURATION); // door animation duration
-    }, 500); // Initial delay before door starts opening
-    // Camera move-forward effect: scale background after 2s
+    }, 0); // Initial delay before door starts opening (was 500ms)
+    // Camera move-forward effect: scale background after 1s
     const scaleTimer = setTimeout(() => {
       setScaleBackground(true);
     }, BG_SCALE_START);
@@ -106,7 +106,7 @@ function Page() {
           transform: doorOpen ? 'translateY(-100%)' : 'translateY(0)',
           opacity: doorOpen ? 0 : 1,
           transitionProperty: 'transform, opacity',
-          transitionDuration: prefersReducedMotion ? '0ms' : '3000ms',
+          transitionDuration: prefersReducedMotion ? '0ms' : '2500ms',
           transitionTimingFunction: prefersReducedMotion ? 'linear' : 'cubic-bezier(0.32, 0.72, 0, 1)',
           willChange: 'transform, opacity',
           width: '100%',
