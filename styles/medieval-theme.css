@@ -87,70 +87,95 @@ h6,
 
 .medieval-card {
   position: relative;
-  border: 2px solid var(--amber-800);
-  background: linear-gradient(to bottom right, #0a0a0a, #1a1a2e);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border: 2px solid #3d0000;
+  background-color: #4d0000; /* Dark red from design system */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   overflow: hidden;
+  transition: all 0.2s ease-in-out;
+}
+
+.medieval-card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+  border-color: #5c0000;
+  transform: translateY(-2px);
 }
 
 .medieval-card .card-header {
-  background-color: rgba(217, 119, 6, 0.1);
-  border-bottom: 1px solid rgba(217, 119, 6, 0.2);
+  background-color: rgba(0, 0, 60, 0.2); /* #00003c with transparency */
+  border-bottom: 2px solid #3d0000;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
 }
 
 .medieval-card .card-title {
-  color: #fff;
+  color: #ffffff; /* Pure white for WCAG AAA */
   font-family: var(--font-medieval);
   letter-spacing: 0.03em;
+  font-weight: 600;
 }
 
 .medieval-card .card-description {
-  color: rgba(255, 255, 255, 0.7);
+  color: #f0f0f0; /* Light gray for WCAG AA */
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
 .medieval-card .card-content {
-  color: rgba(255, 255, 255, 0.9);
+  color: #ffffff; /* Pure white for WCAG AAA */
+  line-height: 1.6;
 }
 
-/* Button styling within cards */
+/* Button styling within cards - using #00003c as main CTA color */
 .medieval-card .button {
-  background-color: #92400e;
-  color: white;
-  border: 1px solid #b45309;
-  transition: all 0.2s ease;
+  background-color: #00003c; /* Dark navy from design system - main CTA */
+  color: #ffffff;
+  border: 2px solid #0c0047;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .medieval-card .button:hover {
-  background-color: #78350f;
-  border-color: #92400e;
+  background-color: #0c0047;
+  border-color: #14004a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
 
 .medieval-card .button-outline {
   background-color: transparent;
-  border: 1px solid #92400e;
-  color: #d97706;
+  border: 2px solid #00003c;
+  color: #ffffff;
+  transition: all 0.2s ease-in-out;
 }
 
 .medieval-card .button-outline:hover {
-  background-color: rgba(217, 119, 6, 0.1);
-  color: #fbbf24;
+  background-color: rgba(0, 0, 60, 0.2);
+  color: #ffffff;
+  border-color: #0c0047;
 }
 
 /* Progress bars within cards */
 .medieval-card .progress {
-  background-color: rgba(217, 119, 6, 0.2);
+  background-color: rgba(0, 0, 60, 0.3);
   overflow: hidden;
+  border: 1px solid #00003c;
 }
 
 .medieval-card .progress-value {
-  background-color: #d97706;
+  background: linear-gradient(90deg, #00003c, #0c0047);
+  border: 1px solid #14004a;
 }
 
 /* Badge styling within cards */
 .medieval-card .badge {
-  background-color: rgba(217, 119, 6, 0.2);
-  color: #fbbf24;
-  border: 1px solid rgba(217, 119, 6, 0.3);
+  background-color: #240014; /* Dark purple-red from design system */
+  color: #ffffff;
+  border: 1px solid #3d0000;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* Hover effects */
@@ -171,65 +196,69 @@ h6,
   border-color: #fbbf24;
 }
 
-/* Dark mode adjustments */
+/* Dark mode adjustments - maintain medieval colors */
 .dark .medieval-card {
-  background: linear-gradient(to bottom right, #0a0a0a, #1a1a2e);
-  border-color: rgba(217, 119, 6, 0.4);
+  background-color: #4d0000;
+  border-color: #3d0000;
 }
 
 .dark .medieval-card .card-header {
-  background-color: rgba(217, 119, 6, 0.1);
-  border-bottom-color: rgba(217, 119, 6, 0.2);
+  background-color: rgba(0, 0, 60, 0.2);
+  border-bottom-color: #3d0000;
 }
 
 .dark .medieval-card .button {
-  background-color: #92400e;
-  border-color: #b45309;
+  background-color: #00003c;
+  border-color: #0c0047;
 }
 
 .dark .medieval-card .button:hover {
-  background-color: #78350f;
-  border-color: #92400e;
+  background-color: #0c0047;
+  border-color: #14004a;
 }
 
-/* Text colors */
+/* Text colors - WCAG AA compliant */
 .medieval-card h1,
 .medieval-card h2,
 .medieval-card h3,
 .medieval-card h4,
 .medieval-card h5,
 .medieval-card h6 {
-  color: #fff;
+  color: #ffffff; /* Pure white for WCAG AAA */
+  font-weight: 600;
 }
 
 .medieval-card p {
-  color: rgba(255, 255, 255, 0.9);
+  color: #f0f0f0; /* Light gray for WCAG AA */
+  line-height: 1.6;
 }
 
 .medieval-card .text-muted {
-  color: rgba(255, 255, 255, 0.6);
+  color: #d0d0d0; /* Light gray for WCAG AA */
+  font-size: 0.9rem;
 }
 
-/* Button styling */
+/* Medieval Button Styling - using #00003c as main CTA */
 .btn-primary-gradient {
-  background: linear-gradient(to bottom, var(--gold-light), var(--gold));
-  border: 2px solid var(--gold-dark);
-  color: #333;
+  background: linear-gradient(135deg, #00003c, #0c0047);
+  border: 2px solid #14004a;
+  color: #ffffff;
   font-weight: bold;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
-  box-shadow: 0 2px 4px var(--shadow-color);
-  transition: all 0.2s ease;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease-in-out;
 }
 
 .btn-primary-gradient:hover {
-  background: linear-gradient(to bottom, var(--gold), var(--gold-dark));
+  background: linear-gradient(135deg, #0c0047, #14004a);
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px var(--shadow-color);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  border-color: #190037;
 }
 
 .btn-primary-gradient:active {
   transform: translateY(1px);
-  box-shadow: 0 1px 2px var(--shadow-color);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* Scroll styling */
