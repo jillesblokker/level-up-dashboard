@@ -1208,7 +1208,7 @@ export default function RealmPage() {
                               onClick={expandMap}
                               disabled={!canExpand}
                               aria-label="Expand Map"
-                              className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                              className="flex items-center gap-2 min-w-[44px] min-h-[44px] disabled:pointer-events-auto"
                             >
                               <PlusCircle className="w-4 h-4" />
                               <span className="hidden sm:inline">Expand Map</span>
@@ -1222,26 +1222,6 @@ export default function RealmPage() {
                               ? 'Expand your realm map to unlock 3 more rows' 
                               : `Become level ${nextExpansionLevel} to unlock 3 more rows`
                             }
-                          </TooltipContent>
-                        </Tooltip>
-                        
-                        {/* Test tooltip to verify functionality */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
-                            >
-                              <span className="text-xs">?</span>
-                              <span className="hidden sm:inline">Test</span>
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent 
-                            side="top" 
-                            className="bg-gray-900 text-white border-amber-800/30"
-                          >
-                            This is a test tooltip to verify functionality
                           </TooltipContent>
                         </Tooltip>
                       <Button
