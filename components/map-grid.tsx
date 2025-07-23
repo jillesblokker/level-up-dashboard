@@ -17,18 +17,18 @@ import { TileType } from '@/types/tiles';
 import { addToKingdomInventory } from '@/lib/inventory-manager';
 import { Trash2 } from 'lucide-react';
 
-// Function to get monster image name
+// Function to get monster image name - using achievement images
 function getMonsterImageName(monsterType: string): string {
   const monsterImageMap: Record<string, string> = {
-    'dragon': 'Dragoni',
-    'goblin': 'Orci',
-    'troll': 'Trollie',
-    'wizard': 'Sorceror',
-    'pegasus': 'Peggie',
-    'fairy': 'Fairiel'
+    'dragon': '201.png?v=1',
+    'goblin': '202.png?v=1',
+    'troll': '203.png?v=1',
+    'wizard': '204.png?v=1',
+    'pegasus': '205.png?v=1',
+    'fairy': '206.png?v=1'
   };
   
-  return monsterImageMap[monsterType] || 'Dragoni';
+  return monsterImageMap[monsterType] || '201.png?v=1';
 }
 
 interface MapGridProps extends BaseMapGridProps {
@@ -512,7 +512,7 @@ export function MapGrid({
                     {tile.hasMonster && (
                       <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
                         <Image
-                          src={`/images/Monsters/${getMonsterImageName(tile.hasMonster)}.png`}
+                          src={`/images/achievements/${getMonsterImageName(tile.hasMonster)}`}
                           alt={`${tile.hasMonster} monster`}
                           width={96}
                           height={96}

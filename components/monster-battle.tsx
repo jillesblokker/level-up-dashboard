@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 import { gainGold } from '@/lib/gold-manager'
 import { updateCharacterStats } from '@/lib/character-stats-manager'
 import { toast } from '@/components/ui/use-toast'
+import Image from 'next/image'
 
 interface MonsterBattleProps {
   isOpen: boolean
@@ -35,42 +36,42 @@ const weapons: Weapon[] = [
 const monsterData = {
   dragon: {
     name: 'Dragoni',
-    image: '/images/monsters/dragoni.png',
+    image: '/images/placeholders/item-placeholder.svg',
     description: 'A fearsome dragon with scales as hard as steel',
     difficulty: 'Hard',
     achievementId: '201'
   },
   goblin: {
     name: 'Orci',
-    image: '/images/Monsters/202.png',
+    image: '/images/placeholders/item-placeholder.svg',
     description: 'A sneaky goblin with sharp daggers',
     difficulty: 'Easy',
     achievementId: '202'
   },
   troll: {
     name: 'Trollie',
-    image: '/images/Monsters/203.png',
+    image: '/images/placeholders/item-placeholder.svg',
     description: 'A massive troll with incredible strength',
     difficulty: 'Medium',
     achievementId: '203'
   },
   wizard: {
-    name: 'Sorcero',
-    image: '/images/Monsters/204.png',
+    name: 'Sorceror',
+    image: '/images/placeholders/item-placeholder.svg',
     description: 'A powerful wizard with dark magic',
     difficulty: 'Hard',
     achievementId: '204'
   },
   pegasus: {
     name: 'Peggie',
-    image: '/images/Monsters/205.png',
+    image: '/images/placeholders/item-placeholder.svg',
     description: 'A majestic winged horse with divine powers',
     difficulty: 'Medium',
     achievementId: '205'
   },
   fairy: {
     name: 'Fairiel',
-    image: '/images/Monsters/206.png',
+    image: '/images/placeholders/item-placeholder.svg',
     description: 'A magical fairy with nature magic',
     difficulty: 'Easy',
     achievementId: '206'
@@ -91,6 +92,9 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
   
   // Debug logging
   console.log('Monster battle props:', { isOpen, monsterType, monster })
+  console.log('Monster image path:', monster?.image)
+  console.log('Monster data:', monsterData)
+  console.log('Monster type:', monsterType)
 
   // Generate new sequence for current round
   const generateSequence = useCallback(() => {
@@ -260,15 +264,14 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
                 src={monster.image} 
                 alt={monster.name}
                 className="w-full h-full object-cover"
+                onLoad={() => {
+                  console.log('Monster image loaded successfully:', monster.image);
+                }}
                 onError={(e) => {
                   console.error('Failed to load monster image:', monster.image);
-                  // Try alternative path
-                  const altPath = monster.image.replace('/images/Monsters/', '/images/Monsters/');
-                  if (e.currentTarget.src !== altPath) {
-                    e.currentTarget.src = altPath;
-                  } else {
-                    e.currentTarget.style.display = 'none';
-                  }
+                  console.error('Error details:', e);
+                  // Try to show a fallback
+                  e.currentTarget.src = '/images/placeholders/item-placeholder.svg';
                 }}
               />
             </div>
