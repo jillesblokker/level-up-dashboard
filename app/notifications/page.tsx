@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ArrowLeft, Bell, CheckCircle, Clock, Coins, Trophy, Trash2, Search } from "lucide-react"
+import { ArrowLeft, Bell, CheckCircle, Clock, Coins, Trophy, Trash2, Search, MessageSquare, Scroll, Castle, Crown } from "lucide-react"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
@@ -100,20 +100,8 @@ export default function NotificationsPage() {
         read: false,
         timestamp: "2025-03-10T14:30:00Z",
         action: {
-          label: "View Challenge",
-          href: "/community?tab=challenges",
-        },
-      },
-      {
-        id: "n7",
-        title: "System Update",
-        message: "The kingdom has been updated with new features! Check out the new marketplace items.",
-        type: "system",
-        read: true,
-        timestamp: "2025-03-09T10:00:00Z",
-        action: {
-          label: "Visit Marketplace",
-          href: "/market",
+          label: "Accept Challenge",
+          href: "/challenges",
         },
       },
     ]
@@ -121,81 +109,56 @@ export default function NotificationsPage() {
     setNotifications(sampleNotifications)
   }, [])
 
-  // --- Supabase real-time sync for notifications ---
-  useSupabaseRealtimeSync({
-    table: 'notifications',
-    userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
-    onChange: () => {
-      // Re-fetch notifications from API or Supabase and update state
-      // (Replace with your actual fetch logic if needed)
-      fetch('/api/notifications').then(async (response) => {
-        if (response.ok) {
-          const notifications = await response.json();
-          setNotifications(notifications);
-        }
-      });
-    }
-  });
-
-  // Filter notifications based on search query and filters
+  // Filter notifications based on search and type
   const filteredNotifications = notifications.filter((notification) => {
-    const matchesSearch =
-      notification.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      notification.message.toLowerCase().includes(searchQuery.toLowerCase())
-
-    const matchesType = selectedType ? notification.type === selectedType : true
-
+    const matchesSearch = notification.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         notification.message.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesType = selectedType === null || notification.type === selectedType
     return matchesSearch && matchesType
   })
 
-  // Mark notification as read
   const markAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((notification) => (notification.id === id ? { ...notification, read: true } : notification)),
-    )
+    setNotifications(notifications.map(n => 
+      n.id === id ? { ...n, read: true } : n
+    ))
   }
 
-  // Mark all as read
   const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((notification) => ({ ...notification, read: true })))
-
+    setNotifications(notifications.map(n => ({ ...n, read: true })))
     toast({
-      title: "All Notifications Marked as Read",
-      description: "All your notifications have been marked as read.",
+      title: "All notifications marked as read",
+      description: "You've caught up on all your kingdom's news!",
     })
   }
 
-  // Delete notification
   const deleteNotification = (id: string) => {
-    setNotifications((prev) => prev.filter((notification) => notification.id !== id))
-
+    setNotifications(notifications.filter(n => n.id !== id))
     toast({
-      title: "Notification Deleted",
-      description: "The notification has been removed.",
+      title: "Notification deleted",
+      description: "The message has been removed from your inbox.",
     })
   }
 
-  // Clear all notifications
   const clearAllNotifications = () => {
     setNotifications([])
-
     toast({
-      title: "All Notifications Cleared",
-      description: "All your notifications have been cleared.",
+      title: "All notifications cleared",
+      description: "Your inbox is now empty and ready for new messages.",
     })
   }
 
-  // Format timestamp
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp)
     const now = new Date()
     const diffMs = now.getTime() - date.getTime()
-    const diffMins = Math.round(diffMs / 60000)
-    const diffHours = Math.round(diffMs / 3600000)
-    const diffDays = Math.round(diffMs / 86400000)
+    const diffMinutes = Math.floor(diffMs / (1000 * 60))
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
 
-    if (diffMins < 60) {
-      return `${diffMins} minute${diffMins !== 1 ? "s" : ""} ago`
+    if (diffMinutes < 1) {
+      return "Just now"
+    } else if (diffMinutes < 60) {
+      return `${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""} ago`
     } else if (diffHours < 24) {
       return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`
     } else if (diffDays < 7) {
@@ -221,81 +184,243 @@ export default function NotificationsPage() {
     }
   }
 
+  // Enhanced Empty State Component
+  const EmptyState = ({ title, message, description, showMailbox = true }: {
+    title: string
+    message: string
+    description: string
+    showMailbox?: boolean
+  }) => (
+    <div className="w-full h-full min-h-[70vh] flex flex-col items-center justify-center relative overflow-hidden">
+      {/* Hero background with medieval theme */}
+      <div className="absolute inset-0 bg-gradient-to-br from-amber-900/10 via-gray-900/80 to-black/90" />
+      <div className="absolute inset-0 bg-[url('/images/kingdom-header.jpg')] bg-cover bg-center opacity-10" />
+      
+      {/* Decorative border elements */}
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
+      <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
+      <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-transparent via-amber-500 to-transparent" />
+      <div className="absolute top-0 right-0 w-1 h-full bg-gradient-to-b from-transparent via-amber-500 to-transparent" />
+      
+      {/* Animated background elements */}
+      <div className="absolute inset-0 bg-gradient-to-br from-amber-900/5 to-transparent animate-pulse"></div>
+      <div className="absolute top-8 left-8 w-3 h-3 bg-amber-500/30 rounded-full animate-bounce"></div>
+      <div className="absolute top-16 right-12 w-2 h-2 bg-amber-400/40 rounded-full animate-ping"></div>
+      <div className="absolute bottom-12 left-12 w-2.5 h-2.5 bg-amber-300/30 rounded-full animate-bounce" style={{ animationDelay: '0.5s' }}></div>
+      <div className="absolute bottom-8 right-8 w-1.5 h-1.5 bg-amber-400/50 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
+      
+      {/* Main content */}
+      <div className="relative z-10 text-center px-8 max-w-2xl">
+        {/* Medieval illustration */}
+        <div className="relative mb-12">
+          {showMailbox ? (
+            // Enhanced Mailbox Scene
+            <div className="w-48 h-48 mx-auto relative">
+              {/* Castle background */}
+              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-20">
+                <div className="absolute bottom-0 left-0 w-8 h-16 bg-gradient-to-b from-gray-600 to-gray-800 rounded-t-lg border border-gray-700"></div>
+                <div className="absolute bottom-0 left-8 w-8 h-12 bg-gradient-to-b from-gray-500 to-gray-700 rounded-t-lg border border-gray-600"></div>
+                <div className="absolute bottom-0 left-16 w-8 h-18 bg-gradient-to-b from-gray-600 to-gray-800 rounded-t-lg border border-gray-700"></div>
+                <div className="absolute bottom-0 left-24 w-8 h-14 bg-gradient-to-b from-gray-500 to-gray-700 rounded-t-lg border border-gray-600"></div>
+                {/* Castle towers */}
+                <div className="absolute top-0 left-2 w-4 h-6 bg-gradient-to-b from-amber-800 to-amber-900 rounded-t-full border border-amber-700"></div>
+                <div className="absolute top-0 left-10 w-4 h-8 bg-gradient-to-b from-amber-800 to-amber-900 rounded-t-full border border-amber-700"></div>
+                <div className="absolute top-0 left-18 w-4 h-7 bg-gradient-to-b from-amber-800 to-amber-900 rounded-t-full border border-amber-700"></div>
+                <div className="absolute top-0 left-26 w-4 h-5 bg-gradient-to-b from-amber-800 to-amber-900 rounded-t-full border border-amber-700"></div>
+              </div>
+              
+              {/* Mailbox */}
+              <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-24 h-28">
+                {/* Mailbox base */}
+                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-24 bg-gradient-to-b from-amber-800 to-amber-900 rounded-t-lg border-2 border-amber-700 shadow-lg"></div>
+                {/* Mailbox door */}
+                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-20 bg-gradient-to-b from-amber-600 to-amber-700 rounded-t-md border border-amber-500"></div>
+                {/* Mailbox post */}
+                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-4 h-8 bg-gradient-to-b from-gray-700 to-gray-800 rounded"></div>
+                {/* Empty interior glow */}
+                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-12 h-16 bg-gradient-to-b from-amber-200/20 to-transparent rounded-t-sm"></div>
+                {/* Mailbox flag */}
+                <div className="absolute top-2 right-2 w-6 h-1 bg-amber-500 rounded-full"></div>
+                <div className="absolute top-1 right-2 w-1 h-6 bg-amber-500 rounded-full"></div>
+              </div>
+              
+              {/* Floating particles */}
+              <div className="absolute top-0 left-0 w-full h-full">
+                <div className="absolute top-4 left-6 w-1 h-1 bg-amber-300/60 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
+                <div className="absolute top-8 right-4 w-0.5 h-0.5 bg-amber-400/50 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
+                <div className="absolute top-12 left-8 w-0.5 h-0.5 bg-amber-500/40 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
+                <div className="absolute top-16 right-8 w-1 h-1 bg-amber-300/40 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
+              </div>
+            </div>
+          ) : (
+            // Scroll/Message Scene
+            <div className="w-48 h-48 mx-auto relative">
+              {/* Scroll */}
+              <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-32 h-40 bg-gradient-to-b from-amber-100 to-amber-200 rounded-lg border-2 border-amber-300 shadow-lg">
+                <div className="absolute top-2 left-2 right-2 h-0.5 bg-amber-400 rounded-full"></div>
+                <div className="absolute top-6 left-2 right-2 h-0.5 bg-amber-400/60 rounded-full"></div>
+                <div className="absolute top-10 left-2 right-2 h-0.5 bg-amber-400/40 rounded-full"></div>
+                <div className="absolute top-14 left-2 right-2 h-0.5 bg-amber-400/20 rounded-full"></div>
+              </div>
+              {/* Scroll handles */}
+              <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-amber-800 rounded-full border-2 border-amber-700"></div>
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-amber-800 rounded-full border-2 border-amber-700"></div>
+              
+              {/* Floating particles */}
+              <div className="absolute top-0 left-0 w-full h-full">
+                <div className="absolute top-4 left-6 w-1 h-1 bg-amber-300/60 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
+                <div className="absolute top-8 right-4 w-0.5 h-0.5 bg-amber-400/50 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
+                <div className="absolute top-12 left-8 w-0.5 h-0.5 bg-amber-500/40 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* Text content */}
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <h3 className="text-3xl font-bold text-amber-400 font-serif tracking-wide drop-shadow-lg">
+              {title}
+            </h3>
+            <div className="w-24 h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto"></div>
+          </div>
+          
+          <div className="max-w-md mx-auto space-y-3">
+            <p className="text-gray-200 leading-relaxed font-medium text-lg">
+              {message}
+            </p>
+            <p className="text-gray-400 leading-relaxed">
+              {description}
+            </p>
+          </div>
+          
+          {/* Call to action */}
+          <div className="pt-6">
+            <Link href="/quests">
+              <Button className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white px-8 py-4 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-amber-500/25">
+                <Trophy className="mr-3 h-5 w-5" />
+                {showMailbox ? "Start Your Journey" : "Continue Adventure"}
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
       <NavBar session={undefined} />
 
       <main className="flex-1 p-4 md:p-6 space-y-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight font-serif">Notifications</h1>
-          </div>
-          <div className="flex gap-2">
-            <Link href="/">
-              <Button variant="outline" className="border-amber-800/20 hover:bg-amber-900/20">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Kingdom
-              </Button>
-            </Link>
+        {/* Enhanced Header */}
+        <div className="relative mb-8">
+          <div className="absolute inset-0 bg-gradient-to-r from-amber-900/10 via-transparent to-amber-900/10 rounded-lg"></div>
+          <div className="relative flex items-center justify-between p-6">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-700 rounded-lg flex items-center justify-center shadow-lg">
+                <MessageSquare className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight font-serif text-amber-400">Notifications</h1>
+                <p className="text-gray-400 font-medium">Game Events & Progress</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <Link href="/">
+                <Button variant="outline" className="border-amber-800/30 hover:bg-amber-900/20 text-amber-400">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Kingdom
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="space-y-4 lg:block hidden">
-            <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
+          {/* Enhanced Sidebar */}
+          <div className="space-y-6 lg:block hidden">
+            <Card className="bg-gradient-to-b from-gray-900/50 to-black/50 border-amber-800/30 shadow-lg">
               <CardHeader>
-                <CardTitle className="font-serif">Filters</CardTitle>
+                <CardTitle className="font-serif text-amber-400 flex items-center">
+                  <Search className="w-5 h-5 mr-2" />
+                  Filters
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Search</label>
+              <CardContent className="space-y-6">
+                <div className="space-y-3">
+                  <label className="text-sm font-medium text-gray-300">Search Messages</label>
                   <div className="relative">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                     <Input
                       placeholder="Search notifications..."
-                      className="pl-8 bg-gray-900 border-amber-800/20"
+                      className="pl-10 bg-gray-900/50 border-amber-800/30 focus:border-amber-500/50"
                       value={searchQuery}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Notification Type</label>
+                <div className="space-y-3">
+                  <label className="text-sm font-medium text-gray-300">Message Type</label>
                   <div className="flex flex-wrap gap-2">
                     <Badge
                       variant={selectedType === null ? "default" : "outline"}
-                      className="cursor-pointer"
+                      className={`cursor-pointer transition-all duration-200 ${
+                        selectedType === null 
+                          ? "bg-amber-500 text-black hover:bg-amber-600" 
+                          : "border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
+                      }`}
                       onClick={() => setSelectedType(null)}
                     >
                       All
                     </Badge>
                     <Badge
                       variant={selectedType === "achievement" ? "default" : "outline"}
-                      className="cursor-pointer"
+                      className={`cursor-pointer transition-all duration-200 ${
+                        selectedType === "achievement" 
+                          ? "bg-amber-500 text-black hover:bg-amber-600" 
+                          : "border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
+                      }`}
                       onClick={() => setSelectedType("achievement")}
                     >
+                      <Trophy className="w-3 h-3 mr-1" />
                       Achievements
                     </Badge>
                     <Badge
                       variant={selectedType === "quest" ? "default" : "outline"}
-                      className="cursor-pointer"
+                      className={`cursor-pointer transition-all duration-200 ${
+                        selectedType === "quest" 
+                          ? "bg-amber-500 text-black hover:bg-amber-600" 
+                          : "border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
+                      }`}
                       onClick={() => setSelectedType("quest")}
                     >
+                      <Coins className="w-3 h-3 mr-1" />
                       Quests
                     </Badge>
                     <Badge
                       variant={selectedType === "friend" ? "default" : "outline"}
-                      className="cursor-pointer"
+                      className={`cursor-pointer transition-all duration-200 ${
+                        selectedType === "friend" 
+                          ? "bg-amber-500 text-black hover:bg-amber-600" 
+                          : "border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
+                      }`}
                       onClick={() => setSelectedType("friend")}
                     >
+                      <Bell className="w-3 h-3 mr-1" />
                       Friends
                     </Badge>
                     <Badge
                       variant={selectedType === "system" ? "default" : "outline"}
-                      className="cursor-pointer"
+                      className={`cursor-pointer transition-all duration-200 ${
+                        selectedType === "system" 
+                          ? "bg-amber-500 text-black hover:bg-amber-600" 
+                          : "border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
+                      }`}
                       onClick={() => setSelectedType("system")}
                     >
+                      <CheckCircle className="w-3 h-3 mr-1" />
                       System
                     </Badge>
                   </div>
@@ -303,14 +428,17 @@ export default function NotificationsPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
+            <Card className="bg-gradient-to-b from-gray-900/50 to-black/50 border-amber-800/30 shadow-lg">
               <CardHeader>
-                <CardTitle className="font-serif">Actions</CardTitle>
+                <CardTitle className="font-serif text-amber-400 flex items-center">
+                  <Scroll className="w-5 h-5 mr-2" />
+                  Actions
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Button
                   variant="outline"
-                  className="w-full border-amber-800/20 hover:bg-amber-900/20"
+                  className="w-full border-amber-800/30 hover:bg-amber-900/20 text-amber-400 transition-all duration-200"
                   onClick={markAllAsRead}
                   disabled={notifications.every((n) => n.read)}
                 >
@@ -320,70 +448,74 @@ export default function NotificationsPage() {
 
                 <Button
                   variant="outline"
-                  className="w-full border-red-800/20 hover:bg-red-900/20 text-red-500"
+                  className="w-full border-red-800/30 hover:bg-red-900/20 text-red-400 transition-all duration-200"
                   onClick={clearAllNotifications}
                   disabled={notifications.length === 0}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Clear All Notifications
+                  Clear All Messages
                 </Button>
               </CardContent>
             </Card>
           </div>
 
-          <div className="lg:col-span-3 space-y-4 w-full">
+          {/* Enhanced Main Content */}
+          <div className="lg:col-span-3 space-y-6 w-full">
             <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
               {/* Mobile tab selector */}
-              <div className="mb-4 md:hidden">
+              <div className="mb-6 md:hidden">
                 <label htmlFor="notifications-tab-select" className="sr-only">Select notifications tab</label>
                 <select
                   id="notifications-tab-select"
                   aria-label="Notifications tab selector"
-                  className="w-full rounded-md border border-amber-800/20 bg-black text-white p-2"
+                  className="w-full rounded-lg border border-amber-800/30 bg-gray-900/50 text-white p-3 focus:border-amber-500/50"
                   value={activeTab}
                   onChange={e => setActiveTab(e.target.value)}
                 >
-                  <option value="all">All</option>
-                  <option value="unread">Unread</option>
+                  <option value="all">All Messages</option>
+                  <option value="unread">Unread Messages</option>
                 </select>
               </div>
-              <TabsList className="w-full hidden md:flex">
-                <TabsTrigger value="all" className="flex-1">
-                  All
+              
+              <TabsList className="w-full hidden md:flex bg-gray-900/50 border-amber-800/30">
+                <TabsTrigger value="all" className="flex-1 data-[state=active]:bg-amber-900/20 data-[state=active]:text-amber-400">
+                  All Messages
                 </TabsTrigger>
-                <TabsTrigger value="unread" className="flex-1">
-                  Unread
+                <TabsTrigger value="unread" className="flex-1 data-[state=active]:bg-amber-900/20 data-[state=active]:text-amber-400">
+                  Unread Messages
                   {notifications.filter((n) => !n.read).length > 0 && (
-                    <Badge className="ml-2 bg-red-500">{notifications.filter((n) => !n.read).length}</Badge>
+                    <Badge className="ml-2 bg-red-500 text-white">{notifications.filter((n) => !n.read).length}</Badge>
                   )}
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="all" className="mt-4 space-y-4">
+              <TabsContent value="all" className="mt-6 space-y-4">
                 {filteredNotifications.length > 0 ? (
                   filteredNotifications.map((notification) => (
                     <Card
                       key={notification.id}
-                      className={`bg-gradient-to-b from-black to-gray-900 border-amber-800/20 w-full min-h-[120px] md:min-h-[100px] hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-200 hover:-translate-y-1 ${
+                      className={`bg-gradient-to-b from-gray-900/50 to-black/50 border-amber-800/30 w-full min-h-[120px] md:min-h-[100px] hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300 hover:-translate-y-1 cursor-pointer ${
                         !notification.read ? "border-l-4 border-l-amber-500" : ""
                       }`}
                       onClick={() => markAsRead(notification.id)}
                     >
-                      <CardContent className="p-4 h-full flex flex-col justify-center">
+                      <CardContent className="p-6 h-full flex flex-col justify-center">
                         <div className="flex items-start gap-4">
-                          <div className="mt-1">{getNotificationIcon(notification.type)}</div>
+                          <div className="mt-1 p-2 bg-gray-800/50 rounded-lg">
+                            {getNotificationIcon(notification.type)}
+                          </div>
                           <div className="flex-1">
                             <div className="flex justify-between items-start">
-                              <h3 className="font-medium">{notification.title}</h3>
+                              <h3 className="font-semibold text-lg">{notification.title}</h3>
                               <div className="flex items-center gap-2">
-                                <Badge variant="outline">
+                                <Badge variant="outline" className="border-amber-800/30 text-amber-400">
                                   <Clock className="mr-1 h-3 w-3" />
                                   {formatTimestamp(notification.timestamp)}
                                 </Badge>
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="h-8 w-8 text-red-500 hover:text-red-700"
+                                  className="h-8 w-8 text-red-400 hover:text-red-600 hover:bg-red-900/20"
                                   onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                                     e.stopPropagation()
                                     deleteNotification(notification.id)
@@ -393,15 +525,15 @@ export default function NotificationsPage() {
                                 </Button>
                               </div>
                             </div>
-                            <p className="text-sm text-muted-foreground mt-1">{notification.message}</p>
+                            <p className="text-gray-300 mt-2 leading-relaxed">{notification.message}</p>
 
                             {notification.action && (
-                              <div className="mt-3">
+                              <div className="mt-4">
                                 <Link href={notification.action.href}>
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    className="border-amber-800/20 hover:bg-amber-900/20"
+                                    className="border-amber-800/30 hover:bg-amber-900/20 text-amber-400 transition-all duration-200"
                                   >
                                     {notification.action.label}
                                   </Button>
@@ -414,90 +546,42 @@ export default function NotificationsPage() {
                     </Card>
                   ))
                 ) : (
-                  <div className="w-full h-full min-h-[60vh] flex flex-col items-center justify-center bg-gradient-to-b from-gray-900/80 to-black/60 rounded-xl border-2 border-amber-800/30 shadow-2xl relative overflow-hidden">
-                    {/* Animated background elements */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-amber-900/5 to-transparent animate-pulse"></div>
-                    <div className="absolute top-4 left-4 w-2 h-2 bg-amber-500/30 rounded-full animate-bounce"></div>
-                    <div className="absolute top-8 right-8 w-1 h-1 bg-amber-400/40 rounded-full animate-ping"></div>
-                    <div className="absolute bottom-6 left-8 w-1.5 h-1.5 bg-amber-300/30 rounded-full animate-bounce" style={{ animationDelay: '0.5s' }}></div>
-                    
-                    {/* Main content */}
-                    <div className="relative z-10 text-center px-6">
-                      {/* Medieval mailbox illustration */}
-                      <div className="relative mb-8">
-                        <div className="w-32 h-32 mx-auto relative">
-                          {/* Mailbox base */}
-                          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-24 bg-gradient-to-b from-amber-800 to-amber-900 rounded-t-lg border-2 border-amber-700"></div>
-                          {/* Mailbox door */}
-                          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-20 bg-gradient-to-b from-amber-600 to-amber-700 rounded-t-md border border-amber-500"></div>
-                          {/* Mailbox post */}
-                          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-4 h-8 bg-gradient-to-b from-gray-700 to-gray-800 rounded"></div>
-                          {/* Empty interior glow */}
-                          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-12 h-16 bg-gradient-to-b from-amber-200/20 to-transparent rounded-t-sm"></div>
-                        </div>
-                        
-                        {/* Floating particles */}
-                        <div className="absolute top-0 left-0 w-full h-full">
-                          <div className="absolute top-4 left-6 w-1 h-1 bg-amber-300/60 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
-                          <div className="absolute top-8 right-4 w-0.5 h-0.5 bg-amber-400/50 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
-                          <div className="absolute top-12 left-8 w-0.5 h-0.5 bg-amber-500/40 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
-                        </div>
-                      </div>
-                      
-                      {/* Text content */}
-                      <div className="space-y-4">
-                        <h3 className="text-2xl font-bold text-amber-400 font-serif tracking-wide">
-                          No Messages Await
-                        </h3>
-                        <div className="max-w-sm mx-auto">
-                          <p className="text-gray-300 leading-relaxed font-medium">
-                            The courier has not yet arrived with news from your kingdom.
-                          </p>
-                          <p className="text-gray-400 text-sm mt-2 leading-relaxed">
-                            Complete quests and explore your realm to receive notifications from your loyal subjects.
-                          </p>
-                        </div>
-                        
-                        {/* Call to action */}
-                        <div className="pt-4">
-                          <Link href="/quests">
-                            <Button className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg">
-                              <Trophy className="mr-2 h-4 w-4" />
-                              Start Your Journey
-                            </Button>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <EmptyState
+                    title="No Messages Await"
+                    message="The courier has not yet arrived with news from your kingdom."
+                    description="Complete quests and explore your realm to receive notifications from your loyal subjects."
+                    showMailbox={true}
+                  />
                 )}
               </TabsContent>
 
-              <TabsContent value="unread" className="mt-4 space-y-4">
+              <TabsContent value="unread" className="mt-6 space-y-4">
                 {filteredNotifications.filter((n) => !n.read).length > 0 ? (
                   filteredNotifications
                     .filter((n) => !n.read)
                     .map((notification) => (
                       <Card
                         key={notification.id}
-                        className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20 border-l-4 border-l-amber-500 w-full min-h-[120px] md:min-h-[100px] hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-200 hover:-translate-y-1"
+                        className="bg-gradient-to-b from-gray-900/50 to-black/50 border-amber-800/30 border-l-4 border-l-amber-500 w-full min-h-[120px] md:min-h-[100px] hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
                         onClick={() => markAsRead(notification.id)}
                       >
-                        <CardContent className="p-4 h-full flex flex-col justify-center">
+                        <CardContent className="p-6 h-full flex flex-col justify-center">
                           <div className="flex items-start gap-4">
-                            <div className="mt-1">{getNotificationIcon(notification.type)}</div>
+                            <div className="mt-1 p-2 bg-gray-800/50 rounded-lg">
+                              {getNotificationIcon(notification.type)}
+                            </div>
                             <div className="flex-1">
                               <div className="flex justify-between items-start">
-                                <h3 className="font-medium">{notification.title}</h3>
+                                <h3 className="font-semibold text-lg">{notification.title}</h3>
                                 <div className="flex items-center gap-2">
-                                  <Badge variant="outline">
+                                  <Badge variant="outline" className="border-amber-800/30 text-amber-400">
                                     <Clock className="mr-1 h-3 w-3" />
                                     {formatTimestamp(notification.timestamp)}
                                   </Badge>
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 text-red-500 hover:text-red-700"
+                                    className="h-8 w-8 text-red-400 hover:text-red-600 hover:bg-red-900/20"
                                     onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                                       e.stopPropagation()
                                       deleteNotification(notification.id)
@@ -507,15 +591,15 @@ export default function NotificationsPage() {
                                   </Button>
                                 </div>
                               </div>
-                              <p className="text-sm text-muted-foreground mt-1">{notification.message}</p>
+                              <p className="text-gray-300 mt-2 leading-relaxed">{notification.message}</p>
 
                               {notification.action && (
-                                <div className="mt-3">
+                                <div className="mt-4">
                                   <Link href={notification.action.href}>
                                     <Button
                                       variant="outline"
                                       size="sm"
-                                      className="border-amber-800/20 hover:bg-amber-900/20"
+                                      className="border-amber-800/30 hover:bg-amber-900/20 text-amber-400 transition-all duration-200"
                                     >
                                       {notification.action.label}
                                     </Button>
@@ -528,62 +612,12 @@ export default function NotificationsPage() {
                       </Card>
                     ))
                 ) : (
-                  <div className="w-full h-full min-h-[60vh] flex flex-col items-center justify-center bg-gradient-to-b from-gray-900/80 to-black/60 rounded-xl border-2 border-amber-800/30 shadow-2xl relative overflow-hidden">
-                    {/* Animated background elements */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-amber-900/5 to-transparent animate-pulse"></div>
-                    <div className="absolute top-4 left-4 w-2 h-2 bg-amber-500/30 rounded-full animate-bounce"></div>
-                    <div className="absolute top-8 right-8 w-1 h-1 bg-amber-400/40 rounded-full animate-ping"></div>
-                    <div className="absolute bottom-6 left-8 w-1.5 h-1.5 bg-amber-300/30 rounded-full animate-bounce" style={{ animationDelay: '0.5s' }}></div>
-                    
-                    {/* Main content */}
-                    <div className="relative z-10 text-center px-6">
-                      {/* Medieval mailbox illustration */}
-                      <div className="relative mb-8">
-                        <div className="w-32 h-32 mx-auto relative">
-                          {/* Mailbox base */}
-                          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-24 bg-gradient-to-b from-amber-800 to-amber-900 rounded-t-lg border-2 border-amber-700"></div>
-                          {/* Mailbox door */}
-                          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-20 bg-gradient-to-b from-amber-600 to-amber-700 rounded-t-md border border-amber-500"></div>
-                          {/* Mailbox post */}
-                          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-4 h-8 bg-gradient-to-b from-gray-700 to-gray-800 rounded"></div>
-                          {/* Empty interior glow */}
-                          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-12 h-16 bg-gradient-to-b from-amber-200/20 to-transparent rounded-t-sm"></div>
-                        </div>
-                        
-                        {/* Floating particles */}
-                        <div className="absolute top-0 left-0 w-full h-full">
-                          <div className="absolute top-4 left-6 w-1 h-1 bg-amber-300/60 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
-                          <div className="absolute top-8 right-4 w-0.5 h-0.5 bg-amber-400/50 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
-                          <div className="absolute top-12 left-8 w-0.5 h-0.5 bg-amber-500/40 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
-                        </div>
-                      </div>
-                      
-                      {/* Text content */}
-                      <div className="space-y-4">
-                        <h3 className="text-2xl font-bold text-amber-400 font-serif tracking-wide">
-                          All Messages Read
-                        </h3>
-                        <div className="max-w-sm mx-auto">
-                          <p className="text-gray-300 leading-relaxed font-medium">
-                            You&apos;ve caught up on all your kingdom&apos;s news and updates.
-                          </p>
-                          <p className="text-gray-400 text-sm mt-2 leading-relaxed">
-                            Continue your adventures to receive new notifications from your realm.
-                          </p>
-                        </div>
-                        
-                        {/* Call to action */}
-                        <div className="pt-4">
-                          <Link href="/quests">
-                            <Button className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg">
-                              <Trophy className="mr-2 h-4 w-4" />
-                              Continue Adventure
-                            </Button>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <EmptyState
+                    title="All Messages Read"
+                    message="You've caught up on all your kingdom's news and updates."
+                    description="Continue your adventures to receive new notifications from your realm."
+                    showMailbox={false}
+                  />
                 )}
               </TabsContent>
             </Tabs>
