@@ -197,10 +197,16 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     
     // Unlock achievement for defeating this monster
     if (monster.achievementId) {
+      console.log('Attempting to unlock monster achievement:', monster.achievementId, 'for monster:', monster.name)
       fetch('/api/achievements/unlock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ achievementId: monster.achievementId })
+      }).then(response => {
+        console.log('Achievement unlock response status:', response.status)
+        return response.json()
+      }).then(data => {
+        console.log('Achievement unlock response data:', data)
       }).catch(error => {
         console.error('Failed to unlock achievement:', error)
       })
