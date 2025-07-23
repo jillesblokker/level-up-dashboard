@@ -251,53 +251,53 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
       )}
       
       {/* Main Recovery Section - Side by side on desktop */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Streak Recovery System - Takes 2/3 width on desktop */}
         <div className="lg:col-span-2">
-          <Card className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border-blue-800/30 h-full" aria-label="streak-recovery-status-card">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Heart className="w-5 h-5 text-blue-400" />
+          <Card className="bg-gradient-to-br from-blue-900/30 via-purple-900/20 to-blue-900/30 border-blue-800/50 h-full shadow-lg" aria-label="streak-recovery-status-card">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 text-xl font-bold text-blue-200">
+                <Heart className="w-6 h-6 text-blue-400" />
                 Streak Recovery System
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-blue-300/80 text-base leading-relaxed">
                 Build resilience and protect your streaks with recovery tools
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Resilience Points */}
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-1 mb-1">
-                    <Zap className="w-4 h-4 text-yellow-400" />
-                    <span className="text-sm font-medium text-gray-300">Resilience Points</span>
+                <div className="text-center p-4 rounded-lg bg-blue-900/20 border border-blue-800/30">
+                  <div className="flex items-center justify-center gap-2 mb-3">
+                    <Zap className="w-5 h-5 text-yellow-400" />
+                    <span className="text-sm font-semibold text-blue-200">Resilience Points</span>
                   </div>
-                  <div className="text-2xl font-bold text-yellow-400">{resiliencePoints}</div>
-                  <div className="text-xs text-gray-400">Earned by completing weeks</div>
+                  <div className="text-3xl font-bold text-yellow-400 mb-2">{resiliencePoints}</div>
+                  <div className="text-xs text-blue-300/70 leading-relaxed">Earned by completing weeks</div>
                 </div>
 
                 {/* Safety Net Status */}
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-1 mb-1">
-                    <Shield className={`w-4 h-4 ${safetyNetUsed ? 'text-gray-400' : 'text-green-400'}`} />
-                    <span className="text-sm font-medium text-gray-300">Safety Net</span>
+                <div className="text-center p-4 rounded-lg bg-green-900/20 border border-green-800/30">
+                  <div className="flex items-center justify-center gap-2 mb-3">
+                    <Shield className={`w-5 h-5 ${safetyNetUsed ? 'text-gray-400' : 'text-green-400'}`} />
+                    <span className="text-sm font-semibold text-green-200">Safety Net</span>
                   </div>
-                  <Badge variant={safetyNetUsed ? 'outline' : 'default'} className={safetyNetUsed ? 'text-gray-400' : 'text-green-400'}>
+                  <Badge variant={safetyNetUsed ? 'outline' : 'default'} className={`mb-2 ${safetyNetUsed ? 'text-gray-400 border-gray-600' : 'text-green-400 bg-green-900/50 border-green-600'}`}>
                     {safetyNetUsed ? 'Used This Week' : 'Available'}
                   </Badge>
-                  <div className="text-xs text-gray-400 mt-1">
+                  <div className="text-xs text-green-300/70 leading-relaxed">
                     Missed days: {missedDaysThisWeek}/1
                   </div>
                 </div>
 
                 {/* Max Streak */}
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-1 mb-1">
-                    <Award className="w-4 h-4 text-purple-400" />
-                    <span className="text-sm font-medium text-gray-300">Best Streak</span>
+                <div className="text-center p-4 rounded-lg bg-purple-900/20 border border-purple-800/30">
+                  <div className="flex items-center justify-center gap-2 mb-3">
+                    <Award className="w-5 h-5 text-purple-400" />
+                    <span className="text-sm font-semibold text-purple-200">Best Streak</span>
                   </div>
-                  <div className="text-2xl font-bold text-purple-400">{maxStreakAchieved}</div>
-                  <div className="text-xs text-gray-400">days achieved</div>
+                  <div className="text-3xl font-bold text-purple-400 mb-2">{maxStreakAchieved}</div>
+                  <div className="text-xs text-purple-300/70 leading-relaxed">days achieved</div>
                 </div>
               </div>
             </CardContent>
@@ -307,13 +307,13 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
         {/* Safety Net Action - Takes 1/3 width on desktop */}
         {recoveryFeaturesAvailable && !safetyNetUsed && missedDaysThisWeek === 0 && (
           <div className="lg:col-span-1">
-            <Card className="border-green-800/30 bg-green-900/10 h-full" aria-label="safety-net-card">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-green-400">
-                  <Shield className="w-5 h-5" />
+            <Card className="border-green-800/50 bg-gradient-to-br from-green-900/30 to-emerald-900/20 h-full shadow-lg" aria-label="safety-net-card">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-3 text-xl font-bold text-green-200">
+                  <Shield className="w-6 h-6 text-green-400" />
                   Safety Net Available
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-green-300/80 text-base leading-relaxed">
                   Protect your streak from the first missed day this week
                 </CardDescription>
               </CardHeader>
@@ -321,7 +321,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
                 <Button
                   onClick={handleUseSafetyNet}
                   disabled={loadingAction === 'safety_net'}
-                  className="w-full bg-green-600 hover:bg-green-700"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 text-base transition-all duration-200 shadow-lg hover:shadow-xl"
                 >
                   {loadingAction === 'safety_net' ? 'Activating...' : 'Use Safety Net'}
                 </Button>
@@ -365,27 +365,27 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
 
       {/* Comeback Challenges */}
       {recoveryFeaturesAvailable && qualifiesForComeback && comebackChallenges.length > 0 && (
-        <Card className="border-orange-800/30 bg-orange-900/10" aria-label="comeback-challenges-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-orange-400">
-              <AlertTriangle className="w-5 h-5" />
+        <Card className="border-orange-800/50 bg-gradient-to-br from-orange-900/30 to-amber-900/20 shadow-lg" aria-label="comeback-challenges-card">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-3 text-xl font-bold text-orange-200">
+              <AlertTriangle className="w-6 h-6 text-orange-400" />
               Comeback Challenges
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-orange-300/80 text-base leading-relaxed">
               {comebackReason}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-3">
+            <div className="grid gap-4">
               {comebackChallenges.map((challenge) => (
-                <div key={challenge.name} className="border border-orange-800/30 rounded-lg p-3 bg-orange-900/5">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h4 className="font-medium text-orange-200">{challenge.name}</h4>
-                      <p className="text-sm text-gray-400">{challenge.description}</p>
+                <div key={challenge.name} className="border-2 border-orange-800/40 rounded-xl p-4 bg-orange-900/10 hover:bg-orange-900/20 transition-colors">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-orange-200 text-lg mb-1">{challenge.name}</h4>
+                      <p className="text-sm text-orange-300/80 leading-relaxed">{challenge.description}</p>
                     </div>
-                    <div className="text-right">
-                      <div className="text-xs text-gray-400">
+                    <div className="text-right ml-4">
+                      <div className="text-sm font-medium text-orange-300 bg-orange-900/30 px-3 py-1 rounded-lg">
                         {challenge.xp} XP • {challenge.gold} Gold
                       </div>
                     </div>
@@ -393,8 +393,8 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
                   <Button
                     onClick={() => handleComebackChallenge(challenge.name)}
                     disabled={loadingAction === `comeback_${challenge.name}`}
-                    size="sm"
-                    className="w-full bg-orange-600 hover:bg-orange-700"
+                    size="default"
+                    className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 text-base transition-all duration-200 shadow-lg hover:shadow-xl"
                   >
                     {loadingAction === `comeback_${challenge.name}` ? 'Completing...' : 'Complete Challenge'}
                   </Button>

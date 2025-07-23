@@ -233,6 +233,8 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
   const handleDeleteMilestone = async (id: string) => {
     try {
       if (!token) throw new Error('No Clerk token');
+      console.log('Attempting to delete milestone:', id);
+      
       // Call backend API to delete milestone
       const response = await fetch(`/api/milestones/${id}`, {
         method: 'DELETE',
@@ -240,10 +242,18 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
           Authorization: `Bearer ${token}`,
         },
       });
+      
+      console.log('Delete response status:', response.status);
+      
       if (!response.ok) {
         const err = await response.text();
+        console.error('Delete error response:', err);
         throw new Error(err || 'Failed to delete milestone');
       }
+      
+      const result = await response.json();
+      console.log('Delete success:', result);
+      
       setMilestones(prev => prev.filter(m => m.id !== id));
       toast({
         title: 'Success',
@@ -253,7 +263,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       console.error('Error deleting milestone:', error);
       toast({
         title: 'Error',
-        description: 'Failed to delete milestone. Please try again.',
+        description: `Failed to delete milestone: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: 'destructive',
       });
     }
