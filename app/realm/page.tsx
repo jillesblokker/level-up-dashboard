@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { X, Hammer, Move, Package, Settings, Save, Trash2, RotateCcw, PlusCircle } from 'lucide-react'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useRouter } from 'next/navigation'
 import { EnterLocationModal } from '@/components/enter-location-modal'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
@@ -1200,7 +1200,6 @@ export default function RealmPage() {
                         <Switch id="auto-save-switch" checked={autoSave} onCheckedChange={setAutoSave} />
                         <label htmlFor="auto-save-switch" className="text-sm">Auto Save</label>
                       </div>
-                      <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
@@ -1225,7 +1224,26 @@ export default function RealmPage() {
                             }
                           </TooltipContent>
                         </Tooltip>
-                      </TooltipProvider>
+                        
+                        {/* Test tooltip to verify functionality */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                            >
+                              <span className="text-xs">?</span>
+                              <span className="hidden sm:inline">Test</span>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent 
+                            side="top" 
+                            className="bg-gray-900 text-white border-amber-800/30"
+                          >
+                            This is a test tooltip to verify functionality
+                          </TooltipContent>
+                        </Tooltip>
                       <Button
                         variant="outline"
                         size="sm"

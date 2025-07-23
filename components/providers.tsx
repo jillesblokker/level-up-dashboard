@@ -3,6 +3,7 @@
 import { ThemeProvider } from "next-themes"
 import React, { useEffect, useState, createContext, useContext } from 'react'
 import { ClerkProvider, useAuth as useClerkAuth } from '@clerk/nextjs';
+import { TooltipProvider } from "@/components/ui/tooltip"
 
 interface AuthContextType {
   isGuest: boolean;
@@ -71,7 +72,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <TooltipProvider>
+            {children}
+          </TooltipProvider>
         </ThemeProvider>
       </AuthProvider>
     </ClerkProvider>
