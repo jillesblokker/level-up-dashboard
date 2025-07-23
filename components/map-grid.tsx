@@ -312,6 +312,20 @@ export function MapGrid({
     return 'default';
   };
 
+  // Keyboard navigation handler
+  const handleKeyDown = (e: React.KeyboardEvent, tile: Tile, x: number, y: number) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (tile.hasMonster) {
+        onTileClick?.(x, y);
+      } else if (isMovementMode && isValidMovementTarget(x, y)) {
+        handleMove({ tile, x, y });
+      } else {
+        onTileClick?.(x, y);
+      }
+    }
+  };
+
   useEffect(() => {
     // Persistent horse caught flag
     const horseCaught = typeof window !== 'undefined' && localStorage.getItem('horseCaught') === 'true';
@@ -440,7 +454,9 @@ export function MapGrid({
                     style={{
                       cursor: getTileCursor(tile, x, y),
                     }}
-                    aria-label={`${tile.type} tile at position ${x}, ${y}`}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`${tile.type} tile at position ${x}, ${y}${tile.hasMonster ? ' - Monster present' : ''}`}
                     onClick={() => {
                       if (isBuyable) {
                         handleBuyTile(x, y);
@@ -448,6 +464,7 @@ export function MapGrid({
                         handleTileClick(tile, x, y);
                       }
                     }}
+                    onKeyDown={(e) => handleKeyDown(e, tile, x, y)}
                     onMouseEnter={() => { handleTileHover(tile, x, y); setHoveredTileLocal({x, y}); }}
                     onMouseLeave={() => { handleTileLeave(); setHoveredTileLocal(null); }}
                   >
