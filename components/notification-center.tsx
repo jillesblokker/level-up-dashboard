@@ -85,49 +85,18 @@ export function NotificationCenter() {
       {/* Background with medieval theme */}
       <div className="absolute inset-0 bg-gradient-to-br from-amber-900/5 via-transparent to-amber-900/5" />
       
-      {/* Animated background elements */}
-      <div className="absolute top-4 left-4 w-2 h-2 bg-amber-500/20 rounded-full animate-bounce"></div>
-      <div className="absolute top-8 right-6 w-1.5 h-1.5 bg-amber-400/30 rounded-full animate-ping"></div>
-      <div className="absolute bottom-6 left-6 w-2 h-2 bg-amber-300/20 rounded-full animate-bounce" style={{ animationDelay: '0.5s' }}></div>
-      
       {/* Main content */}
       <div className="relative z-10 text-center w-full max-w-sm mx-auto">
-        {/* Medieval mailbox illustration */}
+        {/* Original image */}
         <div className="relative mb-8">
-          <div className="w-32 h-32 mx-auto relative">
-            {/* Castle background */}
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-24 h-16">
-              <div className="absolute bottom-0 left-0 w-8 h-16 bg-gradient-to-b from-gray-600 to-gray-800 rounded-t-lg border border-gray-700"></div>
-              <div className="absolute bottom-0 left-8 w-8 h-12 bg-gradient-to-b from-gray-500 to-gray-700 rounded-t-lg border border-gray-600"></div>
-              <div className="absolute bottom-0 left-16 w-8 h-18 bg-gradient-to-b from-gray-600 to-gray-800 rounded-t-lg border border-gray-700"></div>
-              {/* Castle towers */}
-              <div className="absolute top-0 left-1 w-4 h-6 bg-gradient-to-b from-amber-800 to-amber-900 rounded-t-full border border-amber-700"></div>
-              <div className="absolute top-0 left-9 w-4 h-8 bg-gradient-to-b from-amber-800 to-amber-900 rounded-t-full border border-amber-700"></div>
-              <div className="absolute top-0 left-17 w-4 h-7 bg-gradient-to-b from-amber-800 to-amber-900 rounded-t-full border border-amber-700"></div>
-            </div>
-            
-            {/* Mailbox */}
-            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 w-20 h-24">
-              {/* Mailbox base */}
-              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-20 bg-gradient-to-b from-amber-800 to-amber-900 rounded-t-lg border-2 border-amber-700 shadow-lg"></div>
-              {/* Mailbox door */}
-              <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-12 h-16 bg-gradient-to-b from-amber-600 to-amber-700 rounded-t-md border border-amber-500"></div>
-              {/* Mailbox post */}
-              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3 h-6 bg-gradient-to-b from-gray-700 to-gray-800 rounded"></div>
-              {/* Empty interior glow */}
-              <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 w-10 h-12 bg-gradient-to-b from-amber-200/20 to-transparent rounded-t-sm"></div>
-              {/* Mailbox flag */}
-              <div className="absolute top-1 right-1 w-5 h-1 bg-amber-500 rounded-full"></div>
-              <div className="absolute top-0 right-1 w-1 h-5 bg-amber-500 rounded-full"></div>
-            </div>
-            
-            {/* Floating particles */}
-            <div className="absolute top-0 left-0 w-full h-full">
-              <div className="absolute top-2 left-3 w-0.5 h-0.5 bg-amber-300/60 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
-              <div className="absolute top-4 right-2 w-0.5 h-0.5 bg-amber-400/50 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
-              <div className="absolute top-6 left-4 w-0.5 h-0.5 bg-amber-500/40 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
-            </div>
-          </div>
+          <img
+            src="/images/Notifications/no-mail.png"
+            alt="No mail"
+            className="mx-auto w-full h-full max-h-[280px] object-cover rounded-lg"
+            width={320}
+            height={340}
+            onError={(e) => { e.currentTarget.src = '/images/placeholders/item-placeholder.svg'; e.currentTarget.alt = 'Image not found'; }}
+          />
         </div>
         
         {/* Text content */}
