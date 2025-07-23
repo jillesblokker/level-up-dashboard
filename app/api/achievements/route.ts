@@ -143,7 +143,25 @@ export async function GET(request: Request) {
 
     console.log('[ACHIEVEMENTS][GET] Fetching achievements for user:', targetUserId);
 
-    // Fetch achievements from Supabase - try without ordering first
+    // First, try to get a single row to see what columns exist
+    const { data: sampleData, error: sampleError } = await supabaseServer
+      .from('achievements')
+      .select('*')
+      .limit(1);
+
+    if (sampleError) {
+      console.error('[ACHIEVEMENTS][GET] Sample query error:', sampleError);
+      return NextResponse.json({ 
+        error: sampleError.message, 
+        code: sampleError.code,
+        details: sampleError.details,
+        hint: sampleError.hint
+      }, { status: 500 });
+    }
+
+    console.log('[ACHIEVEMENTS][GET] Sample data structure:', sampleData);
+
+    // Now fetch achievements for the specific user
     const { data, error } = await supabaseServer
       .from('achievements')
       .select('*')
@@ -161,14 +179,23 @@ export async function GET(request: Request) {
 
     console.log('[ACHIEVEMENTS][GET] Raw data from Supabase:', data);
 
-    const achievements = (data || []).map(row => ({
-      id: row.id,
-      userId: row.user_id,
-      achievementId: row.achievement_id,
-      unlockedAt: row.unlocked_at,
-      achievementName: row.achievement_name,
-      description: row.description,
-    }));
+    // Map the data based on what columns actually exist
+    const achievements = (data || []).map(row => {
+      const achievement: any = {
+        id: row.id,
+        userId: row.user_id,
+        achievementId: row.achievement_id,
+        achievementName: row.achievement_name,
+        description: row.description,
+      };
+      
+      // Only add unlockedAt if the column exists
+      if (row.unlocked_at !== undefined) {
+        achievement.unlockedAt = row.unlocked_at;
+      }
+      
+      return achievement;
+    });
 
     console.log('[ACHIEVEMENTS][GET] Processed achievements:', achievements);
 
