@@ -304,6 +304,14 @@ export function MapGrid({
     }
   };
 
+  // Add cursor pointer for interactive tiles
+  const getTileCursor = (tile: Tile, x: number, y: number) => {
+    if (tile.hasMonster) return 'pointer';
+    if (isMovementMode && isValidMovementTarget(x, y)) return 'pointer';
+    if (selectedTile) return 'pointer';
+    return 'default';
+  };
+
   useEffect(() => {
     // Persistent horse caught flag
     const horseCaught = typeof window !== 'undefined' && localStorage.getItem('horseCaught') === 'true';
@@ -429,6 +437,9 @@ export function MapGrid({
                       "relative w-full h-full aspect-square min-w-[32px] min-h-[32px]",
                       isValidTarget && "cursor-pointer hover:ring-2 hover:ring-white"
                     )}
+                    style={{
+                      cursor: getTileCursor(tile, x, y),
+                    }}
                     aria-label={`${tile.type} tile at position ${x}, ${y}`}
                     onClick={() => {
                       if (isBuyable) {
