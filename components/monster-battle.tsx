@@ -87,6 +87,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
   const [highlightedWeapon, setHighlightedWeapon] = useState<string | null>(null)
   const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing')
   const [goldLost, setGoldLost] = useState(0)
+  const [currentSequenceIndex, setCurrentSequenceIndex] = useState(0)
 
   const monster = monsterData[monsterType]
   
@@ -95,11 +96,11 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
   console.log('Monster image path:', monster?.image)
   console.log('Monster data:', monsterData)
   console.log('Monster type:', monsterType)
-  console.log('Sequence state:', { sequence, highlightedWeapon, isShowingSequence, isPlayerTurn })
+  console.log('Sequence state:', { sequence, highlightedWeapon, isShowingSequence, isPlayerTurn, currentSequenceIndex })
 
   // Generate new sequence for current round
-  const generateSequence = useCallback(() => {
-    const roundLength = 2 + currentRound // Starts with 3 items, adds 1 each round
+  const generateSequence = useCallback((round: number) => {
+    const roundLength = 2 + round // Starts with 3 items, adds 1 each round
     const newSequence: string[] = []
     
     for (let i = 0; i < roundLength; i++) {
@@ -109,19 +110,20 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
       }
     }
     
-    setSequence(newSequence)
-    setPlayerSequence([])
-  }, [currentRound])
+    return newSequence
+  }, [])
 
   // Show sequence to player
-  const showSequence = useCallback(async () => {
+  const showSequence = useCallback(async (sequenceToShow: string[]) => {
     setIsShowingSequence(true)
     setIsPlayerTurn(false)
+    setCurrentSequenceIndex(0)
     
-    for (let i = 0; i < sequence.length; i++) {
-      const weaponId = sequence[i]
+    for (let i = 0; i < sequenceToShow.length; i++) {
+      const weaponId = sequenceToShow[i]
       if (weaponId) {
         setHighlightedWeapon(weaponId)
+        setCurrentSequenceIndex(i + 1)
         await new Promise(resolve => setTimeout(resolve, 1000)) // Show each weapon for 1 second
         setHighlightedWeapon(null)
         await new Promise(resolve => setTimeout(resolve, 300)) // Brief pause between weapons
@@ -130,11 +132,34 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     
     setIsShowingSequence(false)
     setIsPlayerTurn(true)
-  }, [sequence])
+    setCurrentSequenceIndex(0)
+  }, [])
+
+  // Initialize game
+  useEffect(() => {
+    if (isOpen) {
+      setCurrentRound(1)
+      setGameState('playing')
+      setGoldLost(0)
+      setPlayerSequence([])
+      setCurrentSequenceIndex(0)
+      
+      // Generate initial sequence
+      const initialSequence = generateSequence(1)
+      setSequence(initialSequence)
+      
+      // Show sequence after a brief delay
+      const timer = setTimeout(() => {
+        showSequence(initialSequence)
+      }, 1000)
+      
+      return () => clearTimeout(timer)
+    }
+  }, [isOpen, generateSequence, showSequence])
 
   // Handle weapon click
   const handleWeaponClick = (weaponId: string) => {
-    if (!isPlayerTurn || isShowingSequence) return
+    if (!isPlayerTurn || isShowingSequence || gameState !== 'playing') return
     
     const newPlayerSequence = [...playerSequence, weaponId]
     setPlayerSequence(newPlayerSequence)
@@ -155,10 +180,17 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
         handleGameWin()
       } else {
         // Next round
-        setCurrentRound(prev => prev + 1)
+        const nextRound = currentRound + 1
+        setCurrentRound(nextRound)
+        setPlayerSequence([])
+        
+        // Generate new sequence for next round
+        const newSequence = generateSequence(nextRound)
+        setSequence(newSequence)
+        
+        // Show new sequence after a delay
         setTimeout(() => {
-          generateSequence()
-          setTimeout(showSequence, 1000)
+          showSequence(newSequence)
         }, 1000)
       }
     }
@@ -179,10 +211,17 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     if (currentRound === 5) {
       handleGameLoss()
     } else {
-      setCurrentRound(prev => prev + 1)
+      const nextRound = currentRound + 1
+      setCurrentRound(nextRound)
+      setPlayerSequence([])
+      
+      // Generate new sequence for next round
+      const newSequence = generateSequence(nextRound)
+      setSequence(newSequence)
+      
+      // Show new sequence after a delay
       setTimeout(() => {
-        generateSequence()
-        setTimeout(showSequence, 1000)
+        showSequence(newSequence)
       }, 1000)
     }
   }
@@ -238,17 +277,6 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     }, 2000)
   }
 
-  // Initialize game
-  useEffect(() => {
-    if (isOpen) {
-      setCurrentRound(1)
-      setGameState('playing')
-      setGoldLost(0)
-      generateSequence()
-      setTimeout(showSequence, 1000)
-    }
-  }, [isOpen, generateSequence, showSequence])
-
   if (!isOpen) return null
 
   return (
@@ -301,12 +329,12 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
           <div className="text-center">
             {isShowingSequence && (
               <div className="text-amber-400 font-bold text-lg animate-pulse">
-                👀 Watch the sequence carefully... ({sequence.length} items)
+                👀 Watch the sequence carefully... ({currentSequenceIndex}/{sequence.length})
               </div>
             )}
             {isPlayerTurn && !isShowingSequence && (
               <div className="text-green-400 font-bold">
-                Your turn! Repeat the sequence
+                Your turn! Repeat the sequence ({playerSequence.length}/{sequence.length})
               </div>
             )}
             {gameState === 'won' && (
