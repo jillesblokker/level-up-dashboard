@@ -384,7 +384,13 @@ export default function Page() {
             <div className="mb-8">
               <h2 className="text-2xl font-serif text-amber-400 mb-4">Monster Battles</h2>
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3" aria-label="achievement-cards-grid">
-                {achievementDefinitions.map(achievement => {
+                {achievementDefinitions
+                  .filter(achievement => {
+                    // Only show monster battle achievements (201-206)
+                    const achievementId = parseInt(achievement.id);
+                    return achievementId >= 201 && achievementId <= 206;
+                  })
+                  .map(achievement => {
                   if (!achievement) return null;
                   const unlocked = isUnlocked(achievement.id);
                   const unlockDate = getUnlockDate(achievement.id);
