@@ -467,7 +467,7 @@ export default function ProfilePage() {
                 <div className="text-center py-8">
                   <Palette className="w-12 h-12 text-gray-500 mx-auto mb-4" />
                   <p className="text-gray-400">Appearance customization is only available for initial avatars.</p>
-                  <p className="text-sm text-gray-500 mt-2">Switch to "Initial" avatar type to customize colors.</p>
+                  <p className="text-sm text-gray-500 mt-2">Switch to &quot;Initial&quot; avatar type to customize colors.</p>
                 </div>
               )}
             </CardContent>
