@@ -122,12 +122,13 @@
 }
 
 /* Custom background override to ensure image shows */
-body {
+html, body {
   background-image: url('/images/backgroundi.png'), linear-gradient(135deg, var(--background-start), var(--background-end)) !important;
   background-size: cover, cover !important;
   background-position: center, center !important;
   background-repeat: no-repeat, no-repeat !important;
   background-attachment: fixed, fixed !important;
+  min-height: 100vh !important;
 }
 
 /* Custom styles */
@@ -844,4 +845,11 @@ select {
   appearance: auto !important;
   -webkit-appearance: auto !important;
   -moz-appearance: auto !important;
+}
+
+/* Hide browser default arrow for Radix UI Select components */
+[data-radix-select-trigger] {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
 } 

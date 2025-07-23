@@ -52,7 +52,14 @@ export default function RootLayout({
       signInFallbackRedirectUrl="/kingdom"
       signUpFallbackRedirectUrl="/kingdom"
     >
-      <html lang="en" suppressHydrationWarning>
+      <html lang="en" suppressHydrationWarning style={{
+        backgroundImage: "url('/images/backgroundi.png'), linear-gradient(135deg, #000428, #004e92)",
+        backgroundSize: "cover, cover",
+        backgroundPosition: "center, center",
+        backgroundRepeat: "no-repeat, no-repeat",
+        backgroundAttachment: "fixed, fixed",
+        minHeight: "100vh"
+      }}>
         <head>
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
