@@ -1374,11 +1374,11 @@ export default function QuestsPage() {
           <TabsContent value="quests">
             <div className="mb-4 space-y-4">
               {/* Bulk Complete Favorites Button */}
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
                 <Button
                   onClick={handleBulkCompleteFavorites}
                   disabled={loading || quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length === 0}
-                  className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                  className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2"
                   aria-label="Complete all favorited quests in this category"
                 >
                   <Star className="w-4 h-4 mr-2" />
@@ -1387,7 +1387,7 @@ export default function QuestsPage() {
                 <Button
                   onClick={handleBulkCompleteAllFavorites}
                   disabled={loading || quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length === 0}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2"
                   aria-label="Complete all favorited quests across all categories"
                 >
                   <Star className="w-4 h-4 mr-2" />

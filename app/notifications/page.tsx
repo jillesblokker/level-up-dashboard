@@ -415,12 +415,61 @@ export default function NotificationsPage() {
                     </Card>
                   ))
                 ) : (
-                  <Card className="flex flex-col items-center justify-center py-12 bg-gray-900/50 rounded-lg border border-gray-800">
-                    <img src="/images/Notifications/no_mail.png" alt="No mail" className="mx-auto h-32 w-32 mb-6" />
-                    <h3 className="text-lg font-medium mb-2">No Notifications</h3>
-                    <p className="text-muted-foreground text-center max-w-xs mx-auto">
-                      You must have just missed the courier. No messages from your loyal subjects at this moment
-                    </p>
+                  <Card className="flex flex-col items-center justify-center py-16 bg-gradient-to-b from-gray-900/80 to-black/60 rounded-xl border-2 border-amber-800/30 shadow-2xl relative overflow-hidden">
+                    {/* Animated background elements */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-amber-900/5 to-transparent animate-pulse"></div>
+                    <div className="absolute top-4 left-4 w-2 h-2 bg-amber-500/30 rounded-full animate-bounce"></div>
+                    <div className="absolute top-8 right-8 w-1 h-1 bg-amber-400/40 rounded-full animate-ping"></div>
+                    <div className="absolute bottom-6 left-8 w-1.5 h-1.5 bg-amber-300/30 rounded-full animate-bounce" style={{ animationDelay: '0.5s' }}></div>
+                    
+                    {/* Main content */}
+                    <div className="relative z-10 text-center">
+                      {/* Medieval mailbox illustration */}
+                      <div className="relative mb-8">
+                        <div className="w-32 h-32 mx-auto relative">
+                          {/* Mailbox base */}
+                          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-24 bg-gradient-to-b from-amber-800 to-amber-900 rounded-t-lg border-2 border-amber-700"></div>
+                          {/* Mailbox door */}
+                          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-20 bg-gradient-to-b from-amber-600 to-amber-700 rounded-t-md border border-amber-500"></div>
+                          {/* Mailbox post */}
+                          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-4 h-8 bg-gradient-to-b from-gray-700 to-gray-800 rounded"></div>
+                          {/* Empty interior glow */}
+                          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-12 h-16 bg-gradient-to-b from-amber-200/20 to-transparent rounded-t-sm"></div>
+                        </div>
+                        
+                        {/* Floating particles */}
+                        <div className="absolute top-0 left-0 w-full h-full">
+                          <div className="absolute top-4 left-6 w-1 h-1 bg-amber-300/60 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
+                          <div className="absolute top-8 right-4 w-0.5 h-0.5 bg-amber-400/50 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
+                          <div className="absolute top-12 left-8 w-0.5 h-0.5 bg-amber-500/40 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
+                        </div>
+                      </div>
+                      
+                      {/* Text content */}
+                      <div className="space-y-4">
+                        <h3 className="text-2xl font-bold text-amber-400 font-serif tracking-wide">
+                          No Messages Await
+                        </h3>
+                        <div className="max-w-sm mx-auto">
+                          <p className="text-gray-300 leading-relaxed font-medium">
+                            The courier has not yet arrived with news from your kingdom.
+                          </p>
+                          <p className="text-gray-400 text-sm mt-2 leading-relaxed">
+                            Complete quests and explore your realm to receive notifications from your loyal subjects.
+                          </p>
+                        </div>
+                        
+                        {/* Call to action */}
+                        <div className="pt-4">
+                          <Link href="/quests">
+                            <Button className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg">
+                              <Trophy className="mr-2 h-4 w-4" />
+                              Start Your Journey
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
                   </Card>
                 )}
               </TabsContent>
@@ -480,12 +529,61 @@ export default function NotificationsPage() {
                       </Card>
                     ))
                 ) : (
-                  <Card className="flex flex-col items-center justify-center py-12 bg-gray-900/50 rounded-lg border border-gray-800">
-                    <img src="/images/Notifications/no_mail.png" alt="No mail" className="mx-auto h-32 w-32 mb-6" />
-                    <h3 className="text-lg font-medium mb-2">No Unread Notifications</h3>
-                    <p className="text-muted-foreground text-center max-w-xs mx-auto">
-                      You must have just missed the courier. No messages from your loyal subjects at this moment
-                    </p>
+                  <Card className="flex flex-col items-center justify-center py-16 bg-gradient-to-b from-gray-900/80 to-black/60 rounded-xl border-2 border-amber-800/30 shadow-2xl relative overflow-hidden">
+                    {/* Animated background elements */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-amber-900/5 to-transparent animate-pulse"></div>
+                    <div className="absolute top-4 left-4 w-2 h-2 bg-amber-500/30 rounded-full animate-bounce"></div>
+                    <div className="absolute top-8 right-8 w-1 h-1 bg-amber-400/40 rounded-full animate-ping"></div>
+                    <div className="absolute bottom-6 left-8 w-1.5 h-1.5 bg-amber-300/30 rounded-full animate-bounce" style={{ animationDelay: '0.5s' }}></div>
+                    
+                    {/* Main content */}
+                    <div className="relative z-10 text-center">
+                      {/* Medieval mailbox illustration */}
+                      <div className="relative mb-8">
+                        <div className="w-32 h-32 mx-auto relative">
+                          {/* Mailbox base */}
+                          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-24 bg-gradient-to-b from-amber-800 to-amber-900 rounded-t-lg border-2 border-amber-700"></div>
+                          {/* Mailbox door */}
+                          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-20 bg-gradient-to-b from-amber-600 to-amber-700 rounded-t-md border border-amber-500"></div>
+                          {/* Mailbox post */}
+                          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-4 h-8 bg-gradient-to-b from-gray-700 to-gray-800 rounded"></div>
+                          {/* Empty interior glow */}
+                          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-12 h-16 bg-gradient-to-b from-amber-200/20 to-transparent rounded-t-sm"></div>
+                        </div>
+                        
+                        {/* Floating particles */}
+                        <div className="absolute top-0 left-0 w-full h-full">
+                          <div className="absolute top-4 left-6 w-1 h-1 bg-amber-300/60 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
+                          <div className="absolute top-8 right-4 w-0.5 h-0.5 bg-amber-400/50 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
+                          <div className="absolute top-12 left-8 w-0.5 h-0.5 bg-amber-500/40 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
+                        </div>
+                      </div>
+                      
+                      {/* Text content */}
+                      <div className="space-y-4">
+                        <h3 className="text-2xl font-bold text-amber-400 font-serif tracking-wide">
+                          All Messages Read
+                        </h3>
+                        <div className="max-w-sm mx-auto">
+                          <p className="text-gray-300 leading-relaxed font-medium">
+                            You've caught up on all your kingdom's news and updates.
+                          </p>
+                          <p className="text-gray-400 text-sm mt-2 leading-relaxed">
+                            Continue your adventures to receive new notifications from your realm.
+                          </p>
+                        </div>
+                        
+                        {/* Call to action */}
+                        <div className="pt-4">
+                          <Link href="/quests">
+                            <Button className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg">
+                              <Trophy className="mr-2 h-4 w-4" />
+                              Continue Adventure
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
                   </Card>
                 )}
               </TabsContent>
