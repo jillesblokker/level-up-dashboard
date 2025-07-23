@@ -243,6 +243,13 @@ export function MapGrid({
     const movedToTile = grid[originalTarget.y]?.[originalTarget.x];
     
     if (movedToTile) {
+      // Handle monster interaction first
+      if (movedToTile.hasMonster) {
+        // Trigger monster battle - this should be handled by the parent component
+        onTileClick?.(originalTarget.x, originalTarget.y);
+        return;
+      }
+      
       // Handle special tile interactions that should be handled locally
       switch (movedToTile.type) {
         case 'mystery':
@@ -269,6 +276,13 @@ export function MapGrid({
   };
 
   const handleTileClick = (tile: Tile, x: number, y: number) => {
+    // Handle monster interaction first
+    if (tile.hasMonster) {
+      // Trigger monster battle - this should be handled by the parent component
+      onTileClick?.(x, y);
+      return;
+    }
+    
     if (isMovementMode && isValidMovementTarget(x, y)) {
       handleMove({ tile, x, y });
     } else {
@@ -476,6 +490,20 @@ export function MapGrid({
                           height={96}
                           className="object-contain w-24 h-24 drop-shadow-[0_2px_8px_rgba(0,200,255,0.8)]"
                           onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span style=\'color:blue;font-size:2rem;\'>🐧</span>'); }}
+                          priority
+                        />
+                      </div>
+                    )}
+                    {/* Monster overlays */}
+                    {tile.hasMonster && (
+                      <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
+                        <Image
+                          src={`/images/Monsters/${tile.monsterAchievementId || '201'}.png`}
+                          alt={`${tile.hasMonster} monster`}
+                          width={96}
+                          height={96}
+                          className="object-contain w-24 h-24 drop-shadow-[0_2px_8px_rgba(255,0,0,0.8)] animate-pulse"
+                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', `<span style='color:red;font-size:2rem;'>👹</span>`); }}
                           priority
                         />
                       </div>
