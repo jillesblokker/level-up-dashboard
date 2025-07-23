@@ -339,12 +339,17 @@ export default function RealmPage() {
         if (typeof count === 'number' && typeof req.threshold === 'number' && count >= req.threshold) {
           // Unlock achievement if not already unlocked
           if (userId) {
-            fetch('/api/achievements/unlock', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ achievementId: req.id })
-            });
-            discoverCreature(req.id);
+            // Add a guard to prevent repeated calls for the same achievement
+            const achievementKey = `unlocked_${req.id}`;
+            if (!sessionStorage.getItem(achievementKey)) {
+              sessionStorage.setItem(achievementKey, 'true');
+              fetch('/api/achievements/unlock', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ achievementId: req.id })
+              });
+              discoverCreature(req.id);
+            }
           }
         }
       }
@@ -354,8 +359,9 @@ export default function RealmPage() {
     useEffect(() => {
         if (!hasVisitedRealm && isAuthLoaded) {
             setHasVisitedRealm(true);
-            // Unlock the Necrion achievement (000)
-            if (userId) {
+            // Unlock the Necrion achievement (000) - only once per session
+            if (userId && !sessionStorage.getItem('unlocked_000')) {
+                sessionStorage.setItem('unlocked_000', 'true');
                 fetch('/api/achievements/unlock', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -372,13 +378,13 @@ export default function RealmPage() {
                     });
                     console.error('Achievement unlock error:', err);
                 });
+                // Also unlock Necrion in the local creature store
+                discoverCreature('000');
+                toast({
+                    title: "Achievement Unlocked!",
+                    description: "Necrion - You've discovered the realm map!",
+                });
             }
-            // Also unlock Necrion in the local creature store
-            discoverCreature('000');
-            toast({
-                title: "Achievement Unlocked!",
-                description: "Necrion - You've discovered the realm map!",
-            });
         }
     }, [hasVisitedRealm, isAuthLoaded, userId, setHasVisitedRealm, toast, discoverCreature]);
 
