@@ -229,7 +229,6 @@ export default function NotificationsPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold tracking-tight font-serif">Notifications</h1>
-            <p className="text-muted-foreground">Stay updated on your kingdom&apos;s activities</p>
           </div>
           <div className="flex gap-2">
             <Link href="/">
@@ -242,7 +241,7 @@ export default function NotificationsPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="space-y-4">
+          <div className="space-y-4 lg:block hidden">
             <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
               <CardHeader>
                 <CardTitle className="font-serif">Filters</CardTitle>
@@ -332,7 +331,7 @@ export default function NotificationsPage() {
             </Card>
           </div>
 
-          <div className="lg:col-span-3 space-y-4">
+          <div className="lg:col-span-3 space-y-4 w-full">
             <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
               {/* Mobile tab selector */}
               <div className="mb-4 md:hidden">
@@ -365,12 +364,12 @@ export default function NotificationsPage() {
                   filteredNotifications.map((notification) => (
                     <Card
                       key={notification.id}
-                      className={`bg-gradient-to-b from-black to-gray-900 border-amber-800/20 ${
+                      className={`bg-gradient-to-b from-black to-gray-900 border-amber-800/20 w-full min-h-[120px] md:min-h-[100px] ${
                         !notification.read ? "border-l-4 border-l-amber-500" : ""
                       }`}
                       onClick={() => markAsRead(notification.id)}
                     >
-                      <CardContent className="p-4">
+                      <CardContent className="p-4 h-full flex flex-col justify-center">
                         <div className="flex items-start gap-4">
                           <div className="mt-1">{getNotificationIcon(notification.type)}</div>
                           <div className="flex-1">
@@ -481,10 +480,10 @@ export default function NotificationsPage() {
                     .map((notification) => (
                       <Card
                         key={notification.id}
-                        className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20 border-l-4 border-l-amber-500"
+                        className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20 border-l-4 border-l-amber-500 w-full min-h-[120px] md:min-h-[100px]"
                         onClick={() => markAsRead(notification.id)}
                       >
-                        <CardContent className="p-4">
+                        <CardContent className="p-4 h-full flex flex-col justify-center">
                           <div className="flex items-start gap-4">
                             <div className="mt-1">{getNotificationIcon(notification.type)}</div>
                             <div className="flex-1">

@@ -7,19 +7,24 @@ import { grantReward } from '../../kingdom/grantReward';
 export async function POST(request: Request) {
   try {
     const { userId } = await auth();
+    console.log('Achievement unlock request - userId:', userId);
 
     if (!userId) {
+      console.log('No userId found in auth');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
     const { achievementId } = body;
+    console.log('Achievement unlock request - achievementId:', achievementId);
 
     if (!achievementId) {
+      console.log('No achievementId provided in request body');
       return NextResponse.json({ error: 'Achievement ID is required' }, { status: 400 });
     }
 
     // Check if achievement is already unlocked in Supabase
+    console.log('Checking if achievement already exists...');
     const { data: existing, error: fetchError } = await supabaseServer
       .from('achievements')
       .select('*')
@@ -27,7 +32,13 @@ export async function POST(request: Request) {
       .eq('achievement_id', achievementId)
       .single();
 
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      console.error('Error fetching existing achievement:', fetchError);
+      return NextResponse.json({ error: fetchError.message }, { status: 500 });
+    }
+
     if (existing) {
+      console.log('Achievement already unlocked:', existing);
       return NextResponse.json({ 
         success: true, 
         achievementId,
@@ -37,6 +48,7 @@ export async function POST(request: Request) {
     }
 
     // Insert new achievement unlock into Supabase
+    console.log('Inserting new achievement unlock...');
     const { error } = await supabaseServer.from('achievements').insert([
       {
         user_id: userId,
@@ -53,13 +65,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    console.log('Achievement unlocked successfully, logging reward...');
+
     // Log the achievement unlock as a reward event
-    await grantReward({
-      userId,
-      type: 'achievement',
-      relatedId: achievementId,
-      context: { source: 'achievement_unlock' }
-    });
+    try {
+      await grantReward({
+        userId,
+        type: 'achievement',
+        relatedId: achievementId,
+        context: { source: 'achievement_unlock' }
+      });
+    } catch (rewardError) {
+      console.error('Error granting reward:', rewardError);
+      // Don't fail the whole request if reward logging fails
+    }
 
     console.log(`Achievement unlocked in Supabase: ${achievementId} for user: ${userId}`);
 
