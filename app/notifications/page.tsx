@@ -414,7 +414,7 @@ export default function NotificationsPage() {
                     </Card>
                   ))
                 ) : (
-                  <Card className="flex flex-col items-center justify-center py-16 bg-gradient-to-b from-gray-900/80 to-black/60 rounded-xl border-2 border-amber-800/30 shadow-2xl relative overflow-hidden">
+                  <div className="w-full h-full min-h-[60vh] flex flex-col items-center justify-center bg-gradient-to-b from-gray-900/80 to-black/60 rounded-xl border-2 border-amber-800/30 shadow-2xl relative overflow-hidden">
                     {/* Animated background elements */}
                     <div className="absolute inset-0 bg-gradient-to-br from-amber-900/5 to-transparent animate-pulse"></div>
                     <div className="absolute top-4 left-4 w-2 h-2 bg-amber-500/30 rounded-full animate-bounce"></div>
@@ -422,7 +422,7 @@ export default function NotificationsPage() {
                     <div className="absolute bottom-6 left-8 w-1.5 h-1.5 bg-amber-300/30 rounded-full animate-bounce" style={{ animationDelay: '0.5s' }}></div>
                     
                     {/* Main content */}
-                    <div className="relative z-10 text-center">
+                    <div className="relative z-10 text-center px-6">
                       {/* Medieval mailbox illustration */}
                       <div className="relative mb-8">
                         <div className="w-32 h-32 mx-auto relative">
@@ -469,7 +469,7 @@ export default function NotificationsPage() {
                         </div>
                       </div>
                     </div>
-                  </Card>
+                  </div>
                 )}
               </TabsContent>
 
@@ -528,7 +528,7 @@ export default function NotificationsPage() {
                       </Card>
                     ))
                 ) : (
-                  <Card className="flex flex-col items-center justify-center py-16 bg-gradient-to-b from-gray-900/80 to-black/60 rounded-xl border-2 border-amber-800/30 shadow-2xl relative overflow-hidden">
+                  <div className="w-full h-full min-h-[60vh] flex flex-col items-center justify-center bg-gradient-to-b from-gray-900/80 to-black/60 rounded-xl border-2 border-amber-800/30 shadow-2xl relative overflow-hidden">
                     {/* Animated background elements */}
                     <div className="absolute inset-0 bg-gradient-to-br from-amber-900/5 to-transparent animate-pulse"></div>
                     <div className="absolute top-4 left-4 w-2 h-2 bg-amber-500/30 rounded-full animate-bounce"></div>
@@ -536,7 +536,7 @@ export default function NotificationsPage() {
                     <div className="absolute bottom-6 left-8 w-1.5 h-1.5 bg-amber-300/30 rounded-full animate-bounce" style={{ animationDelay: '0.5s' }}></div>
                     
                     {/* Main content */}
-                    <div className="relative z-10 text-center">
+                    <div className="relative z-10 text-center px-6">
                       {/* Medieval mailbox illustration */}
                       <div className="relative mb-8">
                         <div className="w-32 h-32 mx-auto relative">
@@ -583,7 +583,7 @@ export default function NotificationsPage() {
                         </div>
                       </div>
                     </div>
-                  </Card>
+                  </div>
                 )}
               </TabsContent>
             </Tabs>

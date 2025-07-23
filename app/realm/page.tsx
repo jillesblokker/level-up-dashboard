@@ -1061,16 +1061,31 @@ export default function RealmPage() {
                 return newGrid;
             });
             
+            // Save the updated tile to backend
+            fetch('/api/realm-tiles', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    x: characterPosition.x, 
+                    y: characterPosition.y, 
+                    tile_type: tileTypeToNumeric[grid[characterPosition.y]?.[characterPosition.x]?.type || 'empty'],
+                    has_monster: null,
+                    monster_achievement_id: null
+                })
+            }).catch(() => {
+                toast({ title: 'Error', description: 'Failed to save monster defeat', variant: 'destructive' });
+            });
+            
             // Show victory message
             toast({
                 title: "Victory!",
                 description: `You defeated the monster! Earned ${goldEarned} gold and ${xpEarned} XP!`,
             });
         } else {
-            // Show defeat message
+            // Show defeat message - monster stays on the map for retry
             toast({
                 title: "Defeat!",
-                description: `The monster was too strong! You lost ${Math.abs(goldEarned)} gold.`,
+                description: `The monster was too strong! You lost ${Math.abs(goldEarned)} gold. Try again when you're ready!`,
                 variant: "destructive",
             });
         }
