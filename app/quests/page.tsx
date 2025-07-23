@@ -1625,7 +1625,7 @@ export default function QuestsPage() {
               <div className="relative">
                 <select
                   id="recovery-category-select"
-                  className="w-full rounded-lg border-2 border-amber-800/30 bg-black/80 text-amber-200 p-3 pr-10 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-colors"
+                  className="w-full rounded-lg border-2 border-amber-800/30 bg-black/80 text-amber-200 p-3 pr-10 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-colors appearance-none"
                   aria-label="Recovery category dropdown"
                   value={challengeCategory}
                   onChange={e => setChallengeCategory(e.target.value)}
