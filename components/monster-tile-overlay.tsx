@@ -16,12 +16,12 @@ export function MonsterTileOverlay({ tile, size = 32, className = '' }: MonsterT
   if (!monsterType) return null
 
   const monsterImages = {
-    dragon: '/images/achievements/201.png?v=1',
-    goblin: '/images/achievements/202.png?v=1',
-    troll: '/images/achievements/203.png?v=1',
-    wizard: '/images/achievements/204.png?v=1',
-    pegasus: '/images/achievements/205.png?v=1',
-    fairy: '/images/achievements/206.png?v=1'
+    dragon: '/images/Monsters/Dragoni.png',
+    goblin: '/images/Monsters/Orci.png',
+    troll: '/images/Monsters/Trollie.png',
+    wizard: '/images/Monsters/Sorceror.png',
+    pegasus: '/images/Monsters/Peggie.png',
+    fairy: '/images/Monsters/Fairiel.png'
   }
 
   const imageSrc = monsterImages[monsterType as keyof typeof monsterImages]

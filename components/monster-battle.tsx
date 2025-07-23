@@ -36,42 +36,42 @@ const weapons: Weapon[] = [
 const monsterData = {
   dragon: {
     name: 'Dragoni',
-    image: '/images/placeholders/item-placeholder.svg',
+    image: '/images/achievements/201.png',
     description: 'A fearsome dragon with scales as hard as steel',
     difficulty: 'Hard',
     achievementId: '201'
   },
   goblin: {
     name: 'Orci',
-    image: '/images/placeholders/item-placeholder.svg',
+    image: '/images/achievements/202.png',
     description: 'A sneaky goblin with sharp daggers',
     difficulty: 'Easy',
     achievementId: '202'
   },
   troll: {
     name: 'Trollie',
-    image: '/images/placeholders/item-placeholder.svg',
+    image: '/images/achievements/203.png',
     description: 'A massive troll with incredible strength',
     difficulty: 'Medium',
     achievementId: '203'
   },
   wizard: {
     name: 'Sorceror',
-    image: '/images/placeholders/item-placeholder.svg',
+    image: '/images/achievements/204.png',
     description: 'A powerful wizard with dark magic',
     difficulty: 'Hard',
     achievementId: '204'
   },
   pegasus: {
     name: 'Peggie',
-    image: '/images/placeholders/item-placeholder.svg',
+    image: '/images/achievements/205.png',
     description: 'A majestic winged horse with divine powers',
     difficulty: 'Medium',
     achievementId: '205'
   },
   fairy: {
     name: 'Fairiel',
-    image: '/images/placeholders/item-placeholder.svg',
+    image: '/images/achievements/206.png',
     description: 'A magical fairy with nature magic',
     difficulty: 'Easy',
     achievementId: '206'
