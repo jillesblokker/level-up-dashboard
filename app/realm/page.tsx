@@ -26,6 +26,7 @@ import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 import dynamic from 'next/dynamic';
 import { getCharacterStats } from '@/lib/character-stats-manager';
 import { checkMonsterSpawn, spawnMonsterOnTile, getMonsterAchievementId, MonsterType } from '@/lib/monster-spawn-manager';
+import { MonsterBattle } from '@/components/monster-battle';
 const RevealOverlay = dynamic(() => import('../reveal/page'), { ssr: false });
 
 // Constants
@@ -251,6 +252,10 @@ export default function RealmPage() {
       }
       return false;
     });
+
+    // Monster battle state
+    const [battleOpen, setBattleOpen] = useState(false);
+    const [currentMonster, setCurrentMonster] = useState<'dragon' | 'goblin' | 'troll' | 'wizard' | 'pegasus' | 'fairy'>('dragon');
 
     // --- Penguin and Achievement Logic Helpers ---
     function findFirstIceTile(grid: Tile[][]): { x: number; y: number } | null {
@@ -569,6 +574,14 @@ export default function RealmPage() {
                 });
                 return;
             }
+
+            // Check for monster battle
+            if (targetTile?.hasMonster) {
+                setCurrentMonster(targetTile.hasMonster);
+                setBattleOpen(true);
+                return;
+            }
+
             setCharacterPosition({ x, y });
         }
     };
@@ -1006,6 +1019,35 @@ export default function RealmPage() {
         });
     };
 
+    // Handle monster battle completion
+    const handleBattleComplete = (won: boolean, goldEarned: number, xpEarned: number) => {
+        if (won) {
+            // Remove monster from the current tile
+            setGrid(prevGrid => {
+                const newGrid = prevGrid.map(row => row.slice());
+                const currentTile = newGrid[characterPosition.y]?.[characterPosition.x];
+                if (currentTile) {
+                    currentTile.hasMonster = undefined;
+                    currentTile.monsterAchievementId = undefined;
+                }
+                return newGrid;
+            });
+            
+            // Show victory message
+            toast({
+                title: "Victory!",
+                description: `You defeated the monster! Earned ${goldEarned} gold and ${xpEarned} XP!`,
+            });
+        } else {
+            // Show defeat message
+            toast({
+                title: "Defeat!",
+                description: `The monster was too strong! You lost ${Math.abs(goldEarned)} gold.`,
+                variant: "destructive",
+            });
+        }
+    };
+
     // Add penguin state at the top of RealmPage
     // Only declare penguinPos and isPenguinPresent once at the top of RealmPage
     // After grid is loaded or updated, place penguin on first visible ice tile if not already present
@@ -1397,6 +1439,14 @@ export default function RealmPage() {
                     </DialogContent>
                 </Dialog>
             )}
+            
+            {/* Monster Battle Component */}
+            <MonsterBattle
+                isOpen={battleOpen}
+                onClose={() => setBattleOpen(false)}
+                monsterType={currentMonster}
+                onBattleComplete={handleBattleComplete}
+            />
         </>
     );
 }
