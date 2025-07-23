@@ -107,11 +107,6 @@
     overflow-y: auto;
     width: 100vw;
     height: 100vh;
-    background-image: url('/images/backgroundi.png'), linear-gradient(135deg, var(--background-start), var(--background-end));
-    background-size: cover, cover;
-    background-position: center, center;
-    background-repeat: no-repeat, no-repeat;
-    background-attachment: fixed, fixed;
     color: white;
     position: relative;
   }
@@ -128,6 +123,7 @@
 
 /* Custom background override to ensure image shows */
 body {
+  background-color: red !important; /* Test color to see if CSS is working */
   background-image: url('/images/backgroundi.png'), linear-gradient(135deg, var(--background-start), var(--background-end)) !important;
   background-size: cover, cover !important;
   background-position: center, center !important;
