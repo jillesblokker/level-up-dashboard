@@ -1,8 +1,8 @@
 "use client"
 
 import * as React from "react"
-
 import { cn } from "@/lib/utils"
+import { cardStyles, typography, colors } from "@/lib/design-tokens"
 
 const Card = React.forwardRef<
   HTMLDivElement,
@@ -11,7 +11,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border border-amber-800/20 bg-[var(--card-background)] text-card-foreground shadow-sm transition-all duration-200 hover:shadow-amber-800/10 hover:border-amber-800/30",
+      `${cardStyles.base} ${cardStyles.hover}`,
       className
     )}
     {...props}
@@ -38,7 +38,7 @@ const CardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      "text-2xl font-semibold leading-none tracking-tight",
+      `${typography['2xl']} ${typography.semibold} ${typography.tight} ${colors.text.primary}`,
       className
     )}
     {...props}
@@ -52,7 +52,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm text-gray-400", className)}
+    className={cn(`${typography.sm} ${colors.text.secondary}`, className)}
     {...props}
   />
 ))
