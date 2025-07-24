@@ -103,6 +103,9 @@ export function RealmAnimationWrapper({
           animationTimeoutRef.current = setTimeout(() => {
             setAnimationState('idle')
             
+            // Trigger image reveal immediately so header image is visible
+            onImageReveal?.(true)
+            
             // First, scroll down to show content (buttons and grid)
             scrollDownToContent(500)
             
@@ -110,9 +113,6 @@ export function RealmAnimationWrapper({
             setTimeout(() => {
               smoothScrollToTop(800)
             }, 800)
-            
-            // Trigger image reveal
-            onImageReveal?.(true)
           }, 100)
         }, 500)
       }, 50)
