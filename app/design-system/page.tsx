@@ -680,7 +680,7 @@ export default function DesignSystemPage() {
                             <Card className="bg-gray-900/50 border-amber-800/20">
                               <CardContent className="p-4">
                                 <h5 className="font-medium text-white mb-2">3. Notification Center Updates ✅ COMPLETED</h5>
-                                <p className="text-sm text-gray-300 mb-2">Removed emojis, simplified buttons, changed title to "New achievement"</p>
+                                <p className="text-sm text-gray-300 mb-2">Removed emojis, simplified buttons, changed title to &quot;New achievement&quot;</p>
                                 <p className="text-xs text-green-400">✅ IMPLEMENTED - Cleaner notification interface with better UX</p>
                               </CardContent>
                             </Card>

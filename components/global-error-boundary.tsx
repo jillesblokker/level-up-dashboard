@@ -103,7 +103,7 @@ export class GlobalErrorBoundary extends React.Component<ErrorBoundaryProps, Err
                 <CardTitle className="text-2xl font-bold text-red-400">Quest Failed</CardTitle>
               </div>
               <CardDescription className="text-gray-300">
-                A mysterious error has occurred in your adventure. Don't worry, your progress is safe.
+                A mysterious error has occurred in your adventure. Don&apos;t worry, your progress is safe.
               </CardDescription>
             </CardHeader>
             
