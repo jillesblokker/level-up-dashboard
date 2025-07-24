@@ -45,11 +45,11 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
       // Start animation
       onAnimationStart?.();
       
-      // Set a timeout to end animation after transition duration
+      // Set a timeout to end animation after transition duration + scroll time
       animationTimeoutRef.current = setTimeout(() => {
         setAnimationComplete(true);
         onAnimationEnd?.();
-      }, 500); // Match the CSS transition duration
+      }, 1500); // 500ms transition + 1000ms scroll duration
     }
 
     return () => {

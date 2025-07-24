@@ -16,8 +16,40 @@ export function RealmAnimationWrapper({
 }: RealmAnimationWrapperProps) {
   const [animationState, setAnimationState] = useState<'idle' | 'starting' | 'animating' | 'ending'>('idle')
   const [scrollPosition, setScrollPosition] = useState(0)
+  const [hasScrolledToTop, setHasScrolledToTop] = useState(false)
+  const [scrollProgress, setScrollProgress] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
   const animationTimeoutRef = useRef<NodeJS.Timeout>()
+
+  // Smooth scroll to top function
+  const smoothScrollToTop = (duration: number = 1000) => {
+    const startPosition = window.scrollY
+    const startTime = performance.now()
+    
+    const animateScroll = (currentTime: number) => {
+      const elapsed = currentTime - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      
+      // Easing function for smooth animation
+      const easeInOutCubic = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+      const easedProgress = easeInOutCubic(progress)
+      
+      const newPosition = startPosition - (startPosition * easedProgress)
+      window.scrollTo(0, newPosition)
+      
+      // Update scroll progress for visual feedback
+      setScrollProgress(progress * 100)
+      
+      if (progress < 1) {
+        requestAnimationFrame(animateScroll)
+      } else {
+        setHasScrolledToTop(true)
+        setScrollProgress(100)
+      }
+    }
+    
+    requestAnimationFrame(animateScroll)
+  }
 
   // Handle animation state changes
   useEffect(() => {
@@ -28,7 +60,10 @@ export function RealmAnimationWrapper({
       // Start animation sequence
       setAnimationState('starting')
       
-      // Begin animation after a brief delay
+      // Begin smooth scroll to top
+      smoothScrollToTop(1000)
+      
+      // Begin animation after scroll starts
       animationTimeoutRef.current = setTimeout(() => {
         setAnimationState('animating')
         
@@ -79,13 +114,13 @@ export function RealmAnimationWrapper({
     }
   }, [animationState])
 
-  // Restore scroll position after animation
+  // Restore scroll position after animation (only if not scrolled to top)
   useEffect(() => {
-    if (animationState === 'idle' && scrollPosition > 0) {
+    if (animationState === 'idle' && scrollPosition > 0 && !hasScrolledToTop) {
       window.scrollTo(0, scrollPosition)
       setScrollPosition(0)
     }
-  }, [animationState, scrollPosition])
+  }, [animationState, scrollPosition, hasScrolledToTop])
 
   const getAnimationClasses = () => {
     switch (animationState) {
@@ -141,7 +176,17 @@ export function RealmAnimationWrapper({
       {/* Animation indicator */}
       {animationState === 'animating' && (
         <div className="fixed top-4 right-4 z-50 bg-amber-500/90 text-black px-3 py-1 rounded-full text-sm font-medium shadow-lg">
-          Loading...
+          Revealing Realm... {Math.round(scrollProgress)}%
+        </div>
+      )}
+      
+      {/* Scroll progress bar */}
+      {animationState === 'animating' && (
+        <div className="fixed top-0 left-0 w-full h-1 bg-gray-800 z-50">
+          <div 
+            className="h-full bg-amber-500 transition-all duration-100 ease-out"
+            style={{ width: `${scrollProgress}%` }}
+          />
         </div>
       )}
     </div>
