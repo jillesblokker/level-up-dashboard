@@ -656,7 +656,7 @@ export default function CharacterPage() {
             setCoverImage("/images/default-character-header.jpg")
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-black to-black" />
         
         {/* Edit button that appears on hover */}
         {isHovering && !showUploadModal && (
@@ -673,8 +673,8 @@ export default function CharacterPage() {
         
         {/* Image upload modal */}
         {showUploadModal && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity duration-300 z-10">
-            <div className="bg-black/90 p-6 rounded-lg border border-amber-500/50 backdrop-blur-md max-w-md relative">
+                  <div className="absolute inset-0 bg-black flex items-center justify-center transition-opacity duration-300 z-10">
+          <div className="bg-black p-6 rounded-lg border border-amber-500 backdrop-blur-md max-w-md relative">
               <Button 
                 onClick={() => setShowUploadModal(false)}
                 className="absolute top-2 right-2 rounded-full h-8 w-8 p-0 bg-transparent hover:bg-gray-800"
@@ -761,7 +761,7 @@ export default function CharacterPage() {
                   <h3 className="text-lg font-medium mb-2">Active Bonuses</h3>
                   <div className="grid grid-cols-1 gap-4">
                     {perks.filter((p) => p.active && p.unlocked).length === 0 && (
-                      <Card className="bg-black/50 border-amber-800/30 h-full min-h-[200px] flex items-center justify-center">
+                      <Card className="bg-black border-amber-800 h-full min-h-[200px] flex items-center justify-center">
                         <CardContent className="pt-6 flex items-center justify-center h-full">
                           <p className="text-center text-muted-foreground font-serif">No enchanted blessings active. Seek the mystic arts to unlock your true potential.</p>
                         </CardContent>
@@ -813,7 +813,7 @@ export default function CharacterPage() {
                         </Card>
                       ))}
                     {activePotionPerks.length > 0 && activePotionPerks.map((perk) => (
-                      <Card key={perk.name} className="bg-black/50 border-amber-800/30" aria-label={`active-bonus-potion-${perk.name}`}> 
+                      <Card key={perk.name} className="bg-black border-amber-800" aria-label={`active-bonus-potion-${perk.name}`}> 
                         <CardHeader className="pb-2">
                           <div className="flex items-center gap-2">
                             <CardTitle className="text-base font-medium">{perk.name} (Potion Perk)</CardTitle>

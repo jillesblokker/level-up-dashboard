@@ -46,7 +46,7 @@ export function WeeklyProgressChart() {
       <div className="flex items-center justify-end gap-2">
         <button
           className={`text-xs px-2 py-1 rounded-md ${
-            activeMetric === "tasks" ? "bg-amber-900/50 text-white" : "text-muted-foreground"
+            activeMetric === "tasks" ? "bg-amber-900 text-white" : "text-muted-foreground"
           }`}
           onClick={() => setActiveMetric("tasks")}
           aria-label="Show quest progress"
@@ -55,7 +55,7 @@ export function WeeklyProgressChart() {
         </button>
         <button
           className={`text-xs px-2 py-1 rounded-md ${
-            activeMetric === "gold" ? "bg-amber-900/50 text-white" : "text-muted-foreground"
+            activeMetric === "gold" ? "bg-amber-900 text-white" : "text-muted-foreground"
           }`}
           onClick={() => setActiveMetric("gold")}
           aria-label="Show gold progress"
@@ -64,7 +64,7 @@ export function WeeklyProgressChart() {
         </button>
         <button
           className={`text-xs px-2 py-1 rounded-md ${
-            activeMetric === "xp" ? "bg-amber-900/50 text-white" : "text-muted-foreground"
+            activeMetric === "xp" ? "bg-amber-900 text-white" : "text-muted-foreground"
           }`}
           onClick={() => setActiveMetric("xp")}
           aria-label="Show experience progress"
@@ -84,7 +84,7 @@ export function WeeklyProgressChart() {
               priority
               style={{ opacity: 0.7 }}
             />
-            <div className="absolute inset-0 bg-black/10 flex flex-col items-center justify-center rounded-lg z-10">
+            <div className="absolute inset-0 bg-black flex flex-col items-center justify-center rounded-lg z-10">
               <span className="text-2xl font-bold text-white drop-shadow mb-2">No data yet</span>
               <button
                 className="mt-2 px-4 py-2 bg-amber-500 text-black rounded hover:bg-amber-600 transition text-lg font-semibold shadow"

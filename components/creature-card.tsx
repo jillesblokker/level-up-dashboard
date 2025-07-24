@@ -60,7 +60,7 @@ export function CreatureCard({ creature, discovered, showCard, previewMode }: Cr
 
       {/* Stats Overlay */}
       {showStats && isEffectivelyDiscovered && (
-        <div className="absolute inset-0 bg-[#0a192f]/90 p-10 flex flex-col z-30">
+        <div className="absolute inset-0 bg-[#0a192f] p-10 flex flex-col z-30">
           <h3 className="text-xl font-bold text-amber-500 mb-4">{creature.name}</h3>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>

@@ -53,7 +53,7 @@ export function CategoryCard({
             <div className="text-2xl">{icon}</div>
             <h3 className="font-medium">{name}</h3>
           </div>
-          <div className="text-xs font-medium bg-amber-900/30 px-2 py-1 rounded-full">Level {level}</div>
+          <div className="text-xs font-medium bg-amber-900 px-2 py-1 rounded-full">Level {level}</div>
         </div>
         <p className="text-xs text-muted-foreground mb-3">{description}</p>
         <div className="space-y-1">
@@ -73,7 +73,7 @@ export function CategoryCard({
                 <div
                   key={task.id}
                   className={`text-xs px-1.5 py-0.5 rounded-sm ${
-                    task.completed ? "bg-green-900/20 text-green-400" : "bg-gray-800 text-muted-foreground"
+                    task.completed ? "bg-green-900 text-green-400" : "bg-gray-800 text-muted-foreground"
                   }`}
                 >
                   {task.icon} {task.name}
@@ -90,7 +90,7 @@ export function CategoryCard({
       </CardContent>
       <CardFooter className="p-0">
         <Link href={`/categories/${name.toLowerCase()}`} className="w-full">
-          <div className="flex items-center justify-center py-2 text-xs font-medium hover:bg-amber-900/20 transition-colors">
+          <div className="flex items-center justify-center py-2 text-xs font-medium hover:bg-amber-900 transition-colors">
             View Details
             <ArrowRight className="ml-1 h-3 w-3" />
           </div>

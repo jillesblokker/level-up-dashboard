@@ -68,7 +68,7 @@ const CardWithProgress: React.FC<UnifiedCardProps> = ({
     >
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div className="flex items-center gap-2">
-          {icon && <span className="rounded-full p-2 bg-black/40 border border-amber-800">{icon}</span>}
+          {icon && <span className="rounded-full p-2 bg-black border border-amber-800">{icon}</span>}
           <CardTitle className="text-lg font-semibold text-amber-300 flex items-center gap-2">
             {title}
             {streak > 1 && (

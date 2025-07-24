@@ -83,7 +83,7 @@ export function NotificationCenter() {
   const EmptyState = () => (
     <div className="flex flex-col items-center justify-center h-full p-6 relative overflow-hidden">
       {/* Background with medieval theme */}
-      <div className="absolute inset-0 bg-gradient-to-br from-amber-900/5 via-transparent to-amber-900/5" />
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-900 via-transparent to-amber-900" />
       
       {/* Main content */}
       <div className="relative z-10 text-center w-full max-w-sm mx-auto">
@@ -137,7 +137,7 @@ export function NotificationCenter() {
       <SheetContent side="right" aria-label="notification-center-sidepanel" className="w-96 max-w-full bg-black border-l border-amber-800/20 max-w-[90vw] p-0" aria-modal="true">
         {/* Enhanced Header */}
         <div className="relative p-6 border-b border-amber-800/20">
-          <div className="absolute inset-0 bg-gradient-to-r from-amber-900/10 via-transparent to-amber-900/10"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-amber-900 via-transparent to-amber-900"></div>
           <div className="relative flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-700 rounded-lg flex items-center justify-center shadow-lg">
@@ -170,7 +170,7 @@ export function NotificationCenter() {
           ) : (
             <div className="divide-y divide-amber-800/10">
               {notifications.map((notification) => (
-                <div key={notification.id} className={cn("p-4 relative hover:bg-gray-900/30 transition-colors", !notification.read && "bg-amber-900/10")}>
+                <div key={notification.id} className={cn("p-4 relative hover:bg-gray-900 transition-colors", !notification.read && "bg-amber-900")}>
                   <div className="flex items-start gap-3">
                     <div className="text-lg mt-1">{getNotificationIcon(notification.type)}</div>
                     <div className="flex-1 min-w-0">
@@ -184,7 +184,7 @@ export function NotificationCenter() {
                         </span>
                         <button
                           onClick={() => handleDelete(notification.id)}
-                          className="text-red-500 hover:text-red-400 text-lg ml-2 p-1 rounded hover:bg-red-900/20 transition-colors"
+                          className="text-red-500 hover:text-red-400 text-lg ml-2 p-1 rounded hover:bg-red-900 transition-colors"
                           aria-label="Delete notification"
                         >
                           🗑️
@@ -207,7 +207,7 @@ export function NotificationCenter() {
                         {!notification.read && (
                           <button
                             onClick={() => handleMarkAsRead(notification.id)}
-                            className="text-xs text-blue-500 hover:text-blue-400 px-2 py-1 rounded border border-blue-800/30 hover:bg-blue-900/20 transition-colors"
+                            className="text-xs text-blue-500 hover:text-blue-400 px-2 py-1 rounded border border-blue-800 hover:bg-blue-900 transition-colors"
                           >
                             Mark read
                           </button>

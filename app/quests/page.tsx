@@ -1329,7 +1329,7 @@ export default function QuestsPage() {
     return (
       <main className="p-8">
         <h1 className="text-2xl font-bold mb-4">Quests</h1>
-        <div className="text-yellow-500 bg-yellow-900/20 p-4 rounded-md mb-4">
+        <div className="text-yellow-500 bg-yellow-900 p-4 rounded-md mb-4">
           Waiting for authentication and Clerk client to load...<br />
           <span>isClerkLoaded: {String(isClerkLoaded)}, isUserLoaded: {String(isUserLoaded)}</span>
         </div>
@@ -1341,7 +1341,7 @@ export default function QuestsPage() {
     return (
       <main className="p-8">
         <h1 className="text-2xl font-bold mb-4">Quests</h1>
-        <div className="text-red-500 bg-red-900/20 p-4 rounded-md mb-4">No userId found. Please sign in to view your quests.</div>
+        <div className="text-red-500 bg-red-900 p-4 rounded-md mb-4">No userId found. Please sign in to view your quests.</div>
       </main>
     );
   }
@@ -1362,7 +1362,7 @@ export default function QuestsPage() {
         defaultBgColor="bg-amber-900"
       />
       <div className="p-4 md:p-8">
-        {error && <p className="text-red-500 bg-red-900/20 p-4 rounded-md mb-4">{error}</p>}
+        {error && <p className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{error}</p>}
         <Tabs value={mainTab} onValueChange={v => setMainTab(v as 'quests' | 'challenges' | 'milestones' | 'recovery')} className="space-y-4">
           <TabsList className="mb-4 w-full grid grid-cols-4">
             <TabsTrigger value="quests">Tasks</TabsTrigger>
@@ -1625,7 +1625,7 @@ export default function QuestsPage() {
                 Select Workout Category
               </label>
               <Select value={challengeCategory || ''} onValueChange={setChallengeCategory}>
-                <SelectTrigger className="w-full rounded-lg border-2 border-amber-800/30 bg-black/80 text-amber-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-colors" aria-label="Recovery category dropdown">
+                <SelectTrigger className="w-full rounded-lg border-2 border-amber-800 bg-black text-amber-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 transition-colors" aria-label="Recovery category dropdown">
                   <SelectValue placeholder="Select workout category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1664,7 +1664,7 @@ export default function QuestsPage() {
       {/* Edit Quest Modal (simple version) */}
       {editModalOpen && editingQuest && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => { setEditModalOpen(false); setEditingQuest(null); }} />
+          <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => { setEditModalOpen(false); setEditingQuest(null); }} />
           <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
             <h2 className="text-lg font-semibold mb-4">Edit Quest</h2>
             <form
@@ -1703,7 +1703,7 @@ export default function QuestsPage() {
       {/* Add Custom Challenge Modal */}
       {addChallengeModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setAddChallengeModalOpen(false)} />
+          <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => setAddChallengeModalOpen(false)} />
           <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
             <h2 className="text-lg font-semibold mb-4">Add Custom Challenge</h2>
             <form
@@ -1766,7 +1766,7 @@ export default function QuestsPage() {
       {/* Edit Custom Challenge Modal */}
       {editCustomChallengeIdx !== null && editCustomChallengeData && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => { setEditCustomChallengeIdx(null); setEditCustomChallengeData(null); }} />
+          <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => { setEditCustomChallengeIdx(null); setEditCustomChallengeData(null); }} />
           <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
             <h2 className="text-lg font-semibold mb-4">Edit Custom Challenge</h2>
             <form
@@ -1829,11 +1829,11 @@ export default function QuestsPage() {
       {/* Add Custom Quest Modal */}
       {addQuestModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setAddQuestModalOpen(false)} />
+          <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => setAddQuestModalOpen(false)} />
           <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
             <h2 className="text-lg font-semibold mb-4">Add Custom Quest</h2>
             <form onSubmit={e => { e.preventDefault(); handleAddQuestSubmit({ ...newQuest, id: Date.now().toString(), completed: false, isNew: true, category: String(newQuest.category || questCategories[0]) }); }}>
-              {addQuestError && <div className="mb-4 text-red-500 bg-red-900/20 p-2 rounded">{addQuestError}</div>}
+              {addQuestError && <div className="mb-4 text-red-500 bg-red-900 p-2 rounded">{addQuestError}</div>}
               <label className="block mb-2 text-sm font-medium">Name</label>
               <input className="w-full mb-4 p-2 border rounded" value={newQuest.name} onChange={e => setNewQuest({ ...newQuest, name: e.target.value })} placeholder="Quest name" title="Quest name" aria-label="Quest name" required />
               <label className="block mb-2 text-sm font-medium">Description</label>
@@ -1861,7 +1861,7 @@ export default function QuestsPage() {
       {/* Delete Confirmation Modal */}
       {deleteConfirmOpen && questToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={cancelDeleteQuest} />
+          <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={cancelDeleteQuest} />
           <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
             <h2 className="text-lg font-semibold mb-4">Delete Quest</h2>
             <p>Are you sure you want to delete the quest &quot;{questToDelete.name}&quot;?</p>

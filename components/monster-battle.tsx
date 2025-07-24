@@ -291,7 +291,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black backdrop-blur-sm">
       <Card className="monster-battle-container w-full max-w-2xl bg-gray-900 border-amber-800/30 text-white transition-all duration-300">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-amber-400">
@@ -304,7 +304,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
         
         <CardContent className="space-y-6">
           {/* Monster Card */}
-          <div className="flex items-center gap-4 p-4 bg-gray-800 rounded-lg border border-amber-800/20">
+                      <div className="flex items-center gap-4 p-4 bg-gray-800 rounded-lg border border-amber-800">
             <div className="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
               <img 
                 src={monster.image} 
@@ -411,7 +411,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
             <Button
               onClick={onClose}
               variant="outline"
-              className="border-amber-800/30 text-amber-400 hover:bg-amber-800/20"
+              className="border-amber-800 text-amber-400 hover:bg-amber-800"
             >
               Close Battle
             </Button>

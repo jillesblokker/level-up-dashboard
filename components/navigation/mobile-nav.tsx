@@ -201,8 +201,8 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                     href={item.href}
                     onClick={() => setOpen(false)}
                     className={cn(
-                      "flex items-center gap-3 px-6 py-4 text-gray-400 hover:bg-gray-800/50 transition-colors border-b border-gray-800",
-                      isActive(item.href) && "text-amber-400 bg-gray-800/50"
+                      "flex items-center gap-3 px-6 py-4 text-gray-400 hover:bg-gray-800/50 hover:text-amber-400 hover:border-b-2 hover:border-amber-400 transition-all duration-200 border-b border-gray-800 font-semibold",
+                      isActive(item.href) && "text-amber-400 bg-gray-800/50 border-b-2 border-amber-400"
                     )}
                   >
                     <item.icon className="h-5 w-5" />
@@ -254,10 +254,10 @@ function ExpandableAccountSettings() {
         <div id="account-settings-panel" className="bg-gray-800 rounded-b-md px-6 py-4 space-y-2">
           <div className="font-medium text-white">{String(user?.unsafeMetadata?.['user_name'] || user?.username || user?.emailAddresses?.[0]?.emailAddress || '')}</div>
           <div className="text-xs text-gray-400 mb-2">{String(user?.emailAddresses?.[0]?.emailAddress || '')}</div>
-          <Link href="/profile" className="block py-2 text-gray-200 hover:text-amber-400">Profile</Link>
-          <Link href="/requirements" className="block py-2 text-gray-200 hover:text-amber-400">Requirements</Link>
-          <Link href="/design-system" className="block py-2 text-gray-200 hover:text-amber-400">Design System</Link>
-          <Link href="/stored-data" className="block py-2 text-gray-200 hover:text-amber-400">Stored Data</Link>
+          <Link href="/profile" className="block py-2 text-gray-200 hover:text-amber-400 hover:border-b-2 hover:border-amber-400 transition-all duration-200 font-semibold">Profile</Link>
+          <Link href="/requirements" className="block py-2 text-gray-200 hover:text-amber-400 hover:border-b-2 hover:border-amber-400 transition-all duration-200 font-semibold">Requirements</Link>
+          <Link href="/design-system" className="block py-2 text-gray-200 hover:text-amber-400 hover:border-b-2 hover:border-amber-400 transition-all duration-200 font-semibold">Design System</Link>
+          <Link href="/stored-data" className="block py-2 text-gray-200 hover:text-amber-400 hover:border-b-2 hover:border-amber-400 transition-all duration-200 font-semibold">Stored Data</Link>
           <form action={require('@/app/actions/auth').logout} className="mt-2">
             <button type="submit" className="w-full text-left text-red-400 hover:text-red-600 py-2">Log out</button>
           </form>

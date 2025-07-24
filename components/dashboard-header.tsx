@@ -38,14 +38,14 @@ export function DashboardHeader({ backgroundImage }: DashboardHeaderProps) {
       <Card className="flex-1 relative overflow-hidden medieval-card">
         {currentBgImage && (
           <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${currentBgImage})` }}>
-            <div className="absolute inset-0 bg-black/40" />
+            <div className="absolute inset-0 bg-black" />
           </div>
         )}
         <CardContent className="p-6 relative">
           <div className="flex items-center gap-4">
             <div className="relative">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-600/10">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-600/20">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-600">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-600">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-amber-600 to-amber-800 text-white">
                     12
                   </div>
@@ -61,7 +61,7 @@ export function DashboardHeader({ backgroundImage }: DashboardHeaderProps) {
             <Button
               variant="outline"
               size="icon"
-              className={`ml-auto ${currentBgImage ? "bg-white/20 hover:bg-white/30 border-white/40" : "border-amber-800/20 hover:bg-amber-100/50 dark:hover:bg-amber-900/20"}`}
+              className={`ml-auto ${currentBgImage ? "bg-white hover:bg-white border-white" : "border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900"}`}
               onClick={() => setIsDialogOpen(true)}
             >
               <ImageIcon className={`h-4 w-4 ${currentBgImage ? "text-white" : ""}`} />

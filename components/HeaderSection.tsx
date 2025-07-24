@@ -65,7 +65,7 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
       ) : (
         <div className={cn("absolute inset-0", defaultBgColor)} aria-hidden="true" />
       )}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/80" aria-hidden="true" />
+              <div className="absolute inset-0 bg-gradient-to-b from-black via-black to-black" aria-hidden="true" />
       <div className="relative z-10 p-8 w-full flex flex-col items-center justify-center">
         <h1 className="text-4xl sm:text-5xl font-bold tracking-widest drop-shadow-lg font-medieval text-amber-500 text-center">
           {title}
@@ -89,8 +89,8 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
             </div>
           )}
           {showUploadModal && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity duration-300 z-10">
-              <div className="bg-black/90 p-6 rounded-lg border border-amber-500/50 backdrop-blur-md max-w-md relative">
+                    <div className="absolute inset-0 bg-black flex items-center justify-center transition-opacity duration-300 z-10">
+          <div className="bg-black p-6 rounded-lg border border-amber-500 backdrop-blur-md max-w-md relative">
                 <Button
                   onClick={() => setShowUploadModal(false)}
                   className="absolute top-2 right-2 rounded-full h-8 w-8 p-0 bg-transparent hover:bg-gray-800"
