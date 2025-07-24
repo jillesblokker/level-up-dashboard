@@ -1,6 +1,8 @@
 import "./globals.css"
 import "@/styles/medieval-theme.css"
 import { Inter as FontSans } from "next/font/google"
+import { Gloock } from "next/font/google"
+import { Libre_Baskerville } from "next/font/google"
 import { Providers } from "../components/providers"
 import { Toaster } from "@/components/ui/toaster"
 import { cn } from "@/lib/utils"
@@ -18,6 +20,22 @@ const fontSans = FontSans({
   variable: "--font-sans",
   display: "swap",
   preload: true,
+})
+
+const fontGloock = Gloock({
+  subsets: ["latin"],
+  variable: "--font-gloock",
+  display: "swap",
+  preload: true,
+  weight: "400",
+})
+
+const fontLibreBaskerville = Libre_Baskerville({
+  subsets: ["latin"],
+  variable: "--font-libre-baskerville",
+  display: "swap",
+  preload: true,
+  weight: ["400", "700"],
 })
 
 export const viewport: Viewport = {
@@ -67,7 +85,9 @@ export default function RootLayout({
         </head>
         <body className={cn(
           "min-h-screen font-sans antialiased px-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] px-2 sm:px-4 md:px-8",
-          fontSans.variable
+          fontSans.variable,
+          fontGloock.variable,
+          fontLibreBaskerville.variable
         )}>
           <ErrorBoundary>
             <ThemeProvider

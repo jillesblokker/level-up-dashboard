@@ -15,6 +15,7 @@ import { storageService } from '@/lib/storage-service'
 import { getTitleProgress, TITLES } from '@/lib/title-manager'
 import { getStrengths, calculateStrengthProgress, Strength } from '@/lib/strength-manager'
 import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
+import { HeaderSection } from '@/components/HeaderSection'
 
 // Character progression types
 interface Title {
@@ -598,10 +599,7 @@ export default function CharacterPage() {
     return () => clearInterval(interval);
   }, [perks]);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
+  const handleImageUpload = (file: File) => {
     setIsUploading(true)
     
     try {
@@ -639,83 +637,13 @@ export default function CharacterPage() {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Hero Section with Image */}
-      <div 
-        className="relative h-[300px] md:h-[400px] lg:h-[600px] w-full max-w-full overflow-hidden"
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
-      >
-        <Image
-          src={coverImage}
-          alt="Character Profile"
-          fill
-          className="object-cover"
-          priority
-          quality={100}
-          onError={() => {
-            setCoverImage("/images/default-character-header.jpg")
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-black to-black" />
-        
-        {/* Edit button that appears on hover */}
-        {isHovering && !showUploadModal && (
-          <div className="absolute top-4 right-4 z-20">
-            <Button 
-              onClick={() => setShowUploadModal(true)}
-              className="bg-amber-700 hover:bg-amber-600 text-white rounded-full h-12 w-12 flex items-center justify-center"
-              size="icon"
-            >
-              <Edit size={20} />
-            </Button>
-          </div>
-        )}
-        
-        {/* Image upload modal */}
-        {showUploadModal && (
-                  <div className="absolute inset-0 bg-black flex items-center justify-center transition-opacity duration-300 z-10">
-          <div className="bg-black p-6 rounded-lg border border-amber-500 backdrop-blur-md max-w-md relative">
-              <Button 
-                onClick={() => setShowUploadModal(false)}
-                className="absolute top-2 right-2 rounded-full h-8 w-8 p-0 bg-transparent hover:bg-gray-800"
-                size="icon"
-              >
-                <X size={16} className="text-gray-400" />
-              </Button>
-              
-              <h3 className="text-xl text-amber-500 mb-4 font-medieval text-center">Change Character Banner</h3>
-              
-              <Button 
-                onClick={triggerFileInput}
-                className="w-full mb-3 bg-amber-700 hover:bg-amber-600 text-white flex items-center justify-center gap-2"
-                disabled={isUploading}
-              >
-                <Upload size={18} />
-                {isUploading ? 'Uploading...' : 'Upload Image'}
-              </Button>
-              
-              <p className="text-gray-400 text-sm text-center">
-                Upload a JPG, PNG or GIF image for your character banner
-              </p>
-              
-              <input 
-                type="file" 
-                ref={fileInputRef}
-                className="hidden"
-                accept="image/jpeg,image/png,image/gif" 
-                onChange={handleImageUpload}
-                placeholder="Enter value"
-              />
-            </div>
-          </div>
-        )}
-        
-        <div className="absolute inset-0 flex items-center justify-center z-[5]">
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-widest drop-shadow-lg font-medieval text-amber-500 text-center">
-            CHARACTER
-          </h1>
-        </div>
-      </div>
+      <HeaderSection
+        title="Character"
+        imageSrc={coverImage}
+        canEdit={true}
+        onImageUpload={handleImageUpload}
+        defaultBgColor="bg-amber-900"
+      />
 
       {/* Main Content */}
       <div className="container mx-auto px-4 sm:px-6 py-8">

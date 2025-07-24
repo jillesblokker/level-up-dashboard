@@ -2,8 +2,10 @@
 
 :root {
   /* Font variables */
-  --font-medieval: var(--font-cinzel), serif;
-  --font-body: var(--font-fondamento), serif;
+  --font-gloock: var(--font-gloock);
+  --font-libre-baskerville: var(--font-libre-baskerville);
+  --font-medieval: var(--font-gloock);
+  --font-body: var(--font-libre-baskerville);
 
   /* Parchment and wood colors */
   --parchment-light: #f5e9d0;
@@ -52,7 +54,7 @@ body {
   color: #e0e0e0;
 }
 
-/* Typography */
+/* Typography - Gloock for headings, Libre Baskerville for body */
 h1,
 h2,
 h3,
@@ -61,8 +63,30 @@ h5,
 h6,
 .card-title,
 .font-serif {
-  font-family: var(--font-medieval);
+  font-family: var(--font-gloock);
   letter-spacing: 0.03em;
+  font-weight: 400;
+}
+
+/* Body text - Libre Baskerville */
+p,
+span,
+div,
+li,
+label,
+input,
+textarea,
+select,
+button {
+  font-family: var(--font-libre-baskerville);
+  line-height: 1.6;
+}
+
+/* Ensure headings don't use Gloock at small sizes for legibility */
+h5,
+h6 {
+  font-family: var(--font-libre-baskerville);
+  font-weight: 700;
 }
 
 .font-medieval {
