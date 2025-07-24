@@ -28,6 +28,7 @@ import dynamic from 'next/dynamic';
 import { getCharacterStats } from '@/lib/character-stats-manager';
 import { checkMonsterSpawn, spawnMonsterOnTile, getMonsterAchievementId, MonsterType } from '@/lib/monster-spawn-manager';
 import { MonsterBattle } from '@/components/monster-battle';
+import { HeaderSection } from '@/components/HeaderSection';
 const RevealOverlay = dynamic(() => import('../reveal/page'), { ssr: false });
 
 // Constants
@@ -1170,6 +1171,12 @@ export default function RealmPage() {
     return (
         <>
             <RevealOverlay />
+            <HeaderSection
+                title="Realm"
+                subtitle="Explore and build your mystical realm"
+                imageSrc="/images/realm-header.jpg"
+                defaultBgColor="bg-blue-900"
+            />
             <div className="flex flex-col h-screen bg-gray-900 text-white relative" aria-label="realm-map-section">
                 {/* Top Toolbar */}
                 <div className="flex items-center justify-between p-2 bg-gray-800/80 backdrop-blur-sm border-b border-gray-700 z-30 overflow-visible">

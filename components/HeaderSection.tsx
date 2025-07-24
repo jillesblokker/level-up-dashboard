@@ -65,7 +65,7 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
       ) : (
         <div className={cn("absolute inset-0", defaultBgColor)} aria-hidden="true" />
       )}
-              <div className="absolute inset-0 bg-gradient-to-b from-black via-black to-black" aria-hidden="true" />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" aria-hidden="true" />
       <div className="relative z-10 p-8 w-full flex flex-col items-center justify-center">
         <h1 className="text-4xl sm:text-5xl font-bold tracking-widest drop-shadow-lg font-medieval text-amber-500 text-center">
           {title}

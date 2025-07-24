@@ -18,8 +18,8 @@ export function MainNav() {
             <Link
               href="/kingdom"
               className={cn(
-                "text-sm font-medium transition-colors hover:text-foreground/80 px-3 py-2",
-                pathname === "/kingdom" ? "text-foreground" : "text-foreground/60"
+                "text-sm font-semibold transition-all duration-200 hover:text-amber-400 hover:border-b-2 hover:border-amber-400 px-3 py-2",
+                pathname === "/kingdom" ? "text-amber-400 border-b-2 border-amber-400" : "text-white"
               )}
               aria-label="Navigate to Kingdom"
             >
@@ -30,8 +30,8 @@ export function MainNav() {
             <Link
               href="/quests"
               className={cn(
-                "text-sm font-medium transition-colors hover:text-foreground/80 px-3 py-2",
-                pathname?.startsWith("/quests") ? "text-foreground" : "text-foreground/60"
+                "text-sm font-semibold transition-all duration-200 hover:text-amber-400 hover:border-b-2 hover:border-amber-400 px-3 py-2",
+                pathname?.startsWith("/quests") ? "text-amber-400 border-b-2 border-amber-400" : "text-white"
               )}
               aria-label="Navigate to Tasks"
             >
@@ -42,8 +42,8 @@ export function MainNav() {
             <Link
               href="/realm"
               className={cn(
-                "text-sm font-medium transition-colors hover:text-foreground/80 px-3 py-2",
-                pathname?.startsWith("/realm") ? "text-foreground" : "text-foreground/60"
+                "text-sm font-semibold transition-all duration-200 hover:text-amber-400 hover:border-b-2 hover:border-amber-400 px-3 py-2",
+                pathname?.startsWith("/realm") ? "text-amber-400 border-b-2 border-amber-400" : "text-white"
               )}
               aria-label="Navigate to Realm"
             >
@@ -54,8 +54,8 @@ export function MainNav() {
             <Link
               href="/achievements"
               className={cn(
-                "text-sm font-medium transition-colors hover:text-foreground/80 px-3 py-2",
-                pathname?.startsWith("/game-center") || pathname?.startsWith("/achievements") ? "text-foreground" : "text-foreground/60"
+                "text-sm font-semibold transition-all duration-200 hover:text-amber-400 hover:border-b-2 hover:border-amber-400 px-3 py-2",
+                pathname?.startsWith("/game-center") || pathname?.startsWith("/achievements") ? "text-amber-400 border-b-2 border-amber-400" : "text-white"
               )}
               aria-label="Navigate to Achievements"
             >
@@ -66,8 +66,8 @@ export function MainNav() {
             <Link
               href="/character"
               className={cn(
-                "text-sm font-medium transition-colors hover:text-foreground/80 px-3 py-2",
-                pathname?.startsWith("/character") ? "text-foreground" : "text-foreground/60"
+                "text-sm font-semibold transition-all duration-200 hover:text-amber-400 hover:border-b-2 hover:border-amber-400 px-3 py-2",
+                pathname?.startsWith("/character") ? "text-amber-400 border-b-2 border-amber-400" : "text-white"
               )}
               aria-label="Navigate to Character"
             >

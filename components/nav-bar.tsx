@@ -107,7 +107,7 @@ export function NavBar({ session }: NavBarProps) {
   const levelProgress = calculateLevelProgress(characterStats.experience)
 
   return (
-    <div className="border-b">
+    <div className="border-b bg-black border-gray-800">
       <div className="flex h-16 items-center px-4">
         {/* Desktop Navigation */}
         <div className="hidden md:flex">
