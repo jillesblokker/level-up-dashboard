@@ -20,6 +20,7 @@ import { useSupabase } from '@/lib/hooks/useSupabase'
 import { gainGold } from '@/lib/gold-manager';
 import { useRef } from 'react';
 import { StreakRecovery } from '@/components/streak-recovery';
+import { FullPageLoading, DataLoadingState } from '@/components/ui/loading-states';
 
 interface Quest {
   id: string;
@@ -1326,15 +1327,7 @@ export default function QuestsPage() {
 
   if (!isClerkLoaded || !isUserLoaded) {
     console.log('Waiting for auth and Clerk client...');
-    return (
-      <main className="p-8">
-        <h1 className="text-2xl font-bold mb-4">Quests</h1>
-        <div className="text-yellow-500 bg-yellow-900 p-4 rounded-md mb-4">
-          Waiting for authentication and Clerk client to load...<br />
-          <span>isClerkLoaded: {String(isClerkLoaded)}, isUserLoaded: {String(isUserLoaded)}</span>
-        </div>
-      </main>
-    );
+    return <FullPageLoading message="Loading authentication..." />;
   }
 
   if (!userId) {

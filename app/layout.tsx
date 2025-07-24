@@ -13,7 +13,7 @@ import { AuthContent } from '@/components/auth-content'
 import AuthGate from "@/app/components/AuthGate"
 import { ClerkProvider } from '@clerk/nextjs'
 import { ThemeProvider } from '@/components/theme-provider'
-import { ErrorBoundary } from '@/components/error-boundary'
+import { GlobalErrorBoundary } from '@/components/global-error-boundary'
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -89,7 +89,7 @@ export default function RootLayout({
           fontGloock.variable,
           fontLibreBaskerville.variable
         )}>
-          <ErrorBoundary>
+          <GlobalErrorBoundary>
             <ThemeProvider
               attribute="class"
               defaultTheme="dark"
@@ -118,7 +118,7 @@ export default function RootLayout({
                 </Providers>
               </GradientProvider>
             </ThemeProvider>
-          </ErrorBoundary>
+          </GlobalErrorBoundary>
         </body>
       </html>
     </ClerkProvider>

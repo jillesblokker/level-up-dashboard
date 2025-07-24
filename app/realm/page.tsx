@@ -220,6 +220,7 @@ export default function RealmPage() {
     const [modalState, setModalState] = useState<{ isOpen: boolean; locationType: 'city' | 'town'; locationName: string } | null>(null);
     const defaultCharacterPosition = { x: 2, y: 0 };
     const [hasCheckedInitialPosition, setHasCheckedInitialPosition] = useState(false);
+    const [isAnimating, setIsAnimating] = useState(false);
     const closeBtnRef = useRef<HTMLButtonElement>(null);
     const [horsePos, setHorsePos] = useState<{ x: number; y: number } | null>(() => {
       if (typeof window !== 'undefined') {
@@ -1176,8 +1177,13 @@ export default function RealmPage() {
                 subtitle="Explore and build your mystical realm"
                 imageSrc="/images/realm-header.jpg"
                 defaultBgColor="bg-blue-900"
+                onAnimationStart={() => setIsAnimating(true)}
+                onAnimationEnd={() => setIsAnimating(false)}
             />
-            <div className="flex flex-col h-screen bg-gray-900 text-white relative" aria-label="realm-map-section">
+            <div 
+                className={`flex flex-col h-screen bg-gray-900 text-white relative ${isAnimating ? 'overflow-hidden' : ''}`} 
+                aria-label="realm-map-section"
+            >
                 {/* Top Toolbar */}
                 <div className="flex items-center justify-between p-2 bg-gray-800/80 backdrop-blur-sm border-b border-gray-700 z-30 overflow-visible">
                   {/* On mobile, make action rows horizontally scrollable and touch-friendly */}

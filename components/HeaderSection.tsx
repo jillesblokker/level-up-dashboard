@@ -15,6 +15,8 @@ interface HeaderSectionProps {
   defaultBgColor?: string;
   className?: string;
   style?: React.CSSProperties;
+  onAnimationStart?: () => void;
+  onAnimationEnd?: () => void;
 }
 
 export const HeaderSection: React.FC<HeaderSectionProps> = ({
@@ -26,6 +28,8 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
   defaultBgColor = "bg-green-900",
   className = "",
   style = {},
+  onAnimationStart,
+  onAnimationEnd,
 }) => {
   const [isHovering, setIsHovering] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -61,11 +65,17 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
           fill
           className="object-cover transition-opacity duration-500 ease-in-out"
           priority
+          onLoad={() => onAnimationStart?.()}
+          onTransitionEnd={() => onAnimationEnd?.()}
         />
       ) : (
         <div className={cn("absolute inset-0", defaultBgColor)} aria-hidden="true" />
       )}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60 transition-opacity duration-500 ease-in-out" aria-hidden="true" />
+      <div 
+        className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60 transition-opacity duration-500 ease-in-out" 
+        aria-hidden="true"
+        onTransitionEnd={() => onAnimationEnd?.()}
+      />
       <div className="relative z-10 p-8 w-full flex flex-col items-center justify-center">
         <h1 className="text-4xl sm:text-5xl font-bold tracking-widest drop-shadow-lg font-medieval text-amber-500 text-center">
           {title}
