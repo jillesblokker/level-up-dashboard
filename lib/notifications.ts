@@ -2,7 +2,7 @@ import { notificationService } from "@/lib/notification-service"
 
 export function createAchievementNotification(achievementName: string) {
   notificationService.addNotification(
-    "Achievement Unlocked!",
+    "New achievement",
     `You've earned the '${achievementName}' achievement!`,
     "achievement",
     "high",

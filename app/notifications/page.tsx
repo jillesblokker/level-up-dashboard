@@ -38,7 +38,7 @@ export default function NotificationsPage() {
     const sampleNotifications: Notification[] = [
       {
         id: "n1",
-        title: "Achievement Unlocked!",
+        title: "New achievement",
         message: "You've earned the 'Early Riser' achievement for completing 5 tasks before 9 AM.",
         type: "achievement",
         read: false,

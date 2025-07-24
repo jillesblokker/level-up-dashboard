@@ -659,6 +659,41 @@ export default function DesignSystemPage() {
                           </div>
                         </div>
 
+                        {/* Recent UI Improvements */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-green-300 mb-3">🆕 Recent UI Improvements</h4>
+                          <div className="space-y-4">
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <h5 className="font-medium text-white mb-2">1. Dropdown Border Consistency ✅ COMPLETED</h5>
+                                <p className="text-sm text-gray-300 mb-2">Removed double amber borders from all dropdowns (border-2 → border)</p>
+                                <p className="text-xs text-green-400">✅ IMPLEMENTED - All quest page dropdowns updated</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <h5 className="font-medium text-white mb-2">2. Disabled Button Transparency ✅ COMPLETED</h5>
+                                <p className="text-sm text-gray-300 mb-2">Fixed disabled button transparency by removing disabled:opacity-50</p>
+                                <p className="text-xs text-green-400">✅ IMPLEMENTED - Buttons now use darker backgrounds with lighter text</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <h5 className="font-medium text-white mb-2">3. Notification Center Updates ✅ COMPLETED</h5>
+                                <p className="text-sm text-gray-300 mb-2">Removed emojis, simplified buttons, changed title to "New achievement"</p>
+                                <p className="text-xs text-green-400">✅ IMPLEMENTED - Cleaner notification interface with better UX</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <h5 className="font-medium text-white mb-2">4. Page Padding Optimization ✅ COMPLETED</h5>
+                                <p className="text-sm text-gray-300 mb-2">Removed horizontal padding for better space utilization</p>
+                                <p className="text-xs text-green-400">✅ IMPLEMENTED - Full-width content with minimal element spacing</p>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        </div>
+
                         {/* Color Reference System */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-cyan-300 mb-3">📋 Color Reference System</h4>

@@ -383,7 +383,7 @@ export default function RealmPage() {
                 // Also unlock Necrion in the local creature store
                 discoverCreature('000');
                 toast({
-                    title: "Achievement Unlocked!",
+                    title: "New achievement",
                     description: "Necrion - You've discovered the realm map!",
                 });
             }

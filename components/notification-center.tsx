@@ -46,13 +46,13 @@ export function NotificationCenter() {
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'achievement': return '🏆'
-      case 'quest': return '📜'
-      case 'levelup': return '🎉'
-      case 'success': return '✅'
-      case 'event': return '🎯'
-      case 'discovery': return '🔍'
-      default: return '📢'
+      case 'achievement': return ''
+      case 'quest': return ''
+      case 'levelup': return ''
+      case 'success': return ''
+      case 'event': return ''
+      case 'discovery': return ''
+      default: return ''
     }
   }
 
@@ -83,7 +83,7 @@ export function NotificationCenter() {
   const EmptyState = () => (
     <div className="flex flex-col items-center justify-center h-full p-6 relative overflow-hidden">
       {/* Background with medieval theme */}
-              <div className="absolute inset-0 bg-gradient-to-br from-amber-900 via-transparent to-amber-900" />
+              <div className="absolute inset-0 bg-black" />
       
       {/* Main content */}
       <div className="relative z-10 text-center w-full max-w-sm mx-auto">
@@ -157,7 +157,7 @@ export function NotificationCenter() {
                 className="text-xs text-amber-500 hover:text-amber-400 min-w-[44px] min-h-[44px] px-2 py-1 rounded border border-amber-800/30 hover:bg-amber-900/20 transition-colors"
                 aria-label="Mark all notifications as read"
               >
-                Mark all read
+                Read all
               </button>
             )}
           </div>
@@ -193,21 +193,21 @@ export function NotificationCenter() {
                       <p className="text-sm text-muted-foreground mt-2 whitespace-pre-line leading-relaxed">
                         {notification.message}
                       </p>
-                      {notification.action && (
-                        <button
-                          onClick={() => {
-                            window.location.href = notification.action!.href
-                          }}
-                          className="text-xs text-amber-500 hover:text-amber-400 mt-3 px-3 py-1 rounded border border-amber-800/30 hover:bg-amber-900/20 transition-colors"
-                        >
-                          {notification.action.label} →
-                        </button>
-                      )}
                       <div className="flex gap-2 mt-3">
+                        {notification.action && (
+                          <button
+                            onClick={() => {
+                              window.location.href = notification.action!.href
+                            }}
+                            className="text-xs text-amber-500 hover:text-amber-400 px-3 py-1 rounded border border-amber-800/30 hover:bg-amber-900/20 transition-colors"
+                          >
+                            View →
+                          </button>
+                        )}
                         {!notification.read && (
                           <button
                             onClick={() => handleMarkAsRead(notification.id)}
-                            className="text-xs text-blue-500 hover:text-blue-400 px-2 py-1 rounded border border-blue-800 hover:bg-blue-900 transition-colors"
+                            className="text-xs text-blue-500 hover:text-blue-400 px-3 py-1 rounded border border-blue-800 hover:bg-blue-900 transition-colors"
                           >
                             Mark read
                           </button>

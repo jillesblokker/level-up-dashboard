@@ -37,7 +37,7 @@ export function grantAchievementRewards(creatureId: string, creatureName: string
   
   // Create a single combined notification for achievement, gold, and experience
   notificationService.addNotification(
-    "Achievement Unlocked! 🏆",
+    "New achievement",
     `You've discovered ${creatureName}! You earned ${rewards.gold} gold and ${rewards.experience} experience!`,
     "achievement",
     "high",
