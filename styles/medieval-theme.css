@@ -200,7 +200,7 @@ h6 {
 
 /* Badge styling within cards */
 .medieval-card .badge {
-  background-color: #240014; /* Dark purple-red from design system */
+  background-color: #4D0000; /* Dark red from design system */
   color: #ffffff;
   border: 1px solid #3d0000;
   padding: 0.25rem 0.5rem;
@@ -299,8 +299,8 @@ h6 {
 /* Nested Card Styling - Grey/Dark Silver Borders */
 .medieval-card-nested {
   position: relative;
-  border: 2px solid #6b7280; /* Grey border like the image */
-  background-color: #2d1300; /* Dark brown from design system */
+  border: 2px solid #f4f4f4; /* Grey border like the image */
+  background-color: #4D0000; /* Dark red from design system */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   transition: all 0.2s ease-in-out;
@@ -308,7 +308,7 @@ h6 {
 
 .medieval-card-nested:hover {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-  border-color: #9ca3af; /* Lighter grey on hover */
+  border-color: #f4f4f4; /* Lighter grey on hover */
   transform: translateY(-2px);
 }
 
@@ -361,7 +361,7 @@ h6 {
 }
 
 .medieval-card-undiscovered .card-title {
-  color: #9ca3af; /* Faded grey text */
+  color: #f4f4f4; /* Faded grey text */
   font-family: var(--font-medieval);
   letter-spacing: 0.03em;
   font-weight: 600;
@@ -369,14 +369,14 @@ h6 {
 }
 
 .medieval-card-undiscovered .card-description {
-  color: #6b7280; /* Faded grey text */
+  color: #f4f4f4; /* Faded grey text */
   font-size: 0.95rem;
   line-height: 1.5;
   opacity: 0.6;
 }
 
 .medieval-card-undiscovered .card-content {
-  color: #9ca3af; /* Faded grey text */
+  color: #f4f4f4; /* Faded grey text */
   line-height: 1.6;
   opacity: 0.7;
 }

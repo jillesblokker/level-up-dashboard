@@ -292,7 +292,7 @@ function renderTilePreview(type: string) {
       return (
         <div className="w-full h-full bg-green-700">
           <svg viewBox="0 0 32 32" className="w-full h-full">
-            <rect width="32" height="32" fill="#4CAF50" />
+            <rect width="32" height="32" fill="#0D7200" />
             <g fill="#388E3C" opacity="0.7">
               <path d="M5,10 C7,5 10,8 8,12 C13,10 15,15 10,17" />
               <path d="M20,15 C22,10 25,13 23,17 C28,15 30,20 25,22" />
@@ -305,7 +305,7 @@ function renderTilePreview(type: string) {
       return (
         <div className="w-full h-full bg-blue-600">
           <svg viewBox="0 0 32 32" className="w-full h-full">
-            <rect width="32" height="32" fill="#2196F3" />
+            <rect width="32" height="32" fill="#1e90ff" />
             <g fill="#1E88E5" opacity="0.7">
               <path d="M0,20 Q16,10 32,20 L32,32 L0,32 Z" />
             </g>
@@ -338,7 +338,7 @@ function renderTilePreview(type: string) {
       return (
         <div className="w-full h-full bg-purple-700">
           <svg viewBox="0 0 32 32" className="w-full h-full">
-            <rect width="32" height="32" fill="#7E57C2" />
+            <rect width="32" height="32" fill="#9932cc" />
             <g fill="#5E35B1" opacity="0.7">
               <path d="M16,8 L24,16 L16,24 L8,16 Z" />
               <circle cx="16" cy="16" r="4" />
@@ -351,7 +351,7 @@ function renderTilePreview(type: string) {
       return (
         <div className="w-full h-full bg-amber-700">
           <svg viewBox="0 0 32 32" className="w-full h-full">
-            <rect width="32" height="32" fill="#FFA000" />
+            <rect width="32" height="32" fill="#F59E0B" />
             <g fill="#FF6F00" opacity="0.7">
               <rect x="8" y="12" width="16" height="20" />
               <polygon points="16,4 24,12 8,12" />
@@ -364,7 +364,7 @@ function renderTilePreview(type: string) {
       return (
         <div className="w-full h-full bg-amber-600">
           <svg viewBox="0 0 32 32" className="w-full h-full">
-            <rect width="32" height="32" fill="#FFB300" />
+            <rect width="32" height="32" fill="#ffd700" />
             <g fill="#FF8F00" opacity="0.7">
               <rect x="10" y="14" width="12" height="18" />
               <polygon points="16,6 22,14 10,14" />

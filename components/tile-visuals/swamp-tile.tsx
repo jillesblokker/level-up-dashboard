@@ -19,7 +19,7 @@ export function SwampTile({ className, ariaLabel }: SwampTileProps) {
         </g>
 
         {/* Swamp water patches */}
-        <g fill="#4CAF50" opacity="0.5">
+        <g fill="#0D7200" opacity="0.5">
           <ellipse cx="32" cy="16" rx="8" ry="4" />
           <ellipse cx="12" cy="32" rx="6" ry="3" />
           <ellipse cx="48" cy="40" rx="10" ry="5" />

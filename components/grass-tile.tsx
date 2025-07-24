@@ -16,7 +16,7 @@ export function GrassTile({ className, ariaLabel, onClick }: GrassTileProps) {
     >
       <svg viewBox="0 0 64 64" className="w-full h-full">
         {/* Vibrant green background */}
-        <rect width="64" height="64" fill="#4CAF50" />
+        <rect width="64" height="64" fill="#0D7200" />
 
         {/* Grass texture with different shades */}
         <g fill="#388E3C">

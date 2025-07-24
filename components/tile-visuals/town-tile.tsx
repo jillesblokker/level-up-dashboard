@@ -16,7 +16,7 @@ export function TownTile({ className, ariaLabel, onClick }: TownTileProps) {
     >
       <svg viewBox="0 0 64 64" className="w-full h-full">
         {/* Grass background */}
-        <rect width="64" height="64" fill="#4CAF50" />
+        <rect width="64" height="64" fill="#0D7200" />
         
         {/* Grass texture */}
         <g fill="#388E3C" opacity="0.7">

@@ -13,7 +13,7 @@ export function SpecialTile({ className, ariaLabel, onClick }: SpecialTileProps)
     >
       <svg viewBox="0 0 64 64" className="w-full h-full">
         {/* Green background (changed from purple) */}
-        <rect width="64" height="64" fill="#4CAF50" />
+        <rect width="64" height="64" fill="#0D7200" />
         {/* Temple base platform */}
         <rect x="8" y="8" width="48" height="48" fill="#A67C52" stroke="#5D4037" strokeWidth="1" />
         {/* Temple steps */}

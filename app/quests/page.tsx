@@ -1508,7 +1508,7 @@ export default function QuestsPage() {
                 {(questsByCategorySafe[safeQuestCategory] ?? []).length === 0 && (
                   <div className="text-center text-gray-400">No quests found for this category.</div>
                 )}
-                <Card className="bg-black border-2 border-dashed border-[#6b7280] hover:border-[#9ca3af] transition-colors cursor-pointer flex items-center justify-center min-h-[160px] shadow-lg" onClick={() => setAddQuestModalOpen(true)} tabIndex={0} role="button" aria-label="add-custom-quest-card" onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setAddQuestModalOpen(true); } }}>
+                <Card className="bg-black border-2 border-dashed border-[#f4f4f4] hover:border-[#f4f4f4] transition-colors cursor-pointer flex items-center justify-center min-h-[160px] shadow-lg" onClick={() => setAddQuestModalOpen(true)} tabIndex={0} role="button" aria-label="add-custom-quest-card" onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setAddQuestModalOpen(true); } }}>
                   <div className="text-center text-[#F0F0F0]">
                     <Plus className="w-8 h-8 mx-auto mb-2" />
                     <p className="font-medium">Add Custom Quest</p>
@@ -1622,7 +1622,7 @@ export default function QuestsPage() {
                 )}
                 <Card
                   key="add-custom-challenge"
-                  className="bg-[#2d1300] border-2 border-dashed border-[#6b7280] hover:border-[#9ca3af] transition-colors cursor-pointer flex items-center justify-center min-h-[160px] shadow-lg"
+                  className="bg-black border-2 border-dashed border-[#f4f4f4] hover:border-[#f4f4f4] transition-colors cursor-pointer flex items-center justify-center min-h-[160px] shadow-lg"
                   onClick={() => setAddChallengeModalOpen(true)}
                   tabIndex={0}
                   role="button"

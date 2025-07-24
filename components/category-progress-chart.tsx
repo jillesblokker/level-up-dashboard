@@ -12,7 +12,7 @@ export function CategoryProgressChart() {
     { name: "Creativity", value: 10, color: "#ec4899" },
     { name: "Resilience", value: 8, color: "#a855f7" },
     { name: "Endurance", value: 6, color: "#f97316" },
-    { name: "Responsibility", value: 4, color: "#6b7280" },
+    { name: "Responsibility", value: 4, color: "#f4f4f4" },
   ]
 
   return (

@@ -275,12 +275,12 @@ main {
 }
 
 .card .card {
-  background-color: #240014; /* Dark purple-red for nested cards */
+  background-color: #4D0000; /* Dark red for nested cards */
   border: 2px solid #1a000e;
 }
 
 .card .card .card {
-  background-color: #2d1300; /* Dark brown for deeper nesting */
+  background-color: #4D0000; /* Dark red for deeper nesting */
   border: 2px solid #1f0d00;
 }
 
@@ -326,12 +326,12 @@ main {
 }
 
 .dark .card .card {
-  background-color: #240014;
+  background-color: #4D0000;
   border-color: #1a000e;
 }
 
 .dark .card .card .card {
-  background-color: #2d1300;
+  background-color: #4D0000;
   border-color: #1f0d00;
 }
 
@@ -387,7 +387,7 @@ main {
 
 /* Medieval Badge Styling */
 .badge {
-  background-color: #240014; /* Dark purple-red from design system */
+  background-color: #4D0000; /* Dark red from design system */
   color: #ffffff;
   border: 1px solid #3d0000;
   padding: 0.25rem 0.5rem;
