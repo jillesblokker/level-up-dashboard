@@ -1400,10 +1400,10 @@ export default function QuestsPage() {
               <div>
                 <label htmlFor="quest-category-select" className="sr-only">Select quest category</label>
                 <Select value={questCategory || ''} onValueChange={setQuestCategory}>
-                  <SelectTrigger className="w-full" aria-label="Quest category dropdown">
+                  <SelectTrigger className="w-full border-2 border-[#F59E0B] bg-black text-amber-200" aria-label="Quest category dropdown">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-black border-2 border-[#F59E0B]">
                     {questCategories.map((category: string) => (
                       <SelectItem key={category} value={category}>
                         {getCategoryLabel(category)}
@@ -1435,9 +1435,9 @@ export default function QuestsPage() {
                 {/* Bonus and Scrolls */}
                 <div className="flex flex-col gap-4 min-w-[180px] flex-none">
                   <div>
-                    <div className="text-lg font-bold text-yellow-300">Streak Bonus:</div>
-                    <div className="text-2xl font-bold text-yellow-200">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
-                    <div className="text-xs text-yellow-100">(Max 50 gold/day)</div>
+                    <div className="text-lg font-bold text-[#F59E0B]">Streak Bonus:</div>
+                    <div className="text-2xl font-bold text-[#F59E0B]">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
+                    <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
                   </div>
                   <div>
                     <div className="text-lg font-bold text-blue-200">Streak Scrolls:</div>
@@ -1492,7 +1492,7 @@ export default function QuestsPage() {
               <label htmlFor="challenge-category-select" className="sr-only">Select workout day</label>
               <select
                 id="challenge-category-select"
-                className="w-full rounded border p-2 bg-black text-white"
+                className="w-full rounded border-2 border-[#F59E0B] p-2 bg-black text-amber-200"
                 aria-label="Workout day dropdown"
                 value={challengeCategory}
                 onChange={e => setChallengeCategory(e.target.value)}
@@ -1524,14 +1524,14 @@ export default function QuestsPage() {
                 {/* Bonus and Scrolls */}
                 <div className="flex flex-col gap-4 min-w-[180px] flex-none">
                   <div>
-                    <div className="text-lg font-bold text-yellow-300">Streak Bonus:</div>
-                    <div className="text-2xl font-bold text-yellow-200">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
-                    <div className="text-xs text-yellow-100">(Max 50 gold/day)</div>
+                    <div className="text-lg font-bold text-[#F59E0B]">Streak Bonus:</div>
+                    <div className="text-2xl font-bold text-[#F59E0B]">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
+                    <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
                   </div>
                   <div>
-                    <div className="text-lg font-bold text-blue-200">Streak Scrolls:</div>
-                    <div className="text-2xl font-bold text-blue-100">{getStreakScrollCount()}</div>
-                    <div className="text-xs text-blue-100">(Use to save a missed streak)</div>
+                    <div className="text-lg font-bold text-[#F0F0F0]">Streak Scrolls:</div>
+                    <div className="text-2xl font-bold text-[#F0F0F0]">{getStreakScrollCount()}</div>
+                    <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
                   </div>
                 </div>
               </Card>
@@ -1581,7 +1581,7 @@ export default function QuestsPage() {
               <label htmlFor="milestone-category-select" className="sr-only">Select milestone category</label>
               <select
                 id="milestone-category-select"
-                className="w-full rounded border p-2 bg-black text-white"
+                className="w-full rounded border-2 border-[#F59E0B] p-2 bg-black text-amber-200"
                 aria-label="Milestone category dropdown"
                 value={milestoneCategory}
                 onChange={e => setMilestoneCategory(e.target.value)}
@@ -1601,10 +1601,10 @@ export default function QuestsPage() {
                 Select Workout Category
               </label>
               <Select value={challengeCategory || ''} onValueChange={setChallengeCategory}>
-                <SelectTrigger className="w-full rounded-lg border-2 border-amber-800 bg-black text-amber-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 transition-colors" aria-label="Recovery category dropdown">
+                <SelectTrigger className="w-full rounded-lg border-2 border-[#F59E0B] bg-black text-amber-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 transition-colors" aria-label="Recovery category dropdown">
                   <SelectValue placeholder="Select workout category" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-black border-2 border-[#F59E0B]">
                   {workoutPlan.map(day => (
                     <SelectItem key={day.category} value={day.category}>
                       {day.category}

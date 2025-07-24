@@ -90,7 +90,7 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
           )}
           {showUploadModal && (
                     <div className="absolute inset-0 bg-black flex items-center justify-center transition-opacity duration-300 z-10">
-          <div className="bg-black p-6 rounded-lg border border-amber-500 backdrop-blur-md max-w-md relative">
+          <div className="bg-black p-6 rounded-lg border border-[#F59E0B] backdrop-blur-md max-w-md relative">
                 <Button
                   onClick={() => setShowUploadModal(false)}
                   className="absolute top-2 right-2 rounded-full h-8 w-8 p-0 bg-transparent hover:bg-gray-800"
