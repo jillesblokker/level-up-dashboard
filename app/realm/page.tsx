@@ -1181,7 +1181,7 @@ export default function RealmPage() {
                 defaultBgColor="bg-blue-900"
                 onAnimationStart={() => setIsAnimating(true)}
                 onAnimationEnd={() => setIsAnimating(false)}
-                shouldRevealImage={true}
+                shouldRevealImage={shouldRevealImage}
             />
             <RealmAnimationWrapper 
                 isAnimating={isAnimating}

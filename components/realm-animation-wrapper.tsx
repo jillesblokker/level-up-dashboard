@@ -53,6 +53,32 @@ export function RealmAnimationWrapper({
     requestAnimationFrame(animateScroll)
   }
 
+  // Scroll down to show content function
+  const scrollDownToContent = (duration: number = 500) => {
+    const headerHeight = 400 // Approximate header height
+    const startPosition = window.scrollY
+    const targetPosition = headerHeight
+    const startTime = performance.now()
+    
+    const animateScroll = (currentTime: number) => {
+      const elapsed = currentTime - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      
+      // Easing function for smooth animation
+      const easeInOutCubic = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+      const easedProgress = easeInOutCubic(progress)
+      
+      const newPosition = startPosition + (targetPosition - startPosition) * easedProgress
+      window.scrollTo(0, newPosition)
+      
+      if (progress < 1) {
+        requestAnimationFrame(animateScroll)
+      }
+    }
+    
+    requestAnimationFrame(animateScroll)
+  }
+
   // Handle animation state changes
   useEffect(() => {
     if (isAnimating && animationState === 'idle') {
@@ -76,10 +102,17 @@ export function RealmAnimationWrapper({
           // Complete animation and trigger image reveal
           animationTimeoutRef.current = setTimeout(() => {
             setAnimationState('idle')
-            // Trigger image reveal after a brief pause
+            
+            // First, scroll down to show content (buttons and grid)
+            scrollDownToContent(500)
+            
+            // After 0.8 seconds, scroll all the way up to show header
             setTimeout(() => {
-              onImageReveal?.(true)
-            }, 800) // 0.8 second pause
+              smoothScrollToTop(800)
+            }, 800)
+            
+            // Trigger image reveal
+            onImageReveal?.(true)
           }, 100)
         }, 500)
       }, 50)
