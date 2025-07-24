@@ -136,7 +136,7 @@ export function RealmAnimationWrapper({
             
             // After 0.8 seconds, scroll to show header image
             setTimeout(() => {
-              scrollToShowHeader(800)
+              scrollToShowHeader(1500)
             }, 800)
           }, 100)
         }, 500)
