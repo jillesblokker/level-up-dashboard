@@ -1353,6 +1353,7 @@ export default function QuestsPage() {
         subtitle="Embark on epic journeys and complete tasks to earn rewards."
         imageSrc="/images/quests-header.jpg"
         defaultBgColor="bg-amber-900"
+        shouldRevealImage={true}
       />
       <div className="p-4 md:p-8">
         {error && <p className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{error}</p>}

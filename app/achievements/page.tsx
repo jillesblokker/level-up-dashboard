@@ -319,6 +319,7 @@ export default function Page() {
           title="Creature Collection"
           imageSrc="/images/achievements-header.jpg"
           canEdit={true}
+          shouldRevealImage={true}
         />
         <main className="container mx-auto p-6" aria-label="achievements-section">
           {!hasAnyUnlocked && !showAllUnlocked && (

@@ -643,6 +643,7 @@ export default function CharacterPage() {
         canEdit={true}
         onImageUpload={handleImageUpload}
         defaultBgColor="bg-amber-900"
+        shouldRevealImage={true}
       />
 
       {/* Main Content */}

@@ -571,6 +571,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
           reader.readAsDataURL(file);
         }}
         className=""
+        shouldRevealImage={true}
       />
 
       <AlertDialog open={modalOpen} onOpenChange={setModalOpen}>
