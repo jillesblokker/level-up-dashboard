@@ -1379,7 +1379,7 @@ export default function QuestsPage() {
                 <Button
                   onClick={handleBulkCompleteFavorites}
                   disabled={loading || quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length === 0}
-                  className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2"
+                  className="bg-[#F59E0B] hover:bg-[#D97706] text-white px-4 py-3 font-bold rounded-lg shadow-lg"
                   aria-label="Complete all favorited quests in this category"
                 >
                   <Star className="w-4 h-4 mr-2" />
@@ -1388,7 +1388,7 @@ export default function QuestsPage() {
                 <Button
                   onClick={handleBulkCompleteAllFavorites}
                   disabled={loading || quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length === 0}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2"
+                  className="bg-[#00003c] hover:bg-[#0c0047] text-white px-4 py-3 font-bold rounded-lg shadow-lg"
                   aria-label="Complete all favorited quests across all categories"
                 >
                   <Star className="w-4 h-4 mr-2" />
@@ -1417,7 +1417,7 @@ export default function QuestsPage() {
             <div className="mb-6">
               <Card className="medieval-card-primary" aria-label="quest-streak-summary-card">
                 {/* Streak Icon and Count */}
-                <div className="flex flex-col items-center justify-center bg-[#16202b] rounded-2xl p-6 min-w-[120px] flex-none">
+                <div className="flex flex-col items-center justify-center bg-black rounded-2xl p-6 min-w-[120px] flex-none">
                   <Flame className="w-14 h-14 text-[#0D7200]" aria-hidden="true" />
                   <div className="text-4xl font-extrabold text-white mt-2" aria-label="quest-streak-value">{streakData?.streak_days ?? 0} days</div>
                   <div className="text-base text-gray-300">Day streak</div>
@@ -1476,10 +1476,10 @@ export default function QuestsPage() {
                 {(questsByCategorySafe[safeQuestCategory] ?? []).length === 0 && (
                   <div className="text-center text-gray-400">No quests found for this category.</div>
                 )}
-                <Card className="medieval-card-nested border-2 border-dashed border-gray-600 hover:border-gray-400 transition-colors cursor-pointer flex items-center justify-center min-h-[160px]" onClick={() => setAddQuestModalOpen(true)} tabIndex={0} role="button" aria-label="add-custom-quest-card" onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setAddQuestModalOpen(true); } }}>
-                  <div className="text-center text-gray-500">
+                <Card className="bg-[#2d1300] border-2 border-dashed border-[#6b7280] hover:border-[#9ca3af] transition-colors cursor-pointer flex items-center justify-center min-h-[160px] shadow-lg" onClick={() => setAddQuestModalOpen(true)} tabIndex={0} role="button" aria-label="add-custom-quest-card" onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setAddQuestModalOpen(true); } }}>
+                  <div className="text-center text-[#F0F0F0]">
                     <Plus className="w-8 h-8 mx-auto mb-2" />
-                    <p>Add Custom Quest</p>
+                    <p className="font-medium">Add Custom Quest</p>
                   </div>
                 </Card>
               </div>
@@ -1506,7 +1506,7 @@ export default function QuestsPage() {
             <div className="mb-6">
                               <Card className="medieval-card-primary" aria-label="challenge-streak-summary-card">
                 {/* Streak Icon and Count */}
-                <div className="flex flex-col items-center justify-center bg-[#16202b] rounded-2xl p-6 min-w-[120px] flex-none">
+                <div className="flex flex-col items-center justify-center bg-black rounded-2xl p-6 min-w-[120px] flex-none">
                   <Flame className="w-14 h-14 text-[#0D7200]" aria-hidden="true" />
                   <div className="text-4xl font-extrabold text-white mt-2" aria-label="challenge-streak-value">{challengeStreakData?.streak_days ?? 0} days</div>
                   <div className="text-base text-gray-300">Day streak</div>
@@ -1559,16 +1559,16 @@ export default function QuestsPage() {
                 )}
                 <Card
                   key="add-custom-challenge"
-                  className="border-2 border-dashed border-gray-700 hover:border-amber-500 transition-colors cursor-pointer flex items-center justify-center min-h-[160px]"
+                  className="bg-[#2d1300] border-2 border-dashed border-[#6b7280] hover:border-[#9ca3af] transition-colors cursor-pointer flex items-center justify-center min-h-[160px] shadow-lg"
                   onClick={() => setAddChallengeModalOpen(true)}
                   tabIndex={0}
                   role="button"
                   aria-label="add-custom-challenge-card"
                   onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setAddChallengeModalOpen(true); } }}
                 >
-                  <div className="text-center text-gray-500">
+                  <div className="text-center text-[#F0F0F0]">
                     <Plus className="w-8 h-8 mx-auto mb-2" />
-                    <p>Add Custom Challenge</p>
+                    <p className="font-medium">Add Custom Challenge</p>
                   </div>
                 </Card>
               </div>
