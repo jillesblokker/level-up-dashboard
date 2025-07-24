@@ -140,7 +140,7 @@ export function NotificationCenter() {
           <div className="absolute inset-0 bg-black"></div>
           <div className="relative flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-700 rounded-lg flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center shadow-lg">
                 <Mail className="w-5 h-5 text-white" />
               </div>
               <div>
