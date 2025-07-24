@@ -340,7 +340,7 @@ export default function Page() {
                     aria-label={`creature-card-${creature.id}`}
                   >
                     <CardHeader className="w-full flex flex-col items-center text-center">
-                      <CardTitle className="font-serif text-2xl text-amber-400">{creature.name} {creature.number}</CardTitle>
+                      <CardTitle className={`font-serif text-2xl ${unlocked ? 'text-amber-400' : 'text-white'}`}>{creature.name} {creature.number}</CardTitle>
                       {!unlocked && (
                         <Badge variant="secondary" className="mt-2" aria-label={`creature-${creature.id}-undiscovered-badge`}>
                           Undiscovered
@@ -414,7 +414,7 @@ export default function Page() {
                       aria-label={`achievement-card-${achievement.id}`}
                     >
                       <CardHeader className="w-full flex flex-col items-center text-center">
-                        <CardTitle className="font-serif text-2xl text-amber-400">{monsterName} #{achievement.id}</CardTitle>
+                        <CardTitle className={`font-serif text-2xl ${unlocked ? 'text-amber-400' : 'text-white'}`}>{monsterName} #{achievement.id}</CardTitle>
                         {!unlocked && (
                           <Badge variant="secondary" className="mt-2" aria-label={`achievement-${achievement.id}-undiscovered-badge`}>
                             Undiscovered

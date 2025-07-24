@@ -7,12 +7,14 @@ interface RealmAnimationWrapperProps {
   children: React.ReactNode
   isAnimating: boolean
   className?: string
+  onImageReveal?: (shouldReveal: boolean) => void
 }
 
 export function RealmAnimationWrapper({ 
   children, 
   isAnimating, 
-  className = "" 
+  className = "",
+  onImageReveal
 }: RealmAnimationWrapperProps) {
   const [animationState, setAnimationState] = useState<'idle' | 'starting' | 'animating' | 'ending'>('idle')
   const [scrollPosition, setScrollPosition] = useState(0)
@@ -71,9 +73,13 @@ export function RealmAnimationWrapper({
         animationTimeoutRef.current = setTimeout(() => {
           setAnimationState('ending')
           
-          // Complete animation
+          // Complete animation and trigger image reveal
           animationTimeoutRef.current = setTimeout(() => {
             setAnimationState('idle')
+            // Trigger image reveal after a brief pause
+            setTimeout(() => {
+              onImageReveal?.(true)
+            }, 800) // 0.8 second pause
           }, 100)
         }, 500)
       }, 50)

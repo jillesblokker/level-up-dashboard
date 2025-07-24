@@ -17,6 +17,7 @@ interface HeaderSectionProps {
   style?: React.CSSProperties;
   onAnimationStart?: () => void;
   onAnimationEnd?: () => void;
+  shouldRevealImage?: boolean;
 }
 
 export const HeaderSection: React.FC<HeaderSectionProps> = ({
@@ -30,6 +31,7 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
   style = {},
   onAnimationStart,
   onAnimationEnd,
+  shouldRevealImage = false,
 }) => {
   const [isHovering, setIsHovering] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -91,8 +93,9 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
           alt={title + " header image"}
           fill
           className={cn(
-            "object-cover object-center transition-opacity duration-500 ease-in-out",
-            imageLoaded ? "opacity-100" : "opacity-0"
+            "object-cover object-center transition-all duration-800 ease-out",
+            imageLoaded ? "opacity-100" : "opacity-0",
+            shouldRevealImage ? "translate-y-0" : "-translate-y-full"
           )}
           priority
           onLoad={handleImageLoad}
@@ -102,8 +105,9 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
       )}
       <div 
         className={cn(
-          "absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60 transition-opacity duration-500 ease-in-out",
-          imageLoaded ? "opacity-100" : "opacity-0"
+          "absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60 transition-all duration-800 ease-out",
+          imageLoaded ? "opacity-100" : "opacity-0",
+          shouldRevealImage ? "translate-y-0" : "-translate-y-full"
         )}
         aria-hidden="true"
       />
