@@ -28,6 +28,7 @@ import dynamic from 'next/dynamic';
 import { getCharacterStats } from '@/lib/character-stats-manager';
 import { checkMonsterSpawn, spawnMonsterOnTile, getMonsterAchievementId, MonsterType } from '@/lib/monster-spawn-manager';
 import { MonsterBattle } from '@/components/monster-battle';
+import { RealmAnimationWrapper } from '@/components/realm-animation-wrapper';
 import { HeaderSection } from '@/components/HeaderSection';
 const RevealOverlay = dynamic(() => import('../reveal/page'), { ssr: false });
 
@@ -1180,10 +1181,7 @@ export default function RealmPage() {
                 onAnimationStart={() => setIsAnimating(true)}
                 onAnimationEnd={() => setIsAnimating(false)}
             />
-            <div 
-                className={`flex flex-col h-screen bg-gray-900 text-white relative ${isAnimating ? 'overflow-hidden' : ''}`} 
-                aria-label="realm-map-section"
-            >
+            <RealmAnimationWrapper isAnimating={isAnimating}>
                 {/* Top Toolbar */}
                 <div className="flex items-center justify-between p-2 bg-gray-800/80 backdrop-blur-sm border-b border-gray-700 z-30 overflow-visible">
                   {/* On mobile, make action rows horizontally scrollable and touch-friendly */}
@@ -1337,7 +1335,7 @@ export default function RealmPage() {
                         </ScrollArea>
                     </div>
                 )}
-            </div>
+            </RealmAnimationWrapper>
             {/* Event Modals */}
             {castleEvent?.open && (
                 <Dialog open={castleEvent.open} onOpenChange={() => setCastleEvent(null)}>

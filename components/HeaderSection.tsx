@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Upload, Edit, X } from "lucide-react";
@@ -34,7 +34,30 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
   const [isHovering, setIsHovering] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [animationComplete, setAnimationComplete] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const animationTimeoutRef = useRef<NodeJS.Timeout>();
+
+  // Handle animation timing
+  useEffect(() => {
+    if (imageLoaded && !animationComplete) {
+      // Start animation
+      onAnimationStart?.();
+      
+      // Set a timeout to end animation after transition duration
+      animationTimeoutRef.current = setTimeout(() => {
+        setAnimationComplete(true);
+        onAnimationEnd?.();
+      }, 500); // Match the CSS transition duration
+    }
+
+    return () => {
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+    };
+  }, [imageLoaded, animationComplete, onAnimationStart, onAnimationEnd]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -46,6 +69,10 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
   };
 
   const triggerFileInput = () => fileInputRef.current?.click();
+
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+  };
 
   return (
     <div
@@ -63,18 +90,22 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
           src={imageSrc}
           alt={title + " header image"}
           fill
-          className="object-cover transition-opacity duration-500 ease-in-out"
+          className={cn(
+            "object-cover transition-opacity duration-500 ease-in-out",
+            imageLoaded ? "opacity-100" : "opacity-0"
+          )}
           priority
-          onLoad={() => onAnimationStart?.()}
-          onTransitionEnd={() => onAnimationEnd?.()}
+          onLoad={handleImageLoad}
         />
       ) : (
         <div className={cn("absolute inset-0", defaultBgColor)} aria-hidden="true" />
       )}
       <div 
-        className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60 transition-opacity duration-500 ease-in-out" 
+        className={cn(
+          "absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60 transition-opacity duration-500 ease-in-out",
+          imageLoaded ? "opacity-100" : "opacity-0"
+        )}
         aria-hidden="true"
-        onTransitionEnd={() => onAnimationEnd?.()}
       />
       <div className="relative z-10 p-8 w-full flex flex-col items-center justify-center">
         <h1 className="text-4xl sm:text-5xl font-bold tracking-widest drop-shadow-lg font-medieval text-amber-500 text-center">
@@ -99,8 +130,8 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
             </div>
           )}
           {showUploadModal && (
-                    <div className="absolute inset-0 bg-black flex items-center justify-center transition-opacity duration-300 z-10">
-          <div className="bg-black p-6 rounded-lg border border-[#F59E0B] backdrop-blur-md max-w-md relative">
+            <div className="absolute inset-0 bg-black flex items-center justify-center transition-opacity duration-300 z-10">
+              <div className="bg-black p-6 rounded-lg border border-[#F59E0B] backdrop-blur-md max-w-md relative">
                 <Button
                   onClick={() => setShowUploadModal(false)}
                   className="absolute top-2 right-2 rounded-full h-8 w-8 p-0 bg-transparent hover:bg-gray-800"
