@@ -384,7 +384,7 @@ h6 {
 /* Task Screen Card Styling - Solid medieval colors */
 .medieval-card-task {
   position: relative;
-  border: 2px solid #ffffff;
+  border: 2px solid #e5e7eb;
   background-color: #240014; /* Dark purple-red from design system */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   overflow: hidden;
@@ -400,7 +400,7 @@ h6 {
 
 .medieval-card-task .card-header {
   background-color: rgba(0, 0, 60, 0.2);
-  border-bottom: 2px solid #ffffff;
+  border-bottom: 2px solid #e5e7eb;
   padding-bottom: 0.75rem;
   margin-bottom: 1rem;
 }

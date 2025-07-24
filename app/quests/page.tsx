@@ -1380,6 +1380,7 @@ export default function QuestsPage() {
                   onClick={handleBulkCompleteFavorites}
                   disabled={loading || quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length === 0}
                   className="bg-[#F59E0B] hover:bg-[#D97706] disabled:bg-[#92400E] disabled:text-gray-300 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
+                  style={{ backgroundColor: '#F59E0B', opacity: 1 }}
                   aria-label="Complete all favorited quests in this category"
                 >
                   <Star className="w-4 h-4 mr-2" />
@@ -1434,31 +1435,31 @@ export default function QuestsPage() {
                   {/* Days of the week with styled circles */}
                   <div className="flex justify-between text-xs text-gray-300 mt-2">
                     <div className="flex flex-col items-center">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Mon</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Tue</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Wed</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Thu</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Fri</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Sat</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Sun</span>
                     </div>
                   </div>
@@ -1466,8 +1467,8 @@ export default function QuestsPage() {
                 {/* Bonus and Scrolls */}
                 <div className="flex flex-col gap-4 min-w-[180px] flex-none">
                   <div>
-                    <div className="text-lg font-bold text-[#F59E0B]">Streak Bonus:</div>
-                    <div className="text-2xl font-bold text-[#F59E0B]">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
+                    <div className="text-lg font-bold text-[#F0F0F0]">Streak Bonus:</div>
+                    <div className="text-2xl font-bold text-[#F0F0F0]">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
                     <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
                   </div>
                   <div>
@@ -1554,31 +1555,31 @@ export default function QuestsPage() {
                   {/* Days of the week with styled circles */}
                   <div className="flex justify-between text-xs text-gray-300 mt-2">
                     <div className="flex flex-col items-center">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Mon</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Tue</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Wed</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Thu</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Fri</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Sat</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Sun</span>
                     </div>
                   </div>
