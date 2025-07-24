@@ -53,6 +53,31 @@ export function RealmAnimationWrapper({
     requestAnimationFrame(animateScroll)
   }
 
+  // Scroll to show header function (scrolls to just show the header, not all the way to top)
+  const scrollToShowHeader = (duration: number = 800) => {
+    const startPosition = window.scrollY
+    const targetPosition = 0 // Scroll to very top to show header image
+    const startTime = performance.now()
+    
+    const animateScroll = (currentTime: number) => {
+      const elapsed = currentTime - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      
+      // Easing function for smooth animation
+      const easeInOutCubic = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+      const easedProgress = easeInOutCubic(progress)
+      
+      const newPosition = startPosition + (targetPosition - startPosition) * easedProgress
+      window.scrollTo(0, newPosition)
+      
+      if (progress < 1) {
+        requestAnimationFrame(animateScroll)
+      }
+    }
+    
+    requestAnimationFrame(animateScroll)
+  }
+
   // Scroll down to show content function
   const scrollDownToContent = (duration: number = 500) => {
     const headerHeight = 400 // Approximate header height
@@ -109,9 +134,9 @@ export function RealmAnimationWrapper({
             // First, scroll down to show content (buttons and grid)
             scrollDownToContent(500)
             
-            // After 0.8 seconds, scroll all the way up to show header
+            // After 0.8 seconds, scroll to show header image
             setTimeout(() => {
-              smoothScrollToTop(800)
+              scrollToShowHeader(800)
             }, 800)
           }, 100)
         }, 500)
@@ -196,7 +221,7 @@ export function RealmAnimationWrapper({
     <div
       ref={containerRef}
       className={cn(
-        "flex flex-col h-screen bg-gray-900 text-white relative",
+        "flex flex-col h-screen text-white relative",
         getAnimationClasses(),
         className
       )}
