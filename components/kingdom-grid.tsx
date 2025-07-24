@@ -202,7 +202,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
           </div>
           <div className="px-4 pt-2 pb-0">
             <div className="text-lg font-bold text-amber-300 mb-2 flex items-center justify-between">
-              <span>Build Tokens: <span className="text-amber-400">{buildTokens}</span></span>
+              <span>Streak tokens: <a href="/quests" className="text-blue-400 hover:text-blue-300 underline cursor-pointer">streak</a> <span className="text-amber-400">{buildTokens}</span></span>
               <Button
                 onClick={() => {
                   const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');

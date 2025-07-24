@@ -1429,7 +1429,7 @@ export default function QuestsPage() {
                     <span className="text-4xl font-bold text-white">{todaysCompleted}</span>
                     <span className="text-lg text-gray-300">/ {todaysTotal} quests</span>
                   </div>
-                  <div className="w-full h-4 bg-[#233044] rounded-full overflow-hidden relative">
+                  <div className="w-full h-4 bg-black rounded-full overflow-hidden relative">
                     <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${todaysTotal ? (todaysCompleted / todaysTotal) * 100 : 0}%` }} />
                   </div>
                   {/* Days of the week with styled circles */}
@@ -1549,7 +1549,7 @@ export default function QuestsPage() {
                     <span className="text-4xl font-bold text-white">{challenges.filter(c => c.category === challengeCategory && c.completed).length}</span>
                     <span className="text-lg text-gray-300">/ {challenges.filter(c => c.category === challengeCategory).length} challenges</span>
                   </div>
-                  <div className="w-full h-4 bg-[#233044] rounded-full overflow-hidden relative">
+                  <div className="w-full h-4 bg-black rounded-full overflow-hidden relative">
                     <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${challenges.filter(c => c.category === challengeCategory).length ? (challenges.filter(c => c.category === challengeCategory && c.completed).length / challenges.filter(c => c.category === challengeCategory).length) * 100 : 0}%` }} />
                   </div>
                   {/* Days of the week with styled circles */}
