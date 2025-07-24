@@ -71,12 +71,8 @@ export function NotificationCenter() {
   }
 
   const getPriorityBadge = (priority: 'high' | 'medium' | 'low' = 'medium') => {
-    switch (priority) {
-      case 'high': return <span className="inline-block w-2 h-2 bg-red-500 rounded-full mr-2" />
-      case 'medium': return <span className="inline-block w-2 h-2 bg-amber-500 rounded-full mr-2" />
-      case 'low': return <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2" />
-      default: return <span className="inline-block w-2 h-2 bg-amber-500 rounded-full mr-2" />
-    }
+    // Remove red dots - background already indicates unread status
+    return null
   }
 
   // Enhanced Empty State Component
@@ -145,7 +141,7 @@ export function NotificationCenter() {
               </div>
               <div>
                 <SheetTitle className="text-xl font-bold text-amber-400 font-serif">Notifications</SheetTitle>
-                <p className="text-gray-400 text-sm font-medium">Kingdom Messages & Updates</p>
+                <p className="text-gray-400 text-sm font-medium">Kingdom Messages</p>
               </div>
             </div>
             {notifications.length > 0 && (
@@ -164,7 +160,7 @@ export function NotificationCenter() {
         </div>
         
         {/* Content Area */}
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-y-auto max-h-[calc(100vh-120px)]">
           {notifications.length === 0 ? (
             <EmptyState />
           ) : (
@@ -182,18 +178,12 @@ export function NotificationCenter() {
                         <span className="text-xs text-muted-foreground">
                           {new Date(notification.timestamp).toLocaleString()}
                         </span>
-                        <button
-                          onClick={() => handleDelete(notification.id)}
-                          className="text-red-500 hover:text-red-400 text-lg ml-2 p-1 rounded hover:bg-red-900 transition-colors"
-                          aria-label="Delete notification"
-                        >
-                          🗑️
-                        </button>
+
                       </div>
                       <p className="text-sm text-muted-foreground mt-2 whitespace-pre-line leading-relaxed">
                         {notification.message}
                       </p>
-                      <div className="flex gap-2 mt-3">
+                      <div className="flex flex-col sm:flex-row gap-2 mt-3">
                         {notification.action && (
                           <button
                             onClick={() => {
@@ -212,6 +202,13 @@ export function NotificationCenter() {
                             Mark read
                           </button>
                         )}
+                        <button
+                          onClick={() => handleDelete(notification.id)}
+                          className="text-xs text-red-500 hover:text-red-400 px-3 py-1 rounded border border-red-800 hover:bg-red-900 transition-colors"
+                          aria-label="Delete notification"
+                        >
+                          Delete
+                        </button>
                       </div>
                     </div>
                   </div>

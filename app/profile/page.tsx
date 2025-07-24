@@ -215,16 +215,16 @@ export default function ProfilePage() {
 
       {/* Main Content */}
       <Tabs defaultValue="avatar" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 bg-gray-900/50 border-amber-800/20">
-          <TabsTrigger value="avatar" className="data-[state=active]:bg-amber-900/20 data-[state=active]:text-amber-400">
+        <TabsList className="grid w-full grid-cols-3 bg-gray-900 border-amber-800/20">
+          <TabsTrigger value="avatar" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400">
             <Camera className="w-4 h-4 mr-2" />
             Avatar
           </TabsTrigger>
-          <TabsTrigger value="profile" className="data-[state=active]:bg-amber-900/20 data-[state=active]:text-amber-400">
+          <TabsTrigger value="profile" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400">
             <User className="w-4 h-4 mr-2" />
             Profile
           </TabsTrigger>
-          <TabsTrigger value="appearance" className="data-[state=active]:bg-amber-900/20 data-[state=active]:text-amber-400">
+          <TabsTrigger value="appearance" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400">
             <Palette className="w-4 h-4 mr-2" />
             Appearance
           </TabsTrigger>

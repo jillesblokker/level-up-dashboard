@@ -976,16 +976,28 @@ export default function RealmPage() {
     useEffect(() => {
         if (lastMysteryTile && mysteryEventCompleted) {
             const { x, y } = lastMysteryTile;
-            // @ts-ignore: runtime guard ensures grid[y] and grid[y][x] are defined
-            const tile = grid[y]?.[x];
             if (typeof x === 'number' && typeof y === 'number') {
                 const newGrid = grid.map(row => row.slice());
-                // @ts-ignore: runtime guard ensures newGrid[y] is defined
-                const newRow = newGrid[y] as Tile[] | undefined;
-                if (newRow && tile) {
-                    // @ts-ignore: runtime guard ensures newRow[x] is defined
-                    assignTile(newRow, x, tile);
+                if (newGrid[y]?.[x]) {
+                    // Change mystery tile to grass tile
+                    newGrid[y][x] = { 
+                        ...defaultTile('grass'), 
+                        x, 
+                        y, 
+                        id: `grass-${x}-${y}`,
+                        image: getTileImage('grass')
+                    };
                     setGrid(newGrid);
+                    
+                    // Save to backend
+                    fetch('/api/realm-tiles', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ x, y, tile_type: tileTypeToNumeric['grass'] })
+                    }).catch(() => {
+                        toast({ title: 'Error', description: 'Failed to save grass tile', variant: 'destructive' });
+                    });
+                    
                     if (typeof window !== 'undefined') {
                         window.dispatchEvent(new CustomEvent('update-grid', { detail: { grid: newGrid } }));
                     }
@@ -1143,6 +1155,16 @@ export default function RealmPage() {
       const stats = getCharacterStats();
       setPlayerLevel(stats.level || 1);
     }, []);
+    
+    // Fix expansion count if user is level 5 but expansion count is wrong
+    useEffect(() => {
+      if (playerLevel >= 5 && expansions > 0) {
+        // If user is level 5+ but has expansions recorded, reset to 0
+        setExpansions(0);
+        localStorage.setItem('realm-map-expansions', '0');
+      }
+    }, [playerLevel, expansions]);
+    
     const nextExpansionLevel = 5 + expansions * 5;
     const canExpand = playerLevel >= nextExpansionLevel;
 

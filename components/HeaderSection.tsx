@@ -125,7 +125,7 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
             <div className="absolute top-4 right-4 z-20">
               <Button
                 onClick={() => setShowUploadModal(true)}
-                className="bg-amber-700 hover:bg-amber-600 text-white rounded-full h-12 w-12 flex items-center justify-center"
+                className="bg-amber-700 hover:bg-amber-600 text-black rounded-full h-12 w-12 flex items-center justify-center"
                 size="icon"
                 aria-label="Edit banner image"
               >
@@ -147,7 +147,7 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
                 <h3 className="text-xl text-amber-500 mb-4 font-medieval text-center">Change Banner</h3>
                 <Button
                   onClick={triggerFileInput}
-                  className="w-full mb-3 bg-amber-700 hover:bg-amber-600 text-white flex items-center justify-center gap-2"
+                  className="w-full mb-3 bg-amber-700 hover:bg-amber-600 text-black flex items-center justify-center gap-2"
                   disabled={isUploading}
                 >
                   <Upload size={18} />
