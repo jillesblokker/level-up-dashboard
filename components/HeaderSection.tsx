@@ -18,7 +18,6 @@ interface HeaderSectionProps {
   onAnimationStart?: () => void;
   onAnimationEnd?: () => void;
   shouldRevealImage?: boolean;
-  imagePosition?: 'center' | 'top';
 }
 
 export const HeaderSection: React.FC<HeaderSectionProps> = ({
@@ -33,7 +32,6 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
   onAnimationStart,
   onAnimationEnd,
   shouldRevealImage = false,
-  imagePosition = 'center',
 }) => {
   const [isHovering, setIsHovering] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -95,10 +93,9 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
           alt={title + " header image"}
           fill
           className={cn(
-            "object-cover transition-all duration-800 ease-out",
+            "object-cover object-center transition-all duration-800 ease-out",
             imageLoaded ? "opacity-100" : "opacity-0",
-            shouldRevealImage ? "translate-y-0" : "-translate-y-full",
-            imagePosition === 'top' ? "object-top" : "object-center"
+            shouldRevealImage ? "translate-y-0" : "-translate-y-full"
           )}
           priority
           onLoad={handleImageLoad}

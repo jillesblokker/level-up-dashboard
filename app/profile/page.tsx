@@ -231,7 +231,7 @@ export default function ProfilePage() {
         </TabsList>
 
         <TabsContent value="avatar" className="space-y-6">
-          <Card className="bg-gray-900/50 border-amber-800/20">
+          <Card className="bg-gray-900 border-amber-800/20">
             <CardHeader>
               <CardTitle className="text-xl text-amber-400 flex items-center">
                 <Camera className="w-5 h-5 mr-2" />
@@ -347,7 +347,7 @@ export default function ProfilePage() {
         </TabsContent>
 
         <TabsContent value="profile" className="space-y-6">
-          <Card className="bg-gray-900/50 border-amber-800/20">
+          <Card className="bg-gray-900 border-amber-800/20">
             <CardHeader>
               <CardTitle className="text-xl text-amber-400 flex items-center">
                 <User className="w-5 h-5 mr-2" />
@@ -381,7 +381,7 @@ export default function ProfilePage() {
         </TabsContent>
 
         <TabsContent value="appearance" className="space-y-6">
-          <Card className="bg-gray-900/50 border-amber-800/20">
+          <Card className="bg-gray-900 border-amber-800/20">
             <CardHeader>
               <CardTitle className="text-xl text-amber-400 flex items-center">
                 <Palette className="w-5 h-5 mr-2" />
