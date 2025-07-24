@@ -223,6 +223,7 @@ export default function RealmPage() {
     const [hasCheckedInitialPosition, setHasCheckedInitialPosition] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
     const [shouldRevealImage, setShouldRevealImage] = useState(false);
+    const [imagePosition, setImagePosition] = useState<'center' | 'top'>('center');
     const closeBtnRef = useRef<HTMLButtonElement>(null);
     const [horsePos, setHorsePos] = useState<{ x: number; y: number } | null>(() => {
       if (typeof window !== 'undefined') {
@@ -1181,11 +1182,13 @@ export default function RealmPage() {
                 defaultBgColor="bg-blue-900"
                 onAnimationStart={() => setIsAnimating(true)}
                 onAnimationEnd={() => setIsAnimating(false)}
-                shouldRevealImage={true}
+                shouldRevealImage={shouldRevealImage}
+                imagePosition={imagePosition}
             />
             <RealmAnimationWrapper 
                 isAnimating={isAnimating}
                 onImageReveal={setShouldRevealImage}
+                onImagePositionChange={setImagePosition}
             >
                 {/* Top Toolbar */}
                 <div className="flex items-center justify-between p-2 bg-gray-800/80 backdrop-blur-sm border-b border-gray-700 z-30 overflow-visible">

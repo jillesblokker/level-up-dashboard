@@ -8,13 +8,15 @@ interface RealmAnimationWrapperProps {
   isAnimating: boolean
   className?: string
   onImageReveal?: (shouldReveal: boolean) => void
+  onImagePositionChange?: (position: 'center' | 'top') => void
 }
 
 export function RealmAnimationWrapper({ 
   children, 
   isAnimating, 
   className = "",
-  onImageReveal
+  onImageReveal,
+  onImagePositionChange
 }: RealmAnimationWrapperProps) {
   const [animationState, setAnimationState] = useState<'idle' | 'starting' | 'animating' | 'ending'>('idle')
   const [scrollPosition, setScrollPosition] = useState(0)
@@ -134,8 +136,10 @@ export function RealmAnimationWrapper({
             // First, scroll down to show content (buttons and grid)
             scrollDownToContent(500)
             
-            // After 0.8 seconds, scroll to show header image
+            // After 0.8 seconds, scroll to show header image and change position to top
             setTimeout(() => {
+              // Change image position to show top part
+              onImagePositionChange?.('top')
               scrollToShowHeader(1500)
             }, 800)
           }, 100)
