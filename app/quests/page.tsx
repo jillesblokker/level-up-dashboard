@@ -1401,10 +1401,10 @@ export default function QuestsPage() {
               <div>
                 <label htmlFor="quest-category-select" className="sr-only">Select quest category</label>
                 <Select value={questCategory || ''} onValueChange={setQuestCategory}>
-                  <SelectTrigger className="w-full border-2 border-[#F59E0B] bg-black text-amber-200" aria-label="Quest category dropdown">
+                  <SelectTrigger className="w-full border border-[#F59E0B] bg-black text-amber-200" aria-label="Quest category dropdown">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
-                  <SelectContent className="bg-black border-2 border-[#F59E0B]">
+                  <SelectContent className="bg-black border border-[#F59E0B]">
                     {questCategories.map((category: string) => (
                       <SelectItem key={category} value={category}>
                         {getCategoryLabel(category)}
@@ -1524,7 +1524,7 @@ export default function QuestsPage() {
               <label htmlFor="challenge-category-select" className="sr-only">Select workout day</label>
               <select
                 id="challenge-category-select"
-                className="w-full rounded border-2 border-[#F59E0B] p-2 bg-black text-amber-200"
+                className="w-full rounded border border-[#F59E0B] p-2 bg-black text-amber-200"
                 aria-label="Workout day dropdown"
                 value={challengeCategory}
                 onChange={e => setChallengeCategory(e.target.value)}
@@ -1644,7 +1644,7 @@ export default function QuestsPage() {
               <label htmlFor="milestone-category-select" className="sr-only">Select milestone category</label>
               <select
                 id="milestone-category-select"
-                className="w-full rounded border-2 border-[#F59E0B] p-2 bg-black text-amber-200"
+                className="w-full rounded border border-[#F59E0B] p-2 bg-black text-amber-200"
                 aria-label="Milestone category dropdown"
                 value={milestoneCategory}
                 onChange={e => setMilestoneCategory(e.target.value)}
@@ -1664,10 +1664,10 @@ export default function QuestsPage() {
                 Select Workout Category
               </label>
               <Select value={challengeCategory || ''} onValueChange={setChallengeCategory}>
-                <SelectTrigger className="w-full rounded-lg border-2 border-[#F59E0B] bg-black text-amber-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 transition-colors" aria-label="Recovery category dropdown">
+                <SelectTrigger className="w-full rounded-lg border border-[#F59E0B] bg-black text-amber-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 transition-colors" aria-label="Recovery category dropdown">
                   <SelectValue placeholder="Select workout category" />
                 </SelectTrigger>
-                <SelectContent className="bg-black border-2 border-[#F59E0B]">
+                <SelectContent className="bg-black border border-[#F59E0B]">
                   {workoutPlan.map(day => (
                     <SelectItem key={day.category} value={day.category}>
                       {day.category}

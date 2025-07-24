@@ -263,7 +263,7 @@ export const createAnimationClass = (
 
 // Component-specific utilities
 export const buttonStyles = {
-  base: 'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
+  base: 'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none',
   variants: {
     primary: 'bg-amber-500 text-black hover:bg-amber-600 focus-visible:ring-amber-500',
     secondary: 'bg-gray-900/50 text-white border border-amber-800/20 hover:bg-gray-800/50',

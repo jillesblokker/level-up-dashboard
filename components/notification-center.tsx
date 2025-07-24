@@ -137,7 +137,7 @@ export function NotificationCenter() {
       <SheetContent side="right" aria-label="notification-center-sidepanel" className="w-96 max-w-full bg-black border-l border-amber-800/20 max-w-[90vw] p-0" aria-modal="true">
         {/* Enhanced Header */}
         <div className="relative p-6 border-b border-amber-800/20">
-          <div className="absolute inset-0 bg-gradient-to-r from-amber-900 via-transparent to-amber-900"></div>
+          <div className="absolute inset-0 bg-black"></div>
           <div className="relative flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-700 rounded-lg flex items-center justify-center shadow-lg">
@@ -170,7 +170,7 @@ export function NotificationCenter() {
           ) : (
             <div className="divide-y divide-amber-800/10">
               {notifications.map((notification) => (
-                <div key={notification.id} className={cn("p-4 relative hover:bg-gray-900 transition-colors", !notification.read && "bg-amber-900")}>
+                <div key={notification.id} className={cn("p-4 relative hover:bg-gray-900 transition-colors", !notification.read && "bg-gray-800")}>
                   <div className="flex items-start gap-3">
                     <div className="text-lg mt-1">{getNotificationIcon(notification.type)}</div>
                     <div className="flex-1 min-w-0">
