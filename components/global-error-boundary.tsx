@@ -88,7 +88,7 @@ export class GlobalErrorBoundary extends React.Component<ErrorBoundaryProps, Err
     })
   }
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
         return <this.props.fallback error={this.state.error!} resetError={this.resetError} />
