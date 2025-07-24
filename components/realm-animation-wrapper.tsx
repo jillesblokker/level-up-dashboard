@@ -112,6 +112,9 @@ export function RealmAnimationWrapper({
         document.removeEventListener('touchmove', preventScroll)
       }
     }
+    
+    // Return empty cleanup function when not animating
+    return () => {}
   }, [animationState])
 
   // Restore scroll position after animation (only if not scrolled to top)
