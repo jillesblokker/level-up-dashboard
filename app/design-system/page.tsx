@@ -330,15 +330,15 @@ export default function DesignSystemPage() {
                 {activeTab === "colors" && (
                   <div className="space-y-8">
                     <div>
-                      <h2 className="text-3xl font-bold text-amber-400 mb-6">Color Palette</h2>
+                      <h2 className="text-3xl font-bold text-amber-400 mb-6">Complete Color System</h2>
                       <p className="text-gray-300 mb-8 leading-relaxed">
-                        Our color system is built around a medieval amber theme with carefully chosen 
-                        semantic colors for different states and interactions.
+                        Our comprehensive color system includes 50+ unique colors across the entire app, 
+                        with carefully chosen semantic colors for different states and interactions.
                       </p>
                       
                       {/* Brand Colors */}
                       <div className="mb-8">
-                        <h3 className="text-xl font-semibold text-white mb-4">Brand Colors</h3>
+                        <h3 className="text-xl font-semibold text-white mb-4">Primary Brand Colors</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           {colors.map((color: ColorItem, index) => (
                             <Card key={index} className="bg-gray-900/50 border-amber-800/20">
@@ -354,6 +354,349 @@ export default function DesignSystemPage() {
                               </CardContent>
                             </Card>
                           ))}
+                        </div>
+                      </div>
+
+                      {/* Complete Color Audit */}
+                      <div className="mb-8">
+                        <h3 className="text-xl font-semibold text-white mb-4">Complete Color Inventory</h3>
+                        <p className="text-gray-300 mb-6 leading-relaxed">
+                          Below is a comprehensive overview of all colors used in the app, including usage statistics and consolidation recommendations.
+                        </p>
+                        
+                        {/* Amber/Gold Colors */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">🔴 Amber/Gold Colors (Frequently Used)</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <div className="flex items-center space-x-3 mb-3">
+                                  <div className="w-8 h-8 rounded-lg bg-[#F59E0B] border border-gray-700"></div>
+                                  <div>
+                                    <h4 className="font-medium text-white">Primary Amber</h4>
+                                    <p className="text-sm text-gray-400">#F59E0B (25+ uses)</p>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-gray-300">Quest buttons, dropdown borders, streak bonus text</p>
+                                <p className="text-xs text-green-400 mt-2">✅ KEEP - Core brand color</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <div className="flex items-center space-x-3 mb-3">
+                                  <div className="w-8 h-8 rounded-lg bg-[#D97706] border border-gray-700"></div>
+                                  <div>
+                                    <h4 className="font-medium text-white">Amber Hover</h4>
+                                    <p className="text-sm text-gray-400">#D97706 (8+ uses)</p>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-gray-300">Button hover states</p>
+                                <p className="text-xs text-green-400 mt-2">✅ KEEP - Proper hover state</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <div className="flex items-center space-x-3 mb-3">
+                                  <div className="w-8 h-8 rounded-lg bg-[#92400E] border border-gray-700"></div>
+                                  <div>
+                                    <h4 className="font-medium text-white">Amber Disabled</h4>
+                                    <p className="text-sm text-gray-400">#92400E (5+ uses)</p>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-gray-300">Button disabled states</p>
+                                <p className="text-xs text-green-400 mt-2">✅ KEEP - Proper disabled state</p>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        </div>
+
+                        {/* Green Colors */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-green-300 mb-3">🟢 Green Colors (Frequently Used)</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <div className="flex items-center space-x-3 mb-3">
+                                  <div className="w-8 h-8 rounded-lg bg-[#0D7200] border border-gray-700"></div>
+                                  <div>
+                                    <h4 className="font-medium text-white">Primary Green</h4>
+                                    <p className="text-sm text-gray-400">#0D7200 (10+ uses)</p>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-gray-300">Progress bars, flame icons</p>
+                                <p className="text-xs text-green-400 mt-2">✅ KEEP - Core success color</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <div className="flex items-center space-x-3 mb-3">
+                                  <div className="w-8 h-8 rounded-lg bg-[#7CB342] border border-gray-700"></div>
+                                  <div>
+                                    <h4 className="font-medium text-white">Grass Green</h4>
+                                    <p className="text-sm text-gray-400">#7CB342 (3 uses)</p>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-gray-300">Tile backgrounds</p>
+                                <p className="text-xs text-yellow-400 mt-2">⚠️ CONSIDER - Use #0D7200</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <div className="flex items-center space-x-3 mb-3">
+                                  <div className="w-8 h-8 rounded-lg bg-[#8BC34A] border border-gray-700"></div>
+                                  <div>
+                                    <h4 className="font-medium text-white">Light Grass</h4>
+                                    <p className="text-sm text-gray-400">#8BC34A (2 uses)</p>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-gray-300">Tile highlights</p>
+                                <p className="text-xs text-yellow-400 mt-2">⚠️ CONSIDER - Use lighter #0D7200</p>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        </div>
+
+                        {/* Neutral Colors */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-gray-300 mb-3">⚫ Neutral Colors (Frequently Used)</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <div className="flex items-center space-x-3 mb-3">
+                                  <div className="w-8 h-8 rounded-lg bg-[#000000] border border-gray-700"></div>
+                                  <div>
+                                    <h4 className="font-medium text-white">Pure Black</h4>
+                                    <p className="text-sm text-gray-400">#000000 (30+ uses)</p>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-gray-300">Card backgrounds, buttons, dropdowns</p>
+                                <p className="text-xs text-green-400 mt-2">✅ KEEP - Core neutral</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <div className="flex items-center space-x-3 mb-3">
+                                  <div className="w-8 h-8 rounded-lg bg-[#F0F0F0] border border-gray-700"></div>
+                                  <div>
+                                    <h4 className="font-medium text-white">Light Grey Text</h4>
+                                    <p className="text-sm text-gray-400">#F0F0F0 (15+ uses)</p>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-gray-300">Primary text, streak bonus text</p>
+                                <p className="text-xs text-green-400 mt-2">✅ KEEP - Core text color</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <div className="flex items-center space-x-3 mb-3">
+                                  <div className="w-8 h-8 rounded-lg bg-[#f4f4f4] border border-gray-700"></div>
+                                  <div>
+                                    <h4 className="font-medium text-white">Light Grey Border</h4>
+                                    <p className="text-sm text-gray-400">#f4f4f4 (3+ uses)</p>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-gray-300">Card borders, quest card defaults</p>
+                                <p className="text-xs text-green-400 mt-2">✅ KEEP - Design requirement</p>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        </div>
+
+                        {/* Red Colors */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-red-300 mb-3">🔴 Red Colors (Frequently Used)</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <div className="flex items-center space-x-3 mb-3">
+                                  <div className="w-8 h-8 rounded-lg bg-[#4D0000] border border-gray-700"></div>
+                                  <div>
+                                    <h4 className="font-medium text-white">Dark Red Start</h4>
+                                    <p className="text-sm text-gray-400">#4D0000 (5+ uses)</p>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-gray-300">Streak card gradients</p>
+                                <p className="text-xs text-green-400 mt-2">✅ KEEP - Core streak color</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <div className="flex items-center space-x-3 mb-3">
+                                  <div className="w-8 h-8 rounded-lg bg-[#3D0000] border border-gray-700"></div>
+                                  <div>
+                                    <h4 className="font-medium text-white">Dark Red End</h4>
+                                    <p className="text-sm text-gray-400">#3D0000 (5+ uses)</p>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-gray-300">Streak card gradients</p>
+                                <p className="text-xs text-green-400 mt-2">✅ KEEP - Core streak color</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <div className="flex items-center space-x-3 mb-3">
+                                  <div className="w-8 h-8 rounded-lg bg-[#240014] border border-gray-700"></div>
+                                  <div>
+                                    <h4 className="font-medium text-white">Purple Red</h4>
+                                    <p className="text-sm text-gray-400">#240014 (3+ uses)</p>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-gray-300">Quest card backgrounds</p>
+                                <p className="text-xs text-yellow-400 mt-2">⚠️ CONSIDER - Use #4D0000</p>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        </div>
+
+                        {/* Single-Use Colors */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-blue-300 mb-3">🎨 Single-Use Colors (Consolidation Candidates)</h4>
+                          <p className="text-gray-300 mb-4 text-sm">
+                            These colors are used only once and are good candidates for consolidation with design system colors.
+                          </p>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <div className="flex items-center space-x-3 mb-3">
+                                  <div className="w-8 h-8 rounded-lg bg-[#4CAF50] border border-gray-700"></div>
+                                  <div>
+                                    <h4 className="font-medium text-white">Tile Green</h4>
+                                    <p className="text-sm text-gray-400">#4CAF50 (1 use)</p>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-gray-300">Special tiles</p>
+                                <p className="text-xs text-yellow-400 mt-2">⚠️ Use #0D7200</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <div className="flex items-center space-x-3 mb-3">
+                                  <div className="w-8 h-8 rounded-lg bg-[#2196F3] border border-gray-700"></div>
+                                  <div>
+                                    <h4 className="font-medium text-white">Tile Blue</h4>
+                                    <p className="text-sm text-gray-400">#2196F3 (1 use)</p>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-gray-300">Water tiles</p>
+                                <p className="text-xs text-yellow-400 mt-2">⚠️ Use #1e90ff</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <div className="flex items-center space-x-3 mb-3">
+                                  <div className="w-8 h-8 rounded-lg bg-[#7E57C2] border border-gray-700"></div>
+                                  <div>
+                                    <h4 className="font-medium text-white">Tile Purple</h4>
+                                    <p className="text-sm text-gray-400">#7E57C2 (1 use)</p>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-gray-300">Magic tiles</p>
+                                <p className="text-xs text-yellow-400 mt-2">⚠️ Use #9932cc</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <div className="flex items-center space-x-3 mb-3">
+                                  <div className="w-8 h-8 rounded-lg bg-[#FFA000] border border-gray-700"></div>
+                                  <div>
+                                    <h4 className="font-medium text-white">Tile Orange</h4>
+                                    <p className="text-sm text-gray-400">#FFA000 (1 use)</p>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-gray-300">Fire tiles</p>
+                                <p className="text-xs text-yellow-400 mt-2">⚠️ Use #F59E0B</p>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        </div>
+
+                        {/* Gradients */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-purple-300 mb-3">🌈 Gradients</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <div className="w-full h-16 rounded-lg bg-gradient-to-br from-[#000428] to-[#004E92] mb-3"></div>
+                                <h4 className="font-medium text-white mb-1">Page Background</h4>
+                                <p className="text-sm text-gray-400">linear-gradient(135deg, #000428 0%, #004E92 100%)</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <div className="w-full h-16 rounded-lg bg-gradient-to-br from-[#4D0000] to-[#3D0000] mb-3"></div>
+                                <h4 className="font-medium text-white mb-1">Streak Cards</h4>
+                                <p className="text-sm text-gray-400">linear-gradient(148.59deg, #4D0000 0%, #3D0000 100%)</p>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        </div>
+
+                        {/* Consolidation Recommendations */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-yellow-300 mb-3">🎯 Consolidation Recommendations</h4>
+                          <div className="space-y-4">
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <h5 className="font-medium text-white mb-2">1. Standardize Greys</h5>
+                                <p className="text-sm text-gray-300 mb-2">Replace #6b7280 and #9ca3af with #f4f4f4 for consistency</p>
+                                <p className="text-xs text-gray-400">Impact: 13+ color instances</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <h5 className="font-medium text-white mb-2">2. Consolidate Reds</h5>
+                                <p className="text-sm text-gray-300 mb-2">Replace #240014 and #2d1300 with #4D0000 for consistency</p>
+                                <p className="text-xs text-gray-400">Impact: 6+ color instances</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <h5 className="font-medium text-white mb-2">3. Consolidate Tile Colors</h5>
+                                <p className="text-sm text-gray-300 mb-2">Replace single-use tile colors with design system equivalents</p>
+                                <p className="text-xs text-gray-400">Impact: 6+ color instances</p>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        </div>
+
+                        {/* Color Reference System */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-cyan-300 mb-3">📋 Color Reference System</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20">
+                            <CardContent className="p-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <h5 className="font-medium text-white mb-2">Primary Colors</h5>
+                                  <div className="space-y-2 text-sm">
+                                    <div className="flex justify-between">
+                                      <span className="text-gray-300">--color-amber-primary:</span>
+                                      <span className="text-amber-400">#F59E0B</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-gray-300">--color-green-primary:</span>
+                                      <span className="text-green-400">#0D7200</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-gray-300">--color-red-primary:</span>
+                                      <span className="text-red-400">#4D0000</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-gray-300">--color-black:</span>
+                                      <span className="text-gray-400">#000000</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div>
+                                  <h5 className="font-medium text-white mb-2">Usage Examples</h5>
+                                  <div className="space-y-2 text-sm">
+                                    <code className="text-amber-400 bg-gray-800 px-2 py-1 rounded">bg-[#F59E0B] hover:bg-[#D97706]</code>
+                                    <code className="text-amber-400 bg-gray-800 px-2 py-1 rounded">border-2 border-[#f4f4f4] bg-[#000000]</code>
+                                    <code className="text-amber-400 bg-gray-800 px-2 py-1 rounded">text-[#F0F0F0]</code>
+                                  </div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
                         </div>
                       </div>
 
