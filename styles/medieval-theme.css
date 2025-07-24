@@ -46,7 +46,10 @@
 body {
   background-color: transparent;
   font-family: var(--font-body);
-  color: #333;
+  color: #f0f0f0;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .dark body {
@@ -66,6 +69,8 @@ h6,
   font-family: var(--font-gloock);
   letter-spacing: 0.03em;
   font-weight: 400;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 /* Body text - Libre Baskerville */
@@ -80,6 +85,7 @@ select,
 button {
   font-family: var(--font-libre-baskerville);
   line-height: 1.6;
+  color: #f0f0f0;
 }
 
 /* Ensure headings don't use Gloock at small sizes for legibility */
@@ -112,10 +118,12 @@ h6 {
 .medieval-card {
   position: relative;
   border: 2px solid #3d0000;
-  background-color: #4d0000; /* Dark red from design system */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #4d0000 0%, #3d0000 100%);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   overflow: hidden;
   transition: all 0.2s ease-in-out;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 
 .medieval-card:hover {
@@ -269,8 +277,11 @@ h6 {
   color: #ffffff;
   font-weight: bold;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   transition: all 0.2s ease-in-out;
+  font-family: var(--font-libre-baskerville);
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .btn-primary-gradient:hover {
@@ -837,4 +848,120 @@ html.device-iphone button {
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Enhanced Medieval Styling */
+.medieval-text-shadow {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.medieval-border-glow {
+  box-shadow: 0 0 10px rgba(217, 119, 6, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.medieval-gradient-bg {
+  background: linear-gradient(135deg, #4d0000 0%, #3d0000 50%, #2d0000 100%);
+}
+
+.medieval-card-enhanced {
+  position: relative;
+  border: 2px solid #3d0000;
+  background: linear-gradient(135deg, #4d0000 0%, #3d0000 100%);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.3), 
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 20px rgba(217, 119, 6, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.medieval-card-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  z-index: 1;
+}
+
+.medieval-card-enhanced:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.4), 
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 30px rgba(217, 119, 6, 0.2);
+  border-color: #5c0000;
+}
+
+/* Enhanced Button Styling */
+.btn-medieval-primary {
+  background: linear-gradient(135deg, #00003c, #0c0047);
+  border: 2px solid #14004a;
+  color: #ffffff;
+  font-family: var(--font-libre-baskerville);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.3), 
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-medieval-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease-in-out;
+}
+
+.btn-medieval-primary:hover::before {
+  left: 100%;
+}
+
+.btn-medieval-primary:hover {
+  background: linear-gradient(135deg, #0c0047, #14004a);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.4), 
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 15px rgba(0, 0, 60, 0.3);
+}
+
+/* Enhanced Typography */
+.medieval-heading {
+  font-family: var(--font-gloock);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.medieval-heading::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #d97706, transparent);
+}
+
+.medieval-body-text {
+  font-family: var(--font-libre-baskerville);
+  line-height: 1.6;
+  color: #f0f0f0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
 
