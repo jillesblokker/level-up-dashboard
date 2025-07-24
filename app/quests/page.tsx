@@ -1435,31 +1435,31 @@ export default function QuestsPage() {
                   {/* Days of the week with styled circles */}
                   <div className="flex justify-between text-xs text-gray-300 mt-2">
                     <div className="flex flex-col items-center">
-                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Mon</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Tue</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Wed</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Thu</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Fri</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Sat</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Sun</span>
                     </div>
                   </div>
@@ -1555,31 +1555,31 @@ export default function QuestsPage() {
                   {/* Days of the week with styled circles */}
                   <div className="flex justify-between text-xs text-gray-300 mt-2">
                     <div className="flex flex-col items-center">
-                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Mon</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Tue</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Wed</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Thu</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Fri</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Sat</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-3 h-3 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Sun</span>
                     </div>
                   </div>
