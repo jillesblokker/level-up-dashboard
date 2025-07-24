@@ -77,7 +77,7 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
   return (
     <div
       className={cn(
-        "relative w-full h-[300px] md:h-[400px] lg:h-[600px] max-w-full overflow-hidden flex items-center justify-center",
+        "relative w-full h-[400px] md:h-[500px] lg:h-[700px] xl:h-[800px] 2xl:h-[900px] max-w-full overflow-hidden flex items-center justify-center",
         className
       )}
       style={style}
@@ -91,7 +91,7 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
           alt={title + " header image"}
           fill
           className={cn(
-            "object-cover transition-opacity duration-500 ease-in-out",
+            "object-cover object-center transition-opacity duration-500 ease-in-out",
             imageLoaded ? "opacity-100" : "opacity-0"
           )}
           priority
