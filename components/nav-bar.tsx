@@ -108,7 +108,7 @@ export function NavBar({ session }: NavBarProps) {
 
   return (
     <div className="border-b bg-black border-gray-800">
-      <div className="flex h-16 items-center px-4">
+      <div className="flex h-16 items-center">
         {/* Desktop Navigation */}
         <div className="hidden md:flex">
           <MainNav />
@@ -118,7 +118,7 @@ export function NavBar({ session }: NavBarProps) {
           <MobileNav />
         </div>
         {/* Desktop right-side stats, notification, user nav */}
-        <div className="ml-auto flex items-center space-x-4 hidden md:flex">
+        <div className="ml-auto flex items-center space-x-4 hidden md:flex pr-6">
           <div className="flex items-center space-x-2">
             <div
               className={`text-sm font-medium transition-all duration-300 ${levelHighlight ? 'bg-amber-300/40 rounded px-2 py-1 shadow' : ''}`}

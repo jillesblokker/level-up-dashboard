@@ -21,7 +21,7 @@ export default function ClientLayout({
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
       <RealmProvider>
         <div className="min-h-screen bg-black">
-          <div className="pt-[calc(4rem+env(safe-area-inset-top))] pb-[env(safe-area-inset-bottom)] px-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] px-2 sm:px-4 md:px-8">
+          <div className="pt-[calc(4rem+env(safe-area-inset-top))] pb-[env(safe-area-inset-bottom)]">
             {children}
           </div>
         </div>

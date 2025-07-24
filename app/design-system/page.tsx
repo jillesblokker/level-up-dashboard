@@ -173,7 +173,7 @@ export default function DesignSystemPage() {
     <div className="min-h-screen bg-black">
       {/* Hero Section */}
       <div className="bg-gradient-to-b from-amber-900/20 to-black border-b border-amber-800/20">
-        <div className="container max-w-7xl py-12 px-6">
+        <div className="container max-w-7xl py-12">
           <div className="text-center space-y-4">
             <h1 className="font-serif text-5xl font-bold text-amber-400 tracking-wide">
               Thrivehaven Design System
@@ -193,7 +193,7 @@ export default function DesignSystemPage() {
       </div>
 
       {/* Main Content */}
-      <div className="container max-w-7xl py-8 px-6">
+              <div className="container max-w-7xl py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar Navigation */}
           <div className="lg:col-span-1">
@@ -548,33 +548,33 @@ export default function DesignSystemPage() {
                           </div>
                         </div>
 
-                        {/* Single-Use Colors */}
+                        {/* Consolidated Tile Colors */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-blue-300 mb-3">🎨 Single-Use Colors (Consolidation Candidates)</h4>
+                          <h4 className="text-lg font-medium text-green-300 mb-3">🎨 Consolidated Tile Colors (Updated)</h4>
                           <p className="text-gray-300 mb-4 text-sm">
-                            These colors are used only once and are good candidates for consolidation with design system colors.
+                            These colors have been successfully consolidated with design system colors for better consistency.
                           </p>
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <Card className="bg-gray-900/50 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="flex items-center space-x-3 mb-3">
-                                  <div className="w-8 h-8 rounded-lg bg-[#4CAF50] border border-gray-700"></div>
+                                  <div className="w-8 h-8 rounded-lg bg-[#0D7200] border border-gray-700"></div>
                                   <div>
                                     <h4 className="font-medium text-white">Tile Green</h4>
-                                    <p className="text-sm text-gray-400">#4CAF50 (1 use)</p>
+                                    <p className="text-sm text-gray-400">#0D7200 (Updated)</p>
                                   </div>
                                 </div>
                                 <p className="text-sm text-gray-300">Special tiles</p>
-                                <p className="text-xs text-yellow-400 mt-2">⚠️ Use #0D7200</p>
+                                <p className="text-xs text-green-400 mt-2">✅ UPDATED - Now uses #0D7200</p>
                               </CardContent>
                             </Card>
                             <Card className="bg-gray-900/50 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="flex items-center space-x-3 mb-3">
-                                  <div className="w-8 h-8 rounded-lg bg-[#2196F3] border border-gray-700"></div>
+                                  <div className="w-8 h-8 rounded-lg bg-[#1e90ff] border border-gray-700"></div>
                                   <div>
                                     <h4 className="font-medium text-white">Tile Blue</h4>
-                                    <p className="text-sm text-gray-400">#2196F3 (1 use)</p>
+                                    <p className="text-sm text-gray-400">#1e90ff (Updated)</p>
                                   </div>
                                 </div>
                                 <p className="text-sm text-gray-300">Water tiles</p>
@@ -584,10 +584,10 @@ export default function DesignSystemPage() {
                             <Card className="bg-gray-900/50 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="flex items-center space-x-3 mb-3">
-                                  <div className="w-8 h-8 rounded-lg bg-[#7E57C2] border border-gray-700"></div>
+                                  <div className="w-8 h-8 rounded-lg bg-[#9932cc] border border-gray-700"></div>
                                   <div>
                                     <h4 className="font-medium text-white">Tile Purple</h4>
-                                    <p className="text-sm text-gray-400">#7E57C2 (1 use)</p>
+                                    <p className="text-sm text-gray-400">#9932cc (Updated)</p>
                                   </div>
                                 </div>
                                 <p className="text-sm text-gray-300">Magic tiles</p>
@@ -597,10 +597,10 @@ export default function DesignSystemPage() {
                             <Card className="bg-gray-900/50 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="flex items-center space-x-3 mb-3">
-                                  <div className="w-8 h-8 rounded-lg bg-[#FFA000] border border-gray-700"></div>
+                                  <div className="w-8 h-8 rounded-lg bg-[#F59E0B] border border-gray-700"></div>
                                   <div>
                                     <h4 className="font-medium text-white">Tile Orange</h4>
-                                    <p className="text-sm text-gray-400">#FFA000 (1 use)</p>
+                                    <p className="text-sm text-gray-400">#F59E0B (Updated)</p>
                                   </div>
                                 </div>
                                 <p className="text-sm text-gray-300">Fire tiles</p>

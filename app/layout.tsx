@@ -84,7 +84,7 @@ export default function RootLayout({
           <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         </head>
         <body className={cn(
-          "min-h-screen font-sans antialiased px-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] px-2 sm:px-4 md:px-8",
+          "min-h-screen font-sans antialiased",
           fontSans.variable,
           fontGloock.variable,
           fontLibreBaskerville.variable

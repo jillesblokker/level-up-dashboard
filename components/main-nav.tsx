@@ -11,7 +11,7 @@ export function MainNav() {
   const pathname = usePathname()
 
   return (
-    <div className="mr-4 hidden md:flex">
+    <div className="mr-4 hidden md:flex pl-6">
       <NavigationMenu>
         <NavigationMenuList className="gap-6">
           <NavigationMenuItem>
