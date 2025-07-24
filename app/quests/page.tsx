@@ -1379,7 +1379,7 @@ export default function QuestsPage() {
                 <Button
                   onClick={handleBulkCompleteFavorites}
                   disabled={loading || quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length === 0}
-                  className="bg-[#F59E0B] hover:bg-[#D97706] text-white px-4 py-3 font-bold rounded-lg shadow-lg"
+                  className="bg-[#F59E0B] hover:bg-[#D97706] disabled:bg-[#92400E] disabled:text-gray-300 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
                   aria-label="Complete all favorited quests in this category"
                 >
                   <Star className="w-4 h-4 mr-2" />
@@ -1388,7 +1388,7 @@ export default function QuestsPage() {
                 <Button
                   onClick={handleBulkCompleteAllFavorites}
                   disabled={loading || quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length === 0}
-                  className="bg-[#00003c] hover:bg-[#0c0047] text-white px-4 py-3 font-bold rounded-lg shadow-lg"
+                  className="bg-black hover:bg-gray-800 disabled:bg-gray-900 disabled:text-gray-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
                   aria-label="Complete all favorited quests across all categories"
                 >
                   <Star className="w-4 h-4 mr-2" />
@@ -1431,6 +1431,16 @@ export default function QuestsPage() {
                   <div className="w-full h-4 bg-[#233044] rounded-full overflow-hidden relative">
                     <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${todaysTotal ? (todaysCompleted / todaysTotal) * 100 : 0}%` }} />
                   </div>
+                  {/* Days of the week */}
+                  <div className="flex justify-between text-xs text-gray-300 mt-2">
+                    <span>Mon</span>
+                    <span>Tue</span>
+                    <span>Wed</span>
+                    <span>Thu</span>
+                    <span>Fri</span>
+                    <span>Sat</span>
+                    <span>Sun</span>
+                  </div>
                 </div>
                 {/* Bonus and Scrolls */}
                 <div className="flex flex-col gap-4 min-w-[180px] flex-none">
@@ -1440,9 +1450,9 @@ export default function QuestsPage() {
                     <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
                   </div>
                   <div>
-                    <div className="text-lg font-bold text-blue-200">Streak Scrolls:</div>
-                    <div className="text-2xl font-bold text-blue-100">{getStreakScrollCount()}</div>
-                    <div className="text-xs text-blue-100">(Use to save a missed streak)</div>
+                    <div className="text-lg font-bold text-[#F0F0F0]">Streak Scrolls:</div>
+                    <div className="text-2xl font-bold text-[#F0F0F0]">{getStreakScrollCount()}</div>
+                    <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
                   </div>
                 </div>
               </Card>
@@ -1519,6 +1529,16 @@ export default function QuestsPage() {
                   </div>
                   <div className="w-full h-4 bg-[#233044] rounded-full overflow-hidden relative">
                     <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${challenges.filter(c => c.category === challengeCategory).length ? (challenges.filter(c => c.category === challengeCategory && c.completed).length / challenges.filter(c => c.category === challengeCategory).length) * 100 : 0}%` }} />
+                  </div>
+                  {/* Days of the week */}
+                  <div className="flex justify-between text-xs text-gray-300 mt-2">
+                    <span>Mon</span>
+                    <span>Tue</span>
+                    <span>Wed</span>
+                    <span>Thu</span>
+                    <span>Fri</span>
+                    <span>Sat</span>
+                    <span>Sun</span>
                   </div>
                 </div>
                 {/* Bonus and Scrolls */}
