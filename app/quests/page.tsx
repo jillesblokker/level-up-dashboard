@@ -1415,9 +1415,9 @@ export default function QuestsPage() {
             </div>
             {/* Quest Streak Summary Card */}
             <div className="mb-6">
-              <Card className="medieval-card-royal flex flex-col md:flex-row items-center gap-6 p-6 shadow-md" aria-label="quest-streak-summary-card">
+              <Card className="flex flex-row items-center p-6 gap-6 w-full h-56 bg-gradient-to-br from-[#4D0000] to-[#3D0000] border border-[#F4F4F4] shadow-lg rounded-lg" aria-label="quest-streak-summary-card">
                 {/* Streak Icon and Count */}
-                <div className="flex flex-col items-center justify-center bg-[#16202b] rounded-2xl p-6 min-w-[120px]">
+                <div className="flex flex-col items-center justify-center bg-[#16202b] rounded-2xl p-6 min-w-[120px] flex-none">
                   <Flame className="w-14 h-14 text-[#0D7200]" aria-hidden="true" />
                   <div className="text-4xl font-extrabold text-white mt-2" aria-label="quest-streak-value">{streakData?.streak_days ?? 0} days</div>
                   <div className="text-base text-gray-300">Day streak</div>
@@ -1445,7 +1445,7 @@ export default function QuestsPage() {
                   </div>
                 </div>
                 {/* Bonus and Scrolls - side by side on md+ */}
-                <div className="flex flex-col md:flex-row items-start gap-4 min-w-[180px]">
+                <div className="flex flex-col md:flex-row items-start gap-4 min-w-[180px] flex-none">
                   <div className="md:mr-8">
                     <div className="text-lg font-bold text-yellow-300">Streak Bonus:</div>
                     <div className="text-2xl font-bold text-yellow-200">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
@@ -1516,9 +1516,9 @@ export default function QuestsPage() {
             </div>
             {/* Challenge Streak Summary Card (new style) */}
             <div className="mb-6">
-                              <Card className="medieval-card-royal flex flex-col md:flex-row items-center gap-6 p-6 shadow-md" aria-label="challenge-streak-summary-card">
+                              <Card className="flex flex-row items-center p-6 gap-6 w-full h-56 bg-gradient-to-br from-[#4D0000] to-[#3D0000] border border-[#F4F4F4] shadow-lg rounded-lg" aria-label="challenge-streak-summary-card">
                 {/* Streak Icon and Count */}
-                <div className="flex flex-col items-center justify-center bg-[#16202b] rounded-2xl p-6 min-w-[120px]">
+                <div className="flex flex-col items-center justify-center bg-[#16202b] rounded-2xl p-6 min-w-[120px] flex-none">
                   <Flame className="w-14 h-14 text-[#0D7200]" aria-hidden="true" />
                   <div className="text-4xl font-extrabold text-white mt-2" aria-label="challenge-streak-value">{challengeStreakData?.streak_days ?? 0} days</div>
                   <div className="text-base text-gray-300">Day streak</div>
@@ -1546,7 +1546,7 @@ export default function QuestsPage() {
                   </div>
                 </div>
                 {/* Bonus and Scrolls - side by side on md+ */}
-                <div className="flex flex-col md:flex-row items-start gap-4 min-w-[180px]">
+                <div className="flex flex-col md:flex-row items-start gap-4 min-w-[180px] flex-none">
                   <div className="md:mr-8">
                     <div className="text-lg font-bold text-yellow-300">Streak Bonus:</div>
                     <div className="text-2xl font-bold text-yellow-200">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
