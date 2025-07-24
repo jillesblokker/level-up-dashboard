@@ -1431,15 +1431,36 @@ export default function QuestsPage() {
                   <div className="w-full h-4 bg-[#233044] rounded-full overflow-hidden relative">
                     <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${todaysTotal ? (todaysCompleted / todaysTotal) * 100 : 0}%` }} />
                   </div>
-                  {/* Days of the week */}
+                  {/* Days of the week with styled circles */}
                   <div className="flex justify-between text-xs text-gray-300 mt-2">
-                    <span>Mon</span>
-                    <span>Tue</span>
-                    <span>Wed</span>
-                    <span>Thu</span>
-                    <span>Fri</span>
-                    <span>Sat</span>
-                    <span>Sun</span>
+                    <div className="flex flex-col items-center">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <span>Mon</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <span>Tue</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <span>Wed</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <span>Thu</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <span>Fri</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <span>Sat</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <span>Sun</span>
+                    </div>
                   </div>
                 </div>
                 {/* Bonus and Scrolls */}
@@ -1530,15 +1551,36 @@ export default function QuestsPage() {
                   <div className="w-full h-4 bg-[#233044] rounded-full overflow-hidden relative">
                     <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${challenges.filter(c => c.category === challengeCategory).length ? (challenges.filter(c => c.category === challengeCategory && c.completed).length / challenges.filter(c => c.category === challengeCategory).length) * 100 : 0}%` }} />
                   </div>
-                  {/* Days of the week */}
+                  {/* Days of the week with styled circles */}
                   <div className="flex justify-between text-xs text-gray-300 mt-2">
-                    <span>Mon</span>
-                    <span>Tue</span>
-                    <span>Wed</span>
-                    <span>Thu</span>
-                    <span>Fri</span>
-                    <span>Sat</span>
-                    <span>Sun</span>
+                    <div className="flex flex-col items-center">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <span>Mon</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <span>Tue</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <span>Wed</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <span>Thu</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <span>Fri</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <span>Sat</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full mb-1"></div>
+                      <span>Sun</span>
+                    </div>
                   </div>
                 </div>
                 {/* Bonus and Scrolls */}
