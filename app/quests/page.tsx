@@ -1435,31 +1435,31 @@ export default function QuestsPage() {
                   {/* Days of the week with styled circles */}
                   <div className="flex justify-between text-xs text-gray-300 mt-2">
                     <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Mon</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Tue</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Wed</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Thu</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Fri</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Sat</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Sun</span>
                     </div>
                   </div>
@@ -1508,7 +1508,7 @@ export default function QuestsPage() {
                 {(questsByCategorySafe[safeQuestCategory] ?? []).length === 0 && (
                   <div className="text-center text-gray-400">No quests found for this category.</div>
                 )}
-                <Card className="bg-[#2d1300] border-2 border-dashed border-[#6b7280] hover:border-[#9ca3af] transition-colors cursor-pointer flex items-center justify-center min-h-[160px] shadow-lg" onClick={() => setAddQuestModalOpen(true)} tabIndex={0} role="button" aria-label="add-custom-quest-card" onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setAddQuestModalOpen(true); } }}>
+                <Card className="bg-black border-2 border-dashed border-[#6b7280] hover:border-[#9ca3af] transition-colors cursor-pointer flex items-center justify-center min-h-[160px] shadow-lg" onClick={() => setAddQuestModalOpen(true)} tabIndex={0} role="button" aria-label="add-custom-quest-card" onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setAddQuestModalOpen(true); } }}>
                   <div className="text-center text-[#F0F0F0]">
                     <Plus className="w-8 h-8 mx-auto mb-2" />
                     <p className="font-medium">Add Custom Quest</p>
@@ -1555,31 +1555,31 @@ export default function QuestsPage() {
                   {/* Days of the week with styled circles */}
                   <div className="flex justify-between text-xs text-gray-300 mt-2">
                     <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Mon</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Tue</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Wed</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Thu</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Fri</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Sat</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-gray-400 border-2 border-gray-300 rounded-full mb-1"></div>
+                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
                       <span>Sun</span>
                     </div>
                   </div>

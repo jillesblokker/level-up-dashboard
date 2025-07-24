@@ -384,8 +384,8 @@ h6 {
 /* Task Screen Card Styling - Solid medieval colors */
 .medieval-card-task {
   position: relative;
-  border: 2px solid #f4f4f4;
-  background-color: #240014; /* Dark purple-red from design system */
+  border: 2px solid #f4f4f4 !important;
+  background-color: #000000 !important; /* Black background for cleaner look */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   transition: all 0.2s ease-in-out;
@@ -393,14 +393,14 @@ h6 {
 
 .medieval-card-task:hover {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-  border-color: #ffffff;
+  border-color: #ffffff !important;
   border-width: 3px;
   transform: translateY(-2px);
 }
 
 .medieval-card-task .card-header {
-  background-color: rgba(0, 0, 60, 0.2);
-  border-bottom: 2px solid #f4f4f4;
+  background-color: rgba(0, 0, 0, 0.3) !important;
+  border-bottom: 2px solid #f4f4f4 !important;
   padding-bottom: 0.75rem;
   margin-bottom: 1rem;
 }
@@ -975,7 +975,7 @@ html.device-iphone button {
   gap: 24px;
   width: 100%;
   height: 226px;
-  background: linear-gradient(148.59deg, #4D0000 0%, #3D0000 100%);
+  background: #000000 !important;
   border: 1px solid #F4F4F4;
   box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -2px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
