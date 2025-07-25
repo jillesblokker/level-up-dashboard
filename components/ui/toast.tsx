@@ -29,11 +29,11 @@ const toastVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-amber-800/20 bg-gray-900/95 backdrop-blur-sm text-white",
+        default: "border-amber-800 bg-gray-900 text-white",
         destructive:
-          "border-red-600/50 bg-red-900/20 text-red-400",
-        success: "border-emerald-600/50 bg-emerald-900/20 text-emerald-400",
-        warning: "border-amber-600/50 bg-amber-900/20 text-amber-400",
+          "border-red-600 bg-red-900 text-red-400",
+        success: "border-emerald-600 bg-emerald-900 text-emerald-400",
+        warning: "border-amber-600 bg-amber-900 text-amber-400",
       },
     },
     defaultVariants: {
@@ -64,7 +64,7 @@ const ToastAction = React.forwardRef<
   <ToastPrimitives.Action
     ref={ref}
     className={cn(
-      "inline-flex h-8 shrink-0 items-center justify-center rounded-md border border-amber-800/20 bg-transparent px-3 text-sm font-medium transition-colors hover:bg-amber-900/20 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-red-600/50 group-[.destructive]:hover:border-red-600/30 group-[.destructive]:hover:bg-red-900/20 group-[.destructive]:focus:ring-red-500",
+      "inline-flex h-8 shrink-0 items-center justify-center rounded-md border border-amber-800 bg-transparent px-3 text-sm font-medium transition-colors hover:bg-amber-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-red-600 group-[.destructive]:hover:border-red-600 group-[.destructive]:hover:bg-red-900 group-[.destructive]:focus:ring-red-500",
       className
     )}
     {...props}

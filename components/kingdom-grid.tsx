@@ -111,58 +111,41 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
     };
   }, []);
 
-  // --- WALL BORDER LOGIC ---
-  const renderGridWithWall = () => {
+  // --- GRID WITH BORDER LOGIC ---
+  const renderGridWithBorder = () => {
     const rows = grid.length;
     const cols = grid[0]?.length || 0;
-    const fullRows = rows + 2;
-    const fullCols = cols + 2;
     return (
       <div
-        className="grid gap-0"
+        className="grid gap-0 border-5 border-gray-700"
         style={{
-          gridTemplateColumns: `repeat(${fullCols}, 1fr)`,
-          gridTemplateRows: `repeat(${fullRows}, 1fr)`,
+          gridTemplateColumns: `repeat(${cols}, 1fr)`,
+          gridTemplateRows: `repeat(${rows}, 1fr)`,
           width: '100%',
           height: '100%',
           aspectRatio: '1/1',
           background: 'none',
+          border: '5px solid #374151', // dark grey border
         }}
         aria-label="thrivehaven-grid"
       >
-        {Array.from({ length: fullRows }).map((_, y) =>
-          Array.from({ length: fullCols }).map((_, x) => {
-            // If on the border, render wall tile
-            if (y === 0 || y === fullRows - 1 || x === 0 || x === fullCols - 1) {
-              return (
-                <div key={`wall-${x}-${y}`} className="relative w-full h-full aspect-square" style={{ minWidth: 0, minHeight: 0, borderRadius: 0, margin: 0, padding: 0 }}>
-                  <Image
-                    src={wallTile.image}
-                    alt={wallTile.name}
-                    fill
-                    className="object-cover"
-                    draggable={false}
-                    unoptimized
-                  />
-                </div>
-              );
-            }
-            // Otherwise, render the actual grid tile
-            const tile = grid[y - 1]?.[x - 1];
+        {Array.from({ length: rows }).map((_, y) =>
+          Array.from({ length: cols }).map((_, x) => {
+            const tile = grid[y]?.[x];
             if (!tile) {
-              return <div key={`empty-${x - 1}-${y - 1}`} className="w-full h-full aspect-square bg-black/40" />;
+              return <div key={`empty-${x}-${y}`} className="w-full h-full aspect-square bg-black/40" />;
             }
             return (
               <button
-                key={`tile-${x - 1}-${y - 1}`}
+                key={`tile-${x}-${y}`}
                 className={cn(
                   "relative w-full h-full aspect-square bg-black/60 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-amber-500",
                   selectedTile && propertiesOpen && "ring-2 ring-amber-500"
                 )}
-                aria-label={tile.ariaLabel || tile.name || `Tile ${x - 1},${y - 1}`}
+                aria-label={tile.ariaLabel || tile.name || `Tile ${x},${y}`}
                 onClick={() => {
                   if (selectedTile && (selectedTile.quantity || 0) > 0) {
-                    onTilePlace(x - 1, y - 1, selectedTile);
+                    onTilePlace(x, y, selectedTile);
                   }
                 }}
                 style={{ minWidth: 0, minHeight: 0, borderRadius: 0, margin: 0, padding: 0 }}
@@ -195,7 +178,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
         >
           +
         </button>
-        {renderGridWithWall()}
+        {renderGridWithBorder()}
       </div>
       {/* Side panel for properties */}
       {propertiesOpen && (

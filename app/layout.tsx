@@ -109,13 +109,12 @@ export default function RootLayout({
                     position="bottom-center"
                     toastOptions={{
                       style: {
-                        background: 'rgba(0, 0, 0, 0.9)',
+                        background: '#000000',
                         color: '#fbbf24',
-                        border: '1px solid rgba(146, 64, 14, 0.5)',
-                        backdropFilter: 'blur(8px)',
+                        border: '1px solid #92400e',
                         marginBottom: 'env(safe-area-inset-bottom, 20px)',
                       },
-                      className: 'border border-amber-900/50 bg-black/80 text-amber-400',
+                      className: 'border border-amber-900 bg-black text-amber-400',
                     }}
                   />
                 </Providers>
