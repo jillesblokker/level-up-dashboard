@@ -98,6 +98,7 @@
     overflow-x: hidden;
     width: 100vw;
     min-height: 100vh;
+    overscroll-behavior: none;
   }
   
   body {
@@ -107,6 +108,7 @@
     min-height: 100vh;
     color: white;
     position: relative;
+    overscroll-behavior: none;
   }
 }
  

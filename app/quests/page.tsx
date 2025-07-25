@@ -1347,7 +1347,7 @@ export default function QuestsPage() {
   }
 
   return (
-    <div className="min-h-full">
+    <div className="min-h-full" style={{ overscrollBehavior: 'none' }}>
       <HeaderSection
         title="Message Board"
         subtitle="Embark on epic journeys and complete tasks to earn rewards."
