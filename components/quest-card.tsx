@@ -51,7 +51,7 @@ const CardWithProgress: React.FC<UnifiedCardProps> = ({
   return (
     <Card
       className={cn(
-        'medieval-card-task flex flex-col shadow-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500',
+        'medieval-card-task flex flex-col shadow-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500 overflow-hidden',
         completed ? 'medieval-card-deep' : '',
         className
       )}
@@ -66,14 +66,14 @@ const CardWithProgress: React.FC<UnifiedCardProps> = ({
       }}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle(); } }}
     >
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <div className="flex items-center gap-2">
-          {icon && <span className="rounded-full p-2 bg-black border border-[#F59E0B]">{icon}</span>}
-          <CardTitle className="text-lg font-semibold text-amber-300 flex items-center gap-2">
-            {title}
+      <CardHeader className="flex flex-row items-center justify-between pb-2 min-w-0">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          {icon && <span className="rounded-full p-2 bg-black border border-[#F59E0B] flex-shrink-0">{icon}</span>}
+          <CardTitle className="text-lg font-semibold text-amber-300 flex items-center gap-2 min-w-0">
+            <span className="truncate">{title}</span>
             {streak > 1 && (
               <span
-                className="ml-2 flex items-center gap-1 text-orange-400 font-bold text-base"
+                className="ml-2 flex items-center gap-1 text-orange-400 font-bold text-base flex-shrink-0"
                 aria-label={`Streak: ${streak} days`}
                 title={`Streak: ${streak} days`}
               >
@@ -136,8 +136,8 @@ const CardWithProgress: React.FC<UnifiedCardProps> = ({
           )}
         </div>
       </CardHeader>
-      <CardContent className="flex-1">
-        {description && <CardDescription className="mb-4 text-gray-400">{description}</CardDescription>}
+      <CardContent className="flex-1 min-w-0">
+        {description && <CardDescription className="mb-4 text-gray-400 break-words">{description}</CardDescription>}
         <Progress value={completed ? 100 : progress} className="w-full h-2 bg-gray-700" />
         {children}
       </CardContent>

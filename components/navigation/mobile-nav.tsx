@@ -19,6 +19,7 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
+import { Progress } from "@/components/ui/progress"
 import {
   Sheet,
   SheetContent,
@@ -142,14 +143,23 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
           >
             <div className="flex flex-col h-full">
               {/* Stats section */}
-              <div className="flex items-center justify-center gap-6 py-4 border-b border-gray-800">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-sm md:text-base text-gray-400">Level</span>
-                  <span className="text-amber-400 font-bold text-sm md:text-base">{characterStats.level}</span>
+              <div className="flex flex-col gap-3 py-4 border-b border-gray-800">
+                {/* Level with Progress Bar */}
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-gray-400">Level</span>
+                  <span className="text-amber-400 font-bold text-sm">{characterStats.level}</span>
+                  <div className="flex-1">
+                    <Progress 
+                      value={((characterStats.experience % characterStats.experienceToNextLevel) / characterStats.experienceToNextLevel) * 100} 
+                      className="w-full h-2" 
+                      aria-label="Level progress"
+                    />
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <Icons.coins className="w-4 h-4 md:w-5 md:h-5 text-amber-400" />
-                  <span className="text-gray-100 text-sm md:text-base">{characterStats.gold}</span>
+                {/* Gold */}
+                <div className="flex items-center gap-2">
+                  <Icons.coins className="w-4 h-4 text-amber-400" />
+                  <span className="text-gray-100 text-sm">{characterStats.gold}</span>
                 </div>
               </div>
               {/* Notifications section */}
