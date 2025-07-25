@@ -1,5 +1,6 @@
 import "./globals.css"
 import "@/styles/medieval-theme.css"
+import "@/app/styles/globals.css"
 import { Inter as FontSans } from "next/font/google"
 import { Gloock } from "next/font/google"
 import { Libre_Baskerville } from "next/font/google"
@@ -71,7 +72,7 @@ export default function RootLayout({
       signUpFallbackRedirectUrl="/kingdom"
     >
       <html lang="en" suppressHydrationWarning style={{
-        backgroundImage: "url('/images/backgroundi.png'), linear-gradient(135deg, #000428, #004e92)",
+        backgroundImage: "url('/images/backgroundi.png'), linear-gradient(135deg, #000000, #000000)",
         backgroundSize: "cover, cover",
         backgroundPosition: "center, center",
         backgroundRepeat: "no-repeat, no-repeat",
