@@ -81,6 +81,19 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
     console.log('[Kingdom Grid] Kingdom expansions:', kingdomExpansions);
     console.log('[Kingdom Grid] Next expansion level:', 5 + kingdomExpansions * 5);
     console.log('[Kingdom Grid] Can expand:', stats.level >= (5 + kingdomExpansions * 5));
+  }, []); // Remove kingdomExpansions dependency to avoid circular updates
+
+  // Listen for character stats updates
+  useEffect(() => {
+    const handleStatsUpdate = () => {
+      const stats = getCharacterStats();
+      setPlayerLevel(stats.level || 1);
+      console.log('[Kingdom Grid] Stats updated - Player level:', stats.level);
+      console.log('[Kingdom Grid] Can expand:', stats.level >= (5 + kingdomExpansions * 5));
+    };
+    
+    window.addEventListener('character-stats-update', handleStatsUpdate);
+    return () => window.removeEventListener('character-stats-update', handleStatsUpdate);
   }, [kingdomExpansions]);
 
   // Handler for buying a property tile

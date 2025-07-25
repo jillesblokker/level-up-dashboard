@@ -99,6 +99,7 @@
     width: 100vw;
     min-height: 100vh;
     overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
   }
   
   body {
@@ -109,6 +110,7 @@
     color: white;
     position: relative;
     overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
   }
 }
  
@@ -129,11 +131,26 @@ html, body {
   background-repeat: no-repeat, no-repeat !important;
   background-attachment: fixed, fixed !important;
   min-height: 100vh !important;
+  overscroll-behavior: none !important;
+  -webkit-overflow-scrolling: touch !important;
 }
 
 /* Custom styles */
 html {
   scroll-behavior: smooth;
+}
+
+/* Prevent scroll chaining and weird scroll behavior */
+main, .main-content, [role="main"] {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
+}
+
+/* Specific fix for quests page scroll issues */
+[data-radix-tabs-content] {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 .section {
