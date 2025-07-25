@@ -97,14 +97,14 @@
     font-family: var(--font-cardo), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
     overflow-x: hidden;
     width: 100vw;
-    height: 100vh;
+    min-height: 100vh;
   }
   
   body {
     font-family: var(--font-cardo), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
     overflow-x: hidden;
     width: 100vw;
-    height: 100vh;
+    min-height: 100vh;
     color: white;
     position: relative;
   }
