@@ -718,10 +718,10 @@ export default function CharacterPage() {
                       <Card className="bg-black border-amber-800 h-full min-h-[200px] flex items-center justify-center">
                         <CardContent className="pt-6 flex items-center justify-center h-full">
                           <div className="flex items-center gap-4 text-center">
-                            {/* Placeholder image */}
+                            {/* Blessing image */}
                             <div className="relative w-16 h-16 flex-shrink-0">
                               <Image
-                                src="/images/placeholders/placeholder.svg"
+                                src="/images/blessing.png"
                                 alt="No active bonuses"
                                 fill
                                 className="object-contain opacity-50"
