@@ -8,6 +8,7 @@ import { useEffect, useCallback, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { getCharacterStats } from '@/lib/character-stats-manager'
 import { toast } from '@/components/ui/use-toast'
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 const tileImageFiles = [
   'Archery.png', 'Blacksmith.png', 'Castle.png', 'Fisherman.png', 'Foodcourt.png', 'Fountain.png', 'Grocery.png', 'House.png', 'Inn.png', 'Jousting.png', 'Mansion.png', 'Mayor.png', 'Pond.png', 'Sawmill.png', 'Temple.png', 'Vegetables.png', 'Watchtower.png', 'Well.png', 'Windmill.png', 'Wizard.png',
@@ -263,14 +264,27 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
           +
         </button>
         {/* Floating expand button below the + button */}
-        <button
-          className="absolute top-20 right-4 z-20 w-12 h-12 bg-amber-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl font-bold hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          aria-label="Expand kingdom grid"
-          onClick={expandKingdomGrid}
-          disabled={!canExpand}
-        >
-          🏗️
-        </button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              className="absolute top-20 right-4 z-20 w-12 h-12 bg-amber-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl font-bold hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Expand kingdom grid"
+              onClick={expandKingdomGrid}
+              disabled={!canExpand}
+            >
+              🏗️
+            </button>
+          </TooltipTrigger>
+          <TooltipContent 
+            side="top" 
+            className="bg-gray-900 text-white border-amber-800/30"
+          >
+            {canExpand 
+              ? 'Expand your kingdom to unlock 3 more rows' 
+              : `Become level ${nextExpansionLevel} to unlock 3 more rows`
+            }
+          </TooltipContent>
+        </Tooltip>
         {renderGridWithBorder()}
       </div>
       {/* Side panel for properties */}

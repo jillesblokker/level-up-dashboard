@@ -1207,7 +1207,7 @@ export default function RealmPage() {
     if (isLoading) {
         return (
             <div className="flex flex-col items-center justify-center h-screen bg-gray-900 text-white p-8">
-                <h2 className="text-2xl font-bold text-amber-700 mb-4">Exploring the lands of Valoreth</h2>
+                <h2 className="text-2xl font-bold text-white mb-4">Exploring the lands of Valoreth</h2>
                 <div className="bg-black/70 border border-amber-800 rounded-lg p-6 max-w-lg text-center text-amber-100 text-lg shadow-lg">
                     <p>
                         In the mystical realm of Valoreth, King Aldric sought treasures of growth.<br/>
