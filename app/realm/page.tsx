@@ -1305,7 +1305,7 @@ export default function RealmPage() {
                     />
                 )}
                 {/* Full Width Map Area */}
-                <div className="w-full h-full relative">
+                <div className="absolute inset-0 top-[48px] left-0 right-0 bottom-0">
                     <MapGrid
                         grid={grid}
                         playerPosition={characterPosition}
