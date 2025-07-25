@@ -46,11 +46,6 @@ export function EnterLocationModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md bg-gray-900 border-amber-800" role="dialog" aria-label="enter-location-modal">
         <DialogDescription id="enter-location-modal-desc">Welcome stranger</DialogDescription>
-        
-        {/* Header with welcome text */}
-        <div className="mb-3">
-          <span className="text-gray-300 text-sm">Welcome stranger</span>
-        </div>
 
         {/* City wall image */}
         <div className="mb-3">
@@ -67,7 +62,7 @@ export function EnterLocationModal({
         {/* Title and description */}
         <div className="mb-4">
           <DialogTitle className="text-amber-400 text-xl font-bold mb-1">
-            Enter {displayName}
+            Ready to enter
           </DialogTitle>
           <DialogDescription className="text-gray-300 text-sm">
             You are about to enter. Are you sure you want to proceed?
