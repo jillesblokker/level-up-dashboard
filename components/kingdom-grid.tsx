@@ -71,29 +71,55 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
 
   // Load build tokens and player level
   useEffect(() => {
-    const stats = getCharacterStats();
-    const statsData = JSON.parse(localStorage.getItem('character-stats') || '{}');
-    setBuildTokens(statsData.buildTokens || 0);
-    setPlayerLevel(stats.level || 1);
+    const loadStats = () => {
+      try {
+        const stats = getCharacterStats();
+        const statsData = JSON.parse(localStorage.getItem('character-stats') || '{}');
+        const currentLevel = stats.level || statsData.level || 1;
+        const currentBuildTokens = statsData.buildTokens || 0;
+        
+        setBuildTokens(currentBuildTokens);
+        setPlayerLevel(currentLevel);
+        
+        // Debug logging
+        console.log('[Kingdom Grid] === DEBUG INFO ===');
+        console.log('[Kingdom Grid] Raw stats:', stats);
+        console.log('[Kingdom Grid] Raw statsData:', statsData);
+        console.log('[Kingdom Grid] Current player level:', currentLevel);
+        console.log('[Kingdom Grid] Current kingdom expansions:', kingdomExpansions);
+        console.log('[Kingdom Grid] Next expansion level:', 5 + kingdomExpansions * 5);
+        console.log('[Kingdom Grid] Can expand:', currentLevel >= (5 + kingdomExpansions * 5));
+        console.log('[Kingdom Grid] ===================');
+      } catch (error) {
+        console.error('[Kingdom Grid] Error loading stats:', error);
+        setPlayerLevel(1);
+        setBuildTokens(0);
+      }
+    };
     
-    // Debug logging
-    console.log('[Kingdom Grid] Player level:', stats.level);
-    console.log('[Kingdom Grid] Kingdom expansions:', kingdomExpansions);
-    console.log('[Kingdom Grid] Next expansion level:', 5 + kingdomExpansions * 5);
-    console.log('[Kingdom Grid] Can expand:', stats.level >= (5 + kingdomExpansions * 5));
+    loadStats();
   }, []); // Remove kingdomExpansions dependency to avoid circular updates
 
   // Listen for character stats updates
   useEffect(() => {
     const handleStatsUpdate = () => {
+      console.log('[Kingdom Grid] Stats update event received');
       const stats = getCharacterStats();
-      setPlayerLevel(stats.level || 1);
-      console.log('[Kingdom Grid] Stats updated - Player level:', stats.level);
-      console.log('[Kingdom Grid] Can expand:', stats.level >= (5 + kingdomExpansions * 5));
+      const currentLevel = stats.level || 1;
+      setPlayerLevel(currentLevel);
+      console.log('[Kingdom Grid] Updated player level:', currentLevel);
+      console.log('[Kingdom Grid] Can expand after update:', currentLevel >= (5 + kingdomExpansions * 5));
     };
     
     window.addEventListener('character-stats-update', handleStatsUpdate);
     return () => window.removeEventListener('character-stats-update', handleStatsUpdate);
+  }, [kingdomExpansions]);
+
+  // Force refresh stats when component mounts or expansions change
+  useEffect(() => {
+    const stats = getCharacterStats();
+    const currentLevel = stats.level || 1;
+    console.log('[Kingdom Grid] Force refresh - Level:', currentLevel, 'Expansions:', kingdomExpansions);
   }, [kingdomExpansions]);
 
   // Handler for buying a property tile
@@ -115,12 +141,23 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
   const nextExpansionLevel = 5 + kingdomExpansions * 5;
   const canExpand = playerLevel >= nextExpansionLevel;
 
+  // Manual refresh function for debugging
+  const refreshStats = () => {
+    const stats = getCharacterStats();
+    const currentLevel = stats.level || 1;
+    setPlayerLevel(currentLevel);
+    console.log('[Kingdom Grid] Manual refresh - Level:', currentLevel, 'Can expand:', currentLevel >= nextExpansionLevel);
+  };
+
   // Expand kingdom grid function
   const expandKingdomGrid = () => {
+    console.log('[Kingdom Grid] Expand button clicked');
+    console.log('[Kingdom Grid] Current level:', playerLevel, 'Required level:', nextExpansionLevel, 'Can expand:', canExpand);
+    
     if (!canExpand) {
       toast({
         title: 'Expansion Locked',
-        description: `Reach level ${nextExpansionLevel} to expand your kingdom!`,
+        description: `Reach level ${nextExpansionLevel} to expand your kingdom! (Current level: ${playerLevel})`,
         variant: 'destructive',
       });
       return;
@@ -302,6 +339,25 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
               ? 'Expand your kingdom to unlock 3 more rows' 
               : `Become level ${nextExpansionLevel} to unlock 3 more rows`
             }
+          </TooltipContent>
+        </Tooltip>
+        
+        {/* Debug button for troubleshooting */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              className="absolute top-20 right-20 z-20 w-12 h-12 bg-red-700 text-white rounded-full shadow-lg flex items-center justify-center text-sm font-bold hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500"
+              aria-label="Debug kingdom expand button"
+              onClick={refreshStats}
+            >
+              🔧
+            </button>
+          </TooltipTrigger>
+          <TooltipContent 
+            side="top" 
+            className="bg-gray-900 text-white border-red-800/30"
+          >
+            Debug: Level {playerLevel}, Required {nextExpansionLevel}, Can expand: {canExpand ? 'Yes' : 'No'}
           </TooltipContent>
         </Tooltip>
         {renderGridWithBorder()}

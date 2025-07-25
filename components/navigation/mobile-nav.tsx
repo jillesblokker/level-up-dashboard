@@ -110,7 +110,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
   const isActive = (path: string) => pathname === path
   
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-black border-b border-gray-800 h-16 flex items-center justify-between px-2">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-black border-b border-gray-800 h-16 flex items-center justify-between px-2 fixed-nav">
       {/* Mobile nav bar: logo, hamburger */}
       <div className="flex flex-1 items-center justify-between gap-2 w-full">
         {/* Logo (left) */}

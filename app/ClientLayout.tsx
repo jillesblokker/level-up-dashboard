@@ -21,7 +21,7 @@ export default function ClientLayout({
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
       <RealmProvider>
         <div className="min-h-screen bg-black">
-          <div className="pt-[calc(4rem+env(safe-area-inset-top))] pb-4" style={{ overscrollBehavior: 'none' }}>
+          <div className="pt-[calc(4rem+env(safe-area-inset-top))] pb-4 main-content-wrapper" style={{ overscrollBehavior: 'none' }}>
             {children}
           </div>
         </div>

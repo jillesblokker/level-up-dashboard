@@ -1325,6 +1325,27 @@ export default function QuestsPage() {
     }
   }, [challenges.length, challengeCategory, challengeStreakData]);
 
+  // Prevent scroll chaining and weird scroll behavior
+  useEffect(() => {
+    const preventScrollChaining = (e: TouchEvent) => {
+      const target = e.target as HTMLElement;
+      const scrollable = target.closest('[data-radix-tabs-content], .quests-page-container, .main-content-wrapper');
+      
+      if (!scrollable) {
+        e.preventDefault();
+      }
+    };
+
+    // Add touch event listeners to prevent scroll chaining
+    document.addEventListener('touchstart', preventScrollChaining, { passive: false });
+    document.addEventListener('touchmove', preventScrollChaining, { passive: false });
+
+    return () => {
+      document.removeEventListener('touchstart', preventScrollChaining);
+      document.removeEventListener('touchmove', preventScrollChaining);
+    };
+  }, []);
+
   if (!isClerkLoaded || !isUserLoaded) {
     console.log('Waiting for auth and Clerk client...');
     return <FullPageLoading message="Loading authentication..." />;
@@ -1347,7 +1368,7 @@ export default function QuestsPage() {
   }
 
   return (
-    <div className="min-h-full" style={{ overscrollBehavior: 'none', WebkitOverflowScrolling: 'touch' }}>
+    <div className="min-h-full quests-page-container scroll-prevent" style={{ overscrollBehavior: 'none', WebkitOverflowScrolling: 'touch' }}>
       <HeaderSection
         title="Message Board"
         subtitle="Embark on epic journeys and complete tasks to earn rewards."
@@ -1355,7 +1376,7 @@ export default function QuestsPage() {
         defaultBgColor="bg-amber-900"
         shouldRevealImage={true}
       />
-      <div className="p-4 md:p-8" style={{ overscrollBehavior: 'none' }}>
+      <div className="p-4 md:p-8 quests-page-container scroll-prevent" style={{ overscrollBehavior: 'none' }}>
         {error && <p className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{error}</p>}
         <Tabs value={mainTab} onValueChange={v => setMainTab(v as 'quests' | 'challenges' | 'milestones' | 'recovery')} className="space-y-4">
           <TabsList className="mb-4 w-full grid grid-cols-4">

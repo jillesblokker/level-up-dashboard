@@ -153,6 +153,76 @@ main, .main-content, [role="main"] {
   -webkit-overflow-scrolling: touch;
 }
 
+/* Comprehensive scroll fix for quests page */
+.quests-page-container {
+  overscroll-behavior: none !important;
+  -webkit-overflow-scrolling: touch !important;
+  overflow-x: hidden !important;
+  position: relative !important;
+}
+
+/* Fix for mobile navigation interference */
+.fixed-nav {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent scroll chaining from fixed elements */
+.fixed, [class*="fixed"] {
+  overscroll-behavior: none;
+}
+
+/* Specific fix for the main content area */
+.main-content-wrapper {
+  overscroll-behavior: none !important;
+  -webkit-overflow-scrolling: touch !important;
+  overflow-x: hidden !important;
+  height: 100vh !important;
+  overflow-y: auto !important;
+}
+
+/* Prevent scroll chaining on mobile */
+@media (max-width: 768px) {
+  body {
+    overscroll-behavior: none !important;
+    -webkit-overflow-scrolling: touch !important;
+    overflow-x: hidden !important;
+  }
+  
+  main, .main-content, [role="main"] {
+    overscroll-behavior: none !important;
+    -webkit-overflow-scrolling: touch !important;
+    overflow-x: hidden !important;
+  }
+}
+
+/* Comprehensive scroll prevention utility */
+.scroll-prevent {
+  overscroll-behavior: none !important;
+  -webkit-overflow-scrolling: touch !important;
+  overflow-x: hidden !important;
+}
+
+/* Fix for iOS Safari scroll issues */
+@supports (-webkit-touch-callout: none) {
+  body {
+    overscroll-behavior: none !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  .quests-page-container {
+    overscroll-behavior: none !important;
+    -webkit-overflow-scrolling: touch !important;
+    overflow-x: hidden !important;
+  }
+}
+
+/* Prevent scroll chaining from any fixed positioned elements */
+[class*="fixed"], [style*="fixed"] {
+  overscroll-behavior: none !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
 .section {
   @apply relative min-h-screen flex items-center justify-center p-8 bg-cover bg-center;
   scroll-snap-align: start;
