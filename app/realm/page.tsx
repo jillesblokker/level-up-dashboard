@@ -470,6 +470,12 @@ export default function RealmPage() {
             return;
         }
         
+        // Handle movement if in move mode
+        if (gameMode === 'move') {
+            handleCharacterMove(x, y);
+            return;
+        }
+        
         if (gameMode !== 'build' || !selectedTile) return;
         const tileToPlace = inventory[selectedTile.type];
         if (!tileToPlace || (tileToPlace.quantity ?? 0) <= 0) return;
