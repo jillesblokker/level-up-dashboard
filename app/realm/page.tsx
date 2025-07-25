@@ -1304,8 +1304,8 @@ export default function RealmPage() {
                         locationName={modalState.locationName}
                     />
                 )}
-                {/* Full Width Map Area */}
-                <div className="absolute inset-0 top-[48px] left-0 right-0 bottom-0">
+                {/* Full Width Map Area - Break out of all containers */}
+                <div className="fixed inset-0 top-[48px] left-0 right-0 bottom-0 z-10">
                     <MapGrid
                         grid={grid}
                         playerPosition={characterPosition}

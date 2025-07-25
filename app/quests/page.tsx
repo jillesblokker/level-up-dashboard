@@ -1411,17 +1411,17 @@ export default function QuestsPage() {
             {/* Quest Streak Summary Card */}
             <div className="mb-6 w-full">
               <Card className="medieval-card-primary w-full" aria-label="quest-streak-summary-card">
-                {/* Desktop/Tablet Layout - Compact */}
-                <div className="hidden md:flex flex-col w-full gap-4">
-                  {/* Streak Badge - Compact */}
-                  <div className="flex items-center justify-center bg-black rounded-2xl p-6 w-full">
+                {/* Desktop/Tablet Layout - Horizontal 3-Column */}
+                <div className="hidden md:flex items-center gap-6 w-full">
+                  {/* Left: Streak Badge */}
+                  <div className="flex items-center justify-center bg-black rounded-2xl p-6 flex-shrink-0">
                     <Flame className="w-14 h-14 text-[#0D7200] mr-4" aria-hidden="true" />
                     <div className="text-4xl font-extrabold text-white" aria-label="quest-streak-value">{streakData?.streak_days ?? 0} days</div>
                     <div className="text-lg text-gray-300 ml-3">Day streak</div>
                   </div>
                   
-                  {/* Quest Progress Section - Compact */}
-                  <div className="flex flex-col gap-3">
+                  {/* Middle: Quest Progress Section */}
+                  <div className="flex-1 flex flex-col gap-3">
                     <div className="flex items-baseline gap-2">
                       <span className="text-4xl font-bold text-white">{todaysCompleted}</span>
                       <span className="text-lg text-gray-300">/ {todaysTotal} quests</span>
@@ -1462,22 +1462,22 @@ export default function QuestsPage() {
                     </div>
                   </div>
                   
-                  {/* Bonus and Scrolls - Side by Side */}
-                  <div className="flex gap-6">
-                    <div className="flex-1 text-center p-5 bg-black/20 rounded-xl">
-                      <div className="text-lg font-bold text-[#F0F0F0] mb-2">Streak Bonus:</div>
-                      <div className="text-2xl font-bold text-[#F0F0F0] mb-1">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
-                      <div className="text-sm text-[#F0F0F0]">(Max 50 gold/day)</div>
+                  {/* Right: Bonus and Scrolls */}
+                  <div className="flex gap-4 flex-shrink-0">
+                    <div className="text-center p-4 bg-black/20 rounded-xl">
+                      <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
+                      <div className="text-xl font-bold text-[#F0F0F0] mb-1">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
+                      <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
                     </div>
-                    <div className="flex-1 text-center p-5 bg-black/20 rounded-xl">
-                      <div className="text-lg font-bold text-[#F0F0F0] mb-2">Streak Scrolls:</div>
-                      <div className="text-2xl font-bold text-[#F0F0F0] mb-1">{getStreakScrollCount()}</div>
-                      <div className="text-sm text-[#F0F0F0]">(Use to save a missed streak)</div>
+                    <div className="text-center p-4 bg-black/20 rounded-xl">
+                      <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Scrolls:</div>
+                      <div className="text-xl font-bold text-[#F0F0F0] mb-1">{getStreakScrollCount()}</div>
+                      <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
                     </div>
                   </div>
                 </div>
 
-                {/* Mobile Layout - Tall with Height Scaling */}
+                {/* Mobile Layout - Vertical with Height Scaling */}
                 <div className="md:hidden flex flex-col w-full gap-16 p-8 min-h-[800px]">
                   {/* Streak Badge - Mobile */}
                   <div className="flex items-center justify-center bg-black rounded-3xl p-16">
