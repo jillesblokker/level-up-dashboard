@@ -125,7 +125,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
           height: '100%',
           aspectRatio: '1/1',
           background: 'none',
-          border: '5px solid #374151', // dark grey border
+          border: '20px solid #374151', // dark grey border
         }}
         aria-label="thrivehaven-grid"
       >

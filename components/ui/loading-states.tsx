@@ -39,7 +39,7 @@ export function FullPageLoading({
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
       <div className="text-center space-y-4">
         {showSpinner && <LoadingSpinner size="lg" />}
-        <p className="text-amber-500 text-lg font-medieval">{message}</p>
+        <p className="text-black text-lg font-medieval">{message}</p>
       </div>
     </div>
   )

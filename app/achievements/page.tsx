@@ -328,7 +328,17 @@ export default function Page() {
           
           {/* Original Creatures Section */}
           <div className="mb-8">
-            <h2 className="text-2xl font-serif text-amber-400 mb-4">Creatures</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-serif text-amber-400">Creatures</h2>
+              <button
+                type="button"
+                className="px-6 py-2 rounded-lg bg-amber-500 text-white font-semibold shadow-md hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-opacity-75 transition-all duration-200"
+                aria-label={showAllUnlocked ? "Hide unlocked achievements" : "Show unlocked achievements"}
+                onClick={() => setShowAllUnlocked((prev) => !prev)}
+              >
+                {showAllUnlocked ? "Hide unlocked" : "Show unlocked"}
+              </button>
+            </div>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3" aria-label="creature-cards-grid">
               {creatures.map(creature => {
                 if (!creature) return null;
@@ -470,16 +480,6 @@ export default function Page() {
             </div>
           )}
         </main>
-        <div className="flex justify-center mt-8" aria-label="achievements-toggle-container">
-          <button
-            type="button"
-            className="px-6 py-2 rounded-lg bg-amber-500 text-white font-semibold shadow-md hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-opacity-75 transition-all duration-200"
-            aria-label={showAllUnlocked ? "Hide unlocked achievements" : "Show unlocked achievements"}
-            onClick={() => setShowAllUnlocked((prev) => !prev)}
-          >
-            {showAllUnlocked ? "Hide unlocked" : "Show unlocked"}
-          </button>
-        </div>
       </SignedIn>
       <SignedOut>
         <SignIn />
