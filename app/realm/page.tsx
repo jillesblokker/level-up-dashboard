@@ -69,30 +69,30 @@ const allTileTypes: TileType[] = [
 ];
 
 const initialInventory: Record<TileType, Tile> = {
-    grass: { ...defaultTile('grass'), cost: 25, quantity: 10 },
-    water: { ...defaultTile('water'), cost: 50, quantity: 10 },
-    forest: { ...defaultTile('forest'), cost: 75, quantity: 10 },
-    mountain: { ...defaultTile('mountain'), cost: 20, quantity: 10 },
-    desert: { ...defaultTile('desert'), cost: 100, quantity: 10 },
-    ice: { ...defaultTile('ice'), cost: 120, quantity: 10 },
-    snow: { ...defaultTile('snow'), cost: 125, quantity: 10 },
-    cave: { ...defaultTile('cave'), cost: 200, quantity: 5 },
-    town: { ...defaultTile('town'), cost: 250, quantity: 1 },
-    city: { ...defaultTile('city'), cost: 300, quantity: 1 },
-    castle: { ...defaultTile('castle'), cost: 500, quantity: 1 },
-    dungeon: { ...defaultTile('dungeon'), cost: 400, quantity: 2 },
-    volcano: { ...defaultTile('volcano'), cost: 500, quantity: 1 },
-    lava: { ...defaultTile('lava'), cost: 200, quantity: 5 },
-    'portal-entrance': { ...defaultTile('portal-entrance'), cost: 250, quantity: 1 },
-    'portal-exit': { ...defaultTile('portal-exit'), cost: 250, quantity: 1 },
-    mystery: { ...defaultTile('mystery'), cost: 300, quantity: 1 },
-    empty: { ...defaultTile('empty'), cost: 0, quantity: 0 },
-    sheep: { ...defaultTile('sheep'), cost: 0, quantity: 0 },
-    horse: { ...defaultTile('horse'), cost: 0, quantity: 0 },
-    special: { ...defaultTile('special'), cost: 0, quantity: 0 },
-    swamp: { ...defaultTile('swamp'), cost: 0, quantity: 0 },
-    treasure: { ...defaultTile('treasure'), cost: 0, quantity: 0 },
-    monster: { ...defaultTile('monster'), cost: 0, quantity: 0 },
+    grass: { ...defaultTile('grass'), cost: 25, owned: 10 },
+    water: { ...defaultTile('water'), cost: 50, owned: 10 },
+    forest: { ...defaultTile('forest'), cost: 75, owned: 10 },
+    mountain: { ...defaultTile('mountain'), cost: 20, owned: 10 },
+    desert: { ...defaultTile('desert'), cost: 100, owned: 10 },
+    ice: { ...defaultTile('ice'), cost: 120, owned: 10 },
+    snow: { ...defaultTile('snow'), cost: 125, owned: 10 },
+    cave: { ...defaultTile('cave'), cost: 200, owned: 5 },
+    town: { ...defaultTile('town'), cost: 250, owned: 1 },
+    city: { ...defaultTile('city'), cost: 300, owned: 1 },
+    castle: { ...defaultTile('castle'), cost: 500, owned: 1 },
+    dungeon: { ...defaultTile('dungeon'), cost: 400, owned: 2 },
+    volcano: { ...defaultTile('volcano'), cost: 500, owned: 1 },
+    lava: { ...defaultTile('lava'), cost: 200, owned: 5 },
+    'portal-entrance': { ...defaultTile('portal-entrance'), cost: 250, owned: 1 },
+    'portal-exit': { ...defaultTile('portal-exit'), cost: 250, owned: 1 },
+    mystery: { ...defaultTile('mystery'), cost: 300, owned: 1 },
+    empty: { ...defaultTile('empty'), cost: 0, owned: 0 },
+    sheep: { ...defaultTile('sheep'), cost: 0, owned: 0 },
+    horse: { ...defaultTile('horse'), cost: 0, owned: 0 },
+    special: { ...defaultTile('special'), cost: 0, owned: 0 },
+    swamp: { ...defaultTile('swamp'), cost: 0, owned: 0 },
+    treasure: { ...defaultTile('treasure'), cost: 0, owned: 0 },
+    monster: { ...defaultTile('monster'), cost: 0, owned: 0 },
 };
 
 const createBaseGrid = (): Tile[][] => {
@@ -478,11 +478,18 @@ export default function RealmPage() {
         
         if (gameMode !== 'build' || !selectedTile) return;
         const tileToPlace = inventory[selectedTile.type];
-        if (!tileToPlace || (tileToPlace.quantity ?? 0) <= 0) return;
+        if (!tileToPlace || (tileToPlace.owned ?? 0) <= 0) {
+            toast({
+                title: "Cannot Place Tile",
+                description: "You don't have any of this tile type in your inventory",
+                variant: "destructive",
+            });
+            return;
+        }
         setGrid(prevGrid => {
             const newGrid = prevGrid.map(row => row.slice());
             if (newGrid[y]?.[x]) {
-                newGrid[y][x] = { ...tileToPlace, x, y, quantity: 1 };
+                newGrid[y][x] = { ...tileToPlace, x, y, owned: 1 };
             }
             return newGrid;
         });
@@ -490,7 +497,7 @@ export default function RealmPage() {
             const newInventory = { ...prev };
             const invTile = newInventory[selectedTile.type];
             if (invTile) {
-                invTile.quantity = (invTile.quantity ?? 0) - 1;
+                invTile.owned = (invTile.owned ?? 0) - 1;
             }
             return newInventory;
         });
@@ -580,7 +587,7 @@ export default function RealmPage() {
     };
 
     const handleTileSelection = (tile: TileInventoryItem | null) => {
-        if (tile?.type && inventory[tile.type] && (inventory[tile.type].quantity ?? 0) > 0) {
+        if (tile?.type && inventory[tile.type] && (inventory[tile.type].owned ?? 0) > 0) {
             setSelectedTile(tile);
             setShowInventory(false);
         } else {
@@ -1219,7 +1226,7 @@ export default function RealmPage() {
         .map(t => ({
             ...t,
             cost: t.cost ?? 0,
-            quantity: t.quantity ?? 0,
+            quantity: t.owned ?? 0,
         }));
 
     return (
@@ -1239,7 +1246,7 @@ export default function RealmPage() {
                 onImageReveal={setShouldRevealImage}
             >
                 {/* Top Toolbar */}
-                <div className="flex items-center justify-between p-2 bg-gray-800/80 backdrop-blur-sm border-b border-gray-700 z-30 overflow-visible">
+                <div className="flex items-center justify-between p-2 bg-gray-800 border-b border-gray-700 z-30 overflow-visible">
                   {/* On mobile, make action rows horizontally scrollable and touch-friendly */}
                   <div className="flex flex-1 flex-col gap-2 overflow-visible">
                     <div className="flex items-center gap-2 overflow-x-auto flex-nowrap md:gap-4 md:overflow-visible md:flex-wrap overflow-visible" style={{ WebkitOverflowScrolling: 'touch' }}>
@@ -1333,7 +1340,7 @@ export default function RealmPage() {
                     />
                 )}
                 {/* Full Width Map Area - Break out of all containers */}
-                <div className="fixed inset-0 top-[48px] left-0 right-0 bottom-0 z-10">
+                <div className="fixed inset-0 top-[120px] left-0 right-0 bottom-0 z-10">
                     <MapGrid
                         grid={grid}
                         playerPosition={characterPosition}
@@ -1343,7 +1350,7 @@ export default function RealmPage() {
                 </div>
                 {/* Overlay Inventory Panel */}
                 {showInventory && (
-                    <div id="tile-inventory-panel" role="dialog" aria-modal="true" aria-label="Tile Inventory Panel" className="absolute top-[48px] right-0 h-[calc(100%-48px)] w-96 max-w-[90vw] bg-gray-800/95 backdrop-blur-md border-l border-gray-700 flex flex-col z-30 p-2 shadow-2xl">
+                    <div id="tile-inventory-panel" role="dialog" aria-modal="true" aria-label="Tile Inventory Panel" className="absolute top-[120px] right-0 h-[calc(100%-120px)] w-96 max-w-[90vw] bg-gray-800/95 backdrop-blur-md border-l border-gray-700 flex flex-col z-30 p-2 shadow-2xl">
                         <div className="p-4 border-b border-gray-700 flex items-center justify-between">
                             <h2 className="text-lg font-semibold">Tile Inventory</h2>
                             <Button

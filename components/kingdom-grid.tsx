@@ -160,7 +160,11 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
                   selectedTile && propertiesOpen && "ring-2 ring-amber-500"
                 )}
                 aria-label={tile.ariaLabel || tile.name || `Tile ${x - 1},${y - 1}`}
-                onClick={() => selectedTile && onTilePlace(x - 1, y - 1, selectedTile)}
+                onClick={() => {
+                  if (selectedTile && (selectedTile.quantity || 0) > 0) {
+                    onTilePlace(x - 1, y - 1, selectedTile);
+                  }
+                }}
                 style={{ minWidth: 0, minHeight: 0, borderRadius: 0, margin: 0, padding: 0 }}
               >
                 <Image

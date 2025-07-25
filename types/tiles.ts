@@ -56,6 +56,7 @@ export interface Tile {
   tileSize?: 1 | 2 | undefined;
   cost?: number | undefined;
   quantity?: number | undefined;
+  owned?: number | undefined;
   hasMonster?: 'dragon' | 'goblin' | 'troll' | 'wizard' | 'pegasus' | 'fairy' | undefined;
   monsterAchievementId?: string | undefined;
 }
