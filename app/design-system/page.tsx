@@ -11,7 +11,7 @@ import { HeaderSection } from "@/components/HeaderSection"
 import { CreatureCard } from "@/components/creature-card"
 import CardWithProgress from "@/components/quest-card"
 import { TileVisual } from "@/components/tile-visual"
-// import { MapGrid } from "@/components/map-grid"
+import { MapGrid } from "../components/MapGrid"
 import { TownView } from "@/components/town-view"
 import { TileType } from '@/types/tiles'
 import { typography as designTokens, spacing, colors as designColors, animation, shadows, borderRadius, createTypographyClass } from '@/lib/design-tokens'
