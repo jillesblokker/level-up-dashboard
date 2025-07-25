@@ -1304,20 +1304,18 @@ export default function RealmPage() {
                         locationName={modalState.locationName}
                     />
                 )}
-                <div className="flex flex-1 overflow-hidden">
-                    {/* Main Map Area */}
-                    <div className="flex-1 relative">
-                        <MapGrid
-                            grid={grid}
-                            playerPosition={characterPosition}
-                            onTileClick={handlePlaceTile}
-                            playerLevel={characterStats.level}
-                        />
-                    </div>
+                {/* Full Width Map Area */}
+                <div className="w-full h-full relative">
+                    <MapGrid
+                        grid={grid}
+                        playerPosition={characterPosition}
+                        onTileClick={handlePlaceTile}
+                        playerLevel={characterStats.level}
+                    />
                 </div>
-                {/* Side Inventory Panel */}
+                {/* Overlay Inventory Panel */}
                 {showInventory && (
-                    <div id="tile-inventory-panel" role="dialog" aria-modal="true" aria-label="Tile Inventory Panel" className="absolute top-[48px] right-0 h-[calc(100%-48px)] w-96 max-w-[90vw] bg-gray-800/90 backdrop-blur-sm border-l border-gray-700 flex flex-col z-20 p-2">
+                    <div id="tile-inventory-panel" role="dialog" aria-modal="true" aria-label="Tile Inventory Panel" className="absolute top-[48px] right-0 h-[calc(100%-48px)] w-96 max-w-[90vw] bg-gray-800/95 backdrop-blur-md border-l border-gray-700 flex flex-col z-30 p-2 shadow-2xl">
                         <div className="p-4 border-b border-gray-700 flex items-center justify-between">
                             <h2 className="text-lg font-semibold">Tile Inventory</h2>
                             <Button
