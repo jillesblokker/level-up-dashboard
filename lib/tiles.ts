@@ -26,6 +26,7 @@ export function getTileName(type: TileType): string {
     volcano: 'Volcano',
     sheep: 'Sheep',
     horse: 'Horse',
+    vacant: 'Vacant',
   };
   return tileNames[type] || 'Unknown';
 }
@@ -56,6 +57,7 @@ export function getDefaultConnections(type: TileType): string[] {
     volcano: ['lava', 'mountain'],
     sheep: ['grass'],
     horse: ['grass'],
+    vacant: [],
   };
   return defaultConnections[type] || [];
 } 

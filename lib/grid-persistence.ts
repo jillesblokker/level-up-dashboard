@@ -29,6 +29,7 @@ const tileTypeToNumeric: Record<TileType, number> = {
   special: 21,
   swamp: 22,
   monster: 23,
+  vacant: 24,
 };
 
 // Convert numeric value back to tile type
