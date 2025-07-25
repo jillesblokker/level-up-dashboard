@@ -1347,7 +1347,7 @@ export default function QuestsPage() {
   }
 
   return (
-    <div className="h-full">
+    <div className="min-h-full">
       <HeaderSection
         title="Message Board"
         subtitle="Embark on epic journeys and complete tasks to earn rewards."
