@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { getCharacterStats } from '@/lib/character-stats-manager'
 import { toast } from '@/components/ui/use-toast'
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { calculateLevelFromExperience } from '@/types/character';
 
 const tileImageFiles = [
   'Archery.png', 'Blacksmith.png', 'Castle.png', 'Fisherman.png', 'Foodcourt.png', 'Fountain.png', 'Grocery.png', 'House.png', 'Inn.png', 'Jousting.png', 'Mansion.png', 'Mayor.png', 'Pond.png', 'Sawmill.png', 'Temple.png', 'Vegetables.png', 'Watchtower.png', 'Well.png', 'Windmill.png', 'Wizard.png',
@@ -75,7 +76,8 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
       try {
         const stats = getCharacterStats();
         const statsData = JSON.parse(localStorage.getItem('character-stats') || '{}');
-        const currentLevel = stats.level || statsData.level || 1;
+        // Use the same level calculation as character page and navigation bar
+        const currentLevel = calculateLevelFromExperience(stats.experience || statsData.experience || 0);
         const currentBuildTokens = statsData.buildTokens || 0;
         
         setBuildTokens(currentBuildTokens);
@@ -85,7 +87,8 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
         console.log('[Kingdom Grid] === DEBUG INFO ===');
         console.log('[Kingdom Grid] Raw stats:', stats);
         console.log('[Kingdom Grid] Raw statsData:', statsData);
-        console.log('[Kingdom Grid] Current player level:', currentLevel);
+        console.log('[Kingdom Grid] Experience:', stats.experience || statsData.experience || 0);
+        console.log('[Kingdom Grid] Calculated level from experience:', currentLevel);
         console.log('[Kingdom Grid] Current kingdom expansions:', kingdomExpansions);
         console.log('[Kingdom Grid] Next expansion level:', 5 + kingdomExpansions * 5);
         console.log('[Kingdom Grid] Can expand:', currentLevel >= (5 + kingdomExpansions * 5));
@@ -105,7 +108,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
     const handleStatsUpdate = () => {
       console.log('[Kingdom Grid] Stats update event received');
       const stats = getCharacterStats();
-      const currentLevel = stats.level || 1;
+      const currentLevel = calculateLevelFromExperience(stats.experience || 0);
       setPlayerLevel(currentLevel);
       console.log('[Kingdom Grid] Updated player level:', currentLevel);
       console.log('[Kingdom Grid] Can expand after update:', currentLevel >= (5 + kingdomExpansions * 5));
@@ -118,7 +121,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
   // Force refresh stats when component mounts or expansions change
   useEffect(() => {
     const stats = getCharacterStats();
-    const currentLevel = stats.level || 1;
+    const currentLevel = calculateLevelFromExperience(stats.experience || 0);
     console.log('[Kingdom Grid] Force refresh - Level:', currentLevel, 'Expansions:', kingdomExpansions);
   }, [kingdomExpansions]);
 
@@ -144,7 +147,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
   // Manual refresh function for debugging
   const refreshStats = () => {
     const stats = getCharacterStats();
-    const currentLevel = stats.level || 1;
+    const currentLevel = calculateLevelFromExperience(stats.experience || 0);
     setPlayerLevel(currentLevel);
     console.log('[Kingdom Grid] Manual refresh - Level:', currentLevel, 'Can expand:', currentLevel >= nextExpansionLevel);
   };

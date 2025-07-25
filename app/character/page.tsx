@@ -677,9 +677,10 @@ export default function CharacterPage() {
                       const titleInfo = getTitleProgress(characterStats.level);
                       return (
                         <>
-                          {/* Current title character image */}
-                          <div className="flex justify-center mb-4">
-                            <div className="relative w-24 h-24">
+                          {/* Current title character image and info side by side */}
+                          <div className="flex items-start gap-4">
+                            {/* Character image on the left */}
+                            <div className="relative w-20 h-20 flex-shrink-0">
                               <Image
                                 src={`/images/character/${titleInfo.current.id}.png`}
                                 alt={`${titleInfo.current.name} character`}
@@ -692,15 +693,18 @@ export default function CharacterPage() {
                                 }}
                               />
                             </div>
-                          </div>
-                          <p className="text-lg font-bold text-amber-600">{titleInfo.current.name}</p>
-                          <p className="text-sm text-muted-foreground">{titleInfo.current.description}</p>
-                          {titleInfo.next && (
-                            <div className="mt-2">
-                              <p className="text-xs text-muted-foreground">Next: {titleInfo.next.name} (Level {titleInfo.next.level})</p>
-                              <Progress value={titleInfo.progress} className="h-1 mt-1" />
+                            {/* Title info on the right */}
+                            <div className="flex-1 space-y-2">
+                              <p className="text-lg font-bold text-amber-600">{titleInfo.current.name}</p>
+                              <p className="text-sm text-muted-foreground">{titleInfo.current.description}</p>
+                              {titleInfo.next && (
+                                <div className="mt-2">
+                                  <p className="text-xs text-muted-foreground">Next: {titleInfo.next.name} (Level {titleInfo.next.level})</p>
+                                  <Progress value={titleInfo.progress} className="h-1 mt-1" />
+                                </div>
+                              )}
                             </div>
-                          )}
+                          </div>
                         </>
                       );
                     })()}
@@ -861,16 +865,16 @@ export default function CharacterPage() {
                               <Badge
                                 className={
                                   rarity === "common"
-                                    ? "bg-gray-500"
+                                    ? "bg-gray-500 h-fit"
                                     : rarity === "uncommon"
-                                      ? "bg-green-500"
+                                      ? "bg-green-500 h-fit"
                                       : rarity === "rare"
-                                        ? "bg-blue-500"
+                                        ? "bg-blue-500 h-fit"
                                         : rarity === "epic"
-                                          ? "bg-purple-500"
+                                          ? "bg-purple-500 h-fit"
                                           : rarity === "legendary"
-                                            ? "bg-amber-500"
-                                            : "bg-red-500"
+                                            ? "bg-amber-500 h-fit"
+                                            : "bg-red-500 h-fit"
                                 }
                               >
                                 {rarity.charAt(0).toUpperCase() + rarity.slice(1)}
