@@ -592,6 +592,17 @@ export default function RealmPage() {
         if (gameMode === 'move') {
             // Check if the target tile is walkable
             const targetTile = grid[y]?.[x];
+            
+            // Check for empty tile
+            if (!targetTile || targetTile.type === 'empty') {
+                toast({
+                    title: "Cannot Move",
+                    description: "This is undiscovered land, buy a tile to expand the realm",
+                    variant: "destructive",
+                });
+                return;
+            }
+            
             if (targetTile && ['mountain', 'water', 'lava', 'volcano'].includes(targetTile.type)) {
                 toast({
                     title: "Cannot Move",
@@ -759,6 +770,17 @@ export default function RealmPage() {
             
             // Check if the target tile is walkable
             const targetTile = grid[newY]?.[newX];
+            
+            // Check for empty tile
+            if (!targetTile || targetTile.type === 'empty') {
+                toast({
+                    title: "Cannot Move",
+                    description: "This is undiscovered land, buy a tile to expand the realm",
+                    variant: "destructive",
+                });
+                return;
+            }
+            
             if (targetTile && ['mountain', 'water', 'lava', 'volcano'].includes(targetTile.type)) {
                 toast({
                     title: "Cannot Move",
