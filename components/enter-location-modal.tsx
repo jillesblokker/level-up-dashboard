@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 import {
   Dialog,
   DialogContent,
@@ -37,31 +38,64 @@ export function EnterLocationModal({
     onClose();
   };
 
+  // Determine the display name - use locationName if available, otherwise fallback
+  const displayName = locationName && locationName !== 'unknown' ? locationName : 'Ready to enter';
+  const buttonText = locationType === 'city' ? 'Enter City' : 'Enter Town';
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-sm bg-gray-900 border-amber-800" role="dialog" aria-label="enter-location-modal">
+      <DialogContent className="sm:max-w-md bg-gray-900 border-amber-800" role="dialog" aria-label="enter-location-modal">
         <DialogDescription id="enter-location-modal-desc">Enter a new location</DialogDescription>
-        <DialogHeader>
-          <DialogTitle className="text-amber-400 text-lg">
-            Enter {locationName}
+        
+        {/* Header with welcome text and close button */}
+        <div className="flex justify-between items-start mb-4">
+          <span className="text-gray-300 text-sm">Welcome stranger</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="text-gray-400 hover:text-white p-1"
+          >
+            ✕
+          </Button>
+        </div>
+
+        {/* City wall image */}
+        <div className="mb-4">
+          <Image
+            src="/images/citywall.png"
+            alt="Medieval city wall and gate"
+            width={400}
+            height={200}
+            className="w-full h-auto rounded-lg"
+            priority
+          />
+        </div>
+
+        {/* Title and description */}
+        <div className="mb-6">
+          <DialogTitle className="text-amber-400 text-xl font-bold mb-2">
+            Enter {displayName}
           </DialogTitle>
           <DialogDescription className="text-gray-300 text-sm">
-            You are about to enter {locationName}. Are you sure you want to proceed?
+            You are about to enter. Are you sure you want to proceed?
           </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="flex gap-2">
+        </div>
+
+        {/* Action buttons */}
+        <DialogFooter className="flex gap-3">
           <Button
             variant="outline"
             onClick={handleCancel}
-            className="border-amber-800 text-amber-400 hover:bg-amber-800/20 text-sm px-4 py-2"
+            className="border-amber-800 text-amber-400 hover:bg-amber-800/20"
           >
             Cancel
           </Button>
           <Button
             onClick={handleEnter}
-            className="bg-amber-600 hover:bg-amber-700 text-white text-sm px-4 py-2"
+            className="bg-amber-600 hover:bg-amber-700 text-white"
           >
-            Enter {locationName}
+            {buttonText}
           </Button>
         </DialogFooter>
       </DialogContent>
