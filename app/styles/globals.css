@@ -933,4 +933,21 @@ select {
     background-color: #000000;
     z-index: 9999;
   }
+}
+
+/* Additional mobile status bar fixes */
+html {
+  background-color: #000000 !important;
+}
+
+body {
+  background-color: #000000 !important;
+}
+
+/* Force black background for mobile browsers */
+@media screen and (max-width: 768px) {
+  html, body {
+    background-color: #000000 !important;
+    background-image: url('/images/backgroundi.png'), linear-gradient(135deg, #000000, #000000) !important;
+  }
 } 

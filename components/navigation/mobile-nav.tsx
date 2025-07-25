@@ -20,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
 import { Progress } from "@/components/ui/progress"
+import { Coins } from "lucide-react"
 import {
   Sheet,
   SheetContent,
@@ -32,7 +33,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
-import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience } from "@/types/character"
+import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character"
 import { Logo } from "@/components/logo";
 import { useUser } from "@clerk/nextjs";
 import { getCharacterStats } from '@/lib/character-data-manager';
@@ -143,23 +144,16 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
           >
             <div className="flex flex-col h-full">
               {/* Stats section */}
-              <div className="flex flex-col gap-3 py-4 border-b border-gray-800">
-                {/* Level with Progress Bar */}
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-gray-400">Level</span>
-                  <span className="text-amber-400 font-bold text-sm">{characterStats.level}</span>
-                  <div className="flex-1">
-                    <Progress 
-                      value={((characterStats.experience % characterStats.experienceToNextLevel) / characterStats.experienceToNextLevel) * 100} 
-                      className="w-full h-2" 
-                      aria-label="Level progress"
-                    />
+              <div className="flex items-center space-x-4 py-4 border-b border-gray-800">
+                <div className="flex items-center space-x-2">
+                  <div className="text-sm font-medium text-gray-400">
+                    Level {characterStats.level}
                   </div>
-                </div>
-                {/* Gold */}
-                <div className="flex items-center gap-2">
-                  <Icons.coins className="w-4 h-4 text-amber-400" />
-                  <span className="text-gray-100 text-sm">{characterStats.gold}</span>
+                  <Progress value={calculateLevelProgress(characterStats.experience)} className="w-24 h-2" />
+                  <div className="flex items-center space-x-1">
+                    <Coins className="h-4 w-4 text-amber-400" />
+                    <span className="text-sm font-medium text-gray-100">{characterStats.gold}</span>
+                  </div>
                 </div>
               </div>
               {/* Notifications section */}
