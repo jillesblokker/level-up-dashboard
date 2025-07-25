@@ -11,6 +11,9 @@ import { toast } from '@/components/ui/use-toast'
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { calculateLevelFromExperience } from '@/types/character';
 
+const KINGDOM_GRID_COLS = 8;
+const KINGDOM_GRID_ROWS = 16; // Increased from 8 to 16 to make it vertical
+
 const tileImageFiles = [
   'Archery.png', 'Blacksmith.png', 'Castle.png', 'Fisherman.png', 'Foodcourt.png', 'Fountain.png', 'Grocery.png', 'House.png', 'Inn.png', 'Jousting.png', 'Mansion.png', 'Mayor.png', 'Pond.png', 'Sawmill.png', 'Temple.png', 'Vegetables.png', 'Watchtower.png', 'Well.png', 'Windmill.png', 'Wizard.png',
 ];
@@ -186,11 +189,11 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
       newGrid[y] = new Array(currentCols);
       for (let x = 0; x < currentCols; x++) {
         newGrid[y]![x] = {
-          id: `grass-${x}-${y}`,
-          name: 'Grass',
-          description: 'A patch of green grass',
-          type: 'grass',
-          image: '/images/kingdom-tiles/Grass.png',
+          id: `vacant-${x}-${y}`,
+          name: 'Vacant',
+          description: 'A vacant plot of land',
+          type: 'vacant',
+          image: '/images/kingdom-tiles/Vacant.png',
           cost: 0,
           quantity: 0,
           x,
@@ -199,7 +202,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
           rotation: 0,
           revealed: true,
           isVisited: false,
-          ariaLabel: 'Grass tile'
+          ariaLabel: 'Vacant tile'
         };
       }
     }
@@ -218,7 +221,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
 
     toast({
       title: "Kingdom Expanded",
-      description: "Your kingdom has been expanded with 3 new rows of grass!",
+      description: "Your kingdom has been expanded with 3 new rows of vacant land!",
     });
   };
 
@@ -326,43 +329,25 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
         <Tooltip>
           <TooltipTrigger asChild>
             <button
-              className="absolute top-20 right-4 z-20 w-12 h-12 bg-amber-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl font-bold hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Expand kingdom grid"
+              className="absolute top-4 right-4 z-20 w-12 h-12 bg-amber-600 text-white rounded-full shadow-lg flex items-center justify-center text-sm font-bold hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={expandKingdomGrid}
               disabled={!canExpand}
+              aria-label="Expand kingdom grid"
             >
               🏗️
             </button>
           </TooltipTrigger>
           <TooltipContent 
-            side="top" 
+            side="left" 
             className="bg-gray-900 text-white border-amber-800/30"
           >
             {canExpand 
-              ? 'Expand your kingdom to unlock 3 more rows' 
-              : `Become level ${nextExpansionLevel} to unlock 3 more rows`
+              ? `Expand kingdom (Level ${playerLevel} required: ${nextExpansionLevel})`
+              : `Requires Level ${nextExpansionLevel} to expand (Current: ${playerLevel})`
             }
           </TooltipContent>
         </Tooltip>
         
-        {/* Debug button for troubleshooting */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              className="absolute top-20 right-20 z-20 w-12 h-12 bg-red-700 text-white rounded-full shadow-lg flex items-center justify-center text-sm font-bold hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500"
-              aria-label="Debug kingdom expand button"
-              onClick={refreshStats}
-            >
-              🔧
-            </button>
-          </TooltipTrigger>
-          <TooltipContent 
-            side="top" 
-            className="bg-gray-900 text-white border-red-800/30"
-          >
-            Debug: Level {playerLevel}, Required {nextExpansionLevel}, Can expand: {canExpand ? 'Yes' : 'No'}
-          </TooltipContent>
-        </Tooltip>
         {renderGridWithBorder()}
       </div>
       {/* Side panel for properties */}

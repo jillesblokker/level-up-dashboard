@@ -27,7 +27,8 @@ export type TileType =
   | 'special'
   | 'swamp'
   | 'treasure'
-  | 'monster';
+  | 'monster'
+  | 'vacant';
 
 export type ConnectionDirection = 'north' | 'east' | 'south' | 'west';
 

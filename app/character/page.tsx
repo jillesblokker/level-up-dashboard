@@ -717,7 +717,18 @@ export default function CharacterPage() {
                     {perks.filter((p) => p.active && p.unlocked).length === 0 && (
                       <Card className="bg-black border-amber-800 h-full min-h-[200px] flex items-center justify-center">
                         <CardContent className="pt-6 flex items-center justify-center h-full">
-                          <p className="text-center text-muted-foreground font-serif">No enchanted blessings active. Seek the mystic arts to unlock your true potential.</p>
+                          <div className="flex items-center gap-4 text-center">
+                            {/* Placeholder image */}
+                            <div className="relative w-16 h-16 flex-shrink-0">
+                              <Image
+                                src="/images/placeholders/placeholder.svg"
+                                alt="No active bonuses"
+                                fill
+                                className="object-contain opacity-50"
+                              />
+                            </div>
+                            <p className="text-muted-foreground font-serif">No enchanted blessings active. Seek the mystic arts to unlock your true potential.</p>
+                          </div>
                         </CardContent>
                       </Card>
                     )}
