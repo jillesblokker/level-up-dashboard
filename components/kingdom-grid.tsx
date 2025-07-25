@@ -75,7 +75,13 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
     const statsData = JSON.parse(localStorage.getItem('character-stats') || '{}');
     setBuildTokens(statsData.buildTokens || 0);
     setPlayerLevel(stats.level || 1);
-  }, []);
+    
+    // Debug logging
+    console.log('[Kingdom Grid] Player level:', stats.level);
+    console.log('[Kingdom Grid] Kingdom expansions:', kingdomExpansions);
+    console.log('[Kingdom Grid] Next expansion level:', 5 + kingdomExpansions * 5);
+    console.log('[Kingdom Grid] Can expand:', stats.level >= (5 + kingdomExpansions * 5));
+  }, [kingdomExpansions]);
 
   // Handler for buying a property tile
   const handleBuyProperty = (tile: Tile) => {
