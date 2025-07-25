@@ -161,7 +161,7 @@ function isEquippable(item: KingdomInventoryItem): boolean {
 
 // Helper to create an empty kingdom grid
 function createEmptyKingdomGrid(): Tile[][] {
-  const KINGDOM_GRID_ROWS = 6;
+  const KINGDOM_GRID_ROWS = 12; // Doubled from 6 to 12 rows
   const KINGDOM_GRID_COLS = 6;
   const VACANT_TILE_IMAGE = '/images/kingdom-tiles/Vacant.png';
   return Array.from({ length: KINGDOM_GRID_ROWS }, (_, y) =>
@@ -203,7 +203,7 @@ function getKingdomTileInventoryWithBuildTokens(): Tile[] {
       ariaLabel: `Kingdom tile: ${filename.replace('.png', '')}`,
       image: `/images/kingdom-tiles/${filename}`,
       cost: isCastle ? 0 : Math.floor(Math.random() * 3) + 1, // 1-3 build tokens
-      quantity: isCastle ? 1 : 0,
+      quantity: isCastle ? 1 : 0, // Only Castle starts with 1, rest start with 0
     };
   });
 }

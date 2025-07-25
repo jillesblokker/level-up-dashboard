@@ -55,7 +55,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
         ariaLabel: `${tileNames[name] || name} property tile`,
         image: `/images/kingdom-tiles/${file}`,
         cost: name === 'Castle' ? 0 : Math.floor(Math.random() * 3) + 1,
-        quantity: name === 'Castle' ? 1 : 0,
+        quantity: name === 'Castle' ? 1 : 0, // Only Castle starts with 1, rest start with 0
       };
     });
   });
