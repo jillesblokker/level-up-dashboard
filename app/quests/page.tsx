@@ -1476,66 +1476,66 @@ export default function QuestsPage() {
                 </div>
 
                 {/* Mobile Layout - Vertical */}
-                <div className="md:hidden flex flex-col gap-4">
+                <div className="md:hidden flex flex-col gap-6 p-4">
                   {/* Streak Badge - Top */}
-                  <div className="flex items-center justify-center bg-black rounded-2xl p-4">
-                    <Flame className="w-8 h-8 text-[#0D7200] mr-3" aria-hidden="true" />
-                    <div className="text-2xl font-extrabold text-white" aria-label="quest-streak-value">{streakData?.streak_days ?? 0} days</div>
-                    <div className="text-sm text-gray-300 ml-2">Day streak</div>
+                  <div className="flex items-center justify-center bg-black rounded-2xl p-6">
+                    <Flame className="w-10 h-10 text-[#0D7200] mr-4" aria-hidden="true" />
+                    <div className="text-3xl font-extrabold text-white" aria-label="quest-streak-value">{streakData?.streak_days ?? 0} days</div>
+                    <div className="text-base text-gray-300 ml-3">Day streak</div>
                   </div>
                   
                   {/* Quest Progress Section */}
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-bold text-white">{todaysCompleted}</span>
-                      <span className="text-lg text-gray-300">/ {todaysTotal} quests</span>
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-4xl font-bold text-white">{todaysCompleted}</span>
+                      <span className="text-xl text-gray-300">/ {todaysTotal} quests</span>
                     </div>
-                    <div className="w-full h-4 bg-black rounded-full overflow-hidden relative">
+                    <div className="w-full h-6 bg-black rounded-full overflow-hidden relative">
                       <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${todaysTotal ? (todaysCompleted / todaysTotal) * 100 : 0}%` }} />
                     </div>
-                    {/* Days of the week with smaller circles and first letters only */}
-                    <div className="flex justify-between text-xs text-gray-300 mt-2">
-                      <div className="flex flex-col items-center">
-                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>M</span>
+                    {/* Days of the week with larger circles and better spacing */}
+                    <div className="flex justify-between text-sm text-gray-300 mt-4 px-2">
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full"></div>
+                        <span className="font-medium">M</span>
                       </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>T</span>
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full"></div>
+                        <span className="font-medium">T</span>
                       </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>W</span>
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full"></div>
+                        <span className="font-medium">W</span>
                       </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>T</span>
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full"></div>
+                        <span className="font-medium">T</span>
                       </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>F</span>
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full"></div>
+                        <span className="font-medium">F</span>
                       </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>S</span>
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full"></div>
+                        <span className="font-medium">S</span>
                       </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>S</span>
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full"></div>
+                        <span className="font-medium">S</span>
                       </div>
                     </div>
                   </div>
                   
                   {/* Bonus and Scrolls - Bottom */}
-                  <div className="flex flex-col gap-3">
-                    <div className="text-center">
+                  <div className="flex flex-col gap-4">
+                    <div className="text-center p-4 bg-black/20 rounded-xl">
                       <div className="text-lg font-bold text-[#F0F0F0]">Streak Bonus:</div>
-                      <div className="text-xl font-bold text-[#F0F0F0]">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
+                      <div className="text-2xl font-bold text-[#F0F0F0]">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
                       <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
                     </div>
-                    <div className="text-center">
+                    <div className="text-center p-4 bg-black/20 rounded-xl">
                       <div className="text-lg font-bold text-[#F0F0F0]">Streak Scrolls:</div>
-                      <div className="text-xl font-bold text-[#F0F0F0]">{getStreakScrollCount()}</div>
+                      <div className="text-2xl font-bold text-[#F0F0F0]">{getStreakScrollCount()}</div>
                       <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
                     </div>
                   </div>
@@ -1665,66 +1665,66 @@ export default function QuestsPage() {
                 </div>
 
                 {/* Mobile Layout - Vertical */}
-                <div className="md:hidden flex flex-col gap-4">
+                <div className="md:hidden flex flex-col gap-6 p-4">
                   {/* Streak Badge - Top */}
-                  <div className="flex items-center justify-center bg-black rounded-2xl p-4">
-                    <Flame className="w-8 h-8 text-[#0D7200] mr-3" aria-hidden="true" />
-                    <div className="text-2xl font-extrabold text-white" aria-label="challenge-streak-value">{challengeStreakData?.streak_days ?? 0} days</div>
-                    <div className="text-sm text-gray-300 ml-2">Day streak</div>
+                  <div className="flex items-center justify-center bg-black rounded-2xl p-6">
+                    <Flame className="w-10 h-10 text-[#0D7200] mr-4" aria-hidden="true" />
+                    <div className="text-3xl font-extrabold text-white" aria-label="challenge-streak-value">{challengeStreakData?.streak_days ?? 0} days</div>
+                    <div className="text-base text-gray-300 ml-3">Day streak</div>
                   </div>
                   
                   {/* Challenge Progress Section */}
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-bold text-white">{challenges.filter(c => c.category === challengeCategory && c.completed).length}</span>
-                      <span className="text-lg text-gray-300">/ {challenges.filter(c => c.category === challengeCategory).length} challenges</span>
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-4xl font-bold text-white">{challenges.filter(c => c.category === challengeCategory && c.completed).length}</span>
+                      <span className="text-xl text-gray-300">/ {challenges.filter(c => c.category === challengeCategory).length} challenges</span>
                     </div>
-                    <div className="w-full h-4 bg-black rounded-full overflow-hidden relative">
+                    <div className="w-full h-6 bg-black rounded-full overflow-hidden relative">
                       <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${challenges.filter(c => c.category === challengeCategory).length ? (challenges.filter(c => c.category === challengeCategory && c.completed).length / challenges.filter(c => c.category === challengeCategory).length) * 100 : 0}%` }} />
                     </div>
-                    {/* Days of the week with smaller circles and first letters only */}
-                    <div className="flex justify-between text-xs text-gray-300 mt-2">
-                      <div className="flex flex-col items-center">
-                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>M</span>
+                    {/* Days of the week with larger circles and better spacing */}
+                    <div className="flex justify-between text-sm text-gray-300 mt-4 px-2">
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full"></div>
+                        <span className="font-medium">M</span>
                       </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>T</span>
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full"></div>
+                        <span className="font-medium">T</span>
                       </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>W</span>
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full"></div>
+                        <span className="font-medium">W</span>
                       </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>T</span>
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full"></div>
+                        <span className="font-medium">T</span>
                       </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>F</span>
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full"></div>
+                        <span className="font-medium">F</span>
                       </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>S</span>
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full"></div>
+                        <span className="font-medium">S</span>
                       </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>S</span>
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full"></div>
+                        <span className="font-medium">S</span>
                       </div>
                     </div>
                   </div>
                   
                   {/* Bonus and Scrolls - Bottom */}
-                  <div className="flex flex-col gap-3">
-                    <div className="text-center">
+                  <div className="flex flex-col gap-4">
+                    <div className="text-center p-4 bg-black/20 rounded-xl">
                       <div className="text-lg font-bold text-[#F59E0B]">Streak Bonus:</div>
-                      <div className="text-xl font-bold text-[#F59E0B]">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
+                      <div className="text-2xl font-bold text-[#F59E0B]">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
                       <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
                     </div>
-                    <div className="text-center">
+                    <div className="text-center p-4 bg-black/20 rounded-xl">
                       <div className="text-lg font-bold text-[#F0F0F0]">Streak Scrolls:</div>
-                      <div className="text-xl font-bold text-[#F0F0F0]">{getStreakScrollCount()}</div>
+                      <div className="text-2xl font-bold text-[#F0F0F0]">{getStreakScrollCount()}</div>
                       <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
                     </div>
                   </div>

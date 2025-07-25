@@ -82,7 +82,8 @@ export default function RootLayout({
         <head>
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
-          <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+          <meta name="theme-color" content="#000000" />
         </head>
         <body className={cn(
           "min-h-screen font-sans antialiased",
@@ -105,7 +106,7 @@ export default function RootLayout({
                   </AuthContent>
                   <Toaster />
                   <SonnerToaster 
-                    position="top-center"
+                    position="bottom-center"
                     toastOptions={{
                       style: {
                         background: 'rgba(0, 0, 0, 0.9)',
