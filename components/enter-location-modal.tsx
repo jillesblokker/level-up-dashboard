@@ -45,23 +45,15 @@ export function EnterLocationModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md bg-gray-900 border-amber-800" role="dialog" aria-label="enter-location-modal">
-        <DialogDescription id="enter-location-modal-desc">Enter a new location</DialogDescription>
+        <DialogDescription id="enter-location-modal-desc">Welcome stranger</DialogDescription>
         
-        {/* Header with welcome text and close button */}
-        <div className="flex justify-between items-start mb-4">
+        {/* Header with welcome text */}
+        <div className="mb-3">
           <span className="text-gray-300 text-sm">Welcome stranger</span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="text-gray-400 hover:text-white p-1"
-          >
-            ✕
-          </Button>
         </div>
 
         {/* City wall image */}
-        <div className="mb-4">
+        <div className="mb-3">
           <Image
             src="/images/citywall.png"
             alt="Medieval city wall and gate"
@@ -73,8 +65,8 @@ export function EnterLocationModal({
         </div>
 
         {/* Title and description */}
-        <div className="mb-6">
-          <DialogTitle className="text-amber-400 text-xl font-bold mb-2">
+        <div className="mb-4">
+          <DialogTitle className="text-amber-400 text-xl font-bold mb-1">
             Enter {displayName}
           </DialogTitle>
           <DialogDescription className="text-gray-300 text-sm">
