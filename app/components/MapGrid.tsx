@@ -106,25 +106,21 @@ export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0 }: 
   };
 
   return (
-    <div className="relative w-full h-[calc(100vh-8rem)] overflow-hidden" aria-label="map-container">
+    <div className="relative w-full h-full overflow-hidden" aria-label="map-container">
       <div
         ref={gridRef}
         className="absolute inset-0 overflow-auto map-grid-scroll"
         aria-label="map-grid-scroll-area"
-        style={isMobilePortrait ? { width: '100vw', maxWidth: '100vw', minWidth: '100vw' } : {}}
       >
         <div
           className="relative map-grid-container"
           style={{
-            width: isMobilePortrait
-              ? `${Math.max(grid[0]?.length ?? 0, 6) * 80}px`
-              : grid[0] ? `${grid[0].length * 80}px` : '0px',
+            width: grid[0] ? `${grid[0].length * 80}px` : '0px',
             height: `${grid.length * 80}px`,
             display: 'grid',
             gridTemplateColumns: grid[0] ? `repeat(${grid[0].length}, 80px)` : 'none',
             gridTemplateRows: `repeat(${grid.length}, 80px)`,
-            gap: '0px',
-            ...(isMobilePortrait ? { minWidth: `${6 * 80}px`, maxWidth: `${6 * 80}px` } : {})
+            gap: '0px'
           }}
           aria-label="map-grid-container"
           role="grid"
