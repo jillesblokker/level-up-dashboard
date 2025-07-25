@@ -65,7 +65,7 @@ const getTileImage = (type: TileType): string => {
 const allTileTypes: TileType[] = [
     'empty', 'mountain', 'grass', 'forest', 'water', 'city', 'town', 'mystery',
     'portal-entrance', 'portal-exit', 'snow', 'cave', 'dungeon', 'castle', 'ice', 'desert',
-    'lava', 'volcano'
+    'lava', 'volcano', 'vacant'
 ];
 
 const initialInventory: Record<TileType, Tile> = {
@@ -93,6 +93,7 @@ const initialInventory: Record<TileType, Tile> = {
     swamp: { ...defaultTile('swamp'), cost: 0, owned: 0 },
     treasure: { ...defaultTile('treasure'), cost: 0, owned: 0 },
     monster: { ...defaultTile('monster'), cost: 0, owned: 0 },
+    vacant: { ...defaultTile('vacant'), cost: 0, owned: 0 },
 };
 
 const createBaseGrid = (): Tile[][] => {

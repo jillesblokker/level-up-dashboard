@@ -45,7 +45,17 @@ export function initializeCharacterStats(): CharacterStats {
 
 // Get current character stats
 export function getCharacterStats(): CharacterStats {
-  return initializeCharacterStats()
+  const stats = initializeCharacterStats()
+  
+  // Debug logging to help identify level discrepancies between devices
+  console.log('[Character Stats Manager] === DEBUG INFO ===')
+  console.log('[Character Stats Manager] Raw localStorage data:', localStorage.getItem('character-stats'))
+  console.log('[Character Stats Manager] Parsed stats:', stats)
+  console.log('[Character Stats Manager] Experience:', stats.experience)
+  console.log('[Character Stats Manager] Stored level:', stats.level)
+  console.log('[Character Stats Manager] ===================')
+  
+  return stats
 }
 
 // Update character stats
