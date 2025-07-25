@@ -173,7 +173,8 @@ export class MapGenerator {
       special: 'Special Tile',
       swamp: 'Swamp Tile',
       treasure: 'Treasure Tile',
-      monster: 'Monster Tile'
+      monster: 'Monster Tile',
+      vacant: 'Vacant Tile'
     };
 
     const tileDescriptions = {
@@ -201,7 +202,8 @@ export class MapGenerator {
       special: 'A special tile',
       swamp: 'A murky swamp',
       treasure: 'A treasure location',
-      monster: 'A monster lair'
+      monster: 'A monster lair',
+      vacant: 'A vacant plot of land'
     };
 
     const tileImages = {
@@ -229,7 +231,8 @@ export class MapGenerator {
       special: '/images/tiles/special-tile.png',
       swamp: '/images/tiles/swamp-tile.png',
       treasure: '/images/tiles/treasure-tile.png',
-      monster: '/images/tiles/monster-tile.png'
+      monster: '/images/tiles/monster-tile.png',
+      vacant: '/images/kingdom-tiles/Vacant.png'
     };
 
     return {
