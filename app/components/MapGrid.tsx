@@ -64,7 +64,7 @@ export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0 }: 
   const handlePan = (dx: number, dy: number) => {
     if (!gridRef.current) return;
 
-    const tileSize = 64;
+    const tileSize = 80; // Increased tile size for better visibility
     let containerWidth = gridRef.current.clientWidth;
     const containerHeight = gridRef.current.clientHeight;
     if (isMobilePortrait) {
@@ -117,14 +117,14 @@ export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0 }: 
           className="relative map-grid-container"
           style={{
             width: isMobilePortrait
-              ? `${Math.max(grid[0]?.length ?? 0, 6) * 64}px`
-              : grid[0] ? `${grid[0].length * 64}px` : '0px',
-            height: `${grid.length * 64}px`,
+              ? `${Math.max(grid[0]?.length ?? 0, 6) * 80}px`
+              : grid[0] ? `${grid[0].length * 80}px` : '0px',
+            height: `${grid.length * 80}px`,
             display: 'grid',
-            gridTemplateColumns: grid[0] ? `repeat(${grid[0].length}, 64px)` : 'none',
-            gridTemplateRows: `repeat(${grid.length}, 64px)`,
+            gridTemplateColumns: grid[0] ? `repeat(${grid[0].length}, 80px)` : 'none',
+            gridTemplateRows: `repeat(${grid.length}, 80px)`,
             gap: '0px',
-            ...(isMobilePortrait ? { minWidth: `${6 * 64}px`, maxWidth: `${6 * 64}px` } : {})
+            ...(isMobilePortrait ? { minWidth: `${6 * 80}px`, maxWidth: `${6 * 80}px` } : {})
           }}
           aria-label="map-grid-container"
           role="grid"
@@ -138,8 +138,8 @@ export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0 }: 
                   style={{
                     transform: `rotate(${tile.rotation}deg)`,
                     cursor: 'pointer',
-                    width: '64px',
-                    height: '64px',
+                    width: '80px',
+                    height: '80px',
                     gridColumn: x + 1,
                     gridRow: y + 1
                   }}
@@ -150,8 +150,8 @@ export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0 }: 
                   <Image
                     src={getTileImage(tile.type)}
                     alt={tile.name}
-                    width={64}
-                    height={64}
+                    width={80}
+                    height={80}
                     className="tile-image"
                     priority
                   />
@@ -160,8 +160,8 @@ export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0 }: 
                       <Image
                         src={getCharacterImage(playerLevel)}
                         alt="Character"
-                        width={32}
-                        height={32}
+                        width={40}
+                        height={40}
                         className="character-image"
                         priority
                       />
