@@ -600,6 +600,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
                   onTilePlace={handlePlaceKingdomTile}
                   selectedTile={selectedKingdomTile}
                   setSelectedTile={setSelectedKingdomTile}
+                  onGridExpand={(newGrid) => setKingdomGrid(newGrid)}
                 />
               </div>
             </div>

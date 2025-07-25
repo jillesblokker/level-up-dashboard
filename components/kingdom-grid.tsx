@@ -1,9 +1,13 @@
+"use client"
+
 import React from "react";
 import Image from "next/image";
 import { Tile, TileType } from '@/types/tiles';
 import { cn } from '@/lib/utils';
 import { useEffect, useCallback, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { getCharacterStats } from '@/lib/character-stats-manager'
+import { toast } from '@/components/ui/use-toast'
 
 const tileImageFiles = [
   'Archery.png', 'Blacksmith.png', 'Castle.png', 'Fisherman.png', 'Foodcourt.png', 'Fountain.png', 'Grocery.png', 'House.png', 'Inn.png', 'Jousting.png', 'Mansion.png', 'Mayor.png', 'Pond.png', 'Sawmill.png', 'Temple.png', 'Vegetables.png', 'Watchtower.png', 'Well.png', 'Windmill.png', 'Wizard.png',
@@ -17,26 +21,30 @@ interface KingdomGridProps {
   onTilePlace: (x: number, y: number, tile: Tile) => void;
   selectedTile: Tile | null;
   setSelectedTile: (tile: Tile | null) => void;
+  onGridExpand?: (newGrid: Tile[][]) => void; // Add callback for grid expansion
 }
 
-export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }: KingdomGridProps) {
+export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, onGridExpand }: KingdomGridProps) {
   const wallImage = '/images/kingdom-tiles/Wall.png';
   const wallTile = {
-    image: wallImage,
-    name: 'Wall',
-    ariaLabel: 'Wall tile',
     id: 'wall',
+    name: 'Wall',
+    image: wallImage,
+    cost: 0,
+    quantity: 0
   };
-  const [propertiesOpen, setPropertiesOpen] = React.useState(false);
 
-  // Add state for build tokens and property inventory
-  const [buildTokens, setBuildTokens] = useState(() => {
+  const [propertiesOpen, setPropertiesOpen] = useState(false);
+  const [propertyTab, setPropertyTab] = useState<'place' | 'buy'>('place');
+  const [buildTokens, setBuildTokens] = useState(0);
+  const [kingdomExpansions, setKingdomExpansions] = useState<number>(() => {
     if (typeof window !== 'undefined') {
-      const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
-      return stats.buildTokens || 0;
+      return parseInt(localStorage.getItem('kingdom-grid-expansions') || '0', 10);
     }
     return 0;
   });
+  const [playerLevel, setPlayerLevel] = useState<number>(1);
+
   // Dynamically generate property inventory
   const [propertyInventory, setPropertyInventory] = useState<Tile[]>(() => {
     return tileImageFiles.map((file) => {
@@ -60,8 +68,13 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
     });
   });
 
-  // --- Add state for tab selection ---
-  const [propertyTab, setPropertyTab] = useState<'place' | 'buy'>('place');
+  // Load build tokens and player level
+  useEffect(() => {
+    const stats = getCharacterStats();
+    const statsData = JSON.parse(localStorage.getItem('character-stats') || '{}');
+    setBuildTokens(statsData.buildTokens || 0);
+    setPlayerLevel(stats.level || 1);
+  }, []);
 
   // Handler for buying a property tile
   const handleBuyProperty = (tile: Tile) => {
@@ -76,6 +89,77 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
       return newTokens;
     });
     setPropertyInventory((prev) => prev.map(t => t.id === tile.id ? { ...t, quantity: (t.quantity || 0) + 1 } : t));
+  };
+
+  // Expansion gating logic (same as realm map)
+  const nextExpansionLevel = 5 + kingdomExpansions * 5;
+  const canExpand = playerLevel >= nextExpansionLevel;
+
+  // Expand kingdom grid function
+  const expandKingdomGrid = () => {
+    if (!canExpand) {
+      toast({
+        title: 'Expansion Locked',
+        description: `Reach level ${nextExpansionLevel} to expand your kingdom!`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const currentRows = grid.length;
+    const currentCols = grid[0]?.length || 6;
+    const newRows = currentRows + 3;
+    
+    // Create new grid with 3 additional rows
+    const newGrid: Tile[][] = [];
+    
+    // Add existing rows
+    for (let y = 0; y < currentRows; y++) {
+      const currentRow = grid[y];
+      if (currentRow && Array.isArray(currentRow)) {
+        newGrid[y] = [...currentRow];
+      }
+    }
+    
+    // Add 3 new rows with grass tiles
+    for (let y = currentRows; y < newRows; y++) {
+      newGrid[y] = new Array(currentCols);
+      for (let x = 0; x < currentCols; x++) {
+        newGrid[y]![x] = {
+          id: `grass-${x}-${y}`,
+          name: 'Grass',
+          description: 'A patch of green grass',
+          type: 'grass',
+          image: '/images/kingdom-tiles/Grass.png',
+          cost: 0,
+          quantity: 0,
+          x,
+          y,
+          connections: [],
+          rotation: 0,
+          revealed: true,
+          isVisited: false,
+          ariaLabel: 'Grass tile'
+        };
+      }
+    }
+    
+    // Update expansion count
+    setKingdomExpansions((prev: number) => {
+      const newVal = prev + 1;
+      localStorage.setItem('kingdom-grid-expansions', String(newVal));
+      return newVal;
+    });
+
+    // Call the callback to update the parent component's grid
+    if (onGridExpand) {
+      onGridExpand(newGrid);
+    }
+
+    toast({
+      title: "Kingdom Expanded",
+      description: "Your kingdom has been expanded with 3 new rows of grass!",
+    });
   };
 
   // Keyboard shortcut for opening properties
@@ -177,6 +261,15 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile }
           onClick={() => setPropertiesOpen(true)}
         >
           +
+        </button>
+        {/* Floating expand button below the + button */}
+        <button
+          className="absolute top-20 right-4 z-20 w-12 h-12 bg-amber-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl font-bold hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label="Expand kingdom grid"
+          onClick={expandKingdomGrid}
+          disabled={!canExpand}
+        >
+          🏗️
         </button>
         {renderGridWithBorder()}
       </div>
