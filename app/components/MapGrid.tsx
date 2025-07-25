@@ -47,29 +47,38 @@ const getTileImage = (tileType: string) => {
 
 export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0 }: MapGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
-  const [isMobilePortrait, setIsMobilePortrait] = useState(false);
+  const [tileSize, setTileSize] = useState(80);
 
-  // Detect mobile portrait mode
+  // Calculate responsive tile size based on container width
   useEffect(() => {
     function handleResize() {
-      const isPortrait = window.innerHeight > window.innerWidth;
-      const isMobile = window.innerWidth <= 768;
-      setIsMobilePortrait(isMobile && isPortrait);
+      if (!gridRef.current) return;
+      
+      const containerWidth = gridRef.current.clientWidth;
+      const containerHeight = gridRef.current.clientHeight;
+      
+      // Calculate optimal tile size to fill the container
+      const maxCols = grid[0]?.length || 13;
+      const maxRows = grid.length || 7;
+      
+      const tileSizeX = containerWidth / maxCols;
+      const tileSizeY = containerHeight / maxRows;
+      
+      // Use the smaller dimension to ensure tiles fit
+      const newTileSize = Math.min(tileSizeX, tileSizeY, 120); // Max 120px, min based on container
+      setTileSize(Math.max(newTileSize, 40)); // Minimum 40px
     }
+    
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [grid]);
 
   const handlePan = (dx: number, dy: number) => {
     if (!gridRef.current) return;
 
-    const tileSize = 80; // Increased tile size for better visibility
-    let containerWidth = gridRef.current.clientWidth;
+    const containerWidth = gridRef.current.clientWidth;
     const containerHeight = gridRef.current.clientHeight;
-    if (isMobilePortrait) {
-      containerWidth = 6 * tileSize;
-    }
 
     // Calculate the new scroll position
     const newX = (playerPosition.x * tileSize - containerWidth / 2) + dx;
@@ -88,7 +97,7 @@ export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0 }: 
     if (gridRef.current) {
       handlePan(0, 0);
     }
-  }, [playerPosition.x, playerPosition.y, isMobilePortrait]);
+  }, [playerPosition.x, playerPosition.y, tileSize]);
 
   // Get character image based on player level
   const getCharacterImage = (level: number) => {
@@ -115,11 +124,11 @@ export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0 }: 
         <div
           className="relative map-grid-container"
           style={{
-            width: grid[0] ? `${grid[0].length * 80}px` : '0px',
-            height: `${grid.length * 80}px`,
+            width: grid[0] ? `${grid[0].length * tileSize}px` : '0px',
+            height: `${grid.length * tileSize}px`,
             display: 'grid',
-            gridTemplateColumns: grid[0] ? `repeat(${grid[0].length}, 80px)` : 'none',
-            gridTemplateRows: `repeat(${grid.length}, 80px)`,
+            gridTemplateColumns: grid[0] ? `repeat(${grid[0].length}, ${tileSize}px)` : 'none',
+            gridTemplateRows: `repeat(${grid.length}, ${tileSize}px)`,
             gap: '0px'
           }}
           aria-label="map-grid-container"
@@ -134,8 +143,8 @@ export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0 }: 
                   style={{
                     transform: `rotate(${tile.rotation}deg)`,
                     cursor: 'pointer',
-                    width: '80px',
-                    height: '80px',
+                    width: `${tileSize}px`,
+                    height: `${tileSize}px`,
                     gridColumn: x + 1,
                     gridRow: y + 1
                   }}
@@ -146,8 +155,8 @@ export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0 }: 
                   <Image
                     src={getTileImage(tile.type)}
                     alt={tile.name}
-                    width={80}
-                    height={80}
+                    width={tileSize}
+                    height={tileSize}
                     className="tile-image"
                     priority
                   />
@@ -156,8 +165,8 @@ export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0 }: 
                       <Image
                         src={getCharacterImage(playerLevel)}
                         alt="Character"
-                        width={40}
-                        height={40}
+                        width={Math.floor(tileSize * 0.5)}
+                        height={Math.floor(tileSize * 0.5)}
                         className="character-image"
                         priority
                       />

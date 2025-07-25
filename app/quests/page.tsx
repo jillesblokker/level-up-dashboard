@@ -1478,7 +1478,7 @@ export default function QuestsPage() {
                 </div>
 
                 {/* Mobile Layout - Responsive (same component, smaller elements) */}
-                <div className="md:hidden flex flex-col w-full gap-4 p-4">
+                <div className="md:hidden flex flex-col w-full gap-6 p-6">
                   {/* Streak Badge - Mobile (same layout as desktop but smaller) */}
                   <div className="flex flex-col items-center justify-center bg-black rounded-xl p-4">
                     <Flame className="w-8 h-8 text-[#0D7200] mb-1" aria-hidden="true" />
