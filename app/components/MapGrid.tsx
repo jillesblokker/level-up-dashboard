@@ -64,9 +64,9 @@ export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0 }: 
       const tileSizeX = containerWidth / maxCols;
       const tileSizeY = containerHeight / maxRows;
       
-      // Use the smaller dimension to ensure tiles fit
-      const newTileSize = Math.min(tileSizeX, tileSizeY, 120); // Max 120px, min based on container
-      setTileSize(Math.max(newTileSize, 40)); // Minimum 40px
+      // Use the larger dimension to fill available space, but cap at reasonable max
+      const newTileSize = Math.min(Math.max(tileSizeX, tileSizeY), 120); // Use larger dimension, max 120px
+      setTileSize(Math.max(newTileSize, 60)); // Minimum 60px for better visibility
     }
     
     handleResize();

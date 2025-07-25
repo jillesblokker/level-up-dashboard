@@ -1410,7 +1410,7 @@ export default function QuestsPage() {
             </div>
             {/* Quest Streak Summary Card */}
             <div className="mb-6 w-full">
-              <Card className="medieval-card-primary w-full" aria-label="quest-streak-summary-card">
+              <Card className="medieval-card-primary w-full" style={{ height: 'auto', minHeight: '226px' }} aria-label="quest-streak-summary-card">
                 {/* Desktop/Tablet Layout - Horizontal 3-Column */}
                 <div className="hidden md:flex items-center gap-6 w-full">
                   {/* Left: Streak Badge - Vertical Layout */}
