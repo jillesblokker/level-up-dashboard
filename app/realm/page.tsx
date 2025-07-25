@@ -257,6 +257,7 @@ export default function RealmPage() {
       }
       return false;
     });
+    const [characterStats, setCharacterStats] = useState(() => getCharacterStats());
 
     // Monster battle state
     const [battleOpen, setBattleOpen] = useState(false);
@@ -1221,7 +1222,7 @@ export default function RealmPage() {
                         className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
                         aria-label="movement-mode-button"
                       >
-                        <Move className="w-4 h-4" />
+                        <Move className="w-4 h-4 text-white" />
                         <span className="hidden md:inline">Move</span>
                       </Button>
                       <Button
@@ -1310,6 +1311,7 @@ export default function RealmPage() {
                             grid={grid}
                             playerPosition={characterPosition}
                             onTileClick={handlePlaceTile}
+                            playerLevel={characterStats.level}
                         />
                     </div>
                 </div>

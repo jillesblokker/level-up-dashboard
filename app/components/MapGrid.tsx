@@ -7,6 +7,7 @@ interface MapGridProps {
   playerPosition: { x: number; y: number };
   onTileClick: (x: number, y: number) => void;
   className?: string;
+  playerLevel?: number;
 }
 
 const getTileImage = (tileType: string) => {
@@ -44,7 +45,7 @@ const getTileImage = (tileType: string) => {
   }
 };
 
-export function MapGrid({ grid, playerPosition, onTileClick }: MapGridProps) {
+export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0 }: MapGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [isMobilePortrait, setIsMobilePortrait] = useState(false);
 
@@ -89,8 +90,23 @@ export function MapGrid({ grid, playerPosition, onTileClick }: MapGridProps) {
     }
   }, [playerPosition.x, playerPosition.y, isMobilePortrait]);
 
+  // Get character image based on player level
+  const getCharacterImage = (level: number) => {
+    if (level >= 100) return '/images/character/god.png';
+    if (level >= 90) return '/images/character/emperor.png';
+    if (level >= 80) return '/images/character/king.png';
+    if (level >= 70) return '/images/character/prince.png';
+    if (level >= 60) return '/images/character/duke.png';
+    if (level >= 50) return '/images/character/marquis.png';
+    if (level >= 40) return '/images/character/count.png';
+    if (level >= 30) return '/images/character/viscount.png';
+    if (level >= 20) return '/images/character/baron.png';
+    if (level >= 10) return '/images/character/knight.png';
+    return '/images/character/squire.png';
+  };
+
   return (
-    <div className="relative w-full h-[calc(100vh-8rem)] overflow-hidden rounded-lg border border-amber-800/20" aria-label="map-container">
+    <div className="relative w-full h-[calc(100vh-8rem)] overflow-hidden" aria-label="map-container">
       <div
         ref={gridRef}
         className="absolute inset-0 overflow-auto map-grid-scroll"
@@ -142,7 +158,7 @@ export function MapGrid({ grid, playerPosition, onTileClick }: MapGridProps) {
                   {playerPosition.x === x && playerPosition.y === y && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <Image
-                        src="/images/character.png"
+                        src={getCharacterImage(playerLevel)}
                         alt="Character"
                         width={32}
                         height={32}
