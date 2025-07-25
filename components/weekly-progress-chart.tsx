@@ -25,16 +25,75 @@ interface ChartDataPoint {
 }
 
 export function WeeklyProgressChart() {
-  // Force data to be empty for debugging
-  const data: ChartDataPoint[] = [];
-
+  const [data, setData] = useState<ChartDataPoint[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeMetric, setActiveMetric] = useState<'tasks' | 'xp' | 'gold'>('tasks');
   const router = useRouter();
 
-  // Compute isEmpty for each metric
-  const isQuestsEmpty = !data || data.length === 0 || data.every(d => !d.tasks && !d.completedTasks);
-  const isGoldEmpty = !data || data.length === 0 || data.every(d => !d.gold);
-  const isXpEmpty = !data || data.length === 0 || data.every(d => !d.xp);
+  // Fetch data from localStorage or other sources
+  useEffect(() => {
+    const fetchData = () => {
+      try {
+        // Get quest history from localStorage
+        const questHistory = JSON.parse(localStorage.getItem('quest-history') || '[]');
+        const characterStats = JSON.parse(localStorage.getItem('character-stats') || '{}');
+        
+        // Generate weekly data for the last 7 days
+        const weekData: ChartDataPoint[] = [];
+        const today = new Date();
+        
+        for (let i = 6; i >= 0; i--) {
+          const date = new Date(today);
+          date.setDate(date.getDate() - i);
+          const dateStr = date.toISOString().slice(0, 10);
+          
+          // Find quest data for this date
+          const dayQuests = questHistory.filter((q: any) => q.date === dateStr);
+          const completedQuests = dayQuests.filter((q: any) => q.completed).length;
+          const totalQuests = dayQuests.length;
+          
+          // Get gold and XP from character stats (simplified)
+          const dayGold = characterStats.goldEarned?.[dateStr] || 0;
+          const dayXp = characterStats.xpEarned?.[dateStr] || 0;
+          
+          weekData.push({
+            name: date.toLocaleDateString('en-US', { weekday: 'short' }),
+            tasks: totalQuests,
+            completedTasks: completedQuests,
+            gold: dayGold,
+            xp: dayXp
+          });
+        }
+        
+        setData(weekData);
+      } catch (error) {
+        console.error('Error fetching progress data:', error);
+        setData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchData();
+    
+    // Listen for data updates
+    const handleDataUpdate = () => {
+      fetchData();
+    };
+    
+    window.addEventListener('quest-completed', handleDataUpdate);
+    window.addEventListener('character-stats-update', handleDataUpdate);
+    
+    return () => {
+      window.removeEventListener('quest-completed', handleDataUpdate);
+      window.removeEventListener('character-stats-update', handleDataUpdate);
+    };
+  }, []);
+
+  // Compute isEmpty for each metric - only show empty if there's truly no data
+  const isQuestsEmpty = !isLoading && (!data || data.length === 0 || data.every(d => !d.tasks && !d.completedTasks));
+  const isGoldEmpty = !isLoading && (!data || data.length === 0 || data.every(d => !d.gold));
+  const isXpEmpty = !isLoading && (!data || data.length === 0 || data.every(d => !d.xp));
 
   let isEmpty = false;
   if (activeMetric === 'tasks') isEmpty = isQuestsEmpty;
@@ -74,7 +133,11 @@ export function WeeklyProgressChart() {
       </div>
 
       <div className="h-64 relative rounded-lg overflow-hidden" aria-label="weekly-progress-chart">
-        {isEmpty ? (
+        {isLoading ? (
+          <div className="h-full flex items-center justify-center bg-black rounded-lg">
+            <div className="text-white">Loading progress data...</div>
+          </div>
+        ) : isEmpty ? (
           <>
             <Image
               src="/images/quests-header.jpg"

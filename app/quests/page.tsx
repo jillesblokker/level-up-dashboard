@@ -1411,64 +1411,133 @@ export default function QuestsPage() {
             {/* Quest Streak Summary Card */}
             <div className="mb-6">
               <Card className="medieval-card-primary" aria-label="quest-streak-summary-card">
-                {/* Streak Icon and Count */}
-                <div className="flex flex-col items-center justify-center bg-black rounded-2xl p-6 min-w-[120px] flex-none">
-                  <Flame className="w-14 h-14 text-[#0D7200]" aria-hidden="true" />
-                  <div className="text-4xl font-extrabold text-white mt-2" aria-label="quest-streak-value">{streakData?.streak_days ?? 0} days</div>
-                  <div className="text-base text-gray-300">Day streak</div>
+                {/* Desktop Layout */}
+                <div className="hidden md:flex">
+                  {/* Streak Icon and Count */}
+                  <div className="flex flex-col items-center justify-center bg-black rounded-2xl p-6 min-w-[120px] flex-none">
+                    <Flame className="w-14 h-14 text-[#0D7200]" aria-hidden="true" />
+                    <div className="text-4xl font-extrabold text-white mt-2" aria-label="quest-streak-value">{streakData?.streak_days ?? 0} days</div>
+                    <div className="text-base text-gray-300">Day streak</div>
+                  </div>
+                  {/* Quest Progress Section */}
+                  <div className="flex-1 flex flex-col gap-2">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl font-bold text-white">{todaysCompleted}</span>
+                      <span className="text-lg text-gray-300">/ {todaysTotal} quests</span>
+                    </div>
+                    <div className="w-full h-4 bg-black rounded-full overflow-hidden relative">
+                      <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${todaysTotal ? (todaysCompleted / todaysTotal) * 100 : 0}%` }} />
+                    </div>
+                    {/* Days of the week with styled circles */}
+                    <div className="flex justify-between text-xs text-gray-300 mt-2">
+                      <div className="flex flex-col items-center">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>Mon</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>Tue</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>Wed</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>Thu</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>Fri</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>Sat</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>Sun</span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Bonus and Scrolls */}
+                  <div className="flex flex-col gap-4 min-w-[180px] flex-none">
+                    <div>
+                      <div className="text-lg font-bold text-[#F0F0F0]">Streak Bonus:</div>
+                      <div className="text-2xl font-bold text-[#F0F0F0]">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
+                      <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
+                    </div>
+                    <div>
+                      <div className="text-lg font-bold text-[#F0F0F0]">Streak Scrolls:</div>
+                      <div className="text-2xl font-bold text-[#F0F0F0]">{getStreakScrollCount()}</div>
+                      <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
+                    </div>
+                  </div>
                 </div>
-                {/* Quest Progress Section */}
-                <div className="flex-1 flex flex-col gap-2">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-bold text-white">{todaysCompleted}</span>
-                    <span className="text-lg text-gray-300">/ {todaysTotal} quests</span>
+
+                {/* Mobile Layout - Vertical */}
+                <div className="md:hidden flex flex-col gap-4">
+                  {/* Streak Badge - Top */}
+                  <div className="flex items-center justify-center bg-black rounded-2xl p-4">
+                    <Flame className="w-8 h-8 text-[#0D7200] mr-3" aria-hidden="true" />
+                    <div className="text-2xl font-extrabold text-white" aria-label="quest-streak-value">{streakData?.streak_days ?? 0} days</div>
+                    <div className="text-sm text-gray-300 ml-2">Day streak</div>
                   </div>
-                  <div className="w-full h-4 bg-black rounded-full overflow-hidden relative">
-                    <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${todaysTotal ? (todaysCompleted / todaysTotal) * 100 : 0}%` }} />
+                  
+                  {/* Quest Progress Section */}
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl font-bold text-white">{todaysCompleted}</span>
+                      <span className="text-lg text-gray-300">/ {todaysTotal} quests</span>
+                    </div>
+                    <div className="w-full h-4 bg-black rounded-full overflow-hidden relative">
+                      <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${todaysTotal ? (todaysCompleted / todaysTotal) * 100 : 0}%` }} />
+                    </div>
+                    {/* Days of the week with smaller circles and first letters only */}
+                    <div className="flex justify-between text-xs text-gray-300 mt-2">
+                      <div className="flex flex-col items-center">
+                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>M</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>T</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>W</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>T</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>F</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>S</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>S</span>
+                      </div>
+                    </div>
                   </div>
-                  {/* Days of the week with styled circles */}
-                  <div className="flex justify-between text-xs text-gray-300 mt-2">
-                    <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                      <span>Mon</span>
+                  
+                  {/* Bonus and Scrolls - Bottom */}
+                  <div className="flex flex-col gap-3">
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-[#F0F0F0]">Streak Bonus:</div>
+                      <div className="text-xl font-bold text-[#F0F0F0]">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
+                      <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
                     </div>
-                    <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                      <span>Tue</span>
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-[#F0F0F0]">Streak Scrolls:</div>
+                      <div className="text-xl font-bold text-[#F0F0F0]">{getStreakScrollCount()}</div>
+                      <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
                     </div>
-                    <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                      <span>Wed</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                      <span>Thu</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                      <span>Fri</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                      <span>Sat</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                      <span>Sun</span>
-                    </div>
-                  </div>
-                </div>
-                {/* Bonus and Scrolls */}
-                <div className="flex flex-col gap-4 min-w-[180px] flex-none">
-                  <div>
-                    <div className="text-lg font-bold text-[#F0F0F0]">Streak Bonus:</div>
-                    <div className="text-2xl font-bold text-[#F0F0F0]">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
-                    <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
-                  </div>
-                  <div>
-                    <div className="text-lg font-bold text-[#F0F0F0]">Streak Scrolls:</div>
-                    <div className="text-2xl font-bold text-[#F0F0F0]">{getStreakScrollCount()}</div>
-                    <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
                   </div>
                 </div>
               </Card>
@@ -1530,65 +1599,134 @@ export default function QuestsPage() {
             </div>
             {/* Challenge Streak Summary Card (new style) */}
             <div className="mb-6">
-                              <Card className="medieval-card-primary" aria-label="challenge-streak-summary-card">
-                {/* Streak Icon and Count */}
-                <div className="flex flex-col items-center justify-center bg-black rounded-2xl p-6 min-w-[120px] flex-none">
-                  <Flame className="w-14 h-14 text-[#0D7200]" aria-hidden="true" />
-                  <div className="text-4xl font-extrabold text-white mt-2" aria-label="challenge-streak-value">{challengeStreakData?.streak_days ?? 0} days</div>
-                  <div className="text-base text-gray-300">Day streak</div>
+              <Card className="medieval-card-primary" aria-label="challenge-streak-summary-card">
+                {/* Desktop Layout */}
+                <div className="hidden md:flex">
+                  {/* Streak Icon and Count */}
+                  <div className="flex flex-col items-center justify-center bg-black rounded-2xl p-6 min-w-[120px] flex-none">
+                    <Flame className="w-14 h-14 text-[#0D7200]" aria-hidden="true" />
+                    <div className="text-4xl font-extrabold text-white mt-2" aria-label="challenge-streak-value">{challengeStreakData?.streak_days ?? 0} days</div>
+                    <div className="text-base text-gray-300">Day streak</div>
+                  </div>
+                  {/* Challenge Progress Section */}
+                  <div className="flex-1 flex flex-col gap-2">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl font-bold text-white">{challenges.filter(c => c.category === challengeCategory && c.completed).length}</span>
+                      <span className="text-lg text-gray-300">/ {challenges.filter(c => c.category === challengeCategory).length} challenges</span>
+                    </div>
+                    <div className="w-full h-4 bg-black rounded-full overflow-hidden relative">
+                      <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${challenges.filter(c => c.category === challengeCategory).length ? (challenges.filter(c => c.category === challengeCategory && c.completed).length / challenges.filter(c => c.category === challengeCategory).length) * 100 : 0}%` }} />
+                    </div>
+                    {/* Days of the week with styled circles */}
+                    <div className="flex justify-between text-xs text-gray-300 mt-2">
+                      <div className="flex flex-col items-center">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>Mon</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>Tue</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>Wed</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>Thu</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>Fri</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>Sat</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>Sun</span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Bonus and Scrolls */}
+                  <div className="flex flex-col gap-4 min-w-[180px] flex-none">
+                    <div>
+                      <div className="text-lg font-bold text-[#F59E0B]">Streak Bonus:</div>
+                      <div className="text-2xl font-bold text-[#F59E0B]">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
+                      <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
+                    </div>
+                    <div>
+                      <div className="text-lg font-bold text-[#F0F0F0]">Streak Scrolls:</div>
+                      <div className="text-2xl font-bold text-[#F0F0F0]">{getStreakScrollCount()}</div>
+                      <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
+                    </div>
+                  </div>
                 </div>
-                {/* Challenge Progress Section */}
-                <div className="flex-1 flex flex-col gap-2">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-bold text-white">{challenges.filter(c => c.category === challengeCategory && c.completed).length}</span>
-                    <span className="text-lg text-gray-300">/ {challenges.filter(c => c.category === challengeCategory).length} challenges</span>
+
+                {/* Mobile Layout - Vertical */}
+                <div className="md:hidden flex flex-col gap-4">
+                  {/* Streak Badge - Top */}
+                  <div className="flex items-center justify-center bg-black rounded-2xl p-4">
+                    <Flame className="w-8 h-8 text-[#0D7200] mr-3" aria-hidden="true" />
+                    <div className="text-2xl font-extrabold text-white" aria-label="challenge-streak-value">{challengeStreakData?.streak_days ?? 0} days</div>
+                    <div className="text-sm text-gray-300 ml-2">Day streak</div>
                   </div>
-                  <div className="w-full h-4 bg-black rounded-full overflow-hidden relative">
-                    <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${challenges.filter(c => c.category === challengeCategory).length ? (challenges.filter(c => c.category === challengeCategory && c.completed).length / challenges.filter(c => c.category === challengeCategory).length) * 100 : 0}%` }} />
+                  
+                  {/* Challenge Progress Section */}
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl font-bold text-white">{challenges.filter(c => c.category === challengeCategory && c.completed).length}</span>
+                      <span className="text-lg text-gray-300">/ {challenges.filter(c => c.category === challengeCategory).length} challenges</span>
+                    </div>
+                    <div className="w-full h-4 bg-black rounded-full overflow-hidden relative">
+                      <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${challenges.filter(c => c.category === challengeCategory).length ? (challenges.filter(c => c.category === challengeCategory && c.completed).length / challenges.filter(c => c.category === challengeCategory).length) * 100 : 0}%` }} />
+                    </div>
+                    {/* Days of the week with smaller circles and first letters only */}
+                    <div className="flex justify-between text-xs text-gray-300 mt-2">
+                      <div className="flex flex-col items-center">
+                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>M</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>T</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>W</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>T</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>F</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>S</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="w-4 h-4 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>S</span>
+                      </div>
+                    </div>
                   </div>
-                  {/* Days of the week with styled circles */}
-                  <div className="flex justify-between text-xs text-gray-300 mt-2">
-                    <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                      <span>Mon</span>
+                  
+                  {/* Bonus and Scrolls - Bottom */}
+                  <div className="flex flex-col gap-3">
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-[#F59E0B]">Streak Bonus:</div>
+                      <div className="text-xl font-bold text-[#F59E0B]">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
+                      <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
                     </div>
-                    <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                      <span>Tue</span>
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-[#F0F0F0]">Streak Scrolls:</div>
+                      <div className="text-xl font-bold text-[#F0F0F0]">{getStreakScrollCount()}</div>
+                      <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
                     </div>
-                    <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                      <span>Wed</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                      <span>Thu</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                      <span>Fri</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                      <span>Sat</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                      <span>Sun</span>
-                    </div>
-                  </div>
-                </div>
-                {/* Bonus and Scrolls */}
-                <div className="flex flex-col gap-4 min-w-[180px] flex-none">
-                  <div>
-                    <div className="text-lg font-bold text-[#F59E0B]">Streak Bonus:</div>
-                    <div className="text-2xl font-bold text-[#F59E0B]">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
-                    <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
-                  </div>
-                  <div>
-                    <div className="text-lg font-bold text-[#F0F0F0]">Streak Scrolls:</div>
-                    <div className="text-2xl font-bold text-[#F0F0F0]">{getStreakScrollCount()}</div>
-                    <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
                   </div>
                 </div>
               </Card>

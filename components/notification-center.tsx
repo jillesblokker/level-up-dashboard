@@ -144,18 +144,7 @@ export function NotificationCenter() {
                 <p className="text-gray-400 text-sm font-medium">Kingdom Messages</p>
               </div>
             </div>
-            {notifications.length > 0 && (
-              <button
-                onClick={() => {
-                  notificationService.markAllAsRead()
-                  setNotifications(notificationService.getNotifications())
-                }}
-                className="text-xs text-amber-500 hover:text-amber-400 min-w-[44px] min-h-[44px] px-2 py-1 rounded border border-amber-800/30 hover:bg-amber-900/20 transition-colors"
-                aria-label="Mark all notifications as read"
-              >
-                Read all
-              </button>
-            )}
+
           </div>
         </div>
         
@@ -171,7 +160,7 @@ export function NotificationCenter() {
                     <div className="text-lg mt-1">{getNotificationIcon(notification.type)}</div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <h4 className={cn("font-medium text-sm flex items-center", getNotificationColor(notification.type))}>
+                        <h4 className="font-medium text-sm flex items-center text-white">
                           {getPriorityBadge(notification.priority)}
                           {notification.title}
                         </h4>
