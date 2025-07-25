@@ -36,7 +36,7 @@ import { cn } from "@/lib/utils"
 import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character"
 import { Logo } from "@/components/logo";
 import { useUser } from "@clerk/nextjs";
-import { getCharacterStats } from '@/lib/character-data-manager';
+import { initializeCharacterStats, getCharacterStats } from "@/lib/character-stats-manager"
 
 interface MobileNavProps {
   tabs?: { value: string; label: string }[]
@@ -64,33 +64,32 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
   })
 
   useEffect(() => {
-    // Load character stats from Supabase
-    async function loadCharacterStats() {
-      // TODO: get userId from context/auth
-      const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined;
-      if (!userId) return;
-      const stats = await getCharacterStats(userId);
-      setCharacterStats(stats || {
-        level: 1,
-        experience: 0,
-        experienceToNextLevel: 100,
-        gold: 1000,
-        titles: {
-          equipped: "Novice Adventurer",
-          unlocked: 5,
-          total: 20
-        },
-        perks: {
-          active: 3,
-          total: 10
-        }
-      });
+    // Initialize character stats and load them (same as desktop)
+    const loadCharacterStats = () => {
+      try {
+        // Initialize character stats if they don't exist
+        initializeCharacterStats()
+        
+        // Get current stats
+        const stats = getCharacterStats()
+        const currentLevel = calculateLevelFromExperience(stats.experience)
+        setCharacterStats({
+          ...stats,
+          level: currentLevel,
+          experienceToNextLevel: calculateExperienceForLevel(currentLevel)
+        })
+      } catch (error) {
+        console.error("Error loading character stats:", error)
+      }
     }
-    loadCharacterStats();
+    loadCharacterStats()
+
     // Listen for character stats updates
-    window.addEventListener("character-stats-update", loadCharacterStats)
+    const handleStatsUpdate = () => loadCharacterStats()
+    window.addEventListener("character-stats-update", handleStatsUpdate)
+    
     return () => {
-      window.removeEventListener("character-stats-update", loadCharacterStats)
+      window.removeEventListener("character-stats-update", handleStatsUpdate)
     }
   }, [])
   
@@ -143,7 +142,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
             aria-label="main-menu-sheet"
           >
             <div className="flex flex-col h-full">
-              {/* Stats section */}
+              {/* Stats section - same as desktop */}
               <div className="flex items-center space-x-4 py-4 border-b border-gray-800">
                 <div className="flex items-center space-x-2">
                   <div className="text-sm font-medium text-gray-400">

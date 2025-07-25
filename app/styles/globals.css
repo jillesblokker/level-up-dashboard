@@ -950,4 +950,45 @@ body {
     background-color: #000000 !important;
     background-image: url('/images/backgroundi.png'), linear-gradient(135deg, #000000, #000000) !important;
   }
+}
+
+/* More aggressive status bar fixes */
+@supports (padding-top: env(safe-area-inset-top)) {
+  html::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-top);
+    background-color: #000000;
+    z-index: 10000;
+  }
+  
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-top);
+    background-color: #000000;
+    z-index: 9999;
+  }
+}
+
+/* Force black status bar on all mobile devices */
+@media screen and (max-width: 768px) {
+  * {
+    background-color: transparent;
+  }
+  
+  html, body {
+    background-color: #000000 !important;
+  }
+  
+  /* Override any other background colors */
+  .bg-amber-500, .bg-yellow-500, .bg-orange-500 {
+    background-color: #000000 !important;
+  }
 } 

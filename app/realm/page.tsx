@@ -5,7 +5,7 @@ import { useLocalStorage } from "@/lib/hooks/use-local-storage"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import { Tile, TileType, InventoryItem as TileInventoryItem } from '@/types/tiles'
-import { MapGrid } from '../../components/map-grid'
+// import { MapGrid } from '@/components/map-grid'
 import { TileInventory } from '@/components/tile-inventory'
 import { Switch } from "@/components/ui/switch"
 import { useUser } from '@clerk/nextjs'
@@ -1306,7 +1306,7 @@ export default function RealmPage() {
                 <div className="flex flex-1 overflow-hidden">
                     {/* Main Map Area */}
                     <div className="flex-1 relative">
-                        <MapGrid
+                        {/* <MapGrid
                             grid={grid}
                             onTileClick={handlePlaceTile}
                             character={characterPosition}
@@ -1321,7 +1321,10 @@ export default function RealmPage() {
                             isHorsePresent={isHorsePresent && !horseCaught}
                             isPenguinPresent={isPenguinPresent}
                             onTileDelete={handleDeleteTile}
-                        />
+                        /> */}
+                        <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                            <p className="text-gray-400">Map Grid Component Temporarily Disabled</p>
+                        </div>
                     </div>
                 </div>
                 {/* Side Inventory Panel */}

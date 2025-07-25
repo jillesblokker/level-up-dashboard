@@ -113,6 +113,7 @@ export default function RootLayout({
                         color: '#fbbf24',
                         border: '1px solid rgba(146, 64, 14, 0.5)',
                         backdropFilter: 'blur(8px)',
+                        marginBottom: 'env(safe-area-inset-bottom, 20px)',
                       },
                       className: 'border border-amber-900/50 bg-black/80 text-amber-400',
                     }}
