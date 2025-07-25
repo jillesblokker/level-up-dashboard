@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
-import { calculateLevelProgress, CharacterStats } from "@/types/character"
+import { calculateLevelProgress, CharacterStats, calculateLevelFromExperience } from "@/types/character"
 import { storageService } from '@/lib/storage-service'
 import { getTitleProgress, TITLES } from '@/lib/title-manager'
 import { getStrengths, calculateStrengthProgress, Strength } from '@/lib/strength-manager'
@@ -271,7 +271,12 @@ export default function CharacterPage() {
         const savedStats = localStorage.getItem('character-stats')
         if (savedStats) {
           const stats = JSON.parse(savedStats)
-          setCharacterStats(stats)
+          // Calculate level from experience to ensure consistency with navigation bar
+          const calculatedLevel = calculateLevelFromExperience(stats.experience)
+          setCharacterStats({
+            ...stats,
+            level: calculatedLevel
+          })
         }
       } catch (error) {
         console.error('Error loading character stats:', error)
@@ -672,6 +677,22 @@ export default function CharacterPage() {
                       const titleInfo = getTitleProgress(characterStats.level);
                       return (
                         <>
+                          {/* Current title character image */}
+                          <div className="flex justify-center mb-4">
+                            <div className="relative w-24 h-24">
+                              <Image
+                                src={`/images/character/${titleInfo.current.id}.png`}
+                                alt={`${titleInfo.current.name} character`}
+                                fill
+                                className="object-contain"
+                                onError={(e) => {
+                                  // Fallback to squire image if specific image not found
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = '/images/character/squire.png';
+                                }}
+                              />
+                            </div>
+                          </div>
                           <p className="text-lg font-bold text-amber-600">{titleInfo.current.name}</p>
                           <p className="text-sm text-muted-foreground">{titleInfo.current.description}</p>
                           {titleInfo.next && (
@@ -820,7 +841,23 @@ export default function CharacterPage() {
                         >
                           <CardHeader className="pb-2">
                             <div className="flex justify-between">
-                              <CardTitle className="font-serif">{title.name}</CardTitle>
+                              <div className="flex items-center gap-3">
+                                {/* Character image */}
+                                <div className="relative w-16 h-16 flex-shrink-0">
+                                  <Image
+                                    src={`/images/character/${title.id}.png`}
+                                    alt={`${title.name} character`}
+                                    fill
+                                    className="object-contain"
+                                    onError={(e) => {
+                                      // Fallback to squire image if specific image not found
+                                      const target = e.target as HTMLImageElement;
+                                      target.src = '/images/character/squire.png';
+                                    }}
+                                  />
+                                </div>
+                                <CardTitle className="font-serif">{title.name}</CardTitle>
+                              </div>
                               <Badge
                                 className={
                                   rarity === "common"
