@@ -71,6 +71,7 @@ export function useTitleEvolution() {
   };
 
   const triggerTestModal = () => {
+    console.log('🎯 Triggering test modal: Squire → Knight');
     // Test with Squire to Knight evolution (level 10)
     const testEvolution: TitleEvolution = {
       oldTitle: 'Squire',
@@ -84,6 +85,7 @@ export function useTitleEvolution() {
   };
 
   const triggerTestModal2 = () => {
+    console.log('🎯 Triggering test modal: Knight → Baron');
     // Test with Knight to Baron evolution (level 20)
     const testEvolution: TitleEvolution = {
       oldTitle: 'Knight',
@@ -97,6 +99,7 @@ export function useTitleEvolution() {
   };
 
   const triggerTestModal3 = () => {
+    console.log('🎯 Triggering test modal: Baron → Viscount');
     // Test with Baron to Viscount evolution (level 30)
     const testEvolution: TitleEvolution = {
       oldTitle: 'Baron',
@@ -110,6 +113,7 @@ export function useTitleEvolution() {
   };
 
   const triggerTestModal4 = () => {
+    console.log('🎯 Triggering test modal: Viscount → Count');
     // Test with Viscount to Count evolution (level 40)
     const testEvolution: TitleEvolution = {
       oldTitle: 'Viscount',
@@ -123,6 +127,7 @@ export function useTitleEvolution() {
   };
 
   const triggerTestModal5 = () => {
+    console.log('🎯 Triggering test modal: Count → Marquis');
     // Test with Count to Marquis evolution (level 50)
     const testEvolution: TitleEvolution = {
       oldTitle: 'Count',
@@ -136,6 +141,7 @@ export function useTitleEvolution() {
   };
 
   const triggerTestModal6 = () => {
+    console.log('🎯 Triggering test modal: Marquis → Duke');
     // Test with Marquis to Duke evolution (level 60)
     const testEvolution: TitleEvolution = {
       oldTitle: 'Marquis',
@@ -149,6 +155,7 @@ export function useTitleEvolution() {
   };
 
   const triggerTestModal7 = () => {
+    console.log('🎯 Triggering test modal: Duke → Prince');
     // Test with Duke to Prince evolution (level 70)
     const testEvolution: TitleEvolution = {
       oldTitle: 'Duke',
@@ -162,6 +169,7 @@ export function useTitleEvolution() {
   };
 
   const triggerTestModal8 = () => {
+    console.log('🎯 Triggering test modal: Prince → King');
     // Test with Prince to King evolution (level 80)
     const testEvolution: TitleEvolution = {
       oldTitle: 'Prince',
@@ -175,6 +183,7 @@ export function useTitleEvolution() {
   };
 
   const triggerTestModal9 = () => {
+    console.log('🎯 Triggering test modal: King → Emperor');
     // Test with King to Emperor evolution (level 90)
     const testEvolution: TitleEvolution = {
       oldTitle: 'King',
@@ -188,6 +197,7 @@ export function useTitleEvolution() {
   };
 
   const triggerTestModal10 = () => {
+    console.log('🎯 Triggering test modal: Emperor → God');
     // Test with Emperor to God evolution (level 100)
     const testEvolution: TitleEvolution = {
       oldTitle: 'Emperor',

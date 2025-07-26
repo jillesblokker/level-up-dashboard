@@ -22,6 +22,8 @@ export function TitleEvolutionModal({
   oldTitleImage,
   newTitleImage
 }: TitleEvolutionModalProps) {
+  console.log('🎪 TitleEvolutionModal render:', { isOpen, oldTitle, newTitle });
+
   if (!isOpen) return null;
 
   return (
