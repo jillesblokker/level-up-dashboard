@@ -2,6 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { Tile } from '@/types/tiles';
 import { cn } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface KingdomPropertiesInventoryProps {
   open: boolean;
@@ -40,7 +41,14 @@ export function KingdomPropertiesInventory({ open, onClose, tiles, selectedTile,
                   draggable={false}
                 />
               </div>
-              <div className="text-sm font-semibold text-amber-300 text-center truncate w-full">{tile.name}</div>
+              <div className="text-sm font-semibold text-amber-300 text-center truncate w-full">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="truncate">{tile.name}</span>
+                  </TooltipTrigger>
+                  <TooltipContent>{tile.name}</TooltipContent>
+                </Tooltip>
+              </div>
             </button>
           ))}
         </div>

@@ -5,6 +5,7 @@ import { Checkbox } from './ui/checkbox';
 import { Progress } from './ui/progress';
 import { Button } from './ui/button';
 import { Pencil, Trash2, Star } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
 interface UnifiedCardProps {
   title: string;
@@ -70,7 +71,12 @@ const CardWithProgress: React.FC<UnifiedCardProps> = ({
         <div className="flex items-center gap-2 min-w-0 flex-1">
           {icon && <span className="rounded-full p-2 bg-black border border-[#F59E0B] flex-shrink-0">{icon}</span>}
           <CardTitle className="text-lg font-semibold text-amber-300 flex items-center gap-2 min-w-0">
-            <span className="truncate">{title}</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="truncate">{title}</span>
+              </TooltipTrigger>
+              <TooltipContent>{title}</TooltipContent>
+            </Tooltip>
             {streak > 1 && (
               <span
                 className="ml-2 flex items-center gap-1 text-orange-400 font-bold text-base flex-shrink-0"
@@ -137,7 +143,14 @@ const CardWithProgress: React.FC<UnifiedCardProps> = ({
         </div>
       </CardHeader>
       <CardContent className="flex-1 min-w-0">
-        {description && <CardDescription className="mb-4 text-gray-400 break-words">{description}</CardDescription>}
+        {description && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <CardDescription className="mb-4 text-gray-400 break-words truncate">{description}</CardDescription>
+            </TooltipTrigger>
+            <TooltipContent>{description}</TooltipContent>
+          </Tooltip>
+        )}
         <Progress value={completed ? 100 : progress} className="w-full h-2 bg-gray-700" />
         {children}
       </CardContent>

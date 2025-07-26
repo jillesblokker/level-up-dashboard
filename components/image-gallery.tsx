@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader } from 'lucide-react';
 import Image from 'next/image';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ImageGalleryProps {
   folderPath?: string;
@@ -105,8 +106,13 @@ export function ImageGallery({ folderPath = 'images' }: ImageGalleryProps) {
               </div>
             </CardHeader>
             <CardContent className="p-4">
-              <CardTitle className="text-base truncate mb-2" title={image.name}>
-                {image.name}
+              <CardTitle className="text-base truncate mb-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="truncate">{image.name}</span>
+                  </TooltipTrigger>
+                  <TooltipContent>{image.name}</TooltipContent>
+                </Tooltip>
               </CardTitle>
 
               {editingImage === image.name ? (

@@ -416,7 +416,14 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
                       unoptimized
                     />
                   </div>
-                  <div className="text-base font-bold text-amber-300 text-center truncate w-full mb-1">{tile.name}</div>
+                  <div className="text-base font-bold text-amber-300 text-center truncate w-full mb-1">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="truncate">{tile.name}</span>
+                      </TooltipTrigger>
+                      <TooltipContent>{tile.name}</TooltipContent>
+                    </Tooltip>
+                  </div>
                   <div className="text-sm text-amber-200 mb-1">Cost: <span className="font-bold">{tile.cost}</span> 🏗️</div>
                   <div className="text-sm text-amber-200 mb-2">Owned: <span className="font-bold">{tile.quantity || 0}</span></div>
                   {propertyTab === 'buy' ? (
