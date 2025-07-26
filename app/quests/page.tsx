@@ -21,6 +21,7 @@ import { gainGold } from '@/lib/gold-manager';
 import { useRef } from 'react';
 import { StreakRecovery } from '@/components/streak-recovery';
 import { FullPageLoading, DataLoadingState } from '@/components/ui/loading-states';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface Quest {
   id: string;
@@ -176,6 +177,8 @@ export default function QuestsPage() {
   const [editCustomChallengeIdx, setEditCustomChallengeIdx] = useState<number | null>(null);
   const [editCustomChallengeData, setEditCustomChallengeData] = useState<any | null>(null);
   const [addQuestModalOpen, setAddQuestModalOpen] = useState(false);
+  const [showAddChallengeTypeModal, setShowAddChallengeTypeModal] = useState(false);
+  const [newChallengeTypeName, setNewChallengeTypeName] = useState('');
   const [newQuest, setNewQuest] = useState({
     name: '',
     description: '',
@@ -962,8 +965,30 @@ export default function QuestsPage() {
     setAddQuestModalOpen(true);
   };
   const handleAddQuestSubmit = (quest: Quest) => {
-    setQuests(prev => [{ ...quest, id: Date.now().toString(), completed: false, isNew: true, category: String(quest.category || questCategories[0]) }, ...prev]);
+    // Handle quest submission
     setAddQuestModalOpen(false);
+  };
+
+  const handleChallengeCategoryChange = (value: string) => {
+    if (value === 'add-challenge-type') {
+      setShowAddChallengeTypeModal(true);
+    } else {
+      setChallengeCategory(value);
+    }
+  };
+
+  const handleAddChallengeType = () => {
+    if (newChallengeTypeName.trim()) {
+      // Add the new challenge type to the workout plan
+      const newChallengeType = {
+        category: newChallengeTypeName.trim(),
+        exercises: []
+      };
+      workoutPlan.push(newChallengeType);
+      setChallengeCategory(newChallengeTypeName.trim());
+      setNewChallengeTypeName('');
+      setShowAddChallengeTypeModal(false);
+    }
   };
 
   // Fetch milestones when token is present
@@ -1437,15 +1462,30 @@ export default function QuestsPage() {
                   {/* Left: Streak Badge - Vertical Layout */}
                   <div className="flex flex-col items-center justify-center bg-black rounded-2xl p-6 flex-shrink-0">
                     <Flame className="w-14 h-14 text-[#0D7200] mb-2" aria-hidden="true" />
-                    <div className="text-4xl font-extrabold text-white text-center" aria-label="quest-streak-value">{streakData?.streak_days ?? 0} days</div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="text-4xl font-extrabold text-white text-center truncate" aria-label="quest-streak-value">{streakData?.streak_days ?? 0} days</div>
+                      </TooltipTrigger>
+                      <TooltipContent>{streakData?.streak_days ?? 0} days</TooltipContent>
+                    </Tooltip>
                     <div className="text-lg text-gray-300 text-center">Day streak</div>
                   </div>
                   
                   {/* Middle: Quest Progress Section */}
                   <div className="flex-1 flex flex-col gap-3">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-4xl font-bold text-white">{todaysCompleted}</span>
-                      <span className="text-lg text-gray-300">/ {todaysTotal} quests</span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="text-4xl font-bold text-white truncate">{todaysCompleted}</span>
+                        </TooltipTrigger>
+                        <TooltipContent>{todaysCompleted}</TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="text-lg text-gray-300 truncate">/ {todaysTotal} quests</span>
+                        </TooltipTrigger>
+                        <TooltipContent>/ {todaysTotal} quests</TooltipContent>
+                      </Tooltip>
                     </div>
                     <div className="w-full h-5 bg-black rounded-full overflow-hidden relative">
                       <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${todaysTotal ? (todaysCompleted / todaysTotal) * 100 : 0}%` }} />
@@ -1487,7 +1527,12 @@ export default function QuestsPage() {
                   <div className="flex gap-4 flex-shrink-0">
                     <div className="text-center p-4 bg-black/20 rounded-xl">
                       <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
-                      <div className="text-xl font-bold text-[#F0F0F0] mb-1">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="text-xl font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
+                        </TooltipTrigger>
+                        <TooltipContent>+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</TooltipContent>
+                      </Tooltip>
                       <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
                     </div>
                     <div className="text-center p-4 bg-black/20 rounded-xl">
@@ -1503,15 +1548,30 @@ export default function QuestsPage() {
                   {/* Streak Badge - Mobile (same layout as desktop but smaller) */}
                   <div className="flex flex-col items-center justify-center bg-black rounded-xl p-4">
                     <Flame className="w-8 h-8 text-[#0D7200] mb-1" aria-hidden="true" />
-                    <div className="text-xl font-extrabold text-white text-center" aria-label="quest-streak-value">{streakData?.streak_days ?? 0} days</div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="text-xl font-extrabold text-white text-center truncate" aria-label="quest-streak-value">{streakData?.streak_days ?? 0} days</div>
+                      </TooltipTrigger>
+                      <TooltipContent>{streakData?.streak_days ?? 0} days</TooltipContent>
+                    </Tooltip>
                     <div className="text-sm text-gray-300 text-center">Day streak</div>
                   </div>
                   
                   {/* Quest Progress Section - Mobile */}
                   <div className="flex flex-col gap-3">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-2xl font-bold text-white">{todaysCompleted}</span>
-                      <span className="text-lg text-gray-300">/ {todaysTotal} quests</span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="text-2xl font-bold text-white truncate">{todaysCompleted}</span>
+                        </TooltipTrigger>
+                        <TooltipContent>{todaysCompleted}</TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="text-lg text-gray-300 truncate">/ {todaysTotal} quests</span>
+                        </TooltipTrigger>
+                        <TooltipContent>/ {todaysTotal} quests</TooltipContent>
+                      </Tooltip>
                     </div>
                     <div className="w-full h-4 bg-black rounded-full overflow-hidden relative">
                       <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${todaysTotal ? (todaysCompleted / todaysTotal) * 100 : 0}%` }} />
@@ -1553,12 +1613,22 @@ export default function QuestsPage() {
                   <div className="flex flex-col gap-3">
                     <div className="text-center p-3 bg-black/20 rounded-lg">
                       <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
-                      <div className="text-lg font-bold text-[#F0F0F0] mb-1">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="text-lg font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
+                        </TooltipTrigger>
+                        <TooltipContent>+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</TooltipContent>
+                      </Tooltip>
                       <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
                     </div>
                     <div className="text-center p-3 bg-black/20 rounded-lg">
                       <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Scrolls:</div>
-                      <div className="text-lg font-bold text-[#F0F0F0] mb-1">{getStreakScrollCount()}</div>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="text-lg font-bold text-[#F0F0F0] mb-1 truncate">{getStreakScrollCount()}</div>
+                        </TooltipTrigger>
+                        <TooltipContent>{getStreakScrollCount()}</TooltipContent>
+                      </Tooltip>
                       <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
                     </div>
                   </div>
@@ -1606,149 +1676,209 @@ export default function QuestsPage() {
 
           {/* Challenges Tab */}
           <TabsContent value="challenges">
-            <div className="mb-4">
-              <label htmlFor="challenge-category-select" className="sr-only">Select workout day</label>
-              <select
-                id="challenge-category-select"
-                className="w-full rounded border border-[#F59E0B] p-2 bg-black text-amber-200"
-                aria-label="Workout day dropdown"
-                value={challengeCategory}
-                onChange={e => setChallengeCategory(e.target.value)}
-              >
-                {workoutPlan.map(day => (
-                  <option key={day.category} value={day.category}>{day.category}</option>
-                ))}
-              </select>
+            <div className="mb-4 space-y-4">
+              {/* Category Dropdown */}
+              <div>
+                <label htmlFor="challenge-category-select" className="sr-only">Select workout day</label>
+                <Select value={challengeCategory || ''} onValueChange={handleChallengeCategoryChange}>
+                  <SelectTrigger className="w-full border border-[#F59E0B] bg-black text-amber-200" aria-label="Workout day dropdown">
+                    <SelectValue placeholder="Select workout day" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-black border border-[#F59E0B]">
+                    {workoutPlan.map(day => (
+                      <SelectItem key={day.category} value={day.category}>
+                        {day.category}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="add-challenge-type" className="text-amber-400 hover:text-amber-300">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Challenge Type
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            {/* Challenge Streak Summary Card (new style) */}
-            <div className="mb-6">
-              <Card className="medieval-card-primary" aria-label="challenge-streak-summary-card">
-                {/* Desktop Layout */}
-                <div className="hidden md:flex">
-                  {/* Streak Icon and Count */}
-                  <div className="flex flex-col items-center justify-center bg-black rounded-2xl p-6 min-w-[120px] flex-none">
-                    <Flame className="w-14 h-14 text-[#0D7200]" aria-hidden="true" />
-                    <div className="text-4xl font-extrabold text-white mt-2" aria-label="challenge-streak-value">{challengeStreakData?.streak_days ?? 0} days</div>
-                    <div className="text-base text-gray-300">Day streak</div>
+            {/* Challenge Streak Summary Card (updated to match Tasks tab) */}
+            <div className="mb-6 w-full">
+              <Card className="medieval-card-primary w-full" style={{ height: 'auto', minHeight: '226px' }} aria-label="challenge-streak-summary-card">
+                {/* Desktop/Tablet Layout - Horizontal 3-Column */}
+                <div className="hidden md:flex items-center gap-6 w-full">
+                  {/* Left: Streak Badge - Vertical Layout */}
+                  <div className="flex flex-col items-center justify-center bg-black rounded-2xl p-6 flex-shrink-0">
+                    <Flame className="w-14 h-14 text-[#0D7200] mb-2" aria-hidden="true" />
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="text-4xl font-extrabold text-white text-center truncate" aria-label="challenge-streak-value">{challengeStreakData?.streak_days ?? 0} days</div>
+                      </TooltipTrigger>
+                      <TooltipContent>{challengeStreakData?.streak_days ?? 0} days</TooltipContent>
+                    </Tooltip>
+                    <div className="text-lg text-gray-300 text-center">Day streak</div>
                   </div>
-                  {/* Challenge Progress Section */}
-                  <div className="flex-1 flex flex-col gap-2">
+                  
+                  {/* Middle: Challenge Progress Section */}
+                  <div className="flex-1 flex flex-col gap-3">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-4xl font-bold text-white">{challenges.filter(c => c.category === challengeCategory && c.completed).length}</span>
-                      <span className="text-lg text-gray-300">/ {challenges.filter(c => c.category === challengeCategory).length} challenges</span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="text-4xl font-bold text-white truncate">{challenges.filter(c => c.category === challengeCategory && c.completed).length}</span>
+                        </TooltipTrigger>
+                        <TooltipContent>{challenges.filter(c => c.category === challengeCategory && c.completed).length}</TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="text-lg text-gray-300 truncate">/ {challenges.filter(c => c.category === challengeCategory).length} challenges</span>
+                        </TooltipTrigger>
+                        <TooltipContent>/ {challenges.filter(c => c.category === challengeCategory).length} challenges</TooltipContent>
+                      </Tooltip>
                     </div>
-                    <div className="w-full h-4 bg-black rounded-full overflow-hidden relative">
+                    <div className="w-full h-5 bg-black rounded-full overflow-hidden relative">
                       <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${challenges.filter(c => c.category === challengeCategory).length ? (challenges.filter(c => c.category === challengeCategory && c.completed).length / challenges.filter(c => c.category === challengeCategory).length) * 100 : 0}%` }} />
                     </div>
                     {/* Days of the week with styled circles */}
-                    <div className="flex justify-between text-xs text-gray-300 mt-2">
+                    <div className="flex justify-between text-sm text-gray-300 mt-3">
                       <div className="flex flex-col items-center">
-                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
                         <span>Mon</span>
                       </div>
                       <div className="flex flex-col items-center">
-                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
                         <span>Tue</span>
                       </div>
                       <div className="flex flex-col items-center">
-                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
                         <span>Wed</span>
                       </div>
                       <div className="flex flex-col items-center">
-                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
                         <span>Thu</span>
                       </div>
                       <div className="flex flex-col items-center">
-                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
                         <span>Fri</span>
                       </div>
                       <div className="flex flex-col items-center">
-                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
                         <span>Sat</span>
                       </div>
                       <div className="flex flex-col items-center">
-                        <div className="w-6 h-6 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
                         <span>Sun</span>
                       </div>
                     </div>
                   </div>
-                  {/* Bonus and Scrolls */}
-                  <div className="flex flex-col gap-4 min-w-[180px] flex-none">
-                    <div>
-                      <div className="text-lg font-bold text-[#F59E0B]">Streak Bonus:</div>
-                      <div className="text-2xl font-bold text-[#F59E0B]">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
+                  
+                  {/* Right: Bonus and Scrolls */}
+                  <div className="flex gap-4 flex-shrink-0">
+                    <div className="text-center p-4 bg-black/20 rounded-xl">
+                      <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="text-xl font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
+                        </TooltipTrigger>
+                        <TooltipContent>+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</TooltipContent>
+                      </Tooltip>
                       <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
                     </div>
-                    <div>
-                      <div className="text-lg font-bold text-[#F0F0F0]">Streak Scrolls:</div>
-                      <div className="text-2xl font-bold text-[#F0F0F0]">{getStreakScrollCount()}</div>
+                    <div className="text-center p-4 bg-black/20 rounded-xl">
+                      <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Scrolls:</div>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="text-xl font-bold text-[#F0F0F0] mb-1 truncate">{getStreakScrollCount()}</div>
+                        </TooltipTrigger>
+                        <TooltipContent>{getStreakScrollCount()}</TooltipContent>
+                      </Tooltip>
                       <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
                     </div>
                   </div>
                 </div>
 
-                {/* Mobile Layout - Vertical */}
-                <div className="md:hidden flex flex-col gap-16 p-6">
-                  {/* Streak Badge - Top */}
-                  <div className="flex items-center justify-center bg-black rounded-3xl p-12">
-                    <Flame className="w-16 h-16 text-[#0D7200] mr-8" aria-hidden="true" />
-                    <div className="text-6xl font-extrabold text-white" aria-label="challenge-streak-value">{challengeStreakData?.streak_days ?? 0} days</div>
-                    <div className="text-2xl text-gray-300 ml-6">Day streak</div>
+                {/* Mobile Layout - Responsive (same component, smaller elements) */}
+                <div className="md:hidden flex flex-col w-full gap-6 p-6">
+                  {/* Streak Badge - Mobile (same layout as desktop but smaller) */}
+                  <div className="flex flex-col items-center justify-center bg-black rounded-xl p-4">
+                    <Flame className="w-8 h-8 text-[#0D7200] mb-1" aria-hidden="true" />
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="text-xl font-extrabold text-white text-center truncate" aria-label="challenge-streak-value">{challengeStreakData?.streak_days ?? 0} days</div>
+                      </TooltipTrigger>
+                      <TooltipContent>{challengeStreakData?.streak_days ?? 0} days</TooltipContent>
+                    </Tooltip>
+                    <div className="text-sm text-gray-300 text-center">Day streak</div>
                   </div>
                   
-                  {/* Challenge Progress Section */}
-                  <div className="flex flex-col gap-12">
-                    <div className="flex items-baseline gap-6">
-                      <span className="text-7xl font-bold text-white">{challenges.filter(c => c.category === challengeCategory && c.completed).length}</span>
-                      <span className="text-4xl text-gray-300">/ {challenges.filter(c => c.category === challengeCategory).length} challenges</span>
+                  {/* Challenge Progress Section - Mobile */}
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-baseline gap-2">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="text-2xl font-bold text-white truncate">{challenges.filter(c => c.category === challengeCategory && c.completed).length}</span>
+                        </TooltipTrigger>
+                        <TooltipContent>{challenges.filter(c => c.category === challengeCategory && c.completed).length}</TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="text-lg text-gray-300 truncate">/ {challenges.filter(c => c.category === challengeCategory).length} challenges</span>
+                        </TooltipTrigger>
+                        <TooltipContent>/ {challenges.filter(c => c.category === challengeCategory).length} challenges</TooltipContent>
+                      </Tooltip>
                     </div>
-                    <div className="w-full h-12 bg-black rounded-full overflow-hidden relative">
+                    <div className="w-full h-4 bg-black rounded-full overflow-hidden relative">
                       <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${challenges.filter(c => c.category === challengeCategory).length ? (challenges.filter(c => c.category === challengeCategory && c.completed).length / challenges.filter(c => c.category === challengeCategory).length) * 100 : 0}%` }} />
                     </div>
-                    {/* Days of the week with larger circles and better spacing */}
-                    <div className="flex justify-between text-xl text-gray-300 mt-12 px-8">
-                      <div className="flex flex-col items-center gap-6">
-                        <div className="w-12 h-12 bg-black border-2 border-gray-300 rounded-full"></div>
-                        <span className="font-medium">M</span>
+                    {/* Days of the week with smaller circles */}
+                    <div className="flex justify-between text-xs text-gray-300 mt-3">
+                      <div className="flex flex-col items-center">
+                        <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>Mon</span>
                       </div>
-                      <div className="flex flex-col items-center gap-6">
-                        <div className="w-12 h-12 bg-black border-2 border-gray-300 rounded-full"></div>
-                        <span className="font-medium">T</span>
+                      <div className="flex flex-col items-center">
+                        <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>Tue</span>
                       </div>
-                      <div className="flex flex-col items-center gap-6">
-                        <div className="w-12 h-12 bg-black border-2 border-gray-300 rounded-full"></div>
-                        <span className="font-medium">W</span>
+                      <div className="flex flex-col items-center">
+                        <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>Wed</span>
                       </div>
-                      <div className="flex flex-col items-center gap-6">
-                        <div className="w-12 h-12 bg-black border-2 border-gray-300 rounded-full"></div>
-                        <span className="font-medium">T</span>
+                      <div className="flex flex-col items-center">
+                        <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>Thu</span>
                       </div>
-                      <div className="flex flex-col items-center gap-6">
-                        <div className="w-12 h-12 bg-black border-2 border-gray-300 rounded-full"></div>
-                        <span className="font-medium">F</span>
+                      <div className="flex flex-col items-center">
+                        <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>Fri</span>
                       </div>
-                      <div className="flex flex-col items-center gap-6">
-                        <div className="w-12 h-12 bg-black border-2 border-gray-300 rounded-full"></div>
-                        <span className="font-medium">S</span>
+                      <div className="flex flex-col items-center">
+                        <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>Sat</span>
                       </div>
-                      <div className="flex flex-col items-center gap-6">
-                        <div className="w-12 h-12 bg-black border-2 border-gray-300 rounded-full"></div>
-                        <span className="font-medium">S</span>
+                      <div className="flex flex-col items-center">
+                        <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                        <span>Sun</span>
                       </div>
                     </div>
                   </div>
                   
-                  {/* Bonus and Scrolls - Bottom */}
-                  <div className="flex flex-col gap-12">
-                    <div className="text-center p-10 bg-black/20 rounded-2xl">
-                      <div className="text-3xl font-bold text-[#F59E0B] mb-4">Streak Bonus:</div>
-                      <div className="text-5xl font-bold text-[#F59E0B] mb-3">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
-                      <div className="text-lg text-[#F0F0F0]">(Max 50 gold/day)</div>
+                  {/* Bonus and Scrolls - Mobile Stacked */}
+                  <div className="flex flex-col gap-3">
+                    <div className="text-center p-3 bg-black/20 rounded-lg">
+                      <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="text-lg font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
+                        </TooltipTrigger>
+                        <TooltipContent>+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</TooltipContent>
+                      </Tooltip>
+                      <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
                     </div>
-                    <div className="text-center p-10 bg-black/20 rounded-2xl">
-                      <div className="text-3xl font-bold text-[#F0F0F0] mb-4">Streak Scrolls:</div>
-                      <div className="text-5xl font-bold text-[#F0F0F0] mb-3">{getStreakScrollCount()}</div>
-                      <div className="text-lg text-[#F0F0F0]">(Use to save a missed streak)</div>
+                    <div className="text-center p-3 bg-black/20 rounded-lg">
+                      <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Scrolls:</div>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="text-lg font-bold text-[#F0F0F0] mb-1 truncate">{getStreakScrollCount()}</div>
+                        </TooltipTrigger>
+                        <TooltipContent>{getStreakScrollCount()}</TooltipContent>
+                      </Tooltip>
+                      <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
                     </div>
                   </div>
                 </div>
@@ -1818,7 +1948,7 @@ export default function QuestsPage() {
               <label htmlFor="recovery-category-select" className="block text-sm font-medium text-amber-300 mb-2">
                 Select Workout Category
               </label>
-              <Select value={challengeCategory || ''} onValueChange={setChallengeCategory}>
+              <Select value={challengeCategory || ''} onValueChange={handleChallengeCategoryChange}>
                 <SelectTrigger className="w-full rounded-lg border border-[#F59E0B] bg-black text-amber-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 transition-colors" aria-label="Recovery category dropdown">
                   <SelectValue placeholder="Select workout category" />
                 </SelectTrigger>
@@ -2063,6 +2193,36 @@ export default function QuestsPage() {
               <Button type="button" variant="secondary" onClick={cancelDeleteQuest}>Cancel</Button>
               <Button type="button" variant="destructive" onClick={confirmDeleteQuest}>Delete</Button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Add Challenge Type Modal */}
+      {showAddChallengeTypeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => setShowAddChallengeTypeModal(false)} />
+          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">Add Challenge Type</h2>
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                handleAddChallengeType();
+              }}
+            >
+              <label className="block mb-2 text-sm font-medium">Name</label>
+              <input
+                className="w-full mb-4 p-2 border rounded"
+                value={newChallengeTypeName}
+                onChange={e => setNewChallengeTypeName(e.target.value)}
+                placeholder="Challenge type name"
+                title="Challenge type name"
+                aria-label="Challenge type name"
+                required
+              />
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="secondary" onClick={() => setShowAddChallengeTypeModal(false)}>Cancel</Button>
+                <Button type="submit" variant="default">Add</Button>
+              </div>
+            </form>
           </div>
         </div>
       )}
