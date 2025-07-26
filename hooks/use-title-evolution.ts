@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from 'react';
 import { getCharacterStats } from '@/lib/character-stats-manager';
 import { calculateLevelFromExperience } from '@/types/character';
