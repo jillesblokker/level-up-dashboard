@@ -15,8 +15,7 @@ import AuthGate from "@/app/components/AuthGate"
 import { ClerkProvider } from '@clerk/nextjs'
 import { ThemeProvider } from '@/components/theme-provider'
 import { GlobalErrorBoundary } from '@/components/global-error-boundary'
-import { TitleEvolutionModal } from '@/components/title-evolution-modal'
-import { useTitleEvolution } from '@/hooks/use-title-evolution'
+import { TitleEvolutionProvider } from '@/components/title-evolution-provider'
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -61,26 +60,6 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "Thrivehaven",
   },
-}
-
-function TitleEvolutionProvider({ children }: { children: React.ReactNode }) {
-  const { showModal, evolution, closeModal } = useTitleEvolution();
-
-  return (
-    <>
-      {children}
-      {evolution && (
-        <TitleEvolutionModal
-          isOpen={showModal}
-          onClose={closeModal}
-          oldTitle={evolution.oldTitle}
-          newTitle={evolution.newTitle}
-          oldTitleImage={evolution.oldTitleImage}
-          newTitleImage={evolution.newTitleImage}
-        />
-      )}
-    </>
-  );
 }
 
 export default function RootLayout({
