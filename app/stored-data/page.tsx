@@ -31,7 +31,7 @@ export default function StoredDataPage() {
   
   const { user } = useUser();
   const { supabase } = useSupabase();
-  const { triggerTestModal, triggerTestModal2, triggerTestModal3 } = useTitleEvolution()
+  const { triggerTestModal, triggerTestModal2, triggerTestModal3, triggerTestModal4, triggerTestModal5, triggerTestModal6, triggerTestModal7, triggerTestModal8, triggerTestModal9, triggerTestModal10 } = useTitleEvolution()
 
   useEffect(() => {
     async function loadSupabaseData() {
@@ -127,15 +127,36 @@ export default function StoredDataPage() {
 
       <div className="mt-6">
         <h3 className="text-lg font-semibold mb-4">Test Title Evolution Modal</h3>
-        <div className="flex gap-2 flex-wrap">
-          <Button onClick={triggerTestModal} variant="outline">
-            Test Squire → Knight (Level 10)
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+          <Button onClick={triggerTestModal} variant="outline" className="text-xs">
+            Squire → Knight (L10)
           </Button>
-          <Button onClick={triggerTestModal2} variant="outline">
-            Test Knight → Baron (Level 20)
+          <Button onClick={triggerTestModal2} variant="outline" className="text-xs">
+            Knight → Baron (L20)
           </Button>
-          <Button onClick={triggerTestModal3} variant="outline">
-            Test Baron → Viscount (Level 30)
+          <Button onClick={triggerTestModal3} variant="outline" className="text-xs">
+            Baron → Viscount (L30)
+          </Button>
+          <Button onClick={triggerTestModal4} variant="outline" className="text-xs">
+            Viscount → Count (L40)
+          </Button>
+          <Button onClick={triggerTestModal5} variant="outline" className="text-xs">
+            Count → Marquis (L50)
+          </Button>
+          <Button onClick={triggerTestModal6} variant="outline" className="text-xs">
+            Marquis → Duke (L60)
+          </Button>
+          <Button onClick={triggerTestModal7} variant="outline" className="text-xs">
+            Duke → Prince (L70)
+          </Button>
+          <Button onClick={triggerTestModal8} variant="outline" className="text-xs">
+            Prince → King (L80)
+          </Button>
+          <Button onClick={triggerTestModal9} variant="outline" className="text-xs">
+            King → Emperor (L90)
+          </Button>
+          <Button onClick={triggerTestModal10} variant="outline" className="text-xs">
+            Emperor → God (L100)
           </Button>
         </div>
       </div>

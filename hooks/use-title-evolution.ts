@@ -107,12 +107,110 @@ export function useTitleEvolution() {
     setShowModal(true);
   };
 
+  const triggerTestModal4 = () => {
+    // Test with Viscount to Count evolution (level 40)
+    const testEvolution: TitleEvolution = {
+      oldTitle: 'Viscount',
+      newTitle: 'Count',
+      oldTitleImage: '/images/character/viscount.png',
+      newTitleImage: '/images/character/count.png',
+      level: 40
+    };
+    setEvolution(testEvolution);
+    setShowModal(true);
+  };
+
+  const triggerTestModal5 = () => {
+    // Test with Count to Marquis evolution (level 50)
+    const testEvolution: TitleEvolution = {
+      oldTitle: 'Count',
+      newTitle: 'Marquis',
+      oldTitleImage: '/images/character/count.png',
+      newTitleImage: '/images/character/marquis.png',
+      level: 50
+    };
+    setEvolution(testEvolution);
+    setShowModal(true);
+  };
+
+  const triggerTestModal6 = () => {
+    // Test with Marquis to Duke evolution (level 60)
+    const testEvolution: TitleEvolution = {
+      oldTitle: 'Marquis',
+      newTitle: 'Duke',
+      oldTitleImage: '/images/character/marquis.png',
+      newTitleImage: '/images/character/duke.png',
+      level: 60
+    };
+    setEvolution(testEvolution);
+    setShowModal(true);
+  };
+
+  const triggerTestModal7 = () => {
+    // Test with Duke to Prince evolution (level 70)
+    const testEvolution: TitleEvolution = {
+      oldTitle: 'Duke',
+      newTitle: 'Prince',
+      oldTitleImage: '/images/character/duke.png',
+      newTitleImage: '/images/character/prince.png',
+      level: 70
+    };
+    setEvolution(testEvolution);
+    setShowModal(true);
+  };
+
+  const triggerTestModal8 = () => {
+    // Test with Prince to King evolution (level 80)
+    const testEvolution: TitleEvolution = {
+      oldTitle: 'Prince',
+      newTitle: 'King',
+      oldTitleImage: '/images/character/prince.png',
+      newTitleImage: '/images/character/king.png',
+      level: 80
+    };
+    setEvolution(testEvolution);
+    setShowModal(true);
+  };
+
+  const triggerTestModal9 = () => {
+    // Test with King to Emperor evolution (level 90)
+    const testEvolution: TitleEvolution = {
+      oldTitle: 'King',
+      newTitle: 'Emperor',
+      oldTitleImage: '/images/character/king.png',
+      newTitleImage: '/images/character/emperor.png',
+      level: 90
+    };
+    setEvolution(testEvolution);
+    setShowModal(true);
+  };
+
+  const triggerTestModal10 = () => {
+    // Test with Emperor to God evolution (level 100)
+    const testEvolution: TitleEvolution = {
+      oldTitle: 'Emperor',
+      newTitle: 'God',
+      oldTitleImage: '/images/character/emperor.png',
+      newTitleImage: '/images/character/god.png',
+      level: 100
+    };
+    setEvolution(testEvolution);
+    setShowModal(true);
+  };
+
   return {
     showModal,
     evolution,
     closeModal,
     triggerTestModal,
     triggerTestModal2,
-    triggerTestModal3
+    triggerTestModal3,
+    triggerTestModal4,
+    triggerTestModal5,
+    triggerTestModal6,
+    triggerTestModal7,
+    triggerTestModal8,
+    triggerTestModal9,
+    triggerTestModal10
   };
 } 
