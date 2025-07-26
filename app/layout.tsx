@@ -15,6 +15,8 @@ import AuthGate from "@/app/components/AuthGate"
 import { ClerkProvider } from '@clerk/nextjs'
 import { ThemeProvider } from '@/components/theme-provider'
 import { GlobalErrorBoundary } from '@/components/global-error-boundary'
+import { TitleEvolutionModal } from '@/components/title-evolution-modal'
+import { useTitleEvolution } from '@/hooks/use-title-evolution'
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -61,6 +63,26 @@ export const metadata: Metadata = {
   },
 }
 
+function TitleEvolutionProvider({ children }: { children: React.ReactNode }) {
+  const { showModal, evolution, closeModal } = useTitleEvolution();
+
+  return (
+    <>
+      {children}
+      {evolution && (
+        <TitleEvolutionModal
+          isOpen={showModal}
+          onClose={closeModal}
+          oldTitle={evolution.oldTitle}
+          newTitle={evolution.newTitle}
+          oldTitleImage={evolution.oldTitleImage}
+          newTitleImage={evolution.newTitleImage}
+        />
+      )}
+    </>
+  );
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -101,22 +123,26 @@ export default function RootLayout({
                 <Providers>
                   <AuthContent>
                     <AuthGate>
-                      {children}
+                      <TitleEvolutionProvider>
+                        <div className="pt-[calc(4rem+env(safe-area-inset-top))] pb-4 main-content-wrapper" style={{ overscrollBehavior: 'none' }}>
+                          {children}
+                        </div>
+                      </TitleEvolutionProvider>
                     </AuthGate>
+                    <Toaster />
+                    <SonnerToaster 
+                      position="bottom-center"
+                      toastOptions={{
+                        style: {
+                          background: '#000000',
+                          color: '#fbbf24',
+                          border: '1px solid #92400e',
+                          marginBottom: 'env(safe-area-inset-bottom, 20px)',
+                        },
+                        className: 'border border-amber-900 bg-black text-amber-400',
+                      }}
+                    />
                   </AuthContent>
-                  <Toaster />
-                  <SonnerToaster 
-                    position="bottom-center"
-                    toastOptions={{
-                      style: {
-                        background: '#000000',
-                        color: '#fbbf24',
-                        border: '1px solid #92400e',
-                        marginBottom: 'env(safe-area-inset-bottom, 20px)',
-                      },
-                      className: 'border border-amber-900 bg-black text-amber-400',
-                    }}
-                  />
                 </Providers>
               </GradientProvider>
             </ThemeProvider>

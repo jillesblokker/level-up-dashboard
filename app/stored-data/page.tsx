@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { getCharacterStats } from '@/lib/character-data-manager';
 import { getInventory } from '@/lib/inventory-manager';
 import { getUserAchievements } from '@/lib/achievements-manager';
+import { useTitleEvolution } from '@/hooks/use-title-evolution'
 
 interface SupabaseData {
   table: string;
@@ -30,6 +31,7 @@ export default function StoredDataPage() {
   
   const { user } = useUser();
   const { supabase } = useSupabase();
+  const { triggerTestModal, triggerTestModal2, triggerTestModal3 } = useTitleEvolution()
 
   useEffect(() => {
     async function loadSupabaseData() {
@@ -65,6 +67,11 @@ export default function StoredDataPage() {
 
     loadSupabaseData();
   }, [user?.id, supabase]);
+
+  const clearAllData = () => {
+    localStorage.clear()
+    sessionStorage.clear()
+  }
 
   return (
     <main className="container mx-auto p-4" aria-label="stored-data-section">
@@ -116,6 +123,27 @@ export default function StoredDataPage() {
       
       <div className="mt-6">
         <HealthCheck />
+      </div>
+
+      <div className="mt-6">
+        <h3 className="text-lg font-semibold mb-4">Test Title Evolution Modal</h3>
+        <div className="flex gap-2 flex-wrap">
+          <Button onClick={triggerTestModal} variant="outline">
+            Test Squire → Knight (Level 10)
+          </Button>
+          <Button onClick={triggerTestModal2} variant="outline">
+            Test Knight → Baron (Level 20)
+          </Button>
+          <Button onClick={triggerTestModal3} variant="outline">
+            Test Baron → Viscount (Level 30)
+          </Button>
+        </div>
+      </div>
+
+      <div className="mt-6">
+        <Button onClick={clearAllData} variant="destructive">
+          Clear All Data
+        </Button>
       </div>
     </main>
   );
