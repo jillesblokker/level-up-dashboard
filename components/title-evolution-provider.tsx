@@ -2,20 +2,19 @@
 
 import React from 'react';
 import { TitleEvolutionModal } from '@/components/title-evolution-modal';
-import { useTitleEvolution } from '@/hooks/use-title-evolution';
+import { TitleEvolutionProvider as Provider, useTitleEvolution } from '@/hooks/title-evolution-context';
 
-export function TitleEvolutionProvider({ children }: { children: React.ReactNode }) {
+function TitleEvolutionModalWrapper() {
   const { showModal, evolution, closeModal } = useTitleEvolution();
 
-  console.log('🎭 TitleEvolutionProvider render:', { 
-    showModal, 
-    evolution: evolution ? `${evolution.oldTitle} → ${evolution.newTitle}` : 'null',
+  console.log('TitleEvolutionModalWrapper render:', {
+    showModal,
+    evolution: evolution ? `${evolution.oldTitle} -> ${evolution.newTitle}` : 'null',
     evolutionData: evolution
   });
 
   return (
     <>
-      {children}
       {evolution && (
         <TitleEvolutionModal
           isOpen={showModal}
@@ -27,5 +26,14 @@ export function TitleEvolutionProvider({ children }: { children: React.ReactNode
         />
       )}
     </>
+  );
+}
+
+export function TitleEvolutionProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <Provider>
+      {children}
+      <TitleEvolutionModalWrapper />
+    </Provider>
   );
 } 

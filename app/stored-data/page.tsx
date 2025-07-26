@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { getCharacterStats } from '@/lib/character-data-manager';
 import { getInventory } from '@/lib/inventory-manager';
 import { getUserAchievements } from '@/lib/achievements-manager';
-import { useTitleEvolution } from '@/hooks/use-title-evolution'
+import { useTitleEvolution } from '@/hooks/title-evolution-context'
 
 interface SupabaseData {
   table: string;

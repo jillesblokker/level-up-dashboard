@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { getCharacterStats } from '@/lib/character-stats-manager';
 import { calculateLevelFromExperience } from '@/types/character';
-import { TITLES, getCurrentTitle } from '@/lib/title-manager';
+import { getCurrentTitle } from '@/lib/title-manager';
 
 export interface TitleEvolution {
   oldTitle: string;
@@ -13,14 +13,31 @@ export interface TitleEvolution {
   level: number;
 }
 
-export function useTitleEvolution() {
+interface TitleEvolutionContextType {
+  showModal: boolean;
+  evolution: TitleEvolution | null;
+  closeModal: () => void;
+  triggerTestModal: () => void;
+  triggerTestModal2: () => void;
+  triggerTestModal3: () => void;
+  triggerTestModal4: () => void;
+  triggerTestModal5: () => void;
+  triggerTestModal6: () => void;
+  triggerTestModal7: () => void;
+  triggerTestModal8: () => void;
+  triggerTestModal9: () => void;
+  triggerTestModal10: () => void;
+}
+
+const TitleEvolutionContext = createContext<TitleEvolutionContextType | undefined>(undefined);
+
+export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
   const [showModal, setShowModal] = useState(false);
   const [evolution, setEvolution] = useState<TitleEvolution | null>(null);
   const [lastProcessedLevel, setLastProcessedLevel] = useState<number>(0);
 
-  // Debug state changes
   useEffect(() => {
-    console.log('🎯 State changed:', { showModal, evolution: evolution ? `${evolution.oldTitle} → ${evolution.newTitle}` : 'null' });
+    console.log('State changed:', { showModal, evolution: evolution ? `${evolution.oldTitle} -> ${evolution.newTitle}` : 'null' });
   }, [showModal, evolution]);
 
   useEffect(() => {
@@ -28,13 +45,11 @@ export function useTitleEvolution() {
       try {
         const stats = getCharacterStats();
         const currentLevel = calculateLevelFromExperience(stats.experience || 0);
-        
-        // Only check if level has increased
+
         if (currentLevel > lastProcessedLevel) {
           const currentTitle = getCurrentTitle(currentLevel);
           const previousTitle = getCurrentTitle(lastProcessedLevel || currentLevel - 1);
-          
-          // Check if we've reached a new title (every 10 levels)
+
           if (currentTitle.id !== previousTitle.id && currentLevel % 10 === 0) {
             const evolutionData: TitleEvolution = {
               oldTitle: previousTitle.name,
@@ -43,11 +58,11 @@ export function useTitleEvolution() {
               newTitleImage: `/images/character/${currentTitle.id}.png`,
               level: currentLevel
             };
-            
+
             setEvolution(evolutionData);
             setShowModal(true);
           }
-          
+
           setLastProcessedLevel(currentLevel);
         }
       } catch (error) {
@@ -55,16 +70,14 @@ export function useTitleEvolution() {
       }
     };
 
-    // Check immediately
     checkForTitleEvolution();
 
-    // Listen for character stats updates
     const handleStatsUpdate = () => {
       checkForTitleEvolution();
     };
 
     window.addEventListener('character-stats-update', handleStatsUpdate);
-    
+
     return () => {
       window.removeEventListener('character-stats-update', handleStatsUpdate);
     };
@@ -76,8 +89,7 @@ export function useTitleEvolution() {
   };
 
   const triggerTestModal = () => {
-    console.log('🎯 Triggering test modal: Squire → Knight');
-    // Test with Squire to Knight evolution (level 10)
+    console.log('Triggering test modal: Squire -> Knight');
     const testEvolution: TitleEvolution = {
       oldTitle: 'Squire',
       newTitle: 'Knight',
@@ -85,15 +97,11 @@ export function useTitleEvolution() {
       newTitleImage: '/images/character/knight.png',
       level: 10
     };
-    console.log('🎯 Setting evolution state:', testEvolution);
     setEvolution(testEvolution);
     setShowModal(true);
-    console.log('🎯 Modal state set to true');
   };
 
   const triggerTestModal2 = () => {
-    console.log('🎯 Triggering test modal: Knight → Baron');
-    // Test with Knight to Baron evolution (level 20)
     const testEvolution: TitleEvolution = {
       oldTitle: 'Knight',
       newTitle: 'Baron',
@@ -106,8 +114,6 @@ export function useTitleEvolution() {
   };
 
   const triggerTestModal3 = () => {
-    console.log('🎯 Triggering test modal: Baron → Viscount');
-    // Test with Baron to Viscount evolution (level 30)
     const testEvolution: TitleEvolution = {
       oldTitle: 'Baron',
       newTitle: 'Viscount',
@@ -120,8 +126,6 @@ export function useTitleEvolution() {
   };
 
   const triggerTestModal4 = () => {
-    console.log('🎯 Triggering test modal: Viscount → Count');
-    // Test with Viscount to Count evolution (level 40)
     const testEvolution: TitleEvolution = {
       oldTitle: 'Viscount',
       newTitle: 'Count',
@@ -134,8 +138,6 @@ export function useTitleEvolution() {
   };
 
   const triggerTestModal5 = () => {
-    console.log('🎯 Triggering test modal: Count → Marquis');
-    // Test with Count to Marquis evolution (level 50)
     const testEvolution: TitleEvolution = {
       oldTitle: 'Count',
       newTitle: 'Marquis',
@@ -148,8 +150,6 @@ export function useTitleEvolution() {
   };
 
   const triggerTestModal6 = () => {
-    console.log('🎯 Triggering test modal: Marquis → Duke');
-    // Test with Marquis to Duke evolution (level 60)
     const testEvolution: TitleEvolution = {
       oldTitle: 'Marquis',
       newTitle: 'Duke',
@@ -162,8 +162,6 @@ export function useTitleEvolution() {
   };
 
   const triggerTestModal7 = () => {
-    console.log('🎯 Triggering test modal: Duke → Prince');
-    // Test with Duke to Prince evolution (level 70)
     const testEvolution: TitleEvolution = {
       oldTitle: 'Duke',
       newTitle: 'Prince',
@@ -176,8 +174,6 @@ export function useTitleEvolution() {
   };
 
   const triggerTestModal8 = () => {
-    console.log('🎯 Triggering test modal: Prince → King');
-    // Test with Prince to King evolution (level 80)
     const testEvolution: TitleEvolution = {
       oldTitle: 'Prince',
       newTitle: 'King',
@@ -190,8 +186,6 @@ export function useTitleEvolution() {
   };
 
   const triggerTestModal9 = () => {
-    console.log('🎯 Triggering test modal: King → Emperor');
-    // Test with King to Emperor evolution (level 90)
     const testEvolution: TitleEvolution = {
       oldTitle: 'King',
       newTitle: 'Emperor',
@@ -204,8 +198,6 @@ export function useTitleEvolution() {
   };
 
   const triggerTestModal10 = () => {
-    console.log('🎯 Triggering test modal: Emperor → God');
-    // Test with Emperor to God evolution (level 100)
     const testEvolution: TitleEvolution = {
       oldTitle: 'Emperor',
       newTitle: 'God',
@@ -217,7 +209,7 @@ export function useTitleEvolution() {
     setShowModal(true);
   };
 
-  return {
+  const value: TitleEvolutionContextType = {
     showModal,
     evolution,
     closeModal,
@@ -232,4 +224,18 @@ export function useTitleEvolution() {
     triggerTestModal9,
     triggerTestModal10
   };
+
+  return (
+    <TitleEvolutionContext.Provider value={value}>
+      {children}
+    </TitleEvolutionContext.Provider>
+  );
+}
+
+export function useTitleEvolution() {
+  const context = useContext(TitleEvolutionContext);
+  if (context === undefined) {
+    throw new Error('useTitleEvolution must be used within a TitleEvolutionProvider');
+  }
+  return context;
 } 
