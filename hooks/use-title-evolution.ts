@@ -18,6 +18,11 @@ export function useTitleEvolution() {
   const [evolution, setEvolution] = useState<TitleEvolution | null>(null);
   const [lastProcessedLevel, setLastProcessedLevel] = useState<number>(0);
 
+  // Debug state changes
+  useEffect(() => {
+    console.log('🎯 State changed:', { showModal, evolution: evolution ? `${evolution.oldTitle} → ${evolution.newTitle}` : 'null' });
+  }, [showModal, evolution]);
+
   useEffect(() => {
     const checkForTitleEvolution = () => {
       try {
@@ -80,8 +85,10 @@ export function useTitleEvolution() {
       newTitleImage: '/images/character/knight.png',
       level: 10
     };
+    console.log('🎯 Setting evolution state:', testEvolution);
     setEvolution(testEvolution);
     setShowModal(true);
+    console.log('🎯 Modal state set to true');
   };
 
   const triggerTestModal2 = () => {

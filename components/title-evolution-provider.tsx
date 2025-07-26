@@ -7,7 +7,11 @@ import { useTitleEvolution } from '@/hooks/use-title-evolution';
 export function TitleEvolutionProvider({ children }: { children: React.ReactNode }) {
   const { showModal, evolution, closeModal } = useTitleEvolution();
 
-  console.log('🎭 TitleEvolutionProvider render:', { showModal, evolution: evolution?.oldTitle + ' → ' + evolution?.newTitle });
+  console.log('🎭 TitleEvolutionProvider render:', { 
+    showModal, 
+    evolution: evolution ? `${evolution.oldTitle} → ${evolution.newTitle}` : 'null',
+    evolutionData: evolution
+  });
 
   return (
     <>
