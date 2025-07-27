@@ -30,7 +30,7 @@ export function MigrationTest() {
       console.log('LocalStorage data collected:', localStorageData);
 
       // Test migration
-      const migrationResult = await migrateLocalStorageToSupabase(user.id, localStorageData);
+      const migrationResult = await migrateLocalStorageToSupabase(user.id);
       console.log('Migration result:', migrationResult);
 
       setResult(migrationResult);
