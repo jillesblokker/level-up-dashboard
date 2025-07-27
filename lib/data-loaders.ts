@@ -170,20 +170,12 @@ export async function saveTileInventory(userId: string, inventory: Record<string
 export async function loadUserPreferences(userId: string): Promise<Record<string, any>> {
   return loadDataWithFallback(
     async () => {
-      const { data, error } = await supabase
-        .from('user_preferences')
-        .select('preference_key, preference_value')
-        .eq('user_id', userId);
-      
-      if (error) return { data: null, error };
-      
-      // Convert to the expected format
-      const preferences: Record<string, any> = {};
-      data?.forEach(item => {
-        preferences[item.preference_key] = item.preference_value;
-      });
-      
-      return { data: preferences, error: null };
+      try {
+        const result = await apiCall(`?type=preferences&userId=${userId}`);
+        return { data: result.data, error: null };
+      } catch (error) {
+        return { data: null, error };
+      }
     },
     'userPreferences',
     {}
@@ -193,21 +185,19 @@ export async function loadUserPreferences(userId: string): Promise<Record<string
 export async function saveUserPreferences(userId: string, preferences: Record<string, any>): Promise<{ success: boolean; error?: string }> {
   return saveDataWithRedundancy(
     async (data) => {
-      const items = Object.entries(data).map(([key, value]) => ({
-        user_id: userId,
-        preference_key: key,
-        preference_value: value
-      }));
-
-      if (items.length > 0) {
-        const { error } = await supabase
-          .from('user_preferences')
-          .upsert(items, { onConflict: 'user_id,preference_key' });
-
+      try {
+        await apiCall('', {
+          method: 'POST',
+          body: JSON.stringify({
+            type: 'preferences',
+            userId,
+            data
+          })
+        });
+        return { error: null };
+      } catch (error) {
         return { error };
       }
-
-      return { error: null };
     },
     'userPreferences',
     preferences
@@ -221,20 +211,12 @@ export async function saveUserPreferences(userId: string, preferences: Record<st
 export async function loadImageDescriptions(userId: string): Promise<Record<string, string>> {
   return loadDataWithFallback(
     async () => {
-      const { data, error } = await supabase
-        .from('image_descriptions')
-        .select('image_path, description')
-        .eq('user_id', userId);
-      
-      if (error) return { data: null, error };
-      
-      // Convert to the expected format
-      const descriptions: Record<string, string> = {};
-      data?.forEach(item => {
-        descriptions[item.image_path] = item.description || '';
-      });
-      
-      return { data: descriptions, error: null };
+      try {
+        const result = await apiCall(`?type=descriptions&userId=${userId}`);
+        return { data: result.data, error: null };
+      } catch (error) {
+        return { data: null, error };
+      }
     },
     'imageDescriptions',
     {}
@@ -244,21 +226,19 @@ export async function loadImageDescriptions(userId: string): Promise<Record<stri
 export async function saveImageDescriptions(userId: string, descriptions: Record<string, string>): Promise<{ success: boolean; error?: string }> {
   return saveDataWithRedundancy(
     async (data) => {
-      const items = Object.entries(data).map(([imagePath, description]) => ({
-        user_id: userId,
-        image_path: imagePath,
-        description: description
-      }));
-
-      if (items.length > 0) {
-        const { error } = await supabase
-          .from('image_descriptions')
-          .upsert(items, { onConflict: 'user_id,image_path' });
-
+      try {
+        await apiCall('', {
+          method: 'POST',
+          body: JSON.stringify({
+            type: 'descriptions',
+            userId,
+            data
+          })
+        });
+        return { error: null };
+      } catch (error) {
         return { error };
       }
-
-      return { error: null };
     },
     'imageDescriptions',
     descriptions
@@ -272,20 +252,12 @@ export async function saveImageDescriptions(userId: string, descriptions: Record
 export async function loadGameSettings(userId: string): Promise<Record<string, any>> {
   return loadDataWithFallback(
     async () => {
-      const { data, error } = await supabase
-        .from('game_settings')
-        .select('setting_key, setting_value')
-        .eq('user_id', userId);
-      
-      if (error) return { data: null, error };
-      
-      // Convert to the expected format
-      const settings: Record<string, any> = {};
-      data?.forEach(item => {
-        settings[item.setting_key] = item.setting_value;
-      });
-      
-      return { data: settings, error: null };
+      try {
+        const result = await apiCall(`?type=settings&userId=${userId}`);
+        return { data: result.data, error: null };
+      } catch (error) {
+        return { data: null, error };
+      }
     },
     'gameSettings',
     {}
@@ -295,21 +267,19 @@ export async function loadGameSettings(userId: string): Promise<Record<string, a
 export async function saveGameSettings(userId: string, settings: Record<string, any>): Promise<{ success: boolean; error?: string }> {
   return saveDataWithRedundancy(
     async (data) => {
-      const items = Object.entries(data).map(([key, value]) => ({
-        user_id: userId,
-        setting_key: key,
-        setting_value: value
-      }));
-
-      if (items.length > 0) {
-        const { error } = await supabase
-          .from('game_settings')
-          .upsert(items, { onConflict: 'user_id,setting_key' });
-
+      try {
+        await apiCall('', {
+          method: 'POST',
+          body: JSON.stringify({
+            type: 'settings',
+            userId,
+            data
+          })
+        });
+        return { error: null };
+      } catch (error) {
         return { error };
       }
-
-      return { error: null };
     },
     'gameSettings',
     settings

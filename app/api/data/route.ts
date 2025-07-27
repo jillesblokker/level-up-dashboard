@@ -64,6 +64,20 @@ export async function GET(request: NextRequest) {
           
           return { data: settingsData?.settings_data || {}, error: settingsError };
 
+        case 'descriptions':
+          const { data: descData, error: descError } = await supabase
+            .from('image_descriptions')
+            .select('image_path, description')
+            .eq('user_id', userId);
+          
+          // Convert to the expected format
+          const descriptions: Record<string, string> = {};
+          descData?.forEach(item => {
+            descriptions[item.image_path] = item.description || '';
+          });
+          
+          return { data: descriptions, error: descError };
+
         default:
           throw new Error(`Unknown data type: ${type}`);
       }
@@ -172,6 +186,30 @@ export async function POST(request: NextRequest) {
             }, { onConflict: 'user_id' });
 
           return { error: settingsError };
+
+        case 'descriptions':
+          // Clear existing descriptions
+          await supabase
+            .from('image_descriptions')
+            .delete()
+            .eq('user_id', userId);
+
+          // Insert new descriptions
+          if (Object.keys(data).length > 0) {
+            const items = Object.entries(data).map(([imagePath, description]) => ({
+              user_id: userId,
+              image_path: imagePath,
+              description: description
+            }));
+
+            const { error: descError } = await supabase
+              .from('image_descriptions')
+              .insert(items);
+
+            return { error: descError };
+          }
+
+          return { error: null };
 
         default:
           throw new Error(`Unknown data type: ${type}`);
