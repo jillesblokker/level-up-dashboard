@@ -107,7 +107,7 @@ export function MigrationModal({ isOpen, onClose, onComplete }: MigrationModalPr
             <Alert>
               <HardDrive className="h-4 w-4" />
               <AlertDescription>
-                No local data found to migrate. Your data is already in the cloud!
+                No local data found to migrate. Your data is already in the cloud.
               </AlertDescription>
             </Alert>
           )}
