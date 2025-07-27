@@ -14,7 +14,7 @@ export default function MigrationTestPage() {
         <MigrationTest />
         
         <div className="mt-8 p-4 bg-gray-100 rounded-lg">
-          <h2 className="text-lg font-semibold mb-2">What's been implemented:</h2>
+          <h2 className="text-lg font-semibold mb-2">What has been implemented:</h2>
           <ul className="list-disc list-inside space-y-1 text-sm">
             <li>✅ Database tables created with proper RLS policies</li>
             <li>✅ Migration utilities for localStorage data</li>
