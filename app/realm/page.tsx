@@ -30,8 +30,8 @@ import { checkMonsterSpawn, spawnMonsterOnTile, getMonsterAchievementId, Monster
 import { MonsterBattle } from '@/components/monster-battle';
 import { RealmAnimationWrapper } from '@/components/realm-animation-wrapper';
 import { HeaderSection } from '@/components/HeaderSection';
-// Import new data loaders
-import { loadGridData, saveGridData, loadCharacterPosition, saveCharacterPosition, loadTileInventory, saveTileInventory } from '@/lib/data-loaders';
+// Import new data loaders hook
+import { useDataLoaders } from '@/hooks/use-data-loaders';
 const RevealOverlay = dynamic(() => import('../reveal/page'), { ssr: false });
 
 // Constants
@@ -210,6 +210,14 @@ export default function RealmPage() {
     const isGuest = !user;
     const router = useRouter();
     const { discoverCreature } = useCreatureStore();
+    const {
+        loadGridData,
+        saveGridData,
+        loadCharacterPosition,
+        saveCharacterPosition,
+        loadTileInventory,
+        saveTileInventory
+    } = useDataLoaders();
 
     const [grid, setGrid] = useState<Tile[][]>(createBaseGrid());
     const [isLoading, setIsLoading] = useState(true);
@@ -454,7 +462,7 @@ export default function RealmPage() {
                 if (inventoryData && Object.keys(inventoryData).length > 0) {
                     // Merge with initial inventory
                     const mergedInventory = { ...initialInventory };
-                    Object.entries(inventoryData).forEach(([tileId, item]) => {
+                    Object.entries(inventoryData).forEach(([tileId, item]: [string, any]) => {
                         const tileType = item.type as TileType;
                         if (mergedInventory[tileType]) {
                             mergedInventory[tileType] = {

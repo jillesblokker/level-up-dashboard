@@ -1,30 +1,45 @@
 import { loadDataWithFallback, saveDataWithRedundancy } from '@/lib/migration-utils';
 
-// Helper function to get auth token
+// Helper function to get auth token with retry logic
 async function getAuthToken(): Promise<string | null> {
   if (typeof window === 'undefined') return null;
   
-  try {
-    // Access Clerk from window if available
-    const clerk = (window as any).__clerk;
-    if (!clerk) {
-      console.error('[Data Loaders] Clerk not available on window');
-      return null;
-    }
+  // Wait for Clerk to be available
+  let attempts = 0;
+  const maxAttempts = 10;
+  
+  while (attempts < maxAttempts) {
+    try {
+      // Try to access Clerk from window
+      const clerk = (window as any).__clerk;
+      if (!clerk) {
+        console.log(`[Data Loaders] Clerk not available on window, attempt ${attempts + 1}/${maxAttempts}`);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+        continue;
+      }
 
-    const session = clerk.session;
-    if (!session) {
-      console.error('[Data Loaders] No active Clerk session');
-      return null;
-    }
+      const session = clerk.session;
+      if (!session) {
+        console.log(`[Data Loaders] No active Clerk session, attempt ${attempts + 1}/${maxAttempts}`);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+        continue;
+      }
 
-    const token = await session.getToken();
-    console.log('[Data Loaders] Got Clerk token:', token ? 'present' : 'null');
-    return token;
-  } catch (error) {
-    console.error('[Data Loaders] Error getting Clerk token:', error);
-    return null;
+      // Try to get token with supabase template
+      const token = await session.getToken({ template: 'supabase' });
+      console.log('[Data Loaders] Got Clerk token:', token ? 'present' : 'null');
+      return token;
+    } catch (error) {
+      console.error(`[Data Loaders] Error getting Clerk token (attempt ${attempts + 1}):`, error);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      attempts++;
+    }
   }
+  
+  console.error('[Data Loaders] Failed to get Clerk token after all attempts');
+  return null;
 }
 
 // Helper function to make authenticated API calls
