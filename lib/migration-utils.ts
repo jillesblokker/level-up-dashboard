@@ -271,10 +271,15 @@ export async function saveDataWithRedundancy<T>(
     console.warn('localStorage save error:', error);
   }
 
-  return {
-    success: supabaseSuccess || localStorageSuccess,
-    error: !supabaseSuccess && !localStorageSuccess ? 'Failed to save data' : undefined
+  const result: { success: boolean; error?: string } = {
+    success: supabaseSuccess || localStorageSuccess
   };
+  
+  if (!supabaseSuccess && !localStorageSuccess) {
+    result.error = 'Failed to save data';
+  }
+  
+  return result;
 }
 
 /**
