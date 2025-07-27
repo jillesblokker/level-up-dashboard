@@ -30,6 +30,8 @@ import { checkMonsterSpawn, spawnMonsterOnTile, getMonsterAchievementId, Monster
 import { MonsterBattle } from '@/components/monster-battle';
 import { RealmAnimationWrapper } from '@/components/realm-animation-wrapper';
 import { HeaderSection } from '@/components/HeaderSection';
+// Import new data loaders
+import { loadGridData, saveGridData, loadCharacterPosition, saveCharacterPosition, loadTileInventory, saveTileInventory } from '@/lib/data-loaders';
 const RevealOverlay = dynamic(() => import('../reveal/page'), { ssr: false });
 
 // Constants
@@ -212,13 +214,13 @@ export default function RealmPage() {
     const [grid, setGrid] = useState<Tile[][]>(createBaseGrid());
     const [isLoading, setIsLoading] = useState(true);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-    const [characterPosition, setCharacterPosition] = useLocalStorage('characterPosition', { x: 2, y: 0 });
-    const [inventory, setInventory] = useLocalStorage<Record<TileType, Tile>>('tileInventory', initialInventory);
+    const [characterPosition, setCharacterPosition] = useState<{ x: number; y: number }>({ x: 2, y: 0 });
+    const [inventory, setInventory] = useState<Record<TileType, Tile>>(initialInventory);
     const [showInventory, setShowInventory] = useState(false);
     const [selectedTile, setSelectedTile] = useState<TileInventoryItem | null>(null);
     const [autoSave, setAutoSave] = useState(true);
     const [gameMode, setGameMode] = useState<'build' | 'move'>('move');
-    const [hasVisitedRealm, setHasVisitedRealm] = useLocalStorage('hasVisitedRealm', false);
+    const [hasVisitedRealm, setHasVisitedRealm] = useState(false);
     const [modalState, setModalState] = useState<{ isOpen: boolean; locationType: 'city' | 'town'; locationName: string } | null>(null);
     const defaultCharacterPosition = { x: 2, y: 0 };
     const [hasCheckedInitialPosition, setHasCheckedInitialPosition] = useState(false);
@@ -395,49 +397,96 @@ export default function RealmPage() {
         }
     }, [hasVisitedRealm, isAuthLoaded, userId, setHasVisitedRealm, toast, discoverCreature]);
 
-    // Load grid from /api/realm-tiles on mount
+    // Load data from Supabase with localStorage fallback
     useEffect(() => {
-        const fetchTiles = async () => {
-            if (!isAuthLoaded || isGuest) return;
+        const loadUserData = async () => {
+            if (!isAuthLoaded || isGuest || !userId) return;
+            
             setIsLoading(true);
             try {
-                const res = await fetch('/api/realm-tiles');
-                const data = await res.json();
-                if (res.ok && data.tiles) {
-                    // Dynamically determine the number of rows from the data
-                    const maxRow = Math.max(...data.tiles.map((row: any) => row.y ?? 0), INITIAL_ROWS - 1);
-                    const gridArr: Tile[][] = Array.from({ length: maxRow + 1 }, (_, y) =>
-                        Array.from({ length: GRID_COLS }, (_, x) => defaultTile('empty'))
-                    );
-                    data.tiles.forEach((row: any) => {
-                        if (!row) return;
-                        if (!gridArr[row.y] || !Array.isArray(gridArr[row.y])) return;
-                        for (let x = 0; x < GRID_COLS; x++) {
-                            const typeNum = row[`tile_${x}_type`];
-                            const tileType = typeof typeNum === 'number' ? numericToTileType[typeNum] || 'empty' : 'empty';
-                            const rowArr = gridArr[row.y];
-                            if (!rowArr || typeof rowArr[x] === 'undefined') continue;
-                            rowArr[x] = {
-                                ...defaultTile(tileType),
-                                x,
-                                y: row.y,
-                                id: `${tileType}-${x}-${row.y}`,
-                                // Optionally add event, updated_at, etc.
+                // Load grid data
+                const gridData = await loadGridData(userId);
+                if (gridData) {
+                    setGrid(gridData);
+                } else {
+                    // Fallback to API or create base grid
+                    try {
+                        const res = await fetch('/api/realm-tiles');
+                        const data = await res.json();
+                        if (res.ok && data.tiles) {
+                            const maxRow = Math.max(...data.tiles.map((row: any) => row.y ?? 0), INITIAL_ROWS - 1);
+                            const gridArr: Tile[][] = Array.from({ length: maxRow + 1 }, (_, y) =>
+                                Array.from({ length: GRID_COLS }, (_, x) => defaultTile('empty'))
+                            );
+                            data.tiles.forEach((row: any) => {
+                                if (!row) return;
+                                if (!gridArr[row.y] || !Array.isArray(gridArr[row.y])) return;
+                                for (let x = 0; x < GRID_COLS; x++) {
+                                    const typeNum = row[`tile_${x}_type`];
+                                    const tileType = typeof typeNum === 'number' ? numericToTileType[typeNum] || 'empty' : 'empty';
+                                    const rowArr = gridArr[row.y];
+                                    if (!rowArr || typeof rowArr[x] === 'undefined') continue;
+                                    rowArr[x] = {
+                                        ...defaultTile(tileType),
+                                        x,
+                                        y: row.y,
+                                        id: `${tileType}-${x}-${row.y}`,
+                                    };
+                                }
+                            });
+                            setGrid(gridArr);
+                        } else {
+                            setGrid(createBaseGrid());
+                        }
+                    } catch (err) {
+                        setGrid(createBaseGrid());
+                    }
+                }
+
+                // Load character position
+                const position = await loadCharacterPosition(userId);
+                if (position) {
+                    setCharacterPosition(position);
+                }
+
+                // Load tile inventory
+                const inventoryData = await loadTileInventory(userId);
+                if (inventoryData && Object.keys(inventoryData).length > 0) {
+                    // Merge with initial inventory
+                    const mergedInventory = { ...initialInventory };
+                    Object.entries(inventoryData).forEach(([tileId, item]) => {
+                        const tileType = item.type as TileType;
+                        if (mergedInventory[tileType]) {
+                            mergedInventory[tileType] = {
+                                ...mergedInventory[tileType],
+                                owned: item.quantity || 0,
+                                cost: item.cost || mergedInventory[tileType].cost
                             };
                         }
                     });
-                    setGrid(gridArr);
-                } else {
-                    setGrid(createBaseGrid());
+                    setInventory(mergedInventory);
                 }
-            } catch (err) {
-                toast({ title: 'Error', description: 'Failed to load realm tiles', variant: 'destructive' });
-                setGrid(createBaseGrid());
+
+                // Load hasVisitedRealm from localStorage as fallback
+                const visited = localStorage.getItem('hasVisitedRealm');
+                if (visited === 'true') {
+                    setHasVisitedRealm(true);
+                }
+
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                toast({ 
+                    title: 'Error', 
+                    description: 'Failed to load your data. Using default settings.', 
+                    variant: 'destructive' 
+                });
+            } finally {
+                setIsLoading(false);
             }
-            setIsLoading(false);
         };
-        fetchTiles();
-    }, [isAuthLoaded, isGuest]);
+
+        loadUserData();
+    }, [isAuthLoaded, isGuest, userId]);
 
     // --- Supabase real-time sync for realm_grids ---
     useSupabaseRealtimeSync({
@@ -456,10 +505,33 @@ export default function RealmPage() {
         }
     });
 
+    // Auto-save grid to Supabase with localStorage fallback
     useEffect(() => {
-        // Autosave logic is no longer needed with per-tile saving
-        return undefined;
-    }, [grid, autoSave, saveStatus]);
+        if (!autoSave || isLoading || !userId) return;
+        
+        const saveTimeout = setTimeout(async () => {
+            try {
+                setSaveStatus('saving');
+                
+                // Save to Supabase with localStorage fallback
+                const result = await saveGridData(userId, grid);
+                
+                if (result.success) {
+                    setSaveStatus('saved');
+                    setTimeout(() => setSaveStatus('idle'), 2000);
+                } else {
+                    setSaveStatus('error');
+                    setTimeout(() => setSaveStatus('idle'), 3000);
+                }
+            } catch (error) {
+                console.error('Save error:', error);
+                setSaveStatus('error');
+                setTimeout(() => setSaveStatus('idle'), 3000);
+            }
+        }, 1000);
+        
+        return () => clearTimeout(saveTimeout);
+    }, [grid, autoSave, isLoading, userId]);
 
     // Place tile: update grid and send only the changed tile to backend
     const handlePlaceTile = async (x: number, y: number) => {
@@ -500,6 +572,14 @@ export default function RealmPage() {
             if (invTile) {
                 invTile.owned = (invTile.owned ?? 0) - 1;
             }
+            
+            // Save inventory to Supabase
+            if (userId) {
+                saveTileInventory(userId, newInventory).catch(error => {
+                    console.error('Failed to save inventory:', error);
+                });
+            }
+            
             return newInventory;
         });
         // Save only the changed tile
@@ -807,6 +887,12 @@ export default function RealmPage() {
             
             if (newX !== currentPos.x || newY !== currentPos.y) {
                 setCharacterPosition({ x: newX, y: newY });
+                // Save character position to Supabase
+                if (userId) {
+                    saveCharacterPosition(userId, { x: newX, y: newY }).catch(error => {
+                        console.error('Failed to save character position:', error);
+                    });
+                }
             }
         };
 
@@ -1376,7 +1462,14 @@ export default function RealmPage() {
                                         newTiles.forEach((tile: typeof inventoryAsItems[number]) => {
                                             updated[tile.type] = { ...updated[tile.type], ...tile };
                                         });
-                                        localStorage.setItem('tileInventory', JSON.stringify(updated));
+                                        
+                                        // Save to Supabase with localStorage fallback
+                                        if (userId) {
+                                            saveTileInventory(userId, updated).catch(error => {
+                                                console.error('Failed to save inventory:', error);
+                                            });
+                                        }
+                                        
                                         return updated;
                                     });
                                 }}
