@@ -1,3 +1,5 @@
+'use client';
+
 import { MigrationTest } from '@/components/migration-test';
 
 export default function MigrationTestPage() {

@@ -22,6 +22,12 @@ export interface MigrationResult {
 export function collectLocalStorageData(): MigrationData {
   const data: MigrationData = {};
 
+  // Check if we're on the client side
+  if (typeof window === 'undefined') {
+    console.warn('localStorage is not available on server side');
+    return data;
+  }
+
   try {
     // Grid data
     const gridData = localStorage.getItem('grid');
