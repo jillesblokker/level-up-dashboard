@@ -290,10 +290,13 @@ export async function checkMigrationStatus(userId: string): Promise<{
   hasLocalData: boolean;
   migrationData?: MigrationData;
 }> {
-  const result = {
+  const result: {
+    hasMigrated: boolean;
+    hasLocalData: boolean;
+    migrationData?: MigrationData;
+  } = {
     hasMigrated: false,
-    hasLocalData: false,
-    migrationData: undefined as MigrationData | undefined
+    hasLocalData: false
   };
 
   try {
