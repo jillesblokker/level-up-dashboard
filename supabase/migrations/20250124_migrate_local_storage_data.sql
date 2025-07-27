@@ -22,30 +22,30 @@ CREATE TABLE IF NOT EXISTS public.realm_grids (
 CREATE INDEX IF NOT EXISTS idx_realm_grids_user_id ON public.realm_grids(user_id);
 CREATE INDEX IF NOT EXISTS idx_realm_grids_current ON public.realm_grids(is_current) WHERE is_current = true;
 
--- Enable RLS for realm_grids
-ALTER TABLE public.realm_grids ENABLE ROW LEVEL SECURITY;
+-- Enable RLS for realm_grids (temporarily disabled for Clerk compatibility)
+-- ALTER TABLE public.realm_grids ENABLE ROW LEVEL SECURITY;
 
--- Create RLS policies for realm_grids
-CREATE POLICY "Users can view their own grids"
-    ON public.realm_grids
-    FOR SELECT
-    USING (auth.uid()::text = user_id);
+-- Create RLS policies for realm_grids (temporarily disabled)
+-- CREATE POLICY "Users can view their own grids"
+--     ON public.realm_grids
+--     FOR SELECT
+--     USING (auth.uid()::text = user_id);
 
-CREATE POLICY "Users can insert their own grids"
-    ON public.realm_grids
-    FOR INSERT
-    WITH CHECK (auth.uid()::text = user_id);
+-- CREATE POLICY "Users can insert their own grids"
+--     ON public.realm_grids
+--     FOR INSERT
+--     WITH CHECK (auth.uid()::text = user_id);
 
-CREATE POLICY "Users can update their own grids"
-    ON public.realm_grids
-    FOR UPDATE
-    USING (auth.uid()::text = user_id)
-    WITH CHECK (auth.uid()::text = user_id);
+-- CREATE POLICY "Users can update their own grids"
+--     ON public.realm_grids
+--     FOR UPDATE
+--     USING (auth.uid()::text = user_id)
+--     WITH CHECK (auth.uid()::text = user_id);
 
-CREATE POLICY "Users can delete their own grids"
-    ON public.realm_grids
-    FOR DELETE
-    USING (auth.uid()::text = user_id);
+-- CREATE POLICY "Users can delete their own grids"
+--     ON public.realm_grids
+--     FOR DELETE
+--     USING (auth.uid()::text = user_id);
 
 -- =====================================================
 -- 2. CREATE NEW TABLES FOR LOCALSTORAGE DATA
@@ -63,30 +63,30 @@ CREATE TABLE IF NOT EXISTS public.user_preferences (
 -- Create indexes for user_preferences
 CREATE INDEX IF NOT EXISTS idx_user_preferences_user_id ON public.user_preferences(user_id);
 
--- Enable RLS for user_preferences
-ALTER TABLE public.user_preferences ENABLE ROW LEVEL SECURITY;
+-- Enable RLS for user_preferences (temporarily disabled for Clerk compatibility)
+-- ALTER TABLE public.user_preferences ENABLE ROW LEVEL SECURITY;
 
--- Create RLS policies for user_preferences
-CREATE POLICY "Users can view their own preferences"
-    ON public.user_preferences
-    FOR SELECT
-    USING (auth.uid()::text = user_id);
+-- Create RLS policies for user_preferences (temporarily disabled)
+-- CREATE POLICY "Users can view their own preferences"
+--     ON public.user_preferences
+--     FOR SELECT
+--     USING (auth.uid()::text = user_id);
 
-CREATE POLICY "Users can insert their own preferences"
-    ON public.user_preferences
-    FOR INSERT
-    WITH CHECK (auth.uid()::text = user_id);
+-- CREATE POLICY "Users can insert their own preferences"
+--     ON public.user_preferences
+--     FOR INSERT
+--     WITH CHECK (auth.uid()::text = user_id);
 
-CREATE POLICY "Users can update their own preferences"
-    ON public.user_preferences
-    FOR UPDATE
-    USING (auth.uid()::text = user_id)
-    WITH CHECK (auth.uid()::text = user_id);
+-- CREATE POLICY "Users can update their own preferences"
+--     ON public.user_preferences
+--     FOR UPDATE
+--     USING (auth.uid()::text = user_id)
+--     WITH CHECK (auth.uid()::text = user_id);
 
-CREATE POLICY "Users can delete their own preferences"
-    ON public.user_preferences
-    FOR DELETE
-    USING (auth.uid()::text = user_id);
+-- CREATE POLICY "Users can delete their own preferences"
+--     ON public.user_preferences
+--     FOR DELETE
+--     USING (auth.uid()::text = user_id);
 
 -- Create tile_inventory table
 CREATE TABLE IF NOT EXISTS public.tile_inventory (
@@ -104,30 +104,30 @@ CREATE TABLE IF NOT EXISTS public.tile_inventory (
 CREATE INDEX IF NOT EXISTS idx_tile_inventory_user_id ON public.tile_inventory(user_id);
 CREATE INDEX IF NOT EXISTS idx_tile_inventory_tile_type ON public.tile_inventory(tile_type);
 
--- Enable RLS for tile_inventory
-ALTER TABLE public.tile_inventory ENABLE ROW LEVEL SECURITY;
+-- Enable RLS for tile_inventory (temporarily disabled for Clerk compatibility)
+-- ALTER TABLE public.tile_inventory ENABLE ROW LEVEL SECURITY;
 
--- Create RLS policies for tile_inventory
-CREATE POLICY "Users can view their own tile inventory"
-    ON public.tile_inventory
-    FOR SELECT
-    USING (auth.uid()::text = user_id);
+-- Create RLS policies for tile_inventory (temporarily disabled)
+-- CREATE POLICY "Users can view their own tile inventory"
+--     ON public.tile_inventory
+--     FOR SELECT
+--     USING (auth.uid()::text = user_id);
 
-CREATE POLICY "Users can insert their own tile inventory"
-    ON public.tile_inventory
-    FOR INSERT
-    WITH CHECK (auth.uid()::text = user_id);
+-- CREATE POLICY "Users can insert their own tile inventory"
+--     ON public.tile_inventory
+--     FOR INSERT
+--     WITH CHECK (auth.uid()::text = user_id);
 
-CREATE POLICY "Users can update their own tile inventory"
-    ON public.tile_inventory
-    FOR UPDATE
-    USING (auth.uid()::text = user_id)
-    WITH CHECK (auth.uid()::text = user_id);
+-- CREATE POLICY "Users can update their own tile inventory"
+--     ON public.tile_inventory
+--     FOR UPDATE
+--     USING (auth.uid()::text = user_id)
+--     WITH CHECK (auth.uid()::text = user_id);
 
-CREATE POLICY "Users can delete their own tile inventory"
-    ON public.tile_inventory
-    FOR DELETE
-    USING (auth.uid()::text = user_id);
+-- CREATE POLICY "Users can delete their own tile inventory"
+--     ON public.tile_inventory
+--     FOR DELETE
+--     USING (auth.uid()::text = user_id);
 
 -- Create image_descriptions table
 CREATE TABLE IF NOT EXISTS public.image_descriptions (
@@ -144,30 +144,30 @@ CREATE TABLE IF NOT EXISTS public.image_descriptions (
 CREATE INDEX IF NOT EXISTS idx_image_descriptions_user_id ON public.image_descriptions(user_id);
 CREATE INDEX IF NOT EXISTS idx_image_descriptions_image_path ON public.image_descriptions(image_path);
 
--- Enable RLS for image_descriptions
-ALTER TABLE public.image_descriptions ENABLE ROW LEVEL SECURITY;
+-- Enable RLS for image_descriptions (temporarily disabled for Clerk compatibility)
+-- ALTER TABLE public.image_descriptions ENABLE ROW LEVEL SECURITY;
 
--- Create RLS policies for image_descriptions
-CREATE POLICY "Users can view their own image descriptions"
-    ON public.image_descriptions
-    FOR SELECT
-    USING (auth.uid()::text = user_id);
+-- Create RLS policies for image_descriptions (temporarily disabled)
+-- CREATE POLICY "Users can view their own image descriptions"
+--     ON public.image_descriptions
+--     FOR SELECT
+--     USING (auth.uid()::text = user_id);
 
-CREATE POLICY "Users can insert their own image descriptions"
-    ON public.image_descriptions
-    FOR INSERT
-    WITH CHECK (auth.uid()::text = user_id);
+-- CREATE POLICY "Users can insert their own image descriptions"
+--     ON public.image_descriptions
+--     FOR INSERT
+--     WITH CHECK (auth.uid()::text = user_id);
 
-CREATE POLICY "Users can update their own image descriptions"
-    ON public.image_descriptions
-    FOR UPDATE
-    USING (auth.uid()::text = user_id)
-    WITH CHECK (auth.uid()::text = user_id);
+-- CREATE POLICY "Users can update their own image descriptions"
+--     ON public.image_descriptions
+--     FOR UPDATE
+--     USING (auth.uid()::text = user_id)
+--     WITH CHECK (auth.uid()::text = user_id);
 
-CREATE POLICY "Users can delete their own image descriptions"
-    ON public.image_descriptions
-    FOR DELETE
-    USING (auth.uid()::text = user_id);
+-- CREATE POLICY "Users can delete their own image descriptions"
+--     ON public.image_descriptions
+--     FOR DELETE
+--     USING (auth.uid()::text = user_id);
 
 -- Create game_settings table
 CREATE TABLE IF NOT EXISTS public.game_settings (
@@ -181,30 +181,30 @@ CREATE TABLE IF NOT EXISTS public.game_settings (
 -- Create indexes for game_settings
 CREATE INDEX IF NOT EXISTS idx_game_settings_user_id ON public.game_settings(user_id);
 
--- Enable RLS for game_settings
-ALTER TABLE public.game_settings ENABLE ROW LEVEL SECURITY;
+-- Enable RLS for game_settings (temporarily disabled for Clerk compatibility)
+-- ALTER TABLE public.game_settings ENABLE ROW LEVEL SECURITY;
 
--- Create RLS policies for game_settings
-CREATE POLICY "Users can view their own game settings"
-    ON public.game_settings
-    FOR SELECT
-    USING (auth.uid()::text = user_id);
+-- Create RLS policies for game_settings (temporarily disabled)
+-- CREATE POLICY "Users can view their own game settings"
+--     ON public.game_settings
+--     FOR SELECT
+--     USING (auth.uid()::text = user_id);
 
-CREATE POLICY "Users can insert their own game settings"
-    ON public.game_settings
-    FOR INSERT
-    WITH CHECK (auth.uid()::text = user_id);
+-- CREATE POLICY "Users can insert their own game settings"
+--     ON public.game_settings
+--     FOR INSERT
+--     WITH CHECK (auth.uid()::text = user_id);
 
-CREATE POLICY "Users can update their own game settings"
-    ON public.game_settings
-    FOR UPDATE
-    USING (auth.uid()::text = user_id)
-    WITH CHECK (auth.uid()::text = user_id);
+-- CREATE POLICY "Users can update their own game settings"
+--     ON public.game_settings
+--     FOR UPDATE
+--     USING (auth.uid()::text = user_id)
+--     WITH CHECK (auth.uid()::text = user_id);
 
-CREATE POLICY "Users can delete their own game settings"
-    ON public.game_settings
-    FOR DELETE
-    USING (auth.uid()::text = user_id);
+-- CREATE POLICY "Users can delete their own game settings"
+--     ON public.game_settings
+--     FOR DELETE
+--     USING (auth.uid()::text = user_id);
 
 -- =====================================================
 -- 3. CREATE MIGRATION FUNCTIONS
