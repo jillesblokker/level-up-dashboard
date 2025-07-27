@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS public.realm_grids (
     character_position jsonb,
     is_current boolean DEFAULT true,
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
-    updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+    updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+    UNIQUE(user_id, is_current)
 );
 
 -- Create indexes for realm_grids
@@ -53,7 +54,7 @@ CREATE POLICY "Users can delete their own grids"
 -- Create user_preferences table
 CREATE TABLE IF NOT EXISTS public.user_preferences (
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    user_id text NOT NULL,
+    user_id text NOT NULL UNIQUE,
     preferences_data jsonb NOT NULL DEFAULT '{}',
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
@@ -171,7 +172,7 @@ CREATE POLICY "Users can delete their own image descriptions"
 -- Create game_settings table
 CREATE TABLE IF NOT EXISTS public.game_settings (
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    user_id text NOT NULL,
+    user_id text NOT NULL UNIQUE,
     settings_data jsonb NOT NULL DEFAULT '{}',
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
@@ -233,7 +234,7 @@ BEGIN
     IF p_grid_data IS NOT NULL THEN
         INSERT INTO public.realm_grids (user_id, grid_data, is_current)
         VALUES (p_user_id, p_grid_data, true)
-        ON CONFLICT (user_id) WHERE is_current = true
+        ON CONFLICT (user_id, is_current)
         DO UPDATE SET 
             grid_data = EXCLUDED.grid_data,
             updated_at = timezone('utc'::text, now())

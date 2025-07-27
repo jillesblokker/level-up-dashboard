@@ -55,9 +55,8 @@ export async function GET(request: NextRequest) {
   try {
     const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
       // Check migration status
-      const [gridData, characterPosition, tileInventory, userPreferences, imageDescriptions, gameSettings] = await Promise.all([
+      const [gridData, tileInventory, userPreferences, imageDescriptions, gameSettings] = await Promise.all([
         supabase.from('realm_grids').select('id').eq('user_id', userId).limit(1),
-        supabase.from('character_positions').select('id').eq('user_id', userId).limit(1),
         supabase.from('tile_inventory').select('id').eq('user_id', userId).limit(1),
         supabase.from('user_preferences').select('id').eq('user_id', userId).limit(1),
         supabase.from('image_descriptions').select('id').eq('user_id', userId).limit(1),
@@ -66,7 +65,6 @@ export async function GET(request: NextRequest) {
 
       return {
         hasGridData: gridData.data && gridData.data.length > 0,
-        hasCharacterPosition: characterPosition.data && characterPosition.data.length > 0,
         hasTileInventory: tileInventory.data && tileInventory.data.length > 0,
         hasUserPreferences: userPreferences.data && userPreferences.data.length > 0,
         hasImageDescriptions: imageDescriptions.data && imageDescriptions.data.length > 0,
