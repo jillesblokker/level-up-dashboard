@@ -4,9 +4,27 @@ import { loadDataWithFallback, saveDataWithRedundancy } from '@/lib/migration-ut
 async function getAuthToken(): Promise<string | null> {
   if (typeof window === 'undefined') return null;
   
-  // Get the token from localStorage or wherever it's stored
-  // This is a simplified version - you might need to adjust based on your auth setup
-  return localStorage.getItem('auth-token') || null;
+  try {
+    // Access Clerk from window if available
+    const clerk = (window as any).__clerk;
+    if (!clerk) {
+      console.error('[Data Loaders] Clerk not available on window');
+      return null;
+    }
+
+    const session = clerk.session;
+    if (!session) {
+      console.error('[Data Loaders] No active Clerk session');
+      return null;
+    }
+
+    const token = await session.getToken();
+    console.log('[Data Loaders] Got Clerk token:', token ? 'present' : 'null');
+    return token;
+  } catch (error) {
+    console.error('[Data Loaders] Error getting Clerk token:', error);
+    return null;
+  }
 }
 
 // Helper function to make authenticated API calls
