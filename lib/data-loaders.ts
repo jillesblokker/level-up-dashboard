@@ -1,5 +1,33 @@
-import { supabase } from '@/lib/supabase/client';
 import { loadDataWithFallback, saveDataWithRedundancy } from '@/lib/migration-utils';
+
+// Helper function to get auth token
+async function getAuthToken(): Promise<string | null> {
+  if (typeof window === 'undefined') return null;
+  
+  // Get the token from localStorage or wherever it's stored
+  // This is a simplified version - you might need to adjust based on your auth setup
+  return localStorage.getItem('auth-token') || null;
+}
+
+// Helper function to make authenticated API calls
+async function apiCall(endpoint: string, options: RequestInit = {}): Promise<any> {
+  const token = await getAuthToken();
+  
+  const response = await fetch(`/api/data${endpoint}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` }),
+      ...options.headers,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`API call failed: ${response.status}`);
+  }
+
+  return response.json();
+}
 
 // =====================================================
 // GRID/MAP DATA LOADERS
@@ -8,14 +36,12 @@ import { loadDataWithFallback, saveDataWithRedundancy } from '@/lib/migration-ut
 export async function loadGridData(userId: string): Promise<any> {
   return loadDataWithFallback(
     async () => {
-      const { data, error } = await supabase
-        .from('realm_grids')
-        .select('grid_data')
-        .eq('user_id', userId)
-        .eq('is_current', true)
-        .single();
-      
-      return { data: data?.grid_data || null, error };
+      try {
+        const result = await apiCall(`?type=grid&userId=${userId}`);
+        return { data: result.data, error: null };
+      } catch (error) {
+        return { data: null, error };
+      }
     },
     'grid',
     null
@@ -25,22 +51,19 @@ export async function loadGridData(userId: string): Promise<any> {
 export async function saveGridData(userId: string, gridData: any): Promise<{ success: boolean; error?: string }> {
   return saveDataWithRedundancy(
     async (data) => {
-      // Mark all existing grids as not current
-      await supabase
-        .from('realm_grids')
-        .update({ is_current: false })
-        .eq('user_id', userId);
-
-      // Insert new grid data
-      const { error } = await supabase
-        .from('realm_grids')
-        .insert({
-          user_id: userId,
-          grid_data: data,
-          is_current: true
+      try {
+        await apiCall('', {
+          method: 'POST',
+          body: JSON.stringify({
+            type: 'grid',
+            userId,
+            data
+          })
         });
-
-      return { error };
+        return { error: null };
+      } catch (error) {
+        return { error };
+      }
     },
     'grid',
     gridData
@@ -54,16 +77,12 @@ export async function saveGridData(userId: string, gridData: any): Promise<{ suc
 export async function loadCharacterPosition(userId: string): Promise<{ x: number; y: number } | null> {
   const position = await loadDataWithFallback(
     async () => {
-      const { data, error } = await supabase
-        .from('character_positions')
-        .select('position_x, position_y')
-        .eq('user_id', userId)
-        .single();
-      
-      return { 
-        data: data ? { x: data.position_x, y: data.position_y } : null, 
-        error 
-      };
+      try {
+        const result = await apiCall(`?type=character&userId=${userId}`);
+        return { data: result.data, error: null };
+      } catch (error) {
+        return { data: null, error };
+      }
     },
     'characterPosition',
     null
@@ -75,16 +94,19 @@ export async function loadCharacterPosition(userId: string): Promise<{ x: number
 export async function saveCharacterPosition(userId: string, position: { x: number; y: number }): Promise<{ success: boolean; error?: string }> {
   return saveDataWithRedundancy(
     async (data) => {
-      const { error } = await supabase
-        .from('character_positions')
-        .upsert({
-          user_id: userId,
-          position_x: data.x,
-          position_y: data.y,
-          last_moved_at: new Date().toISOString()
+      try {
+        await apiCall('', {
+          method: 'POST',
+          body: JSON.stringify({
+            type: 'character',
+            userId,
+            data
+          })
         });
-
-      return { error };
+        return { error: null };
+      } catch (error) {
+        return { error };
+      }
     },
     'characterPosition',
     position
@@ -98,26 +120,21 @@ export async function saveCharacterPosition(userId: string, position: { x: numbe
 export async function loadTileInventory(userId: string): Promise<Record<string, any>> {
   return loadDataWithFallback(
     async () => {
-      const { data, error } = await supabase
-        .from('tile_inventory')
-        .select('*')
-        .eq('user_id', userId);
-      
-      if (error) return { data: null, error };
-      
-      // Convert to the expected format
-      const inventory: Record<string, any> = {};
-      data?.forEach(item => {
-        inventory[item.tile_id] = {
-          type: item.tile_type,
-          quantity: item.quantity,
-          cost: item.cost,
-          connections: item.connections || [],
-          rotation: item.rotation
-        };
-      });
-      
-      return { data: inventory, error: null };
+      try {
+        const result = await apiCall(`?type=inventory&userId=${userId}`);
+        // Convert to the expected format
+        const inventory: Record<string, any> = {};
+        result.data?.forEach((item: any) => {
+          inventory[item.tile_type] = {
+            type: item.tile_type,
+            quantity: item.quantity,
+            cost: item.cost
+          };
+        });
+        return { data: inventory, error: null };
+      } catch (error) {
+        return { data: null, error };
+      }
     },
     'tileInventory',
     {}
@@ -127,32 +144,19 @@ export async function loadTileInventory(userId: string): Promise<Record<string, 
 export async function saveTileInventory(userId: string, inventory: Record<string, any>): Promise<{ success: boolean; error?: string }> {
   return saveDataWithRedundancy(
     async (data) => {
-      // Clear existing inventory
-      await supabase
-        .from('tile_inventory')
-        .delete()
-        .eq('user_id', userId);
-
-      // Insert new inventory items
-      const items = Object.entries(data).map(([tileId, item]) => ({
-        user_id: userId,
-        tile_id: tileId,
-        tile_type: item.type,
-        quantity: item.quantity || 1,
-        cost: item.cost || 0,
-        connections: item.connections || [],
-        rotation: item.rotation || 0
-      }));
-
-      if (items.length > 0) {
-        const { error } = await supabase
-          .from('tile_inventory')
-          .insert(items);
-
+      try {
+        await apiCall('', {
+          method: 'POST',
+          body: JSON.stringify({
+            type: 'inventory',
+            userId,
+            data
+          })
+        });
+        return { error: null };
+      } catch (error) {
         return { error };
       }
-
-      return { error: null };
     },
     'tileInventory',
     inventory
