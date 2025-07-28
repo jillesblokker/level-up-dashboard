@@ -46,11 +46,19 @@ const getTileImage = (tileType: string) => {
 };
 
 export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0 }: MapGridProps) {
-  const gridRef = useRef<HTMLDivElement>(null);
-  const [tileSize, setTileSize] = useState(80);
+    const gridRef = useRef<HTMLDivElement>(null);
+    const [tileSize, setTileSize] = useState(80);
 
-  // Calculate responsive tile size based on container width
-  useEffect(() => {
+    // Debug logging
+    console.log('[MapGrid] Received grid:', grid);
+    console.log('[MapGrid] Grid type:', typeof grid);
+    console.log('[MapGrid] Grid is array:', Array.isArray(grid));
+    console.log('[MapGrid] Grid length:', grid?.length);
+    console.log('[MapGrid] First row:', grid?.[0]);
+    console.log('[MapGrid] Player position:', playerPosition);
+
+    // Calculate responsive tile size based on container width
+    useEffect(() => {
     function handleResize() {
       if (!gridRef.current) return;
       

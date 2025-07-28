@@ -33,7 +33,9 @@ export function useDataLoaders() {
         throw new Error(`API call failed: ${response.status} - ${errorText}`);
       }
 
-      return response.json();
+      const responseData = await response.json();
+      console.log('[useDataLoaders] Response data:', responseData);
+      return responseData;
     } catch (error) {
       console.error('[useDataLoaders] API call error:', error);
       throw error;

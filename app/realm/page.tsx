@@ -422,6 +422,10 @@ export default function RealmPage() {
                 
                 if (gridResult && gridResult.data) {
                     console.log('[Data Loaders] API response status: 200');
+                    console.log('[Realm] Grid data received:', gridResult.data);
+                    console.log('[Realm] Grid data type:', typeof gridResult.data);
+                    console.log('[Realm] Grid data is array:', Array.isArray(gridResult.data));
+                    console.log('[Realm] Grid data length:', gridResult.data?.length);
                     setGrid(gridResult.data);
                 } else {
                     console.log('[Data Loaders] API response status: 404 - using fallback');
