@@ -49,15 +49,6 @@ export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0 }: 
   const gridRef = useRef<HTMLDivElement>(null);
   const [tileSize, setTileSize] = useState(80);
 
-  // Safety check: ensure grid is an array
-  if (!grid || !Array.isArray(grid) || grid.length === 0) {
-    return (
-      <div className="relative w-full h-full overflow-hidden flex items-center justify-center" aria-label="map-container">
-        <div className="text-gray-500">Loading map...</div>
-      </div>
-    );
-  }
-
   // Calculate responsive tile size based on container width
   useEffect(() => {
     function handleResize() {
@@ -67,8 +58,8 @@ export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0 }: 
       const containerHeight = gridRef.current.clientHeight;
       
       // Calculate optimal tile size to fill the container
-      const maxCols = grid[0]?.length || 13;
-      const maxRows = grid.length || 7;
+      const maxCols = grid?.[0]?.length || 13;
+      const maxRows = grid?.length || 7;
       
       const tileSizeX = containerWidth / maxCols;
       const tileSizeY = containerHeight / maxRows;
@@ -107,6 +98,15 @@ export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0 }: 
       handlePan(0, 0);
     }
   }, [playerPosition.x, playerPosition.y, tileSize]);
+
+  // Safety check: ensure grid is an array (after all hooks)
+  if (!grid || !Array.isArray(grid) || grid.length === 0) {
+    return (
+      <div className="relative w-full h-full overflow-hidden flex items-center justify-center" aria-label="map-container">
+        <div className="text-gray-500">Loading map...</div>
+      </div>
+    );
+  }
 
   // Get character image based on player level
   const getCharacterImage = (level: number) => {
