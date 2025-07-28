@@ -319,23 +319,40 @@ export default function RealmPage() {
       function handler() {
         if (lastMysteryTile) {
           const { x, y } = lastMysteryTile;
-          setGrid(prevGrid => {
-            const newGrid = prevGrid.map(row => row.slice());
-            if (typeof y === 'number' && newGrid[y]) {
-              const row = newGrid[y];
-              if (row && typeof x === 'number' && row[x] && row[x].type === 'mystery') {
-                assignTile(row, x, row[x]);
+          if (typeof x === 'number' && typeof y === 'number') {
+            const newGrid = grid.map(row => row.slice());
+            if (newGrid[y]?.[x]) {
+              // Change mystery tile to grass tile
+              newGrid[y][x] = { 
+                ...defaultTile('grass'), 
+                x, 
+                y, 
+                id: `grass-${x}-${y}`,
+                image: getTileImage('grass')
+              };
+              setGrid(newGrid);
+              
+              // Save to backend
+              fetch('/api/realm-tiles', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ x, y, tile_type: tileTypeToNumeric['grass'] })
+              }).catch(() => {
+                toast({ title: 'Error', description: 'Failed to save grass tile', variant: 'destructive' });
+              });
+              
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('update-grid', { detail: { grid: newGrid } }));
               }
             }
-            return newGrid;
-          });
+          }
           setLastMysteryTile(null);
           setMysteryEventCompleted(false);
         }
       }
       window.addEventListener('mystery-event-completed', handler);
       return () => window.removeEventListener('mystery-event-completed', handler);
-    }, [lastMysteryTile]);
+    }, [lastMysteryTile, grid]);
 
     // --- General achievement tracker ---
     useEffect(() => {
@@ -1139,39 +1156,7 @@ export default function RealmPage() {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
-    // Fix for mystery tile: always change to grass after event
-    useEffect(() => {
-        if (lastMysteryTile && mysteryEventCompleted) {
-            const { x, y } = lastMysteryTile;
-            if (typeof x === 'number' && typeof y === 'number') {
-                const newGrid = grid.map(row => row.slice());
-                if (newGrid[y]?.[x]) {
-                    // Change mystery tile to grass tile
-                    newGrid[y][x] = { 
-                        ...defaultTile('grass'), 
-                        x, 
-                        y, 
-                        id: `grass-${x}-${y}`,
-                        image: getTileImage('grass')
-                    };
-                    setGrid(newGrid);
-                    
-                    // Save to backend
-                    fetch('/api/realm-tiles', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ x, y, tile_type: tileTypeToNumeric['grass'] })
-                    }).catch(() => {
-                        toast({ title: 'Error', description: 'Failed to save grass tile', variant: 'destructive' });
-                    });
-                    
-                    if (typeof window !== 'undefined') {
-                        window.dispatchEvent(new CustomEvent('update-grid', { detail: { grid: newGrid } }));
-                    }
-                }
-            }
-        }
-    }, [lastMysteryTile, mysteryEventCompleted, grid]);
+
 
     // Listen for horse-caught event
     useEffect(() => {

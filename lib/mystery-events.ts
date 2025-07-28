@@ -484,6 +484,11 @@ export const handleEventOutcome = (event: MysteryEvent, choice: string, userId?:
       duration: 4000
     });
   }
+
+  // Dispatch mystery event completion to trigger tile transformation
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('mystery-event-completed'));
+  }
 };
 
 export const getScrollById = (id: string): ScrollItem | undefined => {

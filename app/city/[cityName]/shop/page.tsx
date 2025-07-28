@@ -114,20 +114,30 @@ export default function ShopPage() {
   ]
 
   return (
-    <div className="container py-10" role="main" aria-label="shop-content-section">
-      <div className="mb-6">
-        <Link href={`/city/${cityName}`}>
-          <Button variant="outline" size="sm" aria-label="Back to City">
-            <ChevronLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-            Back to City
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto p-4">
+        <div className="flex items-center gap-4 mb-6">
+          <Button variant="outline" size="icon" onClick={() => window.history.back()}>
+            <ChevronLeft className="h-4 w-4" />
           </Button>
-        </Link>
-      </div>
-      
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold tracking-tight">City Market</h1>
-        <p className="text-muted-foreground mt-2">Browse wares from local merchants.</p>
-      </div>
+          <h1 className="text-2xl font-bold">City Market</h1>
+        </div>
+
+        {/* Cover Image Banner */}
+        <div className="relative w-full h-[300px] rounded-lg overflow-hidden border-2 border-amber-800/20 mb-8">
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(/images/locations/market.png)` }}
+            aria-label="shop-cover-image"
+            role="img"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-amber-900/30 to-black/70">
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+              <h2 className="text-4xl font-bold mb-2 font-serif text-amber-500 drop-shadow-lg">City Market</h2>
+              <p className="text-lg text-gray-300 max-w-2xl text-center">Browse wares from local merchants in {cityName}</p>
+            </div>
+          </div>
+        </div>
       
       {isLoading ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="shop-items-loading-grid">
@@ -201,6 +211,7 @@ export default function ShopPage() {
           ))}
         </div>
       )}
+      </div>
     </div>
   )
 } 
