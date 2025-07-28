@@ -10,14 +10,30 @@ import { useUser } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
-import { useGoldStore } from '@/stores/goldStore'
 import { addToKingdomInventory } from '@/lib/inventory-manager'
+import { getCharacterStats } from '@/lib/character-stats-manager'
+import { spendGold, hasEnoughGold } from '@/lib/gold-manager'
 
 export default function ShopPage() {
   const params = useParams()
-  const { gold, updateGold } = useGoldStore()
   const { user } = useUser()
   const [isLoading, setIsLoading] = useState(true)
+  const [gold, setGold] = useState(0)
+
+  useEffect(() => {
+    // Load gold from character stats
+    const stats = getCharacterStats()
+    setGold(stats.gold)
+    
+    // Listen for gold updates
+    const handleGoldUpdate = () => {
+      const updatedStats = getCharacterStats()
+      setGold(updatedStats.gold)
+    }
+    
+    window.addEventListener('character-stats-update', handleGoldUpdate)
+    return () => window.removeEventListener('character-stats-update', handleGoldUpdate)
+  }, [])
 
   useEffect(() => {
     // Simulate data loading
@@ -160,34 +176,22 @@ export default function ShopPage() {
                   className="w-full min-h-[44px]"
                   aria-label={`Purchase ${item.name}`}
                   onClick={() => {
-                    if (gold < item.price) {
-                      toast({
-                        title: "Not enough gold",
-                        description: `You need ${item.price} gold to purchase ${item.name}.
-Current gold: ${gold}`,
-                        variant: "destructive"
-                      })
-                      return
+                    // Use the unified gold spending system
+                    if (spendGold(item.price, `purchase-${item.name}`)) {
+                      // Add to kingdom inventory
+                      if (user?.id) {
+                        addToKingdomInventory(user.id, {
+                          id: item.id,
+                          name: item.name,
+                          description: item.description,
+                          type: 'item',
+                          quantity: 1,
+                          image: item.image,
+                          emoji: item.emoji
+                        })
+                      }
+                      window.dispatchEvent(new Event('character-inventory-update'))
                     }
-                    updateGold(-item.price)
-                    // Add to kingdom inventory
-                    if (user?.id) {
-                      addToKingdomInventory(user.id, {
-                        id: item.id,
-                        name: item.name,
-                        description: item.description,
-                        type: 'item',
-                        quantity: 1,
-                        image: item.image,
-                        emoji: item.emoji
-                      })
-                    }
-                    window.dispatchEvent(new Event('character-inventory-update'))
-                    toast({
-                      title: "Purchase successful",
-                      description: `You purchased ${item.name} for ${item.price} gold.`,
-                      variant: "default"
-                    })
                   }}
                 >
                   Purchase

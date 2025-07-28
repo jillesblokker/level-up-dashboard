@@ -7,8 +7,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
-import { useGoldStore } from "@/stores/goldStore"
 import { TileType, InventoryItem } from "@/types/tiles"
+import { spendGold } from "@/lib/gold-manager"
 import { useState, useEffect } from "react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 
@@ -24,7 +24,6 @@ interface TileInventoryProps {
 }
 
 export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles, activeTab, setActiveTab, onOutOfTiles }: TileInventoryProps) {
-  const { gold, updateGold } = useGoldStore()
   const [buyQuantities, setBuyQuantities] = useState<{ [key: string]: number }>({})
 
   // Polling for tile inventory changes instead of real-time sync
@@ -50,38 +49,20 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     
     const quantity = buyQuantities[tile.type] || 1
     const totalCost = tile.cost * quantity
-    // Read gold from character-stats
-    const savedStats = localStorage.getItem('character-stats')
-    const stats = savedStats ? JSON.parse(savedStats) : { gold: 1000 }
-    const currentGold = stats.gold || 0
 
-    if (currentGold < totalCost) {
-      toast(
-        `Not enough gold: You need ${totalCost} gold to buy ${quantity} ${tile.name || tile.type} tile${quantity > 1 ? 's' : ''}.`
+    // Use the unified gold spending system
+    if (spendGold(totalCost, `purchase-${quantity}-${tile.name || tile.type}-tiles`)) {
+      // Update tiles
+      const newTiles = tiles.map(item => 
+        item.type === tile.type 
+          ? { ...item, quantity: item.quantity + quantity }
+          : item
       )
-      return
+      onUpdateTiles(newTiles)
+      
+      // Reset the quantity after purchase
+      setBuyQuantities(prev => ({ ...prev, [tile.type]: 1 }))
     }
-
-    // Update gold in character-stats and dispatch event
-    const newGold = currentGold - totalCost
-    const newStats = { ...stats, gold: newGold }
-    localStorage.setItem('character-stats', JSON.stringify(newStats))
-    window.dispatchEvent(new Event('character-stats-update'))
-
-    // Update tiles
-    const newTiles = tiles.map(item => 
-      item.type === tile.type 
-        ? { ...item, quantity: item.quantity + quantity }
-        : item
-    )
-    onUpdateTiles(newTiles)
-    
-    toast(
-      `You bought ${quantity} ${tile.name || tile.type} tile${quantity > 1 ? 's' : ''} for ${totalCost} gold.`
-    )
-
-    // Reset the quantity after purchase
-    setBuyQuantities(prev => ({ ...prev, [tile.type]: 1 }))
   }
 
   const handleQuantityChange = (type: string, value: string) => {

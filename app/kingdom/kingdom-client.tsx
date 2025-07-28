@@ -26,6 +26,7 @@ import { KingdomStatsBlock, KingStatsBlock } from "@/components/kingdom-stats-gr
 import { KingdomGrid } from '@/components/kingdom-grid';
 import { KingdomPropertiesInventory } from '@/components/kingdom-properties-inventory';
 import type { Tile, TileType, ConnectionDirection } from '@/types/tiles';
+import { gainGold } from '@/lib/gold-manager';
 
 type KingdomInventoryItem = (DefaultInventoryItem | ManagerInventoryItem) & { 
   stats?: Record<string, number>, 
@@ -71,18 +72,15 @@ const getConsumableEffect = (item: KingdomInventoryItem) => {
   // Artifacts: 60, 80, or 100 gold
   if (item.type === 'artifact') {
     const gold = getRandomFromArray([60, 80, 100])
-    // Update gold in localStorage
-    const stats = JSON.parse(localStorage.getItem('character-stats') || '{"gold":0}')
-    stats.gold = (stats.gold || 0) + gold
-    localStorage.setItem('character-stats', JSON.stringify(stats))
+    // Use the unified gold system
+    gainGold(gold, 'artifact-consumption')
     return `You used an artifact and gained ${gold} gold!`
   }
   // Scrolls: 10, 25, or 50 gold
   if (item.type === 'scroll') {
     const gold = getRandomFromArray([10, 25, 50])
-    const stats = JSON.parse(localStorage.getItem('character-stats') || '{"gold":0}')
-    stats.gold = (stats.gold || 0) + gold
-    localStorage.setItem('character-stats', JSON.stringify(stats))
+    // Use the unified gold system
+    gainGold(gold, 'scroll-consumption')
     return `You used a scroll and gained ${gold} gold!`
   }
   // Potions: handle each potion type explicitly

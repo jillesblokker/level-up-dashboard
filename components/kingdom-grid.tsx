@@ -8,6 +8,7 @@ import { useEffect, useCallback, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { getCharacterStats } from '@/lib/character-stats-manager'
 import { toast } from '@/components/ui/use-toast'
+import { spendGold } from '@/lib/gold-manager'
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { calculateLevelFromExperience } from '@/types/character';
 
@@ -362,17 +363,11 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
               <span><a href="/quests" className="text-blue-800 hover:text-blue-700 underline cursor-pointer">Streak</a> tokens: <span className="text-amber-400">{buildTokens}</span></span>
               <Button
                 onClick={() => {
-                  const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
-                  if (stats.gold >= 1000) {
-                    stats.gold -= 1000;
+                  if (spendGold(1000, 'build-token-purchase')) {
+                    const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
                     stats.buildTokens = (stats.buildTokens || 0) + 1;
                     localStorage.setItem('character-stats', JSON.stringify(stats));
                     setBuildTokens(stats.buildTokens);
-                    // Trigger gold update event
-                    window.dispatchEvent(new CustomEvent('goldUpdate', { detail: stats.gold }));
-                  } else {
-                    // Show error toast or alert
-                    alert('You need 1000 gold to buy a build token!');
                   }
                 }}
                 className="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 text-sm"
