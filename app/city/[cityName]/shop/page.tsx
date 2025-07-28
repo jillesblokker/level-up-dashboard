@@ -113,6 +113,25 @@ export default function ShopPage() {
     }
   ]
 
+  // Get the specific location image based on cityName
+  const getLocationImage = (cityName: string) => {
+    // Map city names to their specific images
+    const locationImageMap: Record<string, string> = {
+      'embers-anvil': '/images/locations/embers-anvil.png',
+      'kingdom-marketplace': '/images/locations/kingdom-marketplace.png',
+      'royal-stables': '/images/locations/royal-stables.png',
+      'the-dragons-rest': '/images/locations/the-dragons-rest-tavern.png',
+      'blacksmith': '/images/locations/embers-anvil.png',
+      'marketplace': '/images/locations/kingdom-marketplace.png',
+      'library': '/images/locations/library.png',
+      'inn': '/images/locations/inn.png'
+    }
+    
+    return locationImageMap[cityName] || '/images/locations/market.png'
+  }
+
+  const locationImage = getLocationImage(cityName)
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4">
@@ -127,7 +146,7 @@ export default function ShopPage() {
         <div className="relative w-full h-[300px] rounded-lg overflow-hidden border-2 border-amber-800/20 mb-8">
           <div 
             className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(/images/locations/market.png)` }}
+            style={{ backgroundImage: `url(${locationImage})` }}
             aria-label="shop-cover-image"
             role="img"
           />

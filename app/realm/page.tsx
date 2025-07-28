@@ -314,6 +314,42 @@ export default function RealmPage() {
       }
     }, [grid]);
 
+    // --- Load and transform completed mystery tiles on page load ---
+    useEffect(() => {
+      if (typeof window !== 'undefined' && grid.length > 0) {
+        const completedMysteryTiles = JSON.parse(localStorage.getItem('completedMysteryTiles') || '[]');
+        if (completedMysteryTiles.length > 0) {
+          let gridChanged = false;
+          const newGrid = grid.map(row => row.slice());
+          
+          completedMysteryTiles.forEach((tileKey: string) => {
+            const parts = tileKey.split('-');
+            if (parts.length === 2) {
+              const x = parseInt(parts[0], 10);
+              const y = parseInt(parts[1], 10);
+              
+              if (!isNaN(x) && !isNaN(y) && newGrid[y]?.[x] && newGrid[y][x].type === 'mystery') {
+                // Transform mystery tile to grass tile
+                newGrid[y][x] = { 
+                  ...defaultTile('grass'), 
+                  x, 
+                  y, 
+                  id: `grass-${x}-${y}`,
+                  image: getTileImage('grass')
+                };
+                gridChanged = true;
+              }
+            }
+          });
+          
+          if (gridChanged) {
+            setGrid(newGrid);
+            console.log('Transformed completed mystery tiles to grass tiles');
+          }
+        }
+      }
+    }, [grid.length]); // Only run when grid is loaded
+
     // --- Listen for mystery-event-completed and update grid ---
     useEffect(() => {
       function handler() {
@@ -340,6 +376,16 @@ export default function RealmPage() {
               }).catch(() => {
                 toast({ title: 'Error', description: 'Failed to save grass tile', variant: 'destructive' });
               });
+              
+              // Save completed mystery tile to localStorage for persistence
+              if (typeof window !== 'undefined') {
+                const completedMysteryTiles = JSON.parse(localStorage.getItem('completedMysteryTiles') || '[]');
+                const tileKey = `${x}-${y}`;
+                if (!completedMysteryTiles.includes(tileKey)) {
+                  completedMysteryTiles.push(tileKey);
+                  localStorage.setItem('completedMysteryTiles', JSON.stringify(completedMysteryTiles));
+                }
+              }
               
               if (typeof window !== 'undefined') {
                 window.dispatchEvent(new CustomEvent('update-grid', { detail: { grid: newGrid } }));
