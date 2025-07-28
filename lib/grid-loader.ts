@@ -1,36 +1,88 @@
 import { TileType, Tile } from '@/types/tiles'
 
-// Add a new function that loads from Supabase first for authenticated users
+// Helper function to get auth token with retry logic
+async function getAuthToken(): Promise<string | null> {
+  if (typeof window === 'undefined') return null;
+  
+  // Wait for Clerk to be available
+  let attempts = 0;
+  const maxAttempts = 10;
+  
+  while (attempts < maxAttempts) {
+    try {
+      // Try to access Clerk from window
+      const clerk = (window as any).__clerk;
+      if (!clerk) {
+        console.log(`[Grid Loader] Clerk not available on window, attempt ${attempts + 1}/${maxAttempts}`);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+        continue;
+      }
+
+      const session = clerk.session;
+      if (!session) {
+        console.log(`[Grid Loader] No active Clerk session, attempt ${attempts + 1}/${maxAttempts}`);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+        continue;
+      }
+
+      // Try to get token with supabase template
+      const token = await session.getToken({ template: 'supabase' });
+      console.log('[Grid Loader] Got Clerk token:', token ? 'present' : 'null');
+      return token;
+    } catch (error) {
+      console.error(`[Grid Loader] Error getting Clerk token (attempt ${attempts + 1}):`, error);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      attempts++;
+    }
+  }
+  
+  console.error('[Grid Loader] Failed to get Clerk token after all attempts');
+  return null;
+}
+
+// Add a new function that loads from API first for authenticated users
 export async function loadGridWithSupabaseFallback(
   supabase: any,
   userId: string | null,
   isGuest: boolean
 ): Promise<Tile[][]> {
   try {
-    // If user is authenticated, try to load from Supabase first
-    if (!isGuest && userId && supabase) {
-      console.log('Attempting to load grid from Supabase for authenticated user...');
+    // If user is authenticated, try to load from API first
+    if (!isGuest && userId) {
+      console.log('Attempting to load grid from API for authenticated user...');
       try {
-        const { data: existingGrids, error: fetchError } = await supabase
-          .from('realm_grids')
-          .select('grid')
-          .eq('user_id', userId)
-          .order('updated_at', { ascending: false })
-          .limit(1)
-          .single();
-
-        if (!fetchError && existingGrids?.grid) {
-          console.log('Successfully loaded grid from Supabase');
-          // Convert numeric grid back to Tile grid
-          const tileGrid: Tile[][] = existingGrids.grid.map((row: number[], y: number) =>
-            row.map((numeric: number, x: number) => createTileFromNumeric(numeric, x, y))
-          );
-          return tileGrid;
+        // Get auth token
+        const token = await getAuthToken();
+        if (!token) {
+          console.log('No auth token available, falling back to localStorage');
         } else {
-          console.log('No grid found in Supabase, falling back to localStorage');
+          const response = await fetch(`/api/data?type=grid&userId=${userId}`, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data && data.grid && Array.isArray(data.grid)) {
+              console.log('Successfully loaded grid from API');
+              // Convert numeric grid back to Tile grid
+              const tileGrid: Tile[][] = data.grid.map((row: number[], y: number) =>
+                row.map((numeric: number, x: number) => createTileFromNumeric(numeric, x, y))
+              );
+              return tileGrid;
+            } else {
+              console.log('Invalid grid data from API, falling back to localStorage');
+            }
+          } else {
+            console.log('API call failed, falling back to localStorage');
+          }
         }
-      } catch (supabaseError) {
-        console.log('Error loading from Supabase, falling back to localStorage:', supabaseError);
+      } catch (apiError) {
+        console.log('Error loading from API, falling back to localStorage:', apiError);
       }
     }
 
