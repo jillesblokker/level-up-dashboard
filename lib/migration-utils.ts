@@ -241,26 +241,9 @@ export async function migrateLocalStorageToSupabase(userId: string): Promise<Mig
       }
     }
 
-    // Call the existing migration function for other data
-    const { data, error } = await supabase.rpc('migrate_user_local_storage_data', {
-      p_user_id: userId,
-      p_grid_data: migrationData.gridData,
-      p_character_position: migrationData.characterPosition,
-      p_tile_inventory: migrationData.tileInventory,
-      p_user_preferences: migrationData.userPreferences,
-      p_image_descriptions: migrationData.imageDescriptions,
-      p_game_settings: migrationData.gameSettings
-    });
-
-    if (error) {
-      result.errors.push(`Legacy migration failed: ${error.message}`);
-    } else if (data) {
-      Object.keys(data).forEach(key => {
-        if (data[key] === true) {
-          result.migrated.push(key);
-        }
-      });
-    }
+    // Note: Legacy migration removed - we now use the new API routes for all data types
+    // The new API routes handle character-stats, active-perks, and game-settings
+    // Other data types (grid, inventory, etc.) can be added as needed
 
     result.success = result.errors.length === 0;
 
