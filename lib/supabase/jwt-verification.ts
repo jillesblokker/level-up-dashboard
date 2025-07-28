@@ -35,6 +35,7 @@ export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
     console.log('[JWT Verification] URL:', nextReq.url);
     console.log('[JWT Verification] Authorization header present:', !!authHeader);
     console.log('[JWT Verification] Authorization header (first 20 chars):', authHeader?.substring(0, 20));
+    console.log('[JWT Verification] All headers:', Object.fromEntries(nextReq.headers.entries()));
     
     if (!authHeader) {
       console.error('[JWT Verification] Missing authorization header');

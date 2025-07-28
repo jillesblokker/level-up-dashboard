@@ -11,6 +11,9 @@ export function useDataLoaders() {
   const apiCall = useCallback(async (endpoint: string, options: RequestInit = {}) => {
     try {
       const token = await getToken({ template: 'supabase' });
+      console.log('[useDataLoaders] Token obtained:', token ? 'YES' : 'NO');
+      console.log('[useDataLoaders] Token length:', token?.length || 0);
+      console.log('[useDataLoaders] Token preview:', token?.substring(0, 20) + '...');
       
       const response = await fetch(`/api/data${endpoint}`, {
         ...options,
@@ -21,8 +24,13 @@ export function useDataLoaders() {
         },
       });
 
+      console.log('[useDataLoaders] Response status:', response.status);
+      console.log('[useDataLoaders] Response headers:', Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
-        throw new Error(`API call failed: ${response.status}`);
+        const errorText = await response.text();
+        console.error('[useDataLoaders] Error response body:', errorText);
+        throw new Error(`API call failed: ${response.status} - ${errorText}`);
       }
 
       return response.json();
