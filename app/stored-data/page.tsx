@@ -353,6 +353,201 @@ export default function StoredDataPage() {
       });
     }
 
+    // 11. Tiles API
+    try {
+      const response = await fetch('/api/tiles', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Tiles',
+        description: 'Tile placement and management',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/tiles',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Tiles',
+        description: 'Tile placement and management',
+        status: 'error',
+        endpoint: '/api/tiles',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 12. Tile Inventory API
+    try {
+      const response = await fetch('/api/tile-inventory', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Tile Inventory',
+        description: 'Tile inventory and management',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/tile-inventory',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Tile Inventory',
+        description: 'Tile inventory and management',
+        status: 'error',
+        endpoint: '/api/tile-inventory',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 13. Kingdom Stats API
+    try {
+      const response = await fetch('/api/kingdom-stats', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Kingdom Stats',
+        description: 'Kingdom statistics and analytics',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/kingdom-stats',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Kingdom Stats',
+        description: 'Kingdom statistics and analytics',
+        status: 'error',
+        endpoint: '/api/kingdom-stats',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 14. User Preferences API
+    try {
+      const response = await fetch('/api/user-preferences?preference_key=test', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'User Preferences',
+        description: 'User preferences and settings',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/user-preferences',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'User Preferences',
+        description: 'User preferences and settings',
+        status: 'error',
+        endpoint: '/api/user-preferences',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 15. Creatures API
+    try {
+      const response = await fetch('/api/creatures/discover', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ creatureId: 'test' }),
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Creatures',
+        description: 'Creature discovery and management',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/creatures/discover',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Creatures',
+        description: 'Creature discovery and management',
+        status: 'error',
+        endpoint: '/api/creatures/discover',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 16. Progress API
+    try {
+      const response = await fetch('/api/progress', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Progress',
+        description: 'Player progress tracking',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/progress',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Progress',
+        description: 'Player progress tracking',
+        status: 'error',
+        endpoint: '/api/progress',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 17. Realm Tiles API
+    try {
+      const response = await fetch('/api/realm-tiles', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Realm Tiles',
+        description: 'Realm tile management',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/realm-tiles',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Realm Tiles',
+        description: 'Realm tile management',
+        status: 'error',
+        endpoint: '/api/realm-tiles',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 18. Streaks API
+    try {
+      const response = await fetch('/api/streaks', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Streaks',
+        description: 'Player streaks and consistency tracking',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/streaks',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Streaks',
+        description: 'Player streaks and consistency tracking',
+        status: 'error',
+        endpoint: '/api/streaks',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
     setConnectionStatuses(connections);
   };
 
