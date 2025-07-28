@@ -49,6 +49,15 @@ export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0 }: 
   const gridRef = useRef<HTMLDivElement>(null);
   const [tileSize, setTileSize] = useState(80);
 
+  // Safety check: ensure grid is an array
+  if (!grid || !Array.isArray(grid) || grid.length === 0) {
+    return (
+      <div className="relative w-full h-full overflow-hidden flex items-center justify-center" aria-label="map-container">
+        <div className="text-gray-500">Loading map...</div>
+      </div>
+    );
+  }
+
   // Calculate responsive tile size based on container width
   useEffect(() => {
     function handleResize() {
