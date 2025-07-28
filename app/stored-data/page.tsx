@@ -551,6 +551,222 @@ export default function StoredDataPage() {
       });
     }
 
+    // 19. Character Perks API
+    try {
+      const response = await fetch('/api/character-perks', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Character Perks',
+        description: 'Character abilities and special powers',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/character-perks',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Character Perks',
+        description: 'Character abilities and special powers',
+        status: 'error',
+        endpoint: '/api/character-perks',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 20. Character Strengths API
+    try {
+      const response = await fetch('/api/character-strengths', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Character Strengths',
+        description: 'Character attributes and stats',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/character-strengths',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Character Strengths',
+        description: 'Character attributes and stats',
+        status: 'error',
+        endpoint: '/api/character-strengths',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 21. Character Titles API
+    try {
+      const response = await fetch('/api/character-titles', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Character Titles',
+        description: 'Character achievements and titles',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/character-titles',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Character Titles',
+        description: 'Character achievements and titles',
+        status: 'error',
+        endpoint: '/api/character-titles',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 22. Experience Transactions API
+    try {
+      const response = await fetch('/api/experience-transactions', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Experience Transactions',
+        description: 'Experience gain/loss tracking',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/experience-transactions',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Experience Transactions',
+        description: 'Experience gain/loss tracking',
+        status: 'error',
+        endpoint: '/api/experience-transactions',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 23. Gold Transactions API
+    try {
+      const response = await fetch('/api/gold-transactions', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Gold Transactions',
+        description: 'Gold economy and transactions',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/gold-transactions',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Gold Transactions',
+        description: 'Gold economy and transactions',
+        status: 'error',
+        endpoint: '/api/gold-transactions',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 24. Daily Tasks API
+    try {
+      const response = await fetch('/api/daily-tasks', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Daily Tasks',
+        description: 'Daily objectives and tasks',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/daily-tasks',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Daily Tasks',
+        description: 'Daily objectives and tasks',
+        status: 'error',
+        endpoint: '/api/daily-tasks',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 25. Notifications API
+    try {
+      const response = await fetch('/api/notifications', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Notifications',
+        description: 'In-game notifications and alerts',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/notifications',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Notifications',
+        description: 'In-game notifications and alerts',
+        status: 'error',
+        endpoint: '/api/notifications',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 26. Kingdom Events API
+    try {
+      const response = await fetch('/api/kingdom-events', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Kingdom Events',
+        description: 'Kingdom activities and events',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/kingdom-events',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Kingdom Events',
+        description: 'Kingdom activities and events',
+        status: 'error',
+        endpoint: '/api/kingdom-events',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 27. Monster Spawns API
+    try {
+      const response = await fetch('/api/monster-spawns', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Monster Spawns',
+        description: 'Dynamic monster encounters',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/monster-spawns',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Monster Spawns',
+        description: 'Dynamic monster encounters',
+        status: 'error',
+        endpoint: '/api/monster-spawns',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
     setConnectionStatuses(connections);
   };
 
