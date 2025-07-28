@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { getToken } from '@clerk/nextjs';
 
 export interface MigrationData {
   gridData?: any;
@@ -179,7 +180,10 @@ export async function migrateLocalStorageToSupabase(userId: string): Promise<Mig
       try {
         const response = await fetch('/api/character-stats', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${await getToken({ template: 'supabase' })}`
+          },
           body: JSON.stringify(migrationData.characterStats)
         });
         
@@ -199,7 +203,10 @@ export async function migrateLocalStorageToSupabase(userId: string): Promise<Mig
         for (const perk of migrationData.activePerks) {
           const response = await fetch('/api/active-perks', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${await getToken({ template: 'supabase' })}`
+            },
             body: JSON.stringify(perk)
           });
           
@@ -220,7 +227,10 @@ export async function migrateLocalStorageToSupabase(userId: string): Promise<Mig
         for (const [key, value] of Object.entries(migrationData.gameSettings)) {
           const response = await fetch('/api/game-settings', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${await getToken({ template: 'supabase' })}`
+            },
             body: JSON.stringify({
               setting_key: key,
               setting_value: value
