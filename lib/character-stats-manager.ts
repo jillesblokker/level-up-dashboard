@@ -1,82 +1,216 @@
-import { CharacterStats } from "@/types/character"
+import { getToken } from '@clerk/nextjs/server';
 
-// Default character stats
-const DEFAULT_CHARACTER_STATS: CharacterStats = {
-  level: 1,
-  experience: 0,
-  experienceToNextLevel: 100,
-  gold: 1000,
-  titles: {
-    equipped: "",
-    unlocked: 0,
-    total: 10
-  },
-  perks: {
-    active: 0,
-    total: 5
-  }
+export interface CharacterStats {
+  gold: number;
+  experience: number;
+  level: number;
+  health: number;
+  max_health: number;
+  build_tokens: number;
+  kingdom_expansions: number;
 }
 
-// Initialize character stats if they don't exist
-export function initializeCharacterStats(): CharacterStats {
+/**
+ * Loads character stats from Supabase with localStorage fallback
+ */
+export async function loadCharacterStats(): Promise<CharacterStats> {
   try {
-    const savedStats = localStorage.getItem("character-stats")
-    if (savedStats) {
-      try {
-        return JSON.parse(savedStats) as CharacterStats
-      } catch (parseError) {
-        // If parsing fails, clear the corrupted value and use default
-        localStorage.removeItem("character-stats")
-        localStorage.setItem("character-stats", JSON.stringify(DEFAULT_CHARACTER_STATS))
-        return DEFAULT_CHARACTER_STATS
+    // Try to load from Supabase first
+    const token = await getToken({ template: 'supabase' });
+    const response = await fetch('/api/character-stats', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.data) {
+        console.log('[Character Stats Manager] Loaded from Supabase:', data.data);
+        return data.data;
       }
-    } else {
-      // Set default stats
-      localStorage.setItem("character-stats", JSON.stringify(DEFAULT_CHARACTER_STATS))
-      return DEFAULT_CHARACTER_STATS
     }
   } catch (error) {
-    console.error("Error initializing character stats:", error)
-    // Set default stats on error
-    localStorage.setItem("character-stats", JSON.stringify(DEFAULT_CHARACTER_STATS))
-    return DEFAULT_CHARACTER_STATS
+    console.warn('[Character Stats Manager] Failed to load from Supabase:', error);
   }
-}
 
-// Get current character stats
-export function getCharacterStats(): CharacterStats {
-  const stats = initializeCharacterStats()
-  
-  // Debug logging to help identify level discrepancies between devices
-  console.log('[Character Stats Manager] === DEBUG INFO ===')
-  console.log('[Character Stats Manager] Raw localStorage data:', localStorage.getItem('character-stats'))
-  console.log('[Character Stats Manager] Parsed stats:', stats)
-  console.log('[Character Stats Manager] Experience:', stats.experience)
-  console.log('[Character Stats Manager] Stored level:', stats.level)
-  console.log('[Character Stats Manager] ===================')
-  
-  return stats
-}
-
-// Update character stats
-export function updateCharacterStats(newStats: Partial<CharacterStats>): CharacterStats {
+  // Fallback to localStorage
   try {
-    const currentStats = getCharacterStats()
-    const updatedStats = { ...currentStats, ...newStats }
-    
-    localStorage.setItem("character-stats", JSON.stringify(updatedStats))
-    
-    // Dispatch event to notify components
-    window.dispatchEvent(new Event("character-stats-update"))
-    
-    return updatedStats
+    const stored = localStorage.getItem('character-stats');
+    if (stored) {
+      const stats = JSON.parse(stored);
+      console.log('[Character Stats Manager] Loaded from localStorage:', stats);
+      return {
+        gold: stats.gold || 0,
+        experience: stats.experience || 0,
+        level: stats.level || 1,
+        health: stats.health || 100,
+        max_health: stats.max_health || 100,
+        build_tokens: stats.buildTokens || 0,
+        kingdom_expansions: parseInt(localStorage.getItem('kingdom-grid-expansions') || '0', 10)
+      };
+    }
   } catch (error) {
-    console.error("Error updating character stats:", error)
-    return getCharacterStats()
+    console.warn('[Character Stats Manager] Failed to load from localStorage:', error);
   }
+
+  // Return default stats
+  return {
+    gold: 0,
+    experience: 0,
+    level: 1,
+    health: 100,
+    max_health: 100,
+    build_tokens: 0,
+    kingdom_expansions: 0
+  };
 }
 
-// Force refresh character stats in all components
-export function refreshCharacterStats(): void {
-  window.dispatchEvent(new Event("character-stats-update"))
+/**
+ * Saves character stats to both Supabase and localStorage
+ */
+export async function saveCharacterStats(stats: Partial<CharacterStats>): Promise<{ success: boolean; error?: string }> {
+  let supabaseSuccess = false;
+  let localStorageSuccess = false;
+
+  // Save to Supabase
+  try {
+    const token = await getToken({ template: 'supabase' });
+    const response = await fetch('/api/character-stats', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(stats),
+    });
+
+    if (response.ok) {
+      supabaseSuccess = true;
+      console.log('[Character Stats Manager] Saved to Supabase:', stats);
+    } else {
+      console.warn('[Character Stats Manager] Supabase save failed:', response.status);
+    }
+  } catch (error) {
+    console.warn('[Character Stats Manager] Supabase save error:', error);
+  }
+
+  // Save to localStorage as backup
+  try {
+    const currentStats = await loadCharacterStats();
+    const updatedStats = { ...currentStats, ...stats };
+    
+    // Convert to localStorage format
+    const localStorageStats = {
+      gold: updatedStats.gold,
+      experience: updatedStats.experience,
+      level: updatedStats.level,
+      health: updatedStats.health,
+      max_health: updatedStats.max_health,
+      buildTokens: updatedStats.build_tokens
+    };
+    
+    localStorage.setItem('character-stats', JSON.stringify(localStorageStats));
+    
+    // Save kingdom expansions separately
+    if (stats.kingdom_expansions !== undefined) {
+      localStorage.setItem('kingdom-grid-expansions', String(stats.kingdom_expansions));
+    }
+    
+    localStorageSuccess = true;
+    console.log('[Character Stats Manager] Saved to localStorage:', localStorageStats);
+  } catch (error) {
+    console.warn('[Character Stats Manager] localStorage save error:', error);
+  }
+
+  const result: { success: boolean; error?: string } = {
+    success: supabaseSuccess || localStorageSuccess
+  };
+  
+  if (!supabaseSuccess && !localStorageSuccess) {
+    result.error = 'Failed to save character stats';
+  }
+  
+  return result;
+}
+
+/**
+ * Updates a specific stat value
+ */
+export async function updateCharacterStat(stat: keyof CharacterStats, value: number): Promise<{ success: boolean; error?: string }> {
+  return await saveCharacterStats({ [stat]: value });
+}
+
+/**
+ * Adds to a specific stat value (for gold, experience, etc.)
+ */
+export async function addToCharacterStat(stat: keyof CharacterStats, amount: number): Promise<{ success: boolean; error?: string }> {
+  const currentStats = await loadCharacterStats();
+  const currentValue = currentStats[stat] || 0;
+  return await saveCharacterStats({ [stat]: currentValue + amount });
+}
+
+/**
+ * Gets character stats synchronously (for immediate use)
+ */
+export function getCharacterStats(): CharacterStats {
+  try {
+    const stored = localStorage.getItem('character-stats');
+    if (stored) {
+      const stats = JSON.parse(stored);
+      return {
+        gold: stats.gold || 0,
+        experience: stats.experience || 0,
+        level: stats.level || 1,
+        health: stats.health || 100,
+        max_health: stats.max_health || 100,
+        build_tokens: stats.buildTokens || 0,
+        kingdom_expansions: parseInt(localStorage.getItem('kingdom-grid-expansions') || '0', 10)
+      };
+    }
+  } catch (error) {
+    console.warn('[Character Stats Manager] Error getting stats:', error);
+  }
+
+  return {
+    gold: 0,
+    experience: 0,
+    level: 1,
+    health: 100,
+    max_health: 100,
+    build_tokens: 0,
+    kingdom_expansions: 0
+  };
+}
+
+/**
+ * Sets character stats synchronously (for immediate use)
+ */
+export function setCharacterStats(stats: Partial<CharacterStats>): void {
+  try {
+    const currentStats = getCharacterStats();
+    const updatedStats = { ...currentStats, ...stats };
+    
+    // Convert to localStorage format
+    const localStorageStats = {
+      gold: updatedStats.gold,
+      experience: updatedStats.experience,
+      level: updatedStats.level,
+      health: updatedStats.health,
+      max_health: updatedStats.max_health,
+      buildTokens: updatedStats.build_tokens
+    };
+    
+    localStorage.setItem('character-stats', JSON.stringify(localStorageStats));
+    
+    // Save kingdom expansions separately
+    if (stats.kingdom_expansions !== undefined) {
+      localStorage.setItem('kingdom-grid-expansions', String(stats.kingdom_expansions));
+    }
+    
+    console.log('[Character Stats Manager] Set stats:', updatedStats);
+  } catch (error) {
+    console.warn('[Character Stats Manager] Error setting stats:', error);
+  }
 } 
