@@ -426,7 +426,20 @@ export default function RealmPage() {
                     console.log('[Realm] Grid data type:', typeof gridResult.data);
                     console.log('[Realm] Grid data is array:', Array.isArray(gridResult.data));
                     console.log('[Realm] Grid data length:', gridResult.data?.length);
-                    setGrid(gridResult.data);
+                    
+                    // The API returns { data: { grid: [...] } }, so we need to access gridResult.data.grid
+                    const actualGridData = gridResult.data.grid;
+                    console.log('[Realm] Actual grid data:', actualGridData);
+                    console.log('[Realm] Actual grid data type:', typeof actualGridData);
+                    console.log('[Realm] Actual grid data is array:', Array.isArray(actualGridData));
+                    console.log('[Realm] Actual grid data length:', actualGridData?.length);
+                    
+                    if (actualGridData && Array.isArray(actualGridData)) {
+                        setGrid(actualGridData);
+                    } else {
+                        console.log('[Realm] No valid grid data found, using fallback');
+                        setGrid(createBaseGrid());
+                    }
                 } else {
                     console.log('[Data Loaders] API response status: 404 - using fallback');
                     // Fallback to API or create base grid
