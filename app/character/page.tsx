@@ -270,91 +270,78 @@ export default function CharacterPage() {
 
   // Load character stats and perks from localStorage
   useEffect(() => {
+    const loadCharacterStats = () => {
+      try {
+        // Use the unified character stats manager
+        const stats = getCharacterStats()
+        // Calculate level from experience to ensure consistency with navigation bar
+        const calculatedLevel = calculateLevelFromExperience(stats.experience)
+        setCharacterStats({
+          level: calculatedLevel,
+          experience: stats.experience,
+          experienceToNextLevel: calculateExperienceForLevel(calculatedLevel),
+          gold: stats.gold,
+          titles: { equipped: '', unlocked: 0, total: 0 },
+          perks: { active: 0, total: 0 }
+        })
+      } catch (error) {
+        console.error('Error loading character stats:', error)
+        throw new Error('Failed to load character stats');
+      }
+    }
+
+    const loadPerks = () => {
+      try {
+        const savedPerks = localStorage.getItem('character-perks')
+        if (savedPerks) {
+          const parsedPerks = JSON.parse(savedPerks)
+          setPerks(parsedPerks)
+        }
+      } catch (error) {
+        console.error('Error loading perks:', error)
+        throw new Error('Failed to load perks');
+      }
+    }
+
+    const loadStrengths = () => {
+      try {
+        setStrengths(getStrengths())
+      } catch (error) {
+        console.error('Error loading strengths:', error)
+        throw new Error('Failed to load strengths');
+      }
+    }
+
+    // Load active potion perks
+    const loadActivePotionPerks = () => {
+      try {
+        const perksObj = JSON.parse(localStorage.getItem('active-potion-perks') || '{}')
+        const now = new Date()
+        const perksArr = Object.entries(perksObj)
+          .map(([name, value]) => {
+            if (typeof value === 'object' && value !== null && 'effect' in value && 'expiresAt' in value) {
+              const { effect, expiresAt } = value as { effect: string, expiresAt: string }
+              return { name, effect, expiresAt }
+            }
+            return null
+          })
+          .filter((perk): perk is { name: string, effect: string, expiresAt: string } => !!perk && new Date(perk.expiresAt) > now)
+        setActivePotionPerks(perksArr)
+      } catch (e) {
+        console.error('Error loading active potion perks:', e)
+        setActivePotionPerks([])
+      }
+    }
+
     const loadAllData = async () => {
       try {
         setIsLoading(true);
         setError(null);
         
-        const loadCharacterStats = () => {
-          try {
-            // Use the unified character stats manager
-            const stats = getCharacterStats()
-            // Calculate level from experience to ensure consistency with navigation bar
-            const calculatedLevel = calculateLevelFromExperience(stats.experience)
-            setCharacterStats({
-              level: calculatedLevel,
-              experience: stats.experience,
-              experienceToNextLevel: calculateExperienceForLevel(calculatedLevel),
-              gold: stats.gold,
-              titles: { equipped: '', unlocked: 0, total: 0 },
-              perks: { active: 0, total: 0 }
-            })
-          } catch (error) {
-            console.error('Error loading character stats:', error)
-            throw new Error('Failed to load character stats');
-          }
-        }
-
-        const loadPerks = () => {
-          try {
-            const savedPerks = localStorage.getItem('character-perks')
-            if (savedPerks) {
-              const parsedPerks = JSON.parse(savedPerks)
-              setPerks(parsedPerks)
-            }
-          } catch (error) {
-            console.error('Error loading perks:', error)
-            throw new Error('Failed to load perks');
-          }
-        }
-
-        const loadStrengths = () => {
-          try {
-            setStrengths(getStrengths())
-          } catch (error) {
-            console.error('Error loading strengths:', error)
-            throw new Error('Failed to load strengths');
-          }
-        }
-
-        // Load active potion perks
-        const loadActivePotionPerks = () => {
-          try {
-            const perksObj = JSON.parse(localStorage.getItem('active-potion-perks') || '{}')
-            const now = new Date()
-            const perksArr = Object.entries(perksObj)
-              .map(([name, value]) => {
-                if (typeof value === 'object' && value !== null && 'effect' in value && 'expiresAt' in value) {
-                  const { effect, expiresAt } = value as { effect: string, expiresAt: string }
-                  return { name, effect, expiresAt }
-                }
-                return null
-              })
-              .filter((perk): perk is { name: string, effect: string, expiresAt: string } => !!perk && new Date(perk.expiresAt) > now)
-            setActivePotionPerks(perksArr)
-          } catch (e) {
-            console.error('Error loading active potion perks:', e)
-            setActivePotionPerks([])
-          }
-        }
-
         loadCharacterStats()
         loadPerks()
         loadStrengths()
         loadActivePotionPerks()
-
-        // Listen for updates
-        window.addEventListener('character-stats-update', loadCharacterStats)
-        window.addEventListener('character-perks-update', loadPerks)
-        window.addEventListener('character-strengths-update', loadStrengths)
-        window.addEventListener('character-inventory-update', loadActivePotionPerks)
-        
-        return () => {
-          window.removeEventListener('character-stats-update', loadCharacterStats)
-          window.removeEventListener('character-perks-update', loadPerks)
-          window.removeEventListener('character-strengths-update', loadStrengths)
-          window.removeEventListener('character-inventory-update', loadActivePotionPerks)
-        }
         
       } catch (error) {
         console.error('Character page error:', error);
@@ -365,6 +352,19 @@ export default function CharacterPage() {
     };
 
     loadAllData();
+
+    // Listen for updates
+    window.addEventListener('character-stats-update', loadCharacterStats)
+    window.addEventListener('character-perks-update', loadPerks)
+    window.addEventListener('character-strengths-update', loadStrengths)
+    window.addEventListener('character-inventory-update', loadActivePotionPerks)
+    
+    return () => {
+      window.removeEventListener('character-stats-update', loadCharacterStats)
+      window.removeEventListener('character-perks-update', loadPerks)
+      window.removeEventListener('character-strengths-update', loadStrengths)
+      window.removeEventListener('character-inventory-update', loadActivePotionPerks)
+    }
   }, [])
 
   // Polling for character data changes instead of real-time sync
