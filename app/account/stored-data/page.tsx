@@ -38,21 +38,27 @@ export default function StoredDataPage() {
   const loadSupabaseData = async () => {
     try {
       // Load character stats
-      const statsResponse = await fetch('/api/character-stats');
+      const statsResponse = await fetch('/api/character-stats', {
+        credentials: 'include'
+      });
       if (statsResponse.ok) {
         const statsData = await statsResponse.json();
         setSupabaseData((prev: any) => ({ ...prev, characterStats: statsData.data }));
       }
 
       // Load active perks
-      const perksResponse = await fetch('/api/active-perks');
+      const perksResponse = await fetch('/api/active-perks', {
+        credentials: 'include'
+      });
       if (perksResponse.ok) {
         const perksData = await perksResponse.json();
         setSupabaseData((prev: any) => ({ ...prev, activePerks: perksData.data }));
       }
 
       // Load game settings
-      const settingsResponse = await fetch('/api/game-settings');
+      const settingsResponse = await fetch('/api/game-settings', {
+        credentials: 'include'
+      });
       if (settingsResponse.ok) {
         const settingsData = await settingsResponse.json();
         setSupabaseData((prev: any) => ({ ...prev, gameSettings: settingsData.data }));

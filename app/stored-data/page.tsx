@@ -11,9 +11,7 @@ import { useSupabase } from '@/lib/hooks/useSupabase';
 import { useAuth, useUser } from '@clerk/nextjs';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { getCharacterStats } from '@/lib/character-data-manager';
-import { getInventory } from '@/lib/inventory-manager';
-import { getUserAchievements } from '@/lib/achievements-manager';
+import { getCharacterStats } from '@/lib/character-stats-manager';
 import { useTitleEvolution } from '@/hooks/title-evolution-context'
 import { migrateLocalStorageToSupabase, checkMigrationStatus } from '@/lib/migration-utils';
 
@@ -43,22 +41,40 @@ export default function StoredDataPage() {
       setIsLoading(true);
       try {
         // Load character stats
-        const stats = await getCharacterStats(user.id);
+        const stats = getCharacterStats();
         setCharacterStats(stats);
 
-        // Load inventory
-        const inventory = await getInventory(user.id);
-        setInventoryItems(inventory || []);
+        // Load inventory (using direct API call)
+        try {
+          const inventoryResponse = await fetch('/api/inventory', {
+            credentials: 'include'
+          });
+          if (inventoryResponse.ok) {
+            const inventory = await inventoryResponse.json();
+            setInventoryItems(inventory || []);
+          }
+        } catch (error) {
+          console.error('Error loading inventory:', error);
+        }
 
-        // Load achievements
-        const userAchievements = await getUserAchievements();
-        setAchievements(userAchievements || []);
+        // Load achievements (using direct API call)
+        try {
+          const achievementsResponse = await fetch('/api/achievements', {
+            credentials: 'include'
+          });
+          if (achievementsResponse.ok) {
+            const userAchievements = await achievementsResponse.json();
+            setAchievements(userAchievements || []);
+          }
+        } catch (error) {
+          console.error('Error loading achievements:', error);
+        }
 
         // Set summary data
         setSupabaseData([
           { table: 'Character Stats', count: stats ? 1 : 0, lastUpdated: new Date().toISOString() },
-          { table: 'Inventory Items', count: inventory?.length || 0, lastUpdated: new Date().toISOString() },
-          { table: 'Achievements', count: userAchievements?.length || 0, lastUpdated: new Date().toISOString() },
+          { table: 'Inventory Items', count: inventoryItems?.length || 0, lastUpdated: new Date().toISOString() },
+          { table: 'Achievements', count: achievements?.length || 0, lastUpdated: new Date().toISOString() },
         ]);
 
         // Load migration status
