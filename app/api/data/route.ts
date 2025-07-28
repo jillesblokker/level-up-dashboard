@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
             .eq('is_current', true)
             .single();
           
-          return { data: gridData?.grid_data || null, error: gridError };
+          return { data: { grid: gridData?.grid_data || null }, error: gridError };
 
         case 'character':
           const { data: charData, error: charError } = await supabase
