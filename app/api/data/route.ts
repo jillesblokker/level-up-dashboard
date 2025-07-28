@@ -44,7 +44,17 @@ export async function GET(request: NextRequest) {
             .select('*')
             .eq('user_id', userId);
           
-          return { data: invData || [], error: invError };
+          // Convert array to object format expected by the frontend
+          const inventoryObject: Record<string, any> = {};
+          invData?.forEach(item => {
+            inventoryObject[item.tile_type] = {
+              type: item.tile_type,
+              quantity: item.quantity,
+              cost: item.cost
+            };
+          });
+          
+          return { data: inventoryObject, error: invError };
 
         case 'preferences':
           const { data: prefData, error: prefError } = await supabase

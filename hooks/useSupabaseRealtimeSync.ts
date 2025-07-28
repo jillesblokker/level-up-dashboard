@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { supabase } from '@/lib/supabase/client';
+import { useSupabase } from '@/lib/hooks/useSupabase';
 
 interface UseSupabaseRealtimeSyncProps {
   table: string;
@@ -8,8 +8,11 @@ interface UseSupabaseRealtimeSyncProps {
 }
 
 export function useSupabaseRealtimeSync({ table, userId, onChange }: UseSupabaseRealtimeSyncProps) {
+  const { supabase, isLoading } = useSupabase();
+
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || isLoading || !supabase) return;
+    
     const channel = supabase.channel(`${table}-realtime`)
       .on(
         'postgres_changes',
@@ -27,5 +30,5 @@ export function useSupabaseRealtimeSync({ table, userId, onChange }: UseSupabase
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [table, userId, onChange]);
+  }, [table, userId, onChange, supabase, isLoading]);
 } 
