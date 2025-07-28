@@ -4,7 +4,7 @@
 -- 1. Character Stats Table
 CREATE TABLE IF NOT EXISTS character_stats (
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id text NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     gold integer DEFAULT 0,
     experience integer DEFAULT 0,
     level integer DEFAULT 1,
@@ -24,18 +24,18 @@ CREATE INDEX IF NOT EXISTS idx_character_stats_user_id ON character_stats(user_i
 ALTER TABLE character_stats ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can view their own stats" ON character_stats
-    FOR SELECT USING (auth.uid()::uuid = user_id);
+    FOR SELECT USING (auth.uid() = user_id);
 
 CREATE POLICY "Users can insert their own stats" ON character_stats
-    FOR INSERT WITH CHECK (auth.uid()::uuid = user_id);
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY "Users can update their own stats" ON character_stats
-    FOR UPDATE USING (auth.uid()::uuid = user_id);
+    FOR UPDATE USING (auth.uid() = user_id);
 
 -- 2. Active Perks Table
 CREATE TABLE IF NOT EXISTS active_perks (
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id text NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     perk_name text NOT NULL,
     effect text NOT NULL,
     expires_at timestamp with time zone NOT NULL,
@@ -51,21 +51,21 @@ CREATE INDEX IF NOT EXISTS idx_active_perks_expires_at ON active_perks(expires_a
 ALTER TABLE active_perks ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can view their own perks" ON active_perks
-    FOR SELECT USING (auth.uid()::uuid = user_id);
+    FOR SELECT USING (auth.uid() = user_id);
 
 CREATE POLICY "Users can insert their own perks" ON active_perks
-    FOR INSERT WITH CHECK (auth.uid()::uuid = user_id);
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY "Users can update their own perks" ON active_perks
-    FOR UPDATE USING (auth.uid()::uuid = user_id);
+    FOR UPDATE USING (auth.uid() = user_id);
 
 CREATE POLICY "Users can delete their own perks" ON active_perks
-    FOR DELETE USING (auth.uid()::uuid = user_id);
+    FOR DELETE USING (auth.uid() = user_id);
 
 -- 3. Game Settings Table
 CREATE TABLE IF NOT EXISTS game_settings (
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id text NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     setting_key text NOT NULL,
     setting_value jsonb,
     created_at timestamp with time zone DEFAULT now(),
@@ -81,16 +81,16 @@ CREATE INDEX IF NOT EXISTS idx_game_settings_key ON game_settings(setting_key);
 ALTER TABLE game_settings ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can view their own settings" ON game_settings
-    FOR SELECT USING (auth.uid()::uuid = user_id);
+    FOR SELECT USING (auth.uid() = user_id);
 
 CREATE POLICY "Users can insert their own settings" ON game_settings
-    FOR INSERT WITH CHECK (auth.uid()::uuid = user_id);
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY "Users can update their own settings" ON game_settings
-    FOR UPDATE USING (auth.uid()::uuid = user_id);
+    FOR UPDATE USING (auth.uid() = user_id);
 
 CREATE POLICY "Users can delete their own settings" ON game_settings
-    FOR DELETE USING (auth.uid()::uuid = user_id);
+    FOR DELETE USING (auth.uid() = user_id);
 
 -- 4. Function to clean up expired perks (optional)
 CREATE OR REPLACE FUNCTION cleanup_expired_perks()
@@ -109,4 +109,23 @@ $$ LANGUAGE plpgsql;
 GRANT USAGE ON SCHEMA public TO authenticated;
 GRANT ALL ON character_stats TO authenticated;
 GRANT ALL ON active_perks TO authenticated;
-GRANT ALL ON game_settings TO authenticated; 
+GRANT ALL ON game_settings TO authenticated;
+
+-- Optional: Trigger to update updated_at timestamp
+CREATE OR REPLACE FUNCTION update_modified_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = now();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_character_stats_modtime
+BEFORE UPDATE ON character_stats
+FOR EACH ROW
+EXECUTE FUNCTION update_modified_column();
+
+CREATE TRIGGER update_game_settings_modtime
+BEFORE UPDATE ON game_settings
+FOR EACH ROW
+EXECUTE FUNCTION update_modified_column(); 
