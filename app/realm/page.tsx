@@ -437,8 +437,9 @@ export default function RealmPage() {
                     if (actualGridData && Array.isArray(actualGridData)) {
                         setGrid(actualGridData);
                     } else {
-                        console.log('[Realm] No valid grid data found, using fallback');
-                        setGrid(createBaseGrid());
+                        console.log('[Realm] No valid grid data found, loading initial grid from CSV...');
+                        const initialGrid = await loadInitialGridFromCSV();
+                        setGrid(initialGrid);
                     }
                 } else {
                     console.log('[Data Loaders] API response status: 404 - using fallback');
@@ -470,11 +471,15 @@ export default function RealmPage() {
                             setGrid(gridArr);
                         } else {
                             console.warn('[Realm] Invalid tiles data from API:', data);
-                            setGrid(createBaseGrid());
+                            console.log('[Realm] Loading initial grid from CSV...');
+                            const initialGrid = await loadInitialGridFromCSV();
+                            setGrid(initialGrid);
                         }
                     } catch (err) {
                         console.error('[Realm] Error loading tiles:', err);
-                        setGrid(createBaseGrid());
+                        console.log('[Realm] Loading initial grid from CSV...');
+                        const initialGrid = await loadInitialGridFromCSV();
+                        setGrid(initialGrid);
                     }
                 }
 
