@@ -189,6 +189,12 @@ export function setCharacterStats(stats: Partial<CharacterStats>): void {
     const currentStats = getCharacterStats();
     const updatedStats = { ...currentStats, ...stats };
     
+    // Always calculate level from experience to ensure consistency
+    if (stats.experience !== undefined) {
+      const { calculateLevelFromExperience } = require('@/types/character');
+      updatedStats.level = calculateLevelFromExperience(stats.experience);
+    }
+    
     // Convert to localStorage format
     const localStorageStats = {
       gold: updatedStats.gold,
@@ -219,7 +225,14 @@ export function setCharacterStats(stats: Partial<CharacterStats>): void {
  * Updates a specific stat value synchronously (for immediate use)
  */
 export function updateCharacterStatSync(stat: keyof CharacterStats, value: number): void {
-  setCharacterStats({ [stat]: value });
+  // If we're updating experience, we need to recalculate level
+  if (stat === 'experience') {
+    const { calculateLevelFromExperience } = require('@/types/character');
+    const newLevel = calculateLevelFromExperience(value);
+    setCharacterStats({ [stat]: value, level: newLevel });
+  } else {
+    setCharacterStats({ [stat]: value });
+  }
 }
 
 /**
@@ -228,5 +241,14 @@ export function updateCharacterStatSync(stat: keyof CharacterStats, value: numbe
 export function addToCharacterStatSync(stat: keyof CharacterStats, amount: number): void {
   const currentStats = getCharacterStats();
   const currentValue = currentStats[stat] || 0;
-  setCharacterStats({ [stat]: currentValue + amount });
+  const newValue = currentValue + amount;
+  
+  // If we're updating experience, we need to recalculate level
+  if (stat === 'experience') {
+    const { calculateLevelFromExperience } = require('@/types/character');
+    const newLevel = calculateLevelFromExperience(newValue);
+    setCharacterStats({ [stat]: newValue, level: newLevel });
+  } else {
+    setCharacterStats({ [stat]: newValue });
+  }
 } 

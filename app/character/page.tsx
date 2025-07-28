@@ -10,7 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
-import { calculateLevelProgress, CharacterStats, calculateLevelFromExperience } from "@/types/character"
+import { calculateLevelProgress, CharacterStats, calculateLevelFromExperience, calculateExperienceForLevel } from "@/types/character"
+import { getCharacterStats } from "@/lib/character-stats-manager"
 import { storageService } from '@/lib/storage-service'
 import { getTitleProgress, TITLES } from '@/lib/title-manager'
 import { getStrengths, calculateStrengthProgress, Strength } from '@/lib/strength-manager'
@@ -276,16 +277,18 @@ export default function CharacterPage() {
         
         const loadCharacterStats = () => {
           try {
-            const savedStats = localStorage.getItem('character-stats')
-            if (savedStats) {
-              const stats = JSON.parse(savedStats)
-              // Calculate level from experience to ensure consistency with navigation bar
-              const calculatedLevel = calculateLevelFromExperience(stats.experience)
-              setCharacterStats({
-                ...stats,
-                level: calculatedLevel
-              })
-            }
+            // Use the unified character stats manager
+            const stats = getCharacterStats()
+            // Calculate level from experience to ensure consistency with navigation bar
+            const calculatedLevel = calculateLevelFromExperience(stats.experience)
+            setCharacterStats({
+              level: calculatedLevel,
+              experience: stats.experience,
+              experienceToNextLevel: calculateExperienceForLevel(calculatedLevel),
+              gold: stats.gold,
+              titles: { equipped: '', unlocked: 0, total: 0 },
+              perks: { active: 0, total: 0 }
+            })
           } catch (error) {
             console.error('Error loading character stats:', error)
             throw new Error('Failed to load character stats');
