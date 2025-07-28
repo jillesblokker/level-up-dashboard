@@ -36,7 +36,7 @@ import { cn } from "@/lib/utils"
 import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character"
 import { Logo } from "@/components/logo";
 import { useUser } from "@clerk/nextjs";
-import { initializeCharacterStats, getCharacterStats } from "@/lib/character-stats-manager"
+import { getCharacterStats } from "@/lib/character-stats-manager"
 
 interface MobileNavProps {
   tabs?: { value: string; label: string }[]
@@ -67,16 +67,16 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     // Initialize character stats and load them (same as desktop)
     const loadCharacterStats = () => {
       try {
-        // Initialize character stats if they don't exist
-        initializeCharacterStats()
-        
         // Get current stats
         const stats = getCharacterStats()
         const currentLevel = calculateLevelFromExperience(stats.experience)
         setCharacterStats({
-          ...stats,
           level: currentLevel,
-          experienceToNextLevel: calculateExperienceForLevel(currentLevel)
+          experience: stats.experience,
+          experienceToNextLevel: calculateExperienceForLevel(currentLevel),
+          gold: stats.gold,
+          titles: { equipped: '', unlocked: 0, total: 0 },
+          perks: { active: 0, total: 0 }
         })
       } catch (error) {
         console.error("Error loading character stats:", error)

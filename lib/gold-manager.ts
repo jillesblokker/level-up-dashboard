@@ -1,6 +1,6 @@
 import { toast } from "@/components/ui/use-toast";
 import { emitGoldGained } from "@/lib/kingdom-events";
-import { getCharacterStats, updateCharacterStats } from "@/lib/character-stats-manager";
+import { getCharacterStats, updateCharacterStat } from "@/lib/character-stats-manager";
 import { createGoldGainedNotification } from "@/lib/notifications";
 
 export function gainGold(amount: number, source: string) {
@@ -15,7 +15,7 @@ export function gainGold(amount: number, source: string) {
     };
 
     // Update stats using the character stats manager
-    updateCharacterStats(newStats);
+    updateCharacterStat('gold', newStats.gold);;
 
     // Emit kingdom event for tracking weekly progress
     emitGoldGained(amount, source);

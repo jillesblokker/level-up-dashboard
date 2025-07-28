@@ -17,7 +17,7 @@ import { useAuth } from "@clerk/nextjs"
 import { useToast } from "@/components/ui/use-toast"
 import { storageService } from '@/lib/storage-service'
 import { Quest } from '@/lib/quest-types'
-import { updateCharacterStats, getCharacterStats } from '@/lib/character-stats-manager'
+import { updateCharacterStat, getCharacterStats } from '@/lib/character-stats-manager'
 import CardWithProgress from './quest-card'
 
 
@@ -700,7 +700,8 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
         newXP = Math.max(0, newXP - xpDelta);
         newGold = Math.max(0, newGold - goldDelta);
       }
-      updateCharacterStats({ experience: newXP, gold: newGold });
+              updateCharacterStat('experience', newXP);
+        updateCharacterStat('gold', newGold);
       if (!completed) {
         window.dispatchEvent(new CustomEvent('kingdom:goldGained', { detail: goldDelta }));
         window.dispatchEvent(new CustomEvent('kingdom:experienceGained', { detail: xpDelta }));

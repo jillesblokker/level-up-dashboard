@@ -11,7 +11,7 @@ import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, 
 import { HeaderSection } from '@/components/HeaderSection'
 import { useUser, useAuth } from '@clerk/nextjs'
 import { Milestones } from '@/components/milestones'
-import { updateCharacterStats, getCharacterStats } from '@/lib/character-stats-manager'
+import { updateCharacterStat, getCharacterStats } from '@/lib/character-stats-manager'
 import { toast } from '@/components/ui/use-toast'
 import CardWithProgress from '@/components/quest-card'
 import React from 'react'
@@ -484,10 +484,8 @@ export default function QuestsPage() {
           
           // Update character stats
           const currentStats = getCharacterStats();
-          updateCharacterStats({
-            gold: (currentStats.gold || 0) + questRewards,
-            experience: (currentStats.experience || 0) + questXP
-          });
+          updateCharacterStat('gold', (currentStats.gold || 0) + questRewards);
+          updateCharacterStat('experience', (currentStats.experience || 0) + questXP);
           
           // Trigger kingdom stats update
           window.dispatchEvent(new CustomEvent('kingdom:goldGained', { detail: questRewards }));
@@ -654,10 +652,8 @@ export default function QuestsPage() {
 
       if (totalXP > 0 || totalGold > 0) {
         const currentStats = getCharacterStats();
-        updateCharacterStats({
-          gold: (currentStats.gold || 0) + totalGold,
-          experience: (currentStats.experience || 0) + totalXP
-        });
+        updateCharacterStat('gold', (currentStats.gold || 0) + totalGold);
+        updateCharacterStat('experience', (currentStats.experience || 0) + totalXP);
         
         // Trigger kingdom stats update
         if (totalGold > 0) {
@@ -749,10 +745,8 @@ export default function QuestsPage() {
 
       if (totalXP > 0 || totalGold > 0) {
         const currentStats = getCharacterStats();
-        updateCharacterStats({
-          gold: (currentStats.gold || 0) + totalGold,
-          experience: (currentStats.experience || 0) + totalXP
-        });
+        updateCharacterStat('gold', (currentStats.gold || 0) + totalGold);
+        updateCharacterStat('experience', (currentStats.experience || 0) + totalXP);
         
         // Trigger kingdom stats update
         if (totalGold > 0) {

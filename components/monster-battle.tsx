@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress'
 import { Shield, Sword, Zap, Heart, Shield as Armor } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { gainGold } from '@/lib/gold-manager'
-import { updateCharacterStats } from '@/lib/character-stats-manager'
+import { updateCharacterStat } from '@/lib/character-stats-manager'
 import { toast } from '@/components/ui/use-toast'
 import Image from 'next/image'
 
@@ -234,7 +234,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     
     setGameState('won')
     gainGold(earnedGold, 'monster-battle-win')
-    updateCharacterStats({ experience: earnedXP })
+            updateCharacterStat('experience', earnedXP)
     
     // Add success animation class
     const battleContainer = document.querySelector('.monster-battle-container')

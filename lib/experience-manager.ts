@@ -2,7 +2,7 @@ import { toast } from "@/components/ui/use-toast"
 import { calculateLevelFromExperience, calculateExperienceToNextLevel, CharacterStats } from "@/types/character"
 import { createLevelUpNotification, createExperienceGainedNotification } from "@/lib/notifications"
 import { emitExperienceGained } from "@/lib/kingdom-events"
-import { getCharacterStats, updateCharacterStats } from "@/lib/character-stats-manager"
+import { getCharacterStats, updateCharacterStat } from "@/lib/character-stats-manager"
 import { getCurrentTitle } from "@/lib/title-manager"
 import { notificationService } from "@/lib/notification-service"
 
@@ -86,7 +86,7 @@ export function gainExperience(amount: number, source: string, category: string 
     const newLevel = calculateLevelFromExperience(newExperience)
     const newExperienceToNextLevel = calculateExperienceToNextLevel(newExperience)
     
-    const newStats: CharacterStats = {
+    const newStats = {
       ...currentStats,
       experience: newExperience,
       level: newLevel,
@@ -94,7 +94,9 @@ export function gainExperience(amount: number, source: string, category: string 
     }
 
     // Update stats using the character stats manager
-    updateCharacterStats(newStats)
+    updateCharacterStat('experience', newStats.experience);
+    updateCharacterStat('level', newStats.level);
+    updateCharacterStat('gold', newStats.gold);
 
     // Emit kingdom event for tracking weekly progress
     emitExperienceGained(totalAmount, source)
