@@ -1,6 +1,6 @@
 import { toast } from "@/components/ui/use-toast";
 import { emitGoldGained } from "@/lib/kingdom-events";
-import { getCharacterStats, updateCharacterStat } from "@/lib/character-stats-manager";
+import { getCharacterStats, addToCharacterStatSync } from "@/lib/character-stats-manager";
 import { createGoldGainedNotification } from "@/lib/notifications";
 
 export function gainGold(amount: number, source: string) {
@@ -8,14 +8,8 @@ export function gainGold(amount: number, source: string) {
     // Get current stats using the character stats manager
     const currentStats = getCharacterStats();
 
-    // Add gold to stats
-    const newStats = {
-      ...currentStats,
-      gold: currentStats.gold + amount
-    };
-
-    // Update stats using the character stats manager
-    updateCharacterStat('gold', newStats.gold);;
+    // Add gold to stats using synchronous update for immediate effect
+    addToCharacterStatSync('gold', amount);
 
     // Emit kingdom event for tracking weekly progress
     emitGoldGained(amount, source);
@@ -37,7 +31,7 @@ export function gainGold(amount: number, source: string) {
       description: `+${amount} gold from ${source}`,
     });
 
-    return newStats;
+    return { ...currentStats, gold: currentStats.gold + amount };
   } catch (error) {
     console.error("Error managing gold:", error);
     return null;

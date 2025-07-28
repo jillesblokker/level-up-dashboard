@@ -114,6 +114,9 @@ export async function saveCharacterStats(stats: Partial<CharacterStats>): Promis
     
     localStorageSuccess = true;
     console.log('[Character Stats Manager] Saved to localStorage:', localStorageStats);
+    
+    // Dispatch update event to notify all components
+    window.dispatchEvent(new Event('character-stats-update'));
   } catch (error) {
     console.warn('[Character Stats Manager] localStorage save error:', error);
   }
@@ -204,7 +207,26 @@ export function setCharacterStats(stats: Partial<CharacterStats>): void {
     }
     
     console.log('[Character Stats Manager] Set stats:', updatedStats);
+    
+    // Dispatch update event to notify all components
+    window.dispatchEvent(new Event('character-stats-update'));
   } catch (error) {
     console.warn('[Character Stats Manager] Error setting stats:', error);
   }
+}
+
+/**
+ * Updates a specific stat value synchronously (for immediate use)
+ */
+export function updateCharacterStatSync(stat: keyof CharacterStats, value: number): void {
+  setCharacterStats({ [stat]: value });
+}
+
+/**
+ * Adds to a specific stat value synchronously (for immediate use)
+ */
+export function addToCharacterStatSync(stat: keyof CharacterStats, amount: number): void {
+  const currentStats = getCharacterStats();
+  const currentValue = currentStats[stat] || 0;
+  setCharacterStats({ [stat]: currentValue + amount });
 } 

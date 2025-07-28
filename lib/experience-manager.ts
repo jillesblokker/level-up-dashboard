@@ -2,7 +2,7 @@ import { toast } from "@/components/ui/use-toast"
 import { calculateLevelFromExperience, calculateExperienceToNextLevel, CharacterStats } from "@/types/character"
 import { createLevelUpNotification, createExperienceGainedNotification } from "@/lib/notifications"
 import { emitExperienceGained } from "@/lib/kingdom-events"
-import { getCharacterStats, updateCharacterStat } from "@/lib/character-stats-manager"
+import { getCharacterStats, addToCharacterStatSync, updateCharacterStatSync } from "@/lib/character-stats-manager"
 import { getCurrentTitle } from "@/lib/title-manager"
 import { notificationService } from "@/lib/notification-service"
 
@@ -84,19 +84,10 @@ export function gainExperience(amount: number, source: string, category: string 
     // Calculate new stats
     const newExperience = currentStats.experience + totalAmount
     const newLevel = calculateLevelFromExperience(newExperience)
-    const newExperienceToNextLevel = calculateExperienceToNextLevel(newExperience)
     
-    const newStats = {
-      ...currentStats,
-      experience: newExperience,
-      level: newLevel,
-      experienceToNextLevel: newExperienceToNextLevel
-    }
-
-    // Update stats using the character stats manager
-    updateCharacterStat('experience', newStats.experience);
-    updateCharacterStat('level', newStats.level);
-    updateCharacterStat('gold', newStats.gold);
+    // Update stats using the character stats manager (synchronous for immediate effect)
+    addToCharacterStatSync('experience', totalAmount);
+    updateCharacterStatSync('level', newLevel);
 
     // Emit kingdom event for tracking weekly progress
     emitExperienceGained(totalAmount, source)
@@ -146,7 +137,7 @@ export function gainExperience(amount: number, source: string, category: string 
       })
     }
 
-    return newStats
+    return { ...currentStats, experience: newExperience, level: newLevel }
   } catch (error) {
     console.error("Error managing experience:", error)
     return null

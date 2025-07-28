@@ -17,7 +17,7 @@ import { useAuth } from "@clerk/nextjs"
 import { useToast } from "@/components/ui/use-toast"
 import { storageService } from '@/lib/storage-service'
 import { Quest } from '@/lib/quest-types'
-import { updateCharacterStat, getCharacterStats } from '@/lib/character-stats-manager'
+import { updateCharacterStat, getCharacterStats, addToCharacterStatSync, updateCharacterStatSync } from '@/lib/character-stats-manager'
 import CardWithProgress from './quest-card'
 
 
@@ -689,19 +689,20 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
       setCompleted(!completed);
       // Live update character stats and fire events
       const stats = getCharacterStats();
-      let newXP = stats.experience;
-      let newGold = stats.gold;
       const xpDelta = milestone.experience || 0;
       const goldDelta = milestone.gold || 0;
+      
       if (!completed) {
-        newXP += xpDelta;
-        newGold += goldDelta;
+        // Add experience and gold
+        addToCharacterStatSync('experience', xpDelta);
+        addToCharacterStatSync('gold', goldDelta);
       } else {
-        newXP = Math.max(0, newXP - xpDelta);
-        newGold = Math.max(0, newGold - goldDelta);
+        // Remove experience and gold (but don't go below 0)
+        const newXP = Math.max(0, stats.experience - xpDelta);
+        const newGold = Math.max(0, stats.gold - goldDelta);
+        updateCharacterStatSync('experience', newXP);
+        updateCharacterStatSync('gold', newGold);
       }
-              updateCharacterStat('experience', newXP);
-        updateCharacterStat('gold', newGold);
       if (!completed) {
         window.dispatchEvent(new CustomEvent('kingdom:goldGained', { detail: goldDelta }));
         window.dispatchEvent(new CustomEvent('kingdom:experienceGained', { detail: xpDelta }));

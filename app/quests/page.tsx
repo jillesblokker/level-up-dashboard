@@ -11,7 +11,7 @@ import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, 
 import { HeaderSection } from '@/components/HeaderSection'
 import { useUser, useAuth } from '@clerk/nextjs'
 import { Milestones } from '@/components/milestones'
-import { updateCharacterStat, getCharacterStats } from '@/lib/character-stats-manager'
+import { updateCharacterStat, getCharacterStats, addToCharacterStatSync } from '@/lib/character-stats-manager'
 import { toast } from '@/components/ui/use-toast'
 import CardWithProgress from '@/components/quest-card'
 import React from 'react'
@@ -482,10 +482,9 @@ export default function QuestsPage() {
         if (questRewards > 0 || questXP > 0) {
           console.log('[Quest Rewards] Applying rewards:', { gold: questRewards, xp: questXP });
           
-          // Update character stats
-          const currentStats = getCharacterStats();
-          updateCharacterStat('gold', (currentStats.gold || 0) + questRewards);
-          updateCharacterStat('experience', (currentStats.experience || 0) + questXP);
+          // Update character stats using synchronous updates for immediate effect
+          addToCharacterStatSync('gold', questRewards);
+          addToCharacterStatSync('experience', questXP);
           
           // Trigger kingdom stats update
           window.dispatchEvent(new CustomEvent('kingdom:goldGained', { detail: questRewards }));
