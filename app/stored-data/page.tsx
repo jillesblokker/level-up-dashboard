@@ -21,6 +21,15 @@ interface SupabaseData {
   lastUpdated: string;
 }
 
+interface ConnectionStatus {
+  name: string;
+  description: string;
+  status: 'connected' | 'disconnected' | 'error' | 'unknown';
+  endpoint?: string;
+  lastChecked?: string;
+  error?: string | undefined;
+}
+
 export default function StoredDataPage() {
   const [supabaseData, setSupabaseData] = useState<SupabaseData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,6 +38,7 @@ export default function StoredDataPage() {
   const [achievements, setAchievements] = useState<any[]>([]);
   const [migrationStatus, setMigrationStatus] = useState<any>(null);
   const [isMigrating, setIsMigrating] = useState(false);
+  const [connectionStatuses, setConnectionStatuses] = useState<ConnectionStatus[]>([]);
   
   const { user } = useUser();
   const { supabase } = useSupabase();
@@ -80,6 +90,9 @@ export default function StoredDataPage() {
         // Load migration status
         const status = await checkMigrationStatus(user.id);
         setMigrationStatus(status);
+
+        // Check all Supabase connections
+        await checkAllConnections();
       } catch (error) {
         console.error('Error loading Supabase data:', error);
         toast.error('Failed to load data');
@@ -95,6 +108,253 @@ export default function StoredDataPage() {
     localStorage.clear()
     sessionStorage.clear()
   }
+
+  const checkAllConnections = async () => {
+    const connections: ConnectionStatus[] = [];
+    const now = new Date().toISOString();
+
+    // 1. Character Stats API
+    try {
+      const response = await fetch('/api/character-stats', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Character Stats',
+        description: 'Character stats (gold, experience, level, health, etc.)',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/character-stats',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Character Stats',
+        description: 'Character stats (gold, experience, level, health, etc.)',
+        status: 'error',
+        endpoint: '/api/character-stats',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 2. Inventory API
+    try {
+      const response = await fetch('/api/inventory', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Inventory',
+        description: 'Player inventory items and equipment',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/inventory',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Inventory',
+        description: 'Player inventory items and equipment',
+        status: 'error',
+        endpoint: '/api/inventory',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 3. Achievements API
+    try {
+      const response = await fetch('/api/achievements', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Achievements',
+        description: 'Player achievements and progress',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/achievements',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Achievements',
+        description: 'Player achievements and progress',
+        status: 'error',
+        endpoint: '/api/achievements',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 4. Active Perks API
+    try {
+      const response = await fetch('/api/active-perks', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Active Perks',
+        description: 'Active potion effects and temporary bonuses',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/active-perks',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Active Perks',
+        description: 'Active potion effects and temporary bonuses',
+        status: 'error',
+        endpoint: '/api/active-perks',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 5. Game Settings API
+    try {
+      const response = await fetch('/api/game-settings', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Game Settings',
+        description: 'User preferences and game configuration',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/game-settings',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Game Settings',
+        description: 'User preferences and game configuration',
+        status: 'error',
+        endpoint: '/api/game-settings',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 6. Realm Grid API
+    try {
+      const response = await fetch('/api/data?type=grid', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Realm Grid',
+        description: 'Realm map grid and character position',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/data?type=grid',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Realm Grid',
+        description: 'Realm map grid and character position',
+        status: 'error',
+        endpoint: '/api/data?type=grid',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 7. Kingdom Grid API
+    try {
+      const response = await fetch('/api/kingdom-grid', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Kingdom Grid',
+        description: 'Kingdom building grid and expansions',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/kingdom-grid',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Kingdom Grid',
+        description: 'Kingdom building grid and expansions',
+        status: 'error',
+        endpoint: '/api/kingdom-grid',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 8. Quests API
+    try {
+      const response = await fetch('/api/quests', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Quests',
+        description: 'Player quests and objectives',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/quests',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Quests',
+        description: 'Player quests and objectives',
+        status: 'error',
+        endpoint: '/api/quests',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 9. Milestones API
+    try {
+      const response = await fetch('/api/milestones', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Milestones',
+        description: 'Player milestones and progress tracking',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/milestones',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Milestones',
+        description: 'Player milestones and progress tracking',
+        status: 'error',
+        endpoint: '/api/milestones',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    // 10. Challenges API
+    try {
+      const response = await fetch('/api/challenges', {
+        credentials: 'include'
+      });
+      connections.push({
+        name: 'Challenges',
+        description: 'Player challenges and competitions',
+        status: response.ok ? 'connected' : 'error',
+        endpoint: '/api/challenges',
+        lastChecked: now,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      });
+    } catch (error) {
+      connections.push({
+        name: 'Challenges',
+        description: 'Player challenges and competitions',
+        status: 'error',
+        endpoint: '/api/challenges',
+        lastChecked: now,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    setConnectionStatuses(connections);
+  };
 
   const handleMigration = async () => {
     if (!user?.id) return;
@@ -211,6 +471,56 @@ export default function StoredDataPage() {
                   Test Migration
                 </Button>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Supabase Connection Status */}
+      <div className="mt-6">
+        <Card className="p-4" aria-label="connection-status-card">
+          <CardHeader>
+            <CardTitle>Supabase Connection Status</CardTitle>
+            <CardDescription>Check if all database connections are working properly</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <Button 
+                onClick={checkAllConnections} 
+                variant="outline"
+                aria-label="Check all Supabase connections"
+              >
+                Refresh Connection Status
+              </Button>
+              
+              <ScrollArea className="h-[400px]" aria-label="connection-status-scroll-area">
+                <div className="space-y-3">
+                  {connectionStatuses.map((connection, index) => (
+                    <div key={index} className="border rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-semibold">{connection.name}</h4>
+                        <Badge 
+                          variant={
+                            connection.status === 'connected' ? 'default' : 
+                            connection.status === 'error' ? 'destructive' : 
+                            'secondary'
+                          }
+                        >
+                          {connection.status}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">{connection.description}</p>
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        <p>Endpoint: {connection.endpoint}</p>
+                        <p>Last Checked: {connection.lastChecked ? new Date(connection.lastChecked).toLocaleString() : 'Never'}</p>
+                        {connection.error && (
+                          <p className="text-red-500">Error: {connection.error}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
             </div>
           </CardContent>
         </Card>
