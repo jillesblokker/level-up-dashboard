@@ -300,6 +300,7 @@ export default function RealmPage() {
 
     // --- Penguin respawn and disappearance logic ---
     useEffect(() => {
+      if (!Array.isArray(grid)) return;
       const hasIce = grid.some(row => row && row.some(tile => tile?.type === 'ice'));
       if (!hasIce && isPenguinPresent) {
         setIsPenguinPresent(false);
@@ -459,10 +460,15 @@ export default function RealmPage() {
 
                 // Load tile inventory
                 const inventoryData = await loadTileInventory(userId);
+                console.log('[Realm] Inventory data received:', inventoryData);
                 if (inventoryData && Object.keys(inventoryData).length > 0) {
                     // Merge with initial inventory
                     const mergedInventory = { ...initialInventory };
                     Object.entries(inventoryData).forEach(([tileId, item]: [string, any]) => {
+                        if (!item || typeof item !== 'object') {
+                            console.warn('[Realm] Invalid inventory item:', item);
+                            return;
+                        }
                         const tileType = item.type as TileType;
                         if (mergedInventory[tileType]) {
                             mergedInventory[tileType] = {
