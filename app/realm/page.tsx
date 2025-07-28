@@ -416,10 +416,15 @@ export default function RealmPage() {
             try {
                 // Load grid data
                 console.log('[Realm] Calling loadGridData...');
-                const gridData = await loadGridData(userId);
-                if (gridData) {
-                    setGrid(gridData);
+                const gridResult = await loadGridData(userId);
+                console.log('[Data Loaders] loadGridData called for userId:', userId);
+                console.log('[Data Loaders] Making API call to: /api/data?type=grid&userId=' + userId);
+                
+                if (gridResult && gridResult.data) {
+                    console.log('[Data Loaders] API response status: 200');
+                    setGrid(gridResult.data);
                 } else {
+                    console.log('[Data Loaders] API response status: 404 - using fallback');
                     // Fallback to API or create base grid
                     try {
                         const res = await fetch('/api/realm-tiles');
@@ -461,12 +466,12 @@ export default function RealmPage() {
                 }
 
                 // Load tile inventory
-                const inventoryData = await loadTileInventory(userId);
-                console.log('[Realm] Inventory data received:', inventoryData);
-                if (inventoryData && Object.keys(inventoryData).length > 0) {
+                const inventoryResult = await loadTileInventory(userId);
+                console.log('[Realm] Inventory data received:', inventoryResult);
+                if (inventoryResult && inventoryResult.data && Object.keys(inventoryResult.data).length > 0) {
                     // Merge with initial inventory
                     const mergedInventory = { ...initialInventory };
-                    Object.entries(inventoryData).forEach(([tileId, item]: [string, any]) => {
+                    Object.entries(inventoryResult.data).forEach(([tileId, item]: [string, any]) => {
                         if (!item || typeof item !== 'object') {
                             console.warn('[Realm] Invalid inventory item:', item);
                             return;
