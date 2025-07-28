@@ -23,7 +23,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { gainGold } from '@/lib/gold-manager'
 import { gainExperience } from '@/lib/experience-manager'
 import { useCreatureStore } from '@/stores/creatureStore'
-import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
+
 import dynamic from 'next/dynamic';
 import { getCharacterStats } from '@/lib/character-stats-manager';
 import { checkMonsterSpawn, spawnMonsterOnTile, getMonsterAchievementId, MonsterType } from '@/lib/monster-spawn-manager';
@@ -502,22 +502,26 @@ export default function RealmPage() {
         loadUserData();
     }, [isAuthLoaded, isGuest, userId]);
 
-    // --- Supabase real-time sync for realm_grids ---
-    useSupabaseRealtimeSync({
-        table: 'realm_grids',
-        userId,
-        onChange: () => {
-            if (isAuthLoaded && !isGuest && userId) {
-                // Re-fetch the grid from the API
-                fetch('/api/realm').then(async (response) => {
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data && data.grid && typeof data.grid === 'string') setGrid(JSON.parse(data.grid));
+    // --- Polling for grid changes instead of real-time sync ---
+    useEffect(() => {
+        if (!isAuthLoaded || isGuest || !userId) return;
+        
+        const pollInterval = setInterval(async () => {
+            try {
+                const response = await fetch('/api/data?type=grid&userId=' + userId);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.grid && Array.isArray(data.grid)) {
+                        setGrid(data.grid);
                     }
-                });
+                }
+            } catch (error) {
+                console.error('Error polling for grid changes:', error);
             }
-        }
-    });
+        }, 5000); // Poll every 5 seconds
+        
+        return () => clearInterval(pollInterval);
+    }, [isAuthLoaded, isGuest, userId]);
 
     // Auto-save grid to Supabase with localStorage fallback
     useEffect(() => {

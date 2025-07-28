@@ -16,7 +16,7 @@ import { toast } from '@/components/ui/use-toast'
 import CardWithProgress from '@/components/quest-card'
 import React from 'react'
 import { SignedIn, SignedOut, SignIn } from '@clerk/nextjs'
-import { useSupabase } from '@/lib/hooks/useSupabase'
+
 import { gainGold } from '@/lib/gold-manager';
 import { useRef } from 'react';
 import { StreakRecovery } from '@/components/streak-recovery';
@@ -140,7 +140,7 @@ function getStreakBonus(streak: number) {
 }
 
 export default function QuestsPage() {
-  const { supabase } = useSupabase();
+
   // All hooks must be at the top
   const { user, isLoaded: isUserLoaded } = useUser();
   const { getToken, isLoaded: isClerkLoaded } = useAuth();
@@ -412,52 +412,28 @@ export default function QuestsPage() {
     return () => { cancelled = true; };
   }, [token, userId, challengeCategory]);
 
-  // Real-time subscription for streaks
+  // Polling for streak changes instead of real-time sync
   useEffect(() => {
-    if (!supabase || !userId || !questCategory) return;
-    if (streakSubscriptionRef.current) {
-      supabase.removeChannel(streakSubscriptionRef.current);
-      streakSubscriptionRef.current = null;
-    }
-    const channel = supabase.channel('streaks-realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'streaks',
-          filter: `user_id=eq.${userId},category=eq.${questCategory}`,
-        },
-        (payload) => {
-          // Refetch streak on any change via API route
-          if (token) {
-            fetch(`/api/streaks-direct?category=${encodeURIComponent(questCategory)}`, {
-              headers: { Authorization: `Bearer ${token}` },
-            })
-            .then(res => {
-              if (!res.ok) {
-                console.error('[Streaks RT] Failed to refetch streak:', res.status, res.statusText);
-                return { streak_days: 0, week_streaks: 0 };
-              }
-              return res.json();
-            })
-            .then(data => setStreakData(data))
-            .catch(error => {
-              console.error('[Streaks RT] Error refetching streak:', error);
-              setStreakData({ streak_days: 0, week_streaks: 0 });
-            });
+    if (!userId || !questCategory) return;
+    
+    const pollInterval = setInterval(async () => {
+      if (token) {
+        try {
+          const res = await fetch(`/api/streaks-direct?category=${encodeURIComponent(questCategory)}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setStreakData(data);
           }
+        } catch (error) {
+          console.error('[Streaks Poll] Error polling streak:', error);
         }
-      )
-      .subscribe();
-    streakSubscriptionRef.current = channel;
-    return () => {
-      if (streakSubscriptionRef.current) {
-        supabase.removeChannel(streakSubscriptionRef.current);
-        streakSubscriptionRef.current = null;
       }
-    };
-  }, [supabase, userId, questCategory]);
+    }, 5000); // Poll every 5 seconds
+    
+    return () => clearInterval(pollInterval);
+  }, [userId, questCategory, token]);
 
   // Mark quest as complete (sync with backend)
   const handleQuestToggle = async (questId: string, currentCompleted: boolean) => {
@@ -1048,52 +1024,28 @@ export default function QuestsPage() {
   const challengeStreakSubscriptionRef = useRef<any>(null);
   // const { supabase } = useSupabase(); // This line is moved to the top
 
-  // Real-time subscription for streaks
+  // Polling for streak changes (legacy) instead of real-time sync
   useEffect(() => {
-    if (!supabase || !userId || !questCategory) return;
-    if (streakSubscriptionRef.current) {
-      supabase.removeChannel(streakSubscriptionRef.current);
-      streakSubscriptionRef.current = null;
-    }
-    const channel = supabase.channel('streaks-realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'streaks',
-          filter: `user_id=eq.${userId},category=eq.${questCategory}`,
-        },
-        (payload) => {
-          // Refetch streak on any change via API route
-          if (token) {
-            fetch(`/api/streaks-direct?category=${encodeURIComponent(questCategory)}`, {
-              headers: { Authorization: `Bearer ${token}` },
-            })
-            .then(res => {
-              if (!res.ok) {
-                console.error('[Streaks RT Legacy] Failed to refetch streak:', res.status, res.statusText);
-                return { streak_days: 0, week_streaks: 0 };
-              }
-              return res.json();
-            })
-            .then(data => setStreakData(data))
-            .catch(error => {
-              console.error('[Streaks RT Legacy] Error refetching streak:', error);
-              setStreakData({ streak_days: 0, week_streaks: 0 });
-            });
+    if (!userId || !questCategory) return;
+    
+    const pollInterval = setInterval(async () => {
+      if (token) {
+        try {
+          const res = await fetch(`/api/streaks-direct?category=${encodeURIComponent(questCategory)}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setStreakData(data);
           }
+        } catch (error) {
+          console.error('[Streaks Poll Legacy] Error polling streak:', error);
         }
-      )
-      .subscribe();
-    streakSubscriptionRef.current = channel;
-    return () => {
-      if (streakSubscriptionRef.current) {
-        supabase.removeChannel(streakSubscriptionRef.current);
-        streakSubscriptionRef.current = null;
       }
-    };
-  }, [supabase, userId, questCategory]);
+    }, 5000); // Poll every 5 seconds
+    
+    return () => clearInterval(pollInterval);
+  }, [userId, questCategory, token]);
   // Update streak via API route when all quests completed for today
   const updateStreak = async (newStreak: number, newWeekStreaks: number) => {
     if (!token || !userId || !questCategory) return;
@@ -1127,52 +1079,28 @@ export default function QuestsPage() {
     }
   };
 
-  // Real-time subscription for challenge streaks
+  // Polling for challenge streak changes instead of real-time sync
   useEffect(() => {
-    if (!supabase || !userId || !challengeCategory) return;
-    if (challengeStreakSubscriptionRef.current) {
-      supabase.removeChannel(challengeStreakSubscriptionRef.current);
-      challengeStreakSubscriptionRef.current = null;
-    }
-    const channel = supabase.channel('challenge-streaks-realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'streaks',
-          filter: `user_id=eq.${userId},category=eq.${challengeCategory}`,
-        },
-        (payload) => {
-          // Refetch challenge streak on any change via API route
-          if (token) {
-            fetch(`/api/streaks-direct?category=${encodeURIComponent(challengeCategory)}`, {
-              headers: { Authorization: `Bearer ${token}` },
-            })
-            .then(res => {
-              if (!res.ok) {
-                console.error('[Challenge Streaks RT] Failed to refetch challenge streak:', res.status, res.statusText);
-                return { streak_days: 0, week_streaks: 0 };
-              }
-              return res.json();
-            })
-            .then(data => setChallengeStreakData(data))
-            .catch(error => {
-              console.error('[Challenge Streaks RT] Error refetching challenge streak:', error);
-              setChallengeStreakData({ streak_days: 0, week_streaks: 0 });
-            });
+    if (!userId || !challengeCategory) return;
+    
+    const pollInterval = setInterval(async () => {
+      if (token) {
+        try {
+          const res = await fetch(`/api/streaks-direct?category=${encodeURIComponent(challengeCategory)}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setChallengeStreakData(data);
           }
+        } catch (error) {
+          console.error('[Challenge Streaks Poll] Error polling streak:', error);
         }
-      )
-      .subscribe();
-    challengeStreakSubscriptionRef.current = channel;
-    return () => {
-      if (challengeStreakSubscriptionRef.current) {
-        supabase.removeChannel(challengeStreakSubscriptionRef.current);
-        challengeStreakSubscriptionRef.current = null;
       }
-    };
-  }, [supabase, userId, challengeCategory]);
+    }, 5000); // Poll every 5 seconds
+    
+    return () => clearInterval(pollInterval);
+  }, [userId, challengeCategory, token]);
   // Update challenge streak via API route when all challenges completed for today
   const updateChallengeStreak = async (newStreak: number, newWeekStreaks: number) => {
     if (!token || !userId || !challengeCategory) return;
