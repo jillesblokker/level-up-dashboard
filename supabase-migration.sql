@@ -24,13 +24,13 @@ CREATE INDEX IF NOT EXISTS idx_character_stats_user_id ON character_stats(user_i
 ALTER TABLE character_stats ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can view their own stats" ON character_stats
-    FOR SELECT USING (auth.uid() = user_id);
+    FOR SELECT USING (auth.uid()::uuid = user_id);
 
 CREATE POLICY "Users can insert their own stats" ON character_stats
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
+    FOR INSERT WITH CHECK (auth.uid()::uuid = user_id);
 
 CREATE POLICY "Users can update their own stats" ON character_stats
-    FOR UPDATE USING (auth.uid() = user_id);
+    FOR UPDATE USING (auth.uid()::uuid = user_id);
 
 -- 2. Active Perks Table
 CREATE TABLE IF NOT EXISTS active_perks (
@@ -51,16 +51,16 @@ CREATE INDEX IF NOT EXISTS idx_active_perks_expires_at ON active_perks(expires_a
 ALTER TABLE active_perks ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can view their own perks" ON active_perks
-    FOR SELECT USING (auth.uid() = user_id);
+    FOR SELECT USING (auth.uid()::uuid = user_id);
 
 CREATE POLICY "Users can insert their own perks" ON active_perks
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
+    FOR INSERT WITH CHECK (auth.uid()::uuid = user_id);
 
 CREATE POLICY "Users can update their own perks" ON active_perks
-    FOR UPDATE USING (auth.uid() = user_id);
+    FOR UPDATE USING (auth.uid()::uuid = user_id);
 
 CREATE POLICY "Users can delete their own perks" ON active_perks
-    FOR DELETE USING (auth.uid() = user_id);
+    FOR DELETE USING (auth.uid()::uuid = user_id);
 
 -- 3. Game Settings Table
 CREATE TABLE IF NOT EXISTS game_settings (
@@ -81,16 +81,16 @@ CREATE INDEX IF NOT EXISTS idx_game_settings_key ON game_settings(setting_key);
 ALTER TABLE game_settings ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can view their own settings" ON game_settings
-    FOR SELECT USING (auth.uid() = user_id);
+    FOR SELECT USING (auth.uid()::uuid = user_id);
 
 CREATE POLICY "Users can insert their own settings" ON game_settings
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
+    FOR INSERT WITH CHECK (auth.uid()::uuid = user_id);
 
 CREATE POLICY "Users can update their own settings" ON game_settings
-    FOR UPDATE USING (auth.uid() = user_id);
+    FOR UPDATE USING (auth.uid()::uuid = user_id);
 
 CREATE POLICY "Users can delete their own settings" ON game_settings
-    FOR DELETE USING (auth.uid() = user_id);
+    FOR DELETE USING (auth.uid()::uuid = user_id);
 
 -- 4. Function to clean up expired perks (optional)
 CREATE OR REPLACE FUNCTION cleanup_expired_perks()
