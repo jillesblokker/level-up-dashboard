@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
           kingdom_expansions: kingdom_expansions || 0,
           updated_at: new Date().toISOString()
         }, {
-          onConflict: 'user_id'
+          onConflict: 'character_stats_user_id_key'
         })
         .select()
         .single();

@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
           effect,
           expires_at
         }, {
-          onConflict: 'user_id,perk_name'
+          onConflict: 'active_perks_user_id_perk_name_key'
         })
         .select()
         .single();

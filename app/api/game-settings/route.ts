@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
           setting_value,
           updated_at: new Date().toISOString()
         }, {
-          onConflict: 'user_id,setting_key'
+          onConflict: 'game_settings_user_id_setting_key_key'
         })
         .select()
         .single();
