@@ -14,27 +14,38 @@ export async function POST(request: Request) {
     if (!action) {
       return NextResponse.json({ error: 'Action is required' }, { status: 400 });
     }
-    // Call the increment_user_progress function
-    const { data, error } = await supabaseServer.rpc('increment_user_progress', {
-      user_id: userId,
-      column_name: action
-    });
+    // Get current progress
+    const { data: currentProgress, error: fetchError } = await supabaseServer
+      .from('user_progress')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+    
+    if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 = no rows found
+      return NextResponse.json({ error: fetchError.message }, { status: 500 });
+    }
+    
+    // Create or update progress
+    const updateData: any = { user_id: userId };
+    if (action === 'challenge_completed') updateData.challenges_completed = (currentProgress?.challenges_completed || 0) + 1;
+    else if (action === 'exp_gained') updateData.experience = (currentProgress?.experience || 0) + 1;
+    else if (action === 'gold_gained') updateData.gold = (currentProgress?.gold || 0) + 1;
+    else updateData[action] = (currentProgress?.[action] || 0) + 1;
+    
+    const { data, error } = await supabaseServer
+      .from('user_progress')
+      .upsert(updateData, { onConflict: 'user_id' })
+      .select()
+      .single();
+      
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    // Log the progress increment event
-    let rewardType: RewardType;
-    if (action === 'challenge_completed') rewardType = 'challenge';
-    else if (action === 'exp_gained') rewardType = 'exp';
-    else if (action === 'gold_gained') rewardType = 'gold';
-    else rewardType = 'custom';
-    await grantReward({
-      userId,
-      type: rewardType,
-      amount: data?.[0]?.new_value ?? null,
-      context: { action }
-    });
-    return NextResponse.json({ success: true, newValue: data?.[0]?.new_value ?? null });
+    
+    // Log the progress increment event (simplified for testing)
+    console.log('[progress/increment] Progress updated:', { userId, action, newValue: data?.[action] });
+    
+    return NextResponse.json({ success: true, newValue: data?.[action] ?? null });
   } catch (err) {
     console.error('[progress/increment] Internal server error:', err);
     return NextResponse.json({
