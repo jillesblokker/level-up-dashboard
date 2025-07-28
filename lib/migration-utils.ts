@@ -7,6 +7,20 @@ export interface MigrationData {
   userPreferences?: Record<string, any>;
   imageDescriptions?: Record<string, string>;
   gameSettings?: Record<string, any>;
+  characterStats?: {
+    gold: number;
+    experience: number;
+    level: number;
+    health: number;
+    max_health: number;
+    build_tokens: number;
+    kingdom_expansions: number;
+  };
+  activePerks?: Array<{
+    perk_name: string;
+    effect: string;
+    expires_at: string;
+  }>;
 }
 
 export interface MigrationResult {
@@ -78,10 +92,8 @@ export function collectLocalStorageData(): MigrationData {
       'horsePos',
       'sheepPos',
       'horseCaught',
-      'character-stats',
-      'gold-storage',
-      'creature-store',
-      'achievement-store'
+      'headerImages',
+      'kingdom-grid-expansions'
     ];
 
     settingKeys.forEach(key => {
@@ -97,6 +109,40 @@ export function collectLocalStorageData(): MigrationData {
 
     if (Object.keys(gameSettings).length > 0) {
       data.gameSettings = gameSettings;
+    }
+
+    // Character stats
+    const characterStats = localStorage.getItem('character-stats');
+    if (characterStats) {
+      try {
+        const stats = JSON.parse(characterStats);
+        data.characterStats = {
+          gold: stats.gold || 0,
+          experience: stats.experience || 0,
+          level: stats.level || 1,
+          health: stats.health || 100,
+          max_health: stats.max_health || 100,
+          build_tokens: stats.buildTokens || 0,
+          kingdom_expansions: parseInt(localStorage.getItem('kingdom-grid-expansions') || '0', 10)
+        };
+      } catch (e) {
+        console.warn('Failed to parse character stats:', e);
+      }
+    }
+
+    // Active perks
+    const activePerks = localStorage.getItem('active-potion-perks');
+    if (activePerks) {
+      try {
+        const perks = JSON.parse(activePerks);
+        data.activePerks = Object.entries(perks).map(([name, perk]: [string, any]) => ({
+          perk_name: name,
+          effect: perk.effect,
+          expires_at: perk.expiresAt
+        }));
+      } catch (e) {
+        console.warn('Failed to parse active perks:', e);
+      }
     }
 
   } catch (error) {
@@ -128,7 +174,71 @@ export async function migrateLocalStorageToSupabase(userId: string): Promise<Mig
       return result;
     }
 
-    // Call the migration function
+    // Migrate character stats
+    if (migrationData.characterStats) {
+      try {
+        const response = await fetch('/api/character-stats', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(migrationData.characterStats)
+        });
+        
+        if (response.ok) {
+          result.migrated.push('character-stats');
+        } else {
+          result.errors.push('character-stats-migration-failed');
+        }
+      } catch (error) {
+        result.errors.push('character-stats-migration-error');
+      }
+    }
+
+    // Migrate active perks
+    if (migrationData.activePerks && migrationData.activePerks.length > 0) {
+      try {
+        for (const perk of migrationData.activePerks) {
+          const response = await fetch('/api/active-perks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(perk)
+          });
+          
+          if (!response.ok) {
+            result.errors.push('active-perks-migration-failed');
+            break;
+          }
+        }
+        result.migrated.push('active-perks');
+      } catch (error) {
+        result.errors.push('active-perks-migration-error');
+      }
+    }
+
+    // Migrate game settings
+    if (migrationData.gameSettings) {
+      try {
+        for (const [key, value] of Object.entries(migrationData.gameSettings)) {
+          const response = await fetch('/api/game-settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              setting_key: key,
+              setting_value: value
+            })
+          });
+          
+          if (!response.ok) {
+            result.errors.push('game-settings-migration-failed');
+            break;
+          }
+        }
+        result.migrated.push('game-settings');
+      } catch (error) {
+        result.errors.push('game-settings-migration-error');
+      }
+    }
+
+    // Call the existing migration function for other data
     const { data, error } = await supabase.rpc('migrate_user_local_storage_data', {
       p_user_id: userId,
       p_grid_data: migrationData.gridData,
@@ -140,12 +250,8 @@ export async function migrateLocalStorageToSupabase(userId: string): Promise<Mig
     });
 
     if (error) {
-      result.errors.push(`Migration failed: ${error.message}`);
-      return result;
-    }
-
-    // Track what was migrated
-    if (data) {
+      result.errors.push(`Legacy migration failed: ${error.message}`);
+    } else if (data) {
       Object.keys(data).forEach(key => {
         if (data[key] === true) {
           result.migrated.push(key);
@@ -153,8 +259,7 @@ export async function migrateLocalStorageToSupabase(userId: string): Promise<Mig
       });
     }
 
-    result.success = true;
-    result.data = data;
+    result.success = result.errors.length === 0;
 
     // Clear migrated data from localStorage (optional)
     if (result.success && result.migrated.length > 0) {
@@ -187,7 +292,10 @@ export function clearMigratedLocalStorageData(): void {
       'character-stats',
       'gold-storage',
       'creature-store',
-      'achievement-store'
+      'achievement-store',
+      'active-potion-perks',
+      'kingdom-grid-expansions',
+      'headerImages'
     ];
 
     keysToRemove.forEach(key => {
