@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button"
 import { getAggregatedKingdomData } from "@/lib/kingdom-events"
 import Image from 'next/image'
 import Link from 'next/link'
-import { useSupabaseRealtimeSync } from "@/hooks/useSupabaseRealtimeSync"
+
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useAuth } from '@clerk/nextjs'
 

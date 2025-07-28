@@ -9,7 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { ArrowLeft, Sword, Shield, Beaker, Gem, Scroll, Crown } from "lucide-react";
 import Link from "next/link";
 import { InventoryItem, getInventory } from "@/lib/inventory-manager";
-import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync';
+
 
 const ITEM_TYPES = [
   { value: "weapon", label: "Weapon", icon: <Sword className="h-4 w-4" /> },
@@ -60,18 +60,18 @@ export default function InventoryPage() {
     };
   }, [user?.id]);
 
-  // --- Supabase real-time sync for inventory_items ---
-  useSupabaseRealtimeSync({
-    table: 'inventory_items',
-    userId: user?.id,
-    onChange: async () => {
+  // Polling for inventory changes instead of real-time sync
+  useEffect(() => {
+    if (!user?.id) return;
+    
+    const pollInterval = setInterval(async () => {
       // Re-fetch inventory items and update state
-      if (user?.id) {
-        const inventoryItems = await getInventory(user.id);
-        setItems(inventoryItems || []);
-      }
-    }
-  });
+      const inventoryItems = await getInventory(user.id);
+      setItems(inventoryItems || []);
+    }, 5000); // Poll every 5 seconds
+    
+    return () => clearInterval(pollInterval);
+  }, [user?.id]);
 
   const filteredItems = activeTab === "all" 
     ? items 

@@ -14,7 +14,7 @@ import { calculateLevelProgress, CharacterStats, calculateLevelFromExperience } 
 import { storageService } from '@/lib/storage-service'
 import { getTitleProgress, TITLES } from '@/lib/title-manager'
 import { getStrengths, calculateStrengthProgress, Strength } from '@/lib/strength-manager'
-import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
+
 import { HeaderSection } from '@/components/HeaderSection'
 
 // Character progression types
@@ -354,57 +354,22 @@ export default function CharacterPage() {
     }
   }, [])
 
-  // --- Supabase real-time sync for character_stats ---
-  useSupabaseRealtimeSync({
-    table: 'character_stats',
-    userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
-    onChange: () => {
-      // Reload character stats
+  // Polling for character data changes instead of real-time sync
+  useEffect(() => {
+    const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined;
+    if (!userId) return;
+    
+    const pollInterval = setInterval(() => {
+      // Reload character data
       if (typeof window !== 'undefined') {
         // You may want to call your actual fetch logic here
         // For now, reload the page or trigger a state update
         window.location.reload();
       }
-    }
-  });
-
-  // --- Supabase real-time sync for character_perks ---
-  useSupabaseRealtimeSync({
-    table: 'character_perks',
-    userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
-    onChange: () => {
-      // Reload perks
-      if (typeof window !== 'undefined') {
-        // You may want to call your actual fetch logic here
-        window.location.reload();
-      }
-    }
-  });
-
-  // --- Supabase real-time sync for character_titles ---
-  useSupabaseRealtimeSync({
-    table: 'character_titles',
-    userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
-    onChange: () => {
-      // Reload titles
-      if (typeof window !== 'undefined') {
-        // You may want to call your actual fetch logic here
-        window.location.reload();
-      }
-    }
-  });
-
-  // --- Supabase real-time sync for character_strengths ---
-  useSupabaseRealtimeSync({
-    table: 'character_strengths',
-    userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
-    onChange: () => {
-      // Reload strengths
-      if (typeof window !== 'undefined') {
-        window.location.reload();
-      }
-    }
-  });
+    }, 5000); // Poll every 5 seconds
+    
+    return () => clearInterval(pollInterval);
+  }, []);
 
   // Helper function to check if perk can be activated (weekly cooldown)
   const canActivatePerk = (perk: Perk): boolean => {

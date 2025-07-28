@@ -19,7 +19,7 @@ import { storageService } from '@/lib/storage-service'
 import { Quest } from '@/lib/quest-types'
 import { updateCharacterStats, getCharacterStats } from '@/lib/character-stats-manager'
 import CardWithProgress from './quest-card'
-import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
+
 
 interface Milestone {
   id: string;
@@ -467,17 +467,20 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
     }
   };
 
-  useSupabaseRealtimeSync({
-    table: 'milestones',
-    userId,
-    onChange: () => {
+  // Polling for milestone changes instead of real-time sync
+  useEffect(() => {
+    if (!userId) return;
+    
+    const pollInterval = setInterval(() => {
       // Re-fetch milestones
       if (typeof window !== 'undefined') {
         // Call fetchMilestones if available
         window.location.reload(); // Or call fetchMilestones() if you want to avoid reload
       }
-    }
-  });
+    }, 5000); // Poll every 5 seconds
+    
+    return () => clearInterval(pollInterval);
+  }, [userId]);
 
   // Filter milestones by category if provided
   const filteredMilestones = category ? milestones.filter(m => m.category?.toLowerCase() === category.toLowerCase()) : milestones;

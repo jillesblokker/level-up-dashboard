@@ -14,7 +14,7 @@ import { NavBar } from "@/components/nav-bar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "@/components/ui/use-toast"
 import { CharacterStats } from "@/types/character"
-import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
+
 
 export default function SettingsPage() {
   // const { data: session } = useSession()
@@ -66,16 +66,20 @@ export default function SettingsPage() {
     }
   }, [])
 
-  useSupabaseRealtimeSync({
-    table: 'game_settings',
-    userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
-    onChange: () => {
+  // Polling for settings changes instead of real-time sync
+  useEffect(() => {
+    const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined;
+    if (!userId) return;
+    
+    const pollInterval = setInterval(() => {
       // Reload settings
       if (typeof window !== 'undefined') {
         window.location.reload();
       }
-    }
-  });
+    }, 5000); // Poll every 5 seconds
+    
+    return () => clearInterval(pollInterval);
+  }, []);
 
   const handleSaveProfile = () => {
     try {

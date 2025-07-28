@@ -9,9 +9,9 @@ import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { useGoldStore } from "@/stores/goldStore"
 import { TileType, InventoryItem } from "@/types/tiles"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
+
 
 interface TileInventoryProps {
   tiles: InventoryItem[]
@@ -27,10 +27,12 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
   const { gold, updateGold } = useGoldStore()
   const [buyQuantities, setBuyQuantities] = useState<{ [key: string]: number }>({})
 
-  useSupabaseRealtimeSync({
-    table: 'tile_inventory',
-    userId: typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined,
-    onChange: () => {
+  // Polling for tile inventory changes instead of real-time sync
+  useEffect(() => {
+    const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined;
+    if (!userId) return;
+    
+    const pollInterval = setInterval(() => {
       // Re-fetch tile inventory and update state
       // (Replace with your actual fetch logic if needed)
       if (typeof window !== 'undefined') {
@@ -38,8 +40,10 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         // For now, just call onUpdateTiles with the current tiles
         onUpdateTiles(tiles);
       }
-    }
-  });
+    }, 5000); // Poll every 5 seconds
+    
+    return () => clearInterval(pollInterval);
+  }, [tiles, onUpdateTiles]);
 
   const handleBuyTile = (tile: InventoryItem, e: React.MouseEvent) => {
     e.stopPropagation()

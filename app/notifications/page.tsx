@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { NavBar } from "@/components/nav-bar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "@/components/ui/use-toast"
-import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
+
 
 interface Notification {
   id: string
