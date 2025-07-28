@@ -13,17 +13,17 @@ function getEnvOrThrow(key: string): string {
 
 export const env = {
   // Clerk environment variables
-  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: getEnvOrThrow('pk_live_Y2xlcmsuamlsbGVzYmxva2tlci5jb20k'),
-  CLERK_SECRET_KEY: getEnvOrThrow('sk_live_Aft7Tz70m8UnYA1sP4ZYDiPWDGRFN598v58tkhnieO'),
-  CLERK_WEBHOOK_SECRET: getEnvOrThrow('whsec_2rC0ctHxt7Y9v4PBC2i23wjeAr+GLdpX'),
+  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: 'pk_live_Y2xlcmsuamlsbGVzYmxva2tlci5jb20k',
+  CLERK_SECRET_KEY: 'sk_live_Aft7Tz70m8UnYA1sP4ZYDiPWDGRFN598v58tkhnieO',
+  CLERK_WEBHOOK_SECRET: 'whsec_2rC0ctHxt7Y9v4PBC2i23wjeAr+GLdpX',
   
   // Database environment variables
-  DATABASE_URL: getEnvOrThrow('postgres://postgres.uunfpqrauivviygysjzj:Kingdom3000!Levelup!@aws-0-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true'),
-  SHADOW_DATABASE_URL: getEnvOrThrow('postgres://postgres.uunfpqrauivviygysjzj:Kingdom3000!Levelup!@aws-0-us-east-1.pooler.supabase.com:5432/postgres'),
+  DATABASE_URL: 'postgres://postgres.uunfpqrauivviygysjzj:Kingdom3000!Levelup!@aws-0-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true',
+  SHADOW_DATABASE_URL: 'postgres://postgres.uunfpqrauivviygysjzj:Kingdom3000!Levelup!@aws-0-us-east-1.pooler.supabase.com:5432/postgres',
   
   // Node environment
   NODE_ENV: process.env.NODE_ENV || 'development',
   
   // Clerk Frontend API
-  NEXT_PUBLIC_CLERK_FRONTEND_API: getEnvOrThrow('NEXT_PUBLIC_CLERK_FRONTEND_API'),
+  NEXT_PUBLIC_CLERK_FRONTEND_API: 'https://clerk.jillesblokker.com',
 } as const;
