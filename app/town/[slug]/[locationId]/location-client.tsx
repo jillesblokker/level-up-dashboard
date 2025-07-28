@@ -7,8 +7,7 @@ import { ArrowLeft, Building, ShoppingBag, Swords, BookOpen, Home, Footprints } 
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
-import { addToInventory, getInventory, addToKingdomInventory, InventoryItem } from "@/lib/inventory-manager"
-import { getCharacterStats, updateCharacterStats } from "@/lib/character-data-manager"
+import { getCharacterStats } from "@/lib/character-stats-manager"
 import { HeaderSection } from "@/components/HeaderSection"
 import Image from "next/image"
 
@@ -19,6 +18,23 @@ interface LocationItem {
   price: number
   type: string
   emoji: string
+}
+
+interface InventoryItem {
+  name: string
+  quantity: number
+  type: 'resource' | 'item' | 'creature' | 'scroll' | 'equipment' | 'artifact' | 'book'
+  id: string
+  category?: string
+  description?: string
+  emoji?: string
+  image?: string
+  stats?: {
+    movement?: number
+    attack?: number
+    defense?: number
+  }
+  equipped?: boolean
 }
 
 interface Props {
@@ -76,10 +92,20 @@ export default function LocationClient({ slug, locationId }: Props) {
     const loadStats = async () => {
       try {
         if (user?.id) {
-          const stats = await getCharacterStats(user.id)
+          const stats = getCharacterStats()
           setGold(stats?.gold || 0)
-          const inventoryItems = await getInventory(user.id)
-          setInventory(inventoryItems || [])
+          
+          try {
+            const response = await fetch('/api/inventory', {
+              credentials: 'include'
+            });
+            if (response.ok) {
+              const inventoryItems = await response.json();
+              setInventory(inventoryItems || []);
+            }
+          } catch (error) {
+            console.error('Failed to load inventory:', error);
+          }
         }
       } catch (error) {
         console.error("Failed to load character stats:", error)
@@ -114,7 +140,7 @@ export default function LocationClient({ slug, locationId }: Props) {
       ? "/images/locations/royal-stables.png"
       : `/images/locations/${location.name.toLowerCase().replace(/\s+/g, '-').replace(/'/g, '')}.png`;
 
-  const handlePurchase = (item: LocationItem) => {
+  const handlePurchase = async (item: LocationItem) => {
     if (gold < item.price) {
       toast({
         title: "Insufficient Gold",
@@ -127,25 +153,45 @@ export default function LocationClient({ slug, locationId }: Props) {
     // Update gold
     const newGold = gold - item.price
     if (user?.id) {
-      updateCharacterStats(user.id, { gold: newGold })
+      try {
+        const response = await fetch('/api/character-stats', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ gold: newGold }),
+          credentials: 'include'
+        });
+        if (!response.ok) {
+          console.error('Failed to update character stats:', response.status);
+        }
+      } catch (error) {
+        console.error('Failed to update character stats:', error);
+      }
     }
     setGold(newGold)
 
     // Add item to inventory
     if (user?.id) {
-      addToInventory(user.id, {
-        ...item,
-        type: item.type as "artifact" | "scroll" | "book" | "creature" | "resource" | "item" | "equipment",
-        quantity: 1,
-        image: `/images/items/${item.type}/${item.id}.png`,
-      })
-      
-      addToKingdomInventory(user.id, {
-        ...item,
-        type: item.type as "artifact" | "scroll" | "book" | "creature" | "resource" | "item" | "equipment",
-        quantity: 1,
-        image: `/images/items/${item.type}/${item.id}.png`,
-      })
+      try {
+        const inventoryItem = {
+          ...item,
+          type: item.type as "artifact" | "scroll" | "book" | "creature" | "resource" | "item" | "equipment",
+          quantity: 1,
+          image: `/images/items/${item.type}/${item.id}.png`,
+        };
+
+        const response = await fetch('/api/inventory', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ item: inventoryItem }),
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          console.error('Failed to add item to inventory:', response.status);
+        }
+      } catch (error) {
+        console.error('Failed to add item to inventory:', error);
+      }
     }
 
     // Dispatch update event

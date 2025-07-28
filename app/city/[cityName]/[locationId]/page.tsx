@@ -7,8 +7,7 @@ import { useUser } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
-import { addToInventory, getInventory, addToKingdomInventory } from "@/lib/inventory-manager"
-import { getCharacterStats, updateCharacterStats } from "@/lib/character-data-manager"
+import { getCharacterStats } from "@/lib/character-stats-manager"
 import { HeaderSection } from "@/components/HeaderSection"
 import Image from "next/image"
 
@@ -297,13 +296,22 @@ export default function CityLocationPage() {
     const loadStats = async () => {
       try {
         if (user?.id) {
-          const stats = await getCharacterStats(user.id)
+          const stats = getCharacterStats()
           setGold(stats?.gold || 0)
         }
 
         // Load inventory but don't store in state since it's not used
         if (user?.id) {
-          getInventory(user.id)
+          try {
+            const response = await fetch('/api/inventory', {
+              credentials: 'include'
+            });
+            if (!response.ok) {
+              console.error('Failed to load inventory:', response.status);
+            }
+          } catch (error) {
+            console.error('Failed to load inventory:', error);
+          }
         }
       } catch (error) {
         console.error("Failed to load character stats:", error)
@@ -328,7 +336,7 @@ export default function CityLocationPage() {
     return null
   }
 
-  const handlePurchase = (item: LocationItem) => {
+  const handlePurchase = async (item: LocationItem) => {
     if (gold < item.price) {
       toast({
         title: "Insufficient Gold",
@@ -341,48 +349,48 @@ export default function CityLocationPage() {
     // Update gold
     const newGold = gold - item.price
     if (user?.id) {
-      updateCharacterStats(user.id, { gold: newGold })
+      try {
+        const response = await fetch('/api/character-stats', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ gold: newGold }),
+          credentials: 'include'
+        });
+        if (!response.ok) {
+          console.error('Failed to update character stats:', response.status);
+        }
+      } catch (error) {
+        console.error('Failed to update character stats:', error);
+      }
     }
     setGold(newGold)
 
     // Add item to inventory
     if (user?.id) {
-      addToInventory(user.id, {
-        ...item,
-        quantity: 1,
-        image: item.image ? item.image : getItemImagePath(item) as string,
-        stats: item.stats || {
-          ...(item.movement !== undefined ? { movement: item.movement } : {}),
-          ...(item.attack !== undefined ? { attack: item.attack } : {}),
-          ...(item.defense !== undefined ? { defense: item.defense } : {}),
-        },
-      })
-      // If the item is a horse/creature, ensure unique id and type
-      if (params.locationId === 'royal-stables' && item.type === 'creature') {
-        const { image, ...rest } = item;
-        addToKingdomInventory(user.id, {
-          ...rest,
-          id: `horse-${item.id}-${Date.now()}`,
-          type: 'creature',
-          quantity: 1,
-          image: item.image ? item.image : getItemImagePath(item),
-          stats: item.stats || {
-            ...(item.movement !== undefined ? { movement: item.movement } : {}),
-            ...(item.attack !== undefined ? { attack: item.attack } : {}),
-            ...(item.defense !== undefined ? { defense: item.defense } : {}),
-          },
-        })
-      } else {
-        addToKingdomInventory(user.id, {
+      try {
+        const inventoryItem = {
           ...item,
           quantity: 1,
-          image: item.image ? item.image : getItemImagePath(item),
+          image: item.image ? item.image : getItemImagePath(item) as string,
           stats: item.stats || {
             ...(item.movement !== undefined ? { movement: item.movement } : {}),
             ...(item.attack !== undefined ? { attack: item.attack } : {}),
             ...(item.defense !== undefined ? { defense: item.defense } : {}),
           },
-        })
+        };
+
+        const response = await fetch('/api/inventory', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ item: inventoryItem }),
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          console.error('Failed to add item to inventory:', response.status);
+        }
+      } catch (error) {
+        console.error('Failed to add item to inventory:', error);
       }
     }
 
