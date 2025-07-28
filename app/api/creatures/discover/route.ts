@@ -18,22 +18,24 @@ export async function POST(request: Request) {
       logs.push({ error: 'Creature ID is required' });
       return NextResponse.json({ error: 'Creature ID is required', logs }, { status: 400 });
     }
-    // Insert into DiscoveredCreatures if not already present
+    // Insert into discoveries if not already present
     const { data: existing, error: fetchError } = await supabaseServer
-      .from('DiscoveredCreatures')
+      .from('discoveries')
       .select('*')
       .eq('user_id', userId)
-      .eq('creature_id', creatureId)
+      .eq('discovery_id', creatureId)
       .single();
     logs.push({ step: 'fetch', existing, fetchError });
     if (existing) {
       logs.push({ step: 'already discovered' });
       return NextResponse.json({ success: true, alreadyDiscovered: true, logs });
     }
-    const { error, data: insertData } = await supabaseServer.from('DiscoveredCreatures').insert([
+    const { error, data: insertData } = await supabaseServer.from('discoveries').insert([
       {
         user_id: userId,
-        creature_id: creatureId,
+        discovery_id: creatureId,
+        discovery_name: `Creature ${creatureId}`,
+        description: `Discovered creature ${creatureId}`,
         discovered_at: new Date().toISOString(),
       },
     ]);

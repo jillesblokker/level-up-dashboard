@@ -478,14 +478,17 @@ export default function StoredDataPage() {
 
     // 16. Progress API
     try {
-      const response = await fetch('/api/progress', {
+      const response = await fetch('/api/progress/increment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'test' }),
         credentials: 'include'
       });
       connections.push({
         name: 'Progress',
         description: 'Player progress tracking',
         status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/progress',
+        endpoint: '/api/progress/increment',
         lastChecked: now,
         error: response.ok ? undefined : `HTTP ${response.status}`
       });
@@ -494,7 +497,7 @@ export default function StoredDataPage() {
         name: 'Progress',
         description: 'Player progress tracking',
         status: 'error',
-        endpoint: '/api/progress',
+        endpoint: '/api/progress/increment',
         lastChecked: now,
         error: error instanceof Error ? error.message : 'Unknown error'
       });
@@ -526,14 +529,14 @@ export default function StoredDataPage() {
 
     // 18. Streaks API
     try {
-      const response = await fetch('/api/streaks', {
+      const response = await fetch('/api/streaks?category=test', {
         credentials: 'include'
       });
       connections.push({
         name: 'Streaks',
         description: 'Player streaks and consistency tracking',
         status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/streaks',
+        endpoint: '/api/streaks?category=test',
         lastChecked: now,
         error: response.ok ? undefined : `HTTP ${response.status}`
       });
@@ -542,7 +545,7 @@ export default function StoredDataPage() {
         name: 'Streaks',
         description: 'Player streaks and consistency tracking',
         status: 'error',
-        endpoint: '/api/streaks',
+        endpoint: '/api/streaks?category=test',
         lastChecked: now,
         error: error instanceof Error ? error.message : 'Unknown error'
       });
