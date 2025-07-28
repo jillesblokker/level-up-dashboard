@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { Edit, X, Upload, Sword, Lock, Brain, Crown, Castle as CastleIcon, Hammer, Heart } from "lucide-react"
+import { Edit, X, Upload, Sword, Lock, Brain, Crown, Castle as CastleIcon, Hammer, Heart, AlertCircle, Loader2 } from "lucide-react"
 import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
@@ -57,6 +57,9 @@ const categoryMeta = {
 };
 
 export default function CharacterPage() {
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  
   const [titles, setTitles] = useState<Title[]>([
     {
       id: "t1",
@@ -266,92 +269,99 @@ export default function CharacterPage() {
 
   // Load character stats and perks from localStorage
   useEffect(() => {
-    const loadCharacterStats = () => {
+    const loadAllData = async () => {
       try {
-        const savedStats = localStorage.getItem('character-stats')
-        if (savedStats) {
-          const stats = JSON.parse(savedStats)
-          // Calculate level from experience to ensure consistency with navigation bar
-          const calculatedLevel = calculateLevelFromExperience(stats.experience)
-          setCharacterStats({
-            ...stats,
-            level: calculatedLevel
-          })
-        }
-      } catch (error) {
-        console.error('Error loading character stats:', error)
-        // Set default stats if loading fails
-        setCharacterStats({
-          level: 1,
-          experience: 0,
-          experienceToNextLevel: 100,
-          gold: 1000,
-          titles: {
-            equipped: "Novice Adventurer",
-            unlocked: 1,
-            total: 6
-          },
-          perks: {
-            active: 0,
-            total: 6
-          }
-        })
-      }
-    }
-
-    const loadPerks = () => {
-      try {
-        const savedPerks = localStorage.getItem('character-perks')
-        if (savedPerks) {
-          const parsedPerks = JSON.parse(savedPerks)
-          setPerks(parsedPerks)
-        }
-      } catch (error) {
-        console.error('Error loading perks:', error)
-      }
-    }
-
-    const loadStrengths = () => {
-      setStrengths(getStrengths())
-    }
-
-    // Load active potion perks
-    const loadActivePotionPerks = () => {
-      try {
-        const perksObj = JSON.parse(localStorage.getItem('active-potion-perks') || '{}')
-        const now = new Date()
-        const perksArr = Object.entries(perksObj)
-          .map(([name, value]) => {
-            if (typeof value === 'object' && value !== null && 'effect' in value && 'expiresAt' in value) {
-              const { effect, expiresAt } = value as { effect: string, expiresAt: string }
-              return { name, effect, expiresAt }
+        setIsLoading(true);
+        setError(null);
+        
+        const loadCharacterStats = () => {
+          try {
+            const savedStats = localStorage.getItem('character-stats')
+            if (savedStats) {
+              const stats = JSON.parse(savedStats)
+              // Calculate level from experience to ensure consistency with navigation bar
+              const calculatedLevel = calculateLevelFromExperience(stats.experience)
+              setCharacterStats({
+                ...stats,
+                level: calculatedLevel
+              })
             }
-            return null
-          })
-          .filter((perk): perk is { name: string, effect: string, expiresAt: string } => !!perk && new Date(perk.expiresAt) > now)
-        setActivePotionPerks(perksArr)
-      } catch (e) {
-        setActivePotionPerks([])
+          } catch (error) {
+            console.error('Error loading character stats:', error)
+            throw new Error('Failed to load character stats');
+          }
+        }
+
+        const loadPerks = () => {
+          try {
+            const savedPerks = localStorage.getItem('character-perks')
+            if (savedPerks) {
+              const parsedPerks = JSON.parse(savedPerks)
+              setPerks(parsedPerks)
+            }
+          } catch (error) {
+            console.error('Error loading perks:', error)
+            throw new Error('Failed to load perks');
+          }
+        }
+
+        const loadStrengths = () => {
+          try {
+            setStrengths(getStrengths())
+          } catch (error) {
+            console.error('Error loading strengths:', error)
+            throw new Error('Failed to load strengths');
+          }
+        }
+
+        // Load active potion perks
+        const loadActivePotionPerks = () => {
+          try {
+            const perksObj = JSON.parse(localStorage.getItem('active-potion-perks') || '{}')
+            const now = new Date()
+            const perksArr = Object.entries(perksObj)
+              .map(([name, value]) => {
+                if (typeof value === 'object' && value !== null && 'effect' in value && 'expiresAt' in value) {
+                  const { effect, expiresAt } = value as { effect: string, expiresAt: string }
+                  return { name, effect, expiresAt }
+                }
+                return null
+              })
+              .filter((perk): perk is { name: string, effect: string, expiresAt: string } => !!perk && new Date(perk.expiresAt) > now)
+            setActivePotionPerks(perksArr)
+          } catch (e) {
+            console.error('Error loading active potion perks:', e)
+            setActivePotionPerks([])
+          }
+        }
+
+        loadCharacterStats()
+        loadPerks()
+        loadStrengths()
+        loadActivePotionPerks()
+
+        // Listen for updates
+        window.addEventListener('character-stats-update', loadCharacterStats)
+        window.addEventListener('character-perks-update', loadPerks)
+        window.addEventListener('character-strengths-update', loadStrengths)
+        window.addEventListener('character-inventory-update', loadActivePotionPerks)
+        
+        return () => {
+          window.removeEventListener('character-stats-update', loadCharacterStats)
+          window.removeEventListener('character-perks-update', loadPerks)
+          window.removeEventListener('character-strengths-update', loadStrengths)
+          window.removeEventListener('character-inventory-update', loadActivePotionPerks)
+        }
+        
+      } catch (error) {
+        console.error('Character page error:', error);
+        setError(error instanceof Error ? error.message : 'An unexpected error occurred');
+      } finally {
+        setIsLoading(false);
       }
-    }
+    };
 
-    loadCharacterStats()
-    loadPerks()
-    loadStrengths()
-    loadActivePotionPerks()
-
-    // Listen for updates
-    window.addEventListener('character-stats-update', loadCharacterStats)
-    window.addEventListener('character-perks-update', loadPerks)
-    window.addEventListener('character-strengths-update', loadStrengths)
-    window.addEventListener('character-inventory-update', loadActivePotionPerks)
-    
-    return () => {
-      window.removeEventListener('character-stats-update', loadCharacterStats)
-      window.removeEventListener('character-perks-update', loadPerks)
-      window.removeEventListener('character-strengths-update', loadStrengths)
-      window.removeEventListener('character-inventory-update', loadActivePotionPerks)
-    }
+    loadAllData();
   }, [])
 
   // Polling for character data changes instead of real-time sync
@@ -615,6 +625,45 @@ export default function CharacterPage() {
         defaultBgColor="bg-amber-900"
         shouldRevealImage={true}
       />
+
+      {/* Error Display */}
+      {error && (
+        <div className="container mx-auto px-4 sm:px-6 py-4">
+          <Card className="border-red-600 bg-red-900/20">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2 text-red-400">
+                <AlertCircle className="h-5 w-5" />
+                <div>
+                  <h3 className="font-semibold">Character Page Error</h3>
+                  <p className="text-sm">{error}</p>
+                  <Button 
+                    onClick={() => window.location.reload()} 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-2"
+                  >
+                    Reload Page
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Loading Display */}
+      {isLoading && !error && (
+        <div className="container mx-auto px-4 sm:px-6 py-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span>Loading character data...</span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="container mx-auto px-4 sm:px-6 py-8">

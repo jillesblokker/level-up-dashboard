@@ -1030,14 +1030,11 @@ export default function RealmPage() {
             const tile = grid[characterPosition.y]?.[characterPosition.x];
             if (!tile || ['mountain', 'water', 'lava', 'volcano'].includes(tile.type)) {
                 setCharacterPosition(defaultCharacterPosition);
-                toast({
-                    title: "Invalid Start Position",
-                    description: `Resetting character to (${defaultCharacterPosition.x}, ${defaultCharacterPosition.y})`,
-                    variant: "destructive",
-                });
+                // Removed toast message - this is expected behavior, not an error
+                console.log(`[Realm] Invalid start position, resetting to (${defaultCharacterPosition.x}, ${defaultCharacterPosition.y})`);
             }
         }
-    }, [isLoading, grid, characterPosition, hasCheckedInitialPosition, setCharacterPosition, toast, defaultCharacterPosition]);
+    }, [isLoading, grid, characterPosition, hasCheckedInitialPosition, setCharacterPosition, defaultCharacterPosition]);
 
     // Focus trap for inventory panel
     useEffect(() => {
