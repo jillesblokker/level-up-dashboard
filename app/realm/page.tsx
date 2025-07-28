@@ -325,19 +325,23 @@ export default function RealmPage() {
           completedMysteryTiles.forEach((tileKey: string) => {
             const parts = tileKey.split('-');
             if (parts.length === 2) {
-              const x = parseInt(parts[0], 10);
-              const y = parseInt(parts[1], 10);
-              
-              if (!isNaN(x) && !isNaN(y) && newGrid[y]?.[x] && newGrid[y][x].type === 'mystery') {
-                // Transform mystery tile to grass tile
-                newGrid[y][x] = { 
-                  ...defaultTile('grass'), 
-                  x, 
-                  y, 
-                  id: `grass-${x}-${y}`,
-                  image: getTileImage('grass')
-                };
-                gridChanged = true;
+              const xStr = parts[0];
+              const yStr = parts[1];
+              if (xStr && yStr) {
+                const x = parseInt(xStr, 10);
+                const y = parseInt(yStr, 10);
+                
+                if (!isNaN(x) && !isNaN(y) && newGrid[y]?.[x] && newGrid[y][x].type === 'mystery') {
+                  // Transform mystery tile to grass tile
+                  newGrid[y][x] = { 
+                    ...defaultTile('grass'), 
+                    x, 
+                    y, 
+                    id: `grass-${x}-${y}`,
+                    image: getTileImage('grass')
+                  };
+                  gridChanged = true;
+                }
               }
             }
           });
