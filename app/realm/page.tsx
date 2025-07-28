@@ -517,12 +517,10 @@ export default function RealmPage() {
         
         const pollInterval = setInterval(async () => {
             try {
-                const response = await fetch('/api/data?type=grid&userId=' + userId);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data && data.grid && Array.isArray(data.grid)) {
-                        setGrid(data.grid);
-                    }
+                // Use the same authenticated approach as loadGridData
+                const gridResult = await loadGridData(userId);
+                if (gridResult && gridResult.data && Array.isArray(gridResult.data)) {
+                    setGrid(gridResult.data);
                 }
             } catch (error) {
                 console.error('Error polling for grid changes:', error);
@@ -530,7 +528,7 @@ export default function RealmPage() {
         }, 5000); // Poll every 5 seconds
         
         return () => clearInterval(pollInterval);
-    }, [isAuthLoaded, isGuest, userId]);
+    }, [isAuthLoaded, isGuest, userId, loadGridData]);
 
     // Auto-save grid to Supabase with localStorage fallback
     useEffect(() => {
