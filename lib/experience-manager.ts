@@ -86,8 +86,8 @@ export function gainExperience(amount: number, source: string, category: string 
     const newLevel = calculateLevelFromExperience(newExperience)
     
     // Update stats using the character stats manager (synchronous for immediate effect)
+    // addToCharacterStatSync already recalculates the level, so we don't need to set it separately
     addToCharacterStatSync('experience', totalAmount);
-    updateCharacterStatSync('level', newLevel);
 
     // Emit kingdom event for tracking weekly progress
     emitExperienceGained(totalAmount, source)
