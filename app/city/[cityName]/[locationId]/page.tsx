@@ -423,6 +423,7 @@ export default function CityLocationPage() {
           title={location.name}
           imageSrc={locationImage}
           canEdit={false}
+          shouldRevealImage={true}
         />
 
         <Card className="mb-6">

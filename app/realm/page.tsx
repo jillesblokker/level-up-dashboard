@@ -23,6 +23,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { gainGold } from '@/lib/gold-manager'
 import { gainExperience } from '@/lib/experience-manager'
 import { useCreatureStore } from '@/stores/creatureStore'
+import { generateMysteryEvent, handleEventOutcome } from '@/lib/mystery-events'
 
 import dynamic from 'next/dynamic';
 import { getCharacterStats } from '@/lib/character-stats-manager';
@@ -1074,10 +1075,15 @@ export default function RealmPage() {
                     break;
                 case 'mystery':
                     setLastMysteryTile({ x: characterPosition.x, y: characterPosition.y });
-                    toast({
-                        title: 'A Mystery!',
-                        description: 'You stumble upon a hidden treasure chest. You find 50 gold!',
-                    });
+                    // Generate and handle a mystery event
+                    const mysteryEvent = generateMysteryEvent();
+                    if (mysteryEvent) {
+                        // For now, automatically choose the first outcome to complete the event
+                        const firstChoice = mysteryEvent.choices[0];
+                        if (firstChoice) {
+                            handleEventOutcome(mysteryEvent, firstChoice, user?.id);
+                        }
+                    }
                     break;
             }
         }
