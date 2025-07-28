@@ -21,21 +21,33 @@ export interface AuthResult {
  */
 export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
   try {
-    // Convert to NextRequest for Clerk compatibility
-    const nextReq = request instanceof NextRequest 
-      ? request 
-      : new NextRequest(request.url, { 
-          headers: request.headers, 
-          method: request.method, 
-          body: (request as any).body 
-        });
+    // For POST requests, we need to handle the body carefully to avoid "disturbed or locked" error
+    let nextReq: NextRequest;
+    
+    if (request.method === 'POST') {
+      // For POST requests, create a new request without the body to avoid conflicts
+      const url = new URL(request.url);
+      nextReq = new NextRequest(url, {
+        method: 'POST',
+        headers: request.headers,
+        // Don't include body for Clerk verification - we only need the headers
+      });
+    } else {
+      // For GET requests, we can use the original request
+      nextReq = request instanceof NextRequest 
+        ? request 
+        : new NextRequest(request.url, { 
+            headers: request.headers, 
+            method: request.method
+          });
+    }
 
     // Extract Authorization header
     const authHeader = nextReq.headers.get('authorization');
     console.log('[JWT Verification] URL:', nextReq.url);
+    console.log('[JWT Verification] Method:', nextReq.method);
     console.log('[JWT Verification] Authorization header present:', !!authHeader);
     console.log('[JWT Verification] Authorization header (first 20 chars):', authHeader?.substring(0, 20));
-    console.log('[JWT Verification] All headers:', Object.fromEntries(nextReq.headers.entries()));
     
     if (!authHeader) {
       console.error('[JWT Verification] Missing authorization header');
