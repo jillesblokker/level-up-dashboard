@@ -235,14 +235,14 @@ export default function StoredDataPage() {
 
     // 6. Realm Grid API
     try {
-      const response = await fetch('/api/data?type=grid', {
+      const response = await fetch(`/api/data?type=grid&userId=${user?.id}`, {
         credentials: 'include'
       });
       connections.push({
         name: 'Realm Grid',
         description: 'Realm map grid and character position',
         status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/data?type=grid',
+        endpoint: `/api/data?type=grid&userId=${user?.id}`,
         lastChecked: now,
         error: response.ok ? undefined : `HTTP ${response.status}`
       });
@@ -251,7 +251,7 @@ export default function StoredDataPage() {
         name: 'Realm Grid',
         description: 'Realm map grid and character position',
         status: 'error',
-        endpoint: '/api/data?type=grid',
+        endpoint: `/api/data?type=grid&userId=${user?.id}`,
         lastChecked: now,
         error: error instanceof Error ? error.message : 'Unknown error'
       });
