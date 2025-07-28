@@ -1081,35 +1081,6 @@ export default function QuestsPage() {
   const challengeStreakSubscriptionRef = useRef<any>(null);
   // const { supabase } = useSupabase(); // This line is moved to the top
 
-  // Polling for streak changes (legacy) instead of real-time sync
-  useEffect(() => {
-    if (!userId || !questCategory) return;
-    
-    const pollInterval = setInterval(async () => {
-      if (token) {
-        try {
-          const res = await fetch(`/api/streaks-direct?category=${encodeURIComponent(questCategory)}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (res.ok) {
-            const contentType = res.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-              const data = await res.json();
-              setStreakData(data);
-            } else {
-              console.error('[Streaks Poll Legacy] Non-JSON response received');
-            }
-          } else {
-            console.error('[Streaks Poll Legacy] HTTP error:', res.status, res.statusText);
-          }
-        } catch (error) {
-          console.error('[Streaks Poll Legacy] Error polling streak:', error);
-        }
-      }
-    }, 10000); // Poll every 10 seconds instead of 5
-    
-    return () => clearInterval(pollInterval);
-  }, [userId, questCategory, token]);
   // Update streak via API route when all quests completed for today
   const updateStreak = async (newStreak: number, newWeekStreaks: number) => {
     if (!token || !userId || !questCategory) return;

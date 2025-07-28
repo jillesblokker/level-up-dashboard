@@ -476,18 +476,26 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
 
   // Polling for milestone changes instead of real-time sync
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !token) return;
     
-    const pollInterval = setInterval(() => {
-      // Re-fetch milestones
-      if (typeof window !== 'undefined') {
-        // Call fetchMilestones if available
-        window.location.reload(); // Or call fetchMilestones() if you want to avoid reload
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await fetch('/api/milestones', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          const milestoneData = await response.json();
+          setMilestones(milestoneData || []);
+        }
+      } catch (error) {
+        console.error('[Milestones Poll] Error polling milestones:', error);
       }
     }, 5000); // Poll every 5 seconds
     
     return () => clearInterval(pollInterval);
-  }, [userId]);
+  }, [userId, token]);
 
   // Filter milestones by category if provided
   const filteredMilestones = category ? milestones.filter(m => m.category?.toLowerCase() === category.toLowerCase()) : milestones;
