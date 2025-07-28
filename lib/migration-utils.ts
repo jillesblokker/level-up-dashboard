@@ -300,17 +300,6 @@ export async function checkMigrationStatus(userId: string): Promise<{
   };
 
   try {
-    // Check if user has data in Supabase
-    const { data: gridData } = await supabase
-      .from('realm_grids')
-      .select('id')
-      .eq('user_id', userId)
-      .limit(1);
-
-    if (gridData && gridData.length > 0) {
-      result.hasMigrated = true;
-    }
-
     // Check if user has data in localStorage
     const migrationData = collectLocalStorageData();
     const hasLocalData = Object.values(migrationData).some(data => data !== undefined);
@@ -319,6 +308,9 @@ export async function checkMigrationStatus(userId: string): Promise<{
     if (hasLocalData) {
       result.migrationData = migrationData;
     }
+
+    // Note: Removed direct Supabase call to avoid authentication issues
+    // Migration status will be determined by localStorage data presence
 
   } catch (error) {
     console.error('Error checking migration status:', error);

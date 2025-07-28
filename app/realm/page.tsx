@@ -429,7 +429,7 @@ export default function RealmPage() {
                     try {
                         const res = await fetch('/api/realm-tiles');
                         const data = await res.json();
-                        if (res.ok && data.tiles) {
+                        if (res.ok && data.tiles && Array.isArray(data.tiles)) {
                             const maxRow = Math.max(...data.tiles.map((row: any) => row.y ?? 0), INITIAL_ROWS - 1);
                             const gridArr: Tile[][] = Array.from({ length: maxRow + 1 }, (_, y) =>
                                 Array.from({ length: GRID_COLS }, (_, x) => defaultTile('empty'))
@@ -452,9 +452,11 @@ export default function RealmPage() {
                             });
                             setGrid(gridArr);
                         } else {
+                            console.warn('[Realm] Invalid tiles data from API:', data);
                             setGrid(createBaseGrid());
                         }
                     } catch (err) {
+                        console.error('[Realm] Error loading tiles:', err);
                         setGrid(createBaseGrid());
                     }
                 }
