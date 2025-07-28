@@ -211,6 +211,7 @@ export default function LocationClient({ slug, locationId }: Props) {
         imageSrc={locationImage}
         canEdit={false}
         defaultBgColor="bg-green-900"
+        shouldRevealImage={true}
       />
       <div className="min-h-screen bg-background">
         <div className="container mx-auto p-4">

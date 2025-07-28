@@ -423,14 +423,21 @@ export default function QuestsPage() {
             headers: { Authorization: `Bearer ${token}` },
           });
           if (res.ok) {
-            const data = await res.json();
-            setStreakData(data);
+            const contentType = res.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+              const data = await res.json();
+              setStreakData(data);
+            } else {
+              console.error('[Streaks Poll] Non-JSON response received');
+            }
+          } else {
+            console.error('[Streaks Poll] HTTP error:', res.status, res.statusText);
           }
         } catch (error) {
           console.error('[Streaks Poll] Error polling streak:', error);
         }
       }
-    }, 5000); // Poll every 5 seconds
+    }, 10000); // Poll every 10 seconds instead of 5
     
     return () => clearInterval(pollInterval);
   }, [userId, questCategory, token]);
@@ -1028,14 +1035,21 @@ export default function QuestsPage() {
             headers: { Authorization: `Bearer ${token}` },
           });
           if (res.ok) {
-            const data = await res.json();
-            setStreakData(data);
+            const contentType = res.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+              const data = await res.json();
+              setStreakData(data);
+            } else {
+              console.error('[Streaks Poll Legacy] Non-JSON response received');
+            }
+          } else {
+            console.error('[Streaks Poll Legacy] HTTP error:', res.status, res.statusText);
           }
         } catch (error) {
           console.error('[Streaks Poll Legacy] Error polling streak:', error);
         }
       }
-    }, 5000); // Poll every 5 seconds
+    }, 10000); // Poll every 10 seconds instead of 5
     
     return () => clearInterval(pollInterval);
   }, [userId, questCategory, token]);
@@ -1083,14 +1097,21 @@ export default function QuestsPage() {
             headers: { Authorization: `Bearer ${token}` },
           });
           if (res.ok) {
-            const data = await res.json();
-            setChallengeStreakData(data);
+            const contentType = res.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+              const data = await res.json();
+              setChallengeStreakData(data);
+            } else {
+              console.error('[Challenge Streaks Poll] Non-JSON response received');
+            }
+          } else {
+            console.error('[Challenge Streaks Poll] HTTP error:', res.status, res.statusText);
           }
         } catch (error) {
           console.error('[Challenge Streaks Poll] Error polling streak:', error);
         }
       }
-    }, 5000); // Poll every 5 seconds
+    }, 10000); // Poll every 10 seconds instead of 5
     
     return () => clearInterval(pollInterval);
   }, [userId, challengeCategory, token]);
