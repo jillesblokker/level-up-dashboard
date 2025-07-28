@@ -44,6 +44,7 @@ async function getAuthToken(): Promise<string | null> {
 
 // Helper function to make authenticated API calls
 async function apiCall(endpoint: string, options: RequestInit = {}): Promise<any> {
+  console.log('[Data Loaders] Making API call to:', `/api/data${endpoint}`);
   const token = await getAuthToken();
   
   const response = await fetch(`/api/data${endpoint}`, {
@@ -55,6 +56,7 @@ async function apiCall(endpoint: string, options: RequestInit = {}): Promise<any
     },
   });
 
+  console.log('[Data Loaders] API response status:', response.status);
   if (!response.ok) {
     throw new Error(`API call failed: ${response.status}`);
   }
@@ -67,12 +69,15 @@ async function apiCall(endpoint: string, options: RequestInit = {}): Promise<any
 // =====================================================
 
 export async function loadGridData(userId: string): Promise<any> {
+  console.log('[Data Loaders] loadGridData called for userId:', userId);
   return loadDataWithFallback(
     async () => {
       try {
         const result = await apiCall(`?type=grid&userId=${userId}`);
+        console.log('[Data Loaders] loadGridData result:', result);
         return { data: result.data, error: null };
       } catch (error) {
+        console.error('[Data Loaders] loadGridData error:', error);
         return { data: null, error };
       }
     },

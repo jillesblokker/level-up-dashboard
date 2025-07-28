@@ -411,9 +411,11 @@ export default function RealmPage() {
         const loadUserData = async () => {
             if (!isAuthLoaded || isGuest || !userId) return;
             
+            console.log('[Realm] loadUserData called for userId:', userId);
             setIsLoading(true);
             try {
                 // Load grid data
+                console.log('[Realm] Calling loadGridData...');
                 const gridData = await loadGridData(userId);
                 if (gridData) {
                     setGrid(gridData);
