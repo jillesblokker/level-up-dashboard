@@ -15,6 +15,7 @@ import { getCharacterStats } from '@/lib/character-data-manager';
 import { getInventory } from '@/lib/inventory-manager';
 import { getUserAchievements } from '@/lib/achievements-manager';
 import { useTitleEvolution } from '@/hooks/title-evolution-context'
+import { migrateLocalStorageToSupabase, checkMigrationStatus } from '@/lib/migration-utils';
 
 interface SupabaseData {
   table: string;
@@ -28,6 +29,8 @@ export default function StoredDataPage() {
   const [characterStats, setCharacterStats] = useState<any>(null);
   const [inventoryItems, setInventoryItems] = useState<any[]>([]);
   const [achievements, setAchievements] = useState<any[]>([]);
+  const [migrationStatus, setMigrationStatus] = useState<any>(null);
+  const [isMigrating, setIsMigrating] = useState(false);
   
   const { user } = useUser();
   const { supabase } = useSupabase();
@@ -57,6 +60,10 @@ export default function StoredDataPage() {
           { table: 'Inventory Items', count: inventory?.length || 0, lastUpdated: new Date().toISOString() },
           { table: 'Achievements', count: userAchievements?.length || 0, lastUpdated: new Date().toISOString() },
         ]);
+
+        // Load migration status
+        const status = await checkMigrationStatus(user.id);
+        setMigrationStatus(status);
       } catch (error) {
         console.error('Error loading Supabase data:', error);
         toast.error('Failed to load data');
@@ -72,6 +79,42 @@ export default function StoredDataPage() {
     localStorage.clear()
     sessionStorage.clear()
   }
+
+  const handleMigration = async () => {
+    if (!user?.id) return;
+    
+    setIsMigrating(true);
+    try {
+      const result = await migrateLocalStorageToSupabase(user.id);
+      
+      if (result.success) {
+        toast.success(`Migration Successful: ${result.migrated.join(', ')}`);
+        // Reload data
+        window.location.reload();
+      } else {
+        toast.error(`Migration Failed: ${result.errors.join(', ')}`);
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred during migration.');
+    } finally {
+      setIsMigrating(false);
+    }
+  };
+
+  const handleTestMigration = async () => {
+    if (!user?.id) return;
+    
+    setIsMigrating(true);
+    try {
+      const result = await migrateLocalStorageToSupabase(user.id);
+      
+      toast.info(`Test Migration Complete: Success: ${result.success}, Migrated: ${result.migrated.join(', ')}, Errors: ${result.errors.join(', ')}`);
+    } catch (error) {
+      toast.error('An error occurred during test migration.');
+    } finally {
+      setIsMigrating(false);
+    }
+  };
 
   return (
     <main className="container mx-auto p-4" aria-label="stored-data-section">
@@ -113,6 +156,46 @@ export default function StoredDataPage() {
             ) : (
               <p>No character stats found</p>
             )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Migration Section */}
+      <div className="mt-6">
+        <Card className="p-4" aria-label="migration-status-card">
+          <CardHeader>
+            <CardTitle>Migration Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Badge variant={migrationStatus?.hasLocalData ? "default" : "secondary"}>
+                  {migrationStatus?.hasLocalData ? "Has Local Data" : "No Local Data"}
+                </Badge>
+                <Badge variant={migrationStatus?.hasMigrated ? "default" : "secondary"}>
+                  {migrationStatus?.hasMigrated ? "Migrated" : "Not Migrated"}
+                </Badge>
+              </div>
+              
+              <div className="flex gap-2">
+                <Button 
+                  onClick={handleMigration} 
+                  disabled={isMigrating || !migrationStatus?.hasLocalData}
+                  aria-label="Migrate data to Supabase"
+                >
+                  {isMigrating ? "Migrating..." : "Migrate to Supabase"}
+                </Button>
+                
+                <Button 
+                  onClick={handleTestMigration} 
+                  disabled={isMigrating}
+                  variant="outline"
+                  aria-label="Test migration process"
+                >
+                  Test Migration
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
