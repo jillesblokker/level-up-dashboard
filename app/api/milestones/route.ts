@@ -52,4 +52,48 @@ export async function GET(request: Request) {
     console.error('[Milestones Error]', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
+}
+
+export async function POST(request: Request) {
+  try {
+    const userId = await getUserIdFromRequest(request);
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    const body = await request.json();
+    const { name, description, category, difficulty, xp, gold, target, icon } = body;
+    
+    if (!name || !category) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+    
+    // Create new milestone
+    const { data: newMilestone, error } = await supabaseServer
+      .from('milestones')
+      .insert([
+        {
+          name,
+          description: description || name,
+          category,
+          difficulty: difficulty || 'medium',
+          xp: xp || 0,
+          gold: gold || 0,
+          target: target || 1,
+          icon: icon || '🎯',
+        },
+      ])
+      .select()
+      .single();
+      
+    if (error) {
+      console.error('[Milestones POST] Error:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    
+    return NextResponse.json(newMilestone);
+  } catch (error) {
+    console.error('[Milestones POST] Error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 } 

@@ -176,14 +176,21 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       return;
     }
     try {
-      const response = await fetch('/api/quests', {
+      const response = await fetch('/api/milestones', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           name: newMilestone.name,
+          description: newMilestone.name,
           category: newQuestCategory,
+          difficulty: 'medium',
+          xp: newMilestone.experience,
+          gold: newMilestone.gold,
+          target: newMilestone.target,
+          icon: newMilestone.icon,
         }),
       });
       
@@ -191,12 +198,12 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
         throw new Error('Failed to create milestone');
       }
       
-      const newQuest = await response.json();
+      const newMilestoneData = await response.json();
       
       const milestone: Milestone = {
-        id: newQuest.name,
-        name: newQuest.name,
-        category: newQuest.category,
+        id: newMilestoneData.id,
+        name: newMilestoneData.name,
+        category: newMilestoneData.category,
         icon: newMilestone.icon,
         experience: newMilestone.experience,
         gold: newMilestone.gold,

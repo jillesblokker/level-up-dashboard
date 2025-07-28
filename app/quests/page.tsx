@@ -940,9 +940,66 @@ export default function QuestsPage() {
   const handleAddQuest = () => {
     setAddQuestModalOpen(true);
   };
-  const handleAddQuestSubmit = (quest: Quest) => {
-    // Handle quest submission
-    setAddQuestModalOpen(false);
+  const handleAddQuestSubmit = async (quest: Quest) => {
+    if (!token) {
+      toast({ title: 'Error', description: 'Authentication required', variant: 'destructive' });
+      return;
+    }
+
+    setAddQuestLoading(true);
+    try {
+      const response = await fetch('/api/quests/new', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: quest.name,
+          description: quest.description,
+          category: quest.category,
+          difficulty: quest.difficulty,
+          xp_reward: quest.xp || 0,
+          gold_reward: quest.gold || 0,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create quest');
+      }
+
+      const newQuest = await response.json();
+      
+      // Add the new quest to the local state
+      const questToAdd: Quest = {
+        id: newQuest.id,
+        name: newQuest.name,
+        description: newQuest.description,
+        category: newQuest.category,
+        difficulty: newQuest.difficulty,
+        xp: newQuest.xp,
+        gold: newQuest.gold,
+        completed: false,
+        isNew: true,
+      };
+
+      setQuests(prev => [...prev, questToAdd]);
+      setAddQuestModalOpen(false);
+      
+      toast({
+        title: 'Success',
+        description: 'Quest created successfully!',
+      });
+    } catch (error) {
+      console.error('Error creating quest:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to create quest. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setAddQuestLoading(false);
+    }
   };
 
   const handleChallengeCategoryChange = (value: string) => {

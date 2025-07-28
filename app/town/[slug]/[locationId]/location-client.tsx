@@ -284,8 +284,28 @@ export default function LocationClient({ slug, locationId }: Props) {
                     ).map((artifact) => {
                       const invItem = inventory.find(inv => inv.id === artifact.id)
                       if (!invItem) return null
+                      
+                      // Get artifact image from the artifact folder
+                      let imagePath = "/images/items/placeholder.jpg";
+                      if (artifact.name === "Ancient Artifact") imagePath = "/images/items/artifact/crown/artifact-crowny.png";
+                      if (artifact.name === "Merchant's Charm") imagePath = "/images/items/artifact/ring/artifact-ringo.png";
+                      if (artifact.name === "Restful Charm") imagePath = "/images/items/artifact/ring/artifact-ringo.png";
+                      if (artifact.name === "Mystic Brew") imagePath = "/images/items/artifact/potion/artifact-potion.png";
+                      // Add more artifact mappings as needed
+                      
                       return (
                         <Card key={artifact.id} className="flex flex-col">
+                          <div className="w-full aspect-[4/3] relative bg-black">
+                            <Image
+                              src={imagePath}
+                              alt={`${artifact.name} image`}
+                              fill
+                              className="object-contain"
+                              sizes="(max-width: 768px) 100vw, 33vw"
+                              aria-label={`${artifact.name}-image`}
+                              onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
+                            />
+                          </div>
                           <CardHeader>
                             <div className="flex items-center gap-2">
                               <CardTitle className="text-lg">{artifact.name}</CardTitle>
