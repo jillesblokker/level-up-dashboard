@@ -1,5 +1,3 @@
-import { getToken } from '@clerk/nextjs/server';
-
 export interface GameSetting {
   setting_key: string;
   setting_value: any;
@@ -11,10 +9,8 @@ export interface GameSetting {
 export async function loadGameSettings(): Promise<Record<string, any>> {
   try {
     // Try to load from Supabase first
-    const token = await getToken({ template: 'supabase' });
     const response = await fetch('/api/game-settings', {
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     });
@@ -77,14 +73,11 @@ export async function saveGameSettings(settings: Record<string, any>): Promise<{
 
   // Save to Supabase
   try {
-    const token = await getToken({ template: 'supabase' });
-    
     // Save each setting individually
     for (const [key, value] of Object.entries(settings)) {
       const response = await fetch('/api/game-settings', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({

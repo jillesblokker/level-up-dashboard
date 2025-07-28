@@ -1,5 +1,3 @@
-import { getToken } from '@clerk/nextjs/server';
-
 export interface ActivePerk {
   perk_name: string;
   effect: string;
@@ -12,10 +10,8 @@ export interface ActivePerk {
 export async function loadActivePerks(): Promise<ActivePerk[]> {
   try {
     // Try to load from Supabase first
-    const token = await getToken({ template: 'supabase' });
     const response = await fetch('/api/active-perks', {
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     });
@@ -60,14 +56,11 @@ export async function saveActivePerks(perks: ActivePerk[]): Promise<{ success: b
 
   // Save to Supabase
   try {
-    const token = await getToken({ template: 'supabase' });
-    
     // Save each perk individually
     for (const perk of perks) {
       const response = await fetch('/api/active-perks', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(perk),
@@ -126,11 +119,9 @@ export async function addActivePerk(perk: ActivePerk): Promise<{ success: boolea
  */
 export async function removeActivePerk(perkName: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const token = await getToken({ template: 'supabase' });
     const response = await fetch(`/api/active-perks?perk_name=${encodeURIComponent(perkName)}`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     });

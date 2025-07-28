@@ -1,5 +1,3 @@
-import { getToken } from '@clerk/nextjs/server';
-
 export interface CharacterStats {
   gold: number;
   experience: number;
@@ -16,10 +14,8 @@ export interface CharacterStats {
 export async function loadCharacterStats(): Promise<CharacterStats> {
   try {
     // Try to load from Supabase first
-    const token = await getToken({ template: 'supabase' });
     const response = await fetch('/api/character-stats', {
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     });
@@ -76,11 +72,9 @@ export async function saveCharacterStats(stats: Partial<CharacterStats>): Promis
 
   // Save to Supabase
   try {
-    const token = await getToken({ template: 'supabase' });
     const response = await fetch('/api/character-stats', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(stats),
