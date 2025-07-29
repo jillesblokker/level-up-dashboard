@@ -8,6 +8,7 @@ interface MapGridProps {
   onTileClick: (x: number, y: number) => void;
   className?: string;
   playerLevel?: number;
+  onTileSizeChange?: (tileSize: number) => void;
 }
 
 const getTileImage = (tileType: string) => {
@@ -45,7 +46,7 @@ const getTileImage = (tileType: string) => {
   }
 };
 
-export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0 }: MapGridProps) {
+export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0, onTileSizeChange }: MapGridProps) {
     const gridRef = useRef<HTMLDivElement>(null);
     const [tileSize, setTileSize] = useState(80);
 
@@ -74,13 +75,21 @@ export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0 }: 
       
       // Use the larger dimension to fill available space, but cap at reasonable max
       const newTileSize = Math.min(Math.max(tileSizeX, tileSizeY), 120); // Use larger dimension, max 120px
-      setTileSize(Math.max(newTileSize, 60)); // Minimum 60px for better visibility
+      const finalTileSize = Math.max(newTileSize, 60); // Minimum 60px for better visibility
+      setTileSize(finalTileSize);
     }
     
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [grid]);
+
+  // Notify parent component when tile size changes
+  useEffect(() => {
+    if (onTileSizeChange) {
+      onTileSizeChange(tileSize);
+    }
+  }, [tileSize, onTileSizeChange]);
 
   const handlePan = (dx: number, dy: number) => {
     if (!gridRef.current) return;

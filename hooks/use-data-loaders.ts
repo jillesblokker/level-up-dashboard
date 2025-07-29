@@ -48,7 +48,9 @@ export function useDataLoaders() {
       async () => {
         try {
           const result = await apiCall(`?type=grid&userId=${userId}`);
-          return { data: result.data, error: null };
+          // The API returns { data: { grid: gridData } }, so we need to extract the grid data
+          const gridData = result.data?.grid || null;
+          return { data: gridData, error: null };
         } catch (error) {
           return { data: null, error };
         }

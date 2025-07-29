@@ -276,6 +276,26 @@ export default function RealmPage() {
     const [battleOpen, setBattleOpen] = useState(false);
     const [currentMonster, setCurrentMonster] = useState<'dragon' | 'goblin' | 'troll' | 'wizard' | 'pegasus' | 'fairy'>('dragon');
 
+    // Tile size state for animal positioning
+    const [tileSize, setTileSize] = useState(80);
+
+    // Handler for tile size changes from MapGrid
+    const handleTileSizeChange = useCallback((newTileSize: number) => {
+      console.log('[Realm] Tile size changed to:', newTileSize);
+      setTileSize(newTileSize);
+    }, []);
+
+    // Debug animal positioning
+    useEffect(() => {
+      console.log('[Realm] Animal positioning debug:', {
+        tileSize,
+        penguinPos: penguinPos ? { x: penguinPos.x * tileSize, y: penguinPos.y * tileSize } : null,
+        horsePos: horsePos ? { x: horsePos.x * tileSize, y: horsePos.y * tileSize } : null,
+        sheepPos: sheepPos ? { x: sheepPos.x * tileSize, y: sheepPos.y * tileSize } : null,
+        eaglePos: eaglePos ? { x: eaglePos.x * tileSize, y: eaglePos.y * tileSize } : null
+      });
+    }, [tileSize, penguinPos, horsePos, sheepPos, eaglePos]);
+
     // --- Penguin and Achievement Logic Helpers ---
     function findFirstIceTile(grid: Tile[][]): { x: number; y: number } | null {
       for (let y = 0; y < grid.length; y++) {
@@ -307,21 +327,27 @@ export default function RealmPage() {
       console.log('[Realm] Penguin logic - hasIce:', hasIce, 'isPenguinPresent:', isPenguinPresent);
       
       if (!hasIce && isPenguinPresent) {
+        console.log('[Realm] Penguin logic - no ice tiles, removing penguin');
         setIsPenguinPresent(false);
         setPenguinPos(null);
       } else if (hasIce && !isPenguinPresent) {
+        console.log('[Realm] Penguin logic - ice tiles found, placing penguin');
         // Find the first ice tile, prioritizing center tiles
         let bestIcePos = null;
         const centerX = Math.floor(GRID_COLS / 2);
         const centerY = Math.floor(INITIAL_ROWS / 2);
+        
+        console.log('[Realm] Penguin logic - center area:', { centerX, centerY });
         
         // First try to find ice tiles in the center area
         for (let y = centerY - 1; y <= centerY + 1; y++) {
           for (let x = centerX - 1; x <= centerX + 1; x++) {
             if (y >= 0 && y < grid.length && x >= 0 && x < GRID_COLS) {
               const tile = grid[y]?.[x];
+              console.log('[Realm] Penguin logic - checking center tile:', { x, y, type: tile?.type });
               if (tile?.type === 'ice') {
                 bestIcePos = { x, y };
+                console.log('[Realm] Penguin logic - found center ice tile:', bestIcePos);
                 break;
               }
             }
@@ -331,13 +357,18 @@ export default function RealmPage() {
         
         // If no center ice tile found, find any ice tile
         if (!bestIcePos) {
+          console.log('[Realm] Penguin logic - no center ice tile, searching all tiles');
           bestIcePos = findFirstIceTile(grid);
+          console.log('[Realm] Penguin logic - found ice tile:', bestIcePos);
         }
         
-        console.log('[Realm] Penguin logic - found ice tile at:', bestIcePos);
+        console.log('[Realm] Penguin logic - final ice tile position:', bestIcePos);
         if (bestIcePos) {
           setPenguinPos(bestIcePos);
           setIsPenguinPresent(true);
+          console.log('[Realm] Penguin logic - penguin placed at:', bestIcePos);
+        } else {
+          console.log('[Realm] Penguin logic - no ice tile found for penguin');
         }
       }
     }, [grid]);
@@ -357,11 +388,18 @@ export default function RealmPage() {
       const moveAnimals = () => {
         // Move sheep every 5 seconds
         if (isSheepPresent && sheepPos) {
+          console.log('[Realm] Sheep movement - current position:', sheepPos);
           const adjacentPositions = getAdjacentPositions(sheepPos.x, sheepPos.y, grid);
+          console.log('[Realm] Sheep movement - adjacent positions:', adjacentPositions);
+          
           const validPositions = adjacentPositions.filter(pos => {
             const tile = grid[pos.y]?.[pos.x];
-            return tile && tile.type === 'grass' && !tile.hasMonster;
+            const isValid = tile && tile.type === 'grass' && !tile.hasMonster;
+            console.log('[Realm] Sheep movement - checking position:', pos, 'tile type:', tile?.type, 'has monster:', tile?.hasMonster, 'valid:', isValid);
+            return isValid;
           });
+          
+          console.log('[Realm] Sheep movement - valid positions:', validPositions);
           
           if (validPositions.length > 0) {
             const newPos = validPositions[Math.floor(Math.random() * validPositions.length)];
@@ -370,6 +408,8 @@ export default function RealmPage() {
               localStorage.setItem('sheepPos', JSON.stringify(newPos));
               console.log('[Realm] Sheep moved to:', newPos);
             }
+          } else {
+            console.log('[Realm] Sheep movement - no valid positions found');
           }
         }
       };
@@ -1527,6 +1567,55 @@ export default function RealmPage() {
     const nextExpansionLevel = 5 + expansions * 5;
     const canExpand = playerLevel >= nextExpansionLevel;
 
+    // Validate animal positions when grid changes
+    useEffect(() => {
+      if (!Array.isArray(grid) || grid.length === 0) return;
+      
+      // Validate horse position
+      if (isHorsePresent && horsePos) {
+        const tile = grid[horsePos.y]?.[horsePos.x];
+        if (!tile || tile.type !== 'grass') {
+          console.log('[Realm] Horse on invalid tile, finding new grass position');
+          // Find a valid grass tile
+          for (let y = 0; y < grid.length; y++) {
+            const row = grid[y];
+            if (!row) continue;
+            for (let x = 0; x < row.length; x++) {
+              const checkTile = row[x];
+              if (checkTile && checkTile.type === 'grass' && !checkTile.hasMonster) {
+                setHorsePos({ x, y });
+                localStorage.setItem('horsePos', JSON.stringify({ x, y }));
+                console.log('[Realm] Horse moved to valid position:', { x, y });
+                break;
+              }
+            }
+          }
+        }
+      }
+      
+      // Validate sheep position
+      if (isSheepPresent && sheepPos) {
+        const tile = grid[sheepPos.y]?.[sheepPos.x];
+        if (!tile || tile.type !== 'grass') {
+          console.log('[Realm] Sheep on invalid tile, finding new grass position');
+          // Find a valid grass tile
+          for (let y = 0; y < grid.length; y++) {
+            const row = grid[y];
+            if (!row) continue;
+            for (let x = 0; x < row.length; x++) {
+              const checkTile = row[x];
+              if (checkTile && checkTile.type === 'grass' && !checkTile.hasMonster) {
+                setSheepPos({ x, y });
+                localStorage.setItem('sheepPos', JSON.stringify({ x, y }));
+                console.log('[Realm] Sheep moved to valid position:', { x, y });
+                break;
+              }
+            }
+          }
+        }
+      }
+    }, [grid, isHorsePresent, horsePos, isSheepPresent, sheepPos]);
+
     if (isLoading) {
         return (
             <div className="flex flex-col items-center justify-center h-screen bg-gray-900 text-white p-8">
@@ -1669,6 +1758,7 @@ export default function RealmPage() {
                         playerPosition={characterPosition}
                         onTileClick={handlePlaceTile}
                         playerLevel={characterStats.level}
+                        onTileSizeChange={handleTileSizeChange}
                     />
                     
                     {/* Creature Overlays */}
@@ -1677,18 +1767,22 @@ export default function RealmPage() {
                         <div
                             className="absolute z-20 pointer-events-none"
                             style={{
-                                left: `${penguinPos.x * 80}px`,
-                                top: `${penguinPos.y * 80}px`,
-                                width: '80px',
-                                height: '80px'
+                                left: `${penguinPos.x * tileSize}px`,
+                                top: `${penguinPos.y * tileSize}px`,
+                                width: `${tileSize}px`,
+                                height: `${tileSize}px`
                             }}
                         >
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <img
                                     src="/images/Animals/penguin.png"
                                     alt="Penguin"
-                                    className="w-32 h-32 object-contain"
-                                    style={{ transform: 'translate(-50%, -50%)' }}
+                                    className="object-contain"
+                                    style={{ 
+                                        width: `${tileSize * 0.8}px`, 
+                                        height: `${tileSize * 0.8}px`,
+                                        transform: 'translate(-50%, -50%)' 
+                                    }}
                                 />
                             </div>
                         </div>
@@ -1699,18 +1793,22 @@ export default function RealmPage() {
                         <div
                             className="absolute z-20 pointer-events-none"
                             style={{
-                                left: `${horsePos.x * 80}px`,
-                                top: `${horsePos.y * 80}px`,
-                                width: '80px',
-                                height: '80px'
+                                left: `${horsePos.x * tileSize}px`,
+                                top: `${horsePos.y * tileSize}px`,
+                                width: `${tileSize}px`,
+                                height: `${tileSize}px`
                             }}
                         >
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <img
                                     src="/images/Animals/horse.png"
                                     alt="Horse"
-                                    className="w-32 h-32 object-contain"
-                                    style={{ transform: 'translate(-50%, -50%)' }}
+                                    className="object-contain"
+                                    style={{ 
+                                        width: `${tileSize * 0.8}px`, 
+                                        height: `${tileSize * 0.8}px`,
+                                        transform: 'translate(-50%, -50%)' 
+                                    }}
                                     onError={(e) => console.log('[Realm] Horse image failed to load:', e)}
                                     onLoad={() => console.log('[Realm] Horse image loaded successfully')}
                                 />
@@ -1723,18 +1821,22 @@ export default function RealmPage() {
                         <div
                             className="absolute z-20 pointer-events-none"
                             style={{
-                                left: `${sheepPos.x * 80}px`,
-                                top: `${sheepPos.y * 80}px`,
-                                width: '80px',
-                                height: '80px'
+                                left: `${sheepPos.x * tileSize}px`,
+                                top: `${sheepPos.y * tileSize}px`,
+                                width: `${tileSize}px`,
+                                height: `${tileSize}px`
                             }}
                         >
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <img
                                     src="/images/Animals/sheep.png"
                                     alt="Sheep"
-                                    className="w-32 h-32 object-contain"
-                                    style={{ transform: 'translate(-50%, -50%)' }}
+                                    className="object-contain"
+                                    style={{ 
+                                        width: `${tileSize * 0.8}px`, 
+                                        height: `${tileSize * 0.8}px`,
+                                        transform: 'translate(-50%, -50%)' 
+                                    }}
                                     onError={(e) => console.log('[Realm] Sheep image failed to load:', e)}
                                     onLoad={() => console.log('[Realm] Sheep image loaded successfully')}
                                 />
@@ -1747,18 +1849,22 @@ export default function RealmPage() {
                         <div
                             className="absolute z-20 pointer-events-none"
                             style={{
-                                left: `${eaglePos.x * 80}px`,
-                                top: `${eaglePos.y * 80}px`,
-                                width: '80px',
-                                height: '80px'
+                                left: `${eaglePos.x * tileSize}px`,
+                                top: `${eaglePos.y * tileSize}px`,
+                                width: `${tileSize}px`,
+                                height: `${tileSize}px`
                             }}
                         >
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <img
                                     src="/images/Animals/eagle.png"
                                     alt="Eagle"
-                                    className="w-32 h-32 object-contain"
-                                    style={{ transform: 'translate(-50%, -50%)' }}
+                                    className="object-contain"
+                                    style={{ 
+                                        width: `${tileSize * 0.8}px`, 
+                                        height: `${tileSize * 0.8}px`,
+                                        transform: 'translate(-50%, -50%)' 
+                                    }}
                                 />
                             </div>
                         </div>
