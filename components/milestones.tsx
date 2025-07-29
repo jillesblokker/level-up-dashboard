@@ -543,10 +543,17 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
                   display: 'grid !important',
                   gridTemplateColumns: 'repeat(3, minmax(0, 1fr)) !important',
                   gap: '1rem !important',
-                  border: '3px solid red !important'
+                  border: '5px solid lime !important',
+                  backgroundColor: 'lime !important',
+                  color: 'black !important',
+                  padding: '20px !important',
+                  fontSize: '24px !important'
                 }}
                 data-debug="milestones-grid"
               >
+                <div style={{ gridColumn: '1 / -1', textAlign: 'center', fontWeight: 'bold' }}>
+                  🎯 DEPLOYMENT TEST - 3 COLUMNS FORCE APPLIED 🎯
+                </div>
                 {allMilestones.length === 0 ? (
                   <div className="text-gray-400 col-span-full">No milestones for this category yet.</div>
                 ) : (
