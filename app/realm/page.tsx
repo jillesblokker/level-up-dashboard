@@ -1509,7 +1509,7 @@ export default function RealmPage() {
                     />
                 )}
                 {/* Full Width Map Area - Break out of all containers */}
-                <div className="fixed inset-0 top-[120px] left-0 right-0 bottom-8 md:bottom-12 z-10">
+                <div className="fixed inset-0 top-[80px] left-0 right-0 bottom-8 md:bottom-12 z-10">
                     <MapGrid
                         grid={grid}
                         playerPosition={characterPosition}
@@ -1519,7 +1519,7 @@ export default function RealmPage() {
                 </div>
                 {/* Overlay Inventory Panel */}
                 {showInventory && (
-                    <div id="tile-inventory-panel" role="dialog" aria-modal="true" aria-label="Tile Inventory Panel" className="absolute top-[120px] right-0 h-[calc(100%-120px-2rem)] md:h-[calc(100%-120px-3rem)] w-96 max-w-[90vw] bg-gray-800/95 backdrop-blur-md border-l border-gray-700 flex flex-col z-30 p-2 shadow-2xl">
+                    <div id="tile-inventory-panel" role="dialog" aria-modal="true" aria-label="Tile Inventory Panel" className="absolute top-[80px] right-0 h-[calc(100%-80px-2rem)] md:h-[calc(100%-80px-3rem)] w-96 max-w-[90vw] bg-gray-800/95 backdrop-blur-md border-l border-gray-700 flex flex-col z-30 p-2 shadow-2xl">
                         <div className="p-4 border-b border-gray-700 flex items-center justify-between">
                             <h2 className="text-lg font-semibold">Tile Inventory</h2>
                             <Button
