@@ -48,6 +48,22 @@ export async function DELETE(request: NextRequest, context: any) {
     
     console.log('[DELETE] Using service role to delete milestone');
     
+    // First, delete related milestone_completion records
+    console.log('[DELETE] Deleting related milestone_completion records...');
+    const { error: completionDeleteError } = await supabase
+      .from('milestone_completion')
+      .delete()
+      .eq('milestone_id', id);
+      
+    if (completionDeleteError) {
+      console.error('[DELETE] Error deleting milestone_completion records:', completionDeleteError);
+      throw completionDeleteError;
+    }
+    
+    console.log('[DELETE] Successfully deleted milestone_completion records');
+    
+    // Then, delete the milestone
+    console.log('[DELETE] Deleting milestone...');
     const { error } = await supabase
       .from('milestones')
       .delete()
