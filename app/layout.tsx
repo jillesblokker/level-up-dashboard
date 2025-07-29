@@ -103,7 +103,7 @@ export default function RootLayout({
                   <AuthContent>
                     <AuthGate>
                       <TitleEvolutionProvider>
-                        <div className="pt-[calc(4rem+env(safe-area-inset-top))] main-content-wrapper" style={{ overscrollBehavior: 'none' }}>
+                        <div className="main-content-wrapper" style={{ overscrollBehavior: 'none' }}>
                           {children}
                         </div>
                       </TitleEvolutionProvider>
