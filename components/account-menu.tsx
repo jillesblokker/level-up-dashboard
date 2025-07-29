@@ -13,17 +13,17 @@ import { useClerk, useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { eventBus } from "@/app/lib/event-bus";
 
-const AccountMenu = () => {
+export function AccountMenu() {
+  const { user } = useUser();
   const { signOut } = useClerk();
-  const { user, isLoaded } = useUser();
-  console.log('[AccountMenu] user:', user);
-  console.log('[AccountMenu] user.imageUrl:', user?.imageUrl);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [profileUpdateCount, setProfileUpdateCount] = useState(0);
 
   useEffect(() => {
     const refresh = async () => {
       await user?.reload();
-      setProfileUpdateCount((c) => c + 1);
+      setProfileUpdateCount((c: number) => c + 1);
     };
     eventBus.on("profile-updated", refresh);
     return () => eventBus.off("profile-updated", refresh);

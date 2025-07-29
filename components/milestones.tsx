@@ -117,13 +117,11 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
 
   useEffect(() => {
     if (!userId || !supabase || isSupabaseLoading || !token) {
-      console.log('Waiting for auth, Supabase client, or token...');
       return;
     }
     const fetchMilestones = async () => {
       try {
         setIsLoading(true);
-        console.log('[Milestones Debug] Fetching /api/milestones with token:', token.slice(0, 10), '...');
         const response = await fetch('/api/milestones', {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -133,10 +131,8 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
           throw new Error('Failed to fetch milestones');
         }
         const milestoneData = await response.json();
-        console.log('[Milestones Debug] fetched milestones:', milestoneData);
         setMilestones(milestoneData || []);
       } catch (err) {
-        console.error('[Milestones Debug] Error fetching milestones:', err);
         toast({
           title: 'Error',
           description: 'Failed to load milestones. Please try again.',
@@ -242,7 +238,6 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
 
   const handleDeleteMilestone = async (id: string) => {
     try {
-      console.log('Delete milestone called with id:', id);
       if (!token) throw new Error('No Clerk token');
       
       // Call backend API to delete milestone
@@ -253,22 +248,18 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
         },
       });
       
-      console.log('Delete response status:', response.status);
       if (!response.ok) {
         const err = await response.text();
         console.error('Delete error:', err);
         throw new Error(err || 'Failed to delete milestone');
       }
       
-      console.log('Delete successful, updating local state');
       // Set the last edit time to prevent polling from overwriting
       pollingService.setLastEditTime('milestones');
-      console.log('[Milestones Debug] Set last edit time for polling service');
       
       // Remove from local state
       setMilestones(prev => {
         const filtered = prev.filter(m => m.id !== id);
-        console.log('Milestones after delete:', filtered.length);
         return filtered;
       });
       setProgress(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
@@ -358,7 +349,6 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
   // Handler to submit the edited milestone (for now, just closes the modal)
   const handleEditMilestoneSubmit = async (updatedMilestone: Milestone) => {
     try {
-      console.log('Edit milestone called with:', updatedMilestone);
       if (!token) throw new Error('No Clerk token');
       
       // Call backend API to update milestone
@@ -377,20 +367,16 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
         }),
       });
       
-      console.log('Edit response status:', response.status);
       if (!response.ok) {
         const err = await response.text();
         console.error('Edit error:', err);
         throw new Error(err || 'Failed to update milestone');
       }
       
-      console.log('Milestone updated successfully, updating local state');
       // Set the last edit time to prevent polling from overwriting
       pollingService.setLastEditTime('milestones');
-      console.log('[Milestones Debug] Set last edit time for polling service');
       setMilestones(prev => {
         const updated = prev.map(m => m.id === updatedMilestone.id ? { ...m, ...updatedMilestone } : m);
-        console.log('Milestones after edit:', updated.length);
         return updated;
       });
       
@@ -432,7 +418,6 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
   };
   const handleDeleteCustomMilestone = async (category: string, id: string) => {
     try {
-      console.log('Delete custom milestone called with id:', id);
       if (!token) throw new Error('No Clerk token');
       
       // Call backend API to delete milestone
@@ -443,17 +428,14 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
         },
       });
       
-      console.log('Delete response status:', response.status);
       if (!response.ok) {
         const err = await response.text();
         console.error('Delete error:', err);
         throw new Error(err || 'Failed to delete milestone');
       }
       
-      console.log('Delete successful, updating local state');
       // Set the last edit time to prevent polling from overwriting
       pollingService.setLastEditTime('milestones');
-      console.log('[Milestones Debug] Set last edit time for polling service');
       
       // Update local state - remove from both milestones and customMilestones
       setMilestones(prev => prev.filter(m => m.id !== id));
@@ -547,8 +529,6 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
   useEffect(() => {
     if (!userId || !token) return;
     
-    console.log('[Milestones] Setting up centralized polling');
-    
     const fetchMilestones = async () => {
       const response = await fetch('/api/milestones', {
         headers: {
@@ -561,7 +541,6 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       }
       
       const milestoneData = await ErrorHandler.safeJsonParse(response);
-      console.log('[Milestones Poll] Received', milestoneData.length, 'milestones');
       return milestoneData;
     };
 
@@ -570,8 +549,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       true,
       (data) => setMilestones(data || []),
       (error) => {
-        console.error('[Milestones Poll] Error:', error);
-        // Don't show toast for polling errors to avoid spam
+        // Silent error handling for polling to avoid spam
       }
     );
 

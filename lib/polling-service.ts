@@ -32,18 +32,15 @@ class PollingService {
         const timeSinceLastEdit = now - lastEditTime;
 
         if (timeSinceLastEdit < this.debounceTime) {
-          console.log(`[PollingService] Skipping poll for ${key} due to recent edit`);
           return;
         }
 
-        console.log(`[PollingService] Polling ${key}...`);
         const data = await fetchFn();
         
         if (config.onSuccess) {
           config.onSuccess(data);
         }
       } catch (error) {
-        console.error(`[PollingService] Error polling ${key}:`, error);
         if (config.onError) {
           config.onError(error as Error);
         }
@@ -51,7 +48,6 @@ class PollingService {
     }, config.interval);
 
     this.intervals.set(key, interval);
-    console.log(`[PollingService] Started polling for ${key}`);
   }
 
   // Stop polling for a specific endpoint
@@ -60,14 +56,12 @@ class PollingService {
     if (interval) {
       clearInterval(interval);
       this.intervals.delete(key);
-      console.log(`[PollingService] Stopped polling for ${key}`);
     }
   }
 
   // Set last edit time for debouncing
   setLastEditTime(key: string) {
     this.lastEditTimes.set(key, Date.now());
-    console.log(`[PollingService] Set last edit time for ${key}`);
   }
 
   // Stop all polling

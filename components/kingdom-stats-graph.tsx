@@ -420,7 +420,6 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
         const res = await fetch(`/api/kingdom-stats?userId=${uid}&tab=${activeTab}&period=${timePeriod}`);
         if (!res.ok) throw new Error('Failed to fetch stats');
         const { data } = await res.json();
-        console.log(`[KingdomStatsBlock] Tab: ${activeTab}, Period: ${timePeriod}, Data:`, data);
         setGraphData(data || []);
       } catch (err) {
         setGraphData([]);
@@ -432,7 +431,6 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
 
     // 🎯 LISTEN FOR REAL-TIME UPDATES when challenges/milestones are completed
     const handleDataUpdate = () => {
-      console.log('[KingdomStatsBlock] Data updated, refetching...');
       fetchData();
     };
 
@@ -547,7 +545,6 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
         const res = await fetch(`/api/kingdom-stats?userId=${uid}&tab=${activeTab}&period=${timePeriod}`);
         if (!res.ok) throw new Error('Failed to fetch stats');
         const { data } = await res.json();
-        console.log(`[KingStatsBlock] Tab: ${activeTab}, Period: ${timePeriod}, Data:`, data);
         setGraphData(data || []);
       } catch (err) {
         setGraphData([]);
@@ -559,7 +556,6 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
 
     // 🎯 LISTEN FOR REAL-TIME UPDATES when challenges/milestones are completed  
     const handleDataUpdate = () => {
-      console.log('[KingStatsBlock] Data updated, refetching...');
       fetchData();
     };
 
