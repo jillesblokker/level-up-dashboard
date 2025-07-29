@@ -1401,168 +1401,155 @@ export default function RealmPage() {
     return (
         <>
             <RevealOverlay />
-            <HeaderSection
-                title="Realm"
-                subtitle="Explore and build your mystical realm"
-                imageSrc="/images/realm-header.jpg"
-                defaultBgColor="bg-blue-900"
-                onAnimationStart={() => setIsAnimating(true)}
-                onAnimationEnd={() => setIsAnimating(false)}
-                shouldRevealImage={true}
-            />
-            <RealmAnimationWrapper 
-                isAnimating={isAnimating}
-                onImageReveal={setShouldRevealImage}
-            >
-                {/* Top Toolbar */}
-                <div className="flex items-center justify-between bg-gray-800 z-30 overflow-visible">
-                  {/* On mobile, make action rows horizontally scrollable and touch-friendly */}
-                  <div className="flex flex-1 flex-col gap-2 overflow-visible">
-                    <div className="flex items-center gap-2 overflow-x-auto flex-nowrap md:gap-4 md:overflow-visible md:flex-wrap overflow-visible p-2" style={{ WebkitOverflowScrolling: 'touch' }}>
-                      <Button
-                        variant={gameMode === 'move' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setGameMode('move')}
-                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
-                        aria-label="movement-mode-button"
-                      >
-                        <Move className="w-4 h-4 text-white" />
-                        <span className="hidden md:inline">Move</span>
-                      </Button>
-                      <Button
-                        variant={gameMode === 'build' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setGameMode('build')}
-                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
-                        aria-label="build-mode-button"
-                      >
-                        <Hammer className="w-4 h-4" />
-                        <span className="hidden md:inline">Build</span>
-                      </Button>
-                      <div className="hidden md:flex items-center space-x-2 min-w-[100px]" aria-label="auto-save-controls">
-                        <Switch id="auto-save-switch" checked={autoSave} onCheckedChange={setAutoSave} />
-                        <label htmlFor="auto-save-switch" className="text-sm">Auto Save</label>
-                      </div>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={expandMap}
-                              disabled={!canExpand}
-                              aria-label="Expand Map"
-                              className="flex items-center gap-2 min-w-[44px] min-h-[44px] disabled:pointer-events-auto"
-                            >
-                              <PlusCircle className="w-4 h-4" />
-                              <span className="hidden sm:inline">Expand Map</span>
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent 
-                            side="top" 
-                            className="bg-gray-900 text-white border-amber-800/30"
-                          >
-                            {canExpand 
-                              ? 'Expand your realm map to unlock 3 more rows' 
-                              : `Become level ${nextExpansionLevel} to unlock 3 more rows`
-                            }
-                          </TooltipContent>
-                        </Tooltip>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleResetMap}
-                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
-                        aria-label="reset-map-button"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        <span className="hidden sm:inline">Reset Map</span>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowInventory(!showInventory)}
-                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
-                        aria-label="toggle-inventory-button"
-                      >
-                        <Package className="w-4 h-4" />
-                        <span className="hidden sm:inline">Inventory</span>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleResetPosition}
-                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
-                        aria-label="reset-position-button"
-                      >
-                        <RotateCcw className="w-4 h-4" />
-                        <span className="hidden sm:inline">Reset Position</span>
-                      </Button>
-                    </div>
+            {/* Top Toolbar */}
+            <div className="flex items-center justify-between bg-gray-800 z-30 overflow-visible">
+              {/* On mobile, make action rows horizontally scrollable and touch-friendly */}
+              <div className="flex flex-1 flex-col gap-2 overflow-visible">
+                <div className="flex items-center gap-2 overflow-x-auto flex-nowrap md:gap-4 md:overflow-visible md:flex-wrap overflow-visible p-2" style={{ WebkitOverflowScrolling: 'touch' }}>
+                  <Button
+                    variant={gameMode === 'move' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setGameMode('move')}
+                    className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                    aria-label="movement-mode-button"
+                  >
+                    <Move className="w-4 h-4 text-white" />
+                    <span className="hidden md:inline">Move</span>
+                  </Button>
+                  <Button
+                    variant={gameMode === 'build' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setGameMode('build')}
+                    className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                    aria-label="build-mode-button"
+                  >
+                    <Hammer className="w-4 h-4" />
+                    <span className="hidden md:inline">Build</span>
+                  </Button>
+                  <div className="hidden md:flex items-center space-x-2 min-w-[100px]" aria-label="auto-save-controls">
+                    <Switch id="auto-save-switch" checked={autoSave} onCheckedChange={setAutoSave} />
+                    <label htmlFor="auto-save-switch" className="text-sm">Auto Save</label>
                   </div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={expandMap}
+                          disabled={!canExpand}
+                          aria-label="Expand Map"
+                          className="flex items-center gap-2 min-w-[44px] min-h-[44px] disabled:pointer-events-auto"
+                        >
+                          <PlusCircle className="w-4 h-4" />
+                          <span className="hidden sm:inline">Expand Map</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent 
+                        side="top" 
+                        className="bg-gray-900 text-white border-amber-800/30"
+                      >
+                        {canExpand 
+                          ? 'Expand your realm map to unlock 3 more rows' 
+                          : `Become level ${nextExpansionLevel} to unlock 3 more rows`
+                        }
+                      </TooltipContent>
+                    </Tooltip>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleResetMap}
+                    className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                    aria-label="reset-map-button"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span className="hidden sm:inline">Reset Map</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowInventory(!showInventory)}
+                    className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                    aria-label="toggle-inventory-button"
+                  >
+                    <Package className="w-4 h-4" />
+                    <span className="hidden sm:inline">Inventory</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleResetPosition}
+                    className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                    aria-label="reset-position-button"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    <span className="hidden sm:inline">Reset Position</span>
+                  </Button>
                 </div>
-                {modalState && (
-                    <EnterLocationModal
-                        isOpen={modalState.isOpen}
-                        onClose={() => setModalState(null)}
-                        locationType={modalState.locationType}
-                        locationName={modalState.locationName}
-                    />
-                )}
-                {/* Full Width Map Area - Break out of all containers */}
-                <div className="fixed inset-0 top-[60px] left-0 right-0 bottom-8 md:bottom-12 z-10">
-                    <MapGrid
-                        grid={grid}
-                        playerPosition={characterPosition}
-                        onTileClick={handlePlaceTile}
-                        playerLevel={characterStats.level}
-                    />
-                </div>
-                {/* Overlay Inventory Panel */}
-                {showInventory && (
-                    <div id="tile-inventory-panel" role="dialog" aria-modal="true" aria-label="Tile Inventory Panel" className="absolute top-[60px] right-0 h-[calc(100%-60px-2rem)] md:h-[calc(100%-60px-3rem)] w-96 max-w-[90vw] bg-gray-800/95 backdrop-blur-md border-l border-gray-700 flex flex-col z-30 p-2 shadow-2xl">
-                        <div className="p-4 border-b border-gray-700 flex items-center justify-between">
-                            <h2 className="text-lg font-semibold">Tile Inventory</h2>
-                            <Button
-                                ref={closeBtnRef}
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setShowInventory(false)}
-                                aria-label="close-inventory-button"
-                                className="min-w-[44px] min-h-[44px]"
-                            >
-                                <X className="w-6 h-6" />
-                            </Button>
-                        </div>
-                        <ScrollArea className="flex-1 p-4">
-                            <TileInventory
-                                tiles={inventoryAsItems}
-                                selectedTile={selectedTile}
-                                onSelectTile={setSelectedTile}
-                                onUpdateTiles={(newTiles: typeof inventoryAsItems) => {
-                                    setInventory(prev => {
-                                        const updated = { ...prev };
-                                        newTiles.forEach((tile: typeof inventoryAsItems[number]) => {
-                                            updated[tile.type] = { ...updated[tile.type], ...tile };
-                                        });
-                                        
-                                        // Save to Supabase with localStorage fallback
-                                        if (userId) {
-                                            saveTileInventory(userId, updated).catch(error => {
-                                                console.error('Failed to save inventory:', error);
-                                            });
-                                        }
-                                        
-                                        return updated;
-                                    });
-                                }}
-                                activeTab={inventoryTab}
-                                setActiveTab={setInventoryTab}
-                                onOutOfTiles={(tile) => toast({ title: 'No more tiles of this type', description: 'Buy more!' })}
-                            />
-                        </ScrollArea>
+              </div>
+            </div>
+            {modalState && (
+                <EnterLocationModal
+                    isOpen={modalState.isOpen}
+                    onClose={() => setModalState(null)}
+                    locationType={modalState.locationType}
+                    locationName={modalState.locationName}
+                />
+            )}
+            {/* Full Width Map Area - Break out of all containers */}
+            <div className="fixed inset-0 top-[60px] left-0 right-0 bottom-8 md:bottom-12 z-10">
+                <MapGrid
+                    grid={grid}
+                    playerPosition={characterPosition}
+                    onTileClick={handlePlaceTile}
+                    playerLevel={characterStats.level}
+                />
+            </div>
+            {/* Overlay Inventory Panel */}
+            {showInventory && (
+                <div id="tile-inventory-panel" role="dialog" aria-modal="true" aria-label="Tile Inventory Panel" className="absolute top-[60px] right-0 h-[calc(100%-60px-2rem)] md:h-[calc(100%-60px-3rem)] w-96 max-w-[90vw] bg-gray-800/95 backdrop-blur-md border-l border-gray-700 flex flex-col z-30 p-2 shadow-2xl">
+                    <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+                        <h2 className="text-lg font-semibold">Tile Inventory</h2>
+                        <Button
+                            ref={closeBtnRef}
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setShowInventory(false)}
+                            aria-label="close-inventory-button"
+                            className="min-w-[44px] min-h-[44px]"
+                        >
+                            <X className="w-6 h-6" />
+                        </Button>
                     </div>
-                )}
-            </RealmAnimationWrapper>
+                    <ScrollArea className="flex-1 p-4">
+                        <TileInventory
+                            tiles={inventoryAsItems}
+                            selectedTile={selectedTile}
+                            onSelectTile={setSelectedTile}
+                            onUpdateTiles={(newTiles: typeof inventoryAsItems) => {
+                                setInventory(prev => {
+                                    const updated = { ...prev };
+                                    newTiles.forEach((tile: typeof inventoryAsItems[number]) => {
+                                        updated[tile.type] = { ...updated[tile.type], ...tile };
+                                    });
+                                    
+                                    // Save to Supabase with localStorage fallback
+                                    if (userId) {
+                                        saveTileInventory(userId, updated).catch(error => {
+                                            console.error('Failed to save inventory:', error);
+                                        });
+                                    }
+                                    
+                                    return updated;
+                                });
+                            }}
+                            activeTab={inventoryTab}
+                            setActiveTab={setInventoryTab}
+                            onOutOfTiles={(tile) => toast({ title: 'No more tiles of this type', description: 'Buy more!' })}
+                        />
+                    </ScrollArea>
+                </div>
+            )}
+            
             {/* Event Modals */}
             {castleEvent?.open && (
                 <Dialog open={castleEvent.open} onOpenChange={() => setCastleEvent(null)}>
