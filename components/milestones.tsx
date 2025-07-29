@@ -540,10 +540,12 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
               <div 
                 className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 debug-milestones-grid"
                 style={{ 
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-                  gap: '1rem'
+                  display: 'grid !important',
+                  gridTemplateColumns: 'repeat(3, minmax(0, 1fr)) !important',
+                  gap: '1rem !important',
+                  border: '3px solid red !important'
                 }}
+                data-debug="milestones-grid"
               >
                 {allMilestones.length === 0 ? (
                   <div className="text-gray-400 col-span-full">No milestones for this category yet.</div>
