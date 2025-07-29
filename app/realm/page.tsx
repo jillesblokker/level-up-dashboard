@@ -615,7 +615,7 @@ export default function RealmPage() {
             } catch (error) {
                 console.error('Error polling for grid changes:', error);
             }
-        }, 5000); // Poll every 5 seconds
+        }, 10000); // Poll every 10 seconds instead of 5
         
         return () => clearInterval(pollInterval);
     }, [isAuthLoaded, isGuest, userId, loadGridData]);
@@ -1190,7 +1190,7 @@ export default function RealmPage() {
                     if (next) setHorsePos(next);
                 }
             }
-        }, 5000);
+        }, 10000); // Reduced from 5000 to 10000ms
         return () => clearInterval(interval);
     }, [grid, horsePos, setHorsePos]);
 
@@ -1242,7 +1242,7 @@ export default function RealmPage() {
                     if (next) setSheepPos(next);
                 }
             }
-        }, 7000);
+        }, 15000); // Reduced from 7000 to 15000ms
         return () => clearInterval(interval);
     }, [grid, sheepPos, setSheepPos]);
 

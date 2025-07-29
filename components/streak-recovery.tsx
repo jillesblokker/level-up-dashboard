@@ -59,10 +59,17 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
         });
         
         if (res.ok) {
-          const data = await res.json();
-          setComebackChallenges(data.challenges || []);
-          setQualifiesForComeback(data.qualifiesForComeback || false);
-          setComebackReason(data.reason || '');
+          const contentType = res.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const data = await res.json();
+            setComebackChallenges(data.challenges || []);
+            setQualifiesForComeback(data.qualifiesForComeback || false);
+            setComebackReason(data.reason || '');
+          } else {
+            console.error('Comeback challenges API returned non-JSON response');
+          }
+        } else {
+          console.error('Comeback challenges API error:', res.status, res.statusText);
         }
       } catch (error) {
         console.error('Failed to fetch comeback challenges:', error);

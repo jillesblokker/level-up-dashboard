@@ -388,30 +388,6 @@ export default function QuestsPage() {
     return () => { cancelled = true; };
   }, [token, userId, questCategory]);
 
-  // Fetch challenge streak from Supabase (now via API route)
-  useEffect(() => {
-    if (!token || !userId || !challengeCategory) return;
-    let cancelled = false;
-    const fetchChallengeStreak = async () => {
-      try {
-        const res = await fetch(`/api/streaks-direct?category=${encodeURIComponent(challengeCategory)}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) {
-          console.error('[Challenge Streaks] Failed to fetch challenge streak:', res.status, res.statusText);
-          throw new Error('Failed to fetch challenge streak');
-        }
-        const data = await res.json();
-        if (!cancelled) setChallengeStreakData(data);
-      } catch (error) {
-        console.error('[Challenge Streaks] Error fetching challenge streak:', error);
-        if (!cancelled) setChallengeStreakData({ streak_days: 0, week_streaks: 0 });
-      }
-    };
-    fetchChallengeStreak();
-    return () => { cancelled = true; };
-  }, [token, userId, challengeCategory]);
-
   // Polling for streak changes instead of real-time sync
   useEffect(() => {
     if (!userId || !questCategory) return;
@@ -437,10 +413,64 @@ export default function QuestsPage() {
           console.error('[Streaks Poll] Error polling streak:', error);
         }
       }
-    }, 10000); // Poll every 10 seconds instead of 5
+    }, 15000); // Poll every 15 seconds instead of 10
     
     return () => clearInterval(pollInterval);
   }, [userId, questCategory, token]);
+
+  // Fetch challenge streak from Supabase (now via API route)
+  useEffect(() => {
+    if (!token || !userId || !challengeCategory) return;
+    let cancelled = false;
+    const fetchChallengeStreak = async () => {
+      try {
+        const res = await fetch(`/api/streaks-direct?category=${encodeURIComponent(challengeCategory)}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) {
+          console.error('[Challenge Streaks] Failed to fetch challenge streak:', res.status, res.statusText);
+          throw new Error('Failed to fetch challenge streak');
+        }
+        const data = await res.json();
+        if (!cancelled) setChallengeStreakData(data);
+      } catch (error) {
+        console.error('[Challenge Streaks] Error fetching challenge streak:', error);
+        if (!cancelled) setChallengeStreakData({ streak_days: 0, week_streaks: 0 });
+      }
+    };
+    fetchChallengeStreak();
+    return () => { cancelled = true; };
+  }, [token, userId, challengeCategory]);
+
+  // Polling for challenge streak changes instead of real-time sync
+  useEffect(() => {
+    if (!userId || !challengeCategory) return;
+    
+    const pollInterval = setInterval(async () => {
+      if (token) {
+        try {
+          const res = await fetch(`/api/streaks-direct?category=${encodeURIComponent(challengeCategory)}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.ok) {
+            const contentType = res.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+              const data = await res.json();
+              setChallengeStreakData(data);
+            } else {
+              console.error('[Challenge Streaks Poll] Non-JSON response received');
+            }
+          } else {
+            console.error('[Challenge Streaks Poll] HTTP error:', res.status, res.statusText);
+          }
+        } catch (error) {
+          console.error('[Challenge Streaks Poll] Error polling streak:', error);
+        }
+      }
+    }, 15000); // Poll every 15 seconds instead of 10
+    
+    return () => clearInterval(pollInterval);
+  }, [userId, challengeCategory, token]);
 
   // Mark quest as complete (sync with backend)
   const handleQuestToggle = async (questId: string, currentCompleted: boolean) => {
@@ -1114,35 +1144,36 @@ export default function QuestsPage() {
     }
   };
 
-  // Polling for challenge streak changes instead of real-time sync
+  // Polling for streak changes instead of real-time sync
   useEffect(() => {
-    if (!userId || !challengeCategory) return;
+    if (!userId || !questCategory) return;
     
     const pollInterval = setInterval(async () => {
       if (token) {
         try {
-          const res = await fetch(`/api/streaks-direct?category=${encodeURIComponent(challengeCategory)}`, {
+          const res = await fetch(`/api/streaks-direct?category=${encodeURIComponent(questCategory)}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           if (res.ok) {
             const contentType = res.headers.get('content-type');
             if (contentType && contentType.includes('application/json')) {
               const data = await res.json();
-              setChallengeStreakData(data);
+              setStreakData(data);
             } else {
-              console.error('[Challenge Streaks Poll] Non-JSON response received');
+              console.error('[Streaks Poll] Non-JSON response received');
             }
           } else {
-            console.error('[Challenge Streaks Poll] HTTP error:', res.status, res.statusText);
+            console.error('[Streaks Poll] HTTP error:', res.status, res.statusText);
           }
         } catch (error) {
-          console.error('[Challenge Streaks Poll] Error polling streak:', error);
+          console.error('[Streaks Poll] Error polling streak:', error);
         }
       }
-    }, 10000); // Poll every 10 seconds instead of 5
+    }, 15000); // Poll every 15 seconds instead of 10
     
     return () => clearInterval(pollInterval);
-  }, [userId, challengeCategory, token]);
+  }, [userId, questCategory, token]);
+
   // Update challenge streak via API route when all challenges completed for today
   const updateChallengeStreak = async (newStreak: number, newWeekStreaks: number) => {
     if (!token || !userId || !challengeCategory) return;
