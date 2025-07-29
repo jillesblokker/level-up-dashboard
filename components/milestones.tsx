@@ -778,22 +778,8 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
     try {
       await onUpdateProgress(milestone.id, !completed);
       setCompleted(!completed);
-      // Live update character stats and fire events
-      const stats = getCharacterStats();
-      const xpDelta = milestone.experience || 0;
-      const goldDelta = milestone.gold || 0;
-      
-      if (!completed) {
-        // Add experience and gold
-        gainExperience(xpDelta, 'milestone-completion', milestone.category || 'general');
-        gainGold(goldDelta, 'milestone-completion');
-      } else {
-        // Remove experience and gold (but don't go below 0)
-        const newXP = Math.max(0, stats.experience - xpDelta);
-        const newGold = Math.max(0, stats.gold - goldDelta);
-        updateCharacterStatSync('experience', newXP);
-        updateCharacterStatSync('gold', newGold);
-      }
+      // The API will handle granting rewards, so we don't need to do it here
+      // This prevents double rewards
     } catch (err) {
       console.error('Failed to toggle milestone completion:', err);
       toast({
