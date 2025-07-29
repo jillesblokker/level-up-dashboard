@@ -1516,6 +1516,91 @@ export default function RealmPage() {
                         onTileClick={handlePlaceTile}
                         playerLevel={characterStats.level}
                     />
+                    
+                    {/* Creature Overlays */}
+                    {/* Penguin */}
+                    {isPenguinPresent && penguinPos && (
+                        <div
+                            className="absolute z-20 pointer-events-none"
+                            style={{
+                                left: `${penguinPos.x * 80}px`,
+                                top: `${penguinPos.y * 80}px`,
+                                width: '80px',
+                                height: '80px'
+                            }}
+                        >
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <img
+                                    src="/images/creatures/penguin.png"
+                                    alt="Penguin"
+                                    className="w-12 h-12 object-contain"
+                                />
+                            </div>
+                        </div>
+                    )}
+                    
+                    {/* Horse */}
+                    {isHorsePresent && horsePos && !horseCaught && (
+                        <div
+                            className="absolute z-20 pointer-events-none"
+                            style={{
+                                left: `${horsePos.x * 80}px`,
+                                top: `${horsePos.y * 80}px`,
+                                width: '80px',
+                                height: '80px'
+                            }}
+                        >
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <img
+                                    src="/images/creatures/horse.png"
+                                    alt="Horse"
+                                    className="w-12 h-12 object-contain"
+                                />
+                            </div>
+                        </div>
+                    )}
+                    
+                    {/* Sheep */}
+                    {isSheepPresent && sheepPos && (
+                        <div
+                            className="absolute z-20 pointer-events-none"
+                            style={{
+                                left: `${sheepPos.x * 80}px`,
+                                top: `${sheepPos.y * 80}px`,
+                                width: '80px',
+                                height: '80px'
+                            }}
+                        >
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <img
+                                    src="/images/creatures/sheep.png"
+                                    alt="Sheep"
+                                    className="w-12 h-12 object-contain"
+                                />
+                            </div>
+                        </div>
+                    )}
+                    
+                    {/* Eagle */}
+                    {eaglePos && (
+                        <div
+                            className="absolute z-20 pointer-events-none"
+                            style={{
+                                left: `${eaglePos.x * 80}px`,
+                                top: `${eaglePos.y * 80}px`,
+                                width: '80px',
+                                height: '80px'
+                            }}
+                        >
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <img
+                                    src="/images/creatures/eagle.png"
+                                    alt="Eagle"
+                                    className="w-12 h-12 object-contain"
+                                />
+                            </div>
+                        </div>
+                    )}
                 </div>
                 {/* Overlay Inventory Panel */}
                 {showInventory && (
