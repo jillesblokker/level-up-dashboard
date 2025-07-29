@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
 export async function GET(req: NextRequest) {
+  console.log('🚨 [MILESTONES-SIMPLE-API] ROUTE EXECUTED - VERSION CHECK 2024-01-15');
+  console.log('🚨 [MILESTONES-SIMPLE-API] Request URL:', req.url);
+  console.log('🚨 [MILESTONES-SIMPLE-API] Request method:', req.method);
+  
   try {
     console.log('[Milestones Simple] Starting basic test');
     
