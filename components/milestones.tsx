@@ -430,12 +430,50 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
     setAddModalOpen(null);
     setNewMilestone({ name: '', target: 1, experience: 500, gold: 250, icon: '🏆' });
   };
-  const handleDeleteCustomMilestone = (category: string, id: string) => {
-    setCustomMilestones(prev => ({ ...prev, [category]: (prev[category] || []).filter(m => m.id !== id) }));
-    setProgress(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
-    setCompleted(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
-    setStreaks(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
-    setCompletionDates(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
+  const handleDeleteCustomMilestone = async (category: string, id: string) => {
+    try {
+      console.log('Delete custom milestone called with id:', id);
+      if (!token) throw new Error('No Clerk token');
+      
+      // Call backend API to delete milestone
+      const response = await fetch(`/api/milestones/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      console.log('Delete response status:', response.status);
+      if (!response.ok) {
+        const err = await response.text();
+        console.error('Delete error:', err);
+        throw new Error(err || 'Failed to delete milestone');
+      }
+      
+      console.log('Delete successful, updating local state');
+      // Set the last edit time to prevent polling from overwriting
+      lastEditTimeRef.current = Date.now();
+      console.log('[Milestones Debug] Set lastEditTimeRef to:', lastEditTimeRef.current);
+      
+      // Update local state
+      setCustomMilestones(prev => ({ ...prev, [category]: (prev[category] || []).filter(m => m.id !== id) }));
+      setProgress(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
+      setCompleted(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
+      setStreaks(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
+      setCompletionDates(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
+      
+      toast({
+        title: 'Success',
+        description: 'Milestone deleted successfully!',
+      });
+    } catch (error) {
+      console.error('Error deleting custom milestone:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete milestone. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
   const handleProgressChange = (id: string, value: number, target: number) => {
     setProgress(prev => ({ ...prev, [id]: value }));
