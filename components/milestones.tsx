@@ -548,12 +548,9 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
                   color: 'black !important',
                   padding: '20px !important',
                   fontSize: '24px !important'
-                }}
+                } as React.CSSProperties}
                 data-debug="milestones-grid"
               >
-                <div style={{ gridColumn: '1 / -1', textAlign: 'center', fontWeight: 'bold' }}>
-                  🎯 DEPLOYMENT TEST - 3 COLUMNS FORCE APPLIED 🎯
-                </div>
                 {allMilestones.length === 0 ? (
                   <div className="text-gray-400 col-span-full">No milestones for this category yet.</div>
                 ) : (

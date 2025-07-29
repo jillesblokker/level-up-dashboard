@@ -509,6 +509,70 @@ div.debug-milestones-grid,
   z-index: 1000;
 }
 
+/* Override Tailwind grid classes for milestones */
+.debug-milestones-grid,
+div.debug-milestones-grid,
+.grid.debug-milestones-grid,
+[data-debug="milestones-grid"],
+div[data-debug="milestones-grid"],
+.grid[data-debug="milestones-grid"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  border: 5px solid lime !important;
+  background-color: lime !important;
+  color: black !important;
+  padding: 20px !important;
+  font-size: 24px !important;
+}
+
+/* Override all responsive grid classes for milestones */
+@media (min-width: 640px) {
+  .debug-milestones-grid .sm\\:grid-cols-2,
+  div.debug-milestones-grid .sm\\:grid-cols-2,
+  .grid.debug-milestones-grid .sm\\:grid-cols-2 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .debug-milestones-grid .md\\:grid-cols-3,
+  div.debug-milestones-grid .md\\:grid-cols-3,
+  .grid.debug-milestones-grid .md\\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .debug-milestones-grid .lg\\:grid-cols-3,
+  .debug-milestones-grid .lg\\:grid-cols-4,
+  div.debug-milestones-grid .lg\\:grid-cols-3,
+  div.debug-milestones-grid .lg\\:grid-cols-4,
+  .grid.debug-milestones-grid .lg\\:grid-cols-3,
+  .grid.debug-milestones-grid .lg\\:grid-cols-4 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .debug-milestones-grid .xl\\:grid-cols-4,
+  .debug-milestones-grid .xl\\:grid-cols-5,
+  div.debug-milestones-grid .xl\\:grid-cols-4,
+  div.debug-milestones-grid .xl\\:grid-cols-5,
+  .grid.debug-milestones-grid .xl\\:grid-cols-4,
+  .grid.debug-milestones-grid .xl\\:grid-cols-5 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (min-width: 1536px) {
+  .debug-milestones-grid .2xl\\:grid-cols-5,
+  div.debug-milestones-grid .2xl\\:grid-cols-5,
+  .grid.debug-milestones-grid .2xl\\:grid-cols-5 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Force 3-column layout for milestones on large screens with maximum specificity */
+
 /* Line clamp utilities for text truncation */
 .line-clamp-1 {
   overflow: hidden;
