@@ -1531,7 +1531,7 @@ export default function RealmPage() {
                         >
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <img
-                                    src="/images/creatures/penguin.png"
+                                    src="/images/Animals/penguin.png"
                                     alt="Penguin"
                                     className="w-12 h-12 object-contain"
                                 />
@@ -1552,7 +1552,7 @@ export default function RealmPage() {
                         >
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <img
-                                    src="/images/creatures/horse.png"
+                                    src="/images/Animals/horse.png"
                                     alt="Horse"
                                     className="w-12 h-12 object-contain"
                                 />
@@ -1573,7 +1573,7 @@ export default function RealmPage() {
                         >
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <img
-                                    src="/images/creatures/sheep.png"
+                                    src="/images/Animals/sheep.png"
                                     alt="Sheep"
                                     className="w-12 h-12 object-contain"
                                 />
@@ -1594,8 +1594,29 @@ export default function RealmPage() {
                         >
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <img
-                                    src="/images/creatures/eagle.png"
+                                    src="/images/Animals/eagle.png"
                                     alt="Eagle"
+                                    className="w-12 h-12 object-contain"
+                                />
+                            </div>
+                        </div>
+                    )}
+                    
+                    {/* Wizard (Blizzey) - appears when Blizzey is discovered */}
+                    {useCreatureStore.getState().isCreatureDiscovered('014') && findFirstIceTile(grid) && (
+                        <div
+                            className="absolute z-20 pointer-events-none"
+                            style={{
+                                left: `${findFirstIceTile(grid)!.x * 80}px`,
+                                top: `${findFirstIceTile(grid)!.y * 80}px`,
+                                width: '80px',
+                                height: '80px'
+                            }}
+                        >
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <img
+                                    src="/images/Monsters/Sorceror.png"
+                                    alt="Wizard (Blizzey)"
                                     className="w-12 h-12 object-contain"
                                 />
                             </div>
