@@ -1649,9 +1649,6 @@ export default function QuestsPage() {
             </div>
             <div className="space-y-4">
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3">
-                <div style={{ gridColumn: '1 / -1', textAlign: 'center', fontWeight: 'bold', color: 'red', fontSize: '18px' }}>
-                  🚨 GRID FIXED - 3 COLUMNS FORCED 🚨
-                </div>
                 {(questsByCategorySafe[safeQuestCategory] ?? []).map((quest: Quest) => {
                   const categoryKey: string = String(quest.category ?? '');
                   const categoryColor = Object.prototype.hasOwnProperty.call(categoryColorMap, categoryKey)
@@ -1901,9 +1898,6 @@ export default function QuestsPage() {
             </div>
             <div className="space-y-4">
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3">
-                <div style={{ gridColumn: '1 / -1', textAlign: 'center', fontWeight: 'bold', color: 'red', fontSize: '18px' }}>
-                  🚨 GRID FIXED - 3 COLUMNS FORCED 🚨
-                </div>
                 {challenges.filter(c => c.category === challengeCategory).map((challenge) => {
                   // Remove streakBonus/gainGold/toast logic from here
                   return (
