@@ -44,9 +44,13 @@ const CardWithProgress: React.FC<UnifiedCardProps> = ({
 }) => {
   // Add local delete confirmation
   const handleDelete = (e: React.MouseEvent) => {
+    console.log('Delete button clicked for:', title);
     e.stopPropagation();
     if (window.confirm('Are you sure you want to delete this quest?')) {
+      console.log('Delete confirmed for:', title);
       onDelete && onDelete();
+    } else {
+      console.log('Delete cancelled for:', title);
     }
   };
   return (
@@ -166,4 +170,4 @@ const CardWithProgress: React.FC<UnifiedCardProps> = ({
   );
 };
 
-export default CardWithProgress; 
+export default CardWithProgress;
