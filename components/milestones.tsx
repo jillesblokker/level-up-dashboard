@@ -537,7 +537,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
                 <selectedCategoryObj.icon className={`h-5 w-5 ${selectedCategoryObj.iconClass}`} />
                 <h3 className="text-lg font-semibold">{selectedCategoryObj.label}</h3>
               </div>
-              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                 {allMilestones.length === 0 ? (
                   <div className="text-gray-400 col-span-full">No milestones for this category yet.</div>
                 ) : (

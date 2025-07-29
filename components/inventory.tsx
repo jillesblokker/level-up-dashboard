@@ -140,7 +140,7 @@ export function Inventory() {
           </TabsList>
           <TabsContent value={selectedType}>
             <ScrollArea className="h-[400px]">
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" aria-label="inventory-cards-grid">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5" aria-label="inventory-cards-grid">
                 {filteredItems.map((item) => (
                   <Card key={item.id} className="overflow-hidden" aria-label={`${item.name}-card`}>
                     <CardHeader>

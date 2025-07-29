@@ -441,3 +441,27 @@
 .map-grid-row-cols-18 { grid-template-columns: repeat(18, minmax(32px, 1fr)); }
 .map-grid-row-cols-19 { grid-template-columns: repeat(19, minmax(32px, 1fr)); }
 .map-grid-row-cols-20 { grid-template-columns: repeat(20, minmax(32px, 1fr)); } 
+
+/* Line clamp utilities for text truncation */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/* Layout consistency */ 

@@ -70,12 +70,12 @@ const CardWithProgress: React.FC<UnifiedCardProps> = ({
       <CardHeader className="flex flex-row items-center justify-between pb-2 min-w-0">
         <div className="flex items-center gap-2 min-w-0 flex-1">
           {icon && <span className="rounded-full p-2 bg-black border border-[#F59E0B] flex-shrink-0">{icon}</span>}
-          <CardTitle className="text-lg font-semibold text-amber-300 flex items-center gap-2 min-w-0">
+          <CardTitle className="text-lg font-semibold text-amber-300 flex items-center gap-2 min-w-0 flex-1">
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className="truncate">{title}</span>
+                <span className="truncate block">{title}</span>
               </TooltipTrigger>
-              <TooltipContent>{title}</TooltipContent>
+              <TooltipContent className="max-w-xs break-words">{title}</TooltipContent>
             </Tooltip>
             {streak > 1 && (
               <span
@@ -146,9 +146,9 @@ const CardWithProgress: React.FC<UnifiedCardProps> = ({
         {description && (
           <Tooltip>
             <TooltipTrigger asChild>
-              <CardDescription className="mb-4 text-gray-400 break-words truncate">{description}</CardDescription>
+              <CardDescription className="mb-4 text-gray-400 break-words line-clamp-2 min-h-[2.5rem]">{description}</CardDescription>
             </TooltipTrigger>
-            <TooltipContent>{description}</TooltipContent>
+            <TooltipContent className="max-w-xs break-words">{description}</TooltipContent>
           </Tooltip>
         )}
         <Progress value={completed ? 100 : progress} className="w-full h-2 bg-gray-700" />
