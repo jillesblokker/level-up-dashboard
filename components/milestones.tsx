@@ -264,6 +264,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       console.log('Delete successful, updating local state');
       // Set the last edit time to prevent polling from overwriting
       lastEditTimeRef.current = Date.now();
+      console.log('[Milestones Debug] Set lastEditTimeRef to:', lastEditTimeRef.current);
       // Remove from local state
       setMilestones(prev => {
         const filtered = prev.filter(m => m.id !== id);
@@ -386,6 +387,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       console.log('Milestone updated successfully, updating local state');
       // Set the last edit time to prevent polling from overwriting
       lastEditTimeRef.current = Date.now();
+      console.log('[Milestones Debug] Set lastEditTimeRef to:', lastEditTimeRef.current);
       setMilestones(prev => {
         const updated = prev.map(m => m.id === updatedMilestone.id ? { ...m, ...updatedMilestone } : m);
         console.log('Milestones after edit:', updated.length);
@@ -506,15 +508,21 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
   useEffect(() => {
     if (!userId || !token) return;
     
+    console.log('[Milestones Poll] Starting polling with 15-second interval');
+    
     const pollInterval = setInterval(async () => {
       try {
         // Skip polling if we recently made an edit/delete
         const now = Date.now();
-        if (now - lastEditTimeRef.current < 3000) { // 3 seconds debounce
+        const timeSinceLastEdit = now - lastEditTimeRef.current;
+        console.log('[Milestones Poll] Polling check - time since last edit:', timeSinceLastEdit, 'ms');
+        
+        if (timeSinceLastEdit < 3000) { // 3 seconds debounce
           console.log('[Milestones Poll] Skipping poll due to recent edit');
           return;
         }
         
+        console.log('[Milestones Poll] Fetching milestones...');
         const response = await fetch('/api/milestones', {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -522,6 +530,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
         });
         if (response.ok) {
           const milestoneData = await response.json();
+          console.log('[Milestones Poll] Received', milestoneData.length, 'milestones');
           setMilestones(milestoneData || []);
         }
       } catch (error) {
@@ -529,7 +538,10 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       }
     }, 15000); // Poll every 15 seconds instead of 5
     
-    return () => clearInterval(pollInterval);
+    return () => {
+      console.log('[Milestones Poll] Cleaning up polling interval');
+      clearInterval(pollInterval);
+    };
   }, [userId, token]);
 
   // Filter milestones by category if provided
