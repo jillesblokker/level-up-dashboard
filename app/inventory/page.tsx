@@ -105,7 +105,7 @@ export default function InventoryPage() {
   };
 
   return (
-    <div className="container mx-auto p-4 pt-20">
+    <div className="container mx-auto p-4 pt-20 pb-8 md:pb-12">
       <div className="flex items-center gap-4 mb-6">
         <Link href="/kingdom">
           <Button variant="outline" size="icon">

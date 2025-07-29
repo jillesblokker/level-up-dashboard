@@ -583,7 +583,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       </AlertDialog>
 
       {/* Main Content with Tabs */}
-      <div className="container mx-auto p-4" aria-label="kingdom-main-content">
+      <div className="container mx-auto p-4 pb-8 md:pb-12" aria-label="kingdom-main-content">
         <Tabs value={kingdomTab} onValueChange={setKingdomTab} className="w-full">
           <TabsList className="mb-2 w-full grid grid-cols-3">
             <TabsTrigger value="thrivehaven">Thrivehaven</TabsTrigger>
