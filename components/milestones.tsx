@@ -345,6 +345,8 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
   const handleEditMilestoneSubmit = async (updatedMilestone: Milestone) => {
     try {
       if (!token) throw new Error('No Clerk token');
+      console.log('Updating milestone:', updatedMilestone);
+      
       // Call backend API to update milestone
       const response = await fetch(`/api/milestones/${updatedMilestone.id}`, {
         method: 'PATCH',
@@ -364,7 +366,10 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
         const err = await response.text();
         throw new Error(err || 'Failed to update milestone');
       }
+      
+      console.log('Milestone updated successfully, updating local state');
       setMilestones(prev => prev.map(m => m.id === updatedMilestone.id ? { ...m, ...updatedMilestone } : m));
+      
       toast({
         title: 'Success',
         description: 'Milestone updated successfully!',
