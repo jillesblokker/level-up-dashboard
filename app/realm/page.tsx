@@ -327,6 +327,55 @@ export default function RealmPage() {
       console.log('[Realm] Grid bounds:', { cols: GRID_COLS, rows: INITIAL_ROWS });
     }, [isHorsePresent, horsePos, horseCaught, isSheepPresent, sheepPos, isPenguinPresent, penguinPos]);
 
+    // Animal movement logic
+    useEffect(() => {
+      if (!Array.isArray(grid)) return;
+
+      const moveAnimals = () => {
+        // Move sheep every 5 seconds
+        if (isSheepPresent && sheepPos) {
+          const adjacentPositions = getAdjacentPositions(sheepPos.x, sheepPos.y, grid);
+          const validPositions = adjacentPositions.filter(pos => {
+            const tile = grid[pos.y]?.[pos.x];
+            return tile && tile.type === 'grass' && !tile.hasMonster;
+          });
+          
+          if (validPositions.length > 0) {
+            const newPos = validPositions[Math.floor(Math.random() * validPositions.length)];
+            if (newPos) {
+              setSheepPos(newPos);
+              localStorage.setItem('sheepPos', JSON.stringify(newPos));
+              console.log('[Realm] Sheep moved to:', newPos);
+            }
+          }
+        }
+      };
+
+      const interval = setInterval(moveAnimals, 5000); // Move every 5 seconds
+      return () => clearInterval(interval);
+    }, [grid, isSheepPresent, sheepPos]);
+
+    // Horse interaction logic
+    useEffect(() => {
+      if (!Array.isArray(grid) || !isHorsePresent || horseCaught || !horsePos) return;
+
+      // Check if player is on the same tile as horse
+      if (characterPosition.x === horsePos.x && characterPosition.y === horsePos.y) {
+        console.log('[Realm] Player caught the horse!');
+        setHorseCaught(true);
+        localStorage.setItem('horseCaught', 'true');
+        
+        // Dispatch horse-caught event
+        window.dispatchEvent(new CustomEvent('horse-caught'));
+        
+        // Show notification
+        toast({
+          title: "Horse Caught!",
+          description: "You caught the wild horse!",
+        });
+      }
+    }, [characterPosition, horsePos, isHorsePresent, horseCaught, grid]);
+
     // --- Load and transform completed mystery tiles on page load ---
     useEffect(() => {
       if (typeof window !== 'undefined' && grid.length > 0) {
@@ -517,9 +566,49 @@ export default function RealmPage() {
                     if (actualGridData && Array.isArray(actualGridData)) {
                         setGrid(actualGridData);
                     } else {
-                        console.log('[Realm] No valid grid data found, loading initial grid from CSV...');
-                        const initialGrid = await loadInitialGridFromCSV();
-                        setGrid(initialGrid);
+                        console.log('[Realm] No valid grid data found, trying to load from realm-tiles API...');
+                        // Try to load from realm-tiles API instead of CSV
+                        try {
+                            const res = await fetch('/api/realm-tiles');
+                            const data = await res.json();
+                            console.log('[Realm] Realm-tiles API response:', { status: res.status, data });
+                            if (res.ok && data.tiles && Array.isArray(data.tiles)) {
+                                const maxRow = Math.max(...data.tiles.map((row: any) => row.y ?? 0), INITIAL_ROWS - 1);
+                                const gridArr: Tile[][] = Array.from({ length: maxRow + 1 }, (_, y) =>
+                                    Array.from({ length: GRID_COLS }, (_, x) => defaultTile('grass'))
+                                );
+                                console.log('[Realm] Processing tiles data:', data.tiles);
+                                data.tiles.forEach((row: any) => {
+                                    if (!row) return;
+                                    if (!gridArr[row.y] || !Array.isArray(gridArr[row.y])) return;
+                                    for (let x = 0; x < GRID_COLS; x++) {
+                                        const typeNum = row[`tile_${x}_type`];
+                                        const tileType = typeof typeNum === 'number' ? numericToTileType[typeNum] || 'grass' : 'grass';
+                                        const rowArr = gridArr[row.y];
+                                        if (!rowArr || typeof rowArr[x] === 'undefined') continue;
+                                        rowArr[x] = {
+                                            ...defaultTile(tileType),
+                                            x,
+                                            y: row.y,
+                                            id: `${tileType}-${x}-${row.y}`,
+                                        };
+                                        if (tileType !== 'grass') {
+                                            console.log('[Realm] Loaded tile:', { x, y: row.y, type: tileType, typeNum });
+                                        }
+                                    }
+                                });
+                                setGrid(gridArr);
+                            } else {
+                                console.log('[Realm] No valid tiles data, loading initial grid from CSV...');
+                                const initialGrid = await loadInitialGridFromCSV();
+                                setGrid(initialGrid);
+                            }
+                        } catch (err) {
+                            console.error('[Realm] Error loading tiles:', err);
+                            console.log('[Realm] Loading initial grid from CSV...');
+                            const initialGrid = await loadInitialGridFromCSV();
+                            setGrid(initialGrid);
+                        }
                     }
                 } else {
                     console.log('[Data Loaders] API response status: 404 - using fallback');
@@ -1575,7 +1664,7 @@ export default function RealmPage() {
                                 <img
                                     src="/images/Animals/penguin.png"
                                     alt="Penguin"
-                                    className="w-20 h-20 object-contain"
+                                    className="w-32 h-32 object-contain"
                                 />
                             </div>
                         </div>
@@ -1596,7 +1685,7 @@ export default function RealmPage() {
                                 <img
                                     src="/images/Animals/horse.png"
                                     alt="Horse"
-                                    className="w-20 h-20 object-contain"
+                                    className="w-32 h-32 object-contain"
                                     onError={(e) => console.log('[Realm] Horse image failed to load:', e)}
                                     onLoad={() => console.log('[Realm] Horse image loaded successfully')}
                                 />
@@ -1619,7 +1708,7 @@ export default function RealmPage() {
                                 <img
                                     src="/images/Animals/sheep.png"
                                     alt="Sheep"
-                                    className="w-20 h-20 object-contain"
+                                    className="w-32 h-32 object-contain"
                                     onError={(e) => console.log('[Realm] Sheep image failed to load:', e)}
                                     onLoad={() => console.log('[Realm] Sheep image loaded successfully')}
                                 />
@@ -1642,7 +1731,7 @@ export default function RealmPage() {
                                 <img
                                     src="/images/Animals/eagle.png"
                                     alt="Eagle"
-                                    className="w-20 h-20 object-contain"
+                                    className="w-32 h-32 object-contain"
                                 />
                             </div>
                         </div>
