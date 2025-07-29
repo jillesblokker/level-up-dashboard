@@ -18,6 +18,7 @@ import { X, Hammer, Move, Package, Settings, Save, Trash2, RotateCcw, PlusCircle
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useRouter } from 'next/navigation'
 import { EnterLocationModal } from '@/components/enter-location-modal'
+import { AnimalInteractionModal } from '@/components/animal-interaction-modal'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { gainGold } from '@/lib/gold-manager'
@@ -272,6 +273,13 @@ export default function RealmPage() {
     });
     const [characterStats, setCharacterStats] = useState(() => getCharacterStats());
 
+    // Animal interaction modal state
+    const [animalInteractionModal, setAnimalInteractionModal] = useState<{
+      isOpen: boolean;
+      animalType: 'horse' | 'sheep' | 'penguin' | 'eagle';
+      animalName: string;
+    } | null>(null);
+
     // Monster battle state
     const [battleOpen, setBattleOpen] = useState(false);
     const [currentMonster, setCurrentMonster] = useState<'dragon' | 'goblin' | 'troll' | 'wizard' | 'pegasus' | 'fairy'>('dragon');
@@ -283,6 +291,24 @@ export default function RealmPage() {
     const handleTileSizeChange = useCallback((newTileSize: number) => {
       console.log('[Realm] Tile size changed to:', newTileSize);
       setTileSize(newTileSize);
+    }, []);
+
+    // Handler for animal interactions
+    const handleAnimalInteraction = useCallback((animalType: 'horse' | 'sheep' | 'penguin' | 'eagle') => {
+      if (animalType === 'horse') {
+        setHorseCaught(true);
+        localStorage.setItem('horseCaught', 'true');
+        
+        // Dispatch horse-caught event
+        window.dispatchEvent(new CustomEvent('horse-caught'));
+        
+        // Show notification
+        toast({
+          title: "Horse Tamed!",
+          description: "You successfully tamed the wild horse!",
+        });
+      }
+      // Add other animal interactions here as needed
     }, []);
 
     // Debug animal positioning
@@ -424,17 +450,13 @@ export default function RealmPage() {
 
       // Check if player is on the same tile as horse
       if (characterPosition.x === horsePos.x && characterPosition.y === horsePos.y) {
-        console.log('[Realm] Player caught the horse!');
-        setHorseCaught(true);
-        localStorage.setItem('horseCaught', 'true');
+        console.log('[Realm] Player encountered the horse!');
         
-        // Dispatch horse-caught event
-        window.dispatchEvent(new CustomEvent('horse-caught'));
-        
-        // Show notification
-        toast({
-          title: "Horse Caught!",
-          description: "You caught the wild horse!",
+        // Show animal interaction modal
+        setAnimalInteractionModal({
+          isOpen: true,
+          animalType: 'horse',
+          animalName: 'Wild Horse'
         });
       }
     }, [characterPosition, horsePos, isHorsePresent, horseCaught, grid]);
@@ -1749,6 +1771,15 @@ export default function RealmPage() {
                         onClose={() => setModalState(null)}
                         locationType={modalState.locationType}
                         locationName={modalState.locationName}
+                    />
+                )}
+                {animalInteractionModal && (
+                    <AnimalInteractionModal
+                        isOpen={animalInteractionModal.isOpen}
+                        onClose={() => setAnimalInteractionModal(null)}
+                        animalType={animalInteractionModal.animalType}
+                        animalName={animalInteractionModal.animalName}
+                        onInteract={() => handleAnimalInteraction(animalInteractionModal.animalType)}
                     />
                 )}
                 {/* Full Width Map Area - Break out of all containers */}
