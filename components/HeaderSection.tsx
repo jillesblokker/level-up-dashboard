@@ -79,7 +79,7 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
   return (
     <div
       className={cn(
-        "relative w-full h-[400px] md:h-[500px] lg:h-[700px] xl:h-[800px] 2xl:h-[900px] max-w-full overflow-hidden flex items-center justify-center",
+        "relative w-full h-[200px] md:h-[250px] lg:h-[300px] xl:h-[350px] 2xl:h-[400px] max-w-full overflow-hidden flex items-center justify-center",
         className
       )}
       style={style}
