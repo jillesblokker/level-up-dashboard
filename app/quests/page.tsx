@@ -1970,7 +1970,7 @@ export default function QuestsPage() {
                 ))}
               </select>
             </div>
-            <Milestones key={milestoneCategory} token={token} category={milestoneCategory} onUpdateProgress={handleMilestoneToggle} />
+            <Milestones token={token} category={milestoneCategory} onUpdateProgress={handleMilestoneToggle} />
           </TabsContent>
 
           {/* Recovery Tab */}
