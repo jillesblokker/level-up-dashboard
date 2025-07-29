@@ -248,8 +248,8 @@ export function MapGrid({
             style={{
               left: `${penguinPos.x * tileSize + tileSize / 2}px`,
               top: `${penguinPos.y * tileSize + tileSize / 2}px`,
-              width: `${tileSize * 0.8}px`,
-              height: `${tileSize * 0.8}px`,
+              width: `${tileSize * 3.2}px`,
+              height: `${tileSize * 3.2}px`,
               transform: 'translate(-50%, -50%)'
             }}
           >
@@ -268,8 +268,8 @@ export function MapGrid({
             style={{
               left: `${horsePos.x * tileSize + tileSize / 2}px`,
               top: `${horsePos.y * tileSize + tileSize / 2}px`,
-              width: `${tileSize * 0.8}px`,
-              height: `${tileSize * 0.8}px`,
+              width: `${tileSize * 3.2}px`,
+              height: `${tileSize * 3.2}px`,
               transform: 'translate(-50%, -50%)'
             }}
           >
@@ -288,8 +288,8 @@ export function MapGrid({
             style={{
               left: `${sheepPos.x * tileSize + tileSize / 2}px`,
               top: `${sheepPos.y * tileSize + tileSize / 2}px`,
-              width: `${tileSize * 0.8}px`,
-              height: `${tileSize * 0.8}px`,
+              width: `${tileSize * 3.2}px`,
+              height: `${tileSize * 3.2}px`,
               transform: 'translate(-50%, -50%)'
             }}
           >
@@ -308,8 +308,8 @@ export function MapGrid({
             style={{
               left: `${eaglePos.x * tileSize + tileSize / 2}px`,
               top: `${eaglePos.y * tileSize + tileSize / 2}px`,
-              width: `${tileSize * 0.8}px`,
-              height: `${tileSize * 0.8}px`,
+              width: `${tileSize * 3.2}px`,
+              height: `${tileSize * 3.2}px`,
               transform: 'translate(-50%, -50%)'
             }}
           >
