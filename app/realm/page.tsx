@@ -751,6 +751,17 @@ export default function RealmPage() {
                     }
                 }
                 
+                // Check for creature discoveries
+                const iceCount = countTiles(grid, 'ice');
+                if (iceCount >= 5 && !useCreatureStore.getState().isCreatureDiscovered('014')) {
+                    // Discover Blizzey when 5 ice tiles are placed
+                    useCreatureStore.getState().discoverCreature('014');
+                    toast({
+                        title: "Creature Discovered!",
+                        description: "You discovered Blizzey, the powerful ice spirit!",
+                    });
+                }
+                
                 // Unlock achievement for special tiles
                 const tileTypeToAchievement: Record<string, string> = {
                     'ice': '013', // Example: 013 = first ice tile placed
@@ -1518,7 +1529,7 @@ export default function RealmPage() {
                     />
                     
                     {/* Creature Overlays */}
-                    {/* Penguin */}
+                    {/* Penguin - appears on ice tiles */}
                     {isPenguinPresent && penguinPos && (
                         <div
                             className="absolute z-20 pointer-events-none"
@@ -1539,7 +1550,7 @@ export default function RealmPage() {
                         </div>
                     )}
                     
-                    {/* Horse */}
+                    {/* Horse - appears on grass tiles, disappears when caught */}
                     {isHorsePresent && horsePos && !horseCaught && (
                         <div
                             className="absolute z-20 pointer-events-none"
@@ -1560,7 +1571,7 @@ export default function RealmPage() {
                         </div>
                     )}
                     
-                    {/* Sheep */}
+                    {/* Sheep - appears on grass tiles */}
                     {isSheepPresent && sheepPos && (
                         <div
                             className="absolute z-20 pointer-events-none"
@@ -1581,7 +1592,7 @@ export default function RealmPage() {
                         </div>
                     )}
                     
-                    {/* Eagle */}
+                    {/* Eagle - appears when available */}
                     {eaglePos && (
                         <div
                             className="absolute z-20 pointer-events-none"
@@ -1596,27 +1607,6 @@ export default function RealmPage() {
                                 <img
                                     src="/images/Animals/eagle.png"
                                     alt="Eagle"
-                                    className="w-12 h-12 object-contain"
-                                />
-                            </div>
-                        </div>
-                    )}
-                    
-                    {/* Wizard (Blizzey) - appears when Blizzey is discovered */}
-                    {useCreatureStore.getState().isCreatureDiscovered('014') && findFirstIceTile(grid) && (
-                        <div
-                            className="absolute z-20 pointer-events-none"
-                            style={{
-                                left: `${findFirstIceTile(grid)!.x * 80}px`,
-                                top: `${findFirstIceTile(grid)!.y * 80}px`,
-                                width: '80px',
-                                height: '80px'
-                            }}
-                        >
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <img
-                                    src="/images/Monsters/Sorceror.png"
-                                    alt="Wizard (Blizzey)"
                                     className="w-12 h-12 object-contain"
                                 />
                             </div>
