@@ -951,7 +951,15 @@ export default function QuestsPage() {
 
   // Delete quest (UI only, confirmation modal)
   const handleDeleteQuest = (questId: string) => {
-    setQuests(prev => prev.filter(q => q.id !== questId));
+    console.log('Deleting quest:', questId);
+    console.log('Current quests before delete:', quests.length);
+    
+    setQuests(prev => {
+      const filtered = prev.filter(q => q.id !== questId);
+      console.log('Quests after delete:', filtered.length);
+      return filtered;
+    });
+    
     toast({
       title: 'Success',
       description: 'Quest deleted successfully!',
@@ -1645,17 +1653,9 @@ export default function QuestsPage() {
                 style={{
                   display: 'grid !important',
                   gridTemplateColumns: 'repeat(3, minmax(0, 1fr)) !important',
-                  gap: '1rem !important',
-                  border: '5px solid lime !important',
-                  backgroundColor: 'lime !important',
-                  color: 'black !important',
-                  padding: '20px !important',
-                  fontSize: '24px !important'
+                  gap: '1rem !important'
                 }}
               >
-                <div style={{ gridColumn: '1 / -1', textAlign: 'center', fontWeight: 'bold' }}>
-                  🚨 DEPLOYMENT TEST - 3 COLUMNS FORCE APPLIED 🚨
-                </div>
                 {(questsByCategorySafe[safeQuestCategory] ?? []).map((quest: Quest) => {
                   const categoryKey: string = String(quest.category ?? '');
                   const categoryColor = Object.prototype.hasOwnProperty.call(categoryColorMap, categoryKey)
@@ -1918,7 +1918,7 @@ export default function QuestsPage() {
                     <CardWithProgress
                       key={challenge.id}
                       title={challenge.name}
-                      description={challenge.description}
+                      description={challenge.description || challenge.instructions || ''}
                       icon={React.createElement(getCategoryIcon(challenge.category))}
                       completed={challenge.completed}
                       onToggle={() => handleChallengeToggle(challenge.id, challenge.completed)}
@@ -1927,7 +1927,15 @@ export default function QuestsPage() {
                         setEditCustomChallengeData(challenge);
                       }}
                       onDelete={() => {
-                        setChallenges(prev => prev.filter(c => c.id !== challenge.id));
+                        console.log('Deleting challenge:', challenge.id);
+                        console.log('Current challenges before delete:', challenges.length);
+                        
+                        setChallenges(prev => {
+                          const filtered = prev.filter(c => c.id !== challenge.id);
+                          console.log('Challenges after delete:', filtered.length);
+                          return filtered;
+                        });
+                        
                         toast({
                           title: 'Success',
                           description: 'Challenge deleted successfully!',
@@ -2146,9 +2154,14 @@ export default function QuestsPage() {
               />
               <label className="block mb-2 text-sm font-medium">Instructions</label>
               <textarea
-                className="w-full mb-4 p-2 border rounded"
-                value={editCustomChallengeData.instructions}
-                onChange={e => setEditCustomChallengeData({ ...editCustomChallengeData, instructions: e.target.value })}
+                className="w-full mb-4 p-2 border rounded resize-none"
+                rows={3}
+                value={editCustomChallengeData.description || editCustomChallengeData.instructions || ''}
+                onChange={e => setEditCustomChallengeData({ 
+                  ...editCustomChallengeData, 
+                  description: e.target.value,
+                  instructions: e.target.value 
+                })}
                 placeholder="Instructions"
                 title="Instructions"
                 aria-label="Instructions"
