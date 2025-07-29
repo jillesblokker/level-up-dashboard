@@ -1,53 +1,49 @@
 import { NextResponse } from 'next/server';
 import { NextRequest } from 'next/server';
-import { getAuth } from '@clerk/nextjs/server';
-import { supabaseServer } from '../../../lib/supabase/server-client';
-
-// Helper to extract and verify Clerk JWT, returns userId or null
-async function getUserIdFromRequest(request: Request): Promise<string | null> {
-  try {
-    const { userId } = getAuth(request as NextRequest);
-    return userId || null;
-  } catch (e) {
-    console.error('[Clerk] JWT verification failed:', e);
-    return null;
-  }
-}
+import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
 export async function GET(request: Request) {
   try {
-    const userId = await getUserIdFromRequest(request);
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    // Fetch all milestones
-    const { data: allMilestones, error: milestonesError } = await supabaseServer
-      .from('milestones')
-      .select('*');
-    if (milestonesError) {
-      return NextResponse.json({ error: milestonesError.message }, { status: 500 });
-    }
-    // Fetch user's milestone completions
-    const { data: completions, error: completionError } = await supabaseServer
-      .from('milestone_completion')
-      .select('*')
-      .eq('user_id', userId);
-    if (completionError) {
-      return NextResponse.json({ error: completionError.message }, { status: 500 });
-    }
-    // Merge completion state
-    const completionMap = new Map();
-    completions.forEach((c: any) => completionMap.set(String(c.milestone_id), c));
-    const milestonesWithCompletion = (allMilestones || []).map((m: any) => {
-      const completion = completionMap.get(String(m.id));
-      return {
-        ...m,
-        completed: completion?.completed ?? false,
-        completionId: completion?.id,
-        date: completion?.date,
-      };
+    // Use authenticated Supabase query with proper Clerk JWT verification
+    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      // Fetch all milestones
+      const { data: allMilestones, error: milestonesError } = await supabase
+        .from('milestones')
+        .select('*');
+      if (milestonesError) {
+        throw milestonesError;
+      }
+      
+      // Fetch user's milestone completions
+      const { data: completions, error: completionError } = await supabase
+        .from('milestone_completion')
+        .select('*')
+        .eq('user_id', userId);
+      if (completionError) {
+        throw completionError;
+      }
+      
+      // Merge completion state
+      const completionMap = new Map();
+      completions.forEach((c: any) => completionMap.set(String(c.milestone_id), c));
+      const milestonesWithCompletion = (allMilestones || []).map((m: any) => {
+        const completion = completionMap.get(String(m.id));
+        return {
+          ...m,
+          completed: completion?.completed ?? false,
+          completionId: completion?.id,
+          date: completion?.date,
+        };
+      });
+      
+      return milestonesWithCompletion;
     });
-    return NextResponse.json(milestonesWithCompletion);
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 401 });
+    }
+
+    return NextResponse.json(result.data);
   } catch (error) {
     console.error('[Milestones Error]', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -56,11 +52,6 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const userId = await getUserIdFromRequest(request);
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    
     const body = await request.json();
     const { name, description, category, difficulty, xp, gold, target, icon } = body;
     
@@ -68,30 +59,38 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
     
-    // Create new milestone
-    const { data: newMilestone, error } = await supabaseServer
-      .from('milestones')
-      .insert([
-        {
-          name,
-          description: description || name,
-          category,
-          difficulty: difficulty || 'medium',
-          xp: xp || 0,
-          gold: gold || 0,
-          target: target || 1,
-          icon: icon || '🎯',
-        },
-      ])
-      .select()
-      .single();
+    // Use authenticated Supabase query with proper Clerk JWT verification
+    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      // Create new milestone
+      const { data: newMilestone, error } = await supabase
+        .from('milestones')
+        .insert([
+          {
+            name,
+            description: description || name,
+            category,
+            difficulty: difficulty || 'medium',
+            xp: xp || 0,
+            gold: gold || 0,
+            target: target || 1,
+            icon: icon || '🎯',
+          },
+        ])
+        .select()
+        .single();
+        
+      if (error) {
+        throw error;
+      }
       
-    if (error) {
-      console.error('[Milestones POST] Error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return newMilestone;
+    });
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 401 });
     }
-    
-    return NextResponse.json(newMilestone);
+
+    return NextResponse.json(result.data);
   } catch (error) {
     console.error('[Milestones POST] Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

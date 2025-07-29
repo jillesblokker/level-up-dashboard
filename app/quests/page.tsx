@@ -1648,21 +1648,9 @@ export default function QuestsPage() {
               </Card>
             </div>
             <div className="space-y-4">
-              <div 
-                style={{
-                  display: 'grid !important',
-                  gridTemplateColumns: 'repeat(3, minmax(0, 1fr)) !important',
-                  gap: '1rem !important',
-                  width: '100% !important',
-                  border: '5px solid red !important',
-                  backgroundColor: 'red !important',
-                  color: 'white !important',
-                  padding: '20px !important',
-                  fontSize: '24px !important'
-                }}
-              >
-                <div style={{ gridColumn: '1 / -1', textAlign: 'center', fontWeight: 'bold' }}>
-                  🚨 FORCE 3 COLUMNS - DELETE DEBUGGING ADDED 🚨
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3">
+                <div style={{ gridColumn: '1 / -1', textAlign: 'center', fontWeight: 'bold', color: 'red', fontSize: '18px' }}>
+                  🚨 GRID FIXED - 3 COLUMNS FORCED 🚨
                 </div>
                 {(questsByCategorySafe[safeQuestCategory] ?? []).map((quest: Quest) => {
                   const categoryKey: string = String(quest.category ?? '');
@@ -1912,21 +1900,9 @@ export default function QuestsPage() {
               </Card>
             </div>
             <div className="space-y-4">
-              <div 
-                style={{
-                  display: 'grid !important',
-                  gridTemplateColumns: 'repeat(3, minmax(0, 1fr)) !important',
-                  gap: '1rem !important',
-                  width: '100% !important',
-                  border: '5px solid red !important',
-                  backgroundColor: 'red !important',
-                  color: 'white !important',
-                  padding: '20px !important',
-                  fontSize: '24px !important'
-                }}
-              >
-                <div style={{ gridColumn: '1 / -1', textAlign: 'center', fontWeight: 'bold' }}>
-                  🚨 FORCE 3 COLUMNS - DELETE DEBUGGING ADDED 🚨
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3">
+                <div style={{ gridColumn: '1 / -1', textAlign: 'center', fontWeight: 'bold', color: 'red', fontSize: '18px' }}>
+                  🚨 GRID FIXED - 3 COLUMNS FORCED 🚨
                 </div>
                 {challenges.filter(c => c.category === challengeCategory).map((challenge) => {
                   // Remove streakBonus/gainGold/toast logic from here
