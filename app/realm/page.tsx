@@ -1410,362 +1410,367 @@ export default function RealmPage() {
                 onAnimationEnd={() => setIsAnimating(false)}
                 shouldRevealImage={true}
             />
-            {/* Top Toolbar */}
-            <div className="flex items-center justify-between bg-gray-800 z-30 overflow-visible">
-              {/* On mobile, make action rows horizontally scrollable and touch-friendly */}
-              <div className="flex flex-1 flex-col gap-2 overflow-visible">
-                <div className="flex items-center gap-2 overflow-x-auto flex-nowrap md:gap-4 md:overflow-visible md:flex-wrap overflow-visible p-2" style={{ WebkitOverflowScrolling: 'touch' }}>
-                  <Button
-                    variant={gameMode === 'move' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setGameMode('move')}
-                    className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
-                    aria-label="movement-mode-button"
-                  >
-                    <Move className="w-4 h-4 text-white" />
-                    <span className="hidden md:inline">Move</span>
-                  </Button>
-                  <Button
-                    variant={gameMode === 'build' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setGameMode('build')}
-                    className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
-                    aria-label="build-mode-button"
-                  >
-                    <Hammer className="w-4 h-4" />
-                    <span className="hidden md:inline">Build</span>
-                  </Button>
-                  <div className="hidden md:flex items-center space-x-2 min-w-[100px]" aria-label="auto-save-controls">
-                    <Switch id="auto-save-switch" checked={autoSave} onCheckedChange={setAutoSave} />
-                    <label htmlFor="auto-save-switch" className="text-sm">Auto Save</label>
-                  </div>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={expandMap}
-                          disabled={!canExpand}
-                          aria-label="Expand Map"
-                          className="flex items-center gap-2 min-w-[44px] min-h-[44px] disabled:pointer-events-auto"
-                        >
-                          <PlusCircle className="w-4 h-4" />
-                          <span className="hidden sm:inline">Expand Map</span>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent 
-                        side="top" 
-                        className="bg-gray-900 text-white border-amber-800/30"
+            <RealmAnimationWrapper 
+                isAnimating={isAnimating}
+                onImageReveal={setShouldRevealImage}
+            >
+                {/* Top Toolbar */}
+                <div className="flex items-center justify-between bg-gray-800 z-30 overflow-visible">
+                  {/* On mobile, make action rows horizontally scrollable and touch-friendly */}
+                  <div className="flex flex-1 flex-col gap-2 overflow-visible">
+                    <div className="flex items-center gap-2 overflow-x-auto flex-nowrap md:gap-4 md:overflow-visible md:flex-wrap overflow-visible p-2" style={{ WebkitOverflowScrolling: 'touch' }}>
+                      <Button
+                        variant={gameMode === 'move' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setGameMode('move')}
+                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                        aria-label="movement-mode-button"
                       >
-                        {canExpand 
-                          ? 'Expand your realm map to unlock 3 more rows' 
-                          : `Become level ${nextExpansionLevel} to unlock 3 more rows`
-                        }
-                      </TooltipContent>
-                    </Tooltip>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleResetMap}
-                    className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
-                    aria-label="reset-map-button"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    <span className="hidden sm:inline">Reset Map</span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowInventory(!showInventory)}
-                    className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
-                    aria-label="toggle-inventory-button"
-                  >
-                    <Package className="w-4 h-4" />
-                    <span className="hidden sm:inline">Inventory</span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleResetPosition}
-                    className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
-                    aria-label="reset-position-button"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                    <span className="hidden sm:inline">Reset Position</span>
-                  </Button>
-                </div>
-              </div>
-            </div>
-            {modalState && (
-                <EnterLocationModal
-                    isOpen={modalState.isOpen}
-                    onClose={() => setModalState(null)}
-                    locationType={modalState.locationType}
-                    locationName={modalState.locationName}
-                />
-            )}
-            {/* Full Width Map Area - Break out of all containers */}
-            <div className="fixed inset-0 top-[60px] left-0 right-0 bottom-8 md:bottom-12 z-10">
-                <MapGrid
-                    grid={grid}
-                    playerPosition={characterPosition}
-                    onTileClick={handlePlaceTile}
-                    playerLevel={characterStats.level}
-                />
-            </div>
-            {/* Overlay Inventory Panel */}
-            {showInventory && (
-                <div id="tile-inventory-panel" role="dialog" aria-modal="true" aria-label="Tile Inventory Panel" className="absolute top-[60px] right-0 h-[calc(100%-60px-2rem)] md:h-[calc(100%-60px-3rem)] w-96 max-w-[90vw] bg-gray-800/95 backdrop-blur-md border-l border-gray-700 flex flex-col z-30 p-2 shadow-2xl">
-                    <div className="p-4 border-b border-gray-700 flex items-center justify-between">
-                        <h2 className="text-lg font-semibold">Tile Inventory</h2>
-                        <Button
-                            ref={closeBtnRef}
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setShowInventory(false)}
-                            aria-label="close-inventory-button"
-                            className="min-w-[44px] min-h-[44px]"
-                        >
-                            <X className="w-6 h-6" />
-                        </Button>
+                        <Move className="w-4 h-4 text-white" />
+                        <span className="hidden md:inline">Move</span>
+                      </Button>
+                      <Button
+                        variant={gameMode === 'build' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setGameMode('build')}
+                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                        aria-label="build-mode-button"
+                      >
+                        <Hammer className="w-4 h-4" />
+                        <span className="hidden md:inline">Build</span>
+                      </Button>
+                      <div className="hidden md:flex items-center space-x-2 min-w-[100px]" aria-label="auto-save-controls">
+                        <Switch id="auto-save-switch" checked={autoSave} onCheckedChange={setAutoSave} />
+                        <label htmlFor="auto-save-switch" className="text-sm">Auto Save</label>
+                      </div>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={expandMap}
+                              disabled={!canExpand}
+                              aria-label="Expand Map"
+                              className="flex items-center gap-2 min-w-[44px] min-h-[44px] disabled:pointer-events-auto"
+                            >
+                              <PlusCircle className="w-4 h-4" />
+                              <span className="hidden sm:inline">Expand Map</span>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent 
+                            side="top" 
+                            className="bg-gray-900 text-white border-amber-800/30"
+                          >
+                            {canExpand 
+                              ? 'Expand your realm map to unlock 3 more rows' 
+                              : `Become level ${nextExpansionLevel} to unlock 3 more rows`
+                            }
+                          </TooltipContent>
+                        </Tooltip>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleResetMap}
+                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                        aria-label="reset-map-button"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span className="hidden sm:inline">Reset Map</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowInventory(!showInventory)}
+                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                        aria-label="toggle-inventory-button"
+                      >
+                        <Package className="w-4 h-4" />
+                        <span className="hidden sm:inline">Inventory</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleResetPosition}
+                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                        aria-label="reset-position-button"
+                      >
+                        <RotateCcw className="w-4 h-4" />
+                        <span className="hidden sm:inline">Reset Position</span>
+                      </Button>
                     </div>
-                    <ScrollArea className="flex-1 p-4">
-                        <TileInventory
-                            tiles={inventoryAsItems}
-                            selectedTile={selectedTile}
-                            onSelectTile={setSelectedTile}
-                            onUpdateTiles={(newTiles: typeof inventoryAsItems) => {
-                                setInventory(prev => {
-                                    const updated = { ...prev };
-                                    newTiles.forEach((tile: typeof inventoryAsItems[number]) => {
-                                        updated[tile.type] = { ...updated[tile.type], ...tile };
-                                    });
-                                    
-                                    // Save to Supabase with localStorage fallback
-                                    if (userId) {
-                                        saveTileInventory(userId, updated).catch(error => {
-                                            console.error('Failed to save inventory:', error);
-                                        });
-                                    }
-                                    
-                                    return updated;
-                                });
-                            }}
-                            activeTab={inventoryTab}
-                            setActiveTab={setInventoryTab}
-                            onOutOfTiles={(tile) => toast({ title: 'No more tiles of this type', description: 'Buy more!' })}
-                        />
-                    </ScrollArea>
+                  </div>
                 </div>
-            )}
-            
-            {/* Event Modals */}
-            {castleEvent?.open && (
-                <Dialog open={castleEvent.open} onOpenChange={() => setCastleEvent(null)}>
-                    <DialogContent aria-label="Castle Event Royal Audience" role="dialog" aria-modal="true">
-                        <DialogHeader>
-                            <DialogTitle>Royal Audience with the King</DialogTitle>
-                            <DialogDescription>You enter the grand hall of the castle and are summoned before the King. He sits on a golden throne, surrounded by advisors and guards. He peers down at you with curiosity.</DialogDescription>
-                        </DialogHeader>
-                        {!castleEvent.result ? (
-                            <div className="flex flex-col items-center space-y-4">
-                                <div className="h-16 flex items-center justify-center">
-                                    <div className="w-16 h-16 flex items-center justify-center rounded-lg border-4 border-amber-700 bg-gray-900 text-4xl font-bold text-amber-400 select-none" style={{ transition: 'background 0.2s' }}>
-                                        {castleDiceRolling
-                                            ? Math.ceil(Math.random() * 6)
-                                            : castleDiceValue || 1}
+                {modalState && (
+                    <EnterLocationModal
+                        isOpen={modalState.isOpen}
+                        onClose={() => setModalState(null)}
+                        locationType={modalState.locationType}
+                        locationName={modalState.locationName}
+                    />
+                )}
+                {/* Full Width Map Area - Break out of all containers */}
+                <div className="fixed inset-0 top-[60px] left-0 right-0 bottom-8 md:bottom-12 z-10">
+                    <MapGrid
+                        grid={grid}
+                        playerPosition={characterPosition}
+                        onTileClick={handlePlaceTile}
+                        playerLevel={characterStats.level}
+                    />
+                </div>
+                {/* Overlay Inventory Panel */}
+                {showInventory && (
+                    <div id="tile-inventory-panel" role="dialog" aria-modal="true" aria-label="Tile Inventory Panel" className="absolute top-[60px] right-0 h-[calc(100%-60px-2rem)] md:h-[calc(100%-60px-3rem)] w-96 max-w-[90vw] bg-gray-800/95 backdrop-blur-md border-l border-gray-700 flex flex-col z-30 p-2 shadow-2xl">
+                        <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+                            <h2 className="text-lg font-semibold">Tile Inventory</h2>
+                            <Button
+                                ref={closeBtnRef}
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setShowInventory(false)}
+                                aria-label="close-inventory-button"
+                                className="min-w-[44px] min-h-[44px]"
+                            >
+                                <X className="w-6 h-6" />
+                            </Button>
+                        </div>
+                        <ScrollArea className="flex-1 p-4">
+                            <TileInventory
+                                tiles={inventoryAsItems}
+                                selectedTile={selectedTile}
+                                onSelectTile={setSelectedTile}
+                                onUpdateTiles={(newTiles: typeof inventoryAsItems) => {
+                                    setInventory(prev => {
+                                        const updated = { ...prev };
+                                        newTiles.forEach((tile: typeof inventoryAsItems[number]) => {
+                                            updated[tile.type] = { ...updated[tile.type], ...tile };
+                                        });
+                                        
+                                        // Save to Supabase with localStorage fallback
+                                        if (userId) {
+                                            saveTileInventory(userId, updated).catch(error => {
+                                                console.error('Failed to save inventory:', error);
+                                            });
+                                        }
+                                        
+                                        return updated;
+                                    });
+                                }}
+                                activeTab={inventoryTab}
+                                setActiveTab={setInventoryTab}
+                                onOutOfTiles={(tile) => toast({ title: 'No more tiles of this type', description: 'Buy more!' })}
+                            />
+                        </ScrollArea>
+                    </div>
+                )}
+                
+                {/* Event Modals */}
+                {castleEvent?.open && (
+                    <Dialog open={castleEvent.open} onOpenChange={() => setCastleEvent(null)}>
+                        <DialogContent aria-label="Castle Event Royal Audience" role="dialog" aria-modal="true">
+                            <DialogHeader>
+                                <DialogTitle>Royal Audience with the King</DialogTitle>
+                                <DialogDescription>You enter the grand hall of the castle and are summoned before the King. He sits on a golden throne, surrounded by advisors and guards. He peers down at you with curiosity.</DialogDescription>
+                            </DialogHeader>
+                            {!castleEvent.result ? (
+                                <div className="flex flex-col items-center space-y-4">
+                                    <div className="h-16 flex items-center justify-center">
+                                        <div className="w-16 h-16 flex items-center justify-center rounded-lg border-4 border-amber-700 bg-gray-900 text-4xl font-bold text-amber-400 select-none" style={{ transition: 'background 0.2s' }}>
+                                            {castleDiceRolling
+                                                ? Math.ceil(Math.random() * 6)
+                                                : castleDiceValue || 1}
+                                        </div>
+                                    </div>
+                                    <Button aria-label="Roll Dice" onClick={async () => {
+                                        setCastleDiceRolling(true);
+                                        setCastleDiceValue(null);
+                                        let roll = 1;
+                                        const interval = setInterval(() => {
+                                            roll = Math.ceil(Math.random() * 6);
+                                            setCastleDiceValue(roll);
+                                        }, 100);
+                                        await new Promise(res => setTimeout(res, 1000));
+                                        clearInterval(interval);
+                                        setCastleDiceRolling(false);
+                                        setCastleDiceValue(roll);
+                                        let result = '';
+                                        let reward = '';
+                                        if (roll <= 2) {
+                                            result = `The King rewards your humble service with 20 gold for your travels. (Rolled ${roll})`;
+                                            reward = '+20 gold';
+                                            gainGold(20, 'castle-event');
+                                        } else if (roll <= 4) {
+                                            result = `The King is impressed by your tales and grants you 40 EXP to continue your noble path. (Rolled ${roll})`;
+                                            reward = '+40 XP';
+                                            gainExperience(40, 'castle-event');
+                                        } else {
+                                            const attributes = ['Loyalty', 'Defense', 'Wisdom', 'Courage', 'Honor'];
+                                            const attr = attributes[Math.floor(Math.random() * attributes.length)];
+                                            result = `The King knights you an Honorary Guardian and gifts +1 ${attr} to your Kingdom Inventory. (Rolled ${roll})`;
+                                            reward = `+1 ${attr}`;
+                                            // Add attribute to inventory or show toast (implement as needed)
+                                        }
+                                        setTimeout(() => setCastleEvent({ open: true, result, reward }), 500);
+                                    }}>Roll Dice</Button>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    <div className="text-lg font-semibold text-center">{castleEvent.result}</div>
+                                    <Button aria-label="Close" onClick={() => setCastleEvent(null)}>Close</Button>
+                                </div>
+                            )}
+                        </DialogContent>
+                    </Dialog>
+                )}
+                {dungeonEvent?.open && dungeonEvent?.questions && (
+                    <Dialog open={dungeonEvent.open} onOpenChange={() => setDungeonEvent(null)}>
+                        <DialogContent aria-label="Dungeon Event Higher or Lower" role="dialog" aria-modal="true">
+                            <DialogHeader>
+                                <DialogTitle>Medieval Dungeon: Higher or Lower?</DialogTitle>
+                                <DialogDescription>You descend into a damp, torch-lit dungeon. Echoes bounce from the walls. A voice from the shadows challenges you to a battle of wit and lore.<br/>&quot;Is the next number higher or lower?&quot;</DialogDescription>
+                            </DialogHeader>
+                            {dungeonEvent.questionIndex < dungeonEvent.questions.length ? (
+                                <div className="space-y-4">
+                                    <div className="text-lg font-semibold text-center">{dungeonEvent.questions[dungeonEvent.questionIndex]?.fact}</div>
+                                    <div className="flex gap-4 justify-center">
+                                        <Button aria-label="Higher" onClick={() => {
+                                            const nextQuestionIndex = dungeonEvent.questionIndex + 1;
+                                            if (nextQuestionIndex >= dungeonEvent.questions.length) {
+                                                setDungeonEvent({ ...dungeonEvent, questionIndex: nextQuestionIndex, result: `You scored ${dungeonEvent.score} out of 20! (+${dungeonEvent.score * 5} XP)` });
+                                                gainExperience(dungeonEvent.score * 5, 'dungeon-event');
+                                                return;
+                                            }
+                                            const nextQuestion = dungeonEvent?.questions?.[nextQuestionIndex];
+                                            if (nextQuestion && dungeonEvent.questions && typeof dungeonEvent.questionIndex === 'number' && dungeonEvent.questions[dungeonEvent.questionIndex]) {
+                                                const correct = nextQuestion.number > dungeonEvent.questions[dungeonEvent.questionIndex]!.number;
+                                                setDungeonEvent({
+                                                    ...dungeonEvent,
+                                                    questionIndex: nextQuestionIndex,
+                                                    score: dungeonEvent.score + (correct ? 1 : 0),
+                                                    prevNumber: nextQuestion.number,
+                                                });
+                                            }
+                                        }}>Higher</Button>
+                                        <Button aria-label="Lower" onClick={() => {
+                                            const nextQuestionIndex = dungeonEvent.questionIndex + 1;
+                                            if (nextQuestionIndex >= dungeonEvent.questions.length) {
+                                                setDungeonEvent({ ...dungeonEvent, questionIndex: nextQuestionIndex, result: `You scored ${dungeonEvent.score} out of 20! (+${dungeonEvent.score * 5} XP)` });
+                                                return;
+                                            }
+                                            const nextQuestion = dungeonEvent?.questions?.[nextQuestionIndex];
+                                            if (nextQuestion && dungeonEvent.questions && typeof dungeonEvent.questionIndex === 'number' && dungeonEvent.questions[dungeonEvent.questionIndex]) {
+                                                const correct = nextQuestion.number < dungeonEvent.questions[dungeonEvent.questionIndex]!.number;
+                                                setDungeonEvent({
+                                                    ...dungeonEvent,
+                                                    questionIndex: nextQuestionIndex,
+                                                    score: dungeonEvent.score + (correct ? 1 : 0),
+                                                    prevNumber: nextQuestion.number,
+                                                });
+                                            }
+                                        }}>Lower</Button>
+                                    </div>
+                                    <div className="text-sm text-center text-gray-400">Current Score: {dungeonEvent.score} / 20</div>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    <div className="text-lg font-semibold text-center">{dungeonEvent.result}</div>
+                                    <Button aria-label="Close" onClick={() => setDungeonEvent(null)}>Close</Button>
+                                </div>
+                            )}
+                        </DialogContent>
+                    </Dialog>
+                )}
+                {caveEvent?.open && (
+                    <Dialog open={caveEvent.open} onOpenChange={() => setCaveEvent(null)}>
+                        <DialogContent aria-label="Cave Event Three Paths" role="dialog" aria-modal="true">
+                            <DialogHeader>
+                                <DialogTitle>Cave: Choose a Path</DialogTitle>
+                                <DialogDescription>You find yourself at a fork deep in the heart of a shadowy cave. Three paths lie before you, each whispering fate in a different tone.<br/>&quot;Which path do you choose, brave adventurer?&quot;</DialogDescription>
+                            </DialogHeader>
+                            {!caveEvent.result ? (
+                                <div className="space-y-4 flex flex-col">
+                                    <Button className="w-full" aria-label="Gem Path" onClick={() => {
+                                        const roll = Math.random();
+                                        if (roll < 0.2) {
+                                            setCaveEvent({ open: true, result: 'You find a radiant Gem worth 80 gold!' });
+                                            gainGold(80, 'cave-event');
+                                        } else {
+                                            setCaveEvent({ open: true, result: "It's just dust and shadows… you find nothing." });
+                                        }
+                                    }}>Path 1: Gem Path</Button>
+                                    <Button className="w-full" aria-label="Dark Path" onClick={() => {
+                                        const roll = Math.random();
+                                        if (roll < 0.1) {
+                                            setCaveEvent({ open: true, result: 'A friendly Wizard appears and grants you 120 EXP!' });
+                                            gainExperience(120, 'cave-event');
+                                        } else {
+                                            setCaveEvent({ open: true, result: 'You stumble through the dark with no gain.' });
+                                        }
+                                    }}>Path 2: Dark Path</Button>
+                                    <Button className="w-full" aria-label="Light at the End" onClick={() => {
+                                        const roll = Math.random();
+                                        if (roll < 0.9) {
+                                            setCaveEvent({ open: true, result: 'You emerge safely and gain 10 gold.' });
+                                            gainGold(10, 'cave-event');
+                                        } else {
+                                            setCaveEvent({ open: true, result: 'It leads to a working volcano—you lose 10 gold in the chaos.' });
+                                            gainGold(-10, 'cave-event');
+                                        }
+                                    }}>Path 3: Light at the End</Button>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    <div className="text-lg font-semibold text-center">{caveEvent.result}</div>
+                                    <Button aria-label="Close" onClick={() => setCaveEvent(null)}>Close</Button>
+                                </div>
+                            )}
+                        </DialogContent>
+                    </Dialog>
+                )}
+                
+                {/* Mystery Event Modal */}
+                {mysteryEvent?.open && (
+                    <Dialog open={mysteryEvent.open} onOpenChange={() => setMysteryEvent(null)}>
+                        <DialogContent aria-label="Mystery Event" role="dialog" aria-modal="true">
+                            <DialogHeader>
+                                <DialogTitle>{mysteryEvent.event.title}</DialogTitle>
+                                <DialogDescription>{mysteryEvent.event.description}</DialogDescription>
+                            </DialogHeader>
+                            {!mysteryEvent.choice ? (
+                                <div className="space-y-4 flex flex-col">
+                                    {mysteryEvent.event.choices.map((choice: string, index: number) => (
+                                        <Button 
+                                            key={index}
+                                            className="w-full" 
+                                            aria-label={`Choice ${index + 1}: ${choice}`}
+                                            onClick={() => {
+                                                setMysteryEvent({ ...mysteryEvent, choice });
+                                                handleEventOutcome(mysteryEvent.event, choice, user?.id);
+                                                setTimeout(() => setMysteryEvent(null), 2000);
+                                            }}
+                                        >
+                                            {choice}
+                                        </Button>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    <div className="text-lg font-semibold text-center">
+                                        Processing your choice...
                                     </div>
                                 </div>
-                                <Button aria-label="Roll Dice" onClick={async () => {
-                                    setCastleDiceRolling(true);
-                                    setCastleDiceValue(null);
-                                    let roll = 1;
-                                    const interval = setInterval(() => {
-                                        roll = Math.ceil(Math.random() * 6);
-                                        setCastleDiceValue(roll);
-                                    }, 100);
-                                    await new Promise(res => setTimeout(res, 1000));
-                                    clearInterval(interval);
-                                    setCastleDiceRolling(false);
-                                    setCastleDiceValue(roll);
-                                    let result = '';
-                                    let reward = '';
-                                    if (roll <= 2) {
-                                        result = `The King rewards your humble service with 20 gold for your travels. (Rolled ${roll})`;
-                                        reward = '+20 gold';
-                                        gainGold(20, 'castle-event');
-                                    } else if (roll <= 4) {
-                                        result = `The King is impressed by your tales and grants you 40 EXP to continue your noble path. (Rolled ${roll})`;
-                                        reward = '+40 XP';
-                                        gainExperience(40, 'castle-event');
-                                    } else {
-                                        const attributes = ['Loyalty', 'Defense', 'Wisdom', 'Courage', 'Honor'];
-                                        const attr = attributes[Math.floor(Math.random() * attributes.length)];
-                                        result = `The King knights you an Honorary Guardian and gifts +1 ${attr} to your Kingdom Inventory. (Rolled ${roll})`;
-                                        reward = `+1 ${attr}`;
-                                        // Add attribute to inventory or show toast (implement as needed)
-                                    }
-                                    setTimeout(() => setCastleEvent({ open: true, result, reward }), 500);
-                                }}>Roll Dice</Button>
-                            </div>
-                        ) : (
-                            <div className="space-y-4">
-                                <div className="text-lg font-semibold text-center">{castleEvent.result}</div>
-                                <Button aria-label="Close" onClick={() => setCastleEvent(null)}>Close</Button>
-                            </div>
-                        )}
-                    </DialogContent>
-                </Dialog>
-            )}
-            {dungeonEvent?.open && dungeonEvent?.questions && (
-                <Dialog open={dungeonEvent.open} onOpenChange={() => setDungeonEvent(null)}>
-                    <DialogContent aria-label="Dungeon Event Higher or Lower" role="dialog" aria-modal="true">
-                        <DialogHeader>
-                            <DialogTitle>Medieval Dungeon: Higher or Lower?</DialogTitle>
-                            <DialogDescription>You descend into a damp, torch-lit dungeon. Echoes bounce from the walls. A voice from the shadows challenges you to a battle of wit and lore.<br/>&quot;Is the next number higher or lower?&quot;</DialogDescription>
-                        </DialogHeader>
-                        {dungeonEvent.questionIndex < dungeonEvent.questions.length ? (
-                            <div className="space-y-4">
-                                <div className="text-lg font-semibold text-center">{dungeonEvent.questions[dungeonEvent.questionIndex]?.fact}</div>
-                                <div className="flex gap-4 justify-center">
-                                    <Button aria-label="Higher" onClick={() => {
-                                        const nextQuestionIndex = dungeonEvent.questionIndex + 1;
-                                        if (nextQuestionIndex >= dungeonEvent.questions.length) {
-                                            setDungeonEvent({ ...dungeonEvent, questionIndex: nextQuestionIndex, result: `You scored ${dungeonEvent.score} out of 20! (+${dungeonEvent.score * 5} XP)` });
-                                            gainExperience(dungeonEvent.score * 5, 'dungeon-event');
-                                            return;
-                                        }
-                                        const nextQuestion = dungeonEvent?.questions?.[nextQuestionIndex];
-                                        if (nextQuestion && dungeonEvent.questions && typeof dungeonEvent.questionIndex === 'number' && dungeonEvent.questions[dungeonEvent.questionIndex]) {
-                                            const correct = nextQuestion.number > dungeonEvent.questions[dungeonEvent.questionIndex]!.number;
-                                            setDungeonEvent({
-                                                ...dungeonEvent,
-                                                questionIndex: nextQuestionIndex,
-                                                score: dungeonEvent.score + (correct ? 1 : 0),
-                                                prevNumber: nextQuestion.number,
-                                            });
-                                        }
-                                    }}>Higher</Button>
-                                    <Button aria-label="Lower" onClick={() => {
-                                        const nextQuestionIndex = dungeonEvent.questionIndex + 1;
-                                        if (nextQuestionIndex >= dungeonEvent.questions.length) {
-                                            setDungeonEvent({ ...dungeonEvent, questionIndex: nextQuestionIndex, result: `You scored ${dungeonEvent.score} out of 20! (+${dungeonEvent.score * 5} XP)` });
-                                            return;
-                                        }
-                                        const nextQuestion = dungeonEvent?.questions?.[nextQuestionIndex];
-                                        if (nextQuestion && dungeonEvent.questions && typeof dungeonEvent.questionIndex === 'number' && dungeonEvent.questions[dungeonEvent.questionIndex]) {
-                                            const correct = nextQuestion.number < dungeonEvent.questions[dungeonEvent.questionIndex]!.number;
-                                            setDungeonEvent({
-                                                ...dungeonEvent,
-                                                questionIndex: nextQuestionIndex,
-                                                score: dungeonEvent.score + (correct ? 1 : 0),
-                                                prevNumber: nextQuestion.number,
-                                            });
-                                        }
-                                    }}>Lower</Button>
-                                </div>
-                                <div className="text-sm text-center text-gray-400">Current Score: {dungeonEvent.score} / 20</div>
-                            </div>
-                        ) : (
-                            <div className="space-y-4">
-                                <div className="text-lg font-semibold text-center">{dungeonEvent.result}</div>
-                                <Button aria-label="Close" onClick={() => setDungeonEvent(null)}>Close</Button>
-                            </div>
-                        )}
-                    </DialogContent>
-                </Dialog>
-            )}
-            {caveEvent?.open && (
-                <Dialog open={caveEvent.open} onOpenChange={() => setCaveEvent(null)}>
-                    <DialogContent aria-label="Cave Event Three Paths" role="dialog" aria-modal="true">
-                        <DialogHeader>
-                            <DialogTitle>Cave: Choose a Path</DialogTitle>
-                            <DialogDescription>You find yourself at a fork deep in the heart of a shadowy cave. Three paths lie before you, each whispering fate in a different tone.<br/>&quot;Which path do you choose, brave adventurer?&quot;</DialogDescription>
-                        </DialogHeader>
-                        {!caveEvent.result ? (
-                            <div className="space-y-4 flex flex-col">
-                                <Button className="w-full" aria-label="Gem Path" onClick={() => {
-                                    const roll = Math.random();
-                                    if (roll < 0.2) {
-                                        setCaveEvent({ open: true, result: 'You find a radiant Gem worth 80 gold!' });
-                                        gainGold(80, 'cave-event');
-                                    } else {
-                                        setCaveEvent({ open: true, result: "It's just dust and shadows… you find nothing." });
-                                    }
-                                }}>Path 1: Gem Path</Button>
-                                <Button className="w-full" aria-label="Dark Path" onClick={() => {
-                                    const roll = Math.random();
-                                    if (roll < 0.1) {
-                                        setCaveEvent({ open: true, result: 'A friendly Wizard appears and grants you 120 EXP!' });
-                                        gainExperience(120, 'cave-event');
-                                    } else {
-                                        setCaveEvent({ open: true, result: 'You stumble through the dark with no gain.' });
-                                    }
-                                }}>Path 2: Dark Path</Button>
-                                <Button className="w-full" aria-label="Light at the End" onClick={() => {
-                                    const roll = Math.random();
-                                    if (roll < 0.9) {
-                                        setCaveEvent({ open: true, result: 'You emerge safely and gain 10 gold.' });
-                                        gainGold(10, 'cave-event');
-                                    } else {
-                                        setCaveEvent({ open: true, result: 'It leads to a working volcano—you lose 10 gold in the chaos.' });
-                                        gainGold(-10, 'cave-event');
-                                    }
-                                }}>Path 3: Light at the End</Button>
-                            </div>
-                        ) : (
-                            <div className="space-y-4">
-                                <div className="text-lg font-semibold text-center">{caveEvent.result}</div>
-                                <Button aria-label="Close" onClick={() => setCaveEvent(null)}>Close</Button>
-                            </div>
-                        )}
-                    </DialogContent>
-                </Dialog>
-            )}
-            
-            {/* Mystery Event Modal */}
-            {mysteryEvent?.open && (
-                <Dialog open={mysteryEvent.open} onOpenChange={() => setMysteryEvent(null)}>
-                    <DialogContent aria-label="Mystery Event" role="dialog" aria-modal="true">
-                        <DialogHeader>
-                            <DialogTitle>{mysteryEvent.event.title}</DialogTitle>
-                            <DialogDescription>{mysteryEvent.event.description}</DialogDescription>
-                        </DialogHeader>
-                        {!mysteryEvent.choice ? (
-                            <div className="space-y-4 flex flex-col">
-                                {mysteryEvent.event.choices.map((choice: string, index: number) => (
-                                    <Button 
-                                        key={index}
-                                        className="w-full" 
-                                        aria-label={`Choice ${index + 1}: ${choice}`}
-                                        onClick={() => {
-                                            setMysteryEvent({ ...mysteryEvent, choice });
-                                            handleEventOutcome(mysteryEvent.event, choice, user?.id);
-                                            setTimeout(() => setMysteryEvent(null), 2000);
-                                        }}
-                                    >
-                                        {choice}
-                                    </Button>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="space-y-4">
-                                <div className="text-lg font-semibold text-center">
-                                    Processing your choice...
-                                </div>
-                            </div>
-                        )}
-                    </DialogContent>
-                </Dialog>
-            )}
-            
-            {/* Monster Battle Component */}
-            <MonsterBattle
-                isOpen={battleOpen}
-                onClose={() => setBattleOpen(false)}
-                monsterType={currentMonster}
-                onBattleComplete={handleBattleComplete}
-            />
+                            )}
+                        </DialogContent>
+                    </Dialog>
+                )}
+                
+                {/* Monster Battle Component */}
+                <MonsterBattle
+                    isOpen={battleOpen}
+                    onClose={() => setBattleOpen(false)}
+                    monsterType={currentMonster}
+                    onBattleComplete={handleBattleComplete}
+                />
+            </RealmAnimationWrapper>
         </>
     );
 }
