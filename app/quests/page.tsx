@@ -1897,6 +1897,16 @@ export default function QuestsPage() {
                       icon={React.createElement(getCategoryIcon(challenge.category))}
                       completed={challenge.completed}
                       onToggle={() => handleChallengeToggle(challenge.id, challenge.completed)}
+                      onEdit={() => {
+                        setEditCustomChallengeIdx(challenges.findIndex(c => c.id === challenge.id));
+                        setEditCustomChallengeData(challenge);
+                      }}
+                      onDelete={() => {
+                        if (window.confirm('Are you sure you want to delete this challenge?')) {
+                          // TODO: Implement challenge deletion
+                          console.log('Delete challenge:', challenge.id);
+                        }
+                      }}
                       progress={challenge.completed ? 100 : 5}
                       xp={challenge.xp ?? 0}
                       gold={challenge.gold ?? 0}

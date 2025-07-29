@@ -24,6 +24,7 @@ import CardWithProgress from './quest-card'
 interface Milestone {
   id: string;
   name: string;
+  description?: string;
   category: string;
   icon: string;
   experience: number;
@@ -656,6 +657,16 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
                 placeholder="Milestone name"
                 title="Milestone name"
                 aria-label="Milestone name"
+              />
+              <label className="block mb-2 text-sm font-medium">Description</label>
+              <textarea
+                className="w-full mb-4 p-2 border rounded resize-none"
+                rows={3}
+                value={editingMilestone.description || ''}
+                onChange={e => setEditingMilestone({ ...editingMilestone, description: e.target.value })}
+                placeholder="Milestone description"
+                title="Milestone description"
+                aria-label="Milestone description"
               />
               <label className="block mb-2 text-sm font-medium">Experience</label>
               <input
