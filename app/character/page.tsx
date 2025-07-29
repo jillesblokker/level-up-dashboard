@@ -1098,6 +1098,8 @@ export default function CharacterPage() {
           </div>
         </div>
       </div>
+      {/* Bottom spacing */}
+      <div className="h-8 md:h-12"></div>
     </div>
   )
 }

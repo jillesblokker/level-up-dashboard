@@ -256,7 +256,7 @@ export default function Page() {
       if (userId) {
         fetchAchievements();
       }
-    }, 5000); // Poll every 5 seconds
+    }, 30000); // Poll every 30 seconds instead of 5 seconds
 
     return () => {
       clearInterval(pollInterval);

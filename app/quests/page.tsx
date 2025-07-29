@@ -1362,26 +1362,7 @@ export default function QuestsPage() {
     }
   }, [challenges.length, challengeCategory, challengeStreakData]);
 
-  // Prevent scroll chaining and weird scroll behavior
-  useEffect(() => {
-    const preventScrollChaining = (e: TouchEvent) => {
-      const target = e.target as HTMLElement;
-      const scrollable = target.closest('[data-radix-tabs-content], .quests-page-container, .main-content-wrapper');
-      
-      if (!scrollable) {
-        e.preventDefault();
-      }
-    };
 
-    // Add touch event listeners to prevent scroll chaining
-    document.addEventListener('touchstart', preventScrollChaining, { passive: false });
-    document.addEventListener('touchmove', preventScrollChaining, { passive: false });
-
-    return () => {
-      document.removeEventListener('touchstart', preventScrollChaining);
-      document.removeEventListener('touchmove', preventScrollChaining);
-    };
-  }, []);
 
   if (!isClerkLoaded || !isUserLoaded) {
     console.log('Waiting for auth and Clerk client...');
