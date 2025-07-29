@@ -2009,7 +2009,8 @@ export default function QuestsPage() {
               />
               <label className="block mb-2 text-sm font-medium">Description</label>
               <textarea
-                className="w-full mb-4 p-2 border rounded"
+                className="w-full mb-4 p-2 border rounded resize-none"
+                rows={3}
                 value={editingQuest.description}
                 onChange={e => setEditingQuest({ ...editingQuest, description: e.target.value })}
                 placeholder="Quest description"
