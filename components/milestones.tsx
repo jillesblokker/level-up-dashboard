@@ -368,10 +368,8 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       }
       
       console.log('Milestone updated successfully, updating local state');
-      console.log('Updated milestone data:', updatedMilestone);
       setMilestones(prev => {
         const updated = prev.map(m => m.id === updatedMilestone.id ? { ...m, ...updatedMilestone } : m);
-        console.log('Milestones after update:', updated);
         return updated;
       });
       
@@ -718,8 +716,6 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
   const [isUpdating, setIsUpdating] = useState(false);
   const { toast } = useToast();
   
-  console.log('MilestoneCard rendering:', milestone.name, 'description:', milestone.description);
-
   // Handler for card click (toggles completion)
   const handleCardClick = async (e: React.MouseEvent) => {
     // Prevent toggling if clicking on the checkbox directly

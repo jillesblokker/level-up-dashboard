@@ -148,7 +148,7 @@ export default function QuestsPage() {
   const isGuest = !user;
 
   // Debug: log auth and supabase loading states
-  console.log('[Quests Debug] isClerkLoaded:', isClerkLoaded, 'isUserLoaded:', isUserLoaded);
+  // console.log('[Quests Debug] isClerkLoaded:', isClerkLoaded, 'isUserLoaded:', isUserLoaded);
 
   const [quests, setQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -272,7 +272,7 @@ export default function QuestsPage() {
     async function fetchQuests() {
       try {
         if (!token) return; // Guard for linter
-        console.log('[Quests Debug] Fetching /api/quests with token:', token.slice(0, 10), '...');
+        // console.log('[Quests Debug] Fetching /api/quests with token:', token.slice(0, 10), '...');
         const res = await fetch('/api/quests', {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -280,7 +280,7 @@ export default function QuestsPage() {
         });
         if (!res.ok) throw new Error('Failed to fetch quests');
         const data = await res.json();
-        console.log('[Quests Debug] fetched quests:', data);
+        // console.log('[Quests Debug] fetched quests:', data);
         setQuests(data || []);
       } catch (err: any) {
         setError('[Quests Debug] Error fetching quests: ' + (err.message || 'Failed to fetch quests'));
@@ -824,7 +824,7 @@ export default function QuestsPage() {
       setLoading(true);
       const token = await getToken();
       if (!token) throw new Error('No Clerk token');
-      console.log('[Milestones Debug] POST /api/milestones/completion', { milestoneId });
+      // console.log('[Milestones Debug] POST /api/milestones/completion', { milestoneId });
       const res = await fetch('/api/milestones/completion', {
         method: 'POST',
         headers: {
@@ -839,7 +839,7 @@ export default function QuestsPage() {
         setLoading(false);
         return;
       }
-      console.log('[Milestones Debug] PUT /api/milestones/completion', { milestoneId, completed: !currentCompleted });
+      // console.log('[Milestones Debug] PUT /api/milestones/completion', { milestoneId, completed: !currentCompleted });
       const updateRes = await fetch('/api/milestones/completion', {
         method: 'PUT',
         headers: {
@@ -854,13 +854,13 @@ export default function QuestsPage() {
         setLoading(false);
         return;
       }
-              console.log('[Milestones Debug] Fetching /api/milestones-simple');
-        const fetchRes = await fetch('/api/milestones-simple', {
+      // console.log('[Milestones Debug] Fetching /api/milestones-simple');
+      const fetchRes = await fetch('/api/milestones-simple', {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (fetchRes.ok) {
         const data = await fetchRes.json();
-        console.log('[Milestones Debug] fetched milestones:', data);
+        // console.log('[Milestones Debug] fetched milestones:', data);
         setMilestones(data || []);
         
         // 🎯 EMIT KINGDOM EVENT for real-time stats updates
@@ -882,7 +882,7 @@ export default function QuestsPage() {
       setLoading(true);
       const token = await getToken();
       if (!token) throw new Error('No Clerk token');
-      console.log('[Challenges Debug] POST /api/challenges/completion', { challengeId });
+      // console.log('[Challenges Debug] POST /api/challenges/completion', { challengeId });
       const res = await fetch('/api/challenges/completion', {
         method: 'POST',
         headers: {
@@ -897,7 +897,7 @@ export default function QuestsPage() {
         setLoading(false);
         return;
       }
-      console.log('[Challenges Debug] PUT /api/challenges/completion', { challengeId, completed: !currentCompleted });
+      // console.log('[Challenges Debug] PUT /api/challenges/completion', { challengeId, completed: !currentCompleted });
       const updateRes = await fetch('/api/challenges/completion', {
         method: 'PUT',
         headers: {
@@ -912,13 +912,13 @@ export default function QuestsPage() {
         setLoading(false);
         return;
       }
-      console.log('[Challenges Debug] Fetching /api/challenges');
+      // console.log('[Challenges Debug] Fetching /api/challenges');
       const fetchRes = await fetch('/api/challenges', {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (fetchRes.ok) {
         const data = await fetchRes.json();
-        console.log('[Challenges Debug] fetched challenges:', data);
+        // console.log('[Challenges Debug] fetched challenges:', data);
         setChallenges(data || []);
         
         // 🎯 EMIT KINGDOM EVENT for real-time stats updates
@@ -1071,15 +1071,15 @@ export default function QuestsPage() {
     async function fetchMilestones() {
       try {
         if (!token) return; // Guard for linter
-                 console.log('[Milestones Debug] Fetching /api/milestones-simple with token:', token.slice(0, 10), '...');
-         const res = await fetch('/api/milestones-simple', {
+        // console.log('[Milestones Debug] Fetching /api/milestones-simple with token:', token.slice(0, 10), '...');
+        const res = await fetch('/api/milestones-simple', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         if (!res.ok) throw new Error('Failed to fetch milestones');
         const data = await res.json();
-        console.log('[Milestones Debug] fetched milestones:', data);
+        // console.log('[Milestones Debug] fetched milestones:', data);
         setMilestones(data || []);
       } catch (err: any) {
         setError('[Milestones Debug] Error fetching milestones: ' + (err.message || 'Failed to fetch milestones'));
@@ -1096,7 +1096,7 @@ export default function QuestsPage() {
     async function fetchChallenges() {
       try {
         if (!token) return; // Guard for linter
-        console.log('[Challenges Debug] Fetching /api/challenges with token:', token.slice(0, 10), '...');
+        // console.log('[Challenges Debug] Fetching /api/challenges with token:', token.slice(0, 10), '...');
         const res = await fetch('/api/challenges', {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -1104,7 +1104,7 @@ export default function QuestsPage() {
         });
         if (!res.ok) throw new Error('Failed to fetch challenges');
         const data = await res.json();
-        console.log('[Challenges Debug] fetched challenges:', data);
+        // console.log('[Challenges Debug] fetched challenges:', data);
         setChallenges(data || []);
       } catch (err: any) {
         setError('[Challenges Debug] Error fetching challenges: ' + (err.message || 'Failed to fetch challenges'));
@@ -1222,31 +1222,31 @@ export default function QuestsPage() {
   const [questStreakUpdatedToday, setQuestStreakUpdatedToday] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    console.log('[Quest Streak Debug] Effect triggered:', {
-      userId,
-      todaysTotal,
-      todaysCompleted,
-      questCategory,
-      questHistory: questHistory.length,
-      questStreakUpdatedToday
-    });
+    // console.log('[Quest Streak Debug] Effect triggered:', {
+    //   userId,
+    //   todaysTotal,
+    //   todaysCompleted,
+    //   questCategory,
+    //   questHistory: questHistory.length,
+    //   questStreakUpdatedToday
+    // });
 
     if (!userId || todaysTotal === 0) {
-      console.log('[Quest Streak Debug] Bailing early - no userId or no quests');
+      // console.log('[Quest Streak Debug] Bailing early - no userId or no quests');
       return;
     }
     if (typeof window === 'undefined') return;
     
     const today = new Date().toISOString().slice(0, 10);
     const allQuestsCompleted = todaysCompleted === todaysTotal && todaysTotal > 0;
-    console.log('[Quest Streak Debug] All quests completed?', allQuestsCompleted);
+    // console.log('[Quest Streak Debug] All quests completed?', allQuestsCompleted);
     
     // 🎯 SIMPLIFIED: Just check if all quests are completed and we haven't updated today
     const alreadyUpdatedToday = questCategory ? questStreakUpdatedToday[questCategory] === today : false;
-    console.log('[Quest Streak Debug] Already updated today?', alreadyUpdatedToday);
+    // console.log('[Quest Streak Debug] Already updated today?', alreadyUpdatedToday);
     
     if (allQuestsCompleted && !alreadyUpdatedToday && questCategory) {
-      console.log('[Quest Streak Debug] 🎉 ALL QUESTS COMPLETED! Updating streak...');
+      // console.log('[Quest Streak Debug] 🎉 ALL QUESTS COMPLETED! Updating streak...');
       
       // Mark as updated today to prevent infinite loop
       setQuestStreakUpdatedToday(prev => ({ ...prev, [questCategory]: today }));
@@ -1254,7 +1254,7 @@ export default function QuestsPage() {
       // Get current streak from state and increment
       const currentStreak = streakData?.streak_days ?? 0;
       const newStreak = currentStreak + 1;
-      console.log('[Quest Streak Debug] Updating from', currentStreak, 'to', newStreak);
+      // console.log('[Quest Streak Debug] Updating from', currentStreak, 'to', newStreak);
       
       updateStreak(newStreak, 0);
       
@@ -1289,33 +1289,33 @@ export default function QuestsPage() {
   const [streakUpdatedToday, setStreakUpdatedToday] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    console.log('[Streak Debug] Effect triggered:', {
-      challengesLength: challenges.length,
-      challengeCategory,
-      challengeStreakData,
-      challenges: challenges.map(c => ({ id: c.id, category: c.category, completed: c.completed }))
-    });
+    // console.log('[Streak Debug] Effect triggered:', {
+    //   challengesLength: challenges.length,
+    //   challengeCategory,
+    //   challengeStreakData,
+    //   challenges: challenges.map(c => ({ id: c.id, category: c.category, completed: c.completed }))
+    // });
 
     if (!challenges.length) {
-      console.log('[Streak Debug] No challenges loaded yet');
+      // console.log('[Streak Debug] No challenges loaded yet');
       return;
     }
 
     const challengesForCategory = challenges.filter(c => c.category === challengeCategory);
-    console.log('[Streak Debug] Challenges for category:', {
-      category: challengeCategory,
-      total: challengesForCategory.length,
-      completed: challengesForCategory.filter(c => c.completed).length,
-      challengesForCategory: challengesForCategory.map(c => ({ id: c.id, name: c.name, completed: c.completed }))
-    });
+    // console.log('[Streak Debug] Challenges for category:', {
+    //   category: challengeCategory,
+    //   total: challengesForCategory.length,
+    //   completed: challengesForCategory.filter(c => c.completed).length,
+    //   challengesForCategory: challengesForCategory.map(c => ({ id: c.id, name: c.name, completed: c.completed }))
+    // });
 
     const allChallengesCompleted = challengesForCategory.length > 0 && challengesForCategory.every(c => c.completed);
-    console.log('[Streak Debug] All challenges completed?', allChallengesCompleted);
+    // console.log('[Streak Debug] All challenges completed?', allChallengesCompleted);
 
     // 🎯 PREVENT INFINITE LOOP: Check if we already updated streak today
     const today = new Date().toISOString().slice(0, 10);
     const alreadyUpdatedToday = challengeCategory ? streakUpdatedToday[challengeCategory] === today : false;
-    console.log('[Streak Debug] Already updated today?', alreadyUpdatedToday);
+    // console.log('[Streak Debug] Already updated today?', alreadyUpdatedToday);
 
     if (allChallengesCompleted && !alreadyUpdatedToday && challengeCategory) {
       console.log('[Streak Debug] 🎉 ALL CHALLENGES COMPLETED! Updating streak...');
@@ -1654,7 +1654,7 @@ export default function QuestsPage() {
                   const categoryColor = Object.prototype.hasOwnProperty.call(categoryColorMap, categoryKey)
                     ? categoryColorMap[categoryKey]
                     : 'text-amber-500 border-amber-800';
-                  console.log('[Quests Debug] rendering quest:', quest.name, 'completed:', quest.completed);
+                  // console.log('[Quests Debug] rendering quest:', quest.name, 'completed:', quest.completed);
                   return (
                     <CardWithProgress
                       key={quest.id}
