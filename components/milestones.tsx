@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
@@ -105,6 +105,9 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
   const [streaks, setStreaks] = useState<Record<string, number>>({});
   const [completionDates, setCompletionDates] = useState<Record<string, string>>({});
   const [addModalOpen, setAddModalOpen] = useState<string | null>(null);
+  
+  // Add ref to track last edit time for polling debounce
+  const lastEditTimeRef = useRef(0);
 
   // Remove all persistence effects - components will use temporary state
   // useEffect(() => { storageService.set(CUSTOM_MILESTONES_KEY, customMilestones); }, [customMilestones]); // Removed
@@ -259,6 +262,8 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       }
       
       console.log('Delete successful, updating local state');
+      // Set the last edit time to prevent polling from overwriting
+      lastEditTimeRef.current = Date.now();
       // Remove from local state
       setMilestones(prev => {
         const filtered = prev.filter(m => m.id !== id);
@@ -379,6 +384,8 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       }
       
       console.log('Milestone updated successfully, updating local state');
+      // Set the last edit time to prevent polling from overwriting
+      lastEditTimeRef.current = Date.now();
       setMilestones(prev => {
         const updated = prev.map(m => m.id === updatedMilestone.id ? { ...m, ...updatedMilestone } : m);
         console.log('Milestones after edit:', updated.length);
@@ -501,6 +508,13 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
     
     const pollInterval = setInterval(async () => {
       try {
+        // Skip polling if we recently made an edit/delete
+        const now = Date.now();
+        if (now - lastEditTimeRef.current < 3000) { // 3 seconds debounce
+          console.log('[Milestones Poll] Skipping poll due to recent edit');
+          return;
+        }
+        
         const response = await fetch('/api/milestones', {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -513,7 +527,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       } catch (error) {
         console.error('[Milestones Poll] Error polling milestones:', error);
       }
-    }, 5000); // Poll every 5 seconds
+    }, 15000); // Poll every 15 seconds instead of 5
     
     return () => clearInterval(pollInterval);
   }, [userId, token]);
@@ -832,4 +846,4 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
       </CardContent>
     </Card>
   );
-} 
+}
