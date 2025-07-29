@@ -1415,7 +1415,7 @@ export default function RealmPage() {
                 onImageReveal={setShouldRevealImage}
             >
                 {/* Top Toolbar */}
-                <div className="flex items-center justify-between bg-gray-800 border-b border-gray-700 z-30 overflow-visible">
+                <div className="flex items-center justify-between bg-gray-800 z-30 overflow-visible">
                   {/* On mobile, make action rows horizontally scrollable and touch-friendly */}
                   <div className="flex flex-1 flex-col gap-2 overflow-visible">
                     <div className="flex items-center gap-2 overflow-x-auto flex-nowrap md:gap-4 md:overflow-visible md:flex-wrap overflow-visible p-2" style={{ WebkitOverflowScrolling: 'touch' }}>
