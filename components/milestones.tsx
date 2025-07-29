@@ -538,18 +538,12 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
                 <h3 className="text-lg font-semibold">{selectedCategoryObj.label}</h3>
               </div>
               <div 
-                className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 debug-milestones-grid"
+                className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
                 style={{ 
-                  display: 'grid !important',
-                  gridTemplateColumns: 'repeat(3, minmax(0, 1fr)) !important',
-                  gap: '1rem !important',
-                  border: '5px solid lime !important',
-                  backgroundColor: 'lime !important',
-                  color: 'black !important',
-                  padding: '20px !important',
-                  fontSize: '24px !important'
-                } as React.CSSProperties}
-                data-debug="milestones-grid"
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+                  gap: '1rem'
+                }}
               >
                 {allMilestones.length === 0 ? (
                   <div className="text-gray-400 col-span-full">No milestones for this category yet.</div>

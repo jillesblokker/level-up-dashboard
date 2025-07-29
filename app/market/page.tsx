@@ -244,7 +244,7 @@ export default function MarketPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
           <div className="space-y-4">
             <Card className="medieval-card">
               <CardHeader>

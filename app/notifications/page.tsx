@@ -334,7 +334,7 @@ export default function NotificationsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
           {/* Enhanced Sidebar */}
           <div className="space-y-6 lg:block hidden">
             <Card className="bg-gradient-to-b from-gray-900/50 to-black/50 border-amber-800/30 shadow-lg">
