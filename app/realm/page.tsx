@@ -304,17 +304,27 @@ export default function RealmPage() {
     useEffect(() => {
       if (!Array.isArray(grid)) return;
       const hasIce = grid.some(row => row && row.some(tile => tile?.type === 'ice'));
+      console.log('[Realm] Penguin logic - hasIce:', hasIce, 'isPenguinPresent:', isPenguinPresent);
+      
       if (!hasIce && isPenguinPresent) {
         setIsPenguinPresent(false);
         setPenguinPos(null);
       } else if (hasIce && !isPenguinPresent) {
         const pos = findFirstIceTile(grid);
+        console.log('[Realm] Penguin logic - found ice tile at:', pos);
         if (pos) {
           setPenguinPos(pos);
           setIsPenguinPresent(true);
         }
       }
     }, [grid]);
+
+    // Debug animal states
+    useEffect(() => {
+      console.log('[Realm] Animal states - horse:', { isHorsePresent, horsePos, horseCaught });
+      console.log('[Realm] Animal states - sheep:', { isSheepPresent, sheepPos });
+      console.log('[Realm] Animal states - penguin:', { isPenguinPresent, penguinPos });
+    }, [isHorsePresent, horsePos, horseCaught, isSheepPresent, sheepPos, isPenguinPresent, penguinPos]);
 
     // --- Load and transform completed mystery tiles on page load ---
     useEffect(() => {
@@ -753,6 +763,8 @@ export default function RealmPage() {
                 
                 // Check for creature discoveries
                 const iceCount = countTiles(grid, 'ice');
+                console.log('[Realm] Ice tiles count:', iceCount);
+                
                 if (iceCount >= 5 && !useCreatureStore.getState().isCreatureDiscovered('014')) {
                     // Discover Blizzey when 5 ice tiles are placed
                     useCreatureStore.getState().discoverCreature('014');
