@@ -3,7 +3,6 @@ import { headers } from 'next/headers'
 import { WebhookEvent } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabase/server-client';
-// TODO: Implement Clerk webhook logic with Supabase client
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env['CLERK_WEBHOOK_SECRET']

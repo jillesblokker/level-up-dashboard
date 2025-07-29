@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
-// TODO: Replace all Prisma logic with Supabase client logic
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +14,6 @@ export async function POST(request: Request) {
     }
 
     // Ensure user exists in database
-    // TODO: Replace all Prisma logic with Supabase client logic
 
     const data = await request.json();
     
@@ -29,7 +27,6 @@ export async function POST(request: Request) {
     }
 
     // First check if a tile already exists at this position
-    // TODO: Replace all Prisma logic with Supabase client logic
 
     // Try to create the tile placement
     try {

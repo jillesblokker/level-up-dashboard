@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth/next"
+import { auth } from "@clerk/nextjs/server"
 import { writeFile, mkdir } from "fs/promises"
 import { join } from "path"
 import { v4 as uuidv4 } from "uuid"
-// TODO: Replace Prisma logic with Supabase client logic
+import { supabaseServer } from "@/lib/supabase/server-client"
 
 export async function POST(req: Request) {
   try {
     // Check authentication
-    const session = await getServerSession()
-    if (!session?.user) {
+    const { userId } = await auth()
+    if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 })
     }
 
@@ -49,7 +49,16 @@ export async function POST(req: Request) {
 
     // Update user's avatar in database
     const imageUrl = `/uploads/${filename}`
-    // TODO: Replace Prisma logic with Supabase client logic
+    
+    const { error } = await supabaseServer
+      .from('users')
+      .update({ avatar_url: imageUrl })
+      .eq('id', userId)
+
+    if (error) {
+      console.error("Error updating avatar in database:", error)
+      return new NextResponse("Failed to update avatar", { status: 500 })
+    }
 
     return NextResponse.json({ url: imageUrl })
   } catch (error) {
