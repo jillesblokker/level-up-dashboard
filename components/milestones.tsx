@@ -805,6 +805,11 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
           </div>
         </CardTitle>
         <CardDescription>{milestone.icon} {milestone.experience} XP, {milestone.gold} Gold</CardDescription>
+        {milestone.description && (
+          <CardDescription className="mt-2 text-gray-300">
+            {milestone.description}
+          </CardDescription>
+        )}
       </CardHeader>
       <CardContent>
         <div className="flex justify-between items-center">
