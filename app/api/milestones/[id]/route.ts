@@ -1,29 +1,29 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { getAuth } from '@clerk/nextjs/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-  process.env['SUPABASE_SERVICE_ROLE_KEY']!
-);
+import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
 export async function PATCH(request: NextRequest, context: any) {
   try {
-    const { userId } = await getAuth(request);
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
     const id = context.params?.id;
     const body = await request.json();
-    const { error } = await supabase
-      .from('milestones')
-      .update(body)
-      .eq('id', id);
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    
+    // Use authenticated Supabase query with proper Clerk JWT verification
+    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      const { error } = await supabase
+        .from('milestones')
+        .update(body)
+        .eq('id', id);
+      if (error) {
+        throw error;
+      }
+      return { success: true };
+    });
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 401 });
     }
-    return NextResponse.json({ success: true });
+
+    return NextResponse.json(result.data);
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Internal server error' }, { status: 500 });
   }
@@ -31,19 +31,25 @@ export async function PATCH(request: NextRequest, context: any) {
 
 export async function DELETE(request: NextRequest, context: any) {
   try {
-    const { userId } = await getAuth(request);
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
     const id = context.params?.id;
-    const { error } = await supabase
-      .from('milestones')
-      .delete()
-      .eq('id', id);
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    
+    // Use authenticated Supabase query with proper Clerk JWT verification
+    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      const { error } = await supabase
+        .from('milestones')
+        .delete()
+        .eq('id', id);
+      if (error) {
+        throw error;
+      }
+      return { success: true };
+    });
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 401 });
     }
-    return NextResponse.json({ success: true });
+
+    return NextResponse.json(result.data);
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Internal server error' }, { status: 500 });
   }

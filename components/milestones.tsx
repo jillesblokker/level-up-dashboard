@@ -240,6 +240,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
 
   const handleDeleteMilestone = async (id: string) => {
     try {
+      console.log('Delete milestone called with id:', id);
       if (!token) throw new Error('No Clerk token');
       
       // Call backend API to delete milestone
@@ -250,13 +251,20 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
         },
       });
       
+      console.log('Delete response status:', response.status);
       if (!response.ok) {
         const err = await response.text();
+        console.error('Delete error:', err);
         throw new Error(err || 'Failed to delete milestone');
       }
       
+      console.log('Delete successful, updating local state');
       // Remove from local state
-      setMilestones(prev => prev.filter(m => m.id !== id));
+      setMilestones(prev => {
+        const filtered = prev.filter(m => m.id !== id);
+        console.log('Milestones after delete:', filtered.length);
+        return filtered;
+      });
       setProgress(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
       setCompleted(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
       setStreaks(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
@@ -344,8 +352,8 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
   // Handler to submit the edited milestone (for now, just closes the modal)
   const handleEditMilestoneSubmit = async (updatedMilestone: Milestone) => {
     try {
+      console.log('Edit milestone called with:', updatedMilestone);
       if (!token) throw new Error('No Clerk token');
-      console.log('Updating milestone:', updatedMilestone);
       
       // Call backend API to update milestone
       const response = await fetch(`/api/milestones/${updatedMilestone.id}`, {
@@ -362,14 +370,18 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
           // Add other fields as needed
         }),
       });
+      
+      console.log('Edit response status:', response.status);
       if (!response.ok) {
         const err = await response.text();
+        console.error('Edit error:', err);
         throw new Error(err || 'Failed to update milestone');
       }
       
       console.log('Milestone updated successfully, updating local state');
       setMilestones(prev => {
         const updated = prev.map(m => m.id === updatedMilestone.id ? { ...m, ...updatedMilestone } : m);
+        console.log('Milestones after edit:', updated.length);
         return updated;
       });
       
