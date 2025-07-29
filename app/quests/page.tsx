@@ -22,6 +22,7 @@ import { useRef } from 'react';
 import { StreakRecovery } from '@/components/streak-recovery';
 import { FullPageLoading, DataLoadingState } from '@/components/ui/loading-states';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { gainExperience } from '@/lib/experience-manager'
 
 interface Quest {
   id: string;
@@ -519,9 +520,13 @@ export default function QuestsPage() {
         if (questRewards > 0 || questXP > 0) {
           console.log('[Quest Rewards] Applying rewards:', { gold: questRewards, xp: questXP });
           
-          // Update character stats using synchronous updates for immediate effect
-          addToCharacterStatSync('gold', questRewards);
-          addToCharacterStatSync('experience', questXP);
+          // Use proper experience and gold management functions
+          if (questXP > 0) {
+            gainExperience(questXP, 'quest-completion', quest.category || 'general');
+          }
+          if (questRewards > 0) {
+            gainGold(questRewards, 'quest-completion');
+          }
           
           // Trigger kingdom stats update
           window.dispatchEvent(new CustomEvent('kingdom:goldGained', { detail: questRewards }));

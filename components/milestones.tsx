@@ -21,6 +21,8 @@ import { updateCharacterStat, getCharacterStats, addToCharacterStatSync, updateC
 import CardWithProgress from './quest-card'
 import { pollingService, createPollingConfig } from '@/lib/polling-service';
 import { errorHandler, ErrorHandler } from '@/lib/error-handler';
+import { gainExperience } from '@/lib/experience-manager'
+import { gainGold } from '@/lib/gold-manager'
 
 
 interface Milestone {
@@ -783,21 +785,14 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
       
       if (!completed) {
         // Add experience and gold
-        addToCharacterStatSync('experience', xpDelta);
-        addToCharacterStatSync('gold', goldDelta);
+        gainExperience(xpDelta, 'milestone-completion', milestone.category || 'general');
+        gainGold(goldDelta, 'milestone-completion');
       } else {
         // Remove experience and gold (but don't go below 0)
         const newXP = Math.max(0, stats.experience - xpDelta);
         const newGold = Math.max(0, stats.gold - goldDelta);
         updateCharacterStatSync('experience', newXP);
         updateCharacterStatSync('gold', newGold);
-      }
-      if (!completed) {
-        window.dispatchEvent(new CustomEvent('kingdom:goldGained', { detail: goldDelta }));
-        window.dispatchEvent(new CustomEvent('kingdom:experienceGained', { detail: xpDelta }));
-      } else {
-        window.dispatchEvent(new CustomEvent('kingdom:goldGained', { detail: -goldDelta }));
-        window.dispatchEvent(new CustomEvent('kingdom:experienceGained', { detail: -xpDelta }));
       }
     } catch (err) {
       console.error('Failed to toggle milestone completion:', err);
