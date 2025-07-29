@@ -312,7 +312,7 @@ export default function Page() {
           canEdit={true}
           shouldRevealImage={true}
         />
-        <main className="container mx-auto p-6 pb-8 md:pb-12" aria-label="achievements-section">
+        <main className="container mx-auto p-6" aria-label="achievements-section">
           {!hasAnyUnlocked && !showAllUnlocked && (
             <div className="text-center text-gray-400 mb-8">No achievements unlocked yet. Start exploring to discover creatures!</div>
           )}
@@ -471,6 +471,8 @@ export default function Page() {
             </div>
           )}
         </main>
+        {/* Bottom spacing */}
+        <div className="h-8 md:h-12"></div>
       </SignedIn>
       <SignedOut>
         <SignIn />

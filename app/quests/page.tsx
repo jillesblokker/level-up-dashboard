@@ -1405,7 +1405,7 @@ export default function QuestsPage() {
   }
 
   return (
-    <div className="min-h-full quests-page-container scroll-prevent" style={{ overscrollBehavior: 'none', WebkitOverflowScrolling: 'touch' }}>
+    <div className="min-h-full quests-page-container scroll-prevent" style={{ overscrollBehavior: 'none' }}>
       <HeaderSection
         title="Message Board"
         subtitle="Embark on epic journeys and complete tasks to earn rewards."
@@ -1413,7 +1413,7 @@ export default function QuestsPage() {
         defaultBgColor="bg-amber-900"
         shouldRevealImage={true}
       />
-      <div className="p-4 md:p-8 pb-8 md:pb-16 quests-page-container scroll-prevent" style={{ overscrollBehavior: 'none' }}>
+      <div className="p-4 md:p-8 quests-page-container scroll-prevent" style={{ overscrollBehavior: 'none' }}>
         {error && <p className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{error}</p>}
         <Tabs value={mainTab} onValueChange={v => setMainTab(v as 'quests' | 'challenges' | 'milestones' | 'recovery')} className="space-y-4">
           <TabsList className="mb-4 w-full grid grid-cols-4">
@@ -2016,6 +2016,8 @@ export default function QuestsPage() {
           </TabsContent>
         </Tabs>
       </div>
+      {/* Bottom spacing */}
+      <div className="h-8 md:h-12"></div>
       {/* Edit Quest Modal (simple version) */}
       {editModalOpen && editingQuest && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
