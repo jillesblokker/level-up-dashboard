@@ -525,13 +525,16 @@ export default function RealmPage() {
                     console.log('[Data Loaders] API response status: 404 - using fallback');
                     // Fallback to API or create base grid
                     try {
+                        console.log('[Realm] Loading tiles from API...');
                         const res = await fetch('/api/realm-tiles');
                         const data = await res.json();
+                        console.log('[Realm] API response:', { status: res.status, data });
                         if (res.ok && data.tiles && Array.isArray(data.tiles)) {
                             const maxRow = Math.max(...data.tiles.map((row: any) => row.y ?? 0), INITIAL_ROWS - 1);
                             const gridArr: Tile[][] = Array.from({ length: maxRow + 1 }, (_, y) =>
                                 Array.from({ length: GRID_COLS }, (_, x) => defaultTile('empty'))
                             );
+                            console.log('[Realm] Processing tiles data:', data.tiles);
                             data.tiles.forEach((row: any) => {
                                 if (!row) return;
                                 if (!gridArr[row.y] || !Array.isArray(gridArr[row.y])) return;
@@ -546,6 +549,9 @@ export default function RealmPage() {
                                         y: row.y,
                                         id: `${tileType}-${x}-${row.y}`,
                                     };
+                                    if (tileType !== 'empty') {
+                                        console.log('[Realm] Loaded tile:', { x, y: row.y, type: tileType, typeNum });
+                                    }
                                 }
                             });
                             setGrid(gridArr);
@@ -724,6 +730,7 @@ export default function RealmPage() {
                 return;
             }
             
+            console.log('[Realm] Saving tile:', { x, y, tile_type: tileTypeNum, tile_type_name: selectedTile.type });
             const res = await fetch('/api/realm-tiles', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -734,6 +741,7 @@ export default function RealmPage() {
                 toast({ title: 'Error', description: `Failed to save tile: ${err.error}`, variant: 'destructive' });
                 console.error('Tile save error:', err);
             } else {
+                console.log('[Realm] Tile saved successfully');
                 // Check for monster spawns after successful tile placement
                 console.log('[Realm] Checking monster spawn for tile type:', selectedTile.type);
                 // Create updated grid with the new tile for spawn check
@@ -1567,7 +1575,7 @@ export default function RealmPage() {
                                 <img
                                     src="/images/Animals/penguin.png"
                                     alt="Penguin"
-                                    className="w-16 h-16 object-contain"
+                                    className="w-20 h-20 object-contain"
                                 />
                             </div>
                         </div>
@@ -1588,7 +1596,7 @@ export default function RealmPage() {
                                 <img
                                     src="/images/Animals/horse.png"
                                     alt="Horse"
-                                    className="w-16 h-16 object-contain"
+                                    className="w-20 h-20 object-contain"
                                     onError={(e) => console.log('[Realm] Horse image failed to load:', e)}
                                     onLoad={() => console.log('[Realm] Horse image loaded successfully')}
                                 />
@@ -1611,7 +1619,7 @@ export default function RealmPage() {
                                 <img
                                     src="/images/Animals/sheep.png"
                                     alt="Sheep"
-                                    className="w-16 h-16 object-contain"
+                                    className="w-20 h-20 object-contain"
                                     onError={(e) => console.log('[Realm] Sheep image failed to load:', e)}
                                     onLoad={() => console.log('[Realm] Sheep image loaded successfully')}
                                 />
@@ -1634,7 +1642,7 @@ export default function RealmPage() {
                                 <img
                                     src="/images/Animals/eagle.png"
                                     alt="Eagle"
-                                    className="w-16 h-16 object-contain"
+                                    className="w-20 h-20 object-contain"
                                 />
                             </div>
                         </div>

@@ -193,7 +193,7 @@ export function MapGrid({ grid, playerPosition, onTileClick, playerLevel = 0 }: 
                   {tile.hasMonster && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <Image
-                        src={`/images/Monsters/${tile.hasMonster}.png`}
+                        src={`/images/Monsters/${tile.hasMonster === 'wizard' ? 'Sorceror' : tile.hasMonster}.png`}
                         alt={`${tile.hasMonster} monster`}
                         width={Math.floor(tileSize * 0.6)}
                         height={Math.floor(tileSize * 0.6)}
