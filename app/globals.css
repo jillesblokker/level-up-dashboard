@@ -443,6 +443,17 @@
 .map-grid-row-cols-20 { grid-template-columns: repeat(20, minmax(32px, 1fr)); } 
 
 /* Debug styles for grid layout */
+/* Force 3-column layout for milestones on large screens */
+@media (min-width: 1024px) {
+  .debug-milestones-grid,
+  div.debug-milestones-grid,
+  .grid.debug-milestones-grid,
+  [data-debug="milestones-grid"] {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    border: 3px solid red !important;
+  }
+}
+
 /* Force grid layout for milestones with higher specificity */
 .debug-milestones-grid,
 div.debug-milestones-grid,
@@ -460,14 +471,6 @@ div.debug-milestones-grid,
 }
 
 @media (min-width: 768px) {
-  .debug-milestones-grid,
-  div.debug-milestones-grid,
-  .grid.debug-milestones-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  }
-}
-
-@media (min-width: 1024px) {
   .debug-milestones-grid,
   div.debug-milestones-grid,
   .grid.debug-milestones-grid {
