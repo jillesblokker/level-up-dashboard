@@ -89,10 +89,18 @@ export function createPollingConfig(
   onSuccess?: (data: any) => void,
   onError?: (error: Error) => void
 ): PollingConfig {
-  return {
+  const config: PollingConfig = {
     interval,
     enabled,
-    onSuccess,
-    onError,
   };
+  
+  if (onSuccess) {
+    config.onSuccess = onSuccess;
+  }
+  
+  if (onError) {
+    config.onError = onError;
+  }
+  
+  return config;
 }
