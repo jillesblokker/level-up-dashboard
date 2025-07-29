@@ -250,6 +250,7 @@ export default function RealmPage() {
     const [castleEvent, setCastleEvent] = useState<{ open: boolean, result?: string, reward?: string } | null>(null);
     const [dungeonEvent, setDungeonEvent] = useState<{ open: boolean, questionIndex: number, score: number, prevNumber: number, questions: { fact: string, number: number }[], result?: string } | null>(null);
     const [caveEvent, setCaveEvent] = useState<{ open: boolean, result?: string } | null>(null);
+    const [mysteryEvent, setMysteryEvent] = useState<{ open: boolean, event: any, choice?: string } | null>(null);
     const [castleDiceRolling, setCastleDiceRolling] = useState(false);
     const [castleDiceValue, setCastleDiceValue] = useState<number | null>(null);
     const [lastMysteryTile, setLastMysteryTile] = useState<{ x: number; y: number } | null>(null);
@@ -1075,14 +1076,10 @@ export default function RealmPage() {
                     break;
                 case 'mystery':
                     setLastMysteryTile({ x: characterPosition.x, y: characterPosition.y });
-                    // Generate and handle a mystery event
+                    // Generate and show mystery event modal
                     const mysteryEvent = generateMysteryEvent();
                     if (mysteryEvent) {
-                        // For now, automatically choose the first outcome to complete the event
-                        const firstChoice = mysteryEvent.choices[0];
-                        if (firstChoice) {
-                            handleEventOutcome(mysteryEvent, firstChoice, user?.id);
-                        }
+                        setMysteryEvent({ open: true, event: mysteryEvent });
                     }
                     break;
             }
@@ -1418,10 +1415,10 @@ export default function RealmPage() {
                 onImageReveal={setShouldRevealImage}
             >
                 {/* Top Toolbar */}
-                <div className="flex items-center justify-between p-2 bg-gray-800 border-b border-gray-700 z-30 overflow-visible">
+                <div className="flex items-center justify-between bg-gray-800 border-b border-gray-700 z-30 overflow-visible">
                   {/* On mobile, make action rows horizontally scrollable and touch-friendly */}
                   <div className="flex flex-1 flex-col gap-2 overflow-visible">
-                    <div className="flex items-center gap-2 overflow-x-auto flex-nowrap md:gap-4 md:overflow-visible md:flex-wrap overflow-visible" style={{ WebkitOverflowScrolling: 'touch' }}>
+                    <div className="flex items-center gap-2 overflow-x-auto flex-nowrap md:gap-4 md:overflow-visible md:flex-wrap overflow-visible p-2" style={{ WebkitOverflowScrolling: 'touch' }}>
                       <Button
                         variant={gameMode === 'move' ? 'default' : 'outline'}
                         size="sm"
@@ -1724,6 +1721,42 @@ export default function RealmPage() {
                             <div className="space-y-4">
                                 <div className="text-lg font-semibold text-center">{caveEvent.result}</div>
                                 <Button aria-label="Close" onClick={() => setCaveEvent(null)}>Close</Button>
+                            </div>
+                        )}
+                    </DialogContent>
+                </Dialog>
+            )}
+            
+            {/* Mystery Event Modal */}
+            {mysteryEvent?.open && (
+                <Dialog open={mysteryEvent.open} onOpenChange={() => setMysteryEvent(null)}>
+                    <DialogContent aria-label="Mystery Event" role="dialog" aria-modal="true">
+                        <DialogHeader>
+                            <DialogTitle>{mysteryEvent.event.title}</DialogTitle>
+                            <DialogDescription>{mysteryEvent.event.description}</DialogDescription>
+                        </DialogHeader>
+                        {!mysteryEvent.choice ? (
+                            <div className="space-y-4 flex flex-col">
+                                {mysteryEvent.event.choices.map((choice: string, index: number) => (
+                                    <Button 
+                                        key={index}
+                                        className="w-full" 
+                                        aria-label={`Choice ${index + 1}: ${choice}`}
+                                        onClick={() => {
+                                            setMysteryEvent({ ...mysteryEvent, choice });
+                                            handleEventOutcome(mysteryEvent.event, choice, user?.id);
+                                            setTimeout(() => setMysteryEvent(null), 2000);
+                                        }}
+                                    >
+                                        {choice}
+                                    </Button>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                <div className="text-lg font-semibold text-center">
+                                    Processing your choice...
+                                </div>
                             </div>
                         )}
                     </DialogContent>
