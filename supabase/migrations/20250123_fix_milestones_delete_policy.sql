@@ -6,7 +6,7 @@ DROP POLICY IF EXISTS "All authenticated users can view milestones" ON milestone
 
 -- Create a comprehensive policy that allows authenticated users to manage their own milestones
 CREATE POLICY "Authenticated users can manage milestones" ON milestones
-  FOR ALL USING (auth.get_user_id() IS NOT NULL);
+  FOR ALL USING (auth.uid() IS NOT NULL);
 
 -- Index for performance
 CREATE INDEX IF NOT EXISTS idx_milestones_user_id ON milestones(user_id);
