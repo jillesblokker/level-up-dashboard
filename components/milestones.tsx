@@ -19,6 +19,8 @@ import { storageService } from '@/lib/storage-service'
 import { Quest } from '@/lib/quest-types'
 import { updateCharacterStat, getCharacterStats, addToCharacterStatSync, updateCharacterStatSync } from '@/lib/character-stats-manager'
 import CardWithProgress from './quest-card'
+import { pollingService, createPollingConfig } from '@/lib/polling-service';
+import { errorHandler, ErrorHandler } from '@/lib/error-handler';
 
 
 interface Milestone {
@@ -106,9 +108,6 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
   const [completionDates, setCompletionDates] = useState<Record<string, string>>({});
   const [addModalOpen, setAddModalOpen] = useState<string | null>(null);
   
-  // Add ref to track last edit time for polling debounce
-  const lastEditTimeRef = useRef(0);
-
   // Remove all persistence effects - components will use temporary state
   // useEffect(() => { storageService.set(CUSTOM_MILESTONES_KEY, customMilestones); }, [customMilestones]); // Removed
   // useEffect(() => { storageService.set(MILESTONE_PROGRESS_KEY, progress); }, [progress]); // Removed
@@ -263,8 +262,9 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       
       console.log('Delete successful, updating local state');
       // Set the last edit time to prevent polling from overwriting
-      lastEditTimeRef.current = Date.now();
-      console.log('[Milestones Debug] Set lastEditTimeRef to:', lastEditTimeRef.current);
+      pollingService.setLastEditTime('milestones');
+      console.log('[Milestones Debug] Set last edit time for polling service');
+      
       // Remove from local state
       setMilestones(prev => {
         const filtered = prev.filter(m => m.id !== id);
@@ -386,8 +386,8 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       
       console.log('Milestone updated successfully, updating local state');
       // Set the last edit time to prevent polling from overwriting
-      lastEditTimeRef.current = Date.now();
-      console.log('[Milestones Debug] Set lastEditTimeRef to:', lastEditTimeRef.current);
+      pollingService.setLastEditTime('milestones');
+      console.log('[Milestones Debug] Set last edit time for polling service');
       setMilestones(prev => {
         const updated = prev.map(m => m.id === updatedMilestone.id ? { ...m, ...updatedMilestone } : m);
         console.log('Milestones after edit:', updated.length);
@@ -452,8 +452,8 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       
       console.log('Delete successful, updating local state');
       // Set the last edit time to prevent polling from overwriting
-      lastEditTimeRef.current = Date.now();
-      console.log('[Milestones Debug] Set lastEditTimeRef to:', lastEditTimeRef.current);
+      pollingService.setLastEditTime('milestones');
+      console.log('[Milestones Debug] Set last edit time for polling service');
       
       // Update local state - remove from both milestones and customMilestones
       setMilestones(prev => prev.filter(m => m.id !== id));
@@ -543,43 +543,42 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
     }
   };
 
-  // Polling for milestone changes instead of real-time sync
+  // Polling for milestone changes using centralized service
   useEffect(() => {
     if (!userId || !token) return;
     
-    console.log('[Milestones Poll] Starting polling with 15-second interval');
+    console.log('[Milestones] Setting up centralized polling');
     
-    const pollInterval = setInterval(async () => {
-      try {
-        // Skip polling if we recently made an edit/delete
-        const now = Date.now();
-        const timeSinceLastEdit = now - lastEditTimeRef.current;
-        console.log('[Milestones Poll] Polling check - time since last edit:', timeSinceLastEdit, 'ms');
-        
-        if (timeSinceLastEdit < 3000) { // 3 seconds debounce
-          console.log('[Milestones Poll] Skipping poll due to recent edit');
-          return;
-        }
-        
-        console.log('[Milestones Poll] Fetching milestones...');
-        const response = await fetch('/api/milestones', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (response.ok) {
-          const milestoneData = await response.json();
-          console.log('[Milestones Poll] Received', milestoneData.length, 'milestones');
-          setMilestones(milestoneData || []);
-        }
-      } catch (error) {
-        console.error('[Milestones Poll] Error polling milestones:', error);
+    const fetchMilestones = async () => {
+      const response = await fetch('/api/milestones', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (!response.ok) {
+        throw await errorHandler.handleFetchError(response, 'milestones-polling');
       }
-    }, 15000); // Poll every 15 seconds instead of 5
+      
+      const milestoneData = await ErrorHandler.safeJsonParse(response);
+      console.log('[Milestones Poll] Received', milestoneData.length, 'milestones');
+      return milestoneData;
+    };
+
+    const config = createPollingConfig(
+      15000, // 15 seconds
+      true,
+      (data) => setMilestones(data || []),
+      (error) => {
+        console.error('[Milestones Poll] Error:', error);
+        // Don't show toast for polling errors to avoid spam
+      }
+    );
+
+    pollingService.startPolling('milestones', fetchMilestones, config);
     
     return () => {
-      console.log('[Milestones Poll] Cleaning up polling interval');
-      clearInterval(pollInterval);
+      pollingService.stopPolling('milestones');
     };
   }, [userId, token]);
 

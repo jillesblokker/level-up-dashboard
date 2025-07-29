@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
 
+// DEVELOPMENT ONLY: Debug endpoint for testing database connections and data integrity
+// This endpoint should be removed in production
 export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth();
