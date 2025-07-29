@@ -1645,9 +1645,17 @@ export default function QuestsPage() {
                 style={{
                   display: 'grid !important',
                   gridTemplateColumns: 'repeat(3, minmax(0, 1fr)) !important',
-                  gap: '1rem !important'
+                  gap: '1rem !important',
+                  border: '5px solid lime !important',
+                  backgroundColor: 'lime !important',
+                  color: 'black !important',
+                  padding: '20px !important',
+                  fontSize: '24px !important'
                 }}
               >
+                <div style={{ gridColumn: '1 / -1', textAlign: 'center', fontWeight: 'bold' }}>
+                  🚨 DEPLOYMENT TEST - 3 COLUMNS FORCE APPLIED 🚨
+                </div>
                 {(questsByCategorySafe[safeQuestCategory] ?? []).map((quest: Quest) => {
                   const categoryKey: string = String(quest.category ?? '');
                   const categoryColor = Object.prototype.hasOwnProperty.call(categoryColorMap, categoryKey)
