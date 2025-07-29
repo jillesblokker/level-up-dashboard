@@ -631,7 +631,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
                     <CardWithProgress
                       key={milestone.id}
                       title={milestone.name}
-                      description={defaultCard ? defaultCard.description : ''}
+                      description={milestone.description || (defaultCard ? defaultCard.description : '')}
                       icon={typeof milestone.icon === 'string' ? <span>{milestone.icon}</span> : milestone.icon}
                       completed={!!completed[milestone.id]}
                       onToggle={() => handleCheckboxToggle(milestone.id, milestone.target)}
