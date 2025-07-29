@@ -192,7 +192,7 @@ export default function QuestsPage() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [questToDelete, setQuestToDelete] = useState<Quest | null>(null);
   const [favoritedQuests, setFavoritedQuests] = useState<Set<string>>(new Set());
-  const [milestones, setMilestones] = useState<any[]>([]);
+  // const [milestones, setMilestones] = useState<any[]>([]);
   const [challenges, setChallenges] = useState<any[]>([]);
   const [token, setToken] = useState<string | null>(null);
   // --- Quest Streak Logic ---
@@ -861,7 +861,7 @@ export default function QuestsPage() {
       if (fetchRes.ok) {
         const data = await fetchRes.json();
         // console.log('[Milestones Debug] fetched milestones:', data);
-        setMilestones(data || []);
+        // setMilestones(data || []); // Removed - Milestones component handles its own state
         
         // 🎯 EMIT KINGDOM EVENT for real-time stats updates
         window.dispatchEvent(new CustomEvent('kingdom:milestoneCompleted', { 
@@ -1066,29 +1066,29 @@ export default function QuestsPage() {
   };
 
   // Fetch milestones when token is present
-  useEffect(() => {
-    if (!token) return;
-    async function fetchMilestones() {
-      try {
-        if (!token) return; // Guard for linter
-        // console.log('[Milestones Debug] Fetching /api/milestones-simple with token:', token.slice(0, 10), '...');
-        const res = await fetch('/api/milestones', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!res.ok) throw new Error('Failed to fetch milestones');
-        const data = await res.json();
-        // console.log('[Milestones Debug] fetched milestones:', data);
-        setMilestones(data || []);
-      } catch (err: any) {
-        setError('[Milestones Debug] Error fetching milestones: ' + (err.message || 'Failed to fetch milestones'));
-        setMilestones([]);
-        console.error('[Milestones Debug] Error fetching milestones:', err);
-      }
-    }
-    fetchMilestones();
-  }, [token]);
+  // useEffect(() => {
+  //   if (!token) return;
+  //   async function fetchMilestones() {
+  //     try {
+  //       if (!token) return; // Guard for linter
+  //       // console.log('[Milestones Debug] Fetching /api/milestones-simple with token:', token.slice(0, 10), '...');
+  //       const res = await fetch('/api/milestones', {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       });
+  //       if (!res.ok) throw new Error('Failed to fetch milestones');
+  //       const data = await res.json();
+  //       // console.log('[Milestones Debug] fetched milestones:', data);
+  //       setMilestones(data || []);
+  //     } catch (err: any) {
+  //       setError('[Milestones Debug] Error fetching milestones: ' + (err.message || 'Failed to fetch milestones'));
+  //       setMilestones([]);
+  //       console.error('[Milestones Debug] Error fetching milestones:', err);
+  //     }
+  //   }
+  //   fetchMilestones();
+  // }, [token]);
 
   // Fetch challenges when token is present
   useEffect(() => {
