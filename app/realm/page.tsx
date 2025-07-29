@@ -310,10 +310,33 @@ export default function RealmPage() {
         setIsPenguinPresent(false);
         setPenguinPos(null);
       } else if (hasIce && !isPenguinPresent) {
-        const pos = findFirstIceTile(grid);
-        console.log('[Realm] Penguin logic - found ice tile at:', pos);
-        if (pos) {
-          setPenguinPos(pos);
+        // Find the first ice tile, prioritizing center tiles
+        let bestIcePos = null;
+        const centerX = Math.floor(GRID_COLS / 2);
+        const centerY = Math.floor(INITIAL_ROWS / 2);
+        
+        // First try to find ice tiles in the center area
+        for (let y = centerY - 1; y <= centerY + 1; y++) {
+          for (let x = centerX - 1; x <= centerX + 1; x++) {
+            if (y >= 0 && y < grid.length && x >= 0 && x < GRID_COLS) {
+              const tile = grid[y]?.[x];
+              if (tile?.type === 'ice') {
+                bestIcePos = { x, y };
+                break;
+              }
+            }
+          }
+          if (bestIcePos) break;
+        }
+        
+        // If no center ice tile found, find any ice tile
+        if (!bestIcePos) {
+          bestIcePos = findFirstIceTile(grid);
+        }
+        
+        console.log('[Realm] Penguin logic - found ice tile at:', bestIcePos);
+        if (bestIcePos) {
+          setPenguinPos(bestIcePos);
           setIsPenguinPresent(true);
         }
       }
@@ -1665,6 +1688,7 @@ export default function RealmPage() {
                                     src="/images/Animals/penguin.png"
                                     alt="Penguin"
                                     className="w-32 h-32 object-contain"
+                                    style={{ transform: 'translate(-50%, -50%)' }}
                                 />
                             </div>
                         </div>
@@ -1686,6 +1710,7 @@ export default function RealmPage() {
                                     src="/images/Animals/horse.png"
                                     alt="Horse"
                                     className="w-32 h-32 object-contain"
+                                    style={{ transform: 'translate(-50%, -50%)' }}
                                     onError={(e) => console.log('[Realm] Horse image failed to load:', e)}
                                     onLoad={() => console.log('[Realm] Horse image loaded successfully')}
                                 />
@@ -1709,6 +1734,7 @@ export default function RealmPage() {
                                     src="/images/Animals/sheep.png"
                                     alt="Sheep"
                                     className="w-32 h-32 object-contain"
+                                    style={{ transform: 'translate(-50%, -50%)' }}
                                     onError={(e) => console.log('[Realm] Sheep image failed to load:', e)}
                                     onLoad={() => console.log('[Realm] Sheep image loaded successfully')}
                                 />
@@ -1732,6 +1758,7 @@ export default function RealmPage() {
                                     src="/images/Animals/eagle.png"
                                     alt="Eagle"
                                     className="w-32 h-32 object-contain"
+                                    style={{ transform: 'translate(-50%, -50%)' }}
                                 />
                             </div>
                         </div>
