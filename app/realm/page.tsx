@@ -1759,116 +1759,15 @@ export default function RealmPage() {
                         onTileClick={handlePlaceTile}
                         playerLevel={characterStats.level}
                         onTileSizeChange={handleTileSizeChange}
+                        penguinPos={penguinPos}
+                        horsePos={horsePos}
+                        sheepPos={sheepPos}
+                        eaglePos={eaglePos}
+                        isPenguinPresent={isPenguinPresent}
+                        isHorsePresent={isHorsePresent}
+                        isSheepPresent={isSheepPresent}
+                        horseCaught={horseCaught}
                     />
-                    
-                    {/* Creature Overlays */}
-                    {/* Penguin - appears on ice tiles */}
-                    {isPenguinPresent && penguinPos && (
-                        <div
-                            className="absolute z-20 pointer-events-none"
-                            style={{
-                                left: `${penguinPos.x * tileSize}px`,
-                                top: `${penguinPos.y * tileSize}px`,
-                                width: `${tileSize}px`,
-                                height: `${tileSize}px`
-                            }}
-                        >
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <img
-                                    src="/images/Animals/penguin.png"
-                                    alt="Penguin"
-                                    className="object-contain"
-                                    style={{ 
-                                        width: `${tileSize * 0.8}px`, 
-                                        height: `${tileSize * 0.8}px`,
-                                        transform: 'translate(-50%, -50%)' 
-                                    }}
-                                />
-                            </div>
-                        </div>
-                    )}
-                    
-                    {/* Horse - appears on grass tiles, disappears when caught */}
-                    {isHorsePresent && horsePos && !horseCaught && (
-                        <div
-                            className="absolute z-20 pointer-events-none"
-                            style={{
-                                left: `${horsePos.x * tileSize}px`,
-                                top: `${horsePos.y * tileSize}px`,
-                                width: `${tileSize}px`,
-                                height: `${tileSize}px`
-                            }}
-                        >
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <img
-                                    src="/images/Animals/horse.png"
-                                    alt="Horse"
-                                    className="object-contain"
-                                    style={{ 
-                                        width: `${tileSize * 0.8}px`, 
-                                        height: `${tileSize * 0.8}px`,
-                                        transform: 'translate(-50%, -50%)' 
-                                    }}
-                                    onError={(e) => console.log('[Realm] Horse image failed to load:', e)}
-                                    onLoad={() => console.log('[Realm] Horse image loaded successfully')}
-                                />
-                            </div>
-                        </div>
-                    )}
-                    
-                    {/* Sheep - appears on grass tiles */}
-                    {isSheepPresent && sheepPos && (
-                        <div
-                            className="absolute z-20 pointer-events-none"
-                            style={{
-                                left: `${sheepPos.x * tileSize}px`,
-                                top: `${sheepPos.y * tileSize}px`,
-                                width: `${tileSize}px`,
-                                height: `${tileSize}px`
-                            }}
-                        >
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <img
-                                    src="/images/Animals/sheep.png"
-                                    alt="Sheep"
-                                    className="object-contain"
-                                    style={{ 
-                                        width: `${tileSize * 0.8}px`, 
-                                        height: `${tileSize * 0.8}px`,
-                                        transform: 'translate(-50%, -50%)' 
-                                    }}
-                                    onError={(e) => console.log('[Realm] Sheep image failed to load:', e)}
-                                    onLoad={() => console.log('[Realm] Sheep image loaded successfully')}
-                                />
-                            </div>
-                        </div>
-                    )}
-                    
-                    {/* Eagle - appears when available */}
-                    {eaglePos && (
-                        <div
-                            className="absolute z-20 pointer-events-none"
-                            style={{
-                                left: `${eaglePos.x * tileSize}px`,
-                                top: `${eaglePos.y * tileSize}px`,
-                                width: `${tileSize}px`,
-                                height: `${tileSize}px`
-                            }}
-                        >
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <img
-                                    src="/images/Animals/eagle.png"
-                                    alt="Eagle"
-                                    className="object-contain"
-                                    style={{ 
-                                        width: `${tileSize * 0.8}px`, 
-                                        height: `${tileSize * 0.8}px`,
-                                        transform: 'translate(-50%, -50%)' 
-                                    }}
-                                />
-                            </div>
-                        </div>
-                    )}
                 </div>
                 {/* Overlay Inventory Panel */}
                 {showInventory && (
