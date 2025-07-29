@@ -1640,7 +1640,22 @@ export default function QuestsPage() {
               </Card>
             </div>
             <div className="space-y-4">
-              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+              <div 
+                className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
+                style={{
+                  display: 'grid !important',
+                  gridTemplateColumns: 'repeat(3, minmax(0, 1fr)) !important',
+                  gap: '1rem !important',
+                  border: '5px solid red !important',
+                  backgroundColor: 'red !important',
+                  color: 'white !important',
+                  padding: '20px !important',
+                  fontSize: '24px !important'
+                }}
+              >
+                <div style={{ gridColumn: '1 / -1', textAlign: 'center', fontWeight: 'bold' }}>
+                  🚨 DEPLOYMENT TEST - 3 COLUMNS FORCE APPLIED 🚨
+                </div>
                 {(questsByCategorySafe[safeQuestCategory] ?? []).map((quest: Quest) => {
                   const categoryKey: string = String(quest.category ?? '');
                   const categoryColor = Object.prototype.hasOwnProperty.call(categoryColorMap, categoryKey)
@@ -1889,7 +1904,22 @@ export default function QuestsPage() {
               </Card>
             </div>
             <div className="space-y-4">
-              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+              <div 
+                className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
+                style={{
+                  display: 'grid !important',
+                  gridTemplateColumns: 'repeat(3, minmax(0, 1fr)) !important',
+                  gap: '1rem !important',
+                  border: '5px solid red !important',
+                  backgroundColor: 'red !important',
+                  color: 'white !important',
+                  padding: '20px !important',
+                  fontSize: '24px !important'
+                }}
+              >
+                <div style={{ gridColumn: '1 / -1', textAlign: 'center', fontWeight: 'bold' }}>
+                  🚨 DEPLOYMENT TEST - 3 COLUMNS FORCE APPLIED 🚨
+                </div>
                 {challenges.filter(c => c.category === challengeCategory).map((challenge) => {
                   // Remove streakBonus/gainGold/toast logic from here
                   return (
