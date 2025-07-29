@@ -455,7 +455,8 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       lastEditTimeRef.current = Date.now();
       console.log('[Milestones Debug] Set lastEditTimeRef to:', lastEditTimeRef.current);
       
-      // Update local state
+      // Update local state - remove from both milestones and customMilestones
+      setMilestones(prev => prev.filter(m => m.id !== id));
       setCustomMilestones(prev => ({ ...prev, [category]: (prev[category] || []).filter(m => m.id !== id) }));
       setProgress(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
       setCompleted(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
