@@ -735,8 +735,17 @@ export default function RealmPage() {
                 console.error('Tile save error:', err);
             } else {
                 // Check for monster spawns after successful tile placement
-                const spawnResult = checkMonsterSpawn(grid, selectedTile.type);
+                console.log('[Realm] Checking monster spawn for tile type:', selectedTile.type);
+                // Create updated grid with the new tile for spawn check
+                const updatedGrid = grid.map(row => row.slice());
+                if (updatedGrid[y] && updatedGrid[y][x]) {
+                    updatedGrid[y][x] = { ...tileToPlace, x, y, owned: 1 };
+                }
+                const spawnResult = checkMonsterSpawn(updatedGrid, selectedTile.type);
+                console.log('[Realm] Monster spawn result:', spawnResult);
+                
                 if (spawnResult.shouldSpawn && spawnResult.position && spawnResult.monsterType) {
+                    console.log('[Realm] Spawning monster:', spawnResult.monsterType, 'at position:', spawnResult.position);
                     // Spawn the monster
                     const success = spawnMonsterOnTile(grid, spawnResult.position.x, spawnResult.position.y, spawnResult.monsterType as any);
                     if (success) {
@@ -750,6 +759,7 @@ export default function RealmPage() {
                             if (row && tile && monsterType) {
                                 tile.hasMonster = monsterType as MonsterType;
                                 tile.monsterAchievementId = getMonsterAchievementId(monsterType as MonsterType);
+                                console.log('[Realm] Monster added to grid:', monsterType, 'at', pos);
                             }
                             return newGrid;
                         });
@@ -1557,7 +1567,7 @@ export default function RealmPage() {
                                 <img
                                     src="/images/Animals/penguin.png"
                                     alt="Penguin"
-                                    className="w-12 h-12 object-contain"
+                                    className="w-16 h-16 object-contain"
                                 />
                             </div>
                         </div>
@@ -1578,7 +1588,7 @@ export default function RealmPage() {
                                 <img
                                     src="/images/Animals/horse.png"
                                     alt="Horse"
-                                    className="w-12 h-12 object-contain"
+                                    className="w-16 h-16 object-contain"
                                     onError={(e) => console.log('[Realm] Horse image failed to load:', e)}
                                     onLoad={() => console.log('[Realm] Horse image loaded successfully')}
                                 />
@@ -1601,7 +1611,7 @@ export default function RealmPage() {
                                 <img
                                     src="/images/Animals/sheep.png"
                                     alt="Sheep"
-                                    className="w-12 h-12 object-contain"
+                                    className="w-16 h-16 object-contain"
                                     onError={(e) => console.log('[Realm] Sheep image failed to load:', e)}
                                     onLoad={() => console.log('[Realm] Sheep image loaded successfully')}
                                 />
@@ -1624,7 +1634,7 @@ export default function RealmPage() {
                                 <img
                                     src="/images/Animals/eagle.png"
                                     alt="Eagle"
-                                    className="w-12 h-12 object-contain"
+                                    className="w-16 h-16 object-contain"
                                 />
                             </div>
                         </div>
