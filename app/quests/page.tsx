@@ -951,8 +951,11 @@ export default function QuestsPage() {
 
   // Delete quest (UI only, confirmation modal)
   const handleDeleteQuest = (questId: string) => {
-    setQuestToDelete(quests.find(q => q.id === questId) || null);
-    setDeleteConfirmOpen(true);
+    setQuests(prev => prev.filter(q => q.id !== questId));
+    toast({
+      title: 'Success',
+      description: 'Quest deleted successfully!',
+    });
   };
   const confirmDeleteQuest = () => {
     if (questToDelete) {
@@ -1637,7 +1640,7 @@ export default function QuestsPage() {
               </Card>
             </div>
             <div className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                 {(questsByCategorySafe[safeQuestCategory] ?? []).map((quest: Quest) => {
                   const categoryKey: string = String(quest.category ?? '');
                   const categoryColor = Object.prototype.hasOwnProperty.call(categoryColorMap, categoryKey)
@@ -1886,7 +1889,7 @@ export default function QuestsPage() {
               </Card>
             </div>
             <div className="space-y-4">
-              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                 {challenges.filter(c => c.category === challengeCategory).map((challenge) => {
                   // Remove streakBonus/gainGold/toast logic from here
                   return (
@@ -1902,10 +1905,11 @@ export default function QuestsPage() {
                         setEditCustomChallengeData(challenge);
                       }}
                       onDelete={() => {
-                        if (window.confirm('Are you sure you want to delete this challenge?')) {
-                          // TODO: Implement challenge deletion
-                          console.log('Delete challenge:', challenge.id);
-                        }
+                        setChallenges(prev => prev.filter(c => c.id !== challenge.id));
+                        toast({
+                          title: 'Success',
+                          description: 'Challenge deleted successfully!',
+                        });
                       }}
                       progress={challenge.completed ? 100 : 5}
                       xp={challenge.xp ?? 0}

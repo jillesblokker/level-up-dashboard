@@ -241,7 +241,6 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
   const handleDeleteMilestone = async (id: string) => {
     try {
       if (!token) throw new Error('No Clerk token');
-      console.log('Attempting to delete milestone:', id);
       
       // Call backend API to delete milestone
       const response = await fetch(`/api/milestones/${id}`, {
@@ -251,27 +250,27 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
         },
       });
       
-      console.log('Delete response status:', response.status);
-      
       if (!response.ok) {
         const err = await response.text();
-        console.error('Delete error response:', err);
         throw new Error(err || 'Failed to delete milestone');
       }
       
-      const result = await response.json();
-      console.log('Delete success:', result);
-      
+      // Remove from local state
       setMilestones(prev => prev.filter(m => m.id !== id));
+      setProgress(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
+      setCompleted(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
+      setStreaks(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
+      setCompletionDates(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
+      
       toast({
         title: 'Success',
-        description: 'Milestone removed successfully!',
+        description: 'Milestone deleted successfully!',
       });
     } catch (error) {
       console.error('Error deleting milestone:', error);
       toast({
         title: 'Error',
-        description: `Failed to delete milestone: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        description: 'Failed to delete milestone. Please try again.',
         variant: 'destructive',
       });
     }
@@ -355,6 +354,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
         },
         body: JSON.stringify({
           name: updatedMilestone.name,
+          description: updatedMilestone.description,
           experience: updatedMilestone.experience,
           gold: updatedMilestone.gold,
           // Add other fields as needed
