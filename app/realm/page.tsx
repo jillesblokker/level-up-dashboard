@@ -68,7 +68,7 @@ const getTileImage = (type: TileType): string => {
 const allTileTypes: TileType[] = [
     'empty', 'mountain', 'grass', 'forest', 'water', 'city', 'town', 'mystery',
     'portal-entrance', 'portal-exit', 'snow', 'cave', 'dungeon', 'castle', 'ice', 'desert',
-    'lava', 'volcano', 'vacant'
+    'lava', 'volcano'
 ];
 
 const initialInventory: Record<TileType, Tile> = {
@@ -95,8 +95,8 @@ const initialInventory: Record<TileType, Tile> = {
     special: { ...defaultTile('special'), cost: 0, owned: 0 },
     swamp: { ...defaultTile('swamp'), cost: 0, owned: 0 },
     treasure: { ...defaultTile('treasure'), cost: 0, owned: 0 },
-    monster: { ...defaultTile('monster'), cost: 0, owned: 0 },
-    vacant: { ...defaultTile('vacant'), cost: 0, owned: 0 },
+        monster: { ...defaultTile('monster'), cost: 0, owned: 0 },
+    vacant: { ...defaultTile('empty'), cost: 0, owned: 0 }, // Use empty tile as fallback for vacant
 };
 
 const createBaseGrid = (): Tile[][] => {
@@ -324,6 +324,7 @@ export default function RealmPage() {
       console.log('[Realm] Animal states - horse:', { isHorsePresent, horsePos, horseCaught });
       console.log('[Realm] Animal states - sheep:', { isSheepPresent, sheepPos });
       console.log('[Realm] Animal states - penguin:', { isPenguinPresent, penguinPos });
+      console.log('[Realm] Grid bounds:', { cols: GRID_COLS, rows: INITIAL_ROWS });
     }, [isHorsePresent, horsePos, horseCaught, isSheepPresent, sheepPos, isPenguinPresent, penguinPos]);
 
     // --- Load and transform completed mystery tiles on page load ---
@@ -1578,6 +1579,8 @@ export default function RealmPage() {
                                     src="/images/Animals/horse.png"
                                     alt="Horse"
                                     className="w-12 h-12 object-contain"
+                                    onError={(e) => console.log('[Realm] Horse image failed to load:', e)}
+                                    onLoad={() => console.log('[Realm] Horse image loaded successfully')}
                                 />
                             </div>
                         </div>
@@ -1599,6 +1602,8 @@ export default function RealmPage() {
                                     src="/images/Animals/sheep.png"
                                     alt="Sheep"
                                     className="w-12 h-12 object-contain"
+                                    onError={(e) => console.log('[Realm] Sheep image failed to load:', e)}
+                                    onLoad={() => console.log('[Realm] Sheep image loaded successfully')}
                                 />
                             </div>
                         </div>
