@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const questId = params.id;
+    const { id: questId } = await params;
     const body = await req.json();
     const { name, description, category, difficulty, xp_reward, gold_reward } = body;
 
@@ -67,9 +67,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const questId = params.id;
+    const { id: questId } = await params;
 
     // Use authenticated Supabase query with proper Clerk JWT verification
     const result = await authenticatedSupabaseQuery(req, async (supabase, userId) => {
