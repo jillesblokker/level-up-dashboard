@@ -282,7 +282,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       aria-label={`inventory-item-${item.id}`}
     >
       {/* Full-width image container */}
-      <div className="w-full h-48 relative overflow-hidden rounded-t-xl">
+      <div className="w-full h-64 relative overflow-hidden rounded-t-xl">
         <Image
           src={getItemImagePath(item)}
           alt={`${item.name} ${item.type}`}
@@ -293,10 +293,10 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; 
           }}
         />
-        {/* Overlay for equipped items */}
+        {/* Equipped label in top right corner */}
         {isEquipped && (
-          <div className="absolute inset-0 bg-amber-500/20 flex items-center justify-center">
-            <div className="bg-amber-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+          <div className="absolute top-2 right-2">
+            <div className="bg-amber-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
               Equipped
             </div>
           </div>
@@ -676,7 +676,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
                             No items equipped
                           </div>
                         ) : (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4" aria-label="equipped-items-grid">
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" aria-label="equipped-items-grid">
                             {equippedItems.map((item) => renderItemCard(item, true))}
                           </div>
                         )}
@@ -695,7 +695,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
                             </CardContent>
                           </Card>
                         ) : (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4" aria-label="stored-items-grid">
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" aria-label="stored-items-grid">
                             {storedItems.map((item) => renderItemCard(item, false))}
                           </div>
                         )}

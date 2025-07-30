@@ -108,8 +108,6 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     { href: "/achievements", label: "Achievements", icon: Trophy, description: "Track progress" },
     { href: "/inventory", label: "Inventory", icon: Building, description: "Manage items" },
     { href: "/character", label: "Character", icon: User, description: "View stats" },
-    { href: "/market", label: "Market", icon: Palette, description: "Trade items" },
-    { href: "/dungeon", label: "Dungeon", icon: Sword, description: "Battle monsters" },
   ]
 
   const isActive = (path: string) => pathname === path
@@ -122,16 +120,15 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
         <SheetTrigger asChild>
           <Button
             variant="ghost"
-            className="relative h-10 w-10 rounded-lg border border-amber-800/20 bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-sm hover:border-amber-500/40 transition-all duration-300"
+            className="relative h-12 w-12 rounded-lg border border-amber-800/20 bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-sm hover:border-amber-500/40 transition-all duration-300"
             aria-label="Open navigation menu"
           >
-            <Menu className="h-5 w-5 text-amber-500" />
-            <div className="absolute -top-1 -right-1 h-3 w-3 bg-amber-500 rounded-full animate-pulse" />
+            <Menu className="h-6 w-6 text-amber-500" />
           </Button>
         </SheetTrigger>
         <SheetContent 
-          side="left" 
-          className="w-[300px] sm:w-[400px] bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl border-r border-amber-800/20"
+          side="right" 
+          className="w-full bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl border-l border-amber-800/20"
         >
           <div className="flex flex-col h-full">
             {/* Header */}

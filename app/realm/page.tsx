@@ -1737,7 +1737,7 @@ export default function RealmPage() {
                         aria-label="movement-mode-button"
                       >
                         <Move className="w-4 h-4" />
-                        <span className="hidden md:inline">Move</span>
+                        <span className="hidden md:inline text-blue-500">Move</span>
                       </Button>
                       <Button
                         variant={gameMode === 'build' ? 'default' : 'outline'}

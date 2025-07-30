@@ -5,6 +5,7 @@ import { MainNav } from "@/components/main-nav"
 import { MobileNav } from "@/components/navigation/mobile-nav"
 import { Session } from '@supabase/supabase-js'
 import { Castle, Coins } from "lucide-react"
+import { Logo } from "@/components/logo"
 import { Progress } from "@/components/ui/progress"
 import { NotificationCenter } from "@/components/notification-center"
 import { UserNav } from "@/components/user-nav"
@@ -113,8 +114,9 @@ export function NavBar({ session }: NavBarProps) {
         <div className="hidden md:flex">
           <MainNav />
         </div>
-        {/* Mobile Navigation: only hamburger menu on right, no notification or user nav */}
-        <div className="flex md:hidden flex-1 justify-end">
+        {/* Mobile Navigation: logo on left, hamburger menu on right */}
+        <div className="flex md:hidden flex-1 items-center justify-between px-4">
+          <Logo size="sm" />
           <MobileNav />
         </div>
         {/* Desktop right-side stats, notification, user nav */}

@@ -1933,17 +1933,18 @@ export default function QuestsPage() {
           <TabsContent value="milestones">
             <div className="mb-4">
               <label htmlFor="milestone-category-select" className="sr-only">Select milestone category</label>
-              <select
-                id="milestone-category-select"
-                className="w-full rounded border border-[#F59E0B] p-2 bg-black text-amber-200"
-                aria-label="Milestone category dropdown"
-                value={milestoneCategory}
-                onChange={e => setMilestoneCategory(e.target.value)}
-              >
-                {questCategories.map((category: string) => (
-                  <option key={category} value={category}>{getCategoryLabel(category)}</option>
-                ))}
-              </select>
+              <Select value={milestoneCategory || ''} onValueChange={setMilestoneCategory}>
+                <SelectTrigger className="w-full rounded border border-[#F59E0B] p-2 bg-black text-amber-200" aria-label="Milestone category dropdown">
+                  <SelectValue placeholder="Select milestone category" />
+                </SelectTrigger>
+                <SelectContent className="bg-black border border-[#F59E0B]">
+                  {questCategories.map((category: string) => (
+                    <SelectItem key={category} value={category}>
+                      {getCategoryLabel(category)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <Milestones token={token} category={milestoneCategory} onUpdateProgress={handleMilestoneToggle} />
           </TabsContent>

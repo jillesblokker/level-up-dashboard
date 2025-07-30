@@ -119,22 +119,27 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
 
   useEffect(() => {
     if (!userId || !supabase || isSupabaseLoading || !token) {
+      console.log('[Milestones] Skipping fetch - missing dependencies:', { userId: !!userId, supabase: !!supabase, isSupabaseLoading, token: !!token });
       return;
     }
     const fetchMilestones = async () => {
       try {
         setIsLoading(true);
+        console.log('[Milestones] Fetching milestones with token:', token ? 'present' : 'missing');
         const response = await fetch('/api/milestones', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         if (!response.ok) {
-          throw new Error('Failed to fetch milestones');
+          const errorText = await response.text();
+          console.error('[Milestones] API error:', response.status, errorText);
+          throw new Error(`Failed to fetch milestones: ${response.status} ${errorText}`);
         }
         const milestoneData = await response.json();
         setMilestones(milestoneData || []);
       } catch (err) {
+        console.error('[Milestones] Fetch error:', err);
         toast({
           title: 'Error',
           description: 'Failed to load milestones. Please try again.',
