@@ -255,11 +255,11 @@ export default function QuestsPage() {
     let cancelled = false;
     async function getClerkToken() {
       if (!isClerkLoaded || !isUserLoaded) return;
-      let t = await getToken();
+      let t = await getToken({ template: 'supabase' });
       let attempts = 0;
       while (!t && attempts < 2) {
         await new Promise(res => setTimeout(res, 200));
-        t = await getToken();
+        t = await getToken({ template: 'supabase' });
         attempts++;
       }
       if (!cancelled) setToken(t || null);
@@ -300,7 +300,7 @@ export default function QuestsPage() {
   // Fetch user's favorited quests
   const fetchFavorites = async () => {
     try {
-      const token = await getToken();
+      const token = await getToken({ template: 'supabase' });
       if (!token) return;
 
       const response = await fetch('/api/quests/favorites', {
@@ -482,7 +482,7 @@ export default function QuestsPage() {
     if (!quest) return;
     try {
       setLoading(true);
-      const token = await getToken();
+      const token = await getToken({ template: 'supabase' });
       if (!token) throw new Error('No Clerk token');
       // Call the backend to upsert quest completion
       const res = await fetch('/api/quests/completion', {
@@ -577,7 +577,7 @@ export default function QuestsPage() {
   // Handle quest favorite toggle
   const handleQuestFavorite = async (questId: string) => {
     try {
-      const token = await getToken();
+      const token = await getToken({ template: 'supabase' });
       if (!token) throw new Error('No Clerk token');
 
       const isCurrentlyFavorited = favoritedQuests.has(questId);
@@ -755,7 +755,7 @@ export default function QuestsPage() {
 
     try {
       setLoading(true);
-      const token = await getToken();
+      const token = await getToken({ template: 'supabase' });
       if (!token) throw new Error('No Clerk token');
 
       // Complete all favorited quests across all categories
@@ -834,7 +834,7 @@ export default function QuestsPage() {
   const handleMilestoneToggle = async (milestoneId: string, currentCompleted: boolean) => {
     try {
       setLoading(true);
-      const token = await getToken();
+      const token = await getToken({ template: 'supabase' });
       if (!token) throw new Error('No Clerk token');
       // console.log('[Milestones Debug] POST /api/milestones/completion', { milestoneId });
       const res = await fetch('/api/milestones/completion', {
@@ -892,7 +892,7 @@ export default function QuestsPage() {
   const handleChallengeToggle = async (challengeId: string, currentCompleted: boolean) => {
     try {
       setLoading(true);
-      const token = await getToken();
+      const token = await getToken({ template: 'supabase' });
       if (!token) throw new Error('No Clerk token');
       // console.log('[Challenges Debug] POST /api/challenges/completion', { challengeId });
       const res = await fetch('/api/challenges/completion', {
