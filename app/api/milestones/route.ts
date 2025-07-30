@@ -11,11 +11,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized (Clerk JWT invalid or missing)' }, { status: 401 });
     }
 
-    // Fetch global milestones (no user_id) and user-specific milestones (with user_id)
+    // Fetch all global milestones (no user_id filter needed for global definitions)
     const { data: allMilestones, error: milestonesError } = await supabaseServer
       .from('milestones')
-      .select('*')
-      .or(`user_id.is.null,user_id.eq.${userId}`);
+      .select('*');
     if (milestonesError) {
       console.error('[Milestones] Error fetching milestones:', milestonesError);
       return NextResponse.json({ error: milestonesError.message }, { status: 500 });
@@ -66,12 +65,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized (Clerk JWT invalid or missing)' }, { status: 401 });
     }
     
-    // Create new milestone with user_id for user-specific milestones
+    // Create new milestone (global definition)
     const { data: newMilestone, error } = await supabaseServer
       .from('milestones')
       .insert([
         {
-          user_id: userId, // Add user_id to make it user-specific
           name,
           description: description || name,
           category,
@@ -112,12 +110,11 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Unauthorized (Clerk JWT invalid or missing)' }, { status: 401 });
     }
     
-    // Delete milestone (only if it belongs to the user or is global)
+    // Delete milestone (only if it's a global milestone)
     const { error } = await supabaseServer
       .from('milestones')
       .delete()
-      .eq('id', id)
-      .or(`user_id.eq.${userId},user_id.is.null`);
+      .eq('id', id);
       
     if (error) {
       console.error('[Milestones DELETE] Error:', error);
