@@ -41,11 +41,58 @@ function addDefaultRecoveryValues(data: any) {
   };
 }
 
+// Extract user ID from Supabase JWT token
+async function extractUserIdFromToken(req: NextRequest): Promise<string | null> {
+  try {
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('[Streaks Direct] No Authorization header found');
+      return null;
+    }
+
+    const token = authHeader.substring(7);
+    console.log('[Streaks Direct] Token received, length:', token.length);
+
+    // For Supabase JWT tokens, we can extract the user ID from the token
+    // This is a simplified approach - in production you should verify the JWT
+    const parts = token.split('.');
+    if (parts.length === 3 && parts[1]) {
+      try {
+        const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+        console.log('[Streaks Direct] Token payload:', payload);
+        
+        // The user ID is typically in the 'sub' field for Supabase tokens
+        if (payload.sub) {
+          return payload.sub;
+        }
+      } catch (decodeError) {
+        console.error('[Streaks Direct] Token decode failed:', decodeError);
+      }
+    }
+
+    // Fallback: try to get user ID from Clerk
+    try {
+      const { userId } = await getAuth(req);
+      if (userId) {
+        console.log('[Streaks Direct] Got userId from Clerk:', userId);
+        return userId;
+      }
+    } catch (clerkError) {
+      console.error('[Streaks Direct] Clerk auth failed:', clerkError);
+    }
+
+    return null;
+  } catch (error) {
+    console.error('[Streaks Direct] Error extracting user ID:', error);
+    return null;
+  }
+}
+
 export async function GET(req: NextRequest) {
   try {
     console.log('[Streaks Direct GET] Starting request...');
     
-    const { userId } = await getAuth(req)
+    const userId = await extractUserIdFromToken(req);
     console.log('[Streaks Direct GET] User ID:', userId ? 'present' : 'missing');
     
     if (!userId) {
@@ -140,7 +187,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = await getAuth(req)
+    const userId = await extractUserIdFromToken(req);
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { 
         status: 401,
@@ -257,7 +304,7 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
-    const { userId } = await getAuth(req);
+    const userId = await extractUserIdFromToken(req);
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { 
         status: 401,

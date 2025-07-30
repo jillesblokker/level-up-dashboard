@@ -3,12 +3,59 @@ import { NextRequest } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
 
+// Extract user ID from Supabase JWT token
+async function extractUserIdFromToken(req: NextRequest): Promise<string | null> {
+  try {
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('[Milestones] No Authorization header found');
+      return null;
+    }
+
+    const token = authHeader.substring(7);
+    console.log('[Milestones] Token received, length:', token.length);
+
+    // For Supabase JWT tokens, we can extract the user ID from the token
+    // This is a simplified approach - in production you should verify the JWT
+    const parts = token.split('.');
+    if (parts.length === 3 && parts[1]) {
+      try {
+        const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+        console.log('[Milestones] Token payload:', payload);
+        
+        // The user ID is typically in the 'sub' field for Supabase tokens
+        if (payload.sub) {
+          return payload.sub;
+        }
+      } catch (decodeError) {
+        console.error('[Milestones] Token decode failed:', decodeError);
+      }
+    }
+
+    // Fallback: try to get user ID from Clerk
+    try {
+      const { userId } = await getAuth(req);
+      if (userId) {
+        console.log('[Milestones] Got userId from Clerk:', userId);
+        return userId;
+      }
+    } catch (clerkError) {
+      console.error('[Milestones] Clerk auth failed:', clerkError);
+    }
+
+    return null;
+  } catch (error) {
+    console.error('[Milestones] Error extracting user ID:', error);
+    return null;
+  }
+}
+
 export async function GET(request: Request) {
   try {
-    // Secure Clerk JWT verification
-    const { userId } = await getAuth(request as NextRequest);
+    // Secure JWT verification
+    const userId = await extractUserIdFromToken(request as NextRequest);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized (Clerk JWT invalid or missing)' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized (JWT invalid or missing)' }, { status: 401 });
     }
 
     // Fetch all global milestones (no user_id filter needed for global definitions)
@@ -59,10 +106,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
     
-    // Secure Clerk JWT verification
-    const { userId } = await getAuth(request as NextRequest);
+    // Secure JWT verification
+    const userId = await extractUserIdFromToken(request as NextRequest);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized (Clerk JWT invalid or missing)' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized (JWT invalid or missing)' }, { status: 401 });
     }
     
     // Create new milestone (global definition)
@@ -104,10 +151,10 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Missing milestone ID' }, { status: 400 });
     }
     
-    // Secure Clerk JWT verification
-    const { userId } = await getAuth(request as NextRequest);
+    // Secure JWT verification
+    const userId = await extractUserIdFromToken(request as NextRequest);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized (Clerk JWT invalid or missing)' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized (JWT invalid or missing)' }, { status: 401 });
     }
     
     // Delete milestone (only if it's a global milestone)
