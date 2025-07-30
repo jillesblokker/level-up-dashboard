@@ -25,6 +25,7 @@ import { gainGold } from '@/lib/gold-manager'
 import { gainExperience } from '@/lib/experience-manager'
 import { useCreatureStore } from '@/stores/creatureStore'
 import { generateMysteryEvent, handleEventOutcome } from '@/lib/mystery-events'
+import { cn } from "@/lib/utils"
 
 import dynamic from 'next/dynamic';
 import { getCharacterStats } from '@/lib/character-stats-manager';
