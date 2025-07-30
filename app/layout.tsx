@@ -16,6 +16,7 @@ import { ClerkProvider } from '@clerk/nextjs'
 import { ThemeProvider } from '@/components/theme-provider'
 import { GlobalErrorBoundary } from '@/components/global-error-boundary'
 import { TitleEvolutionProvider } from '@/components/title-evolution-provider'
+import { NavBar } from '@/components/nav-bar'
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -99,6 +100,7 @@ export default function RootLayout({
                   <Providers>
                     <div className="flex flex-col h-full">
                       <AuthGate>
+                        <NavBar session={null} />
                         <main className="flex-1 relative">
                           {children}
                         </main>

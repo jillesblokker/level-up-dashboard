@@ -91,12 +91,27 @@ export default function QuestCard({
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       
-      {/* Status Indicator */}
-      {status === 'completed' && (
-        <div className="absolute top-3 right-3 z-10">
-          <CheckCircle className="h-6 w-6 text-green-500 drop-shadow-lg" />
+      {/* Interactive Checkbox */}
+      <div 
+        className="absolute top-3 right-3 z-10 cursor-pointer"
+        onClick={(e) => {
+          e.stopPropagation();
+          onComplete?.();
+        }}
+        aria-label={`Toggle quest completion: ${title}`}
+      >
+        <div className={cn(
+          "w-6 h-6 rounded border-2 flex items-center justify-center transition-all duration-200",
+          "hover:scale-110 hover:shadow-lg",
+          status === 'completed' 
+            ? "bg-green-500 border-green-500 text-white" 
+            : "bg-transparent border-gray-400 text-transparent hover:border-amber-400"
+        )}>
+          {status === 'completed' && (
+            <CheckCircle className="h-4 w-4" />
+          )}
         </div>
-      )}
+      </div>
 
       {/* Featured/New Badge */}
       {(isFeatured || isNew) && (
