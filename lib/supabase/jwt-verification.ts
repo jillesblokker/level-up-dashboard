@@ -22,6 +22,8 @@ export interface AuthResult {
 export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
   try {
     console.log('[JWT Verification] Starting verification for:', request.url);
+    console.log('[JWT Verification] Request method:', request.method);
+    console.log('[JWT Verification] Request headers:', Object.fromEntries(request.headers.entries()));
     
     // Try to get auth from cookies first (this is the most reliable method)
     let nextReq: NextRequest;
@@ -45,6 +47,7 @@ export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
     }
 
     console.log('[JWT Verification] Trying getAuth...');
+    console.log('[JWT Verification] NextReq headers:', Object.fromEntries(nextReq.headers.entries()));
     const { userId } = await getAuth(nextReq);
     console.log('[JWT Verification] Clerk userId from getAuth:', userId);
     
@@ -138,9 +141,14 @@ export async function authenticatedSupabaseQuery<T>(
   request: Request,
   queryFn: (supabase: typeof supabaseServer, userId: string) => Promise<T>
 ): Promise<{ success: boolean; data?: T; error?: string; userId?: string }> {
+  console.log('[AuthenticatedSupabaseQuery] Starting authentication for:', request.url);
+  
   // Step 1: Verify Clerk JWT
   const authResult = await verifyClerkJWT(request);
+  console.log('[AuthenticatedSupabaseQuery] Auth result:', authResult);
+  
   if (!authResult.success || !authResult.userId) {
+    console.log('[AuthenticatedSupabaseQuery] Authentication failed:', authResult.error);
     return { 
       success: false, 
       error: authResult.error || 'Authentication failed' 
@@ -148,7 +156,9 @@ export async function authenticatedSupabaseQuery<T>(
   }
 
   // Step 2: Query Supabase with service key
+  console.log('[AuthenticatedSupabaseQuery] Proceeding to Supabase query with userId:', authResult.userId);
   const queryResult = await querySupabaseWithServiceKey(authResult.userId, queryFn);
+  console.log('[AuthenticatedSupabaseQuery] Query result:', queryResult);
   
   return {
     success: queryResult.success,
