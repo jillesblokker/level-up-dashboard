@@ -330,7 +330,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
         <Tooltip>
           <TooltipTrigger asChild>
             <button
-              className="absolute top-4 right-4 z-20 w-12 h-12 bg-amber-600 text-white rounded-full shadow-lg flex items-center justify-center text-sm font-bold hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="absolute top-20 right-4 z-20 w-12 h-12 bg-amber-600 text-white rounded-full shadow-lg flex items-center justify-center text-sm font-bold hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={expandKingdomGrid}
               disabled={!canExpand}
               aria-label="Expand kingdom grid"

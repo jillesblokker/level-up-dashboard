@@ -1483,7 +1483,40 @@ export default function RealmPage() {
         setGrid(prevGrid => {
             const newGrid = prevGrid.map(row => row.slice());
             if (newGrid[y]?.[x] && newGrid[y][x].type !== 'empty') {
+                const deletedTileType = newGrid[y][x].type;
                 newGrid[y][x] = { ...defaultTile('empty'), x, y, id: `empty-${x}-${y}` };
+                
+                // Track tile destruction for achievements
+                if (userId && deletedTileType) {
+                    const achievementKey = `destroyed_${deletedTileType}_tiles`;
+                    const currentCount = parseInt(localStorage.getItem(achievementKey) || '0');
+                    const newCount = currentCount + 1;
+                    localStorage.setItem(achievementKey, newCount.toString());
+                    
+                    // Check for destruction achievements
+                    const destructionAchievements = [
+                        { type: 'forest', threshold: 3, achievementId: '201' },
+                        { type: 'mountain', threshold: 2, achievementId: '202' },
+                        { type: 'water', threshold: 1, achievementId: '203' },
+                        { type: 'desert', threshold: 2, achievementId: '204' },
+                        { type: 'ice', threshold: 1, achievementId: '205' }
+                    ];
+                    
+                    const achievement = destructionAchievements.find(a => a.type === deletedTileType);
+                    if (achievement && newCount >= achievement.threshold) {
+                        // Unlock achievement
+                        fetch('/api/achievements/unlock', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ achievementId: achievement.achievementId })
+                        }).then(() => {
+                            toast({
+                                title: "Achievement Unlocked!",
+                                description: `Destroyed ${achievement.threshold} ${deletedTileType} tiles!`,
+                            });
+                        }).catch(console.error);
+                    }
+                }
             }
             // Save only the changed tile
             fetch('/api/realm-tiles', {
@@ -1713,8 +1746,8 @@ export default function RealmPage() {
                         className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
                         aria-label="build-mode-button"
                       >
-                        <Hammer className="w-4 h-4 text-black" />
-                        <span className="hidden md:inline text-black">Build</span>
+                        <Hammer className="w-4 h-4" />
+                        <span className="hidden md:inline">Build</span>
                       </Button>
                       <div className="hidden md:flex items-center space-x-2 min-w-[100px]" aria-label="auto-save-controls">
                         <Switch id="auto-save-switch" checked={autoSave} onCheckedChange={setAutoSave} />

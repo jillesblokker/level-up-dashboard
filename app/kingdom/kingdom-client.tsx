@@ -137,9 +137,10 @@ function getItemImagePath(item: KingdomInventoryItem): string {
   if (item.name === "Sally Swift Horse") return "/images/items/horse/horse-stelony.png";
   if (item.name === "Buster Endurance Horse") return "/images/items/horse/horse-perony.png";
   if (item.name === "Shadow War Horse") return "/images/items/horse/horse-felony.png";
-  if (item.name === "Crown") return "/images/items/artifact/crown/artifact-crowny.png";
-  if (item.name === "Ring") return "/images/items/artifact/ring/artifact-ringo.png";
-  if (item.name === "Scepter") return "/images/items/artifact/scepter/artifact-staffy.png";
+  if (item.name === "Crown") return "/images/items/artifact/crown.png";
+  if (item.name === "Ring") return "/images/items/artifact/ring.png";
+  if (item.name === "Scepter") return "/images/items/artifact/scepter.png";
+  if (item.name === "Ancient Artifact") return "/images/items/artifact/ancient-artifact.png";
   if (item.name === "Scroll of Memory") return "/images/items/scroll/scroll-memento.png";
   if (item.name === "Scroll of Perkament") return "/images/items/scroll/scroll-perkamento.png";
   if (item.name === "Scroll of Scrolly") return "/images/items/scroll/scroll-scrolly.png";
@@ -277,49 +278,76 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const renderItemCard = (item: KingdomInventoryItem, isEquipped: boolean = false) => (
     <Card 
       key={item.id} 
-      className={`bg-black/60 border-2 border-amber-500 rounded-xl shadow-lg transition-all duration-200 ${isEquipped ? 'ring-2 ring-amber-500' : ''}`}
+      className={`bg-gradient-to-br from-gray-900/90 to-gray-800/90 border-2 border-amber-500/30 rounded-xl shadow-lg transition-all duration-300 hover:border-amber-400/50 hover:shadow-amber-500/20 hover:-translate-y-1 ${isEquipped ? 'ring-2 ring-amber-500 shadow-amber-500/30' : ''}`}
       aria-label={`inventory-item-${item.id}`}
     >
-      <CardHeader className="p-4">
-        <div 
-          className="flex flex-col items-center justify-center space-y-2"
-          aria-label={`item-header-${item.id}`}
-        >
-          <div className="w-full aspect-[4/3] relative mb-2">
-            <Image
-              src={getItemImagePath(item)}
-              alt={`${item.name} ${item.type}`}
-              fill
-              className="object-contain rounded"
-              aria-label={`${item.name}-image`}
-              onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
-            />
+      {/* Full-width image container */}
+      <div className="w-full h-48 relative overflow-hidden rounded-t-xl">
+        <Image
+          src={getItemImagePath(item)}
+          alt={`${item.name} ${item.type}`}
+          fill
+          className="object-cover w-full h-full"
+          aria-label={`${item.name}-image`}
+          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { 
+            (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; 
+          }}
+        />
+        {/* Overlay for equipped items */}
+        {isEquipped && (
+          <div className="absolute inset-0 bg-amber-500/20 flex items-center justify-center">
+            <div className="bg-amber-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+              Equipped
+            </div>
           </div>
-          <div className="flex flex-col items-center">
-            <h4 className="text-amber-500 font-semibold text-lg">{item.name}</h4>
-            <p className="text-xs text-gray-400">{item.type}</p>
+        )}
+      </div>
+      
+      <CardHeader className="p-4 pb-2">
+        <div className="flex flex-col items-center space-y-2">
+          <h4 className="text-amber-400 font-bold text-lg text-center">{item.name}</h4>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="bg-gray-800/50 text-gray-300 border-gray-700/50 text-xs">
+              {item.type}
+            </Badge>
             {item.category && (
-              <p className="text-xs text-amber-400">{item.category}</p>
+              <Badge variant="secondary" className="bg-amber-900/30 text-amber-400 border-amber-800/30 text-xs">
+                {item.category}
+              </Badge>
             )}
           </div>
         </div>
+        
+        {/* Stats badges */}
         {Object.entries(item.stats ?? {}).map(([stat, value]) => (
-          <Badge key={stat} className="bg-amber-950/30 text-amber-500 border-amber-800/30 mt-2">
+          <Badge key={stat} className="bg-amber-950/30 text-amber-400 border-amber-800/30 mt-2 text-xs">
             {stat} +{value}
           </Badge>
         ))}
       </CardHeader>
+      
       <CardContent className="p-4 pt-0">
-        <p className="text-sm text-gray-400 mb-3">{item.description}</p>
+        {item.description && (
+          <p className="text-sm text-gray-400 mb-4 text-center leading-relaxed">{item.description}</p>
+        )}
+        
         <div className="flex justify-between items-center">
-          {/* Only show quantity for consumables */}
-          {isConsumable(item) ? (
-            <span className="text-xs text-gray-500">Qty: {item.quantity}</span>
-          ) : <span />}
+          {/* Quantity for consumables */}
+          {isConsumable(item) && (
+            <span className="text-xs text-gray-500 font-medium">Qty: {item.quantity}</span>
+          )}
+          
           <Button
             size="sm"
             variant={isEquipped ? "destructive" : isConsumable(item) ? "default" : "default"}
             onClick={() => isEquipped ? handleUnequip(item) : (isEquippable(item) ? handleEquip(item) : undefined)}
+            className={`transition-all duration-200 ${
+              isEquipped 
+                ? 'bg-red-600 hover:bg-red-700' 
+                : isConsumable(item)
+                  ? 'bg-amber-600 hover:bg-amber-700'
+                  : 'bg-blue-600 hover:bg-blue-700'
+            }`}
             aria-label={
               isEquipped
                 ? `Unequip ${item.name}`

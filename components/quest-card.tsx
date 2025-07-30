@@ -107,8 +107,10 @@ export default function QuestCard({
             ? "bg-green-500 border-green-500 text-white" 
             : "bg-transparent border-gray-400 text-transparent hover:border-amber-400"
         )}>
-          {status === 'completed' && (
+          {status === 'completed' ? (
             <CheckCircle className="h-4 w-4" />
+          ) : (
+            <div className="w-3 h-3 rounded border border-gray-400" />
           )}
         </div>
       </div>
