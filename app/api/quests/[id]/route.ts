@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  console.log('[Quests API] === PUT REQUEST START ===');
   try {
     const { id: questId } = await params;
     const body = await req.json();
@@ -97,6 +98,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       },
     });
   } catch (err: any) {
+    console.log('[Quests API] === PUT REQUEST ERROR ===', err.message);
     return NextResponse.json({ error: err.message || 'Unknown error' }, { 
       status: 500,
       headers: {
