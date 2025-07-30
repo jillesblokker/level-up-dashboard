@@ -29,13 +29,31 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const result = await authenticatedSupabaseQuery(req, async (supabase, userId) => {
       console.log('[Quests API] Authenticated query with userId:', userId);
       
-      // First, let's check if the quest exists and belongs to the user
-      const { data: existingQuest, error: fetchError } = await supabase
+      // First, let's check if the quest exists in the main quests table
+      let { data: existingQuest, error: fetchError } = await supabase
         .from('quests')
         .select('*')
         .eq('id', questId)
-        .eq('user_id', userId)
         .single();
+
+      // If not found in main quests table, check quest_completion table for user-created quests
+      if (!existingQuest && !fetchError) {
+        console.log('[Quests API] Quest not found in main table, checking quest_completion table...');
+        const { data: userQuest, error: userQuestError } = await supabase
+          .from('quest_completion')
+          .select('*')
+          .eq('id', questId)
+          .eq('user_id', userId)
+          .single();
+
+        if (userQuest) {
+          existingQuest = userQuest;
+          fetchError = null;
+          console.log('[Quests API] Found user-created quest:', userQuest.title);
+        } else {
+          fetchError = userQuestError;
+        }
+      }
         
       console.log('[Quests API] Existing quest check:', { 
         hasData: !!existingQuest, 
@@ -53,17 +71,27 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         throw new Error('Quest not found or access denied');
       }
       
-      console.log('[Quests API] Updating quest:', existingQuest.name);
+      console.log('[Quests API] Updating quest:', existingQuest.name || existingQuest.title);
+      
+      // Determine which table to update based on where the quest was found
+      const isUserQuest = !existingQuest.name; // User quests have 'title', system quests have 'name'
+      const tableName = isUserQuest ? 'quest_completion' : 'quests';
       
       const { data, error } = await supabase
-        .from('quests')
+        .from(tableName)
         .update({
-          name,
-          description,
-          category,
-          difficulty,
-          xp_reward: xp_reward || 0,
-          gold_reward: gold_reward || 0,
+          ...(isUserQuest ? {
+            title: name,
+            description,
+            category,
+          } : {
+            name,
+            description,
+            category,
+            difficulty,
+            xp_reward: xp_reward || 0,
+            gold_reward: gold_reward || 0,
+          }),
           updated_at: new Date().toISOString(),
         })
         .eq('id', questId)

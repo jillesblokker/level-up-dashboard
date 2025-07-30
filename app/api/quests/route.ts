@@ -65,9 +65,9 @@ export async function GET(request: Request) {
       console.error('[QUESTS][GET] Supabase client not initialized.');
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
     }
-    // Get all available quests
-    console.log('Fetching all quests...');
-    const { data: allQuests, error: questsError } = await supabase
+    // Get all available quests (system quests)
+    console.log('Fetching system quests...');
+    const { data: systemQuests, error: questsError } = await supabase
       .from('quests')
       .select('*')
       .order('category', { ascending: true });
@@ -75,6 +75,22 @@ export async function GET(request: Request) {
       console.error('Quests error:', questsError);
       return NextResponse.json({ error: questsError.message }, { status: 500 });
     }
+
+    // Get user-created quests from quest_completion table
+    console.log('Fetching user-created quests...');
+    const { data: userQuests, error: userQuestsError } = await supabase
+      .from('quest_completion')
+      .select('*')
+      .eq('user_id', userId)
+      .is('quest_id', null); // User-created quests don't have a quest_id reference
+
+    if (userQuestsError) {
+      console.error('User quests error:', userQuestsError);
+      // Don't fail completely, just log the error
+    }
+
+    // Combine system quests and user-created quests
+    const allQuests = [...(systemQuests || []), ...(userQuests || [])];
     // Get user's quest completions
     let questCompletions: any[] = [];
     const { data, error } = await supabase
