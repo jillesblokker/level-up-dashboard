@@ -49,7 +49,12 @@ export async function GET(req: NextRequest) {
     console.log('[Streaks Direct GET] User ID:', userId ? 'present' : 'missing');
     
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { 
+        status: 401,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
     }
 
     const { searchParams } = new URL(req.url)
@@ -81,7 +86,12 @@ export async function GET(req: NextRequest) {
 
     if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
       console.error('[Streaks Direct GET] Database error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: error.message }, { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
     }
 
     // Return with default values if no data found
@@ -99,19 +109,32 @@ export async function GET(req: NextRequest) {
         max_streak_achieved: 0
       };
       
-      return NextResponse.json(defaultData);
+      return NextResponse.json(defaultData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
     }
 
     // Add default recovery values if needed
     const responseData = addDefaultRecoveryValues(data);
 
-    return NextResponse.json(responseData);
+    return NextResponse.json(responseData, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
   } catch (err: any) {
     console.error('[Streaks Direct GET] Error:', err);
     return NextResponse.json({
       error: err.message || 'Unknown error'
-    }, { status: 500 });
+    }, { 
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   }
 }
 
@@ -119,7 +142,12 @@ export async function POST(req: NextRequest) {
   try {
     const { userId } = await getAuth(req)
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { 
+        status: 401,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
     }
 
     const body = await req.json()
@@ -139,7 +167,12 @@ export async function POST(req: NextRequest) {
     if (!category) {
       return NextResponse.json({
         error: 'Missing required fields: category'
-      }, { status: 400 })
+      }, { 
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
     }
 
     // Check if recovery columns exist
@@ -189,7 +222,12 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       console.error('[Streaks Direct POST] Database error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: error.message }, { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
     }
 
     // Add default recovery values to response
@@ -198,13 +236,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       ...responseData,
       resilienceBonus: resilienceBonus
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
 
   } catch (err: any) {
     console.error('[Streaks Direct POST] Error:', err);
     return NextResponse.json({
       error: err.message || 'Unknown error'
-    }, { status: 500 });
+    }, { 
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   }
 }
 
@@ -212,7 +259,12 @@ export async function PUT(req: NextRequest) {
   try {
     const { userId } = await getAuth(req);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { 
+        status: 401,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
     }
 
     // Check if recovery columns exist first
@@ -221,7 +273,12 @@ export async function PUT(req: NextRequest) {
     if (!hasRecoveryColumns) {
       return NextResponse.json({
         error: 'Recovery features not available. Please run the database migration first.'
-      }, { status: 400 });
+      }, { 
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
     }
 
     const body = await req.json();
@@ -230,7 +287,12 @@ export async function PUT(req: NextRequest) {
     if (!category || !action) {
       return NextResponse.json({
         error: 'Missing required fields: category, action'
-      }, { status: 400 });
+      }, { 
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
     }
 
     // Get current streak data (only select columns that exist)
@@ -242,7 +304,12 @@ export async function PUT(req: NextRequest) {
       .single();
 
     if (fetchError && fetchError.code !== 'PGRST116') {
-      return NextResponse.json({ error: fetchError.message }, { status: 500 });
+      return NextResponse.json({ error: fetchError.message }, { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
     }
 
     // Since recovery features are currently disabled, return error for all actions
@@ -250,12 +317,22 @@ export async function PUT(req: NextRequest) {
       error: 'Recovery features are temporarily disabled. Basic streak functionality is available, but recovery actions require database migration.',
       availableAfterMigration: ['use_safety_net', 'reconstruct_streak', 'reset_weekly_safety_net'],
       action: action
-    }, { status: 400 });
+    }, { 
+      status: 400,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
   } catch (err: any) {
     console.error('[Streaks Direct PUT] Error:', err);
     return NextResponse.json({
       error: err.message || 'Unknown error'
-    }, { status: 500 });
+    }, { 
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   }
 } 

@@ -123,7 +123,7 @@ export default function QuestCard({
 
       {/* Edit and Delete Buttons */}
       {showEditDelete && (
-        <div className="absolute top-3 left-3 z-10 flex items-center gap-1">
+        <div className="absolute top-3 right-12 z-10 flex items-center gap-1">
           <Button
             variant="ghost"
             size="icon"

@@ -7,7 +7,12 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get('category');
     if (!category) {
-      return NextResponse.json({ error: 'Missing category parameter' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing category parameter' }, { 
+      status: 400,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
     }
 
     // Use authenticated Supabase query with proper Clerk JWT verification
@@ -27,12 +32,26 @@ export async function GET(req: NextRequest) {
     });
 
     if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 401 });
+      return NextResponse.json({ error: result.error }, { 
+      status: 401,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
     }
 
-    return NextResponse.json(result.data);
+    return NextResponse.json(result.data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Unknown error' }, { status: 500 });
+    return NextResponse.json({ error: err.message || 'Unknown error' }, { 
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   }
 }
 
@@ -72,7 +91,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: result.error }, { status: 401 });
     }
 
-    return NextResponse.json({ success: true, data: result.data });
+    return NextResponse.json({ success: true, data: result.data }, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Unknown error' }, { status: 500 });
   }
