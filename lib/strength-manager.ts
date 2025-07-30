@@ -1,13 +1,15 @@
 /**
  * Strength Manager
  * 
- * This module manages character strengths for the 6 categories:
+ * This module manages character strengths for the 8 categories:
  * - Might: Physical strength and combat prowess
  * - Knowledge: Intellectual wisdom and learning  
  * - Honor: Noble character and integrity
  * - Castle: Leadership and governance
  * - Craft: Artisan skills and craftsmanship
  * - Vitality: Health, endurance, and life force
+ * - Wellness: Mental and physical well-being
+ * - Exploration: Discovery and adventure
  * 
  * Usage:
  * When a quest is completed, call:
@@ -98,6 +100,28 @@ const defaultStrengths: Strength[] = [
     description: "Health, endurance, and life force",
     icon: "❤️",
     color: "text-green-500"
+  },
+  {
+    id: "wellness",
+    name: "Wellness",
+    category: "wellness",
+    level: 1,
+    experience: 0,
+    experienceToNextLevel: 100,
+    description: "Mental and physical well-being",
+    icon: "☀️",
+    color: "text-amber-400"
+  },
+  {
+    id: "exploration",
+    name: "Exploration",
+    category: "exploration",
+    level: 1,
+    experience: 0,
+    experienceToNextLevel: 100,
+    description: "Discovery and adventure",
+    icon: "🧭",
+    color: "text-blue-400"
   }
 ]
 
@@ -166,7 +190,9 @@ export function gainStrengthFromQuest(questCategory: string, questLevel: number 
     'honor': 'honor',
     'castle': 'castle',
     'craft': 'craft',
-    'vitality': 'vitality'
+    'vitality': 'vitality',
+    'wellness': 'wellness',
+    'exploration': 'exploration'
   }
 
   const strengthCategory = categoryMapping[questCategory.toLowerCase()]

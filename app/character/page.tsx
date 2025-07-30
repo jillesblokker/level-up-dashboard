@@ -306,14 +306,16 @@ export default function CharacterPage() {
     const loadStrengths = () => {
       try {
         const strengths = getStrengths();
-        // Ensure all 6 categories are present
+        // Ensure all 8 categories are present (including wellness and exploration)
         const defaultStrengths = [
           { id: "might", name: "Might", category: "might", level: 1, experience: 0, experienceToNextLevel: 100, description: "Physical strength and combat prowess", icon: "⚔️", color: "text-red-500" },
           { id: "knowledge", name: "Knowledge", category: "knowledge", level: 1, experience: 0, experienceToNextLevel: 100, description: "Intellectual wisdom and learning", icon: "📚", color: "text-blue-500" },
           { id: "honor", name: "Honor", category: "honor", level: 1, experience: 0, experienceToNextLevel: 100, description: "Noble character and integrity", icon: "👑", color: "text-yellow-500" },
           { id: "castle", name: "Castle", category: "castle", level: 1, experience: 0, experienceToNextLevel: 100, description: "Leadership and governance", icon: "🏰", color: "text-purple-500" },
           { id: "craft", name: "Craft", category: "craft", level: 1, experience: 0, experienceToNextLevel: 100, description: "Artisan skills and craftsmanship", icon: "🔨", color: "text-amber-500" },
-          { id: "vitality", name: "Vitality", category: "vitality", level: 1, experience: 0, experienceToNextLevel: 100, description: "Health, endurance, and life force", icon: "❤️", color: "text-green-500" }
+          { id: "vitality", name: "Vitality", category: "vitality", level: 1, experience: 0, experienceToNextLevel: 100, description: "Health, endurance, and life force", icon: "❤️", color: "text-green-500" },
+          { id: "wellness", name: "Wellness", category: "wellness", level: 1, experience: 0, experienceToNextLevel: 100, description: "Mental and physical well-being", icon: "☀️", color: "text-amber-400" },
+          { id: "exploration", name: "Exploration", category: "exploration", level: 1, experience: 0, experienceToNextLevel: 100, description: "Discovery and adventure", icon: "🧭", color: "text-blue-400" }
         ];
         
         // Merge saved strengths with defaults to ensure all categories are present
@@ -753,7 +755,7 @@ export default function CharacterPage() {
                         <CardContent className="pt-6 flex items-center justify-center h-full">
                           <div className="flex items-center gap-4 text-center">
                             {/* Blessing image */}
-                            <div className="relative w-16 h-16 flex-shrink-0">
+                            <div className="relative w-32 h-32 flex-shrink-0">
                               <Image
                                 src="/images/blessing.png"
                                 alt="No active bonuses"
