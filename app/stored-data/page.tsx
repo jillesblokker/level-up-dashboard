@@ -14,6 +14,30 @@ import { Badge } from '@/components/ui/badge';
 import { getCharacterStats } from '@/lib/character-stats-manager';
 import { useTitleEvolution } from '@/hooks/title-evolution-context'
 import { migrateLocalStorageToSupabase, checkMigrationStatus } from '@/lib/migration-utils';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Separator } from '@/components/ui/separator';
+import { 
+  CheckCircle, 
+  XCircle, 
+  AlertTriangle, 
+  Clock, 
+  Database, 
+  Server, 
+  Globe, 
+  Shield, 
+  Zap, 
+  TrendingUp,
+  Activity,
+  Settings,
+  Users,
+  Gamepad2,
+  Crown,
+  Map,
+  Sword,
+  Trophy,
+  Coins,
+  Star
+} from 'lucide-react';
 
 interface SupabaseData {
   table: string;
@@ -28,6 +52,20 @@ interface ConnectionStatus {
   endpoint?: string;
   lastChecked?: string;
   error?: string | undefined;
+  category: 'core' | 'gameplay' | 'social' | 'admin';
+  priority: 'critical' | 'high' | 'medium' | 'low';
+}
+
+interface BuildStatus {
+  overall: 'healthy' | 'warning' | 'error' | 'unknown';
+  coreSystems: number;
+  gameplayFeatures: number;
+  socialFeatures: number;
+  adminFeatures: number;
+  totalSystems: number;
+  workingSystems: number;
+  brokenSystems: number;
+  progress: number;
 }
 
 export default function StoredDataPage() {
@@ -39,6 +77,17 @@ export default function StoredDataPage() {
   const [migrationStatus, setMigrationStatus] = useState<any>(null);
   const [isMigrating, setIsMigrating] = useState(false);
   const [connectionStatuses, setConnectionStatuses] = useState<ConnectionStatus[]>([]);
+  const [buildStatus, setBuildStatus] = useState<BuildStatus>({
+    overall: 'unknown',
+    coreSystems: 0,
+    gameplayFeatures: 0,
+    socialFeatures: 0,
+    adminFeatures: 0,
+    totalSystems: 0,
+    workingSystems: 0,
+    brokenSystems: 0,
+    progress: 0
+  });
   
   const { user } = useUser();
   const { supabase } = useSupabase();
@@ -104,667 +153,173 @@ export default function StoredDataPage() {
     loadSupabaseData();
   }, [user?.id, supabase]);
 
+  // Calculate build status whenever connection statuses change
+  useEffect(() => {
+    if (connectionStatuses.length === 0) return;
+
+    const working = connectionStatuses.filter(c => c.status === 'connected').length;
+    const broken = connectionStatuses.filter(c => c.status === 'error').length;
+    const total = connectionStatuses.length;
+    const progress = (working / total) * 100;
+
+    const coreSystems = connectionStatuses.filter(c => c.category === 'core' && c.status === 'connected').length;
+    const gameplayFeatures = connectionStatuses.filter(c => c.category === 'gameplay' && c.status === 'connected').length;
+    const socialFeatures = connectionStatuses.filter(c => c.category === 'social' && c.status === 'connected').length;
+    const adminFeatures = connectionStatuses.filter(c => c.category === 'admin' && c.status === 'connected').length;
+
+    let overall: 'healthy' | 'warning' | 'error' | 'unknown' = 'unknown';
+    if (progress >= 90) overall = 'healthy';
+    else if (progress >= 70) overall = 'warning';
+    else overall = 'error';
+
+    setBuildStatus({
+      overall,
+      coreSystems,
+      gameplayFeatures,
+      socialFeatures,
+      adminFeatures,
+      totalSystems: total,
+      workingSystems: working,
+      brokenSystems: broken,
+      progress
+    });
+  }, [connectionStatuses]);
+
   const clearAllData = () => {
     localStorage.clear()
     sessionStorage.clear()
   }
 
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'connected': return <CheckCircle className="w-4 h-4 text-green-500" />;
+      case 'error': return <XCircle className="w-4 h-4 text-red-500" />;
+      case 'disconnected': return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
+      default: return <Clock className="w-4 h-4 text-gray-500" />;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'connected': return 'text-green-600';
+      case 'error': return 'text-red-600';
+      case 'disconnected': return 'text-yellow-600';
+      default: return 'text-gray-600';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'critical': return 'bg-red-100 text-red-800 border-red-200';
+      case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'low': return 'bg-blue-100 text-blue-800 border-blue-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'core': return <Database className="w-4 h-4" />;
+      case 'gameplay': return <Gamepad2 className="w-4 h-4" />;
+      case 'social': return <Users className="w-4 h-4" />;
+      case 'admin': return <Settings className="w-4 h-4" />;
+      default: return <Activity className="w-4 h-4" />;
+    }
+  };
+
   const checkAllConnections = async () => {
     const connections: ConnectionStatus[] = [];
     const now = new Date().toISOString();
 
-    // 1. Character Stats API
-    try {
-      const response = await fetch('/api/character-stats', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Character Stats',
-        description: 'Character stats (gold, experience, level, health, etc.)',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/character-stats',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Character Stats',
-        description: 'Character stats (gold, experience, level, health, etc.)',
-        status: 'error',
-        endpoint: '/api/character-stats',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
+    // Core Systems (Critical)
+    const coreApis = [
+      { name: 'Character Stats', endpoint: '/api/character-stats', description: 'Character stats (gold, experience, level, health, etc.)', priority: 'critical' as const },
+      { name: 'Authentication', endpoint: '/api/auth-test', description: 'User authentication and session management', priority: 'critical' as const },
+      { name: 'Database Connection', endpoint: '/api/health', description: 'Supabase database connectivity', priority: 'critical' as const },
+    ];
 
-    // 2. Inventory API
-    try {
-      const response = await fetch('/api/inventory', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Inventory',
-        description: 'Player inventory items and equipment',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/inventory',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Inventory',
-        description: 'Player inventory items and equipment',
-        status: 'error',
-        endpoint: '/api/inventory',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
+    // Gameplay Features (High Priority)
+    const gameplayApis = [
+      { name: 'Quests', endpoint: '/api/quests', description: 'Player quests and objectives', priority: 'high' as const },
+      { name: 'Milestones', endpoint: '/api/milestones', description: 'Player milestones and progress tracking', priority: 'high' as const },
+      { name: 'Challenges', endpoint: '/api/challenges', description: 'Player challenges and competitions', priority: 'high' as const },
+      { name: 'Streaks', endpoint: '/api/streaks?category=test', description: 'Player streaks and consistency tracking', priority: 'high' as const },
+      { name: 'Inventory', endpoint: '/api/inventory', description: 'Player inventory items and equipment', priority: 'high' as const },
+      { name: 'Achievements', endpoint: '/api/achievements', description: 'Player achievements and progress', priority: 'high' as const },
+      { name: 'Kingdom Grid', endpoint: '/api/kingdom-grid', description: 'Kingdom building grid and expansions', priority: 'high' as const },
+      { name: 'Realm Grid', endpoint: `/api/data?type=grid&userId=${user?.id}`, description: 'Realm map grid and character position', priority: 'high' as const },
+    ];
 
-    // 3. Achievements API
-    try {
-      const response = await fetch('/api/achievements', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Achievements',
-        description: 'Player achievements and progress',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/achievements',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Achievements',
-        description: 'Player achievements and progress',
-        status: 'error',
-        endpoint: '/api/achievements',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
+    // Social Features (Medium Priority)
+    const socialApis = [
+      { name: 'User Preferences', endpoint: '/api/user-preferences?preference_key=test', description: 'User preferences and settings', priority: 'medium' as const },
+      { name: 'Notifications', endpoint: '/api/notifications', description: 'In-game notifications and alerts', priority: 'medium' as const },
+      { name: 'Kingdom Events', endpoint: '/api/kingdom-events', description: 'Kingdom activities and events', priority: 'medium' as const },
+    ];
 
-    // 4. Active Perks API
-    try {
-      const response = await fetch('/api/active-perks', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Active Perks',
-        description: 'Active potion effects and temporary bonuses',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/active-perks',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Active Perks',
-        description: 'Active potion effects and temporary bonuses',
-        status: 'error',
-        endpoint: '/api/active-perks',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
+    // Admin Features (Low Priority)
+    const adminApis = [
+      { name: 'Game Settings', endpoint: '/api/game-settings', description: 'User preferences and game configuration', priority: 'low' as const },
+      { name: 'Active Perks', endpoint: '/api/active-perks', description: 'Active potion effects and temporary bonuses', priority: 'low' as const },
+      { name: 'Tiles', endpoint: '/api/tiles', description: 'Tile placement and management', priority: 'low' as const },
+      { name: 'Tile Inventory', endpoint: '/api/tile-inventory', description: 'Tile inventory and management', priority: 'low' as const },
+      { name: 'Kingdom Stats', endpoint: '/api/kingdom-stats', description: 'Kingdom statistics and analytics', priority: 'low' as const },
+      { name: 'Creatures', endpoint: '/api/creatures/discover', description: 'Creature discovery and management', priority: 'low' as const },
+      { name: 'Progress', endpoint: '/api/progress/increment', description: 'Player progress tracking', priority: 'low' as const },
+      { name: 'Realm Tiles', endpoint: '/api/realm-tiles', description: 'Realm tile management', priority: 'low' as const },
+      { name: 'Character Perks', endpoint: '/api/character-perks', description: 'Character abilities and special powers', priority: 'low' as const },
+      { name: 'Character Strengths', endpoint: '/api/character-strengths', description: 'Character attributes and stats', priority: 'low' as const },
+      { name: 'Character Titles', endpoint: '/api/character-titles', description: 'Character achievements and titles', priority: 'low' as const },
+      { name: 'Experience Transactions', endpoint: '/api/experience-transactions', description: 'Experience gain/loss tracking', priority: 'low' as const },
+      { name: 'Gold Transactions', endpoint: '/api/gold-transactions', description: 'Gold economy and transactions', priority: 'low' as const },
+      { name: 'Daily Tasks', endpoint: '/api/daily-tasks', description: 'Daily objectives and tasks', priority: 'low' as const },
+      { name: 'Monster Spawns', endpoint: '/api/monster-spawns', description: 'Dynamic monster encounters', priority: 'low' as const },
+    ];
 
-    // 5. Game Settings API
-    try {
-      const response = await fetch('/api/game-settings', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Game Settings',
-        description: 'User preferences and game configuration',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/game-settings',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Game Settings',
-        description: 'User preferences and game configuration',
-        status: 'error',
-        endpoint: '/api/game-settings',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
+    // Test all APIs
+    const allApis = [
+      ...coreApis.map(api => ({ ...api, category: 'core' as const })),
+      ...gameplayApis.map(api => ({ ...api, category: 'gameplay' as const })),
+      ...socialApis.map(api => ({ ...api, category: 'social' as const })),
+      ...adminApis.map(api => ({ ...api, category: 'admin' as const }))
+    ];
 
-    // 6. Realm Grid API
-    try {
-      const response = await fetch(`/api/data?type=grid&userId=${user?.id}`, {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Realm Grid',
-        description: 'Realm map grid and character position',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: `/api/data?type=grid&userId=${user?.id}`,
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Realm Grid',
-        description: 'Realm map grid and character position',
-        status: 'error',
-        endpoint: `/api/data?type=grid&userId=${user?.id}`,
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
+    for (const api of allApis) {
+      try {
+        const method = api.endpoint.includes('discover') || api.endpoint.includes('increment') ? 'POST' : 'GET';
+        const body = method === 'POST' ? JSON.stringify({ test: true }) : undefined;
+        const headers = method === 'POST' ? { 'Content-Type': 'application/json' } : undefined;
 
-    // 7. Kingdom Grid API
-    try {
-      const response = await fetch('/api/kingdom-grid', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Kingdom Grid',
-        description: 'Kingdom building grid and expansions',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/kingdom-grid',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Kingdom Grid',
-        description: 'Kingdom building grid and expansions',
-        status: 'error',
-        endpoint: '/api/kingdom-grid',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
+        const response = await fetch(api.endpoint, {
+          method,
+          headers,
+          body,
+          credentials: 'include'
+        });
 
-    // 8. Quests API
-    try {
-      const response = await fetch('/api/quests', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Quests',
-        description: 'Player quests and objectives',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/quests',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Quests',
-        description: 'Player quests and objectives',
-        status: 'error',
-        endpoint: '/api/quests',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-
-    // 9. Milestones API
-    try {
-      const response = await fetch('/api/milestones', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Milestones',
-        description: 'Player milestones and progress tracking',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/milestones',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Milestones',
-        description: 'Player milestones and progress tracking',
-        status: 'error',
-        endpoint: '/api/milestones',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-
-    // 10. Challenges API
-    try {
-      const response = await fetch('/api/challenges', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Challenges',
-        description: 'Player challenges and competitions',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/challenges',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Challenges',
-        description: 'Player challenges and competitions',
-        status: 'error',
-        endpoint: '/api/challenges',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-
-    // 11. Tiles API
-    try {
-      const response = await fetch('/api/tiles', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Tiles',
-        description: 'Tile placement and management',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/tiles',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Tiles',
-        description: 'Tile placement and management',
-        status: 'error',
-        endpoint: '/api/tiles',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-
-    // 12. Tile Inventory API
-    try {
-      const response = await fetch('/api/tile-inventory', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Tile Inventory',
-        description: 'Tile inventory and management',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/tile-inventory',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Tile Inventory',
-        description: 'Tile inventory and management',
-        status: 'error',
-        endpoint: '/api/tile-inventory',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-
-    // 13. Kingdom Stats API
-    try {
-      const response = await fetch('/api/kingdom-stats', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Kingdom Stats',
-        description: 'Kingdom statistics and analytics',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/kingdom-stats',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Kingdom Stats',
-        description: 'Kingdom statistics and analytics',
-        status: 'error',
-        endpoint: '/api/kingdom-stats',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-
-    // 14. User Preferences API
-    try {
-      const response = await fetch('/api/user-preferences?preference_key=test', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'User Preferences',
-        description: 'User preferences and settings',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/user-preferences',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'User Preferences',
-        description: 'User preferences and settings',
-        status: 'error',
-        endpoint: '/api/user-preferences',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-
-    // 15. Creatures API
-    try {
-      const response = await fetch('/api/creatures/discover', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ creatureId: 'test' }),
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Creatures',
-        description: 'Creature discovery and management',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/creatures/discover',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Creatures',
-        description: 'Creature discovery and management',
-        status: 'error',
-        endpoint: '/api/creatures/discover',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-
-    // 16. Progress API
-    try {
-      const response = await fetch('/api/progress/increment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'test' }),
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Progress',
-        description: 'Player progress tracking',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/progress/increment',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Progress',
-        description: 'Player progress tracking',
-        status: 'error',
-        endpoint: '/api/progress/increment',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-
-    // 17. Realm Tiles API
-    try {
-      const response = await fetch('/api/realm-tiles', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Realm Tiles',
-        description: 'Realm tile management',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/realm-tiles',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Realm Tiles',
-        description: 'Realm tile management',
-        status: 'error',
-        endpoint: '/api/realm-tiles',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-
-    // 18. Streaks API
-    try {
-      const response = await fetch('/api/streaks?category=test', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Streaks',
-        description: 'Player streaks and consistency tracking',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/streaks?category=test',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Streaks',
-        description: 'Player streaks and consistency tracking',
-        status: 'error',
-        endpoint: '/api/streaks?category=test',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-
-    // 19. Character Perks API
-    try {
-      const response = await fetch('/api/character-perks', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Character Perks',
-        description: 'Character abilities and special powers',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/character-perks',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Character Perks',
-        description: 'Character abilities and special powers',
-        status: 'error',
-        endpoint: '/api/character-perks',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-
-    // 20. Character Strengths API
-    try {
-      const response = await fetch('/api/character-strengths', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Character Strengths',
-        description: 'Character attributes and stats',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/character-strengths',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Character Strengths',
-        description: 'Character attributes and stats',
-        status: 'error',
-        endpoint: '/api/character-strengths',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-
-    // 21. Character Titles API
-    try {
-      const response = await fetch('/api/character-titles', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Character Titles',
-        description: 'Character achievements and titles',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/character-titles',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Character Titles',
-        description: 'Character achievements and titles',
-        status: 'error',
-        endpoint: '/api/character-titles',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-
-    // 22. Experience Transactions API
-    try {
-      const response = await fetch('/api/experience-transactions', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Experience Transactions',
-        description: 'Experience gain/loss tracking',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/experience-transactions',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Experience Transactions',
-        description: 'Experience gain/loss tracking',
-        status: 'error',
-        endpoint: '/api/experience-transactions',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-
-    // 23. Gold Transactions API
-    try {
-      const response = await fetch('/api/gold-transactions', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Gold Transactions',
-        description: 'Gold economy and transactions',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/gold-transactions',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Gold Transactions',
-        description: 'Gold economy and transactions',
-        status: 'error',
-        endpoint: '/api/gold-transactions',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-
-    // 24. Daily Tasks API
-    try {
-      const response = await fetch('/api/daily-tasks', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Daily Tasks',
-        description: 'Daily objectives and tasks',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/daily-tasks',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Daily Tasks',
-        description: 'Daily objectives and tasks',
-        status: 'error',
-        endpoint: '/api/daily-tasks',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-
-    // 25. Notifications API
-    try {
-      const response = await fetch('/api/notifications', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Notifications',
-        description: 'In-game notifications and alerts',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/notifications',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Notifications',
-        description: 'In-game notifications and alerts',
-        status: 'error',
-        endpoint: '/api/notifications',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-
-    // 26. Kingdom Events API
-    try {
-      const response = await fetch('/api/kingdom-events', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Kingdom Events',
-        description: 'Kingdom activities and events',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/kingdom-events',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Kingdom Events',
-        description: 'Kingdom activities and events',
-        status: 'error',
-        endpoint: '/api/kingdom-events',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-
-    // 27. Monster Spawns API
-    try {
-      const response = await fetch('/api/monster-spawns', {
-        credentials: 'include'
-      });
-      connections.push({
-        name: 'Monster Spawns',
-        description: 'Dynamic monster encounters',
-        status: response.ok ? 'connected' : 'error',
-        endpoint: '/api/monster-spawns',
-        lastChecked: now,
-        error: response.ok ? undefined : `HTTP ${response.status}`
-      });
-    } catch (error) {
-      connections.push({
-        name: 'Monster Spawns',
-        description: 'Dynamic monster encounters',
-        status: 'error',
-        endpoint: '/api/monster-spawns',
-        lastChecked: now,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
+        connections.push({
+          name: api.name,
+          description: api.description,
+          status: response.ok ? 'connected' : 'error',
+          endpoint: api.endpoint,
+          lastChecked: now,
+          error: response.ok ? undefined : `HTTP ${response.status}`,
+          category: api.category,
+          priority: api.priority
+        });
+      } catch (error) {
+        connections.push({
+          name: api.name,
+          description: api.description,
+          status: 'error',
+          endpoint: api.endpoint,
+          lastChecked: now,
+          error: error instanceof Error ? error.message : 'Unknown error',
+          category: api.category,
+          priority: api.priority
+        });
+      }
     }
 
     setConnectionStatuses(connections);
@@ -807,188 +362,350 @@ export default function StoredDataPage() {
   };
 
   return (
-    <main className="container mx-auto p-4" aria-label="stored-data-section">
-      <h1 className="text-2xl font-bold mb-4">Stored Data (Supabase)</h1>
-      
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card className="p-4" aria-label="supabase-data-card">
-          <CardHeader>
-            <CardTitle>Supabase Data Overview</CardTitle>
-            <CardDescription>Your data stored in Supabase</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div>Loading...</div>
-            ) : (
-              <ScrollArea className="h-[300px]" aria-label="supabase-data-scroll-area">
-                {supabaseData.map((item) => (
-                  <div key={item.table} className="flex justify-between items-center p-2 border-b">
-                    <span className="font-medium">{item.table}</span>
-                    <Badge variant="secondary">{item.count} items</Badge>
-                  </div>
-                ))}
-              </ScrollArea>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="p-4" aria-label="character-stats-card">
-          <CardHeader>
-            <CardTitle>Character Stats</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {characterStats ? (
-              <div className="space-y-2">
-                <p>Level: {characterStats.level}</p>
-                <p>Gold: {characterStats.gold}</p>
-                <p>Experience: {characterStats.experience}</p>
-              </div>
-            ) : (
-              <p>No character stats found</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Migration Section */}
-      <div className="mt-6">
-        <Card className="p-4" aria-label="migration-status-card">
-          <CardHeader>
-            <CardTitle>Migration Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Badge variant={migrationStatus?.hasLocalData ? "default" : "secondary"}>
-                  {migrationStatus?.hasLocalData ? "Has Local Data" : "No Local Data"}
-                </Badge>
-                <Badge variant={migrationStatus?.hasMigrated ? "default" : "secondary"}>
-                  {migrationStatus?.hasMigrated ? "Migrated" : "Not Migrated"}
-                </Badge>
-              </div>
-              
-              <div className="flex gap-2">
-                <Button 
-                  onClick={handleMigration} 
-                  disabled={isMigrating || !migrationStatus?.hasLocalData}
-                  aria-label="Migrate data to Supabase"
-                >
-                  {isMigrating ? "Migrating..." : "Migrate to Supabase"}
-                </Button>
-                
-                <Button 
-                  onClick={handleTestMigration} 
-                  disabled={isMigrating}
-                  variant="outline"
-                  aria-label="Test migration process"
-                >
-                  Test Migration
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Supabase Connection Status */}
-      <div className="mt-6">
-        <Card className="p-4" aria-label="connection-status-card">
-          <CardHeader>
-            <CardTitle>Supabase Connection Status</CardTitle>
-            <CardDescription>Check if all database connections are working properly</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <Button 
-                onClick={checkAllConnections} 
-                variant="outline"
-                aria-label="Check all Supabase connections"
-              >
-                Refresh Connection Status
-              </Button>
-              
-              <ScrollArea className="h-[400px]" aria-label="connection-status-scroll-area">
-                <div className="space-y-3">
-                  {connectionStatuses.map((connection, index) => (
-                    <div key={index} className="border rounded-lg p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-semibold">{connection.name}</h4>
-                        <Badge 
-                          variant={
-                            connection.status === 'connected' ? 'default' : 
-                            connection.status === 'error' ? 'destructive' : 
-                            'secondary'
-                          }
-                        >
-                          {connection.status}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-2">{connection.description}</p>
-                      <div className="text-xs text-muted-foreground space-y-1">
-                        <p>Endpoint: {connection.endpoint}</p>
-                        <p>Last Checked: {connection.lastChecked ? new Date(connection.lastChecked).toLocaleString() : 'Never'}</p>
-                        {connection.error && (
-                          <p className="text-red-500">Error: {connection.error}</p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="mt-6">
-        <MigrationStatus />
-      </div>
-      
-      <div className="mt-6">
-        <HealthCheck />
-      </div>
-
-      <div className="mt-6">
-        <h3 className="text-lg font-semibold mb-4">Test Title Evolution Modal</h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-          <Button onClick={triggerTestModal} variant="outline" className="text-xs">
-            Squire → Knight (L10)
-          </Button>
-          <Button onClick={triggerTestModal2} variant="outline" className="text-xs">
-            Knight → Baron (L20)
-          </Button>
-          <Button onClick={triggerTestModal3} variant="outline" className="text-xs">
-            Baron → Viscount (L30)
-          </Button>
-          <Button onClick={triggerTestModal4} variant="outline" className="text-xs">
-            Viscount → Count (L40)
-          </Button>
-          <Button onClick={triggerTestModal5} variant="outline" className="text-xs">
-            Count → Marquis (L50)
-          </Button>
-          <Button onClick={triggerTestModal6} variant="outline" className="text-xs">
-            Marquis → Duke (L60)
-          </Button>
-          <Button onClick={triggerTestModal7} variant="outline" className="text-xs">
-            Duke → Prince (L70)
-          </Button>
-          <Button onClick={triggerTestModal8} variant="outline" className="text-xs">
-            Prince → King (L80)
-          </Button>
-          <Button onClick={triggerTestModal9} variant="outline" className="text-xs">
-            King → Emperor (L90)
-          </Button>
-          <Button onClick={triggerTestModal10} variant="outline" className="text-xs">
-            Emperor → God (L100)
+    <main className="container mx-auto p-4 space-y-6" aria-label="build-status-dashboard">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Build Status Dashboard</h1>
+          <p className="text-muted-foreground">Monitor your application's health and progress</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge 
+            variant={buildStatus.overall === 'healthy' ? 'default' : buildStatus.overall === 'warning' ? 'secondary' : 'destructive'}
+            className="text-sm"
+          >
+            {buildStatus.overall.toUpperCase()}
+          </Badge>
+          <Button onClick={checkAllConnections} variant="outline" size="sm">
+            Refresh Status
           </Button>
         </div>
       </div>
 
-      <div className="mt-6">
-        <Button onClick={clearAllData} variant="destructive">
-          Clear All Data
-        </Button>
+      {/* Overall Status */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <Database className="w-4 h-4" />
+              Core Systems
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{buildStatus.coreSystems}</div>
+            <Progress value={(buildStatus.coreSystems / 3) * 100} className="mt-2" />
+            <p className="text-xs text-muted-foreground mt-1">3 total systems</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <Gamepad2 className="w-4 h-4" />
+              Gameplay Features
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{buildStatus.gameplayFeatures}</div>
+            <Progress value={(buildStatus.gameplayFeatures / 8) * 100} className="mt-2" />
+            <p className="text-xs text-muted-foreground mt-1">8 total features</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <Users className="w-4 h-4" />
+              Social Features
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{buildStatus.socialFeatures}</div>
+            <Progress value={(buildStatus.socialFeatures / 3) * 100} className="mt-2" />
+            <p className="text-xs text-muted-foreground mt-1">3 total features</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <Settings className="w-4 h-4" />
+              Admin Features
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{buildStatus.adminFeatures}</div>
+            <Progress value={(buildStatus.adminFeatures / 15) * 100} className="mt-2" />
+            <p className="text-xs text-muted-foreground mt-1">15 total features</p>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Overall Progress */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5" />
+            Overall Build Progress
+          </CardTitle>
+          <CardDescription>
+            {buildStatus.workingSystems} of {buildStatus.totalSystems} systems working ({buildStatus.progress.toFixed(1)}%)
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">System Health</span>
+              <div className="flex items-center gap-2">
+                <Badge variant="default" className="text-xs">
+                  {buildStatus.workingSystems} Working
+                </Badge>
+                <Badge variant="destructive" className="text-xs">
+                  {buildStatus.brokenSystems} Broken
+                </Badge>
+              </div>
+            </div>
+            <Progress value={buildStatus.progress} className="h-3" />
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <span>0%</span>
+              <span>100%</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Critical Issues Alert */}
+      {connectionStatuses.filter(c => c.priority === 'critical' && c.status === 'error').length > 0 && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Critical Issues Detected!</strong> {connectionStatuses.filter(c => c.priority === 'critical' && c.status === 'error').length} critical systems are down. 
+            This may affect core functionality.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* System Status by Category */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Core Systems */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Database className="w-5 h-5" />
+              Core Systems
+            </CardTitle>
+            <CardDescription>Essential systems for application functionality</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {connectionStatuses
+                .filter(c => c.category === 'core')
+                .sort((a, b) => a.priority.localeCompare(b.priority))
+                .map((connection, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      {getStatusIcon(connection.status)}
+                      <div>
+                        <div className="font-medium">{connection.name}</div>
+                        <div className="text-sm text-muted-foreground">{connection.description}</div>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className={getPriorityColor(connection.priority)}>
+                      {connection.priority}
+                    </Badge>
+                  </div>
+                ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Gameplay Features */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Gamepad2 className="w-5 h-5" />
+              Gameplay Features
+            </CardTitle>
+            <CardDescription>Core game mechanics and player interactions</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {connectionStatuses
+                .filter(c => c.category === 'gameplay')
+                .sort((a, b) => a.priority.localeCompare(b.priority))
+                .map((connection, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      {getStatusIcon(connection.status)}
+                      <div>
+                        <div className="font-medium">{connection.name}</div>
+                        <div className="text-sm text-muted-foreground">{connection.description}</div>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className={getPriorityColor(connection.priority)}>
+                      {connection.priority}
+                    </Badge>
+                  </div>
+                ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Social Features */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="w-5 h-5" />
+              Social Features
+            </CardTitle>
+            <CardDescription>User interaction and community features</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {connectionStatuses
+                .filter(c => c.category === 'social')
+                .sort((a, b) => a.priority.localeCompare(b.priority))
+                .map((connection, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      {getStatusIcon(connection.status)}
+                      <div>
+                        <div className="font-medium">{connection.name}</div>
+                        <div className="text-sm text-muted-foreground">{connection.description}</div>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className={getPriorityColor(connection.priority)}>
+                      {connection.priority}
+                    </Badge>
+                  </div>
+                ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Admin Features */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="w-5 h-5" />
+              Admin Features
+            </CardTitle>
+            <CardDescription>Administrative and utility features</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[300px]">
+              <div className="space-y-3">
+                {connectionStatuses
+                  .filter(c => c.category === 'admin')
+                  .sort((a, b) => a.priority.localeCompare(b.priority))
+                  .map((connection, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        {getStatusIcon(connection.status)}
+                        <div>
+                          <div className="font-medium">{connection.name}</div>
+                          <div className="text-sm text-muted-foreground">{connection.description}</div>
+                        </div>
+                      </div>
+                      <Badge variant="outline" className={getPriorityColor(connection.priority)}>
+                        {connection.priority}
+                      </Badge>
+                    </div>
+                  ))}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Detailed Error Log */}
+      {connectionStatuses.filter(c => c.status === 'error').length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-red-500" />
+              Error Details
+            </CardTitle>
+            <CardDescription>Detailed information about system failures</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px]">
+              <div className="space-y-3">
+                {connectionStatuses
+                  .filter(c => c.status === 'error')
+                  .map((connection, index) => (
+                    <div key={index} className="p-3 border border-red-200 rounded-lg bg-red-50">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="font-medium text-red-800">{connection.name}</div>
+                        <Badge variant="destructive" className="text-xs">
+                          {connection.priority}
+                        </Badge>
+                      </div>
+                      <div className="text-sm text-red-700 mb-1">{connection.description}</div>
+                      <div className="text-xs text-red-600">
+                        <div>Endpoint: {connection.endpoint}</div>
+                        <div>Error: {connection.error}</div>
+                        <div>Last Checked: {connection.lastChecked ? new Date(connection.lastChecked).toLocaleString() : 'Never'}</div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Legacy Components */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <MigrationStatus />
+        <HealthCheck />
+      </div>
+
+      {/* Test Controls */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Test Controls</CardTitle>
+          <CardDescription>Development and testing utilities</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-medium mb-2">Title Evolution Tests</h4>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                <Button onClick={triggerTestModal} variant="outline" size="sm" className="text-xs">
+                  Squire → Knight
+                </Button>
+                <Button onClick={triggerTestModal2} variant="outline" size="sm" className="text-xs">
+                  Knight → Baron
+                </Button>
+                <Button onClick={triggerTestModal3} variant="outline" size="sm" className="text-xs">
+                  Baron → Viscount
+                </Button>
+                <Button onClick={triggerTestModal4} variant="outline" size="sm" className="text-xs">
+                  Viscount → Count
+                </Button>
+                <Button onClick={triggerTestModal5} variant="outline" size="sm" className="text-xs">
+                  Count → Marquis
+                </Button>
+              </div>
+            </div>
+            
+            <Separator />
+            
+            <div className="flex gap-2">
+              <Button onClick={handleMigration} disabled={isMigrating} variant="outline">
+                {isMigrating ? "Migrating..." : "Migrate Data"}
+              </Button>
+              <Button onClick={handleTestMigration} disabled={isMigrating} variant="outline">
+                Test Migration
+              </Button>
+              <Button onClick={clearAllData} variant="destructive">
+                Clear All Data
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </main>
   );
 } 
