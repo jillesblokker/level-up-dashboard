@@ -400,13 +400,13 @@ export default function RealmPage() {
       }
     }, [grid]);
 
-    // Debug animal states
-    useEffect(() => {
-      console.log('[Realm] Animal states - horse:', { isHorsePresent, horsePos, horseCaught });
-      console.log('[Realm] Animal states - sheep:', { isSheepPresent, sheepPos });
-      console.log('[Realm] Animal states - penguin:', { isPenguinPresent, penguinPos });
-      console.log('[Realm] Grid bounds:', { cols: GRID_COLS, rows: INITIAL_ROWS });
-    }, [isHorsePresent, horsePos, horseCaught, isSheepPresent, sheepPos, isPenguinPresent, penguinPos]);
+    // Debug animal states (commented out to reduce console spam)
+    // useEffect(() => {
+    //   console.log('[Realm] Animal states - horse:', { isHorsePresent, horsePos, horseCaught });
+    //   console.log('[Realm] Animal states - sheep:', { isSheepPresent, sheepPos });
+    //   console.log('[Realm] Animal states - penguin:', { isPenguinPresent, penguinPos });
+    //   console.log('[Realm] Grid bounds:', { cols: GRID_COLS, rows: INITIAL_ROWS });
+    // }, [isHorsePresent, horsePos, horseCaught, isSheepPresent, sheepPos, isPenguinPresent, penguinPos]);
 
     // Animal movement logic
     useEffect(() => {
@@ -415,28 +415,28 @@ export default function RealmPage() {
       const moveAnimals = () => {
         // Move sheep every 5 seconds
         if (isSheepPresent && sheepPos) {
-          console.log('[Realm] Sheep movement - current position:', sheepPos);
+          // console.log('[Realm] Sheep movement - current position:', sheepPos);
           const adjacentPositions = getAdjacentPositions(sheepPos.x, sheepPos.y, grid);
-          console.log('[Realm] Sheep movement - adjacent positions:', adjacentPositions);
+          // console.log('[Realm] Sheep movement - adjacent positions:', adjacentPositions);
           
           const validPositions = adjacentPositions.filter(pos => {
             const tile = grid[pos.y]?.[pos.x];
             const isValid = tile && tile.type === 'grass' && !tile.hasMonster;
-            console.log('[Realm] Sheep movement - checking position:', pos, 'tile type:', tile?.type, 'has monster:', tile?.hasMonster, 'valid:', isValid);
+            // console.log('[Realm] Sheep movement - checking position:', pos, 'tile type:', tile?.type, 'has monster:', tile?.hasMonster, 'valid:', isValid);
             return isValid;
           });
           
-          console.log('[Realm] Sheep movement - valid positions:', validPositions);
+          // console.log('[Realm] Sheep movement - valid positions:', validPositions);
           
           if (validPositions.length > 0) {
             const newPos = validPositions[Math.floor(Math.random() * validPositions.length)];
             if (newPos) {
               setSheepPos(newPos);
               localStorage.setItem('sheepPos', JSON.stringify(newPos));
-              console.log('[Realm] Sheep moved to:', newPos);
+              // console.log('[Realm] Sheep moved to:', newPos);
             }
           } else {
-            console.log('[Realm] Sheep movement - no valid positions found');
+            // console.log('[Realm] Sheep movement - no valid positions found');
           }
         }
       };
