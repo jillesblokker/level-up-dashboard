@@ -23,7 +23,32 @@ export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
   try {
     console.log('[JWT Verification] Starting verification for:', request.url);
     
-    // For POST requests, we need to handle the body carefully to avoid "disturbed or locked" error
+    // Check Authorization header first
+    const authHeader = request.headers.get('authorization');
+    console.log('[JWT Verification] Authorization header:', authHeader ? 'present' : 'missing');
+    
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      console.log('[JWT Verification] Token found in Authorization header, length:', token.length);
+      
+      // Verify the JWT token with Clerk
+      try {
+        const { verifyToken } = await import('@clerk/nextjs/server');
+        const jwtKey = process.env['CLERK_JWT_KEY'];
+        if (!jwtKey) {
+          console.error('[JWT Verification] CLERK_JWT_KEY not found in environment');
+          return { success: false, error: 'JWT key not configured' };
+        }
+        const payload = await verifyToken(token, { jwtKey });
+        console.log('[JWT Verification] Token verified successfully, userId:', payload.sub);
+        return { success: true, userId: payload.sub };
+      } catch (verifyError) {
+        console.error('[JWT Verification] Token verification failed:', verifyError);
+        return { success: false, error: 'Invalid JWT token' };
+      }
+    }
+    
+    // Fallback: Try to get auth from cookies (for backward compatibility)
     let nextReq: NextRequest;
     
     if (request.method === 'POST') {
@@ -44,33 +69,17 @@ export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
           });
     }
 
-    console.log('[JWT Verification] Request headers:', Object.fromEntries(request.headers.entries()));
-    
-    // Try to get auth from cookies (client-side approach)
+    console.log('[JWT Verification] Trying getAuth fallback...');
     const { userId } = await getAuth(nextReq);
     console.log('[JWT Verification] Clerk userId from getAuth:', userId);
     
-    if (!userId) {
-      console.error('[JWT Verification] getAuth returned no userId');
-      
-      // Try alternative approach - check Authorization header directly
-      const authHeader = request.headers.get('authorization');
-      console.log('[JWT Verification] Authorization header:', authHeader ? 'present' : 'missing');
-      
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        const token = authHeader.substring(7);
-        console.log('[JWT Verification] Token found in Authorization header, length:', token.length);
-        
-        // For now, return a mock userId for testing
-        // TODO: Implement proper JWT verification
-        return { success: true, userId: 'temp-user-id' };
-      }
-      
-      return { success: false, error: 'Invalid or expired JWT' };
+    if (userId) {
+      console.log('[JWT Verification] Success! UserId:', userId);
+      return { success: true, userId };
     }
-
-    console.log('[JWT Verification] Success! UserId:', userId);
-    return { success: true, userId };
+    
+    console.error('[JWT Verification] No valid authentication found');
+    return { success: false, error: 'Invalid or expired JWT' };
   } catch (error) {
     console.error('[JWT Verification] Clerk verification failed:', error);
     return { success: false, error: 'JWT verification failed' };
