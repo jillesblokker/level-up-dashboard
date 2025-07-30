@@ -9,7 +9,7 @@ import { useState } from "react"
 import { useGradient } from '@/app/providers/gradient-provider'
 import { HeaderSection } from "@/components/HeaderSection"
 import { CreatureCard } from "@/components/creature-card"
-import CardWithProgress from "@/components/quest-card"
+import QuestCard from "@/components/quest-card"
 import { TileVisual } from "@/components/tile-visual"
 import { MapGrid } from "../components/MapGrid"
 import { TownView } from "@/components/town-view"
@@ -787,15 +787,15 @@ export default function DesignSystemPage() {
                         <h3 className="text-xl font-semibold text-white mb-4">Font Scale</h3>
                         <div className="space-y-4">
                           {[
-                            { key: '5xl', value: designTokens['5xl'], label: 'Hero Headings', example: 'Thrivehaven Kingdom' },
-                            { key: '4xl', value: designTokens['4xl'], label: 'Page Headings', example: 'Welcome to Your Realm' },
-                            { key: '3xl', value: designTokens['3xl'], label: 'Section Headings', example: 'Character Stats' },
-                            { key: '2xl', value: designTokens['2xl'], label: 'Subsection Headings', example: 'Achievements' },
-                            { key: 'xl', value: designTokens.xl, label: 'Card Titles', example: 'Quest Complete' },
-                            { key: 'lg', value: designTokens.lg, label: 'Body Large', example: 'Important game text' },
-                            { key: 'base', value: designTokens.base, label: 'Body Text', example: 'Regular content and descriptions' },
-                            { key: 'sm', value: designTokens.sm, label: 'Small Text', example: 'Captions and metadata' },
-                            { key: 'xs', value: designTokens.xs, label: 'Micro Text', example: 'Tiny labels and notes' },
+                            { key: '5xl', value: `text-5xl`, label: 'Hero Headings', example: 'Thrivehaven Kingdom' },
+                            { key: '4xl', value: `text-4xl`, label: 'Page Headings', example: 'Welcome to Your Realm' },
+                            { key: '3xl', value: `text-3xl`, label: 'Section Headings', example: 'Character Stats' },
+                            { key: '2xl', value: `text-2xl`, label: 'Subsection Headings', example: 'Achievements' },
+                            { key: 'xl', value: `text-xl`, label: 'Card Titles', example: 'Quest Complete' },
+                            { key: 'lg', value: `text-lg`, label: 'Body Large', example: 'Important game text' },
+                            { key: 'base', value: `text-base`, label: 'Body Text', example: 'Regular content and descriptions' },
+                            { key: 'sm', value: `text-sm`, label: 'Small Text', example: 'Captions and metadata' },
+                            { key: 'xs', value: `text-xs`, label: 'Micro Text', example: 'Tiny labels and notes' },
                           ].map(({ key, value, label, example }) => (
                             <Card key={key} className="bg-gray-900/50 border-amber-800/20">
                               <CardContent className="p-4">
@@ -879,23 +879,28 @@ export default function DesignSystemPage() {
                         ensuring consistency across all components and platforms.
                       </p>
                       
-                      {/* Animation Tokens */}
+                      {/* Animation Tokens - Temporarily disabled */}
                       <div className="mb-8">
                         <h3 className="text-xl font-semibold text-white mb-4">Animation Timing</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {Object.entries(animation).map(([key, value]) => {
-                            if (value.startsWith('duration-')) {
-                              return (
-                                <Card key={key} className="bg-gray-900/50 border-amber-800/20">
-                                  <CardContent className="p-4">
-                                    <h4 className="font-medium text-white mb-1">{key}</h4>
-                                    <p className="text-sm text-gray-400">{value}</p>
-                                  </CardContent>
-                                </Card>
-                              )
-                            }
-                            return null
-                          }).filter(Boolean)}
+                          <Card className="bg-gray-900/50 border-amber-800/20">
+                            <CardContent className="p-4">
+                              <h4 className="font-medium text-white mb-1">Fast</h4>
+                              <p className="text-sm text-gray-400">150ms</p>
+                            </CardContent>
+                          </Card>
+                          <Card className="bg-gray-900/50 border-amber-800/20">
+                            <CardContent className="p-4">
+                              <h4 className="font-medium text-white mb-1">Normal</h4>
+                              <p className="text-sm text-gray-400">300ms</p>
+                            </CardContent>
+                          </Card>
+                          <Card className="bg-gray-900/50 border-amber-800/20">
+                            <CardContent className="p-4">
+                              <h4 className="font-medium text-white mb-1">Slow</h4>
+                              <p className="text-sm text-gray-400">500ms</p>
+                            </CardContent>
+                          </Card>
                         </div>
                       </div>
 
@@ -907,7 +912,7 @@ export default function DesignSystemPage() {
                             <CardContent className="p-4">
                               <h4 className="font-medium text-white mb-2">Typography Combination</h4>
                               <code className="text-amber-400 text-sm block bg-gray-800 p-3 rounded">
-                                {createTypographyClass('2xl', 'bold', 'serif', 'tight', 'wide')}
+                                text-2xl font-bold
                               </code>
                             </CardContent>
                           </Card>
@@ -915,7 +920,7 @@ export default function DesignSystemPage() {
                             <CardContent className="p-4">
                               <h4 className="font-medium text-white mb-2">Color & Spacing</h4>
                               <code className="text-amber-400 text-sm block bg-gray-800 p-3 rounded">
-                                {`${designColors.success.default} ${spacing[16]}`}
+                                text-green-500 p-4
                               </code>
                             </CardContent>
                           </Card>
@@ -1261,14 +1266,20 @@ export default function DesignSystemPage() {
                           <h4 className="text-lg font-medium text-amber-300 mb-3">Quest Card</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
-                              <CardWithProgress
+                              <QuestCard
                                 title="Defeat the Dragon"
                                 description="A mighty dragon has appeared in the realm"
-                                completed={false}
-                                onToggle={() => {}}
+                                category="might"
+                                difficulty="hard"
                                 progress={25}
-                                xp={100}
-                                gold={50}
+                                maxProgress={100}
+                                reward={{
+                                  experience: 100,
+                                  gold: 50
+                                }}
+                                status="in-progress"
+                                onClick={() => {}}
+                                onComplete={() => {}}
                               />
                             </CardContent>
                           </Card>
