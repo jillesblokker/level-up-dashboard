@@ -371,45 +371,45 @@ export default function StoredDataPage() {
     const lowPriorityIssues = brokenSystems.filter(c => c.priority === 'low');
 
     const summary = `
-🚨 BUILD STATUS SUMMARY - ${now}
+BUILD STATUS SUMMARY - ${now}
 =====================================
 
-📊 OVERALL STATUS:
+OVERALL STATUS:
 • Health: ${buildStatus.overall.toUpperCase()}
 • Working Systems: ${buildStatus.workingSystems}/${buildStatus.totalSystems} (${buildStatus.progress.toFixed(1)}%)
 • Broken Systems: ${buildStatus.brokenSystems}
 
-🔴 BROKEN SYSTEMS (${brokenSystems.length}):
+BROKEN SYSTEMS (${brokenSystems.length}):
 ${brokenSystems.map(issue => `• ${issue.name}: ${issue.error || 'Unknown error'} (${issue.endpoint})`).join('\n')}
 
-🔴 CRITICAL ISSUES (${criticalIssues.length}):
+CRITICAL ISSUES (${criticalIssues.length}):
 ${criticalIssues.map(issue => `• ${issue.name}: ${issue.error || 'Unknown error'} (${issue.endpoint})`).join('\n')}
 
-🟠 HIGH PRIORITY ISSUES (${highPriorityIssues.length}):
+HIGH PRIORITY ISSUES (${highPriorityIssues.length}):
 ${highPriorityIssues.map(issue => `• ${issue.name}: ${issue.error || 'Unknown error'} (${issue.endpoint})`).join('\n')}
 
-🟡 MEDIUM PRIORITY ISSUES (${mediumPriorityIssues.length}):
+MEDIUM PRIORITY ISSUES (${mediumPriorityIssues.length}):
 ${mediumPriorityIssues.map(issue => `• ${issue.name}: ${issue.error || 'Unknown error'} (${issue.endpoint})`).join('\n')}
 
-🔵 LOW PRIORITY ISSUES (${lowPriorityIssues.length}):
+LOW PRIORITY ISSUES (${lowPriorityIssues.length}):
 ${lowPriorityIssues.map(issue => `• ${issue.name}: ${issue.error || 'Unknown error'} (${issue.endpoint})`).join('\n')}
 
-✅ WORKING SYSTEMS (${workingSystems.length}):
+WORKING SYSTEMS (${workingSystems.length}):
 ${workingSystems.map(system => `• ${system.name} (${system.category})`).join('\n')}
 
-📈 PROGRESS BY CATEGORY:
+PROGRESS BY CATEGORY:
 • Core Systems: ${buildStatus.coreSystems}/3 (${((buildStatus.coreSystems / 3) * 100).toFixed(1)}%)
 • Gameplay Features: ${buildStatus.gameplayFeatures}/8 (${((buildStatus.gameplayFeatures / 8) * 100).toFixed(1)}%)
 • Social Features: ${buildStatus.socialFeatures}/3 (${((buildStatus.socialFeatures / 3) * 100).toFixed(1)}%)
 • Admin Features: ${buildStatus.adminFeatures}/15 (${((buildStatus.adminFeatures / 15) * 100).toFixed(1)}%)
 
-🎯 NEXT STEPS:
+NEXT STEPS:
 ${criticalIssues.length > 0 ? `1. Fix ${criticalIssues.length} critical issue(s) first` : '1. No critical issues - good!'}
 ${highPriorityIssues.length > 0 ? `2. Address ${highPriorityIssues.length} high priority issue(s)` : '2. No high priority issues'}
 ${mediumPriorityIssues.length > 0 ? `3. Review ${mediumPriorityIssues.length} medium priority issue(s)` : '3. No medium priority issues'}
 ${lowPriorityIssues.length > 0 ? `4. Consider ${lowPriorityIssues.length} low priority issue(s)` : '4. No low priority issues'}
 
-🔧 TECHNICAL DETAILS:
+TECHNICAL DETAILS:
 • Total APIs Tested: ${connectionStatuses.length}
 • Last Checked: ${now}
 • User ID: ${user?.id || 'Unknown'}
@@ -446,7 +446,7 @@ ${lowPriorityIssues.length > 0 ? `4. Consider ${lowPriorityIssues.length} low pr
             Refresh Status
           </Button>
           <Button onClick={generateSummary} variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700">
-            📋 Summary
+            Summary
           </Button>
         </div>
       </div>
