@@ -9,6 +9,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     console.log('[Quests API] PUT request for questId:', questId);
     console.log('[Quests API] Request body:', { name, description, category, difficulty, xp_reward, gold_reward });
+    console.log('[Quests API] Request headers:', Object.fromEntries(req.headers.entries()));
+    console.log('[Quests API] Authorization header:', req.headers.get('authorization') ? 'present' : 'missing');
 
     if (!name || !description || !category || !difficulty) {
       return NextResponse.json({ 
@@ -22,6 +24,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     // Use authenticated Supabase query with proper Clerk JWT verification
+    console.log('[Quests API] About to call authenticatedSupabaseQuery...');
     const result = await authenticatedSupabaseQuery(req, async (supabase, userId) => {
       console.log('[Quests API] Authenticated query with userId:', userId);
       
@@ -76,7 +79,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       return data;
     });
 
+    console.log('[Quests API] Result from authenticatedSupabaseQuery:', result);
+    
     if (!result.success) {
+      console.log('[Quests API] Authentication failed, returning 401');
       return NextResponse.json({ error: result.error }, { 
         status: 401,
         headers: {
