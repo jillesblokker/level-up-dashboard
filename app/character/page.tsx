@@ -305,7 +305,24 @@ export default function CharacterPage() {
 
     const loadStrengths = () => {
       try {
-        setStrengths(getStrengths())
+        const strengths = getStrengths();
+        // Ensure all 6 categories are present
+        const defaultStrengths = [
+          { id: "might", name: "Might", category: "might", level: 1, experience: 0, experienceToNextLevel: 100, description: "Physical strength and combat prowess", icon: "⚔️", color: "text-red-500" },
+          { id: "knowledge", name: "Knowledge", category: "knowledge", level: 1, experience: 0, experienceToNextLevel: 100, description: "Intellectual wisdom and learning", icon: "📚", color: "text-blue-500" },
+          { id: "honor", name: "Honor", category: "honor", level: 1, experience: 0, experienceToNextLevel: 100, description: "Noble character and integrity", icon: "👑", color: "text-yellow-500" },
+          { id: "castle", name: "Castle", category: "castle", level: 1, experience: 0, experienceToNextLevel: 100, description: "Leadership and governance", icon: "🏰", color: "text-purple-500" },
+          { id: "craft", name: "Craft", category: "craft", level: 1, experience: 0, experienceToNextLevel: 100, description: "Artisan skills and craftsmanship", icon: "🔨", color: "text-amber-500" },
+          { id: "vitality", name: "Vitality", category: "vitality", level: 1, experience: 0, experienceToNextLevel: 100, description: "Health, endurance, and life force", icon: "❤️", color: "text-green-500" }
+        ];
+        
+        // Merge saved strengths with defaults to ensure all categories are present
+        const mergedStrengths = defaultStrengths.map(defaultStrength => {
+          const savedStrength = strengths.find(s => s.category === defaultStrength.category);
+          return savedStrength || defaultStrength;
+        });
+        
+        setStrengths(mergedStrengths);
       } catch (error) {
         console.error('Error loading strengths:', error)
         throw new Error('Failed to load strengths');
@@ -741,7 +758,7 @@ export default function CharacterPage() {
                                 src="/images/blessing.png"
                                 alt="No active bonuses"
                                 fill
-                                className="object-contain opacity-50"
+                                className="object-contain opacity-50 rounded"
                               />
                             </div>
                             <p className="text-muted-foreground font-serif">No enchanted blessings active. Seek the mystic arts to unlock your true potential.</p>
@@ -973,7 +990,7 @@ export default function CharacterPage() {
                               variant={perk.unlocked ? "default" : "secondary"}
                               className={perk.unlocked ? "" : "bg-gray-500"}
                             >
-                              {perk.unlocked ? `Level ${perk.level}/${perk.maxLevel}` : `Level ${perk.requiredLevel}+`}
+                              {perk.unlocked ? `Lvl ${perk.level}/${perk.maxLevel}` : `Lvl ${perk.requiredLevel}+`}
                             </Badge>
                           </div>
                           <CardDescription className="text-sm">
@@ -981,7 +998,7 @@ export default function CharacterPage() {
                           </CardDescription>
                           {!perk.unlocked && (
                             <div className="mt-2 text-amber-500 font-medium">
-                              Requires Level {perk.requiredLevel}
+                              Requires Lvl {perk.requiredLevel}
                             </div>
                           )}
                         </CardHeader>
@@ -1038,7 +1055,7 @@ export default function CharacterPage() {
                             <div className="text-center py-4">
                               <Lock className="h-8 w-8 mx-auto text-gray-400 mb-2" />
                               <p className="text-sm text-gray-500">
-                                Reach Level {perk.requiredLevel} to unlock
+                                Reach Lvl {perk.requiredLevel} to unlock
                               </p>
                             </div>
                           )}
@@ -1062,8 +1079,8 @@ export default function CharacterPage() {
                               <span className="text-2xl">{strength.icon}</span>
                               <CardTitle className="font-serif">{strength.name}</CardTitle>
                             </div>
-                            <Badge className={strength.color.replace('text-', 'bg-')}>
-                              Level {strength.level}
+                                                          <Badge className={strength.color.replace('text-', 'bg-')}>
+                              Lvl {strength.level}
                             </Badge>
                           </div>
                           <CardDescription className="text-sm">
@@ -1077,8 +1094,8 @@ export default function CharacterPage() {
                               <span>{strength.experience} / {strength.experienceToNextLevel}</span>
                             </div>
                             <Progress value={calculateStrengthProgress(strength)} className="h-2" />
-                            <p className="text-xs text-muted-foreground">
-                              {strength.experienceToNextLevel - strength.experience} XP to Level {strength.level + 1}
+                                                          <p className="text-xs text-muted-foreground">
+                              {strength.experienceToNextLevel - strength.experience} XP to Lvl {strength.level + 1}
                             </p>
                           </div>
                         </CardContent>

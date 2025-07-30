@@ -23,6 +23,7 @@ import { StreakRecovery } from '@/components/streak-recovery';
 import { FullPageLoading, DataLoadingState } from '@/components/ui/loading-states';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { gainExperience } from '@/lib/experience-manager'
+import { gainStrengthFromQuest } from '@/lib/strength-manager'
 import { MobileLayoutWrapper, MobileScrollContainer, MobileContentWrapper } from '@/components/mobile-layout-wrapper'
 
 interface Quest {
@@ -527,6 +528,11 @@ export default function QuestsPage() {
           }
           if (questRewards > 0) {
             gainGold(questRewards, 'quest-completion');
+          }
+          
+          // Gain strength experience from quest completion
+          if (quest.category) {
+            gainStrengthFromQuest(quest.category, 1); // Default to level 1 for quest strength gain
           }
           
           // Trigger kingdom stats update
