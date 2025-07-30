@@ -7,32 +7,45 @@ import { supabaseServer } from '@/lib/supabase/server-client';
 async function extractUserIdFromToken(req: NextRequest): Promise<string | null> {
   try {
     const authHeader = req.headers.get('authorization');
+    console.log('[Milestones] Authorization header:', authHeader ? 'present' : 'missing');
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.log('[Milestones] No Authorization header found');
+      console.log('[Milestones] No Authorization header found or invalid format');
       return null;
     }
 
     const token = authHeader.substring(7);
     console.log('[Milestones] Token received, length:', token.length);
+    console.log('[Milestones] Token starts with:', token.substring(0, 20) + '...');
 
     // For Clerk JWT tokens, we can extract the user ID from the token
     // This is a simplified approach - in production you should verify the JWT
     const parts = token.split('.');
+    console.log('[Milestones] Token parts count:', parts.length);
+    
     if (parts.length === 3 && parts[1]) {
       try {
         // Decode base64url to base64, then decode
         const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+        console.log('[Milestones] Base64 payload length:', base64.length);
+        
         const payload = JSON.parse(Buffer.from(base64, 'base64').toString());
-        console.log('[Milestones] Token payload:', payload);
+        console.log('[Milestones] Token payload keys:', Object.keys(payload));
+        console.log('[Milestones] Token payload sub:', payload.sub);
         
         // The user ID is in the 'sub' field for Clerk tokens
         if (payload.sub) {
           console.log('[Milestones] UserId from token:', payload.sub);
           return payload.sub;
+        } else {
+          console.log('[Milestones] No sub field found in token payload');
         }
       } catch (decodeError) {
         console.error('[Milestones] Token decode failed:', decodeError);
+        console.log('[Milestones] Raw payload part:', parts[1].substring(0, 50) + '...');
       }
+    } else {
+      console.log('[Milestones] Invalid token format - expected 3 parts, got:', parts.length);
     }
 
     // Fallback: try to get user ID from Clerk
@@ -46,6 +59,7 @@ async function extractUserIdFromToken(req: NextRequest): Promise<string | null> 
       console.error('[Milestones] Clerk auth failed:', clerkError);
     }
 
+    console.log('[Milestones] No user ID could be extracted from token');
     return null;
   } catch (error) {
     console.error('[Milestones] Error extracting user ID:', error);
