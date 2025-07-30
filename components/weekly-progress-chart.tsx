@@ -59,7 +59,7 @@ export function WeeklyProgressChart() {
           
           // Find quest completions for this date
           const dayCompletions = questCompletions.filter((q: any) => {
-            const completionDate = q.completed_at ? new Date(q.completed_at).toISOString().slice(0, 10) : null;
+            const completionDate = q.date ? new Date(q.date).toISOString().slice(0, 10) : null;
             return completionDate === dateStr;
           });
           

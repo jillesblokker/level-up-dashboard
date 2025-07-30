@@ -852,6 +852,48 @@ export default function RealmPage() {
         return () => clearTimeout(saveTimeout);
     }, [grid, autoSave, isLoading, userId]);
 
+    // Listen for tile inventory updates
+    useEffect(() => {
+        const handleTileInventoryUpdate = async () => {
+            console.log('[Realm] Tile inventory update event received');
+            if (!userId) return;
+            
+            try {
+                // Reload tile inventory
+                const inventoryResult = await loadTileInventory(userId);
+                console.log('[Realm] Reloaded inventory data:', inventoryResult);
+                if (inventoryResult && inventoryResult.data && Object.keys(inventoryResult.data).length > 0) {
+                    // Merge with initial inventory
+                    const mergedInventory = { ...initialInventory };
+                    Object.entries(inventoryResult.data).forEach(([tileId, item]: [string, any]) => {
+                        if (!item || typeof item !== 'object') {
+                            console.warn('[Realm] Invalid inventory item:', item);
+                            return;
+                        }
+                        const tileType = item.type as TileType;
+                        if (mergedInventory[tileType]) {
+                            mergedInventory[tileType] = {
+                                ...mergedInventory[tileType],
+                                owned: item.quantity || 0,
+                                quantity: item.quantity || 0,
+                                cost: item.cost || mergedInventory[tileType].cost
+                            };
+                        }
+                    });
+                    setInventory(mergedInventory);
+                }
+            } catch (error) {
+                console.error('[Realm] Error reloading tile inventory:', error);
+            }
+        };
+        
+        window.addEventListener('tile-inventory-update', handleTileInventoryUpdate);
+        
+        return () => {
+            window.removeEventListener('tile-inventory-update', handleTileInventoryUpdate);
+        };
+    }, [userId]);
+
     // Place tile: update grid and send only the changed tile to backend
     const handlePlaceTile = async (x: number, y: number) => {
         // Check for monster battle first (regardless of game mode)
