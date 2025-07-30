@@ -5,7 +5,7 @@ import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cva, type VariantProps } from "class-variance-authority"
 import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { colors, typography, focus } from "@/lib/design-tokens"
+import { colors, typography } from "@/lib/design-tokens"
 
 const ToastProvider = ToastPrimitives.Provider
 
@@ -96,7 +96,7 @@ const ToastTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToastPrimitives.Title
     ref={ref}
-    className={cn(`${typography.sm} ${typography.semibold} ${colors.text.primary}`, className)}
+    className={cn("text-sm font-semibold text-white", className)}
     {...props}
   />
 ))
@@ -108,7 +108,7 @@ const ToastDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToastPrimitives.Description
     ref={ref}
-    className={cn(`${typography.sm} ${colors.text.secondary}`, className)}
+    className={cn("text-sm text-gray-400", className)}
     {...props}
   />
 ))

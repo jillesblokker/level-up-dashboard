@@ -148,7 +148,7 @@ export function EnhancedToast({
         config.borderColor,
         "transform translate-x-0 opacity-100",
         "hover:scale-105 hover:shadow-lg",
-        className
+        className || undefined
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -239,49 +239,45 @@ export function EnhancedToast({
 }
 
 // Specialized toast components
-export function AchievementToast({ title, description, onClose }: Omit<EnhancedToastProps, 'type'>) {
-  return (
-    <EnhancedToast
-      type="achievement"
-      title={title}
-      description={description}
-      onClose={onClose}
-      duration={8000}
-    />
-  )
+export function AchievementToast({ title, description, onClose }: { title: string; description?: string; onClose?: () => void }) {
+  const props: EnhancedToastProps = {
+    type: "achievement",
+    title,
+    duration: 8000
+  }
+  if (description) props.description = description
+  if (onClose) props.onClose = onClose
+  return <EnhancedToast {...props} />
 }
 
-export function QuestToast({ title, description, onClose }: Omit<EnhancedToastProps, 'type'>) {
-  return (
-    <EnhancedToast
-      type="quest"
-      title={title}
-      description={description}
-      onClose={onClose}
-    />
-  )
+export function QuestToast({ title, description, onClose }: { title: string; description?: string; onClose?: () => void }) {
+  const props: EnhancedToastProps = {
+    type: "quest",
+    title
+  }
+  if (description) props.description = description
+  if (onClose) props.onClose = onClose
+  return <EnhancedToast {...props} />
 }
 
-export function KingdomToast({ title, description, onClose }: Omit<EnhancedToastProps, 'type'>) {
-  return (
-    <EnhancedToast
-      type="kingdom"
-      title={title}
-      description={description}
-      onClose={onClose}
-    />
-  )
+export function KingdomToast({ title, description, onClose }: { title: string; description?: string; onClose?: () => void }) {
+  const props: EnhancedToastProps = {
+    type: "kingdom",
+    title
+  }
+  if (description) props.description = description
+  if (onClose) props.onClose = onClose
+  return <EnhancedToast {...props} />
 }
 
-export function InventoryToast({ title, description, onClose }: Omit<EnhancedToastProps, 'type'>) {
-  return (
-    <EnhancedToast
-      type="inventory"
-      title={title}
-      description={description}
-      onClose={onClose}
-    />
-  )
+export function InventoryToast({ title, description, onClose }: { title: string; description?: string; onClose?: () => void }) {
+  const props: EnhancedToastProps = {
+    type: "inventory",
+    title
+  }
+  if (description) props.description = description
+  if (onClose) props.onClose = onClose
+  return <EnhancedToast {...props} />
 }
 
 // Toast container for managing multiple toasts

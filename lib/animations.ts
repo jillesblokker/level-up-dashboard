@@ -58,33 +58,31 @@ export const animationPresets = {
   button: combineAnimations(
     animations.hover.scale,
     animations.focus.ring,
-    animation.all,
-    animation.normal
+    'transition-all duration-300'
   ),
   
   // Card hover effect
   card: combineAnimations(
     animations.hover.lift,
     animations.hover.glow,
-    animation.all,
-    animation.normal
+    'transition-all duration-300'
   ),
   
   // Loading state
   loading: combineAnimations(
     animations.loading.pulse,
-    animation.normal
+    'duration-300'
   ),
   
   // Success feedback
   success: combineAnimations(
     animations.feedback.success,
-    animation.fast
+    'duration-150'
   ),
   
   // Error feedback
   error: combineAnimations(
     animations.feedback.error,
-    animation.fast
+    'duration-150'
   ),
 } as const 

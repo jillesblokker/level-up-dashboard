@@ -47,7 +47,7 @@ export function LoadingSpinner({
   const Icon = iconMap[variant]
 
   return (
-    <div className={cn("flex flex-col items-center justify-center gap-3", className)}>
+    <div className={cn("flex flex-col items-center justify-center gap-3", className || undefined)}>
       <div className="relative">
         {/* Main spinning icon */}
         <Icon 
@@ -93,7 +93,7 @@ export function QuestLoadingSpinner({ className }: { className?: string }) {
       variant="sword" 
       size="lg" 
       text="Preparing your quest"
-      className={className}
+      {...(className ? { className } : {})}
     />
   )
 }
@@ -104,7 +104,7 @@ export function KingdomLoadingSpinner({ className }: { className?: string }) {
       variant="crown" 
       size="lg" 
       text="Loading your kingdom"
-      className={className}
+      {...(className ? { className } : {})}
     />
   )
 }
@@ -115,7 +115,7 @@ export function AchievementLoadingSpinner({ className }: { className?: string })
       variant="star" 
       size="lg" 
       text="Unlocking achievements"
-      className={className}
+      {...(className ? { className } : {})}
     />
   )
 }
@@ -126,7 +126,7 @@ export function InventoryLoadingSpinner({ className }: { className?: string }) {
       variant="shield" 
       size="lg" 
       text="Loading inventory"
-      className={className}
+      {...(className ? { className } : {})}
     />
   )
 }
@@ -134,7 +134,7 @@ export function InventoryLoadingSpinner({ className }: { className?: string }) {
 // Skeleton loading component
 export function LoadingSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn("animate-pulse", className)}>
+    <div className={cn("animate-pulse", className || undefined)}>
       <div className="h-4 bg-gray-700 rounded mb-2" />
       <div className="h-4 bg-gray-700 rounded mb-2 w-3/4" />
       <div className="h-4 bg-gray-700 rounded w-1/2" />
@@ -147,7 +147,7 @@ export function CardSkeleton({ className }: { className?: string }) {
   return (
     <div className={cn(
       "bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-amber-800/20 rounded-lg p-4",
-      className
+      className || undefined
     )}>
       <div className="flex items-start gap-3 mb-3">
         <div className="w-12 h-12 bg-gray-700 rounded-lg animate-pulse" />
@@ -167,7 +167,7 @@ export function CardSkeleton({ className }: { className?: string }) {
 // Grid skeleton for multiple cards
 export function GridSkeleton({ count = 6, className }: { count?: number, className?: string }) {
   return (
-    <div className={cn("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4", className)}>
+    <div className={cn("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4", className || undefined)}>
       {Array.from({ length: count }).map((_, index) => (
         <CardSkeleton key={index} />
       ))}
