@@ -140,7 +140,7 @@ function getItemImagePath(item: KingdomInventoryItem): string {
   if (item.name === "Crown") return "/images/items/artifact/crown.png";
   if (item.name === "Ring") return "/images/items/artifact/ring.png";
   if (item.name === "Scepter") return "/images/items/artifact/scepter.png";
-  if (item.name === "Ancient Artifact") return "/images/items/artifact/ancient-artifact.png";
+  if (item.name === "Ancient Artifact") return "/images/items/artifact/crown/artifact-crowny.png";
   if (item.name === "Scroll of Memory") return "/images/items/scroll/scroll-memento.png";
   if (item.name === "Scroll of Perkament") return "/images/items/scroll/scroll-perkamento.png";
   if (item.name === "Scroll of Scrolly") return "/images/items/scroll/scroll-scrolly.png";
