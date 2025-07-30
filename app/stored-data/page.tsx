@@ -379,6 +379,9 @@ export default function StoredDataPage() {
 • Working Systems: ${buildStatus.workingSystems}/${buildStatus.totalSystems} (${buildStatus.progress.toFixed(1)}%)
 • Broken Systems: ${buildStatus.brokenSystems}
 
+🔴 BROKEN SYSTEMS (${brokenSystems.length}):
+${brokenSystems.map(issue => `• ${issue.name}: ${issue.error || 'Unknown error'} (${issue.endpoint})`).join('\n')}
+
 🔴 CRITICAL ISSUES (${criticalIssues.length}):
 ${criticalIssues.map(issue => `• ${issue.name}: ${issue.error || 'Unknown error'} (${issue.endpoint})`).join('\n')}
 
