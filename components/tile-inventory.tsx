@@ -80,6 +80,9 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         )
         onUpdateTiles(newTiles)
         
+        // Dispatch event to trigger a refresh of tile inventory
+        window.dispatchEvent(new Event('tile-inventory-update'));
+        
         // Reset the quantity after purchase
         setBuyQuantities(prev => ({ ...prev, [tile.type]: 1 }))
         

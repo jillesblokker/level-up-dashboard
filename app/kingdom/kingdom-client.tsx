@@ -560,7 +560,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
 
   if (showEntrance) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black" style={{ width: '100vw', height: '100vh', padding: 0, margin: 0 }}>
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black" style={{ width: '100vw', height: '100vh', padding: 0, margin: 0 }}>
         <div className="relative w-full h-full" style={{ overflow: 'hidden', padding: 0, margin: 0 }}>
           <Image
             src="/images/kingdom-tiles/Entrance.png"

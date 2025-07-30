@@ -30,12 +30,17 @@ export function WeeklyProgressChart() {
   const [activeMetric, setActiveMetric] = useState<'tasks' | 'xp' | 'gold'>('tasks');
   const router = useRouter();
 
-  // Fetch data from localStorage or other sources
+  // Fetch data from API
   useEffect(() => {
-    const fetchData = () => {
+    const fetchData = async () => {
       try {
-        // Get quest history from localStorage
-        const questHistory = JSON.parse(localStorage.getItem('quest-history') || '[]');
+        setIsLoading(true);
+        
+        // Fetch quest completions from API
+        const response = await fetch('/api/quests/completion');
+        const questCompletions = response.ok ? await response.json() : [];
+        
+        // Get character stats
         const characterStats = JSON.parse(localStorage.getItem('character-stats') || '{}');
         
         // Generate weekly data for the last 7 days
@@ -47,10 +52,14 @@ export function WeeklyProgressChart() {
           date.setDate(date.getDate() - i);
           const dateStr = date.toISOString().slice(0, 10);
           
-          // Find quest data for this date
-          const dayQuests = questHistory.filter((q: any) => q.date === dateStr);
-          const completedQuests = dayQuests.filter((q: any) => q.completed).length;
-          const totalQuests = dayQuests.length;
+          // Find quest completions for this date
+          const dayCompletions = questCompletions.filter((q: any) => {
+            const completionDate = q.completed_at ? new Date(q.completed_at).toISOString().slice(0, 10) : null;
+            return completionDate === dateStr;
+          });
+          
+          const completedQuests = dayCompletions.length;
+          const totalQuests = dayCompletions.length; // For now, assume all completions are total quests
           
           // Get gold and XP from character stats (simplified)
           const dayGold = characterStats.goldEarned?.[dateStr] || 0;
