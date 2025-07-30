@@ -18,7 +18,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { storageService } from '@/lib/storage-service'
 import { Quest } from '@/lib/quest-types'
 import { updateCharacterStat, getCharacterStats, addToCharacterStatSync, updateCharacterStatSync } from '@/lib/character-stats-manager'
-import CardWithProgress from './quest-card'
+import QuestCard from './quest-card'
 import { pollingService, createPollingConfig } from '@/lib/polling-service';
 import { errorHandler, ErrorHandler } from '@/lib/error-handler';
 import { gainExperience } from '@/lib/experience-manager'
@@ -605,21 +605,23 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3">
                 {allMilestones.length === 0 ? (
                   <div className="text-gray-400 col-span-full">No milestones for this category yet.</div>
-                ) : (
-                  allMilestones.map(milestone => (
-                    <CardWithProgress
+                                  ) : (
+                    allMilestones.map(milestone => (
+                      <QuestCard
                       key={milestone.id}
                       title={milestone.name}
                       description={milestone.description || (defaultCard ? defaultCard.description : '')}
-                      icon={typeof milestone.icon === 'string' ? <span>{milestone.icon}</span> : milestone.icon}
-                      completed={!!completed[milestone.id]}
-                      onToggle={() => handleCheckboxToggle(milestone.id, milestone.target)}
-                      onEdit={() => { setEditingMilestone(milestone); setEditModalOpen(true); }}
-                      onDelete={() => handleDeleteCustomMilestone(selectedCategoryObj.key, milestone.id)}
+                      category={milestone.category}
+                      difficulty="medium"
                       progress={milestone.progress}
-                      xp={milestone.experience}
-                      gold={milestone.gold}
-                      className={colorClass}
+                      maxProgress={100}
+                      reward={{
+                        experience: milestone.experience,
+                        gold: milestone.gold
+                      }}
+                      status={!!completed[milestone.id] ? 'completed' : 'not-started'}
+                      onClick={() => handleCheckboxToggle(milestone.id, milestone.target)}
+                      onComplete={() => handleCheckboxToggle(milestone.id, milestone.target)}
                     />
                   ))
                 )}
