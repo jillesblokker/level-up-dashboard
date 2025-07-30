@@ -244,25 +244,29 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
               <SelectTrigger className="w-full bg-gray-900/50 border-gray-700">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-700">
+              <SelectContent className="bg-gray-900 border-gray-700 min-w-[280px]">
                 {tileCategories.map(category => {
                   const isUnlocked = userLevel >= category.minLevel;
-                  const categoryTiles = getTilesByCategory(category.id);
-                  const hasTiles = categoryTiles.length > 0;
                   
                   return (
                     <SelectItem 
                       key={category.id} 
                       value={category.id}
-                      disabled={!isUnlocked || !hasTiles}
                       className={cn(
-                        !isUnlocked && "opacity-50 cursor-not-allowed",
-                        !hasTiles && "opacity-30"
+                        "cursor-pointer",
+                        !isUnlocked && "opacity-60"
                       )}
                     >
                       <div className="flex items-center justify-between w-full">
-                        <span>{category.name}</span>
-                        <span className="text-xs text-gray-500 ml-2">
+                        <span className={cn(
+                          !isUnlocked && "text-gray-400"
+                        )}>
+                          {category.name}
+                        </span>
+                        <span className={cn(
+                          "text-xs ml-2",
+                          !isUnlocked ? "text-gray-500" : "text-gray-400"
+                        )}>
                           Lvl {category.minLevel}-{category.maxLevel}
                         </span>
                       </div>
@@ -386,25 +390,29 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
               <SelectTrigger className="w-full bg-gray-900/50 border-gray-700">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-700">
+              <SelectContent className="bg-gray-900 border-gray-700 min-w-[280px]">
                 {tileCategories.map(category => {
                   const isUnlocked = userLevel >= category.minLevel;
-                  const categoryTiles = getTilesByCategory(category.id);
-                  const hasTiles = categoryTiles.length > 0;
                   
                   return (
                     <SelectItem 
                       key={category.id} 
                       value={category.id}
-                      disabled={!isUnlocked || !hasTiles}
                       className={cn(
-                        !isUnlocked && "opacity-50 cursor-not-allowed",
-                        !hasTiles && "opacity-30"
+                        "cursor-pointer",
+                        !isUnlocked && "opacity-60"
                       )}
                     >
                       <div className="flex items-center justify-between w-full">
-                        <span>{category.name}</span>
-                        <span className="text-xs text-gray-500 ml-2">
+                        <span className={cn(
+                          !isUnlocked && "text-gray-400"
+                        )}>
+                          {category.name}
+                        </span>
+                        <span className={cn(
+                          "text-xs ml-2",
+                          !isUnlocked ? "text-gray-500" : "text-gray-400"
+                        )}>
                           Lvl {category.minLevel}-{category.maxLevel}
                         </span>
                       </div>
