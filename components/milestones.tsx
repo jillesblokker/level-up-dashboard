@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
-import { Sword, Brain, Crown, Castle, Hammer, Heart, PlusCircle, Trash2, Pencil, Sun, PersonStanding, CheckCircle } from "lucide-react"
+import { Sword, Brain, Crown, Castle, Hammer, Heart, PlusCircle, Trash2, Pencil, Sun, PersonStanding, CheckCircle, Shield, Star, Trophy } from "lucide-react"
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useUser } from "@clerk/nextjs"
 import { defaultQuests } from '@/lib/quest-sample-data'
@@ -839,30 +839,32 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
       </div>
 
       {/* Edit and Delete Buttons */}
-      <div className="absolute top-3 left-3 z-10 flex gap-1">
+      <div className="absolute top-3 right-12 z-10 flex items-center gap-1">
         <Button
           variant="ghost"
           size="icon"
-          className="h-6 w-6 text-gray-400 hover:text-amber-400 hover:bg-amber-500/20"
+          className="h-6 w-6 text-gray-500 hover:text-amber-500 bg-black/50 hover:bg-black/70 rounded-full"
+          aria-label={`Edit milestone: ${milestone.name}`}
           onClick={(e) => {
             e.stopPropagation();
             onEdit(milestone);
           }}
-          aria-label={`Edit ${milestone.name} milestone`}
+          tabIndex={-1}
         >
-          <Pencil className="h-3 w-3" />
+          <Pencil className="w-3 h-3" />
         </Button>
         <Button
           variant="ghost"
           size="icon"
-          className="h-6 w-6 text-gray-400 hover:text-red-400 hover:bg-red-500/20"
+          className="h-6 w-6 text-red-500 hover:text-red-400 bg-black/50 hover:bg-black/70 rounded-full"
+          aria-label={`Delete milestone: ${milestone.name}`}
           onClick={(e) => {
             e.stopPropagation();
             onDelete(milestone.id);
           }}
-          aria-label={`Delete ${milestone.name} milestone`}
+          tabIndex={-1}
         >
-          <Trash2 className="h-3 w-3" />
+          <Trash2 className="w-3 h-3" />
         </Button>
       </div>
 
@@ -882,15 +884,44 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
       <CardContent className="space-y-4">
         {/* Progress Section */}
         <div className="space-y-2">
-          <div className="flex justify-between text-sm">
+          <div className="flex items-center justify-between text-sm">
             <span className="text-gray-400">Progress</span>
-            <span className="text-amber-400 font-medium">{milestone.progress}%</span>
+            <span className="text-amber-400 font-medium">
+              {milestone.progress} / 100
+            </span>
           </div>
           <Progress 
             value={progressPercentage} 
-            className="h-2 bg-gray-700" 
-            aria-label={`Milestone progress: ${milestone.progress}%`}
+            className="h-2 bg-gray-700"
           />
+        </div>
+
+        {/* Difficulty and Category */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className={cn(
+              "flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium",
+              "bg-gray-800/50 border border-gray-700/50"
+            )}>
+              <Shield className="h-3 w-3" />
+              <span className="text-yellow-400">Milestone</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Rewards */}
+        <div className="space-y-2">
+          <div className="text-sm text-gray-400">Rewards</div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 text-amber-400">
+              <Star className="h-4 w-4" />
+              <span className="text-sm font-medium">{milestone.experience} XP</span>
+            </div>
+            <div className="flex items-center gap-1 text-yellow-400">
+              <Trophy className="h-4 w-4" />
+              <span className="text-sm font-medium">{milestone.gold} Gold</span>
+            </div>
+          </div>
         </div>
 
         {/* Action Button */}
