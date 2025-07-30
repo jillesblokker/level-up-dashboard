@@ -122,7 +122,13 @@ const getConsumableEffect = (item: KingdomInventoryItem) => {
 
 // Helper to get fallback image path (copy logic from getItemImagePath in city location page)
 function getItemImagePath(item: KingdomInventoryItem): string {
-  if (item.image) return item.image;
+  console.log(`Getting image path for item: ${item.name} (type: ${item.type})`);
+  
+  if (item.image) {
+    console.log(`Using item.image: ${item.image}`);
+    return item.image;
+  }
+  
   if (item.name === "Iron Sword") return "/images/items/sword/sword-irony.png";
   if (item.name === "Steel Sword") return "/images/items/sword/sword-sunblade.png";
   if (item.name === "Health Potion") return "/images/items/potion/potion-health.png";
@@ -147,6 +153,8 @@ function getItemImagePath(item: KingdomInventoryItem): string {
   if (item.name === "Scroll of Scrolly") return "/images/items/scroll/scroll-scrolly.png";
   if (item.name === "Tome of Knowledge") return "/images/items/scroll/scroll-perkamento.png";
   if (item.name === "Magic Scroll") return "/images/items/scroll/scroll-scrolly.png";
+  
+  console.log(`No specific path found for ${item.name}, using fallback`);
   // Fallback
   return "/images/items/placeholder.jpg";
 }
@@ -291,7 +299,11 @@ export function KingdomClient({ userId }: { userId: string | null }) {
           className="object-cover w-full h-full"
           aria-label={`${item.name}-image`}
           onError={(e: React.SyntheticEvent<HTMLImageElement>) => { 
+            console.error(`Failed to load image for ${item.name}:`, getItemImagePath(item));
             (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; 
+          }}
+          onLoad={() => {
+            console.log(`Successfully loaded image for ${item.name}:`, getItemImagePath(item));
           }}
         />
         {/* Equipped label in top right corner */}

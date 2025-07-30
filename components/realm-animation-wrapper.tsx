@@ -231,7 +231,7 @@ export function RealmAnimationWrapper({
       {/* Animation overlay */}
       {animationState === 'animating' && (
         <div 
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 pointer-events-none"
+          className="fixed inset-0 bg-black/40 backdrop-blur-md z-[9999] pointer-events-none"
           style={{
             animation: 'fadeInOut 0.5s ease-in-out'
           }}
