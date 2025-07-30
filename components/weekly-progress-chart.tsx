@@ -38,7 +38,12 @@ export function WeeklyProgressChart() {
         
         // Fetch quest completions from API
         const response = await fetch('/api/quests/completion');
-        const questCompletions = response.ok ? await response.json() : [];
+        if (!response.ok) {
+          console.error('Failed to fetch quest completions:', response.status);
+          setData([]);
+          return;
+        }
+        const questCompletions = await response.json();
         
         // Get character stats
         const characterStats = JSON.parse(localStorage.getItem('character-stats') || '{}');

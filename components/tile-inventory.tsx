@@ -29,21 +29,22 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
   const { user } = useUser();
   const [buyQuantities, setBuyQuantities] = useState<{ [key: string]: number }>({})
 
-  // Polling for tile inventory changes instead of real-time sync
+  // Listen for tile inventory updates
   useEffect(() => {
-    if (!user?.id) return;
-    
-    const pollInterval = setInterval(() => {
-      // Re-fetch tile inventory and update state
-      // (Replace with your actual fetch logic if needed)
-      if (typeof window !== 'undefined') {
-        // Example: fetch('/api/tile-inventory').then(...)
-        // For now, just call onUpdateTiles with the current tiles
+    const handleTileInventoryUpdate = () => {
+      console.log('Tile inventory update event received');
+      // Trigger a refresh of the tile inventory
+      if (user?.id) {
+        // This will trigger the parent component to refresh the inventory
         onUpdateTiles(tiles);
       }
-    }, 5000); // Poll every 5 seconds
+    };
     
-    return () => clearInterval(pollInterval);
+    window.addEventListener('tile-inventory-update', handleTileInventoryUpdate);
+    
+    return () => {
+      window.removeEventListener('tile-inventory-update', handleTileInventoryUpdate);
+    };
   }, [tiles, onUpdateTiles, user?.id]);
 
   const handleBuyTile = async (tile: InventoryItem, e: React.MouseEvent) => {
@@ -63,7 +64,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         }
 
         // Use the tile inventory manager to add tiles
-        await addTileToInventory(user.id, {
+        const result = await addTileToInventory(user.id, {
           id: tile.id || tile.type,
           type: tile.type as any, // Type assertion for compatibility
           name: tile.name,
@@ -71,6 +72,8 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
           cost: tile.cost,
           connections: tile.connections || [],
         });
+
+        console.log('Tile purchase result:', result);
 
         // Update local state after successful API call
         const newTiles = tiles.map(item => 

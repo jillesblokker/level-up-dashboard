@@ -6,14 +6,12 @@ Divide the tile inventory into 5 level-based categories to provide progression i
 ## Category Structure
 
 ### Level 0-20: "Foundation Tiles"
-**Theme**: Basic terrain and simple structures
+**Theme**: Basic terrain and natural elements
 **Tiles Available**:
-- Grass (Basic terrain)
-- Forest (Natural environment)
-- Mountain (Elevated terrain)
-- Water (Liquid elements)
-- Simple Path (Basic connectivity)
-- Small Rock (Decorative element)
+- Grass (Basic terrain - 100 gold)
+- Forest (Natural environment - 100 gold)
+- Mountain (Elevated terrain - 100 gold)
+- Water (Liquid elements - 100 gold)
 
 **Unlock Condition**: Available from start
 **Purpose**: Teach basic tile placement and grid mechanics
@@ -21,14 +19,10 @@ Divide the tile inventory into 5 level-based categories to provide progression i
 ### Level 20-40: "Settlement Tiles"
 **Theme**: Small communities and basic infrastructure
 **Tiles Available**:
-- Town (Small settlement)
-- City (Larger settlement)
-- Road (Basic connectivity)
-- Bridge (Water crossing)
-- Farm (Food production)
-- Well (Water source)
-- Small House (Residential)
-- Market Stall (Commerce)
+- Town (Small settlement - 200 gold)
+- City (Larger settlement - 300 gold)
+- Desert (Arid terrain - 100 gold)
+- Ice (Frozen terrain - 100 gold)
 
 **Unlock Condition**: Level 20
 **Purpose**: Introduce economic and social elements
@@ -36,14 +30,10 @@ Divide the tile inventory into 5 level-based categories to provide progression i
 ### Level 40-60: "Development Tiles"
 **Theme**: Advanced infrastructure and specialized buildings
 **Tiles Available**:
-- Castle (Defensive structure)
-- Tower (Defensive/observation)
-- Library (Knowledge center)
-- Workshop (Crafting facility)
-- Tavern (Social hub)
-- Church (Religious center)
-- Guard Post (Security)
-- Stable (Transportation)
+- Castle (Defensive structure - 500 gold)
+- Dungeon (Underground facility - 400 gold)
+- Portal Entrance (Transportation - 250 gold)
+- Portal Exit (Transportation - 250 gold)
 
 **Unlock Condition**: Level 40
 **Purpose**: Add strategic and specialized gameplay elements
@@ -51,14 +41,10 @@ Divide the tile inventory into 5 level-based categories to provide progression i
 ### Level 60-80: "Advanced Tiles"
 **Theme**: Complex structures and magical elements
 **Tiles Available**:
-- Wizard Tower (Magical research)
-- Alchemy Lab (Potion crafting)
-- Arena (Combat facility)
-- Observatory (Research facility)
-- Magic Portal (Transportation)
-- Crystal Mine (Resource extraction)
-- Enchanted Garden (Magical agriculture)
-- Training Ground (Combat training)
+- Volcano (Natural hazard - 500 gold)
+- Lava (Magical terrain - 200 gold)
+- Cave (Underground exploration - 200 gold)
+- Snow (Frozen environment - 125 gold)
 
 **Unlock Condition**: Level 60
 **Purpose**: Introduce magical and advanced gameplay mechanics
@@ -66,14 +52,10 @@ Divide the tile inventory into 5 level-based categories to provide progression i
 ### Level 80-100: "Legendary Tiles"
 **Theme**: Epic structures and unique features
 **Tiles Available**:
-- Dragon's Lair (Epic structure)
-- Floating Island (Unique terrain)
-- Time Portal (Advanced transportation)
-- Crystal Palace (Luxury structure)
-- Ancient Temple (Religious epic)
-- Sky Bridge (Advanced connectivity)
-- Elemental Forge (Epic crafting)
-- World Tree (Legendary natural feature)
+- Mystery (Unknown tile - 300 gold)
+- Special (Unique tile - Variable cost)
+- Treasure (Reward tile - Variable cost)
+- Monster (Dangerous tile - Variable cost)
 
 **Unlock Condition**: Level 80
 **Purpose**: Provide end-game content and prestige
