@@ -361,6 +361,69 @@ export default function StoredDataPage() {
     }
   };
 
+  const generateSummary = () => {
+    const now = new Date().toLocaleString();
+    const workingSystems = connectionStatuses.filter(c => c.status === 'connected');
+    const brokenSystems = connectionStatuses.filter(c => c.status === 'error');
+    const criticalIssues = brokenSystems.filter(c => c.priority === 'critical');
+    const highPriorityIssues = brokenSystems.filter(c => c.priority === 'high');
+    const mediumPriorityIssues = brokenSystems.filter(c => c.priority === 'medium');
+    const lowPriorityIssues = brokenSystems.filter(c => c.priority === 'low');
+
+    const summary = `
+🚨 BUILD STATUS SUMMARY - ${now}
+=====================================
+
+📊 OVERALL STATUS:
+• Health: ${buildStatus.overall.toUpperCase()}
+• Working Systems: ${buildStatus.workingSystems}/${buildStatus.totalSystems} (${buildStatus.progress.toFixed(1)}%)
+• Broken Systems: ${buildStatus.brokenSystems}
+
+🔴 CRITICAL ISSUES (${criticalIssues.length}):
+${criticalIssues.map(issue => `• ${issue.name}: ${issue.error || 'Unknown error'} (${issue.endpoint})`).join('\n')}
+
+🟠 HIGH PRIORITY ISSUES (${highPriorityIssues.length}):
+${highPriorityIssues.map(issue => `• ${issue.name}: ${issue.error || 'Unknown error'} (${issue.endpoint})`).join('\n')}
+
+🟡 MEDIUM PRIORITY ISSUES (${mediumPriorityIssues.length}):
+${mediumPriorityIssues.map(issue => `• ${issue.name}: ${issue.error || 'Unknown error'} (${issue.endpoint})`).join('\n')}
+
+🔵 LOW PRIORITY ISSUES (${lowPriorityIssues.length}):
+${lowPriorityIssues.map(issue => `• ${issue.name}: ${issue.error || 'Unknown error'} (${issue.endpoint})`).join('\n')}
+
+✅ WORKING SYSTEMS (${workingSystems.length}):
+${workingSystems.map(system => `• ${system.name} (${system.category})`).join('\n')}
+
+📈 PROGRESS BY CATEGORY:
+• Core Systems: ${buildStatus.coreSystems}/3 (${((buildStatus.coreSystems / 3) * 100).toFixed(1)}%)
+• Gameplay Features: ${buildStatus.gameplayFeatures}/8 (${((buildStatus.gameplayFeatures / 8) * 100).toFixed(1)}%)
+• Social Features: ${buildStatus.socialFeatures}/3 (${((buildStatus.socialFeatures / 3) * 100).toFixed(1)}%)
+• Admin Features: ${buildStatus.adminFeatures}/15 (${((buildStatus.adminFeatures / 15) * 100).toFixed(1)}%)
+
+🎯 NEXT STEPS:
+${criticalIssues.length > 0 ? `1. Fix ${criticalIssues.length} critical issue(s) first` : '1. No critical issues - good!'}
+${highPriorityIssues.length > 0 ? `2. Address ${highPriorityIssues.length} high priority issue(s)` : '2. No high priority issues'}
+${mediumPriorityIssues.length > 0 ? `3. Review ${mediumPriorityIssues.length} medium priority issue(s)` : '3. No medium priority issues'}
+${lowPriorityIssues.length > 0 ? `4. Consider ${lowPriorityIssues.length} low priority issue(s)` : '4. No low priority issues'}
+
+🔧 TECHNICAL DETAILS:
+• Total APIs Tested: ${connectionStatuses.length}
+• Last Checked: ${now}
+• User ID: ${user?.id || 'Unknown'}
+• Environment: ${process.env.NODE_ENV || 'development'}
+`;
+
+    // Copy to clipboard
+    navigator.clipboard.writeText(summary).then(() => {
+      toast.success('Summary copied to clipboard!');
+    }).catch(() => {
+      // Fallback: show in alert
+      alert(summary);
+    });
+
+    return summary;
+  };
+
   return (
     <main className="container mx-auto p-4 space-y-6" aria-label="build-status-dashboard">
       {/* Header */}
@@ -378,6 +441,9 @@ export default function StoredDataPage() {
           </Badge>
           <Button onClick={checkAllConnections} variant="outline" size="sm">
             Refresh Status
+          </Button>
+          <Button onClick={generateSummary} variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700">
+            📋 Summary
           </Button>
         </div>
       </div>
@@ -484,6 +550,39 @@ export default function StoredDataPage() {
           </AlertDescription>
         </Alert>
       )}
+
+      {/* Summary Action Card */}
+      <Card className="border-blue-200 bg-blue-50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-blue-800">
+            📋 Generate Summary Report
+          </CardTitle>
+          <CardDescription className="text-blue-600">
+            Create a comprehensive report of all issues for easy sharing and debugging
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <p className="text-sm text-blue-700">
+              Click the button below to generate a detailed summary that includes:
+            </p>
+            <ul className="text-sm text-blue-700 space-y-1 ml-4">
+              <li>• Critical, high, medium, and low priority issues</li>
+              <li>• Working systems and progress percentages</li>
+              <li>• Specific error messages and endpoints</li>
+              <li>• Actionable next steps</li>
+              <li>• Technical details for debugging</li>
+            </ul>
+            <Button 
+              onClick={generateSummary} 
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              size="lg"
+            >
+              📋 Generate & Copy Summary Report
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* System Status by Category */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
