@@ -15,16 +15,19 @@ async function extractUserIdFromToken(req: NextRequest): Promise<string | null> 
     const token = authHeader.substring(7);
     console.log('[Milestones] Token received, length:', token.length);
 
-    // For Supabase JWT tokens, we can extract the user ID from the token
+    // For Clerk JWT tokens, we can extract the user ID from the token
     // This is a simplified approach - in production you should verify the JWT
     const parts = token.split('.');
     if (parts.length === 3 && parts[1]) {
       try {
-        const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+        // Decode base64url to base64, then decode
+        const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+        const payload = JSON.parse(Buffer.from(base64, 'base64').toString());
         console.log('[Milestones] Token payload:', payload);
         
-        // The user ID is typically in the 'sub' field for Supabase tokens
+        // The user ID is in the 'sub' field for Clerk tokens
         if (payload.sub) {
+          console.log('[Milestones] UserId from token:', payload.sub);
           return payload.sub;
         }
       } catch (decodeError) {
