@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
-import { CheckCircle, Clock, Star, Target, Trophy, Zap, Heart, Shield, BookOpen, Sword, Play } from "lucide-react"
+import { CheckCircle, Clock, Star, Target, Trophy, Zap, Heart, Shield, BookOpen, Sword, Play, Pencil, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
 
@@ -27,6 +27,9 @@ interface QuestCardProps {
   tags?: string[]
   onClick?: () => void
   onComplete?: () => void
+  onEdit?: () => void
+  onDelete?: () => void
+  showEditDelete?: boolean
 }
 
 const difficultyConfig = {
@@ -58,7 +61,10 @@ export default function QuestCard({
   isFeatured = false,
   tags = [],
   onClick,
-  onComplete
+  onComplete,
+  onEdit,
+  onDelete,
+  showEditDelete = false
 }: QuestCardProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [isPressed, setIsPressed] = useState(false)
@@ -114,6 +120,38 @@ export default function QuestCard({
           )}
         </div>
       </div>
+
+      {/* Edit and Delete Buttons */}
+      {showEditDelete && (
+        <div className="absolute top-3 left-3 z-10 flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 text-gray-500 hover:text-amber-500 bg-black/50 hover:bg-black/70 rounded-full"
+            aria-label={`Edit quest: ${title}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit?.();
+            }}
+            tabIndex={-1}
+          >
+            <Pencil className="w-3 h-3" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 text-red-500 hover:text-red-400 bg-black/50 hover:bg-black/70 rounded-full"
+            aria-label={`Delete quest: ${title}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete?.();
+            }}
+            tabIndex={-1}
+          >
+            <Trash2 className="w-3 h-3" />
+          </Button>
+        </div>
+      )}
 
       {/* Featured/New Badge */}
       {(isFeatured || isNew) && (

@@ -989,6 +989,17 @@ export default function QuestsPage() {
     setQuestToDelete(null);
   };
 
+  // Challenge edit and delete handlers
+  const handleEditChallenge = (challenge: any) => {
+    // TODO: Implement challenge edit modal
+    console.log('Edit challenge:', challenge);
+  };
+
+  const handleDeleteChallenge = (challengeId: string) => {
+    // TODO: Implement challenge delete confirmation
+    console.log('Delete challenge:', challengeId);
+  };
+
   // Add quest (open modal)
   const handleAddQuest = () => {
     setAddQuestModalOpen(true);
@@ -1665,6 +1676,9 @@ export default function QuestsPage() {
                       status={quest.completed ? 'completed' : 'not-started'}
                       onClick={() => handleQuestToggle(quest.id, quest.completed)}
                       onComplete={() => handleQuestToggle(quest.id, quest.completed)}
+                      onEdit={() => handleEditQuest(quest)}
+                      onDelete={() => handleDeleteQuest(quest.id)}
+                      showEditDelete={true}
                     />
                   );
                 })}
@@ -1911,6 +1925,9 @@ export default function QuestsPage() {
                       status={challenge.completed ? 'completed' : 'not-started'}
                       onClick={() => handleChallengeToggle(challenge.id, challenge.completed)}
                       onComplete={() => handleChallengeToggle(challenge.id, challenge.completed)}
+                      onEdit={() => handleEditChallenge(challenge)}
+                      onDelete={() => handleDeleteChallenge(challenge.id)}
+                      showEditDelete={true}
                     />
                   );
                 })}
