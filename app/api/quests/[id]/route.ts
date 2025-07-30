@@ -7,6 +7,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const body = await req.json();
     const { name, description, category, difficulty, xp_reward, gold_reward } = body;
 
+    console.log('[Quests API] PUT request for questId:', questId);
+    console.log('[Quests API] Request body:', { name, description, category, difficulty, xp_reward, gold_reward });
+
     if (!name || !description || !category || !difficulty) {
       return NextResponse.json({ 
         error: 'Missing required fields: name, description, category, difficulty' 
@@ -20,6 +23,34 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     // Use authenticated Supabase query with proper Clerk JWT verification
     const result = await authenticatedSupabaseQuery(req, async (supabase, userId) => {
+      console.log('[Quests API] Authenticated query with userId:', userId);
+      
+      // First, let's check if the quest exists and belongs to the user
+      const { data: existingQuest, error: fetchError } = await supabase
+        .from('quests')
+        .select('*')
+        .eq('id', questId)
+        .eq('user_id', userId)
+        .single();
+        
+      console.log('[Quests API] Existing quest check:', { 
+        hasData: !!existingQuest, 
+        errorCode: fetchError?.code, 
+        errorMessage: fetchError?.message 
+      });
+      
+      if (fetchError) {
+        console.error('[Quests API] Error fetching quest:', fetchError);
+        throw fetchError;
+      }
+      
+      if (!existingQuest) {
+        console.error('[Quests API] Quest not found or doesn\'t belong to user');
+        throw new Error('Quest not found or access denied');
+      }
+      
+      console.log('[Quests API] Updating quest:', existingQuest.name);
+      
       const { data, error } = await supabase
         .from('quests')
         .update({
@@ -37,9 +68,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         .single();
         
       if (error) {
+        console.error('[Quests API] Update error:', error);
         throw error;
       }
       
+      console.log('[Quests API] Update successful:', data);
       return data;
     });
 
