@@ -13,7 +13,7 @@ import { useUser, useAuth } from '@clerk/nextjs'
 import { Milestones } from '@/components/milestones'
 import { updateCharacterStat, getCharacterStats, addToCharacterStatSync } from '@/lib/character-stats-manager'
 import { toast } from '@/components/ui/use-toast'
-import CardWithProgress from '@/components/quest-card'
+import QuestCard from '@/components/quest-card'
 import React from 'react'
 import { SignedIn, SignedOut, SignIn } from '@clerk/nextjs'
 
@@ -23,6 +23,7 @@ import { StreakRecovery } from '@/components/streak-recovery';
 import { FullPageLoading, DataLoadingState } from '@/components/ui/loading-states';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { gainExperience } from '@/lib/experience-manager'
+import { MobileLayoutWrapper, MobileScrollContainer, MobileContentWrapper } from '@/components/mobile-layout-wrapper'
 
 interface Quest {
   id: string;
@@ -1399,9 +1400,10 @@ export default function QuestsPage() {
         defaultBgColor="bg-amber-900"
         shouldRevealImage={true}
       />
-      <div className="p-4 md:p-8 quests-page-container scroll-prevent" style={{ overscrollBehavior: 'none' }}>
-        {error && <p className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{error}</p>}
-        <Tabs value={mainTab} onValueChange={v => setMainTab(v as 'quests' | 'challenges' | 'milestones' | 'recovery')} className="space-y-4">
+      <MobileLayoutWrapper className="quests-page-container">
+        <MobileContentWrapper>
+          {error && <p className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{error}</p>}
+          <Tabs value={mainTab} onValueChange={v => setMainTab(v as 'quests' | 'challenges' | 'milestones' | 'recovery')} className="space-y-4">
           <TabsList className="mb-4 w-full grid grid-cols-4">
             <TabsTrigger value="quests">Tasks</TabsTrigger>
             <TabsTrigger value="challenges">Challenges</TabsTrigger>
@@ -1642,20 +1644,21 @@ export default function QuestsPage() {
                     : 'text-amber-500 border-amber-800';
                   // console.log('[Quests Debug] rendering quest:', quest.name, 'completed:', quest.completed);
                   return (
-                    <CardWithProgress
+                    <QuestCard
                       key={quest.id}
                       title={quest.name || quest.title || 'Untitled Quest'}
                       description={quest.description}
-                      icon={React.createElement(getCategoryIcon(quest.category))}
-                      completed={quest.completed}
-                      onToggle={() => handleQuestToggle(quest.id, quest.completed)}
-                      onEdit={() => handleEditQuest(quest)}
-                      onDelete={() => handleDeleteQuest(quest.id)}
-                      onFavorite={() => handleQuestFavorite(quest.id)}
-                      isFavorited={favoritedQuests.has(quest.id)}
+                      category={quest.category}
+                      difficulty="medium"
                       progress={quest.completed ? 100 : 5}
-                      xp={quest.xp ?? 0}
-                      gold={quest.gold ?? 0}
+                      maxProgress={100}
+                      reward={{
+                        experience: quest.xp ?? 0,
+                        gold: quest.gold ?? 0
+                      }}
+                      status={quest.completed ? 'completed' : 'not-started'}
+                      onClick={() => handleQuestToggle(quest.id, quest.completed)}
+                      onComplete={() => handleQuestToggle(quest.id, quest.completed)}
                     />
                   );
                 })}
@@ -1887,35 +1890,21 @@ export default function QuestsPage() {
                 {challenges.filter(c => c.category === challengeCategory).map((challenge) => {
                   // Remove streakBonus/gainGold/toast logic from here
                   return (
-                    <CardWithProgress
+                    <QuestCard
                       key={challenge.id}
                       title={challenge.name}
                       description={challenge.description || challenge.instructions || ''}
-                      icon={React.createElement(getCategoryIcon(challenge.category))}
-                      completed={challenge.completed}
-                      onToggle={() => handleChallengeToggle(challenge.id, challenge.completed)}
-                      onEdit={() => {
-                        setEditCustomChallengeIdx(challenges.findIndex(c => c.id === challenge.id));
-                        setEditCustomChallengeData(challenge);
-                      }}
-                      onDelete={() => {
-                        console.log('Deleting challenge:', challenge.id);
-                        console.log('Current challenges before delete:', challenges.length);
-                        
-                        setChallenges(prev => {
-                          const filtered = prev.filter(c => c.id !== challenge.id);
-                          console.log('Challenges after delete:', filtered.length);
-                          return filtered;
-                        });
-                        
-                        toast({
-                          title: 'Success',
-                          description: 'Challenge deleted successfully!',
-                        });
-                      }}
+                      category={challenge.category}
+                      difficulty="medium"
                       progress={challenge.completed ? 100 : 5}
-                      xp={challenge.xp ?? 0}
-                      gold={challenge.gold ?? 0}
+                      maxProgress={100}
+                      reward={{
+                        experience: challenge.xp ?? 0,
+                        gold: challenge.gold ?? 0
+                      }}
+                      status={challenge.completed ? 'completed' : 'not-started'}
+                      onClick={() => handleChallengeToggle(challenge.id, challenge.completed)}
+                      onComplete={() => handleChallengeToggle(challenge.id, challenge.completed)}
                     />
                   );
                 })}
@@ -2001,7 +1990,8 @@ export default function QuestsPage() {
             )}
           </TabsContent>
         </Tabs>
-      </div>
+        </MobileContentWrapper>
+      </MobileLayoutWrapper>
       {/* Bottom spacing */}
       <div className="h-8 md:h-12"></div>
       {/* Edit Quest Modal (simple version) */}

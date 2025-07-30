@@ -43,8 +43,10 @@ const fontLibreBaskerville = Libre_Baskerville({
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  maximumScale: 5,
+  minimumScale: 0.5,
+  userScalable: true,
+  viewportFit: "cover",
 }
 
 export const metadata: Metadata = {
@@ -72,22 +74,16 @@ export default function RootLayout({
       signInFallbackRedirectUrl="/kingdom"
       signUpFallbackRedirectUrl="/kingdom"
     >
-      <html lang="en" suppressHydrationWarning style={{
-        backgroundImage: "url('/images/backgroundi.png'), linear-gradient(135deg, #000000, #000000)",
-        backgroundSize: "cover, cover",
-        backgroundPosition: "center, center",
-        backgroundRepeat: "no-repeat, no-repeat",
-        backgroundAttachment: "fixed, fixed",
-        minHeight: "100vh"
-      }}>
+      <html lang="en" suppressHydrationWarning className="h-full">
         <head>
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
-          <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
           <meta name="theme-color" content="#000000" />
+          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, minimum-scale=0.5, user-scalable=yes, viewport-fit=cover" />
         </head>
         <body className={cn(
-          "min-h-screen font-sans antialiased",
+          "h-full font-sans antialiased bg-black text-white",
           fontSans.variable,
           fontGloock.variable,
           fontLibreBaskerville.variable
@@ -99,30 +95,19 @@ export default function RootLayout({
               enableSystem
             >
               <GradientProvider>
-                <Providers>
-                  <AuthContent>
-                    <AuthGate>
-                      <TitleEvolutionProvider>
-                        <div className="main-content-wrapper" style={{ overscrollBehavior: 'none' }}>
+                <TitleEvolutionProvider>
+                  <Providers>
+                    <div className="flex flex-col h-full">
+                      <AuthGate>
+                        <main className="flex-1 relative">
                           {children}
-                        </div>
-                      </TitleEvolutionProvider>
-                    </AuthGate>
-                    <Toaster />
-                    <SonnerToaster 
-                      position="bottom-center"
-                      toastOptions={{
-                        style: {
-                          background: '#000000',
-                          color: '#fbbf24',
-                          border: '1px solid #92400e',
-                          marginBottom: 'env(safe-area-inset-bottom, 20px)',
-                        },
-                        className: 'border border-amber-900 bg-black text-amber-400',
-                      }}
-                    />
-                  </AuthContent>
-                </Providers>
+                        </main>
+                      </AuthGate>
+                      <Toaster />
+                      <SonnerToaster />
+                    </div>
+                  </Providers>
+                </TitleEvolutionProvider>
               </GradientProvider>
             </ThemeProvider>
           </GlobalErrorBoundary>

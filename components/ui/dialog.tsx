@@ -4,7 +4,7 @@ import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { colors, typography, focus, animation, lineHeights } from "@/lib/design-tokens"
+
 
 const Dialog = DialogPrimitive.Root
 
@@ -90,7 +90,7 @@ const DialogTitle = React.forwardRef<
   <DialogPrimitive.Title
     ref={ref}
     className={cn(
-      `${typography.lg} ${typography.semibold} ${lineHeights.tight} ${colors.text.primary}`,
+      "text-lg font-semibold leading-tight tracking-tight",
       className
     )}
     {...props}
@@ -104,7 +104,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn(`${typography.sm} ${colors.text.secondary}`, className)}
+    className={cn("text-sm text-muted-foreground", className)}
     {...props}
   />
 ))
