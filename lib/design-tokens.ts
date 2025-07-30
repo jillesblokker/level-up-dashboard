@@ -1,291 +1,300 @@
-// Design Token System
-// This file contains all design tokens for consistent styling across the application
-
-export const typography = {
-  // Font Sizes (8pt scale)
-  xs: 'text-xs',      // 12px
-  sm: 'text-sm',      // 14px
-  base: 'text-base',  // 16px
-  lg: 'text-lg',      // 18px
-  xl: 'text-xl',      // 20px
-  '2xl': 'text-2xl',  // 24px
-  '3xl': 'text-3xl',  // 30px
-  '4xl': 'text-4xl',  // 36px
-  '5xl': 'text-5xl',  // 48px
-  '6xl': 'text-6xl',  // 60px
-
-  // Font Weights
-  thin: 'font-thin',        // 100
-  extralight: 'font-extralight', // 200
-  light: 'font-light',      // 300
-  normal: 'font-normal',    // 400
-  medium: 'font-medium',    // 500
-  semibold: 'font-semibold', // 600
-  bold: 'font-bold',        // 700
-  extrabold: 'font-extrabold', // 800
-  black: 'font-black',      // 900
-
-  // Font Families
-  sans: 'font-sans',
-  serif: 'font-serif',
-  mono: 'font-mono',
-} as const
-
-export const lineHeights = {
-  none: 'leading-none',     // 1
-  tight: 'leading-tight',   // 1.25
-  snug: 'leading-snug',     // 1.375
-  normal: 'leading-normal', // 1.5
-  relaxed: 'leading-relaxed', // 1.625
-  loose: 'leading-loose',   // 2
-} as const
-
-export const letterSpacing = {
-  tighter: 'tracking-tighter',
-  tight: 'tracking-tight',
-  normal: 'tracking-normal',
-  wide: 'tracking-wide',
-  wider: 'tracking-wider',
-  widest: 'tracking-widest',
-} as const
+// Enhanced Design Tokens for Medieval Theme
+export const colors = {
+  // Primary Amber Theme
+  amber: {
+    50: '#fffbeb',
+    100: '#fef3c7',
+    200: '#fde68a',
+    300: '#fcd34d',
+    400: '#fbbf24',
+    500: '#f59e0b', // Primary
+    600: '#d97706',
+    700: '#b45309',
+    800: '#92400e',
+    900: '#78350f',
+    950: '#451a03'
+  },
+  
+  // Medieval Gold
+  gold: {
+    50: '#fefce8',
+    100: '#fef9c3',
+    200: '#fef08a',
+    300: '#fde047',
+    400: '#facc15',
+    500: '#eab308',
+    600: '#ca8a04',
+    700: '#a16207',
+    800: '#854d0e',
+    900: '#713f12',
+    950: '#422006'
+  },
+  
+  // Dark Theme Colors
+  gray: {
+    50: '#f9fafb',
+    100: '#f3f4f6',
+    200: '#e5e7eb',
+    300: '#d1d5db',
+    400: '#9ca3af',
+    500: '#6b7280',
+    600: '#4b5563',
+    700: '#374151',
+    800: '#1f2937',
+    900: '#111827',
+    950: '#030712'
+  },
+  
+  // Status Colors
+  success: {
+    50: '#f0fdf4',
+    100: '#dcfce7',
+    200: '#bbf7d0',
+    300: '#86efac',
+    400: '#4ade80',
+    500: '#22c55e',
+    600: '#16a34a',
+    700: '#15803d',
+    800: '#166534',
+    900: '#14532d',
+    950: '#052e16'
+  },
+  
+  warning: {
+    50: '#fffbeb',
+    100: '#fef3c7',
+    200: '#fde68a',
+    300: '#fcd34d',
+    400: '#fbbf24',
+    500: '#f59e0b',
+    600: '#d97706',
+    700: '#b45309',
+    800: '#92400e',
+    900: '#78350f',
+    950: '#451a03'
+  },
+  
+  error: {
+    50: '#fef2f2',
+    100: '#fee2e2',
+    200: '#fecaca',
+    300: '#fca5a5',
+    400: '#f87171',
+    500: '#ef4444',
+    600: '#dc2626',
+    700: '#b91c1c',
+    800: '#991b1b',
+    900: '#7f1d1d',
+    950: '#450a0a'
+  },
+  
+  // Medieval Accent Colors
+  medieval: {
+    red: '#8b0000',
+    darkRed: '#4d0000',
+    navy: '#000080',
+    darkNavy: '#000040',
+    forest: '#228b22',
+    darkForest: '#006400',
+    stone: '#696969',
+    darkStone: '#2f4f4f',
+    parchment: '#f5f5dc',
+    darkParchment: '#deb887'
+  }
+}
 
 export const spacing = {
-  // Spacing Scale (4px base)
-  0: '0',
-  1: '1px',
-  2: '2px',
-  3: '3px',
-  4: '4px',
-  5: '5px',
-  6: '6px',
-  8: '8px',
-  10: '10px',
-  12: '12px',
-  16: '16px',
-  20: '20px',
-  24: '24px',
-  32: '32px',
-  40: '40px',
-  48: '48px',
-  56: '56px',
-  64: '64px',
-  80: '80px',
-  96: '96px',
-  128: '128px',
-} as const
-
-export const colors = {
-  // Semantic Colors
-  success: {
-    light: 'text-emerald-400',
-    default: 'text-emerald-500',
-    dark: 'text-emerald-600',
-    bg: 'bg-emerald-500',
-    border: 'border-emerald-500',
-    bgLight: 'bg-emerald-500/10',
-    bgDark: 'bg-emerald-600',
-  },
-  warning: {
-    light: 'text-amber-400',
-    default: 'text-amber-500',
-    dark: 'text-amber-600',
-    bg: 'bg-amber-500',
-    border: 'border-amber-500',
-    bgLight: 'bg-amber-500/10',
-    bgDark: 'bg-amber-600',
-  },
-  error: {
-    light: 'text-red-400',
-    default: 'text-red-500',
-    dark: 'text-red-600',
-    bg: 'bg-red-500',
-    border: 'border-red-500',
-    bgLight: 'bg-red-500/10',
-    bgDark: 'bg-red-600',
-  },
-  info: {
-    light: 'text-blue-400',
-    default: 'text-blue-500',
-    dark: 'text-blue-600',
-    bg: 'bg-blue-500',
-    border: 'border-blue-500',
-    bgLight: 'bg-blue-500/10',
-    bgDark: 'bg-blue-600',
-  },
-
-  // Theme Colors (Amber Theme)
-  primary: {
-    light: 'text-amber-400',
-    default: 'text-amber-500',
-    dark: 'text-amber-600',
-    bg: 'bg-amber-500',
-    border: 'border-amber-500',
-    bgLight: 'bg-amber-500/10',
-    bgDark: 'bg-amber-600',
-    bgTransparent: 'bg-amber-500/20',
-  },
-  secondary: {
-    light: 'text-gray-300',
-    default: 'text-gray-400',
-    dark: 'text-gray-500',
-    bg: 'bg-gray-900/50',
-    border: 'border-amber-800/20',
-    bgLight: 'bg-gray-800/50',
-    bgDark: 'bg-gray-700/50',
-    bgTransparent: 'bg-gray-900/20',
-  },
-  background: {
-    primary: 'bg-black',
-    secondary: 'bg-gray-900',
-    card: 'bg-[var(--card-background)]',
-    overlay: 'bg-black/50',
-    backdrop: 'bg-gray-900/90',
-  },
-  text: {
-    primary: 'text-white',
-    secondary: 'text-gray-400',
-    muted: 'text-gray-500',
-    inverse: 'text-black',
-  },
-  border: {
-    primary: 'border-amber-800/20',
-    secondary: 'border-gray-800',
-    focus: 'border-amber-500',
-    error: 'border-red-500',
-  },
-} as const
-
-export const animation = {
-  // Duration
-  fast: 'duration-75',
-  normal: 'duration-200',
-  slow: 'duration-300',
-  slower: 'duration-500',
-  
-  // Easing
-  ease: 'ease-in-out',
-  linear: 'ease-linear',
-  in: 'ease-in',
-  out: 'ease-out',
-  
-  // Transitions
-  all: 'transition-all',
-  colors: 'transition-colors',
-  transform: 'transition-transform',
-  opacity: 'transition-opacity',
-  
-  // Animations
-  fadeIn: 'animate-in fade-in-0',
-  fadeOut: 'animate-out fade-out-0',
-  slideIn: 'animate-in slide-in-from-bottom-2',
-  slideOut: 'animate-out slide-out-to-bottom-2',
-  scaleIn: 'animate-in zoom-in-95',
-  scaleOut: 'animate-out zoom-out-95',
-} as const
-
-export const shadows = {
-  none: 'shadow-none',
-  sm: 'shadow-sm',
-  default: 'shadow',
-  md: 'shadow-md',
-  lg: 'shadow-lg',
-  xl: 'shadow-xl',
-  '2xl': 'shadow-2xl',
-  inner: 'shadow-inner',
-  amber: 'shadow-amber-800/10',
-  amberLg: 'shadow-amber-800/20',
-} as const
+  xs: '0.25rem',
+  sm: '0.5rem',
+  md: '1rem',
+  lg: '1.5rem',
+  xl: '2rem',
+  '2xl': '3rem',
+  '3xl': '4rem',
+  '4xl': '6rem',
+  '5xl': '8rem'
+}
 
 export const borderRadius = {
-  none: 'rounded-none',
-  sm: 'rounded-sm',
-  default: 'rounded',
-  md: 'rounded-md',
-  lg: 'rounded-lg',
-  xl: 'rounded-xl',
-  '2xl': 'rounded-2xl',
-  '3xl': 'rounded-3xl',
-  full: 'rounded-full',
-} as const
-
-export const focus = {
-  ring: 'focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2',
-  outline: 'focus-visible:outline-none',
-  default: 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2',
-} as const
-
-export const hover = {
-  scale: 'hover:scale-105',
-  scaleSm: 'hover:scale-102',
-  lift: 'hover:-translate-y-1',
-  glow: 'hover:shadow-amber-800/20',
-} as const
-
-// Type definitions for typography parameters
-type TypographySize = 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl'
-type TypographyWeight = 'thin' | 'extralight' | 'light' | 'normal' | 'medium' | 'semibold' | 'bold' | 'extrabold' | 'black'
-type TypographyFamily = 'sans' | 'serif' | 'mono'
-type LineHeight = keyof typeof lineHeights
-type LetterSpacing = keyof typeof letterSpacing
-
-// Utility Functions
-export const createTypographyClass = (
-  size: TypographySize,
-  weight: TypographyWeight = 'normal',
-  family: TypographyFamily = 'sans',
-  lineHeight?: LineHeight,
-  letterSpacingValue?: LetterSpacing
-) => {
-  const classes: string[] = [typography[size], typography[weight], typography[family]]
-  if (lineHeight) classes.push(lineHeights[lineHeight])
-  if (letterSpacingValue) classes.push(letterSpacing[letterSpacingValue])
-  return classes.join(' ')
+  none: '0',
+  sm: '0.125rem',
+  md: '0.375rem',
+  lg: '0.5rem',
+  xl: '0.75rem',
+  '2xl': '1rem',
+  '3xl': '1.5rem',
+  full: '9999px'
 }
 
-export const createSpacingClass = (value: keyof typeof spacing) => {
-  return spacing[value]
+export const shadows = {
+  sm: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+  md: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+  lg: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+  xl: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+  '2xl': '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+  amber: '0 0 20px rgba(245, 158, 11, 0.3)',
+  glow: '0 0 30px rgba(245, 158, 11, 0.2)',
+  inner: 'inset 0 2px 4px 0 rgb(0 0 0 / 0.05)'
 }
 
-export const createColorClass = (
-  type: keyof typeof colors,
-  variant: string = 'default'
-) => {
-  const colorObj = colors[type] as any
-  return colorObj[variant] || colorObj.default
-}
-
-export const createAnimationClass = (
-  duration: keyof typeof animation = 'normal',
-  property: keyof typeof animation = 'colors'
-) => {
-  return `${animation[property]} ${animation[duration]}`
-}
-
-// Component-specific utilities
-export const buttonStyles = {
-  base: 'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none',
-  variants: {
-    primary: 'bg-amber-500 text-black hover:bg-amber-600 focus-visible:ring-amber-500',
-    secondary: 'bg-gray-900/50 text-white border border-amber-800/20 hover:bg-gray-800/50',
-    outline: 'border border-amber-800/20 bg-transparent hover:bg-amber-900/20 hover:text-amber-400',
-    ghost: 'hover:bg-amber-900/20 hover:text-amber-400',
-    destructive: 'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500',
+export const typography = {
+  fontFamily: {
+    serif: 'var(--font-cardo), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif',
+    sans: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    mono: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace'
   },
-  sizes: {
-    sm: 'h-9 px-3',
-    default: 'h-10 px-4 py-2',
-    lg: 'h-11 px-8',
-    icon: 'h-10 w-10',
+  
+  fontSize: {
+    xs: '0.75rem',
+    sm: '0.875rem',
+    base: '1rem',
+    lg: '1.125rem',
+    xl: '1.25rem',
+    '2xl': '1.5rem',
+    '3xl': '1.875rem',
+    '4xl': '2.25rem',
+    '5xl': '3rem',
+    '6xl': '3.75rem'
   },
-} as const
+  
+  fontWeight: {
+    thin: '100',
+    extralight: '200',
+    light: '300',
+    normal: '400',
+    medium: '500',
+    semibold: '600',
+    bold: '700',
+    extrabold: '800',
+    black: '900'
+  },
+  
+  lineHeight: {
+    none: '1',
+    tight: '1.25',
+    snug: '1.375',
+    normal: '1.5',
+    relaxed: '1.625',
+    loose: '2'
+  }
+}
 
-export const cardStyles = {
-  base: 'rounded-lg border border-amber-800/20 bg-[var(--card-background)] shadow-sm transition-all duration-200',
-  hover: 'hover:shadow-amber-800/10 hover:border-amber-800/30',
-  interactive: 'cursor-pointer hover:shadow-amber-800/10 hover:border-amber-800/30 hover:scale-[1.02]',
-} as const
+export const animation = {
+  duration: {
+    fast: '150ms',
+    normal: '300ms',
+    slow: '500ms',
+    slower: '700ms',
+    slowest: '1000ms'
+  },
+  
+  easing: {
+    linear: 'linear',
+    ease: 'ease',
+    easeIn: 'ease-in',
+    easeOut: 'ease-out',
+    easeInOut: 'ease-in-out',
+    cubic: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    bounce: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)'
+  },
+  
+  keyframes: {
+    fadeIn: '@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }',
+    fadeOut: '@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }',
+    slideInUp: '@keyframes slideInUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }',
+    slideInDown: '@keyframes slideInDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }',
+    slideInLeft: '@keyframes slideInLeft { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }',
+    slideInRight: '@keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }',
+    scaleIn: '@keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }',
+    pulse: '@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }',
+    bounce: '@keyframes bounce { 0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); } 40%, 43% { transform: translate3d(0, -30px, 0); } 70% { transform: translate3d(0, -15px, 0); } 90% { transform: translate3d(0, -4px, 0); } }',
+    spin: '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }',
+    shimmer: '@keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }',
+    glow: '@keyframes glow { 0%, 100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.5); } 50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.8); } }'
+  }
+}
 
-export const inputStyles = {
-  base: 'flex h-10 w-full rounded-md border border-amber-800/20 bg-gray-900/50 px-3 py-2 text-sm ring-offset-background placeholder:text-gray-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 text-white',
-  focus: 'focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2',
-} as const 
+export const breakpoints = {
+  sm: '640px',
+  md: '768px',
+  lg: '1024px',
+  xl: '1280px',
+  '2xl': '1536px'
+}
+
+export const zIndex = {
+  hide: -1,
+  auto: 'auto',
+  base: 0,
+  docked: 10,
+  dropdown: 1000,
+  sticky: 1100,
+  banner: 1200,
+  overlay: 1300,
+  modal: 1400,
+  popover: 1500,
+  skipLink: 1600,
+  toast: 1700,
+  tooltip: 1800
+}
+
+// Utility functions
+export function createTypographyClass(fontSize: keyof typeof typography.fontSize, fontWeight: keyof typeof typography.fontWeight = 'normal') {
+  return `${typography.fontSize[fontSize]} ${typography.fontWeight[fontWeight]}`
+}
+
+export function createSpacingClass(size: keyof typeof spacing) {
+  return spacing[size]
+}
+
+export function createColorClass(color: string, shade?: string) {
+  return shade ? `${color}-${shade}` : color
+}
+
+export function createShadowClass(shadow: keyof typeof shadows) {
+  return shadows[shadow]
+}
+
+export function createAnimationClass(name: string, duration: keyof typeof animation.duration = 'normal', easing: keyof typeof animation.easing = 'ease') {
+  return `${name} ${animation.duration[duration]} ${animation.easing[easing]}`
+}
+
+// Theme configuration
+export const theme = {
+  colors,
+  spacing,
+  borderRadius,
+  shadows,
+  typography,
+  animation,
+  breakpoints,
+  zIndex
+}
+
+// CSS Custom Properties
+export const cssVariables = {
+  '--color-primary': colors.amber[500],
+  '--color-primary-dark': colors.amber[600],
+  '--color-primary-light': colors.amber[400],
+  '--color-background': colors.gray[900],
+  '--color-surface': colors.gray[800],
+  '--color-text': colors.gray[100],
+  '--color-text-secondary': colors.gray[400],
+  '--color-border': colors.amber[800],
+  '--color-border-light': colors.amber[800] + '33',
+  '--shadow-card': shadows.lg,
+  '--shadow-elevated': shadows.xl,
+  '--shadow-glow': shadows.amber,
+  '--border-radius': borderRadius.lg,
+  '--font-family': typography.fontFamily.serif,
+  '--font-size-base': typography.fontSize.base,
+  '--font-weight-normal': typography.fontWeight.normal,
+  '--font-weight-bold': typography.fontWeight.bold,
+  '--transition-normal': `${animation.duration.normal} ${animation.easing.cubic}`,
+  '--z-dropdown': zIndex.dropdown,
+  '--z-modal': zIndex.modal,
+  '--z-toast': zIndex.toast
+}
+
+// Export everything
+export default theme 

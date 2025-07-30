@@ -15,6 +15,14 @@ import {
   Compass,
   Palette,
   ChevronDown,
+  Home,
+  Settings,
+  BarChart3,
+  BookOpen,
+  Sword,
+  Shield,
+  Heart,
+  Zap,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -94,176 +102,199 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
   }, [])
   
   const mainNavItems = [
-    { href: "/kingdom", label: "Kingdom", icon: Crown },
-    { href: "/quests", label: "Tasks", icon: Compass },
-    { href: "/realm", label: "Realm", icon: MapIcon },
-    { href: "/achievements", label: "Achievements", icon: Trophy },
-    { href: "/character", label: "Character", icon: User },
+    { href: "/kingdom", label: "Kingdom", icon: Crown, description: "Manage your realm" },
+    { href: "/quests", label: "Tasks", icon: Compass, description: "Complete challenges" },
+    { href: "/realm", label: "Realm", icon: MapIcon, description: "Explore the world" },
+    { href: "/achievements", label: "Achievements", icon: Trophy, description: "Track progress" },
+    { href: "/inventory", label: "Inventory", icon: Building, description: "Manage items" },
+    { href: "/character", label: "Character", icon: User, description: "View stats" },
+    { href: "/market", label: "Market", icon: Palette, description: "Trade items" },
+    { href: "/dungeon", label: "Dungeon", icon: Sword, description: "Battle monsters" },
   ]
 
-  const accountItems = [
-    { href: "/profile", label: "Profile", icon: User },
-    { href: "/requirements", label: "Requirements", icon: ClipboardCheck },
-    { href: "/design-system", label: "Design System", icon: Palette },
-  ]
-  
   const isActive = (path: string) => pathname === path
-  
+
+  const levelProgress = calculateLevelProgress(characterStats.experience)
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-black border-b border-gray-800 h-16 flex items-center justify-between px-2 fixed-nav">
-      {/* Mobile nav bar: logo, hamburger */}
-      <div className="flex flex-1 items-center justify-between gap-2 w-full">
-        {/* Logo (left) */}
-        <div className="flex items-center">
-          <Link href="/kingdom" aria-label="Go to Kingdom (Home)">
-            <Logo variant="icon" size="md" />
-          </Link>
-        </div>
-        {/* Centered Thrivehaven title */}
-        <div className="flex-1 flex justify-center items-center">
-          <span className="text-2xl font-bold text-amber-400 tracking-wide">Thrivehaven</span>
-        </div>
-        {/* Hamburger menu (right) */}
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-10 w-10 p-0"
-              aria-label="Open menu"
-            >
-              <Menu className="h-6 w-6 text-amber-400" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent 
-            side="right" 
-            className="w-full max-w-[90vw] sm:max-w-[320px] p-2 bg-gray-900 border-gray-800"
-            aria-modal="true"
-            aria-label="main-menu-sheet"
+    <div className="lg:hidden">
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetTrigger asChild>
+          <Button
+            variant="ghost"
+            className="relative h-10 w-10 rounded-lg border border-amber-800/20 bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-sm hover:border-amber-500/40 transition-all duration-300"
+            aria-label="Open navigation menu"
           >
-            <div className="flex flex-col h-full">
-              {/* Stats section - same as desktop */}
-              <div className="flex items-center space-x-4 py-4 border-b border-gray-800">
-                <div className="flex items-center space-x-2">
-                  <div className="text-sm font-medium text-gray-400">
-                    Level {characterStats.level}
+            <Menu className="h-5 w-5 text-amber-500" />
+            <div className="absolute -top-1 -right-1 h-3 w-3 bg-amber-500 rounded-full animate-pulse" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent 
+          side="left" 
+          className="w-[300px] sm:w-[400px] bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl border-r border-amber-800/20"
+        >
+          <div className="flex flex-col h-full">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-amber-800/20">
+              <Logo />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setOpen(false)}
+                className="h-8 w-8 p-0 text-amber-500 hover:text-amber-400 hover:bg-amber-500/10"
+                aria-label="Close navigation menu"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Character Stats */}
+            <div className="p-4 border-b border-amber-800/20 bg-gradient-to-r from-amber-900/10 to-transparent">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full flex items-center justify-center">
+                    <span className="text-xs font-bold text-black">{characterStats.level}</span>
                   </div>
-                  <Progress value={calculateLevelProgress(characterStats.experience)} className="w-24 h-2" />
-                  <div className="flex items-center space-x-1">
-                    <Coins className="h-4 w-4 text-amber-400" />
-                    <span className="text-sm font-medium text-gray-100">{characterStats.gold}</span>
+                  <div>
+                    <p className="text-sm font-medium text-white">Level {characterStats.level}</p>
+                    <p className="text-xs text-amber-400">{characterStats.experience} / {characterStats.experienceToNextLevel} XP</p>
                   </div>
+                </div>
+                <div className="flex items-center gap-1 text-amber-500">
+                  <Coins className="h-4 w-4" />
+                  <span className="text-sm font-medium">{characterStats.gold}</span>
                 </div>
               </div>
-              {/* Notifications section */}
-              <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-800">
-                <span className="text-amber-400"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg></span>
-                <span className="font-semibold text-white">Notifications</span>
-                {/* NotificationCenter with badge */}
-                <div className="ml-auto">
-                  {/* @ts-ignore-next-line */}
-                  {typeof window !== 'undefined' && require('@/components/notification-center').NotificationCenter && (
-                    require('@/components/notification-center').NotificationCenter()
-                  )}
-                </div>
-              </div>
-              {/* Tabs Dropdown (if tabs are provided) */}
-              {tabs && tabs.length > 0 && (
-                <div className="px-4 py-2 border-b border-gray-800">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="w-full flex justify-between items-center">
-                        {tabs.find(tab => tab.value === activeTab)?.label || "Select"}
-                        <ChevronDown className="h-4 w-4 ml-2" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-full">
-                      {tabs.map((tab) => (
-                        <DropdownMenuItem
-                          key={tab.value}
-                          onClick={() => onTabChange?.(tab.value)}
-                          className={cn(
-                            activeTab === tab.value && "bg-accent"
-                          )}
-                        >
-                          {tab.label}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              )}
-              {/* Main Navigation */}
-              <div className="py-2">
-                <div className="px-6 py-2">
-                  <h2 className="text-sm font-semibold text-gray-400">Navigation</h2>
-                </div>
-                {mainNavItems.map((item) => (
+              <Progress value={levelProgress} className="h-2 bg-gray-700" />
+            </div>
+
+            {/* Navigation Items */}
+            <nav className="flex-1 p-4 space-y-2">
+              {mainNavItems.map((item) => {
+                const Icon = item.icon
+                return (
                   <Link
                     key={item.href}
                     href={item.href}
                     onClick={() => setOpen(false)}
                     className={cn(
-                      "flex items-center gap-3 px-6 py-4 text-gray-400 hover:bg-gray-800/50 hover:text-amber-400 hover:border-b-2 hover:border-amber-400 transition-all duration-200 border-b border-gray-800 font-semibold",
-                      isActive(item.href) && "text-amber-400 bg-gray-800/50 border-b-2 border-amber-400"
+                      "flex items-center gap-3 p-3 rounded-lg transition-all duration-300 group",
+                      isActive(item.href)
+                        ? "bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-500/30 text-amber-400"
+                        : "text-gray-300 hover:text-amber-400 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20"
                     )}
+                    aria-label={`Navigate to ${item.label}`}
                   >
-                    <item.icon className="h-5 w-5" />
-                    <span className="font-cardo">{item.label}</span>
+                    <div className={cn(
+                      "p-2 rounded-md transition-all duration-300",
+                      isActive(item.href)
+                        ? "bg-amber-500/20 text-amber-400"
+                        : "bg-gray-800/50 text-gray-400 group-hover:bg-amber-500/20 group-hover:text-amber-400"
+                    )}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium">{item.label}</p>
+                      <p className="text-xs text-gray-500 group-hover:text-gray-400">{item.description}</p>
+                    </div>
+                    {isActive(item.href) && (
+                      <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+                    )}
                   </Link>
-                ))}
-              </div>
-              {/* Account Settings - Expandable Section */}
-              <div className="py-2">
-                <ExpandableAccountSettings />
+                )
+              })}
+            </nav>
+
+            {/* Quick Stats */}
+            <div className="p-4 border-t border-amber-800/20 bg-gradient-to-r from-gray-800/50 to-transparent">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-800/50 border border-gray-700/50">
+                  <Shield className="h-4 w-4 text-blue-400" />
+                  <div>
+                    <p className="text-xs text-gray-400">Titles</p>
+                    <p className="text-sm font-medium text-white">{characterStats.titles.unlocked}/{characterStats.titles.total}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-800/50 border border-gray-700/50">
+                  <Zap className="h-4 w-4 text-yellow-400" />
+                  <div>
+                    <p className="text-xs text-gray-400">Perks</p>
+                    <p className="text-sm font-medium text-white">{characterStats.perks.active}/{characterStats.perks.total}</p>
+                  </div>
+                </div>
               </div>
             </div>
-          </SheetContent>
-        </Sheet>
-      </div>
-    </nav>
-  )
-} 
 
-// ExpandableAccountSettings component
+            {/* Account Section */}
+            <div className="p-4 border-t border-amber-800/20">
+              <ExpandableAccountSettings />
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+    </div>
+  )
+}
+
 function ExpandableAccountSettings() {
-  const [expanded, setExpanded] = useState(false);
-  const { user, isLoaded } = useUser();
+  const { user } = useUser();
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const getAvatarInitial = () => {
-    const name = (user?.unsafeMetadata?.['user_name'] as string) || user?.username || user?.emailAddresses?.[0]?.emailAddress || '';
-    return name && typeof name === 'string' ? name.charAt(0).toUpperCase() : 'U';
+    const displayName = (user?.unsafeMetadata?.['user_name'] as string) || user?.username || user?.emailAddresses?.[0]?.emailAddress || "";
+    return displayName?.[0]?.toUpperCase() || '?';
   };
+
+  const accountMenuItems = [
+    { href: "/account/profile", label: "Profile", icon: User, description: "Manage your profile" },
+    { href: "/account/monitoring", label: "Monitoring", icon: BarChart3, description: "View performance metrics" },
+    { href: "/account/stored-data", label: "Stored Data", icon: BookOpen, description: "Manage local data" },
+    { href: "/settings", label: "Settings", icon: Settings, description: "App preferences" },
+  ];
+
   return (
-    <div>
+    <div className="space-y-2">
       <button
-        className="flex items-center gap-3 px-6 py-4 w-full text-left text-white font-semibold focus:outline-none"
-        onClick={() => setExpanded((v) => !v)}
-        // eslint-disable-next-line jsx-a11y/aria-proptypes
-        aria-expanded={expanded ? 'true' : 'false'}
-        aria-controls="account-settings-panel"
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="flex items-center justify-between w-full p-3 rounded-lg bg-gradient-to-r from-gray-800/50 to-gray-700/50 border border-gray-700/50 hover:border-amber-500/30 transition-all duration-300 group"
+        aria-label="Toggle account settings"
       >
-        <div className="flex items-center">
-          <img
-            src={user?.imageUrl || ''}
-            alt="avatar"
-            className="h-8 w-8 rounded-full object-cover object-center border border-amber-400"
-            onError={(e) => { (e.target as HTMLImageElement).src = ''; }}
-          />
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full flex items-center justify-center">
+            <span className="text-sm font-bold text-black">{getAvatarInitial()}</span>
+          </div>
+          <div className="text-left">
+            <p className="text-sm font-medium text-white">Account</p>
+            <p className="text-xs text-gray-400">Manage your settings</p>
+          </div>
         </div>
-        <span>Account settings</span>
-        <ChevronDown className={`ml-auto transition-transform ${expanded ? 'rotate-180' : ''}`} />
+        <ChevronDown 
+          className={cn(
+            "h-4 w-4 text-gray-400 transition-transform duration-300",
+            isExpanded && "rotate-180"
+          )} 
+        />
       </button>
-      {expanded && (
-        <div id="account-settings-panel" className="bg-gray-800 rounded-b-md px-6 py-4 space-y-2">
-          <div className="font-medium text-white">{String(user?.unsafeMetadata?.['user_name'] || user?.username || user?.emailAddresses?.[0]?.emailAddress || '')}</div>
-          <div className="text-xs text-gray-400 mb-2">{String(user?.emailAddresses?.[0]?.emailAddress || '')}</div>
-          <Link href="/profile" className="block py-2 text-gray-200 hover:text-amber-400 hover:border-b-2 hover:border-amber-400 transition-all duration-200 font-semibold">Profile</Link>
-          <Link href="/requirements" className="block py-2 text-gray-200 hover:text-amber-400 hover:border-b-2 hover:border-amber-400 transition-all duration-200 font-semibold">Requirements</Link>
-          <Link href="/design-system" className="block py-2 text-gray-200 hover:text-amber-400 hover:border-b-2 hover:border-amber-400 transition-all duration-200 font-semibold">Design System</Link>
-          <Link href="/stored-data" className="block py-2 text-gray-200 hover:text-amber-400 hover:border-b-2 hover:border-amber-400 transition-all duration-200 font-semibold">Stored Data</Link>
-          <form action={require('@/app/actions/auth').logout} className="mt-2">
-            <button type="submit" className="w-full text-left text-red-400 hover:text-red-600 py-2">Log out</button>
-          </form>
+
+      {isExpanded && (
+        <div className="space-y-1 pl-4">
+          {accountMenuItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="flex items-center gap-3 p-2 rounded-lg text-gray-300 hover:text-amber-400 hover:bg-amber-500/10 transition-all duration-300 group"
+                aria-label={`Navigate to ${item.label}`}
+              >
+                <Icon className="h-4 w-4 text-gray-400 group-hover:text-amber-400" />
+                <div>
+                  <p className="text-sm font-medium">{item.label}</p>
+                  <p className="text-xs text-gray-500 group-hover:text-gray-400">{item.description}</p>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
