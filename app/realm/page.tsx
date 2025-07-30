@@ -1736,7 +1736,7 @@ export default function RealmPage() {
                         className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
                         aria-label="movement-mode-button"
                       >
-                        <Move className="w-4 h-4 text-white" />
+                        <Move className="w-4 h-4" />
                         <span className="hidden md:inline">Move</span>
                       </Button>
                       <Button

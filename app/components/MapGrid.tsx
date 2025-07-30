@@ -72,6 +72,7 @@ export function MapGrid({
 }: MapGridProps) {
     const gridRef = useRef<HTMLDivElement>(null);
     const [tileSize, setTileSize] = useState(80);
+    const [isLoading, setIsLoading] = useState(true);
 
     // Debug logging
     console.log('[MapGrid] Received grid:', grid);
@@ -114,6 +115,13 @@ export function MapGrid({
     }
   }, [tileSize, onTileSizeChange]);
 
+  // Set loading state when grid changes
+  useEffect(() => {
+    if (grid && Array.isArray(grid) && grid.length > 0) {
+      setIsLoading(false);
+    }
+  }, [grid]);
+
   const handlePan = (dx: number, dy: number) => {
     if (!gridRef.current) return;
 
@@ -139,11 +147,25 @@ export function MapGrid({
     }
   }, [playerPosition.x, playerPosition.y, tileSize]);
 
+  // Handle touch events for mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    // Prevent default to avoid zoom on double tap
+    e.preventDefault();
+  };
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e: React.KeyboardEvent, x: number, y: number) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onTileClick(x, y);
+    }
+  };
+
   // Safety check: ensure grid is an array (after all hooks)
   if (!grid || !Array.isArray(grid) || grid.length === 0) {
     return (
       <div className="relative w-full h-full overflow-hidden flex items-center justify-center" aria-label="map-container">
-        <div className="text-gray-500">Loading map...</div>
+        <div className="text-gray-500" role="status" aria-live="polite">Loading map...</div>
       </div>
     );
   }
@@ -165,10 +187,21 @@ export function MapGrid({
 
   return (
     <div className="relative w-full h-full overflow-hidden" aria-label="map-container">
+      {isLoading && (
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="text-white text-lg">Loading realm map...</div>
+        </div>
+      )}
       <div
         ref={gridRef}
         className="absolute inset-0 overflow-auto map-grid-scroll"
         aria-label="map-grid-scroll-area"
+        style={{
+          // Mobile-specific improvements
+          WebkitOverflowScrolling: 'touch', // Smooth scrolling on iOS
+          scrollBehavior: 'smooth'
+        }}
+        onTouchStart={handleTouchStart}
       >
         <div
           className="relative map-grid-container"
@@ -178,7 +211,10 @@ export function MapGrid({
             display: 'grid',
             gridTemplateColumns: grid[0] ? `repeat(${grid[0].length}, ${tileSize}px)` : 'none',
             gridTemplateRows: `repeat(${grid.length}, ${tileSize}px)`,
-            gap: '0px'
+            gap: '0px',
+            // Mobile optimization
+            minWidth: '100%',
+            minHeight: '100%'
           }}
           aria-label="map-grid-container"
           role="grid"
@@ -195,11 +231,15 @@ export function MapGrid({
                     width: `${tileSize}px`,
                     height: `${tileSize}px`,
                     gridColumn: x + 1,
-                    gridRow: y + 1
+                    gridRow: y + 1,
+                    // Mobile touch optimization
+                    touchAction: 'manipulation'
                   }}
                   onClick={() => onTileClick(x, y)}
+                  onKeyDown={(e) => handleKeyDown(e, x, y)}
                   role="gridcell"
-                  aria-label={`${tile.type} tile at position ${x},${y}`}
+                  tabIndex={0}
+                  aria-label={`${tile.type} tile at position ${x},${y}${playerPosition.x === x && playerPosition.y === y ? ' - Character is here' : ''}${tile.hasMonster ? ` - Contains ${tile.hasMonster} monster` : ''}`}
                 >
                   <Image
                     src={getTileImage(tile.type)}
@@ -208,6 +248,16 @@ export function MapGrid({
                     height={tileSize}
                     className="tile-image"
                     priority
+                    onError={(e) => {
+                      console.warn(`Failed to load tile image for ${tile.type}, using fallback`);
+                      e.currentTarget.src = '/images/tiles/empty-tile.png';
+                    }}
+                    style={{
+                      // Mobile optimization
+                      objectFit: 'cover',
+                      userSelect: 'none',
+                      WebkitUserSelect: 'none'
+                    }}
                   />
                   {playerPosition.x === x && playerPosition.y === y && (
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -218,6 +268,10 @@ export function MapGrid({
                         height={Math.floor(tileSize * 0.5)}
                         className="character-image"
                         priority
+                        onError={(e) => {
+                          console.warn('Failed to load character image, using fallback');
+                          e.currentTarget.src = '/images/character/squire.png';
+                        }}
                       />
                     </div>
                   )}
@@ -231,6 +285,10 @@ export function MapGrid({
                         height={Math.floor(tileSize * 0.6)}
                         className="monster-image"
                         priority
+                        onError={(e) => {
+                          console.warn(`Failed to load monster image for ${tile.hasMonster}`);
+                          e.currentTarget.style.display = 'none';
+                        }}
                       />
                     </div>
                   )}

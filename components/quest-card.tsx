@@ -139,14 +139,6 @@ export default function QuestCard({
               {description}
             </CardDescription>
           </div>
-          
-          {/* Category Icon */}
-          <div className={cn(
-            "flex-shrink-0 p-2 rounded-lg bg-gray-800/50 border border-gray-700/50",
-            "group-hover:bg-amber-500/20 group-hover:border-amber-500/30 transition-all duration-300"
-          )}>
-            <CategoryIcon className={cn("h-5 w-5", categoryInfo.color)} />
-          </div>
         </div>
 
         {/* Tags */}
