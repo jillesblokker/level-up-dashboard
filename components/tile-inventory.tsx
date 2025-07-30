@@ -11,6 +11,8 @@ import { TileType, InventoryItem } from "@/types/tiles"
 import { spendGold } from "@/lib/gold-manager"
 import { useState, useEffect } from "react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { addTileToInventory } from "@/lib/tile-inventory-manager"
+import { useUser } from "@clerk/nextjs"
 
 
 interface TileInventoryProps {
@@ -24,12 +26,12 @@ interface TileInventoryProps {
 }
 
 export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles, activeTab, setActiveTab, onOutOfTiles }: TileInventoryProps) {
+  const { user } = useUser();
   const [buyQuantities, setBuyQuantities] = useState<{ [key: string]: number }>({})
 
   // Polling for tile inventory changes instead of real-time sync
   useEffect(() => {
-    const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined;
-    if (!userId) return;
+    if (!user?.id) return;
     
     const pollInterval = setInterval(() => {
       // Re-fetch tile inventory and update state
@@ -42,9 +44,9 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     }, 5000); // Poll every 5 seconds
     
     return () => clearInterval(pollInterval);
-  }, [tiles, onUpdateTiles]);
+  }, [tiles, onUpdateTiles, user?.id]);
 
-  const handleBuyTile = (tile: InventoryItem, e: React.MouseEvent) => {
+  const handleBuyTile = async (tile: InventoryItem, e: React.MouseEvent) => {
     e.stopPropagation()
     
     const quantity = buyQuantities[tile.type] || 1
@@ -52,16 +54,41 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
 
     // Use the unified gold spending system
     if (spendGold(totalCost, `purchase-${quantity}-${tile.name || tile.type}-tiles`)) {
-      // Update tiles
-      const newTiles = tiles.map(item => 
-        item.type === tile.type 
-          ? { ...item, quantity: item.quantity + quantity }
-          : item
-      )
-      onUpdateTiles(newTiles)
-      
-      // Reset the quantity after purchase
-      setBuyQuantities(prev => ({ ...prev, [tile.type]: 1 }))
+      try {
+        // Get user ID from Clerk
+        if (!user?.id) {
+          console.error('No user ID found');
+          toast.error('User not authenticated');
+          return;
+        }
+
+        // Use the tile inventory manager to add tiles
+        await addTileToInventory(user.id, {
+          id: tile.id || tile.type,
+          type: tile.type as any, // Type assertion for compatibility
+          name: tile.name,
+          quantity: quantity,
+          cost: tile.cost,
+          connections: tile.connections || [],
+        });
+
+        // Update local state after successful API call
+        const newTiles = tiles.map(item => 
+          item.type === tile.type 
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        )
+        onUpdateTiles(newTiles)
+        
+        // Reset the quantity after purchase
+        setBuyQuantities(prev => ({ ...prev, [tile.type]: 1 }))
+        
+        // Show success message
+        toast.success(`Purchased ${quantity} ${tile.name || tile.type} tile(s)`)
+      } catch (error) {
+        console.error('Error updating tile inventory:', error);
+        toast.error('Failed to update tile inventory');
+      }
     }
   }
 
