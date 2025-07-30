@@ -953,29 +953,88 @@ export default function QuestsPage() {
   };
 
   // Save edited quest
-  const handleEditQuestSubmit = (updatedQuest: Quest) => {
-    setQuests(prev => prev.map(q =>
-      q.id === updatedQuest.id ? { ...q, ...updatedQuest } : q
-    ));
-    setEditModalOpen(false);
-    setEditingQuest(null);
+  const handleEditQuestSubmit = async (updatedQuest: Quest) => {
+    if (!token) {
+      toast({ title: 'Error', description: 'Authentication required', variant: 'destructive' });
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/quests/${updatedQuest.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: updatedQuest.name,
+          description: updatedQuest.description,
+          category: updatedQuest.category,
+          difficulty: updatedQuest.difficulty,
+          xp_reward: updatedQuest.xp || 0,
+          gold_reward: updatedQuest.gold || 0,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update quest');
+      }
+
+      // Update the quest in local state
+      setQuests(prev => prev.map(q =>
+        q.id === updatedQuest.id ? { ...q, ...updatedQuest } : q
+      ));
+      setEditModalOpen(false);
+      setEditingQuest(null);
+      
+      toast({
+        title: 'Success',
+        description: 'Quest updated successfully!',
+      });
+    } catch (error) {
+      console.error('Error updating quest:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update quest. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
-  // Delete quest (UI only, confirmation modal)
-  const handleDeleteQuest = (questId: string) => {
-    console.log('Deleting quest:', questId);
-    console.log('Current quests before delete:', quests.length);
-    
-    setQuests(prev => {
-      const filtered = prev.filter(q => q.id !== questId);
-      console.log('Quests after delete:', filtered.length);
-      return filtered;
-    });
-    
-    toast({
-      title: 'Success',
-      description: 'Quest deleted successfully!',
-    });
+  // Delete quest (with backend API)
+  const handleDeleteQuest = async (questId: string) => {
+    if (!token) {
+      toast({ title: 'Error', description: 'Authentication required', variant: 'destructive' });
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/quests/${questId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete quest');
+      }
+
+      // Remove the quest from local state
+      setQuests(prev => prev.filter(q => q.id !== questId));
+      
+      toast({
+        title: 'Success',
+        description: 'Quest deleted successfully!',
+      });
+    } catch (error) {
+      console.error('Error deleting quest:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete quest. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
   const confirmDeleteQuest = () => {
     if (questToDelete) {
@@ -2018,7 +2077,7 @@ export default function QuestsPage() {
       </MobileLayoutWrapper>
       {/* Bottom spacing */}
       <div className="h-8 md:h-12"></div>
-      {/* Edit Quest Modal (simple version) */}
+      {/* Edit Quest Modal */}
       {editModalOpen && editingQuest && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => { setEditModalOpen(false); setEditingQuest(null); }} />
@@ -2038,6 +2097,7 @@ export default function QuestsPage() {
                 placeholder="Quest name"
                 title="Quest name"
                 aria-label="Quest name"
+                required
               />
               <label className="block mb-2 text-sm font-medium">Description</label>
               <textarea
@@ -2049,7 +2109,46 @@ export default function QuestsPage() {
                 title="Quest description"
                 aria-label="Quest description"
               />
-              {/* Add more fields as needed */}
+              <label className="block mb-2 text-sm font-medium">Category</label>
+              <select 
+                className="w-full mb-4 p-2 border rounded" 
+                value={editingQuest.category} 
+                onChange={e => setEditingQuest({ ...editingQuest, category: e.target.value })} 
+                aria-label="Quest category"
+              >
+                {questCategories.map((category: string) => (
+                  <option key={category} value={category}>{getCategoryLabel(category)}</option>
+                ))}
+              </select>
+              <label className="block mb-2 text-sm font-medium">Difficulty</label>
+              <input 
+                className="w-full mb-4 p-2 border rounded" 
+                value={editingQuest.difficulty} 
+                onChange={e => setEditingQuest({ ...editingQuest, difficulty: e.target.value })} 
+                placeholder="Difficulty" 
+                title="Difficulty" 
+                aria-label="Difficulty" 
+              />
+              <label className="block mb-2 text-sm font-medium">XP Reward</label>
+              <input 
+                type="number" 
+                className="w-full mb-4 p-2 border rounded" 
+                value={editingQuest.xp || 0} 
+                onChange={e => setEditingQuest({ ...editingQuest, xp: Number(e.target.value) })} 
+                placeholder="XP" 
+                title="XP" 
+                aria-label="XP" 
+              />
+              <label className="block mb-2 text-sm font-medium">Gold Reward</label>
+              <input 
+                type="number" 
+                className="w-full mb-4 p-2 border rounded" 
+                value={editingQuest.gold || 0} 
+                onChange={e => setEditingQuest({ ...editingQuest, gold: Number(e.target.value) })} 
+                placeholder="Gold" 
+                title="Gold" 
+                aria-label="Gold" 
+              />
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="secondary" onClick={() => { setEditModalOpen(false); setEditingQuest(null); }}>Cancel</Button>
                 <Button type="submit" variant="default">Save</Button>
