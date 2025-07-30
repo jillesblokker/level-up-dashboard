@@ -175,41 +175,53 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
 
   return (
     <>
-      <Tabs value={activeTab} onValueChange={value => setActiveTab(value as 'place' | 'buy')} className="w-full">
-        <TabsList className="mb-4 w-full flex">
-          <TabsTrigger value="place" className="flex-1">Place</TabsTrigger>
-          <TabsTrigger value="buy" className="flex-1">Buy</TabsTrigger>
+      <Tabs value={activeTab} onValueChange={value => setActiveTab(value as 'place' | 'buy')} className="w-full h-full">
+        {/* Main Tabs - Improved styling */}
+        <TabsList className="mb-6 w-full flex bg-gray-900/50 backdrop-blur-sm border border-gray-700 rounded-lg p-1">
+          <TabsTrigger 
+            value="place" 
+            className="flex-1 data-[state=active]:bg-amber-500 data-[state=active]:text-black font-semibold transition-all rounded-md"
+          >
+            Place Tiles
+          </TabsTrigger>
+          <TabsTrigger 
+            value="buy" 
+            className="flex-1 data-[state=active]:bg-amber-500 data-[state=active]:text-black font-semibold transition-all rounded-md"
+          >
+            Buy Tiles
+          </TabsTrigger>
         </TabsList>
-        <TabsContent value="place">
-          <div className="space-y-4">
-            {/* Category Tabs */}
-            <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
-                {tileCategories.map(category => {
-                  const isUnlocked = userLevel >= category.minLevel;
-                  const categoryTiles = getTilesByCategory(category.id);
-                  const hasTiles = categoryTiles.length > 0;
-                  
-                  return (
-                    <TabsTrigger 
-                      key={category.id} 
-                      value={category.id}
-                      disabled={!isUnlocked || !hasTiles}
-                      className={cn(
-                        !isUnlocked && "opacity-50 cursor-not-allowed",
-                        !hasTiles && "opacity-30"
-                      )}
-                    >
-                      <div className="text-center">
-                        <div className="font-bold text-xs">{category.name}</div>
-                        <div className="text-xs text-muted-foreground">
-                          Lvl {category.minLevel}-{category.maxLevel}
-                        </div>
+        
+        <TabsContent value="place" className="space-y-6">
+          {/* Category Tabs - Responsive design */}
+          <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 bg-gray-900/30 backdrop-blur-sm border border-gray-700 rounded-lg p-2">
+              {tileCategories.map(category => {
+                const isUnlocked = userLevel >= category.minLevel;
+                const categoryTiles = getTilesByCategory(category.id);
+                const hasTiles = categoryTiles.length > 0;
+                
+                return (
+                  <TabsTrigger 
+                    key={category.id} 
+                    value={category.id}
+                    disabled={!isUnlocked || !hasTiles}
+                    className={cn(
+                      "data-[state=active]:bg-amber-500 data-[state=active]:text-black font-medium transition-all rounded-md",
+                      !isUnlocked && "opacity-50 cursor-not-allowed",
+                      !hasTiles && "opacity-30"
+                    )}
+                  >
+                    <div className="text-center px-2 py-1">
+                      <div className="font-bold text-xs md:text-sm truncate">{category.name}</div>
+                      <div className="text-xs text-muted-foreground hidden sm:block">
+                        Lvl {category.minLevel}-{category.maxLevel}
                       </div>
-                    </TabsTrigger>
-                  );
-                })}
-              </TabsList>
+                    </div>
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
               
               {tileCategories.map(category => (
                 <TabsContent key={category.id} value={category.id}>
@@ -227,13 +239,13 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                     </div>
                   ) : (
                     <ScrollArea className="h-full w-full">
-                      <div className="grid grid-cols-2 gap-4 p-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
                         {getTilesByCategory(category.id).map((tile) => (
                           <Card
                             key={tile.type}
                             className={cn(
-                              "relative overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all",
-                              selectedTile?.type === tile.type && "ring-2 ring-primary",
+                              "relative overflow-hidden cursor-pointer hover:ring-2 hover:ring-amber-500/50 transition-all duration-200 hover:scale-105",
+                              selectedTile?.type === tile.type && "ring-2 ring-amber-500 shadow-lg",
                               tile.quantity === 0 && "opacity-50"
                             )}
                             onClick={() => {
@@ -246,34 +258,34 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                             }}
                             aria-label={`Select ${tile.name} tile (Quantity: ${tile.quantity})`}
                           >
-                            <div className="aspect-square relative">
+                            <div className="aspect-square relative group">
                               <Image
                                 src={getTileImage(tile.type)}
                                 alt={tile.name}
                                 fill
-                                className="object-cover"
+                                className="object-cover transition-transform duration-200 group-hover:scale-110"
                               />
-                              <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded shadow">
+                              <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg">
                                 {tile.quantity}
                               </div>
                               {tile.quantity === 0 && (
-                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                                  <span className="text-white text-xs font-bold bg-amber-500 px-2 py-1 rounded">
+                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+                                  <span className="text-white text-xs font-bold bg-amber-500 px-3 py-1 rounded-full">
                                     Buy More
                                   </span>
                                 </div>
                               )}
                             </div>
-                            <div className="p-3 bg-background/95 backdrop-blur-sm">
-                              <div className="capitalize font-semibold text-sm">{tile.name}</div>
-                              <div className="text-xs text-muted-foreground mt-1 text-center">
+                            <div className="p-4 bg-background/95 backdrop-blur-sm">
+                              <div className="capitalize font-semibold text-sm mb-1">{tile.name}</div>
+                              <div className="text-xs text-muted-foreground text-center">
                                 <span className="text-amber-500 font-medium">{tile.cost} gold</span>
                               </div>
                               {tile.quantity === 0 && (
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  className="w-full mt-2"
+                                  className="w-full mt-3 bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setActiveTab('buy');
@@ -292,45 +304,44 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 </TabsContent>
               ))}
             </Tabs>
-          </div>
-        </TabsContent>
-        <TabsContent value="buy">
-          <div className="space-y-4">
-            {/* Category Tabs */}
-            <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
-                {tileCategories.map(category => {
-                  const isUnlocked = userLevel >= category.minLevel;
-                  const categoryTiles = getTilesByCategory(category.id);
-                  const hasTiles = categoryTiles.length > 0;
-                  
-                  return (
-                    <TabsTrigger 
-                      key={category.id} 
-                      value={category.id}
-                      disabled={!isUnlocked || !hasTiles}
-                      className={cn(
-                        !isUnlocked && "opacity-50 cursor-not-allowed",
-                        !hasTiles && "opacity-30"
-                      )}
-                    >
-                      <div className="text-center">
-                        <div className="font-bold text-xs">{category.name}</div>
-                        <div className="text-xs text-muted-foreground">
-                          Lvl {category.minLevel}-{category.maxLevel}
-                        </div>
+          </TabsContent>
+        <TabsContent value="buy" className="space-y-6">
+          {/* Category Tabs - Responsive design */}
+          <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 bg-gray-900/30 backdrop-blur-sm border border-gray-700 rounded-lg p-2">
+              {tileCategories.map(category => {
+                const isUnlocked = userLevel >= category.minLevel;
+                const categoryTiles = getTilesByCategory(category.id);
+                const hasTiles = categoryTiles.length > 0;
+                
+                return (
+                  <TabsTrigger 
+                    key={category.id} 
+                    value={category.id}
+                    disabled={!isUnlocked || !hasTiles}
+                    className={cn(
+                      "data-[state=active]:bg-amber-500 data-[state=active]:text-black font-medium transition-all rounded-md",
+                      !isUnlocked && "opacity-50 cursor-not-allowed",
+                      !hasTiles && "opacity-30"
+                    )}
+                  >
+                    <div className="text-center px-2 py-1">
+                      <div className="font-bold text-xs md:text-sm truncate">{category.name}</div>
+                      <div className="text-xs text-muted-foreground hidden sm:block">
+                        Lvl {category.minLevel}-{category.maxLevel}
                       </div>
-                    </TabsTrigger>
-                  );
-                })}
-              </TabsList>
+                    </div>
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
               
-              {tileCategories.map(category => (
+                              {tileCategories.map(category => (
                 <TabsContent key={category.id} value={category.id}>
                   {!getTilesByCategory(category.id).length ? (
-                    <div className="text-center py-8">
-                      <div className="text-lg font-bold">
-                        {userLevel < category.minLevel ? 'Locked' : 'No tiles available'}
+                    <div className="text-center py-12">
+                      <div className="text-xl font-bold mb-2">
+                        {userLevel < category.minLevel ? '🔒 Locked' : '📦 No tiles available'}
                       </div>
                       <div className="text-sm text-muted-foreground">
                         {userLevel < category.minLevel 
@@ -341,49 +352,50 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                     </div>
                   ) : (
                     <ScrollArea className="h-full w-full">
-                      <div className="grid grid-cols-2 gap-4 p-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
                         {getTilesByCategory(category.id).map((tile) => (
                           <Card
                             key={tile.type}
                             className={cn(
-                              "relative overflow-hidden transition-all",
+                              "relative overflow-hidden transition-all duration-200 hover:scale-105",
                               tile.quantity === 0 && "border-2 border-amber-500 shadow-lg"
                             )}
                           >
-                            <div className="aspect-square relative">
+                            <div className="aspect-square relative group">
                               <Image
                                 src={getTileImage(tile.type)}
                                 alt={tile.name}
                                 fill
-                                className="object-cover"
+                                className="object-cover transition-transform duration-200 group-hover:scale-110"
                               />
-                              <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded shadow">
+                              <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg">
                                 {tile.quantity}
                               </div>
                               {tile.quantity === 0 && (
-                                <span className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded shadow" aria-label="Buyable tile badge">Buyable</span>
+                                <span className="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg" aria-label="Buyable tile badge">
+                                  Buyable
+                                </span>
                               )}
                             </div>
-                            <div className="p-3 bg-background/95 backdrop-blur-sm">
-                              <div className="capitalize font-semibold text-sm">{tile.name}</div>
-                              <div className="text-xs text-muted-foreground mt-1 text-center">
+                            <div className="p-4 bg-background/95 backdrop-blur-sm">
+                              <div className="capitalize font-semibold text-sm mb-1">{tile.name}</div>
+                              <div className="text-xs text-muted-foreground text-center mb-3">
                                 <span className="text-amber-500 font-medium">{tile.cost} gold</span>
                               </div>
-                              <div className="flex gap-2 mt-2 items-center justify-center">
+                              <div className="flex gap-2 items-center justify-center">
                                 <Input
                                   type="number"
                                   min="1"
                                   value={buyQuantities[tile.type] || 1}
                                   onChange={(e) => handleQuantityChange(tile.type, e.target.value)}
-                                  className="w-14 h-10 text-sm text-center px-2 py-1 border border-gray-700 rounded-md focus:ring-amber-500 focus:border-amber-500"
+                                  className="w-16 h-10 text-sm text-center px-2 py-1 border border-gray-700 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-gray-800"
                                   id={`buy-quantity-${tile.type}`}
                                   name={`buy-quantity-${tile.type}`}
-                                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                 />
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  className="flex-1 min-h-[40px] h-10"
+                                  className="flex-1 min-h-[40px] h-10 bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20 text-amber-500"
                                   onClick={(e) => handleBuyTile(tile, e)}
                                   aria-label={`Buy ${buyQuantities[tile.type] || 1} ${tile.name || tile.type} tile${(buyQuantities[tile.type] || 1) > 1 ? 's' : ''}`}
                                 >
@@ -399,10 +411,9 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 </TabsContent>
               ))}
             </Tabs>
-          </div>
-        </TabsContent>
-      </Tabs>
-    </>
+          </TabsContent>
+        </Tabs>
+      </>
   )
 }
 
