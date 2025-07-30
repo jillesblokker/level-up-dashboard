@@ -288,8 +288,8 @@ export default function StoredDataPage() {
     for (const api of allApis) {
       try {
         const method = api.endpoint.includes('discover') || api.endpoint.includes('increment') ? 'POST' : 'GET';
-        const body = method === 'POST' ? JSON.stringify({ test: true }) : undefined;
-        const headers = method === 'POST' ? { 'Content-Type': 'application/json' } : undefined;
+        const body = method === 'POST' ? JSON.stringify({ test: true }) : null;
+        const headers = method === 'POST' ? { 'Content-Type': 'application/json' } : {};
 
         const response = await fetch(api.endpoint, {
           method,
@@ -367,7 +367,7 @@ export default function StoredDataPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Build Status Dashboard</h1>
-          <p className="text-muted-foreground">Monitor your application's health and progress</p>
+          <p className="text-muted-foreground">Monitor your application&apos;s health and progress</p>
         </div>
         <div className="flex items-center gap-2">
           <Badge 
