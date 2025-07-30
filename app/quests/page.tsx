@@ -954,12 +954,13 @@ export default function QuestsPage() {
 
   // Save edited quest
   const handleEditQuestSubmit = async (updatedQuest: Quest) => {
-    if (!token) {
-      toast({ title: 'Error', description: 'Authentication required', variant: 'destructive' });
-      return;
-    }
-
     try {
+      const token = await getToken({ template: 'supabase' });
+      if (!token) {
+        toast({ title: 'Error', description: 'Authentication required', variant: 'destructive' });
+        return;
+      }
+
       const response = await fetch(`/api/quests/${updatedQuest.id}`, {
         method: 'PUT',
         headers: {
@@ -1003,12 +1004,13 @@ export default function QuestsPage() {
 
   // Delete quest (with backend API)
   const handleDeleteQuest = async (questId: string) => {
-    if (!token) {
-      toast({ title: 'Error', description: 'Authentication required', variant: 'destructive' });
-      return;
-    }
-
     try {
+      const token = await getToken({ template: 'supabase' });
+      if (!token) {
+        toast({ title: 'Error', description: 'Authentication required', variant: 'destructive' });
+        return;
+      }
+
       const response = await fetch(`/api/quests/${questId}`, {
         method: 'DELETE',
         headers: {
@@ -1064,13 +1066,14 @@ export default function QuestsPage() {
     setAddQuestModalOpen(true);
   };
   const handleAddQuestSubmit = async (quest: Quest) => {
-    if (!token) {
-      toast({ title: 'Error', description: 'Authentication required', variant: 'destructive' });
-      return;
-    }
-
-    setAddQuestLoading(true);
     try {
+      const token = await getToken({ template: 'supabase' });
+      if (!token) {
+        toast({ title: 'Error', description: 'Authentication required', variant: 'destructive' });
+        return;
+      }
+
+      setAddQuestLoading(true);
       const response = await fetch('/api/quests/new', {
         method: 'POST',
         headers: {
