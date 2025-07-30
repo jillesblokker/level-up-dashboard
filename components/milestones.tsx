@@ -612,24 +612,15 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
                   <div className="text-gray-400 col-span-full">No milestones for this category yet.</div>
                                   ) : (
                     allMilestones.map(milestone => (
-                      <QuestCard
-                      key={milestone.id}
-                      title={milestone.name}
-                      description={milestone.description || (defaultCard ? defaultCard.description : '')}
-                      category={milestone.category}
-                      difficulty="medium"
-                      progress={milestone.progress}
-                      maxProgress={100}
-                      reward={{
-                        experience: milestone.experience,
-                        gold: milestone.gold
-                      }}
-                      status={!!completed[milestone.id] ? 'completed' : 'not-started'}
-                      onClick={() => handleCheckboxToggle(milestone.id, milestone.target)}
-                      onComplete={() => handleCheckboxToggle(milestone.id, milestone.target)}
-                    />
-                  ))
-                )}
+                      <MilestoneCard
+                        key={milestone.id}
+                        milestone={milestone}
+                        onDelete={handleDeleteMilestone}
+                        onUpdateProgress={handleToggleCompletion}
+                        onEdit={handleEditMilestone}
+                      />
+                    ))
+                  )}
                 {/* Add Custom Milestone Card */}
                 <Card
                   className="flex flex-col items-center justify-center border-2 border-dashed border-amber-800 bg-black/20 shadow-md cursor-pointer hover:bg-black/30 min-h-[180px]"
