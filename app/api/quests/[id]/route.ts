@@ -77,6 +77,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       const isUserQuest = !existingQuest.name; // User quests have 'title', system quests have 'name'
       const tableName = isUserQuest ? 'quest_completion' : 'quests';
       
+      console.log('[Quests API] Updating in table:', tableName, 'isUserQuest:', isUserQuest);
+      
       const { data, error } = await supabase
         .from(tableName)
         .update({
@@ -95,12 +97,29 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
           updated_at: new Date().toISOString(),
         })
         .eq('id', questId)
-        .eq('user_id', userId)
         .select()
         .single();
         
       if (error) {
         console.error('[Quests API] Update error:', error);
+        console.log('[Quests API] Update query details:', {
+          tableName,
+          questId,
+          userId,
+          isUserQuest,
+          updateData: isUserQuest ? {
+            title: name,
+            description,
+            category,
+          } : {
+            name,
+            description,
+            category,
+            difficulty,
+            xp_reward: xp_reward || 0,
+            gold_reward: gold_reward || 0,
+          }
+        });
         throw error;
       }
       
