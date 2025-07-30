@@ -1701,8 +1701,8 @@ export default function RealmPage() {
                         className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
                         aria-label="build-mode-button"
                       >
-                        <Hammer className="w-4 h-4" />
-                        <span className="hidden md:inline">Build</span>
+                        <Hammer className="w-4 h-4 text-black" />
+                        <span className="hidden md:inline text-black">Build</span>
                       </Button>
                       <div className="hidden md:flex items-center space-x-2 min-w-[100px]" aria-label="auto-save-controls">
                         <Switch id="auto-save-switch" checked={autoSave} onCheckedChange={setAutoSave} />
