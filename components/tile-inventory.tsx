@@ -125,14 +125,16 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                   className={cn(
                     "relative overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all min-w-[180px] max-w-[220px] flex-shrink-0",
                     selectedTile?.type === tile.type && "ring-2 ring-primary",
-                    tile.quantity === 0 && "opacity-50 pointer-events-none"
+                    tile.quantity === 0 && "opacity-50"
                   )}
                   onClick={() => {
-                    if (tile.quantity === 0 && onOutOfTiles) {
-                      onOutOfTiles(tile);
+                    if (tile.quantity === 0) {
+                      // Switch to buy tab when clicking on empty tile
+                      setActiveTab('buy');
+                      if (onOutOfTiles) onOutOfTiles(tile);
                       return;
                     }
-                    if (tile.quantity > 0) onSelectTile(selectedTile?.type === tile.type ? null : tile);
+                    onSelectTile(selectedTile?.type === tile.type ? null : tile);
                   }}
                   aria-label={`Select ${tile.name} tile (Quantity: ${tile.quantity})`}
                 >
@@ -143,6 +145,13 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                       fill
                       className="object-cover"
                     />
+                    {tile.quantity === 0 && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <span className="text-white text-xs font-bold bg-amber-500 px-2 py-1 rounded">
+                          Buy More
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div className="p-3 bg-background/95 backdrop-blur-sm">
                     <div className="capitalize font-semibold text-sm">{tile.name}</div>
@@ -150,27 +159,20 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                       <span className="font-medium">Quantity: {tile.quantity}</span>
                       <span className="text-amber-500 font-medium">{tile.cost} gold</span>
                     </div>
-                    <div className="flex gap-2 mt-2 items-center justify-center">
-                      <Input
-                        type="number"
-                        min="1"
-                        value={buyQuantities[tile.type] || 1}
-                        onChange={(e) => handleQuantityChange(tile.type, e.target.value)}
-                        className="w-14 h-10 text-sm text-center px-2 py-1 border border-gray-700 rounded-md focus:ring-amber-500 focus:border-amber-500"
-                        id={`buy-quantity-${tile.type}`}
-                        name={`buy-quantity-${tile.type}`}
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                      />
+                    {tile.quantity === 0 && (
                       <Button
                         variant="outline"
                         size="sm"
-                        className="flex-1 min-h-[40px] h-10"
-                        onClick={(e) => handleBuyTile(tile, e)}
-                        aria-label={`Buy ${buyQuantities[tile.type] || 1} ${tile.name || tile.type} tile${(buyQuantities[tile.type] || 1) > 1 ? 's' : ''}`}
+                        className="w-full mt-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveTab('buy');
+                        }}
+                        aria-label={`Switch to buy tab for ${tile.name}`}
                       >
-                        Buy
+                        Buy More
                       </Button>
-                    </div>
+                    )}
                   </div>
                 </Card>
               ))}
@@ -183,14 +185,16 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                   className={cn(
                     "relative overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all",
                     selectedTile?.type === tile.type && "ring-2 ring-primary",
-                    tile.quantity === 0 && "opacity-50 pointer-events-none"
+                    tile.quantity === 0 && "opacity-50"
                   )}
                   onClick={() => {
-                    if (tile.quantity === 0 && onOutOfTiles) {
-                      onOutOfTiles(tile);
+                    if (tile.quantity === 0) {
+                      // Switch to buy tab when clicking on empty tile
+                      setActiveTab('buy');
+                      if (onOutOfTiles) onOutOfTiles(tile);
                       return;
                     }
-                    if (tile.quantity > 0) onSelectTile(selectedTile?.type === tile.type ? null : tile);
+                    onSelectTile(selectedTile?.type === tile.type ? null : tile);
                   }}
                   aria-label={`Select ${tile.name} tile (Quantity: ${tile.quantity})`}
                 >
@@ -201,6 +205,13 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                       fill
                       className="object-cover"
                     />
+                    {tile.quantity === 0 && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <span className="text-white text-xs font-bold bg-amber-500 px-2 py-1 rounded">
+                          Buy More
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div className="p-3 bg-background/95 backdrop-blur-sm">
                     <div className="capitalize font-semibold text-sm">{tile.name}</div>
@@ -208,27 +219,20 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                       <span className="font-medium">Quantity: {tile.quantity}</span>
                       <span className="text-amber-500 font-medium">{tile.cost} gold</span>
                     </div>
-                    <div className="flex gap-2 mt-2 items-center justify-center">
-                      <Input
-                        type="number"
-                        min="1"
-                        value={buyQuantities[tile.type] || 1}
-                        onChange={(e) => handleQuantityChange(tile.type, e.target.value)}
-                        className="w-14 h-10 text-sm text-center px-2 py-1 border border-gray-700 rounded-md focus:ring-amber-500 focus:border-amber-500"
-                        id={`buy-quantity-${tile.type}`}
-                        name={`buy-quantity-${tile.type}`}
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                      />
+                    {tile.quantity === 0 && (
                       <Button
                         variant="outline"
                         size="sm"
-                        className="flex-1 min-h-[40px] h-10"
-                        onClick={(e) => handleBuyTile(tile, e)}
-                        aria-label={`Buy ${buyQuantities[tile.type] || 1} ${tile.name || tile.type} tile${(buyQuantities[tile.type] || 1) > 1 ? 's' : ''}`}
+                        className="w-full mt-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveTab('buy');
+                        }}
+                        aria-label={`Switch to buy tab for ${tile.name}`}
                       >
-                        Buy
+                        Buy More
                       </Button>
-                    </div>
+                    )}
                   </div>
                 </Card>
               ))}
