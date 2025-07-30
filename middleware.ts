@@ -9,9 +9,18 @@ const isPublicRoute = createRouteMatcher([
   '/api/webhooks(.*)',
 ]);
 
+const isApiRoute = createRouteMatcher([
+  '/api/(.*)',
+]);
+
 export default clerkMiddleware(async (auth, request) => {
   // If the route is public, let it pass through.
   if (isPublicRoute(request)) {
+    return NextResponse.next();
+  }
+
+  // API routes should handle their own authentication and return JSON responses
+  if (isApiRoute(request)) {
     return NextResponse.next();
   }
 
