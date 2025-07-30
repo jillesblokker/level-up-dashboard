@@ -145,6 +145,10 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                       fill
                       className="object-cover"
                     />
+                    {/* Quantity badge in top-right corner */}
+                    <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded shadow">
+                      {tile.quantity}
+                    </div>
                     {tile.quantity === 0 && (
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                         <span className="text-white text-xs font-bold bg-amber-500 px-2 py-1 rounded">
@@ -155,8 +159,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                   </div>
                   <div className="p-3 bg-background/95 backdrop-blur-sm">
                     <div className="capitalize font-semibold text-sm">{tile.name}</div>
-                    <div className="text-xs text-muted-foreground mt-1 flex justify-between items-center">
-                      <span className="font-medium">Quantity: {tile.quantity}</span>
+                    <div className="text-xs text-muted-foreground mt-1 text-center">
                       <span className="text-amber-500 font-medium">{tile.cost} gold</span>
                     </div>
                     {tile.quantity === 0 && (
@@ -205,6 +208,10 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                       fill
                       className="object-cover"
                     />
+                    {/* Quantity badge in top-right corner */}
+                    <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded shadow">
+                      {tile.quantity}
+                    </div>
                     {tile.quantity === 0 && (
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                         <span className="text-white text-xs font-bold bg-amber-500 px-2 py-1 rounded">
@@ -215,8 +222,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                   </div>
                   <div className="p-3 bg-background/95 backdrop-blur-sm">
                     <div className="capitalize font-semibold text-sm">{tile.name}</div>
-                    <div className="text-xs text-muted-foreground mt-1 flex justify-between items-center">
-                      <span className="font-medium">Quantity: {tile.quantity}</span>
+                    <div className="text-xs text-muted-foreground mt-1 text-center">
                       <span className="text-amber-500 font-medium">{tile.cost} gold</span>
                     </div>
                     {tile.quantity === 0 && (
@@ -258,14 +264,17 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                         fill
                         className="object-cover"
                       />
+                      {/* Quantity badge in top-right corner */}
+                      <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded shadow">
+                        {tile.quantity}
+                      </div>
                       {tile.quantity === 0 && (
                         <span className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded shadow" aria-label="Buyable tile badge">Buyable</span>
                       )}
                     </div>
                     <div className="p-3 bg-background/95 backdrop-blur-sm">
                       <div className="capitalize font-semibold text-sm">{tile.name}</div>
-                      <div className="text-xs text-muted-foreground mt-1 flex justify-between items-center">
-                        <span className="font-medium">Quantity: {tile.quantity}</span>
+                      <div className="text-xs text-muted-foreground mt-1 text-center">
                         <span className="text-amber-500 font-medium">{tile.cost} gold</span>
                       </div>
                       <div className="flex gap-2 mt-2 items-center justify-center">

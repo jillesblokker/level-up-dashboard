@@ -765,11 +765,23 @@ export default function RealmPage() {
                             mergedInventory[tileType] = {
                                 ...mergedInventory[tileType],
                                 owned: item.quantity || 0,
+                                quantity: item.quantity || 0, // Update quantity property too
                                 cost: item.cost || mergedInventory[tileType].cost
                             };
                         }
                     });
                     setInventory(mergedInventory);
+                } else {
+                    // If no inventory data, start with empty quantities instead of defaults
+                    const emptyInventory = { ...initialInventory };
+                    Object.keys(emptyInventory).forEach(tileType => {
+                        emptyInventory[tileType as TileType] = {
+                            ...emptyInventory[tileType as TileType],
+                            owned: 0,
+                            quantity: 0
+                        };
+                    });
+                    setInventory(emptyInventory);
                 }
 
                 // Load hasVisitedRealm from localStorage as fallback
