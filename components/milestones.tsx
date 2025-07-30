@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
-import { Sword, Brain, Crown, Castle, Hammer, Heart, PlusCircle, Trash2, Pencil, Sun, PersonStanding } from "lucide-react"
+import { Sword, Brain, Crown, Castle, Hammer, Heart, PlusCircle, Trash2, Pencil, Sun, PersonStanding, CheckCircle } from "lucide-react"
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useUser } from "@clerk/nextjs"
 import { defaultQuests } from '@/lib/quest-sample-data'
@@ -23,6 +23,7 @@ import { pollingService, createPollingConfig } from '@/lib/polling-service';
 import { errorHandler, ErrorHandler } from '@/lib/error-handler';
 import { gainExperience } from '@/lib/experience-manager'
 import { gainGold } from '@/lib/gold-manager'
+import { cn } from '@/lib/utils'
 
 
 interface Milestone {
@@ -761,12 +762,14 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
   const { supabase } = useSupabase();
   const [completed, setCompleted] = useState(milestone.completed);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isPressed, setIsPressed] = useState(false);
   const { toast } = useToast();
   
   // Handler for card click (toggles completion)
   const handleCardClick = async (e: React.MouseEvent) => {
-    // Prevent toggling if clicking on the checkbox directly
-    if ((e.target as HTMLElement).closest('input[type="checkbox"]')) return;
+    // Prevent toggling if clicking on buttons
+    if ((e.target as HTMLElement).closest('button')) return;
     await toggleCompletion();
   };
 
@@ -790,67 +793,132 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
     }
   };
 
+  const progressPercentage = (milestone.progress / 100) * 100;
+
   return (
-    <Card
-      className={`bg-black/80 border-amber-800/50 cursor-pointer ${completed ? 'bg-amber-50/30 dark:bg-amber-900/10' : ''}`}
+    <Card 
+      className={cn(
+        "relative overflow-hidden transition-all duration-300 cursor-pointer group",
+        "bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-amber-800/20",
+        "hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/20",
+        "transform hover:-translate-y-1",
+        completed && "opacity-75"
+      )}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onMouseDown={() => setIsPressed(true)}
+      onMouseUp={() => setIsPressed(false)}
       onClick={handleCardClick}
-      tabIndex={0}
-      role="region"
-      aria-label={`${milestone.name} milestone card`}
-      onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCompletion(); } }}
+      aria-label={`Milestone card: ${milestone.name}`}
     >
-      <CardHeader>
-        <CardTitle className="text-amber-500 flex items-center justify-between">
-          <span>{milestone.name}</span>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-5 w-5 text-gray-500 hover:text-amber-500"
-              aria-label={`edit-${milestone.name}-milestone`}
-              data-edit-button
-              onClick={e => {
-                e.stopPropagation();
-                onEdit(milestone);
-              }}
-              tabIndex={-1}
-            >
-              <Pencil className="w-4 h-4" />
-            </Button>
-            <Checkbox
-              checked={completed}
-              onCheckedChange={toggleCompletion}
-              aria-label={`Mark ${milestone.name} as ${completed ? 'incomplete' : 'complete'}`}
-              className="h-5 w-5 border-2 border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white data-[state=checked]:border-amber-500 mt-1"
-              tabIndex={-1}
-              onClick={(e: React.MouseEvent<HTMLButtonElement>) => e.stopPropagation()}
-              disabled={isUpdating}
-            />
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-5 w-5 text-red-500"
-              onClick={(e: React.MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); onDelete(milestone.id); }}
-              aria-label={`Delete ${milestone.name} milestone`}
-              disabled={isUpdating}
-              tabIndex={-1}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      
+      {/* Interactive Checkbox */}
+      <div 
+        className="absolute top-3 right-3 z-10 cursor-pointer"
+        onClick={(e) => {
+          e.stopPropagation();
+          toggleCompletion();
+        }}
+        aria-label={`Toggle milestone completion: ${milestone.name}`}
+      >
+        <div className={cn(
+          "w-6 h-6 rounded border-2 flex items-center justify-center transition-all duration-200",
+          "hover:scale-110 hover:shadow-lg",
+          completed 
+            ? "bg-green-500 border-green-500 text-white" 
+            : "bg-transparent border-gray-400 text-transparent hover:border-amber-400"
+        )}>
+          {completed ? (
+            <CheckCircle className="h-4 w-4" />
+          ) : (
+            <div className="w-3 h-3 rounded border border-gray-400" />
+          )}
+        </div>
+      </div>
+
+      {/* Edit and Delete Buttons */}
+      <div className="absolute top-3 left-3 z-10 flex gap-1">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6 text-gray-400 hover:text-amber-400 hover:bg-amber-500/20"
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit(milestone);
+          }}
+          aria-label={`Edit ${milestone.name} milestone`}
+        >
+          <Pencil className="h-3 w-3" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6 text-gray-400 hover:text-red-400 hover:bg-red-500/20"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(milestone.id);
+          }}
+          aria-label={`Delete ${milestone.name} milestone`}
+        >
+          <Trash2 className="h-3 w-3" />
+        </Button>
+      </div>
+
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-lg font-bold text-white line-clamp-2 group-hover:text-amber-400 transition-colors duration-300">
+              {milestone.name}
+            </CardTitle>
+            <CardDescription className="text-sm text-gray-400 line-clamp-2 mt-1">
+              {milestone.description || `${milestone.icon} ${milestone.experience} XP, ${milestone.gold} Gold`}
+            </CardDescription>
           </div>
-        </CardTitle>
-        <CardDescription>{milestone.icon} {milestone.experience} XP, {milestone.gold} Gold</CardDescription>
-        {milestone.description && (
-          <CardDescription className="mt-2 text-gray-300">
-            {milestone.description}
-          </CardDescription>
-        )}
+        </div>
       </CardHeader>
-      <CardContent>
-        <div className="flex justify-between items-center">
-          <Progress value={milestone.progress} className="h-1.5" aria-label={`Milestone progress: ${milestone.progress}%`} />
+
+      <CardContent className="space-y-4">
+        {/* Progress Section */}
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-400">Progress</span>
+            <span className="text-amber-400 font-medium">{milestone.progress}%</span>
+          </div>
+          <Progress 
+            value={progressPercentage} 
+            className="h-2 bg-gray-700" 
+            aria-label={`Milestone progress: ${milestone.progress}%`}
+          />
+        </div>
+
+        {/* Action Button */}
+        <div className="pt-2">
+          <Button
+            className={cn(
+              "w-full transition-all duration-300",
+              completed 
+                ? "bg-green-600 hover:bg-green-700 text-white"
+                : "bg-amber-600 hover:bg-amber-700 text-white"
+            )}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleCompletion();
+            }}
+            disabled={completed}
+            aria-label={completed ? 'Milestone completed' : 'Toggle milestone completion'}
+          >
+            {completed && <CheckCircle className="h-4 w-4 mr-2" />}
+            {completed ? 'Completed' : 'Toggle Completion'}
+          </Button>
         </div>
       </CardContent>
+
+      {/* Hover Effects */}
+      {isHovered && (
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent pointer-events-none" />
+      )}
     </Card>
   );
 }
