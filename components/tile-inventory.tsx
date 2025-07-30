@@ -78,14 +78,12 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
   // Get user level (placeholder - replace with actual level logic)
   const userLevel = 1; // TODO: Get actual user level
 
-  // Filter tiles by category
+  // Filter tiles by category - show all tiles but mark locked ones
   const getTilesByCategory = (categoryId: string) => {
     const category = tileCategories.find(cat => cat.id === categoryId);
     if (!category) return [];
     
-    const isUnlocked = userLevel >= category.minLevel;
-    if (!isUnlocked) return [];
-    
+    // Return all tiles in category, regardless of level
     return tiles.filter(tile => category.tiles.includes(tile.type));
   };
 
@@ -264,11 +262,15 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                       <Card
                         key={tile.type}
                         className={cn(
-                          "relative overflow-hidden cursor-pointer hover:ring-2 hover:ring-amber-500/50 transition-all duration-200 hover:scale-105",
+                          "relative overflow-hidden transition-all duration-200",
                           selectedTile?.type === tile.type && "ring-2 ring-amber-500 shadow-lg",
-                          tile.quantity === 0 && "opacity-50"
+                          (tile.quantity === 0 || userLevel < category.minLevel) && "opacity-50",
+                          userLevel >= category.minLevel && "cursor-pointer hover:ring-2 hover:ring-amber-500/50 hover:scale-105"
                         )}
                         onClick={() => {
+                          if (userLevel < category.minLevel) {
+                            return; // Disabled for locked categories
+                          }
                           if (tile.quantity === 0) {
                             setActiveTab('buy');
                             if (onOutOfTiles) onOutOfTiles(tile);
@@ -288,7 +290,14 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                           <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg">
                             {tile.quantity}
                           </div>
-                          {tile.quantity === 0 && (
+                          {userLevel < category.minLevel && (
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+                              <span className="text-white text-xs font-bold bg-gray-600 px-3 py-1 rounded-full">
+                                🔒 Lvl {category.minLevel}
+                              </span>
+                            </div>
+                          )}
+                          {tile.quantity === 0 && userLevel >= category.minLevel && (
                             <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
                               <span className="text-white text-xs font-bold bg-amber-500 px-3 py-1 rounded-full">
                                 Buy More
@@ -395,8 +404,10 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                       <Card
                         key={tile.type}
                         className={cn(
-                          "relative overflow-hidden transition-all duration-200 hover:scale-105",
-                          tile.quantity === 0 && "border-2 border-amber-500 shadow-lg"
+                          "relative overflow-hidden transition-all duration-200",
+                          (tile.quantity === 0 || userLevel < category.minLevel) && "opacity-50",
+                          userLevel >= category.minLevel && "hover:scale-105",
+                          tile.quantity === 0 && userLevel >= category.minLevel && "border-2 border-amber-500 shadow-lg"
                         )}
                       >
                         <div className="aspect-square relative group">
@@ -409,7 +420,12 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                           <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg">
                             {tile.quantity}
                           </div>
-                          {tile.quantity === 0 && (
+                          {userLevel < category.minLevel && (
+                            <span className="absolute top-2 left-2 bg-gray-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg" aria-label="Locked tile badge">
+                              🔒 Lvl {category.minLevel}
+                            </span>
+                          )}
+                          {tile.quantity === 0 && userLevel >= category.minLevel && (
                             <span className="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg" aria-label="Buyable tile badge">
                               Buyable
                             </span>
@@ -429,15 +445,22 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                               className="w-16 h-10 text-sm text-center px-2 py-1 border border-gray-700 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-gray-800"
                               id={`buy-quantity-${tile.type}`}
                               name={`buy-quantity-${tile.type}`}
+                              disabled={userLevel < category.minLevel}
                             />
                             <Button
                               variant="outline"
                               size="sm"
-                              className="flex-1 min-h-[40px] h-10 bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20 text-amber-500"
-                              onClick={(e) => handleBuyTile(tile, e)}
+                              className={cn(
+                                "flex-1 min-h-[40px] h-10",
+                                userLevel >= category.minLevel 
+                                  ? "bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20 text-amber-500"
+                                  : "bg-gray-600/50 border-gray-600 text-gray-400 cursor-not-allowed"
+                              )}
+                              onClick={(e) => userLevel >= category.minLevel && handleBuyTile(tile, e)}
+                              disabled={userLevel < category.minLevel}
                               aria-label={`Buy ${buyQuantities[tile.type] || 1} ${tile.name || tile.type} tile${(buyQuantities[tile.type] || 1) > 1 ? 's' : ''}`}
                             >
-                              Buy
+                              {userLevel < category.minLevel ? 'Locked' : 'Buy'}
                             </Button>
                           </div>
                         </div>
