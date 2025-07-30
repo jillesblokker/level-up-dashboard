@@ -282,7 +282,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       aria-label={`inventory-item-${item.id}`}
     >
       {/* Full-width image container */}
-      <div className="w-full h-64 relative overflow-hidden rounded-t-xl">
+      <div className="w-full h-80 relative overflow-hidden rounded-t-xl">
         <Image
           src={getItemImagePath(item)}
           alt={`${item.name} ${item.type}`}

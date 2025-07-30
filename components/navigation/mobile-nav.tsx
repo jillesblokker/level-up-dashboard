@@ -128,7 +128,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
         </SheetTrigger>
         <SheetContent 
           side="right" 
-          className="w-full bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl border-l border-amber-800/20"
+          className="w-full bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl border-l border-amber-800/20 pt-safe-top"
         >
           <div className="flex flex-col h-full">
             {/* Header */}
@@ -166,7 +166,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
             </div>
 
             {/* Navigation Items */}
-            <nav className="flex-1 p-4 space-y-2">
+            <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
               {mainNavItems.map((item) => {
                 const Icon = item.icon
                 return (
@@ -175,7 +175,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                     href={item.href}
                     onClick={() => setOpen(false)}
                     className={cn(
-                      "flex items-center gap-3 p-3 rounded-lg transition-all duration-300 group",
+                      "flex items-center gap-3 p-4 rounded-lg transition-all duration-300 group min-h-[44px]",
                       isActive(item.href)
                         ? "bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-500/30 text-amber-400"
                         : "text-gray-300 hover:text-amber-400 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20"
