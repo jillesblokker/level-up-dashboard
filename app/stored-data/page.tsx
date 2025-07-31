@@ -289,7 +289,19 @@ export default function StoredDataPage() {
     for (const api of allApis) {
       try {
         const method = api.endpoint.includes('discover') || api.endpoint.includes('increment') ? 'POST' : 'GET';
-        const body = method === 'POST' ? JSON.stringify({ test: true }) : null;
+        
+        // Prepare the correct body for each endpoint
+        let body = null;
+        if (method === 'POST') {
+          if (api.endpoint.includes('discover')) {
+            body = JSON.stringify({ creatureId: 'test-creature' });
+          } else if (api.endpoint.includes('increment')) {
+            body = JSON.stringify({ action: 'test-action' });
+          } else {
+            body = JSON.stringify({ test: true });
+          }
+        }
+        
         const headers: Record<string, string> = method === 'POST' ? { 'Content-Type': 'application/json' } : {};
         
         // Add authorization header if user is authenticated
