@@ -75,8 +75,22 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     }
   ];
 
-  // Get user level (placeholder - replace with actual level logic)
-  const userLevel = 1; // TODO: Get actual user level
+  // Get user level from character stats
+  const [userLevel, setUserLevel] = useState(1);
+  
+  useEffect(() => {
+    const loadUserLevel = () => {
+      try {
+        const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
+        setUserLevel(stats.level || 1);
+      } catch (error) {
+        console.error('Error loading user level:', error);
+        setUserLevel(1);
+      }
+    };
+    
+    loadUserLevel();
+  }, []);
 
   // Create a comprehensive list of all possible tiles
   const allPossibleTiles: InventoryItem[] = [
@@ -122,9 +136,21 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     // Merge with user's actual inventory to get correct quantities
     return categoryTiles.map(possibleTile => {
       const userTile = tiles.find(t => t.type === possibleTile.type);
+      
+      // Check if tile is unlocked based on user level
+      const isUnlocked = userLevel >= category.minLevel;
+      
+      // For foundation tiles (level 0-20), give starting quantities to new players
+      let defaultQuantity = 0;
+      if (category.id === 'foundation' && userLevel >= 1) {
+        // Give new players some starting tiles
+        defaultQuantity = userTile?.quantity || 5; // Start with 5 of each foundation tile
+      }
+      
       return {
         ...possibleTile,
-        quantity: userTile?.quantity || 0
+        quantity: userTile?.quantity || defaultQuantity,
+        unlocked: isUnlocked
       };
     });
   };
@@ -455,9 +481,9 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                         key={tile.type}
                         className={cn(
                           "relative overflow-hidden transition-all duration-200",
-                          (tile.quantity === 0 || userLevel < category.minLevel) && "opacity-50",
-                          userLevel >= category.minLevel && "hover:scale-105",
-                          tile.quantity === 0 && userLevel >= category.minLevel && "border-2 border-amber-500 shadow-lg"
+                          (!tile.unlocked || (tile.quantity === 0 && !tile.unlocked)) && "opacity-50",
+                          tile.unlocked && "hover:scale-105",
+                          tile.quantity === 0 && tile.unlocked && "border-2 border-amber-500 shadow-lg"
                         )}
                       >
                         <div className="aspect-square relative group">
@@ -470,12 +496,12 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                           <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg">
                             {tile.quantity}
                           </div>
-                          {userLevel < category.minLevel && (
+                          {!tile.unlocked && (
                             <span className="absolute top-2 left-2 bg-gray-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg" aria-label="Locked tile badge">
                               🔒 Lvl {category.minLevel}
                             </span>
                           )}
-                          {tile.quantity === 0 && userLevel >= category.minLevel && (
+                          {tile.quantity === 0 && tile.unlocked && (
                             <span className="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg" aria-label="Buyable tile badge">
                               Buyable
                             </span>
@@ -495,22 +521,22 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                               className="w-16 h-10 text-sm text-center px-2 py-1 border border-gray-700 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-gray-800"
                               id={`buy-quantity-${tile.type}`}
                               name={`buy-quantity-${tile.type}`}
-                              disabled={userLevel < category.minLevel}
+                              disabled={!tile.unlocked}
                             />
                             <Button
                               variant="outline"
                               size="sm"
                               className={cn(
                                 "flex-1 min-h-[40px] h-10",
-                                userLevel >= category.minLevel 
+                                tile.unlocked 
                                   ? "bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20 text-amber-500"
                                   : "bg-gray-600/50 border-gray-600 text-gray-400 cursor-not-allowed"
                               )}
-                              onClick={(e) => userLevel >= category.minLevel && handleBuyTile(tile, e)}
-                              disabled={userLevel < category.minLevel}
+                              onClick={(e) => tile.unlocked && handleBuyTile(tile, e)}
+                              disabled={!tile.unlocked}
                               aria-label={`Buy ${buyQuantities[tile.type] || 1} ${tile.name || tile.type} tile${(buyQuantities[tile.type] || 1) > 1 ? 's' : ''}`}
                             >
-                              {userLevel < category.minLevel ? 'Locked' : 'Buy'}
+                              {!tile.unlocked ? 'Locked' : 'Buy'}
                             </Button>
                           </div>
                         </div>

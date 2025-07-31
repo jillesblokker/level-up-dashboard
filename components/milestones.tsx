@@ -940,7 +940,7 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
               "w-full transition-all duration-300",
               completed 
                 ? "bg-green-600 hover:bg-green-700 text-white"
-                : "bg-amber-600 hover:bg-amber-700 text-white"
+                : "bg-amber-500 hover:bg-amber-600 text-black"
             )}
             onClick={(e) => {
               e.stopPropagation();

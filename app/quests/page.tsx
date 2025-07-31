@@ -1498,8 +1498,7 @@ export default function QuestsPage() {
                 <Button
                   onClick={handleBulkCompleteFavorites}
                   disabled={loading || quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length === 0}
-                  className="bg-[#F59E0B] hover:bg-[#D97706] disabled:bg-[#92400E] disabled:text-gray-300 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
-                  style={{ backgroundColor: '#F59E0B', opacity: 1 }}
+                  className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-300 text-black px-4 py-3 font-bold rounded-lg shadow-lg"
                   aria-label="Complete all favorited quests in this category"
                 >
                   <Star className="w-4 h-4 mr-2" />
@@ -1508,7 +1507,7 @@ export default function QuestsPage() {
                 <Button
                   onClick={handleBulkCompleteAllFavorites}
                   disabled={loading || quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length === 0}
-                  className="bg-black hover:bg-gray-800 disabled:bg-gray-900 disabled:text-gray-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
+                  className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-400 text-black px-4 py-3 font-bold rounded-lg shadow-lg"
                   aria-label="Complete all favorited quests across all categories"
                 >
                   <Star className="w-4 h-4 mr-2" />
