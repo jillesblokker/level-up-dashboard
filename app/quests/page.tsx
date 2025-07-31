@@ -1482,8 +1482,8 @@ export default function QuestsPage() {
       <MobileLayoutWrapper className="quests-page-container">
         <MobileContentWrapper>
           {error && <p className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{error}</p>}
-          <Tabs value={mainTab} onValueChange={v => setMainTab(v as 'quests' | 'challenges' | 'milestones' | 'recovery')} className="space-y-4">
-          <TabsList className="mb-4 w-full grid grid-cols-4">
+          <Tabs value={mainTab} onValueChange={v => setMainTab(v as 'quests' | 'challenges' | 'milestones' | 'recovery')} className="space-y-6">
+          <TabsList className="mb-6 w-full grid grid-cols-4">
             <TabsTrigger value="quests">Tasks</TabsTrigger>
             <TabsTrigger value="challenges">Challenges</TabsTrigger>
             <TabsTrigger value="milestones">Milestones</TabsTrigger>
@@ -1492,7 +1492,7 @@ export default function QuestsPage() {
 
           {/* Quests Tab */}
           <TabsContent value="quests">
-            <div className="mb-4 space-y-4">
+            <div className="mb-6 space-y-6">
               {/* Bulk Complete Favorites Button */}
               <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
                 <Button

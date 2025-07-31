@@ -120,7 +120,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
         <SheetTrigger asChild>
           <Button
             variant="ghost"
-            className="relative h-12 w-12 rounded-lg border border-amber-800/20 bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-sm hover:border-amber-500/40 transition-all duration-300"
+            className="relative h-14 w-14 rounded-lg border border-amber-800/20 bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-sm hover:border-amber-500/40 active:bg-amber-500/10 transition-all duration-300 touch-manipulation"
             aria-label="Open navigation menu"
           >
             <Menu className="h-6 w-6 text-amber-500" />
@@ -166,7 +166,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
             </div>
 
             {/* Navigation Items */}
-            <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+            <nav className="flex-1 p-4 space-y-3 overflow-y-auto">
               {mainNavItems.map((item) => {
                 const Icon = item.icon
                 return (
@@ -175,27 +175,28 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                     href={item.href}
                     onClick={() => setOpen(false)}
                     className={cn(
-                      "flex items-center gap-3 p-4 rounded-lg transition-all duration-300 group min-h-[44px]",
+                      "flex items-center gap-3 p-4 rounded-lg transition-all duration-300 group min-h-[48px] touch-manipulation",
                       isActive(item.href)
-                        ? "bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-500/30 text-amber-400"
-                        : "text-gray-300 hover:text-amber-400 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20"
+                        ? "bg-gradient-to-r from-amber-500/25 to-amber-600/25 border border-amber-500/40 text-amber-400 shadow-lg"
+                        : "text-gray-300 hover:text-amber-400 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 active:bg-amber-500/15"
                     )}
                     aria-label={`Navigate to ${item.label}`}
+                    aria-current={isActive(item.href) ? "page" : undefined}
                   >
                     <div className={cn(
-                      "p-2 rounded-md transition-all duration-300",
+                      "p-2.5 rounded-md transition-all duration-300 flex-shrink-0",
                       isActive(item.href)
-                        ? "bg-amber-500/20 text-amber-400"
+                        ? "bg-amber-500/25 text-amber-400 shadow-sm"
                         : "bg-gray-800/50 text-gray-400 group-hover:bg-amber-500/20 group-hover:text-amber-400"
                     )}>
                       <Icon className="h-5 w-5" />
                     </div>
-                    <div className="flex-1">
-                      <p className="font-medium">{item.label}</p>
-                      <p className="text-xs text-gray-500 group-hover:text-gray-400">{item.description}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm">{item.label}</p>
+                      <p className="text-xs text-gray-500 group-hover:text-gray-400 mt-0.5">{item.description}</p>
                     </div>
                     {isActive(item.href) && (
-                      <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+                      <div className="w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse flex-shrink-0" />
                     )}
                   </Link>
                 )
@@ -253,8 +254,9 @@ function ExpandableAccountSettings() {
     <div className="space-y-2">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center justify-between w-full p-3 rounded-lg bg-gradient-to-r from-gray-800/50 to-gray-700/50 border border-gray-700/50 hover:border-amber-500/30 transition-all duration-300 group"
+        className="flex items-center justify-between w-full p-4 rounded-lg bg-gradient-to-r from-gray-800/50 to-gray-700/50 border border-gray-700/50 hover:border-amber-500/30 active:bg-amber-500/10 transition-all duration-300 group touch-manipulation min-h-[48px]"
         aria-label="Toggle account settings"
+        aria-expanded={isExpanded}
       >
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full flex items-center justify-center">
@@ -281,7 +283,7 @@ function ExpandableAccountSettings() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center gap-3 p-2 rounded-lg text-gray-300 hover:text-amber-400 hover:bg-amber-500/10 transition-all duration-300 group"
+                className="flex items-center gap-3 p-3 rounded-lg text-gray-300 hover:text-amber-400 hover:bg-amber-500/10 active:bg-amber-500/15 transition-all duration-300 group touch-manipulation min-h-[44px]"
                 aria-label={`Navigate to ${item.label}`}
               >
                 <Icon className="h-4 w-4 text-gray-400 group-hover:text-amber-400" />

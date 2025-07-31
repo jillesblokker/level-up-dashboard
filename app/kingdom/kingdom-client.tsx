@@ -624,9 +624,9 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       </AlertDialog>
 
       {/* Main Content with Tabs */}
-      <div className="container mx-auto p-4" aria-label="kingdom-main-content">
+      <div className="container mx-auto p-6 space-y-6" aria-label="kingdom-main-content">
         <Tabs value={kingdomTab} onValueChange={setKingdomTab} className="w-full">
-          <TabsList className="mb-2 w-full grid grid-cols-3">
+          <TabsList className="mb-6 w-full grid grid-cols-3">
             <TabsTrigger value="thrivehaven">Thrivehaven</TabsTrigger>
             <TabsTrigger value="progress">Progress</TabsTrigger>
             <TabsTrigger value="inventory">Inventory</TabsTrigger>
@@ -645,7 +645,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             </div>
           </TabsContent>
           <TabsContent value="progress">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="w-full" aria-label="kingdom-stats-block-container">
                 <KingdomStatsBlock userId={userId} />
               </div>
