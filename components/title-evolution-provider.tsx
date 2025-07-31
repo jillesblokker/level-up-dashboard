@@ -7,11 +7,7 @@ import { TitleEvolutionProvider as Provider, useTitleEvolution } from '@/hooks/t
 function TitleEvolutionModalWrapper() {
   const { showModal, evolution, closeModal } = useTitleEvolution();
 
-  console.log('TitleEvolutionModalWrapper render:', {
-    showModal,
-    evolution: evolution ? `${evolution.oldTitle} -> ${evolution.newTitle}` : 'null',
-    evolutionData: evolution
-  });
+
 
   return (
     <>

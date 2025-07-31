@@ -91,12 +91,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
 
   const monster = monsterData[monsterType]
   
-  // Debug logging
-  console.log('Monster battle props:', { isOpen, monsterType, monster })
-  console.log('Monster image path:', monster?.image)
-  console.log('Monster data:', monsterData)
-  console.log('Monster type:', monsterType)
-  console.log('Sequence state:', { sequence, highlightedWeapon, isShowingSequence, isPlayerTurn, currentSequenceIndex })
+
 
   // Generate new sequence for current round
   const generateSequence = useCallback((round: number) => {

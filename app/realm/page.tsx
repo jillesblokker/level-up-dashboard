@@ -346,7 +346,6 @@ export default function RealmPage() {
     useEffect(() => {
       if (!Array.isArray(grid)) return;
       const hasIce = grid.some(row => row && row.some(tile => tile?.type === 'ice'));
-      console.log('[Realm] Penguin logic - hasIce:', hasIce, 'isPenguinPresent:', isPenguinPresent);
       
       if (!hasIce && isPenguinPresent) {
         setIsPenguinPresent(false);
@@ -1409,8 +1408,6 @@ export default function RealmPage() {
             const tile = grid[characterPosition.y]?.[characterPosition.x];
             if (!tile || ['mountain', 'water', 'lava', 'volcano'].includes(tile.type)) {
                 setCharacterPosition(defaultCharacterPosition);
-                // Removed toast message - this is expected behavior, not an error
-                console.log(`[Realm] Invalid start position, resetting to (${defaultCharacterPosition.x}, ${defaultCharacterPosition.y})`);
             }
         }
     }, [isLoading, grid, characterPosition, hasCheckedInitialPosition, setCharacterPosition, defaultCharacterPosition]);
@@ -1751,7 +1748,6 @@ export default function RealmPage() {
       if (isSheepPresent && sheepPos) {
         const tile = grid[sheepPos.y]?.[sheepPos.x];
         if (!tile || tile.type !== 'grass') {
-          console.log('[Realm] Sheep on invalid tile, finding new grass position');
           // Find a valid grass tile
           for (let y = 0; y < grid.length; y++) {
             const row = grid[y];
@@ -1761,7 +1757,6 @@ export default function RealmPage() {
               if (checkTile && checkTile.type === 'grass' && !checkTile.hasMonster) {
                 setSheepPos({ x, y });
                 localStorage.setItem('sheepPos', JSON.stringify({ x, y }));
-                console.log('[Realm] Sheep moved to valid position:', { x, y });
                 break;
               }
             }
