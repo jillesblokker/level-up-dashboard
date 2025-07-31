@@ -817,7 +817,14 @@ export default function RealmPage() {
             console.log('[Realm] Tile inventory update event received');
             if (!userId) return;
             
+            // Add a small delay to ensure database write is complete
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
             try {
+                // Comment out database reload since onUpdateTiles is working correctly
+                // The database reload was causing race conditions and overwriting correct data
+                console.log('[Realm] Skipping database reload - onUpdateTiles handles state updates correctly');
+                /*
                 // Reload tile inventory
                 const inventoryResult = await loadTileInventory(userId);
                 if (inventoryResult && inventoryResult.data && Object.keys(inventoryResult.data).length > 0) {
@@ -850,6 +857,7 @@ export default function RealmPage() {
                     console.log('[Realm] Updated inventoryAsItems from handleTileInventoryUpdate:', items.map(i => `${i.type}: ${i.quantity}`));
                     setInventoryAsItems(items);
                 }
+                */
             } catch (error) {
                 console.error('[Realm] Error reloading tile inventory:', error);
             }
