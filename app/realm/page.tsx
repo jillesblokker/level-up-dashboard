@@ -1778,22 +1778,22 @@ export default function RealmPage() {
         );
     }
 
-    // Get user level for starting quantities
-    const userLevel = (() => {
-        try {
-            const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
-            return stats.level || 1;
-        } catch (error) {
-            return 1;
-        }
-    })();
-
     // Load actual inventory from database and apply starting quantities if needed
     const [inventoryAsItems, setInventoryAsItems] = useState<TileInventoryItem[]>([]);
     
     useEffect(() => {
         const loadInventoryItems = async () => {
             if (!userId) return;
+            
+            // Get user level for starting quantities
+            const userLevel = (() => {
+                try {
+                    const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
+                    return stats.level || 1;
+                } catch (error) {
+                    return 1;
+                }
+            })();
             
             console.log('[Realm] Loading inventory items...');
             console.log('[Realm] User level:', userLevel);
@@ -1852,7 +1852,7 @@ export default function RealmPage() {
         };
         
         loadInventoryItems();
-    }, [userId, userLevel]);
+    }, [userId]);
 
     return (
         <>
