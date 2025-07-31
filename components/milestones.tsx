@@ -125,6 +125,10 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
     }
     const fetchMilestones = async () => {
       try {
+        if (!token) {
+          console.log('[Milestones] Skipping fetch - no token available');
+          return;
+        }
         setIsLoading(true);
         console.log('[Milestones] Fetching milestones with token:', token ? 'present' : 'missing');
         const response = await fetch('/api/milestones', {
@@ -555,13 +559,18 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
     const config = createPollingConfig(
       15000, // 15 seconds
       true,
-      (data) => setMilestones(data || []),
+      (data) => {
+        console.log('[Milestones] Polling success:', data);
+      },
       (error) => {
+        console.error('[Milestones] Polling error:', error);
         // Silent error handling for polling to avoid spam
       }
     );
 
-    pollingService.startPolling('milestones', fetchMilestones, config);
+    if (token) {
+      pollingService.startPolling('milestones', fetchMilestones, config);
+    }
     
     return () => {
       pollingService.stopPolling('milestones');
