@@ -182,16 +182,22 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     const quantity = buyQuantities[tile.type] || 1
     const totalCost = tile.cost * quantity
 
+    console.log('[Tile Inventory] Buy button clicked for', tile.type, 'tile');
+    console.log('[Tile Inventory] Quantity:', quantity, 'Cost:', totalCost);
+
     // Use the unified gold spending system
     if (spendGold(totalCost, `purchase-${quantity}-${tile.name || tile.type}-tiles`)) {
+      console.log('[Tile Inventory] Gold spent:', totalCost);
+      
       try {
         // Get user ID from Clerk
         if (!user?.id) {
-          console.error('No user ID found');
+          console.error('[Tile Inventory] No user ID found');
           toast.error('User not authenticated');
           return;
         }
 
+        console.log('[Tile Inventory] API call to addTileToInventory');
         // Use the tile inventory manager to add tiles
         const result = await addTileToInventory(user.id, {
           id: tile.id || tile.type,
@@ -202,7 +208,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
           connections: tile.connections || [],
         });
 
-        console.log('Tile purchase result:', result);
+        console.log('[Tile Inventory] Purchase result:', result);
 
         // Update parent component's state immediately
         const newTiles = tiles.map(item => 
@@ -210,9 +216,11 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
             ? { ...item, quantity: item.quantity + quantity }
             : item
         )
+        console.log('[Tile Inventory] Updating parent state');
         onUpdateTiles(newTiles)
         
         // Trigger a single inventory update event for realm page
+        console.log('[Tile Inventory] Event dispatched: tile-inventory-update');
         window.dispatchEvent(new Event('tile-inventory-update'));
         
         // Reset the quantity after purchase
@@ -221,7 +229,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         // Show success message
         toast.success(`Purchased ${quantity} ${tile.name || tile.type} tile(s)`)
       } catch (error) {
-        console.error('Error updating tile inventory:', error);
+        console.error('[Tile Inventory] Error updating tile inventory:', error);
         toast.error('Failed to update tile inventory');
       }
     }
@@ -314,6 +322,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
               
               // For place tab, use the actual tiles prop (which comes from realm page)
               const categoryTiles = tiles.filter(tile => category.tiles.includes(tile.type));
+              console.log('[Tile Inventory] Place tab tiles:', categoryTiles.map(t => `${t.type}: ${t.quantity}`));
               
               if (!categoryTiles.length) {
                 return (

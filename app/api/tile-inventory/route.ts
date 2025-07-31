@@ -59,6 +59,7 @@ export async function POST(req: NextRequest) {
       }
       
       if (existing) {
+        console.log('[API] POST /api/tile-inventory - Updating', tile.id, 'tile');
         // Update quantity
         const { data, error } = await supabase
           .from('tile_inventory')
@@ -69,8 +70,10 @@ export async function POST(req: NextRequest) {
           .single();
           
         if (error) throw error;
+        console.log('[API] Database updated:', tile.id, 'quantity =', existing.quantity + (tile.quantity || 1));
         return data;
       } else {
+        console.log('[API] POST /api/tile-inventory - Adding', tile.id, 'tile');
         // Insert new tile
         const { data, error } = await supabase
           .from('tile_inventory')
@@ -90,6 +93,7 @@ export async function POST(req: NextRequest) {
           .single();
           
         if (error) throw error;
+        console.log('[API] Database updated:', tile.id, 'quantity =', tile.quantity || 1);
         return data;
       }
     });

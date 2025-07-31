@@ -905,6 +905,7 @@ export default function RealmPage() {
                             cost: t.cost ?? 0,
                             quantity: t.quantity || 0,
                         }));
+                    console.log('[Realm] Updated inventoryAsItems:', items.map(i => `${i.type}: ${i.quantity}`));
                     setInventoryAsItems(items);
                 }
             } catch (error) {
@@ -1794,8 +1795,13 @@ export default function RealmPage() {
         const loadInventoryItems = async () => {
             if (!userId) return;
             
+            console.log('[Realm] Loading inventory items...');
+            console.log('[Realm] User level:', userLevel);
+            
             try {
                 const inventoryResult = await loadTileInventory(userId);
+                console.log('[Realm] Database result:', inventoryResult);
+                
                 if (inventoryResult && inventoryResult.data) {
                     const items: TileInventoryItem[] = Object.values(inventoryResult.data)
                         .filter((t: any) => t.type !== 'empty' && !['sheep', 'horse', 'special', 'swamp', 'treasure', 'monster'].includes(t.type))
@@ -1810,6 +1816,7 @@ export default function RealmPage() {
                     const hasFoundationTiles = items.some(item => foundationTiles.includes(item.type) && item.quantity > 0);
                     
                     if (!hasFoundationTiles && userLevel >= 1) {
+                        console.log('[Realm] No foundation tiles found, giving starting quantities');
                         // Give starting quantities for foundation tiles
                         foundationTiles.forEach(tileType => {
                             const existingItem = items.find(item => item.type === tileType);
@@ -1832,12 +1839,15 @@ export default function RealmPage() {
                                 });
                             }
                         });
+                    } else {
+                        console.log('[Realm] Found existing tiles:', items.map(i => `${i.type}: ${i.quantity}`));
                     }
                     
+                    console.log('[Realm] Inventory items loaded:', items.map(i => `${i.type}: ${i.quantity}`));
                     setInventoryAsItems(items);
                 }
             } catch (error) {
-                console.error('Error loading inventory items:', error);
+                console.error('[Realm] Error loading inventory items:', error);
             }
         };
         
