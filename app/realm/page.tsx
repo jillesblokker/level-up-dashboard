@@ -276,6 +276,9 @@ export default function RealmPage() {
     });
     const [characterStats, setCharacterStats] = useState(() => getCharacterStats());
 
+    // Load actual inventory from database and apply starting quantities if needed
+    const [inventoryAsItems, setInventoryAsItems] = useState<TileInventoryItem[]>([]);
+
     // Animal interaction modal state
     const [animalInteractionModal, setAnimalInteractionModal] = useState<{
       isOpen: boolean;
@@ -919,6 +922,80 @@ export default function RealmPage() {
             window.removeEventListener('tile-inventory-update', handleTileInventoryUpdate);
         };
     }, [userId, getToken]);
+
+    // Load inventory items from database and apply starting quantities if needed
+    useEffect(() => {
+        const loadInventoryItems = async () => {
+            if (!userId) return;
+            
+            // Get user level for starting quantities
+            const userLevel = (() => {
+                try {
+                    const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
+                    return stats.level || 1;
+                } catch (error) {
+                    return 1;
+                }
+            })();
+            
+            console.log('[Realm] Loading inventory items...');
+            console.log('[Realm] User level:', userLevel);
+            
+            try {
+                const inventoryResult = await loadTileInventory(userId);
+                console.log('[Realm] Database result:', inventoryResult);
+                
+                if (inventoryResult && inventoryResult.data) {
+                    const items: TileInventoryItem[] = Object.values(inventoryResult.data)
+                        .filter((t: any) => t.type !== 'empty' && !['sheep', 'horse', 'special', 'swamp', 'treasure', 'monster'].includes(t.type))
+                        .map((t: any) => ({
+                            ...t,
+                            cost: t.cost ?? 0,
+                            quantity: t.quantity || 0,
+                        }));
+                    
+                    // Check if user has any foundation tiles, if not, give starting quantities
+                    const foundationTiles = ['grass', 'water', 'forest', 'mountain'];
+                    const hasFoundationTiles = items.some(item => foundationTiles.includes(item.type) && item.quantity > 0);
+                    
+                    if (!hasFoundationTiles && userLevel >= 1) {
+                        console.log('[Realm] No foundation tiles found, giving starting quantities');
+                        // Give starting quantities for foundation tiles
+                        foundationTiles.forEach(tileType => {
+                            const existingItem = items.find(item => item.type === tileType);
+                            if (!existingItem || existingItem.quantity === 0) {
+                                items.push({
+                                    id: tileType,
+                                    name: tileType.charAt(0).toUpperCase() + tileType.slice(1),
+                                    type: tileType as TileType,
+                                    quantity: 5,
+                                    cost: 0,
+                                    connections: [],
+                                    description: '',
+                                    rotation: 0 as 0 | 90 | 180 | 270,
+                                    revealed: true,
+                                    isVisited: false,
+                                    x: 0,
+                                    y: 0,
+                                    ariaLabel: `${tileType} tile`,
+                                    image: `/images/tiles/${tileType}-tile.png`,
+                                });
+                            }
+                        });
+                    } else {
+                        console.log('[Realm] Found existing tiles:', items.map(i => `${i.type}: ${i.quantity}`));
+                    }
+                    
+                    console.log('[Realm] Inventory items loaded:', items.map(i => `${i.type}: ${i.quantity}`));
+                    setInventoryAsItems(items);
+                }
+            } catch (error) {
+                console.error('[Realm] Error loading inventory items:', error);
+            }
+        };
+        
+        loadInventoryItems();
+    }, [userId]);
 
     // Place tile: update grid and send only the changed tile to backend
     const handlePlaceTile = async (x: number, y: number) => {
@@ -1777,82 +1854,6 @@ export default function RealmPage() {
             </div>
         );
     }
-
-    // Load actual inventory from database and apply starting quantities if needed
-    const [inventoryAsItems, setInventoryAsItems] = useState<TileInventoryItem[]>([]);
-    
-    useEffect(() => {
-        const loadInventoryItems = async () => {
-            if (!userId) return;
-            
-            // Get user level for starting quantities
-            const userLevel = (() => {
-                try {
-                    const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
-                    return stats.level || 1;
-                } catch (error) {
-                    return 1;
-                }
-            })();
-            
-            console.log('[Realm] Loading inventory items...');
-            console.log('[Realm] User level:', userLevel);
-            
-            try {
-                const inventoryResult = await loadTileInventory(userId);
-                console.log('[Realm] Database result:', inventoryResult);
-                
-                if (inventoryResult && inventoryResult.data) {
-                    const items: TileInventoryItem[] = Object.values(inventoryResult.data)
-                        .filter((t: any) => t.type !== 'empty' && !['sheep', 'horse', 'special', 'swamp', 'treasure', 'monster'].includes(t.type))
-                        .map((t: any) => ({
-                            ...t,
-                            cost: t.cost ?? 0,
-                            quantity: t.quantity || 0,
-                        }));
-                    
-                    // Check if user has any foundation tiles, if not, give starting quantities
-                    const foundationTiles = ['grass', 'water', 'forest', 'mountain'];
-                    const hasFoundationTiles = items.some(item => foundationTiles.includes(item.type) && item.quantity > 0);
-                    
-                    if (!hasFoundationTiles && userLevel >= 1) {
-                        console.log('[Realm] No foundation tiles found, giving starting quantities');
-                        // Give starting quantities for foundation tiles
-                        foundationTiles.forEach(tileType => {
-                            const existingItem = items.find(item => item.type === tileType);
-                            if (!existingItem || existingItem.quantity === 0) {
-                                items.push({
-                                    id: tileType,
-                                    name: tileType.charAt(0).toUpperCase() + tileType.slice(1),
-                                    type: tileType as TileType,
-                                    quantity: 5,
-                                    cost: 0,
-                                    connections: [],
-                                    description: '',
-                                    rotation: 0 as 0 | 90 | 180 | 270,
-                                    revealed: true,
-                                    isVisited: false,
-                                    x: 0,
-                                    y: 0,
-                                    ariaLabel: `${tileType} tile`,
-                                    image: `/images/tiles/${tileType}-tile.png`,
-                                });
-                            }
-                        });
-                    } else {
-                        console.log('[Realm] Found existing tiles:', items.map(i => `${i.type}: ${i.quantity}`));
-                    }
-                    
-                    console.log('[Realm] Inventory items loaded:', items.map(i => `${i.type}: ${i.quantity}`));
-                    setInventoryAsItems(items);
-                }
-            } catch (error) {
-                console.error('[Realm] Error loading inventory items:', error);
-            }
-        };
-        
-        loadInventoryItems();
-    }, [userId]);
 
     return (
         <>
