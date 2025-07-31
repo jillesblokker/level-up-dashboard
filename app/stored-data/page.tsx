@@ -90,6 +90,7 @@ export default function StoredDataPage() {
   });
   
   const { user } = useUser();
+  const { getToken } = useAuth();
   const { supabase } = useSupabase();
   const { triggerTestModal, triggerTestModal2, triggerTestModal3, triggerTestModal4, triggerTestModal5, triggerTestModal6, triggerTestModal7, triggerTestModal8, triggerTestModal9, triggerTestModal10 } = useTitleEvolution()
 
@@ -289,7 +290,19 @@ export default function StoredDataPage() {
       try {
         const method = api.endpoint.includes('discover') || api.endpoint.includes('increment') ? 'POST' : 'GET';
         const body = method === 'POST' ? JSON.stringify({ test: true }) : null;
-        const headers = method === 'POST' ? { 'Content-Type': 'application/json' } : {};
+        const headers: Record<string, string> = method === 'POST' ? { 'Content-Type': 'application/json' } : {};
+        
+        // Add authorization header if user is authenticated
+        if (user?.id) {
+          try {
+            const token = await getToken();
+            if (token) {
+              headers['Authorization'] = `Bearer ${token}`;
+            }
+          } catch (tokenError) {
+            console.log('[Stored Data] Could not get token for API test:', tokenError);
+          }
+        }
 
         const response = await fetch(api.endpoint, {
           method,
