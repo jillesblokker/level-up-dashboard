@@ -1767,13 +1767,31 @@ export default function RealmPage() {
         );
     }
 
+    // Get user level for starting quantities
+    const userLevel = (() => {
+        try {
+            const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
+            return stats.level || 1;
+        } catch (error) {
+            return 1;
+        }
+    })();
+
     const inventoryAsItems: TileInventoryItem[] = Object.values(inventory)
         .filter(t => t.type !== 'empty' && !['sheep', 'horse', 'special', 'swamp', 'treasure', 'monster'].includes(t.type))
-        .map(t => ({
-            ...t,
-            cost: t.cost ?? 0,
-            quantity: t.owned ?? 0,
-        }));
+        .map(t => {
+            // For foundation tiles (level 0-20), give starting quantities to new players
+            let quantity = t.owned ?? 0;
+            if (['grass', 'water', 'forest', 'mountain'].includes(t.type) && userLevel >= 1 && quantity === 0) {
+                quantity = 5; // Start with 5 foundation tiles
+            }
+            
+            return {
+                ...t,
+                cost: t.cost ?? 0,
+                quantity: quantity,
+            };
+        });
 
     return (
         <>

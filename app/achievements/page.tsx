@@ -338,7 +338,7 @@ export default function Page() {
                 return (
                   <Card
                     key={creature.id}
-                    className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-center justify-center min-h-[580px] p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
+                    className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-center justify-center min-h-[640px] p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
                     aria-label={`creature-card-${creature.id}`}
                   >
                     <CardHeader className="w-full flex flex-col items-center text-center">
@@ -346,7 +346,7 @@ export default function Page() {
 
                     </CardHeader>
                     <CardContent className="flex flex-col items-center w-full px-1">
-                      <div className="relative w-full aspect-[3/4] mb-4 flex items-center justify-center">
+                      <div className="relative w-full aspect-[2/3] mb-4 flex items-center justify-center">
                         {unlocked ? (
                           <div className="absolute inset-0">
                             <CreatureCard
@@ -408,7 +408,7 @@ export default function Page() {
                   return (
                     <Card
                       key={achievement.id}
-                      className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-center justify-center min-h-[580px] p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
+                      className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-center justify-center min-h-[640px] p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
                       aria-label={`achievement-card-${achievement.id}`}
                     >
                       <CardHeader className="w-full flex flex-col items-center text-center">
@@ -416,7 +416,7 @@ export default function Page() {
 
                       </CardHeader>
                       <CardContent className="flex flex-col items-center w-full px-1">
-                        <div className="relative w-full aspect-[3/4] mb-4 flex items-center justify-center">
+                        <div className="relative w-full aspect-[2/3] mb-4 flex items-center justify-center">
                           {unlocked ? (
                             <div className="absolute inset-0">
                               <Image 
