@@ -1,0 +1,204 @@
+"use client"
+
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { OnboardingProgress } from './OnboardingProgress'
+import { OnboardingSkip } from './OnboardingSkip'
+import { WelcomeStep } from './OnboardingSteps/WelcomeStep'
+import { QuestStep } from './OnboardingSteps/QuestStep'
+import { GoldStep } from './OnboardingSteps/GoldStep'
+import { TileStep } from './OnboardingSteps/TileStep'
+import { KingdomStep } from './OnboardingSteps/KingdomStep'
+import { ProgressionStep } from './OnboardingSteps/ProgressionStep'
+import { CompleteStep } from './OnboardingSteps/CompleteStep'
+
+interface OnboardingModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onComplete: () => void
+}
+
+export type OnboardingStep = {
+  id: string
+  title: string
+  subtitle: string
+  component: React.ComponentType<any>
+}
+
+const ONBOARDING_STEPS: OnboardingStep[] = [
+  {
+    id: 'welcome',
+    title: 'Welcome to Level Up Habit God',
+    subtitle: 'Transform your habits into an epic kingdom',
+    component: WelcomeStep
+  },
+  {
+    id: 'quests',
+    title: 'Complete Quests',
+    subtitle: 'Earn gold and experience through daily tasks',
+    component: QuestStep
+  },
+  {
+    id: 'gold',
+    title: 'Earn Gold',
+    subtitle: 'Use your rewards to build your kingdom',
+    component: GoldStep
+  },
+  {
+    id: 'tiles',
+    title: 'Buy & Place Tiles',
+    subtitle: 'Build your kingdom one tile at a time',
+    component: TileStep
+  },
+  {
+    id: 'kingdom',
+    title: 'Create Your Kingdom',
+    subtitle: 'Watch your realm grow with every tile',
+    component: KingdomStep
+  },
+  {
+    id: 'progression',
+    title: 'Level Up & Unlock',
+    subtitle: 'Gain experience and unlock new content',
+    component: ProgressionStep
+  },
+  {
+    id: 'complete',
+    title: "You're Ready!",
+    subtitle: 'Your kingdom awaits',
+    component: CompleteStep
+  }
+]
+
+export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModalProps) {
+  const [currentStep, setCurrentStep] = useState(0)
+  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
+  const [isSkipping, setIsSkipping] = useState(false)
+
+  // Reset state when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setCurrentStep(0)
+      setCompletedSteps(new Set())
+      setIsSkipping(false)
+    }
+  }, [isOpen])
+
+  const handleNext = () => {
+    if (currentStep < ONBOARDING_STEPS.length - 1) {
+      setCompletedSteps(prev => new Set([...prev, currentStep]))
+      setCurrentStep(currentStep + 1)
+    } else {
+      handleComplete()
+    }
+  }
+
+  const handlePrevious = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1)
+    }
+  }
+
+  const handleComplete = () => {
+    setCompletedSteps(prev => new Set([...prev, currentStep]))
+    onComplete()
+    onClose()
+  }
+
+  const handleSkip = () => {
+    setIsSkipping(true)
+  }
+
+  const handleSkipConfirm = () => {
+    onClose()
+  }
+
+  const handleSkipCancel = () => {
+    setIsSkipping(false)
+  }
+
+  const currentStepData = ONBOARDING_STEPS[currentStep]
+  const CurrentStepComponent = currentStepData.component
+  const progress = ((currentStep + 1) / ONBOARDING_STEPS.length) * 100
+
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+      <Card className="w-full max-w-2xl mx-4 bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 shadow-2xl">
+        <CardContent className="p-0">
+          {/* Header */}
+          <div className="flex items-center justify-between p-6 border-b border-amber-800/20">
+            <div className="flex-1">
+              <OnboardingProgress progress={progress} currentStep={currentStep + 1} totalSteps={ONBOARDING_STEPS.length} />
+            </div>
+            <OnboardingSkip 
+              onSkip={handleSkip}
+              isSkipping={isSkipping}
+              onSkipConfirm={handleSkipConfirm}
+              onSkipCancel={handleSkipCancel}
+            />
+          </div>
+
+          {/* Content */}
+          <div className="p-6">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-white mb-2">{currentStepData.title}</h2>
+              <p className="text-amber-400 text-lg">{currentStepData.subtitle}</p>
+            </div>
+
+            <div className="min-h-[400px] flex items-center justify-center">
+              <CurrentStepComponent 
+                onNext={handleNext}
+                onPrevious={handlePrevious}
+                isFirstStep={currentStep === 0}
+                isLastStep={currentStep === ONBOARDING_STEPS.length - 1}
+                stepData={currentStepData}
+              />
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <div className="flex items-center justify-between p-6 border-t border-amber-800/20">
+            <Button
+              variant="ghost"
+              onClick={handlePrevious}
+              disabled={currentStep === 0}
+              className="text-amber-400 hover:text-amber-300 hover:bg-amber-500/10"
+            >
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Previous
+            </Button>
+
+            <div className="flex items-center gap-2">
+              {ONBOARDING_STEPS.map((_, index) => (
+                <div
+                  key={index}
+                  className={cn(
+                    "w-2 h-2 rounded-full transition-all duration-300",
+                    index === currentStep 
+                      ? "bg-amber-500" 
+                      : completedSteps.has(index)
+                        ? "bg-amber-400/50"
+                        : "bg-gray-600"
+                  )}
+                />
+              ))}
+            </div>
+
+            <Button
+              onClick={handleNext}
+              className="bg-amber-500 hover:bg-amber-600 text-black font-semibold"
+            >
+              {currentStep === ONBOARDING_STEPS.length - 1 ? 'Start Playing' : 'Next'}
+              <ChevronRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+} 

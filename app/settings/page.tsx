@@ -1,10 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ArrowLeft, Save, User, Shield } from "lucide-react"
+import { ArrowLeft, Save, User, Shield, Play } from "lucide-react"
 import Link from "next/link"
 // import { useSession, signIn, signOut } from "next-auth/react"
 import { Switch } from "@/components/ui/switch"
+import { useOnboarding } from "@/hooks/use-onboarding"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -37,6 +38,8 @@ export default function SettingsPage() {
   const [email, setEmail] = useState("")
   const [isGithubConnected, setIsGithubConnected] = useState(false)
   const [activeTab, setActiveTab] = useState("profile")
+  
+  const { openOnboarding, resetOnboarding } = useOnboarding()
 
   // Load user data
   useEffect(() => {
@@ -103,25 +106,23 @@ export default function SettingsPage() {
 
   const handleResetOnboarding = () => {
     try {
-      // Clear all onboarding flags
-      localStorage.removeItem("all-onboarding-disabled")
-      localStorage.removeItem("dashboard-onboarding-shown")
-      localStorage.removeItem("map-onboarding-shown")
-      localStorage.removeItem("market-onboarding-shown")
-      localStorage.removeItem("settings-onboarding-shown")
-
+      resetOnboarding()
       toast({
         title: "Onboarding Reset",
-        description: "All onboarding guides will be shown again.",
+        description: "The tutorial will be shown again on your next visit.",
       })
     } catch (error) {
       console.error("Error resetting onboarding:", error)
       toast({
         title: "Error",
-        description: "Failed to reset onboarding guides.",
+        description: "Failed to reset onboarding.",
         variant: "destructive",
       })
     }
+  }
+
+  const handleShowTutorial = () => {
+    openOnboarding()
   }
 
   const handleGithubToggle = async (checked: boolean) => {
@@ -223,23 +224,34 @@ export default function SettingsPage() {
           <TabsContent value="account" className="space-y-6">
             <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
               <CardHeader>
-                <CardTitle className="font-serif text-white">Onboarding Preferences</CardTitle>
+                <CardTitle className="font-serif text-white">Tutorial & Onboarding</CardTitle>
                 <CardDescription className="text-gray-400">Manage tutorial and onboarding settings</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <p className="text-sm text-white">Reset all onboarding guides to see them again when you visit each page.</p>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <p className="text-sm text-white">Show the tutorial again to refresh your knowledge of the game.</p>
+                    <Button
+                      variant="outline"
+                      className="text-white border-amber-800/20 hover:bg-amber-900/20"
+                      onClick={handleShowTutorial}
+                    >
+                      <Play className="mr-2 h-4 w-4" />
+                      Show Tutorial
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm text-white">Reset the tutorial to show it automatically on your next visit.</p>
+                    <Button
+                      variant="outline"
+                      className="text-white border-amber-800/20 hover:bg-amber-900/20"
+                      onClick={handleResetOnboarding}
+                    >
+                      Reset Tutorial
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
-              <CardFooter>
-                <Button
-                  variant="outline"
-                  className="text-white border-amber-800/20 hover:bg-amber-900/20"
-                  onClick={handleResetOnboarding}
-                >
-                  Reset Onboarding Guides
-                </Button>
-              </CardFooter>
             </Card>
           </TabsContent>
         </Tabs>

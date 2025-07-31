@@ -17,6 +17,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { GlobalErrorBoundary } from '@/components/global-error-boundary'
 import { TitleEvolutionProvider } from '@/components/title-evolution-provider'
 import { NavBar } from '@/components/nav-bar'
+import { OnboardingProvider } from '@/components/onboarding-provider'
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -98,16 +99,18 @@ export default function RootLayout({
               <GradientProvider>
                 <TitleEvolutionProvider>
                   <Providers>
-                    <div className="flex flex-col h-full">
-                      <AuthGate>
-                        <NavBar session={null} />
-                        <main className="flex-1 relative">
-                          {children}
-                        </main>
-                      </AuthGate>
-                      <Toaster />
-                      <SonnerToaster />
-                    </div>
+                    <OnboardingProvider>
+                      <div className="flex flex-col h-full">
+                        <AuthGate>
+                          <NavBar session={null} />
+                          <main className="flex-1 relative">
+                            {children}
+                          </main>
+                        </AuthGate>
+                        <Toaster />
+                        <SonnerToaster />
+                      </div>
+                    </OnboardingProvider>
                   </Providers>
                 </TitleEvolutionProvider>
               </GradientProvider>
