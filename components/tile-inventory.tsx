@@ -326,8 +326,11 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
               const category = tileCategories.find(cat => cat.id === selectedCategory);
               if (!category) return null;
               
-              // For place tab, use the actual tiles prop (which comes from realm page)
-              const categoryTiles = tiles.filter(tile => category.tiles.includes(tile.type));
+              // For place tab, use getTilesByCategory to show all tiles in category (same as buy tab)
+              console.log('[Tile Inventory] Place tab - tiles prop:', tiles.map(t => `${t.type}: ${t.quantity}`));
+              console.log('[Tile Inventory] Place tab - category:', category.id, 'includes:', category.tiles);
+              const categoryTiles = getTilesByCategory(selectedCategory);
+              console.log('[Tile Inventory] Place tab - category tiles:', categoryTiles.map(t => `${t.type}: ${t.quantity}`));
               
               if (!categoryTiles.length) {
                 return (
