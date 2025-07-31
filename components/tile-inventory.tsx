@@ -181,8 +181,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     const quantity = buyQuantities[tile.type] || 1
     const totalCost = tile.cost * quantity
 
-    console.log('[Tile Inventory] Buy button clicked for', tile.type, 'tile');
-    console.log('[Tile Inventory] Quantity:', quantity, 'Cost:', totalCost);
+
 
     // Use the unified gold spending system
     if (spendGold(totalCost, `purchase-${quantity}-${tile.name || tile.type}-tiles`)) {
@@ -194,17 +193,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
           return;
         }
 
-        console.log('[Tile Inventory] Calling addTileToInventory with:', {
-          userId: user.id,
-          tile: {
-            id: tile.id || tile.type,
-            type: tile.type,
-            name: tile.name,
-            quantity: quantity,
-            cost: tile.cost,
-            connections: tile.connections || [],
-          }
-        });
+
 
         // Use the tile inventory manager to add tiles
         const result = await addTileToInventory(user.id, {
@@ -216,7 +205,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
           connections: tile.connections || [],
         });
 
-        console.log('[Tile Inventory] Purchase completed successfully');
+
 
         // Update parent component's state immediately
         const newTiles = tiles.map(item => 

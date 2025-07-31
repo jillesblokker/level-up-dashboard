@@ -849,7 +849,6 @@ export default function RealmPage() {
                             cost: t.cost ?? 0,
                             quantity: t.quantity || 0,
                         }));
-                    console.log('[Realm] Updated inventoryAsItems from handleTileInventoryUpdate:', items.map(i => `${i.type}: ${i.quantity}`));
                     setInventoryAsItems(items);
                 }
                 */
