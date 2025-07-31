@@ -174,11 +174,11 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="bg-gray-800/50 border border-amber-800/20 rounded-lg p-3">
             <div className="flex flex-col items-center space-y-2">
-              <div className="w-12 h-12 bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg flex items-center justify-center overflow-hidden">
+              <div className="w-12 h-12 bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg flex items-center justify-center overflow-hidden relative">
                 <img 
                   src="/images/tiles/grass-tile.png" 
                   alt="Grass Tile"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover absolute inset-0"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.style.display = 'none';
@@ -192,7 +192,7 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
                     if (fallback) fallback.style.display = 'none';
                   }}
                 />
-                <MapIcon className="h-6 w-6 text-amber-400 fallback-icon" style={{ display: 'flex' }} />
+                <MapIcon className="h-6 w-6 text-amber-400 fallback-icon absolute inset-0 m-auto" style={{ display: 'flex' }} />
               </div>
               <div className="text-center">
                 <h5 className="font-medium text-white text-sm">Grass Tiles</h5>
@@ -203,11 +203,11 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
           
           <div className="bg-gray-800/50 border border-amber-800/20 rounded-lg p-3">
             <div className="flex flex-col items-center space-y-2">
-              <div className="w-12 h-12 bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg flex items-center justify-center overflow-hidden">
+              <div className="w-12 h-12 bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg flex items-center justify-center overflow-hidden relative">
                 <img 
                   src="/images/tiles/water-tile.png" 
                   alt="Water Tile"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover absolute inset-0"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.style.display = 'none';
@@ -221,7 +221,7 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
                     if (fallback) fallback.style.display = 'none';
                   }}
                 />
-                <MapIcon className="h-6 w-6 text-amber-400 fallback-icon" style={{ display: 'flex' }} />
+                <MapIcon className="h-6 w-6 text-amber-400 fallback-icon absolute inset-0 m-auto" style={{ display: 'flex' }} />
               </div>
               <div className="text-center">
                 <h5 className="font-medium text-white text-sm">Water Tiles</h5>
@@ -232,11 +232,11 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
           
           <div className="bg-gray-800/50 border border-amber-800/20 rounded-lg p-3">
             <div className="flex flex-col items-center space-y-2">
-              <div className="w-12 h-12 bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg flex items-center justify-center overflow-hidden">
+              <div className="w-12 h-12 bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg flex items-center justify-center overflow-hidden relative">
                 <img 
                   src="/images/tiles/forest-tile.png" 
                   alt="Forest Tile"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover absolute inset-0"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.style.display = 'none';
@@ -250,7 +250,7 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
                     if (fallback) fallback.style.display = 'none';
                   }}
                 />
-                <MapIcon className="h-6 w-6 text-amber-400 fallback-icon" style={{ display: 'flex' }} />
+                <MapIcon className="h-6 w-6 text-amber-400 fallback-icon absolute inset-0 m-auto" style={{ display: 'flex' }} />
               </div>
               <div className="text-center">
                 <h5 className="font-medium text-white text-sm">Forest Tiles</h5>

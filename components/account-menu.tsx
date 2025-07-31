@@ -13,6 +13,7 @@ import { useClerk, useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { eventBus } from "@/app/lib/event-bus";
 import { useOnboarding } from "@/hooks/use-onboarding";
+import { BookOpen } from "lucide-react";
 
 export function AccountMenu() {
   const { user } = useUser();
@@ -102,6 +103,7 @@ export function AccountMenu() {
             role="button"
             onClick={() => openOnboarding()}
           >
+            <BookOpen className="h-4 w-4 mr-2" />
             Guide
           </button>
         </DropdownMenuItem>
