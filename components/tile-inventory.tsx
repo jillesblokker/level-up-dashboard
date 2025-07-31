@@ -208,7 +208,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
           connections: tile.connections || [],
         });
 
-        console.log('[Tile Inventory] Purchase result:', result);
+        console.log('[Tile Inventory] Purchase completed successfully');
 
         // Update parent component's state immediately
         const newTiles = tiles.map(item => 

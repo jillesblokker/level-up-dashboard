@@ -925,8 +925,14 @@ export default function RealmPage() {
 
     // Load inventory items from database and apply starting quantities if needed
     useEffect(() => {
+        console.log('[Realm] Inventory loading useEffect triggered');
+        console.log('[Realm] userId:', userId);
+        
         const loadInventoryItems = async () => {
-            if (!userId) return;
+            if (!userId) {
+                console.log('[Realm] No userId, skipping inventory load');
+                return;
+            }
             
             // Get user level for starting quantities
             const userLevel = (() => {
@@ -995,6 +1001,11 @@ export default function RealmPage() {
         };
         
         loadInventoryItems();
+    }, [userId]);
+    
+    // Debug: Log when userId changes
+    useEffect(() => {
+        console.log('[Realm] userId changed:', userId);
     }, [userId]);
 
     // Place tile: update grid and send only the changed tile to backend
