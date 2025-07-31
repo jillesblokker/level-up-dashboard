@@ -57,7 +57,7 @@ export function CompleteStep({ onNext }: CompleteStepProps) {
           <CheckCircle className="h-10 w-10 text-black" />
         </div>
         <h3 className="text-2xl font-bold text-white">
-          You're Ready!
+          You&apos;re Ready!
         </h3>
         <p className="text-gray-300 text-lg">
           You now understand the core gameplay loop. Your kingdom awaits!
@@ -66,7 +66,7 @@ export function CompleteStep({ onNext }: CompleteStepProps) {
 
       {/* Gameplay Summary */}
       <div className="space-y-4">
-        <h4 className="text-lg font-semibold text-white">What You've Learned</h4>
+        <h4 className="text-lg font-semibold text-white">What You&apos;ve Learned</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {summaryItems.map((item, index) => {
             const Icon = item.icon

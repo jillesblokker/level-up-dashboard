@@ -127,11 +127,11 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <Card className="w-full max-w-2xl mx-4 bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 shadow-2xl">
-        <CardContent className="p-0">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+      <Card className="w-full max-w-2xl bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 shadow-2xl max-h-[90vh] overflow-hidden">
+        <CardContent className="p-0 flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-amber-800/20">
+          <div className="flex items-center justify-between p-4 md:p-6 border-b border-amber-800/20 flex-shrink-0">
             <div className="flex-1">
               <OnboardingProgress progress={progress} currentStep={currentStep + 1} totalSteps={ONBOARDING_STEPS.length} />
             </div>
@@ -144,13 +144,13 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
           </div>
 
           {/* Content */}
-          <div className="p-6">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">{currentStepData.title}</h2>
-              <p className="text-amber-400 text-lg">{currentStepData.subtitle}</p>
+          <div className="p-4 md:p-6 flex-1 overflow-y-auto">
+            <div className="text-center mb-4 md:mb-6">
+              <h2 className="text-xl md:text-2xl font-bold text-white mb-2">{currentStepData.title}</h2>
+              <p className="text-amber-400 text-base md:text-lg">{currentStepData.subtitle}</p>
             </div>
 
-            <div className="min-h-[400px] flex items-center justify-center">
+            <div className="min-h-[300px] md:min-h-[400px] flex items-center justify-center">
               <CurrentStepComponent 
                 onNext={handleNext}
                 onPrevious={handlePrevious}
@@ -162,23 +162,23 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
           </div>
 
           {/* Navigation */}
-          <div className="flex items-center justify-between p-6 border-t border-amber-800/20">
+          <div className="flex items-center justify-between p-4 md:p-6 border-t border-amber-800/20 flex-shrink-0">
             <Button
               variant="ghost"
               onClick={handlePrevious}
               disabled={currentStep === 0}
-              className="text-amber-400 hover:text-amber-300 hover:bg-amber-500/10"
+              className="text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 text-sm md:text-base"
             >
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              Previous
+              <ChevronLeft className="h-4 w-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Previous</span>
             </Button>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 md:gap-2">
               {ONBOARDING_STEPS.map((_, index) => (
                 <div
                   key={index}
                   className={cn(
-                    "w-2 h-2 rounded-full transition-all duration-300",
+                    "w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-all duration-300",
                     index === currentStep 
                       ? "bg-amber-500" 
                       : completedSteps.has(index)
@@ -191,10 +191,10 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
 
             <Button
               onClick={handleNext}
-              className="bg-amber-500 hover:bg-amber-600 text-black font-semibold"
+              className="bg-amber-500 hover:bg-amber-600 text-black font-semibold text-sm md:text-base"
             >
               {currentStep === ONBOARDING_STEPS.length - 1 ? 'Start Playing' : 'Next'}
-              <ChevronRight className="h-4 w-4 ml-2" />
+              <ChevronRight className="h-4 w-4 ml-1 md:ml-2" />
             </Button>
           </div>
         </CardContent>

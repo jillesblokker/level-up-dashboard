@@ -37,21 +37,21 @@ export function QuestStep({ onNext }: QuestStepProps) {
   }
 
   return (
-    <div className="w-full max-w-2xl space-y-6">
+    <div className="w-full max-w-2xl space-y-4 md:space-y-6">
       {/* Quest Categories */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-white mb-3">Quest Categories</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="space-y-3 md:space-y-4">
+        <h3 className="text-base md:text-lg font-semibold text-white mb-2 md:mb-3">Quest Categories</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
           {questCategories.map((category) => {
             const Icon = category.icon
             return (
               <Card key={category.id} className="bg-gray-800/50 border border-amber-800/20 hover:border-amber-500/40 transition-all duration-300">
-                <CardContent className="p-3 text-center">
-                  <div className={`w-8 h-8 mx-auto mb-2 ${category.bgColor} rounded-lg flex items-center justify-center`}>
-                    <Icon className={`h-4 w-4 ${category.color}`} />
-                  </div>
-                  <p className="text-xs font-medium text-white">{category.name}</p>
-                </CardContent>
+                              <CardContent className="p-2 md:p-3 text-center">
+                <div className={`w-6 h-6 md:w-8 md:h-8 mx-auto mb-1 md:mb-2 ${category.bgColor} rounded-lg flex items-center justify-center`}>
+                  <Icon className={`h-3 w-3 md:h-4 md:w-4 ${category.color}`} />
+                </div>
+                <p className="text-xs font-medium text-white">{category.name}</p>
+              </CardContent>
               </Card>
             )
           })}
@@ -59,9 +59,9 @@ export function QuestStep({ onNext }: QuestStepProps) {
       </div>
 
       {/* Sample Quests */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-white mb-3">Sample Quests</h3>
-        <div className="space-y-3">
+      <div className="space-y-3 md:space-y-4">
+        <h3 className="text-base md:text-lg font-semibold text-white mb-2 md:mb-3">Sample Quests</h3>
+        <div className="space-y-2 md:space-y-3">
           {sampleQuests.map((quest) => {
             const category = questCategories.find(c => c.id === quest.category)
             const Icon = category?.icon || Sword
@@ -77,15 +77,15 @@ export function QuestStep({ onNext }: QuestStepProps) {
                 }`}
                 onClick={() => handleQuestComplete(quest.id)}
               >
-                <CardContent className="p-4">
+                <CardContent className="p-3 md:p-4">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-8 h-8 ${category?.bgColor || 'bg-amber-500/20'} rounded-lg flex items-center justify-center`}>
-                        <Icon className={`h-4 w-4 ${category?.color || 'text-amber-400'}`} />
+                    <div className="flex items-center space-x-2 md:space-x-3">
+                      <div className={`w-6 h-6 md:w-8 md:h-8 ${category?.bgColor || 'bg-amber-500/20'} rounded-lg flex items-center justify-center`}>
+                        <Icon className={`h-3 w-3 md:h-4 md:w-4 ${category?.color || 'text-amber-400'}`} />
                       </div>
                       <div>
-                        <h4 className="font-medium text-white">{quest.name}</h4>
-                        <div className="flex items-center space-x-2 mt-1">
+                        <h4 className="font-medium text-white text-sm md:text-base">{quest.name}</h4>
+                        <div className="flex items-center space-x-1 md:space-x-2 mt-1">
                           <Badge variant="secondary" className="text-xs">
                             +{quest.xp} XP
                           </Badge>
@@ -96,7 +96,7 @@ export function QuestStep({ onNext }: QuestStepProps) {
                       </div>
                     </div>
                     {isCompleted && (
-                      <CheckCircle className="h-5 w-5 text-green-400" />
+                      <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-green-400" />
                     )}
                   </div>
                 </CardContent>
@@ -113,9 +113,9 @@ export function QuestStep({ onNext }: QuestStepProps) {
         </p>
         {completedQuests.size > 0 && (
           <div className="bg-amber-500/20 border border-amber-500/40 rounded-lg p-3">
-            <p className="text-amber-400 font-medium">
-              Great! You've completed {completedQuests.size} quest{completedQuests.size !== 1 ? 's' : ''} and earned rewards!
-            </p>
+                    <p className="text-amber-400 font-medium">
+          Great! You&apos;ve completed {completedQuests.size} quest{completedQuests.size !== 1 ? 's' : ''} and earned rewards!
+        </p>
           </div>
         )}
       </div>

@@ -48,7 +48,7 @@ export function GoldStep({ onNext }: GoldStepProps) {
         </div>
         <h3 className="text-lg font-semibold text-white">Your Gold Balance</h3>
         <p className="text-gray-300">
-          Gold is your kingdom's currency. Earn it by completing quests, spend it on tiles and items.
+          Gold is your kingdom&apos;s currency. Earn it by completing quests, spend it on tiles and items.
         </p>
       </div>
 

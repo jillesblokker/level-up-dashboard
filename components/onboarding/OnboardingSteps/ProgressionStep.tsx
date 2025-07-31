@@ -97,7 +97,7 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
               <span className="text-xl font-bold text-green-400">Level Up!</span>
             </div>
             <p className="text-green-300">
-              You've reached Level 2! New content has been unlocked.
+              You&apos;ve reached Level 2! New content has been unlocked.
             </p>
           </CardContent>
         </Card>
