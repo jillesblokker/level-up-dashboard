@@ -141,15 +141,18 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
       const isUnlocked = userLevel >= category.minLevel;
       
       // For foundation tiles (level 0-20), give starting quantities to new players
-      let defaultQuantity = 0;
+      let quantity = 0;
       if (category.id === 'foundation' && userLevel >= 1) {
-        // Give new players some starting tiles
-        defaultQuantity = userTile?.quantity || 5; // Start with 5 of each foundation tile
+        // If user has tiles, use their quantity. If not, start with 5
+        quantity = userTile ? userTile.quantity : 5;
+      } else {
+        // For other categories, use user's quantity or 0
+        quantity = userTile?.quantity || 0;
       }
       
       return {
         ...possibleTile,
-        quantity: userTile?.quantity || defaultQuantity,
+        quantity: quantity,
         unlocked: isUnlocked
       };
     });

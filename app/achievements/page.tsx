@@ -338,16 +338,12 @@ export default function Page() {
                 return (
                   <Card
                     key={creature.id}
-                    className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-center justify-center min-h-[480px] p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
+                    className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-center justify-center min-h-[520px] p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
                     aria-label={`creature-card-${creature.id}`}
                   >
                     <CardHeader className="w-full flex flex-col items-center text-center">
                       <CardTitle className={`text-lg font-semibold ${unlocked ? 'text-amber-400' : 'text-white'}`}>{creature.name} {creature.number}</CardTitle>
-                      {!unlocked && (
-                        <Badge variant="secondary" className="mt-2" aria-label={`creature-${creature.id}-undiscovered-badge`}>
-                          Undiscovered
-                        </Badge>
-                      )}
+
                     </CardHeader>
                     <CardContent className="flex flex-col items-center w-full px-1">
                       <div className="relative w-full aspect-[3/4] mb-4 flex items-center justify-center">
@@ -412,16 +408,12 @@ export default function Page() {
                   return (
                     <Card
                       key={achievement.id}
-                      className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-center justify-center min-h-[480px] p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
+                      className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-center justify-center min-h-[520px] p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
                       aria-label={`achievement-card-${achievement.id}`}
                     >
                       <CardHeader className="w-full flex flex-col items-center text-center">
                         <CardTitle className={`font-serif text-2xl ${unlocked ? 'text-amber-400' : 'text-white'}`}>{monsterName} #{achievement.id}</CardTitle>
-                        {!unlocked && (
-                          <Badge variant="secondary" className="mt-2" aria-label={`achievement-${achievement.id}-undiscovered-badge`}>
-                            Undiscovered
-                          </Badge>
-                        )}
+
                       </CardHeader>
                       <CardContent className="flex flex-col items-center w-full px-1">
                         <div className="relative w-full aspect-[3/4] mb-4 flex items-center justify-center">
