@@ -58,15 +58,15 @@ export function NotificationCenter() {
 
   const getNotificationColor = (type: string) => {
     switch (type) {
-      case 'achievement': return 'text-yellow-500'
-      case 'quest': return 'text-blue-500'
-      case 'levelup': return 'text-green-500'
-      case 'success': return 'text-green-500'
-      case 'event': return 'text-purple-500'
-      case 'discovery': return 'text-orange-500'
-      case 'monster': return 'text-red-500'
-      case 'system': return 'text-gray-500'
-      default: return 'text-gray-500'
+      case 'achievement': return 'text-amber-500'
+      case 'quest': return 'text-amber-500'
+      case 'levelup': return 'text-amber-500'
+      case 'success': return 'text-amber-500'
+      case 'event': return 'text-amber-500'
+      case 'discovery': return 'text-amber-500'
+      case 'monster': return 'text-amber-500'
+      case 'system': return 'text-amber-600'
+      default: return 'text-amber-600'
     }
   }
 

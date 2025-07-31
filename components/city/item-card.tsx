@@ -181,7 +181,7 @@ export function ItemCard({ item, onPurchase }: ItemCardProps) {
       
       <CardFooter>
         <Button
-          className="w-full bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 transition-all duration-300"
+          className="w-full bg-amber-500 hover:bg-amber-600 text-black transition-all duration-300"
           onClick={() => onPurchase(item)}
         >
           Purchase

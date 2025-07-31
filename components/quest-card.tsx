@@ -159,7 +159,7 @@ export default function QuestCard({
           <Badge 
             className={cn(
               "text-xs font-bold px-2 py-1",
-              isFeatured ? "bg-gradient-to-r from-amber-500 to-amber-600 text-black" : "bg-gradient-to-r from-green-500 to-green-600 text-white"
+              isFeatured ? "bg-amber-500 text-black" : "bg-amber-500 text-black"
             )}
           >
             {isFeatured ? "Featured" : "New"}

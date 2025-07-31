@@ -3,16 +3,16 @@ import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-amber-400 underline-offset-4 hover:underline hover:text-amber-300",
+        default: "bg-amber-500 text-black hover:bg-amber-600 disabled:bg-amber-800/50",
+        destructive: "bg-red-600 text-white hover:bg-red-700",
+        outline: "border border-amber-500 bg-transparent text-amber-500 hover:bg-amber-500 hover:text-black",
+        secondary: "bg-amber-900/20 text-amber-400 hover:bg-amber-800/30",
+        ghost: "text-amber-500 hover:bg-amber-900/20",
+        link: "text-amber-500 underline-offset-4 hover:underline hover:text-amber-400",
       },
       size: {
         default: "h-10 px-4 py-2",

@@ -103,7 +103,7 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
 
           <Button
             type="button"
-            className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 sm:ml-auto"
+            className="bg-amber-500 hover:bg-amber-600 text-black sm:ml-auto"
             onClick={handleClose}
           >
             Begin Adventure

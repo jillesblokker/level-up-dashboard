@@ -235,7 +235,7 @@ export default function MarketPage() {
               </Button>
             </Link>
             <Button
-              className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900"
+              className="bg-amber-500 hover:bg-amber-600 text-black"
               onClick={purchaseTiles}
             >
               <ShoppingCart className="mr-2 h-4 w-4" />
@@ -389,7 +389,7 @@ export default function MarketPage() {
                   <p className="text-lg font-bold text-amber-500">{totalCost} Gold</p>
                 </div>
                 <Button
-                  className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900"
+                  className="bg-amber-500 hover:bg-amber-600 text-black"
                   onClick={purchaseTiles}
                   disabled={cart.length === 0}
                 >

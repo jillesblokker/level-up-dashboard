@@ -67,14 +67,14 @@ const categoryLabels = {
 const questCategories = ['might', 'knowledge', 'honor', 'castle', 'craft', 'vitality', 'wellness', 'exploration'];
 
 const categoryColorMap: Record<string, string> = {
-  might: 'text-red-500 border-red-800',
-  knowledge: 'text-blue-500 border-blue-800',
-  honor: 'text-yellow-500 border-yellow-800',
-  castle: 'text-purple-500 border-purple-800',
-  craft: 'text-amber-500 border-amber-800',
-  vitality: 'text-green-500 border-green-800',
-  wellness: 'text-amber-400 border-amber-600',
-  exploration: 'text-blue-400 border-blue-600'
+  might: 'text-amber-500 border-amber-800/30 bg-amber-900/10',
+  knowledge: 'text-amber-500 border-amber-800/30 bg-amber-900/10',
+  honor: 'text-amber-500 border-amber-800/30 bg-amber-900/10',
+  castle: 'text-amber-500 border-amber-800/30 bg-amber-900/10',
+  craft: 'text-amber-500 border-amber-800/30 bg-amber-900/10',
+  vitality: 'text-amber-500 border-amber-800/30 bg-amber-900/10',
+  wellness: 'text-amber-500 border-amber-800/30 bg-amber-900/10',
+  exploration: 'text-amber-500 border-amber-800/30 bg-amber-900/10'
 };
 
 // --- 4-Day Workout Plan Data ---
