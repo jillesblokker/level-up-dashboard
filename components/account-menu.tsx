@@ -40,12 +40,16 @@ export function AccountMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-8 w-8">
+        <Button 
+          variant="ghost" 
+          className="relative h-10 w-10 md:h-8 md:w-8 rounded-full touch-manipulation"
+          aria-label="Account menu"
+        >
+          <Avatar className="h-10 w-10 md:h-8 md:w-8">
             {avatarType === 'uploaded' && user?.imageUrl ? (
               <AvatarImage src={user.imageUrl} alt="Profile" style={{ objectFit: 'cover', objectPosition: 'center' }} />
             ) : avatarType === 'default' ? (
-              <img src="/images/placeholders/item-placeholder.svg" alt="Default avatar" className="w-8 h-8 rounded-full object-contain bg-gray-800" />
+              <img src="/images/placeholders/item-placeholder.svg" alt="Default avatar" className="h-10 w-10 md:h-8 md:w-8 rounded-full object-contain bg-gray-800" />
             ) : (
               <AvatarFallback style={{ backgroundColor: avatarBgColor, color: avatarTextColor }}>
                 {displayName?.[0]?.toUpperCase() || '?'}
@@ -54,7 +58,7 @@ export function AccountMenu() {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
+      <DropdownMenuContent className="w-64 md:w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">User</p>
@@ -65,23 +69,35 @@ export function AccountMenu() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/account/profile">
+          <Link 
+            href="/account/profile"
+            className="min-h-[44px] md:min-h-[36px] flex items-center touch-manipulation"
+            aria-label="Profile page"
+          >
             Profile
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/account/monitoring">
+          <Link 
+            href="/account/monitoring"
+            className="min-h-[44px] md:min-h-[36px] flex items-center touch-manipulation"
+            aria-label="Monitoring page"
+          >
             Monitoring
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/account/stored-data" aria-label="Stored Data page">
+          <Link 
+            href="/account/stored-data" 
+            className="min-h-[44px] md:min-h-[36px] flex items-center touch-manipulation"
+            aria-label="Stored Data page"
+          >
             Stored Data
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <button
-            className="w-full text-left cursor-pointer"
+            className="w-full text-left cursor-pointer min-h-[44px] md:min-h-[36px] flex items-center touch-manipulation"
             aria-label="Show guide"
             role="button"
             onClick={() => openOnboarding()}
@@ -92,7 +108,7 @@ export function AccountMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <button
-            className="w-full text-left cursor-pointer"
+            className="w-full text-left cursor-pointer min-h-[44px] md:min-h-[36px] flex items-center touch-manipulation"
             aria-label="Log out"
             role="button"
             onClick={async () => {
