@@ -27,14 +27,20 @@ export function GoldStep({ onNext }: GoldStepProps) {
   }, [])
 
   useEffect(() => {
+    let timer: NodeJS.Timeout | undefined
+
     if (showEarning) {
       // Simulate spending gold on tiles
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         setShowSpending(true)
         setGoldBalance(prev => prev - 25) // Spend on a grass tile
       }, 2000)
+    }
 
-      return () => clearTimeout(timer)
+    return () => {
+      if (timer) {
+        clearTimeout(timer)
+      }
     }
   }, [showEarning])
 
