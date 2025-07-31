@@ -73,13 +73,22 @@ export function useMilestonesPolling(token: string | null) {
   const fetchMilestones = async () => {
     if (!token) throw new Error('No token provided');
     
+    console.log('[Milestones Poll] Token length:', token.length);
+    console.log('[Milestones Poll] Token starts with:', token.substring(0, 20) + '...');
+    
     const response = await fetch('/api/milestones', {
       headers: {
         Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
     });
 
+    console.log('[Milestones Poll] Response status:', response.status);
+    console.log('[Milestones Poll] Response headers:', Object.fromEntries(response.headers.entries()));
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.log('[Milestones Poll] Error response:', errorText);
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
@@ -90,8 +99,12 @@ export function useMilestonesPolling(token: string | null) {
   return usePolling('milestones', fetchMilestones, {
     enabled: !!token,
     interval: 15000,
-    onSuccess: (data) => {},
-    onError: (error) => {},
+    onSuccess: (data) => {
+      console.log('[Milestones Poll] Success:', data);
+    },
+    onError: (error) => {
+      console.error('[Milestones Poll] Error:', error);
+    },
   });
 }
 
@@ -100,13 +113,22 @@ export function useChallengesPolling(token: string | null) {
   const fetchChallenges = async () => {
     if (!token) throw new Error('No token provided');
     
+    console.log('[Challenges Poll] Token length:', token.length);
+    console.log('[Challenges Poll] Token starts with:', token.substring(0, 20) + '...');
+    
     const response = await fetch('/api/challenges', {
       headers: {
         Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
     });
 
+    console.log('[Challenges Poll] Response status:', response.status);
+    console.log('[Challenges Poll] Response headers:', Object.fromEntries(response.headers.entries()));
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.log('[Challenges Poll] Error response:', errorText);
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
@@ -117,8 +139,12 @@ export function useChallengesPolling(token: string | null) {
   return usePolling('challenges', fetchChallenges, {
     enabled: !!token,
     interval: 15000,
-    onSuccess: (data) => {},
-    onError: (error) => {},
+    onSuccess: (data) => {
+      console.log('[Challenges Poll] Success:', data);
+    },
+    onError: (error) => {
+      console.error('[Challenges Poll] Error:', error);
+    },
   });
 }
 
