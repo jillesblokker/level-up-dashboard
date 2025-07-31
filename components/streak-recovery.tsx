@@ -50,10 +50,14 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
 
   // Fetch comeback challenges
   useEffect(() => {
-    if (!token || !category) return;
+    if (!token || !category) {
+      console.log('[StreakRecovery] Skipping fetch - no token or category available');
+      return;
+    }
     
     async function fetchComebackChallenges() {
       try {
+        console.log('[StreakRecovery] Fetching comeback challenges with token:', token ? 'present' : 'missing');
         const res = await fetch(`/api/comeback-challenges?category=${encodeURIComponent(category)}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -80,7 +84,10 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
   }, [token, category, streakData]);
 
   const handleUseSafetyNet = async () => {
-    if (!token) return;
+    if (!token) {
+      console.log('[StreakRecovery] Cannot use safety net - no token available');
+      return;
+    }
     
     setLoadingAction('safety_net');
     try {
@@ -123,7 +130,19 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
   };
 
   const handleReconstructStreak = async () => {
-    if (!token || buildTokens < 5) return;
+    if (!token) {
+      console.log('[StreakRecovery] Cannot reconstruct streak - no token available');
+      return;
+    }
+    
+    if (buildTokens < 5) {
+      toast({
+        title: 'Insufficient Build Tokens',
+        description: 'You need 5 build tokens to reconstruct your streak',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     setLoadingAction('reconstruct');
     try {
@@ -176,7 +195,10 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
   };
 
   const handleComebackChallenge = async (challengeName: string) => {
-    if (!token) return;
+    if (!token) {
+      console.log('[StreakRecovery] Cannot complete comeback challenge - no token available');
+      return;
+    }
     
     setLoadingAction(`comeback_${challengeName}`);
     try {
