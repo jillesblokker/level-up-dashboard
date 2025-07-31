@@ -927,6 +927,8 @@ export default function RealmPage() {
     useEffect(() => {
         console.log('[Realm] Inventory loading useEffect triggered');
         console.log('[Realm] userId:', userId);
+        console.log('[Realm] isAuthLoaded:', isAuthLoaded);
+        console.log('[Realm] isGuest:', isGuest);
         
         const loadInventoryItems = async () => {
             if (!userId) {
@@ -1001,12 +1003,17 @@ export default function RealmPage() {
         };
         
         loadInventoryItems();
-    }, [userId]);
+    }, [userId, isAuthLoaded]);
     
     // Debug: Log when userId changes
     useEffect(() => {
         console.log('[Realm] userId changed:', userId);
     }, [userId]);
+    
+    // Debug: Log when component mounts
+    useEffect(() => {
+        console.log('[Realm] Component mounted');
+    }, []);
 
     // Place tile: update grid and send only the changed tile to backend
     const handlePlaceTile = async (x: number, y: number) => {
