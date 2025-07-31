@@ -21,13 +21,19 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
 
   // Check if onboarding should be shown on mount
   useEffect(() => {
+    let timer: NodeJS.Timeout | undefined
+
     if (shouldShowOnboarding()) {
       // Add a small delay to ensure the app is fully loaded
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         openOnboarding()
       }, 1000)
+    }
 
-      return () => clearTimeout(timer)
+    return () => {
+      if (timer) {
+        clearTimeout(timer)
+      }
     }
   }, [shouldShowOnboarding, openOnboarding])
 
