@@ -204,22 +204,15 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
 
         console.log('Tile purchase result:', result);
 
-        // Update local state after successful API call
+        // Update parent component's state immediately
         const newTiles = tiles.map(item => 
           item.type === tile.type 
             ? { ...item, quantity: item.quantity + quantity }
             : item
         )
-        
-        // Update parent component's state
         onUpdateTiles(newTiles)
         
-        // Also trigger the inventory update event for realm page
-        setTimeout(() => {
-          window.dispatchEvent(new Event('tile-inventory-update'));
-        }, 100);
-        
-        // Dispatch event to trigger a refresh of tile inventory
+        // Trigger a single inventory update event for realm page
         window.dispatchEvent(new Event('tile-inventory-update'));
         
         // Reset the quantity after purchase
@@ -319,29 +312,8 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
               const category = tileCategories.find(cat => cat.id === selectedCategory);
               if (!category) return null;
               
-              // For place tab, use actual user inventory, not default quantities
-              const categoryTiles = category.tiles.map(tileType => {
-                const userTile = tiles.find(t => t.type === tileType);
-                const isUnlocked = userLevel >= category.minLevel;
-                
-                return {
-                  id: tileType,
-                  name: tileType.charAt(0).toUpperCase() + tileType.slice(1),
-                  type: tileType as TileType,
-                  quantity: userTile?.quantity || 0,
-                  cost: 0, // Not needed for place tab
-                  connections: [],
-                  description: '',
-                  rotation: 0 as 0 | 90 | 180 | 270,
-                  revealed: true,
-                  isVisited: false,
-                  x: 0,
-                  y: 0,
-                  ariaLabel: `${tileType} tile`,
-                  image: `/images/tiles/${tileType}-tile.png`,
-                  unlocked: isUnlocked
-                };
-              });
+              // For place tab, use the actual tiles prop (which comes from realm page)
+              const categoryTiles = tiles.filter(tile => category.tiles.includes(tile.type));
               
               if (!categoryTiles.length) {
                 return (
@@ -513,9 +485,9 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                         key={tile.type}
                         className={cn(
                           "relative overflow-hidden transition-all duration-200",
-                          (!tile.unlocked || (tile.quantity === 0 && !tile.unlocked)) && "opacity-50",
-                          tile.unlocked && "hover:scale-105",
-                          tile.quantity === 0 && tile.unlocked && "border-2 border-amber-500 shadow-lg"
+                          (tile.quantity === 0 || userLevel < category.minLevel) && "opacity-50",
+                          userLevel >= category.minLevel && "hover:scale-105",
+                          tile.quantity === 0 && userLevel >= category.minLevel && "border-2 border-amber-500 shadow-lg"
                         )}
                       >
                         <div className="aspect-square relative group">
@@ -528,13 +500,13 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                           <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg">
                             {tile.quantity}
                           </div>
-                          {!tile.unlocked && (
+                          {userLevel < category.minLevel && (
                             <span className="absolute top-2 left-2 bg-gray-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg" aria-label="Locked tile badge">
                               🔒 Lvl {category.minLevel}
                             </span>
                           )}
-                          {tile.quantity === 0 && tile.unlocked && (
-                            <span className="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg" aria-label="Buyable tile badge">
+                          {tile.quantity === 0 && userLevel >= category.minLevel && (
+                            <span className="absolute top-2 left-2 bg-green-500 text-white text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg" aria-label="Buyable tile badge">
                               Buyable
                             </span>
                           )}
@@ -553,22 +525,22 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                               className="w-16 h-10 text-sm text-center px-2 py-1 border border-gray-700 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-gray-800"
                               id={`buy-quantity-${tile.type}`}
                               name={`buy-quantity-${tile.type}`}
-                              disabled={!tile.unlocked}
+                              disabled={userLevel < category.minLevel}
                             />
                             <Button
                               variant="outline"
                               size="sm"
                               className={cn(
                                 "flex-1 min-h-[40px] h-10",
-                                tile.unlocked 
+                                userLevel >= category.minLevel 
                                   ? "bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20 text-amber-500"
                                   : "bg-gray-600/50 border-gray-600 text-gray-400 cursor-not-allowed"
                               )}
-                              onClick={(e) => tile.unlocked && handleBuyTile(tile, e)}
-                              disabled={!tile.unlocked}
+                              onClick={(e) => userLevel >= category.minLevel && handleBuyTile(tile, e)}
+                              disabled={userLevel < category.minLevel}
                               aria-label={`Buy ${buyQuantities[tile.type] || 1} ${tile.name || tile.type} tile${(buyQuantities[tile.type] || 1) > 1 ? 's' : ''}`}
                             >
-                              {!tile.unlocked ? 'Locked' : 'Buy'}
+                              {userLevel < category.minLevel ? 'Locked' : 'Buy'}
                             </Button>
                           </div>
                         </div>
