@@ -161,7 +161,6 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
   // Listen for tile inventory updates
   useEffect(() => {
     const handleTileInventoryUpdate = () => {
-      console.log('Tile inventory update event received');
       // Trigger a refresh of the tile inventory
       if (user?.id) {
         // This will trigger the parent component to refresh the inventory

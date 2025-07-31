@@ -295,7 +295,6 @@ export default function RealmPage() {
 
     // Handler for tile size changes from MapGrid
     const handleTileSizeChange = useCallback((newTileSize: number) => {
-      console.log('[Realm] Tile size changed to:', newTileSize);
       setTileSize(newTileSize);
     }, []);
 
@@ -317,16 +316,7 @@ export default function RealmPage() {
       // Add other animal interactions here as needed
     }, []);
 
-    // Debug animal positioning
-    useEffect(() => {
-      console.log('[Realm] Animal positioning debug:', {
-        tileSize,
-        penguinPos: penguinPos ? { x: penguinPos.x * tileSize, y: penguinPos.y * tileSize } : null,
-        horsePos: horsePos ? { x: horsePos.x * tileSize, y: horsePos.y * tileSize } : null,
-        sheepPos: sheepPos ? { x: sheepPos.x * tileSize, y: sheepPos.y * tileSize } : null,
-        eaglePos: eaglePos ? { x: eaglePos.x * tileSize, y: eaglePos.y * tileSize } : null
-      });
-    }, [tileSize, penguinPos, horsePos, sheepPos, eaglePos]);
+
 
     // --- Penguin and Achievement Logic Helpers ---
     function findFirstIceTile(grid: Tile[][]): { x: number; y: number } | null {
@@ -359,27 +349,21 @@ export default function RealmPage() {
       console.log('[Realm] Penguin logic - hasIce:', hasIce, 'isPenguinPresent:', isPenguinPresent);
       
       if (!hasIce && isPenguinPresent) {
-        console.log('[Realm] Penguin logic - no ice tiles, removing penguin');
         setIsPenguinPresent(false);
         setPenguinPos(null);
       } else if (hasIce && !isPenguinPresent) {
-        console.log('[Realm] Penguin logic - ice tiles found, placing penguin');
         // Find the first ice tile, prioritizing center tiles
         let bestIcePos = null;
         const centerX = Math.floor(GRID_COLS / 2);
         const centerY = Math.floor(INITIAL_ROWS / 2);
-        
-        console.log('[Realm] Penguin logic - center area:', { centerX, centerY });
         
         // First try to find ice tiles in the center area
         for (let y = centerY - 1; y <= centerY + 1; y++) {
           for (let x = centerX - 1; x <= centerX + 1; x++) {
             if (y >= 0 && y < grid.length && x >= 0 && x < GRID_COLS) {
               const tile = grid[y]?.[x];
-              console.log('[Realm] Penguin logic - checking center tile:', { x, y, type: tile?.type });
               if (tile?.type === 'ice') {
                 bestIcePos = { x, y };
-                console.log('[Realm] Penguin logic - found center ice tile:', bestIcePos);
                 break;
               }
             }
@@ -389,18 +373,12 @@ export default function RealmPage() {
         
         // If no center ice tile found, find any ice tile
         if (!bestIcePos) {
-          console.log('[Realm] Penguin logic - no center ice tile, searching all tiles');
           bestIcePos = findFirstIceTile(grid);
-          console.log('[Realm] Penguin logic - found ice tile:', bestIcePos);
         }
         
-        console.log('[Realm] Penguin logic - final ice tile position:', bestIcePos);
         if (bestIcePos) {
           setPenguinPos(bestIcePos);
           setIsPenguinPresent(true);
-          console.log('[Realm] Penguin logic - penguin placed at:', bestIcePos);
-        } else {
-          console.log('[Realm] Penguin logic - no ice tile found for penguin');
         }
       }
     }, [grid]);
@@ -456,8 +434,6 @@ export default function RealmPage() {
 
       // Check if player is on the same tile as horse
       if (characterPosition.x === horsePos.x && characterPosition.y === horsePos.y) {
-        console.log('[Realm] Player encountered the horse!');
-        
         // Show animal interaction modal
         setAnimalInteractionModal({
           isOpen: true,
@@ -501,7 +477,6 @@ export default function RealmPage() {
           
           if (gridChanged) {
             setGrid(newGrid);
-            console.log('Transformed completed mystery tiles to grass tiles');
           }
         }
       }
@@ -643,44 +618,27 @@ export default function RealmPage() {
         const loadUserData = async () => {
             if (!isAuthLoaded || isGuest || !userId) return;
             
-            console.log('[Realm] loadUserData called for userId:', userId);
             setIsLoading(true);
             try {
                 // Load grid data
-                console.log('[Realm] Calling loadGridData...');
                 const gridResult = await loadGridData(userId);
-                console.log('[Data Loaders] loadGridData called for userId:', userId);
-                console.log('[Data Loaders] Making API call to: /api/data?type=grid&userId=' + userId);
                 
                 if (gridResult && gridResult.data) {
-                    console.log('[Data Loaders] API response status: 200');
-                    console.log('[Realm] Grid data received:', gridResult.data);
-                    console.log('[Realm] Grid data type:', typeof gridResult.data);
-                    console.log('[Realm] Grid data is array:', Array.isArray(gridResult.data));
-                    console.log('[Realm] Grid data length:', gridResult.data?.length);
-                    
                     // The API returns { data: { grid: [...] } }, so we need to access gridResult.data.grid
                     const actualGridData = gridResult.data.grid;
-                    console.log('[Realm] Actual grid data:', actualGridData);
-                    console.log('[Realm] Actual grid data type:', typeof actualGridData);
-                    console.log('[Realm] Actual grid data is array:', Array.isArray(actualGridData));
-                    console.log('[Realm] Actual grid data length:', actualGridData?.length);
                     
                     if (actualGridData && Array.isArray(actualGridData)) {
                         setGrid(actualGridData);
                     } else {
-                        console.log('[Realm] No valid grid data found, trying to load from realm-tiles API...');
                         // Try to load from realm-tiles API instead of CSV
                         try {
                             const res = await fetch('/api/realm-tiles');
                             const data = await res.json();
-                            console.log('[Realm] Realm-tiles API response:', { status: res.status, data });
                             if (res.ok && data.tiles && Array.isArray(data.tiles)) {
                                 const maxRow = Math.max(...data.tiles.map((row: any) => row.y ?? 0), INITIAL_ROWS - 1);
                                 const gridArr: Tile[][] = Array.from({ length: maxRow + 1 }, (_, y) =>
                                     Array.from({ length: GRID_COLS }, (_, x) => defaultTile('grass'))
                                 );
-                                console.log('[Realm] Processing tiles data:', data.tiles);
                                 data.tiles.forEach((row: any) => {
                                     if (!row) return;
                                     if (!gridArr[row.y] || !Array.isArray(gridArr[row.y])) return;
@@ -695,38 +653,29 @@ export default function RealmPage() {
                                             y: row.y,
                                             id: `${tileType}-${x}-${row.y}`,
                                         };
-                                        if (tileType !== 'grass') {
-                                            console.log('[Realm] Loaded tile:', { x, y: row.y, type: tileType, typeNum });
-                                        }
                                     }
                                 });
                                 setGrid(gridArr);
                             } else {
-                                console.log('[Realm] No valid tiles data, loading initial grid from CSV...');
                                 const initialGrid = await loadInitialGridFromCSV();
                                 setGrid(initialGrid);
                             }
                         } catch (err) {
                             console.error('[Realm] Error loading tiles:', err);
-                            console.log('[Realm] Loading initial grid from CSV...');
                             const initialGrid = await loadInitialGridFromCSV();
                             setGrid(initialGrid);
                         }
                     }
                 } else {
-                    console.log('[Data Loaders] API response status: 404 - using fallback');
                     // Fallback to API or create base grid
                     try {
-                        console.log('[Realm] Loading tiles from API...');
                         const res = await fetch('/api/realm-tiles');
                         const data = await res.json();
-                        console.log('[Realm] API response:', { status: res.status, data });
                         if (res.ok && data.tiles && Array.isArray(data.tiles)) {
                             const maxRow = Math.max(...data.tiles.map((row: any) => row.y ?? 0), INITIAL_ROWS - 1);
                             const gridArr: Tile[][] = Array.from({ length: maxRow + 1 }, (_, y) =>
                                 Array.from({ length: GRID_COLS }, (_, x) => defaultTile('empty'))
                             );
-                            console.log('[Realm] Processing tiles data:', data.tiles);
                             data.tiles.forEach((row: any) => {
                                 if (!row) return;
                                 if (!gridArr[row.y] || !Array.isArray(gridArr[row.y])) return;
@@ -741,21 +690,15 @@ export default function RealmPage() {
                                         y: row.y,
                                         id: `${tileType}-${x}-${row.y}`,
                                     };
-                                    if (tileType !== 'empty') {
-                                        console.log('[Realm] Loaded tile:', { x, y: row.y, type: tileType, typeNum });
-                                    }
                                 }
                             });
                             setGrid(gridArr);
                         } else {
-                            console.warn('[Realm] Invalid tiles data from API:', data);
-                            console.log('[Realm] Loading initial grid from CSV...');
                             const initialGrid = await loadInitialGridFromCSV();
                             setGrid(initialGrid);
                         }
                     } catch (err) {
                         console.error('[Realm] Error loading tiles:', err);
-                        console.log('[Realm] Loading initial grid from CSV...');
                         const initialGrid = await loadInitialGridFromCSV();
                         setGrid(initialGrid);
                     }
@@ -769,7 +712,6 @@ export default function RealmPage() {
 
                 // Load tile inventory
                 const inventoryResult = await loadTileInventory(userId);
-                console.log('[Realm] Inventory data received:', inventoryResult);
                 if (inventoryResult && inventoryResult.data && Object.keys(inventoryResult.data).length > 0) {
                     // Merge with initial inventory
                     const mergedInventory = { ...initialInventory };
