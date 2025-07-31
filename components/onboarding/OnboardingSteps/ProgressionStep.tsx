@@ -185,8 +185,14 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
                     const fallback = target.parentElement?.querySelector('.fallback-icon') as HTMLElement;
                     if (fallback) fallback.style.display = 'flex';
                   }}
+                  onLoad={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'block';
+                    const fallback = target.parentElement?.querySelector('.fallback-icon') as HTMLElement;
+                    if (fallback) fallback.style.display = 'none';
+                  }}
                 />
-                <MapIcon className="h-6 w-6 text-amber-400 fallback-icon" style={{ display: 'none' }} />
+                <MapIcon className="h-6 w-6 text-amber-400 fallback-icon" style={{ display: 'flex' }} />
               </div>
               <div className="text-center">
                 <h5 className="font-medium text-white text-sm">Grass Tiles</h5>
@@ -208,8 +214,14 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
                     const fallback = target.parentElement?.querySelector('.fallback-icon') as HTMLElement;
                     if (fallback) fallback.style.display = 'flex';
                   }}
+                  onLoad={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'block';
+                    const fallback = target.parentElement?.querySelector('.fallback-icon') as HTMLElement;
+                    if (fallback) fallback.style.display = 'none';
+                  }}
                 />
-                <MapIcon className="h-6 w-6 text-amber-400 fallback-icon" style={{ display: 'none' }} />
+                <MapIcon className="h-6 w-6 text-amber-400 fallback-icon" style={{ display: 'flex' }} />
               </div>
               <div className="text-center">
                 <h5 className="font-medium text-white text-sm">Water Tiles</h5>
@@ -231,8 +243,14 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
                     const fallback = target.parentElement?.querySelector('.fallback-icon') as HTMLElement;
                     if (fallback) fallback.style.display = 'flex';
                   }}
+                  onLoad={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'block';
+                    const fallback = target.parentElement?.querySelector('.fallback-icon') as HTMLElement;
+                    if (fallback) fallback.style.display = 'none';
+                  }}
                 />
-                <MapIcon className="h-6 w-6 text-amber-400 fallback-icon" style={{ display: 'none' }} />
+                <MapIcon className="h-6 w-6 text-amber-400 fallback-icon" style={{ display: 'flex' }} />
               </div>
               <div className="text-center">
                 <h5 className="font-medium text-white text-sm">Forest Tiles</h5>

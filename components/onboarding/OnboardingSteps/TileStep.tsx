@@ -88,8 +88,14 @@ export function TileStep({ onNext }: TileStepProps) {
                         const fallback = target.parentElement?.querySelector('.fallback-icon') as HTMLElement;
                         if (fallback) fallback.style.display = 'flex';
                       }}
+                      onLoad={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'block';
+                        const fallback = target.parentElement?.querySelector('.fallback-icon') as HTMLElement;
+                        if (fallback) fallback.style.display = 'none';
+                      }}
                     />
-                    <MapIcon className="h-6 w-6 md:h-8 md:w-8 text-amber-400 fallback-icon" style={{ display: 'none' }} />
+                    <MapIcon className="h-6 w-6 md:h-8 md:w-8 text-amber-400 fallback-icon" style={{ display: 'flex' }} />
                   </div>
                   <div>
                     <h4 className="font-medium text-white text-sm md:text-base">{tile.name}</h4>
