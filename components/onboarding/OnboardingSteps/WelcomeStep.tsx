@@ -42,9 +42,17 @@ export function WelcomeStep({ onNext }: WelcomeStepProps) {
           <Crown className="h-8 w-8 md:h-12 md:w-12 text-black" />
         </div>
         <h3 className="text-lg md:text-xl font-semibold text-white">
-          Welcome to Level Up Habit God
+          Welcome to Thrivehaven
         </h3>
         <p className="text-gray-300 text-sm md:text-lg leading-relaxed">
+          Every adventure is in need for a quest to achieve greatness. This is your chance to turn your life into a thrilling journey.
+        </p>
+      </div>
+
+      {/* What's in store section */}
+      <div className="space-y-3 md:space-y-4">
+        <h4 className="text-base md:text-lg font-semibold text-white">What&apos;s in store for you</h4>
+        <p className="text-gray-300 text-sm md:text-base leading-relaxed">
           Transform your daily habits into an epic kingdom-building adventure. 
           Complete quests, earn rewards, and watch your realm grow with every achievement.
         </p>

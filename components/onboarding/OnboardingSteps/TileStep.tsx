@@ -76,8 +76,20 @@ export function TileStep({ onNext }: TileStepProps) {
             >
               <CardContent className="p-3 md:p-4">
                 <div className="text-center space-y-2 md:space-y-3">
-                  <div className="w-12 h-12 md:w-16 md:h-16 mx-auto bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg flex items-center justify-center">
-                    <MapIcon className="h-6 w-6 md:h-8 md:w-8 text-amber-400" />
+                  <div className="w-12 h-12 md:w-16 md:h-16 mx-auto bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg flex items-center justify-center overflow-hidden">
+                    <img 
+                      src={`/images/tiles/${tile.id}-tile.png`} 
+                      alt={tile.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        // Fallback to icon if image fails to load
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const fallback = target.parentElement?.querySelector('.fallback-icon') as HTMLElement;
+                        if (fallback) fallback.style.display = 'flex';
+                      }}
+                    />
+                    <MapIcon className="h-6 w-6 md:h-8 md:w-8 text-amber-400 fallback-icon" style={{ display: 'none' }} />
                   </div>
                   <div>
                     <h4 className="font-medium text-white text-sm md:text-base">{tile.name}</h4>

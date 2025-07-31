@@ -9,6 +9,7 @@ import { OnboardingProgress } from './OnboardingProgress'
 import { OnboardingSkip } from './OnboardingSkip'
 import { WelcomeStep } from './OnboardingSteps/WelcomeStep'
 import { QuestStep } from './OnboardingSteps/QuestStep'
+import { ChallengesStep } from './OnboardingSteps/ChallengesStep'
 import { GoldStep } from './OnboardingSteps/GoldStep'
 import { TileStep } from './OnboardingSteps/TileStep'
 import { KingdomStep } from './OnboardingSteps/KingdomStep'
@@ -31,8 +32,8 @@ export type OnboardingStep = {
 const ONBOARDING_STEPS: OnboardingStep[] = [
   {
     id: 'welcome',
-    title: 'Welcome to Level Up Habit God',
-    subtitle: 'Transform your habits into an epic kingdom',
+    title: 'Welcome to Thrivehaven',
+    subtitle: 'Every adventure is in need for a quest to achieve greatness',
     component: WelcomeStep
   },
   {
@@ -40,6 +41,12 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
     title: 'Complete Quests',
     subtitle: 'Earn gold and experience through daily tasks',
     component: QuestStep
+  },
+  {
+    id: 'challenges',
+    title: 'Take on Challenges',
+    subtitle: 'Higher stakes quests with greater rewards',
+    component: ChallengesStep
   },
   {
     id: 'gold',
@@ -135,19 +142,13 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <Card className="w-full max-w-2xl bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 shadow-2xl max-h-[90vh] overflow-hidden">
+      <Card className="w-full max-w-2xl bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 shadow-2xl max-h-[90vh] flex flex-col">
         <CardContent className="p-0 flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-4 md:p-6 border-b border-amber-800/20 flex-shrink-0">
             <div className="flex-1">
               <OnboardingProgress progress={progress} currentStep={currentStep + 1} totalSteps={ONBOARDING_STEPS.length} />
             </div>
-            <OnboardingSkip 
-              onSkip={handleSkip}
-              isSkipping={isSkipping}
-              onSkipConfirm={handleSkipConfirm}
-              onSkipCancel={handleSkipCancel}
-            />
           </div>
 
           {/* Content */}
@@ -203,6 +204,16 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
               {currentStep === ONBOARDING_STEPS.length - 1 ? 'Start Playing' : 'Next'}
               <ChevronRight className="h-4 w-4 ml-1 md:ml-2" />
             </Button>
+          </div>
+
+          {/* Skip Button - Fixed at bottom */}
+          <div className="flex justify-center p-4 border-t border-amber-800/20 flex-shrink-0">
+            <OnboardingSkip 
+              onSkip={handleSkip}
+              isSkipping={isSkipping}
+              onSkipConfirm={handleSkipConfirm}
+              onSkipCancel={handleSkipCancel}
+            />
           </div>
         </CardContent>
       </Card>
