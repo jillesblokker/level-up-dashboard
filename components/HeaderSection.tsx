@@ -90,7 +90,7 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
       {imageSrc ? (
         <Image
           src={imageSrc}
-          alt={title + " header image"}
+          alt={(title || 'Untitled') + " header image"}
           fill
           className={cn(
             "object-cover object-center transition-all duration-800 ease-out",
@@ -113,7 +113,7 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
       />
       <div className="relative z-10 p-8 w-full flex flex-col items-center justify-center">
         <h1 className="text-4xl sm:text-5xl font-bold tracking-widest drop-shadow-lg font-medieval text-amber-500 text-center">
-          {title}
+          {title || 'Untitled'}
         </h1>
         {subtitle && (
           <p className="text-lg text-white/90 drop-shadow text-center mt-2 max-w-2xl">{subtitle}</p>
