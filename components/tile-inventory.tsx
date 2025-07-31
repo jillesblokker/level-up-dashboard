@@ -312,7 +312,29 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
               const category = tileCategories.find(cat => cat.id === selectedCategory);
               if (!category) return null;
               
-              const categoryTiles = getTilesByCategory(selectedCategory);
+              // For place tab, use actual user inventory, not default quantities
+              const categoryTiles = category.tiles.map(tileType => {
+                const userTile = tiles.find(t => t.type === tileType);
+                const isUnlocked = userLevel >= category.minLevel;
+                
+                return {
+                  id: tileType,
+                  name: tileType.charAt(0).toUpperCase() + tileType.slice(1),
+                  type: tileType as TileType,
+                  quantity: userTile?.quantity || 0,
+                  cost: 0, // Not needed for place tab
+                  connections: [],
+                  description: '',
+                  rotation: 0 as 0 | 90 | 180 | 270,
+                  revealed: true,
+                  isVisited: false,
+                  x: 0,
+                  y: 0,
+                  ariaLabel: `${tileType} tile`,
+                  image: `/images/tiles/${tileType}-tile.png`,
+                  unlocked: isUnlocked
+                };
+              });
               
               if (!categoryTiles.length) {
                 return (
