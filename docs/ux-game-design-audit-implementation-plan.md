@@ -51,12 +51,15 @@ This document outlines the implementation plan based on the comprehensive UX/gam
   - Body: `text-base` (16px)
   - Small: `text-sm` (14px)
 
-#### **1.3 Card Design Enhancement**
+#### **1.3 Card Design Enhancement** ✅ **COMPLETED**
 - **Task**: Add visual depth and consistent styling
-- **Files to update**:
-  - `components/ui/card.tsx` - enhance card variants
-  - All page components using cards
-- **Implementation**: Add `border-amber-800/20`, subtle shadows, hover states
+- **Files updated**:
+  - `components/ui/card.tsx` - enhance card variants ✅
+  - `components/quest-card.tsx` - improve quest card design ✅
+  - `app/achievements/page.tsx` - enhance achievement cards ✅
+  - `app/market/page.tsx` - improve market tile cards ✅
+  - `app/kingdom/kingdom-client.tsx` - enhance inventory cards ✅
+- **Implementation**: Added `border-amber-800/20`, subtle shadows, hover states, scale animations
 
 ### **Phase 2: Navigation & Layout (Week 2-3)**
 

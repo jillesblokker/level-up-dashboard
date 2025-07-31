@@ -410,7 +410,7 @@ export default function MarketPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredTiles.map((tile) => (
-                <Card key={tile.id} className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
+                <Card key={tile.id} className="bg-black border-amber-800/20 hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-200">
                   <CardContent className="p-4">
                     <div className="aspect-square w-full rounded-md overflow-hidden mb-3">
                       <TileCard 

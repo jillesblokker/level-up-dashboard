@@ -287,7 +287,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const renderItemCard = (item: KingdomInventoryItem, isEquipped: boolean = false) => (
     <Card 
       key={item.id} 
-      className={`bg-gradient-to-br from-gray-900/90 to-gray-800/90 border-2 border-amber-500/30 rounded-xl shadow-lg transition-all duration-300 hover:border-amber-400/50 hover:shadow-amber-500/20 hover:-translate-y-1 ${isEquipped ? 'ring-2 ring-amber-500 shadow-amber-500/30' : ''}`}
+      className={`bg-black border-2 border-amber-500/30 rounded-xl shadow-lg transition-all duration-300 hover:border-amber-400/50 hover:shadow-amber-500/20 hover:-translate-y-1 hover:scale-[1.02] ${isEquipped ? 'ring-2 ring-amber-500 shadow-amber-500/30' : ''}`}
       aria-label={`inventory-item-${item.id}`}
     >
       {/* Full-width image container */}
