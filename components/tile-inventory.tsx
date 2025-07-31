@@ -194,6 +194,18 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
           return;
         }
 
+        console.log('[Tile Inventory] Calling addTileToInventory with:', {
+          userId: user.id,
+          tile: {
+            id: tile.id || tile.type,
+            type: tile.type,
+            name: tile.name,
+            quantity: quantity,
+            cost: tile.cost,
+            connections: tile.connections || [],
+          }
+        });
+
         // Use the tile inventory manager to add tiles
         const result = await addTileToInventory(user.id, {
           id: tile.id || tile.type,

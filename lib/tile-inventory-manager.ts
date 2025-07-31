@@ -33,23 +33,33 @@ export async function getTileInventory(userId: string): Promise<TileInventoryIte
 }
 
 export async function addTileToInventory(userId: string, tile: TileInventoryItem) {
-  if (!userId) return;
+  console.log('[Tile Inventory Manager] addTileToInventory called with:', { userId, tile });
+  
+  if (!userId) {
+    console.error('[Tile Inventory Manager] No userId provided');
+    return;
+  }
   
   try {
+    console.log('[Tile Inventory Manager] Making API call to /api/tile-inventory');
     const response = await authenticatedFetch('/api/tile-inventory', {
       method: 'POST',
       body: JSON.stringify({ tile }),
     }, 'Add Tile Inventory');
 
     if (!response) {
+      console.error('[Tile Inventory Manager] No response from API');
       return;
     }
 
+    console.log('[Tile Inventory Manager] API response status:', response.status);
+    
     if (!response.ok) {
-      console.error('[Tile Inventory] Failed to add tile to inventory:', response.status, response.statusText);
+      console.error('[Tile Inventory Manager] Failed to add tile to inventory:', response.status, response.statusText);
       return;
     }
 
+    console.log('[Tile Inventory Manager] Tile added successfully, dispatching update event');
     // Dispatch event to notify components
     window.dispatchEvent(new Event('tile-inventory-update'));
   } catch (error) {
