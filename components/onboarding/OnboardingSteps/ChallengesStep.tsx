@@ -19,53 +19,56 @@ export function ChallengesStep({ onNext }: ChallengesStepProps) {
   const challenges = [
     {
       id: '1',
-      name: '7-Day Streak',
-      description: 'Complete quests for 7 days in a row',
+      name: 'Push-up',
+      description: 'Start in high plank, keep core tight, lower to near-ground, push up (3x12)',
       difficulty: 'Medium',
-      reward: '50 XP + 100 Gold',
+      reward: '50 XP + 25 Gold',
       icon: Target,
       color: 'text-blue-400',
-      bgColor: 'bg-blue-500/20'
+      bgColor: 'bg-blue-500/20',
+      category: 'Push Day (Chest, Shoulders, Triceps)'
     },
     {
       id: '2',
-      name: 'Kingdom Builder',
-      description: 'Place 10 tiles in your kingdom',
-      difficulty: 'Easy',
-      reward: '25 XP + 50 Gold',
+      name: 'Plank',
+      description: 'Hold high plank position, keep core tight, breathe steady (3x45 sec)',
+      difficulty: 'Medium',
+      reward: '50 XP + 25 Gold',
       icon: Trophy,
       color: 'text-amber-400',
-      bgColor: 'bg-amber-500/20'
+      bgColor: 'bg-amber-500/20',
+      category: 'Core & Flexibility'
     },
     {
       id: '3',
-      name: 'Quest Master',
-      description: 'Complete 20 quests in a week',
+      name: 'Burpee',
+      description: 'Squat, jump to plank, jump in, explode up – repeat (3x15)',
       difficulty: 'Hard',
-      reward: '100 XP + 200 Gold',
+      reward: '75 XP + 35 Gold',
       icon: Star,
       color: 'text-purple-400',
-      bgColor: 'bg-purple-500/20'
+      bgColor: 'bg-purple-500/20',
+      category: 'HIIT & Full Body'
     }
   ]
 
   const milestones = [
     {
       id: '1',
-      name: 'Level 5 Achievement',
-      description: 'Reach level 5 to unlock new quest categories',
+      name: 'Workout Consistency',
+      description: 'Complete 7 workout challenges in a week',
       progress: 3,
-      total: 5,
+      total: 7,
       icon: Zap,
       color: 'text-green-400',
       bgColor: 'bg-green-500/20'
     },
     {
       id: '2',
-      name: 'Gold Collector',
-      description: 'Accumulate 1000 gold to unlock rare tiles',
-      progress: 450,
-      total: 1000,
+      name: 'Strength Builder',
+      description: 'Complete 20 strength-based challenges',
+      progress: 12,
+      total: 20,
       icon: Trophy,
       color: 'text-yellow-400',
       bgColor: 'bg-yellow-500/20'

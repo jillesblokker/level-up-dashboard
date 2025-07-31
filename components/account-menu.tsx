@@ -12,6 +12,7 @@ import {
 import { useClerk, useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { eventBus } from "@/app/lib/event-bus";
+import { useOnboarding } from "@/hooks/use-onboarding";
 
 export function AccountMenu() {
   const { user } = useUser();
@@ -19,6 +20,7 @@ export function AccountMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [profileUpdateCount, setProfileUpdateCount] = useState(0);
+  const { openOnboarding } = useOnboarding();
 
   useEffect(() => {
     const refresh = async () => {
@@ -76,6 +78,16 @@ export function AccountMenu() {
           <Link href="/account/stored-data" aria-label="Stored Data page">
             Stored Data
           </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <button
+            className="w-full text-left cursor-pointer"
+            aria-label="Show guide"
+            role="button"
+            onClick={() => openOnboarding()}
+          >
+            Guide
+          </button>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>

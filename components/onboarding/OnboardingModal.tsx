@@ -142,7 +142,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <Card className="w-full max-w-2xl bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 shadow-2xl max-h-[90vh] flex flex-col">
+      <Card className="w-full max-w-2xl bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 shadow-2xl h-[90vh] flex flex-col">
         <CardContent className="p-0 flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-4 md:p-6 border-b border-amber-800/20 flex-shrink-0">
@@ -152,20 +152,22 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
           </div>
 
           {/* Content */}
-          <div className="p-4 md:p-6 flex-1 overflow-y-auto">
-            <div className="text-center mb-4 md:mb-6">
-              <h2 className="text-xl md:text-2xl font-bold text-white mb-2">{currentStepData.title}</h2>
-              <p className="text-amber-400 text-base md:text-lg">{currentStepData.subtitle}</p>
-            </div>
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-4 md:p-6">
+              <div className="text-center mb-4 md:mb-6">
+                <h2 className="text-xl md:text-2xl font-bold text-white mb-2">{currentStepData.title}</h2>
+                <p className="text-amber-400 text-base md:text-lg">{currentStepData.subtitle}</p>
+              </div>
 
-            <div className="min-h-[300px] md:min-h-[400px] flex items-center justify-center">
-              <CurrentStepComponent 
-                onNext={handleNext}
-                onPrevious={handlePrevious}
-                isFirstStep={currentStep === 0}
-                isLastStep={currentStep === ONBOARDING_STEPS.length - 1}
-                stepData={currentStepData}
-              />
+              <div className="min-h-[200px] md:min-h-[300px] flex items-center justify-center">
+                <CurrentStepComponent 
+                  onNext={handleNext}
+                  onPrevious={handlePrevious}
+                  isFirstStep={currentStep === 0}
+                  isLastStep={currentStep === ONBOARDING_STEPS.length - 1}
+                  stepData={currentStepData}
+                />
+              </div>
             </div>
           </div>
 
