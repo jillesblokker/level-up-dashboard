@@ -160,16 +160,32 @@ export class GlobalErrorBoundary extends React.Component<ErrorBoundaryProps, Err
                   
                   <Button
                     onClick={() => {
-                      // Clear localStorage and reload
-                      localStorage.clear()
+                      // Clear only non-critical data and reload
+                      const criticalKeys = [
+                        'character-stats',
+                        'kingdom-grid-expansions',
+                        'onboarding-state',
+                        'quest-progress',
+                        'challenge-progress',
+                        'milestone-progress'
+                      ];
+                      
+                      // Clear all except critical game data
+                      for (let i = localStorage.length - 1; i >= 0; i--) {
+                        const key = localStorage.key(i);
+                        if (key && !criticalKeys.includes(key)) {
+                          localStorage.removeItem(key);
+                        }
+                      }
+                      
                       window.location.reload()
                     }}
                     variant="outline"
                     className="w-full border-red-800/50 text-red-400 hover:bg-red-900/20"
-                    aria-label="Clear data and reload"
+                    aria-label="Clear non-critical data and reload"
                   >
                     <AlertTriangle className="h-4 w-4 mr-2" />
-                    Clear Data & Reload
+                    Clear Cache & Reload
                   </Button>
                 </div>
               </div>

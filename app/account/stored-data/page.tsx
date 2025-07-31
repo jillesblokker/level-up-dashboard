@@ -254,6 +254,7 @@ export default function StoredDataPage() {
   // Clear all data
   const clearAll = () => {
     if (confirm('Are you sure you want to clear all stored data? This action cannot be undone.')) {
+      // Clear all localStorage data
       localStorage.clear()
       setStorageItems([])
       setSelectedItems(new Set())
