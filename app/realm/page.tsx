@@ -814,6 +814,7 @@ export default function RealmPage() {
     // Listen for tile inventory updates
     useEffect(() => {
         const handleTileInventoryUpdate = async () => {
+            console.log('[Realm] Tile inventory update event received');
             if (!userId) return;
             
             try {
@@ -846,6 +847,7 @@ export default function RealmPage() {
                             cost: t.cost ?? 0,
                             quantity: t.quantity || 0,
                         }));
+                    console.log('[Realm] Updated inventoryAsItems from handleTileInventoryUpdate:', items.map(i => `${i.type}: ${i.quantity}`));
                     setInventoryAsItems(items);
                 }
             } catch (error) {
@@ -1946,6 +1948,11 @@ export default function RealmPage() {
                                 selectedTile={selectedTile}
                                 onSelectTile={setSelectedTile}
                                 onUpdateTiles={(newTiles: typeof inventoryAsItems) => {
+                                    console.log('[Realm] onUpdateTiles called with:', newTiles.map(i => `${i.type}: ${i.quantity}`));
+                                    // Update the inventoryAsItems state directly
+                                    setInventoryAsItems(newTiles);
+                                    
+                                    // Also update the inventory state for compatibility
                                     setInventory(prev => {
                                         const updated = { ...prev };
                                         newTiles.forEach((tile: typeof inventoryAsItems[number]) => {
