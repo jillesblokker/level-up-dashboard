@@ -226,9 +226,6 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         )
         onUpdateTiles(newTiles)
         
-        // Trigger a single inventory update event for realm page
-        window.dispatchEvent(new Event('tile-inventory-update'));
-        
         // Reset the quantity after purchase
         setBuyQuantities(prev => ({ ...prev, [tile.type]: 1 }))
         
