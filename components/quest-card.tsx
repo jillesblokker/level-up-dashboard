@@ -170,7 +170,7 @@ export default function QuestCard({
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <CardTitle className="text-lg font-bold text-white line-clamp-2 group-hover:text-amber-400 transition-colors duration-300">
+            <CardTitle className="text-xl font-semibold text-white line-clamp-2 group-hover:text-amber-400 transition-colors duration-300">
               {title}
             </CardTitle>
             <CardDescription className="text-sm text-gray-400 line-clamp-2 mt-1">
@@ -205,7 +205,7 @@ export default function QuestCard({
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="text-gray-400">Progress</span>
-            <span className="text-amber-400 font-medium">
+            <span className="text-amber-400 font-semibold">
               {progress} / {maxProgress}
             </span>
           </div>
@@ -248,16 +248,16 @@ export default function QuestCard({
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1 text-amber-400">
               <Star className="h-4 w-4" />
-              <span className="text-sm font-medium">{reward.experience} XP</span>
+              <span className="text-sm font-semibold">{reward.experience} XP</span>
             </div>
             <div className="flex items-center gap-1 text-yellow-400">
               <Trophy className="h-4 w-4" />
-              <span className="text-sm font-medium">{reward.gold} Gold</span>
+              <span className="text-sm font-semibold">{reward.gold} Gold</span>
             </div>
             {reward.items && reward.items.length > 0 && (
               <div className="flex items-center gap-1 text-purple-400">
                 <Zap className="h-4 w-4" />
-                <span className="text-sm font-medium">{reward.items.length} Items</span>
+                <span className="text-sm font-semibold">{reward.items.length} Items</span>
               </div>
             )}
           </div>

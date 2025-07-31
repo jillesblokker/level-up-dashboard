@@ -320,7 +320,7 @@ export default function Page() {
           {/* Original Creatures Section */}
           <div className="mb-8">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-serif text-amber-400">Creatures</h2>
+              <h2 className="text-xl font-semibold text-amber-400">Creatures</h2>
               <button
                 type="button"
                 className="px-6 py-2 rounded-lg bg-amber-500 text-white font-semibold shadow-md hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-opacity-75 transition-all duration-200"
@@ -342,7 +342,7 @@ export default function Page() {
                     aria-label={`creature-card-${creature.id}`}
                   >
                     <CardHeader className="w-full flex flex-col items-center text-center">
-                      <CardTitle className={`font-serif text-2xl ${unlocked ? 'text-amber-400' : 'text-white'}`}>{creature.name} {creature.number}</CardTitle>
+                      <CardTitle className={`text-lg font-semibold ${unlocked ? 'text-amber-400' : 'text-white'}`}>{creature.name} {creature.number}</CardTitle>
                       {!unlocked && (
                         <Badge variant="secondary" className="mt-2" aria-label={`creature-${creature.id}-undiscovered-badge`}>
                           Undiscovered
@@ -384,7 +384,7 @@ export default function Page() {
           {/* New Monster Achievements Section */}
           {achievementDefinitions.length > 0 && (
             <div className="mb-8">
-              <h2 className="text-2xl font-serif text-amber-400 mb-4">Monster Battles</h2>
+              <h2 className="text-xl font-semibold text-amber-400 mb-4">Monster Battles</h2>
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3" aria-label="achievement-cards-grid">
                 {achievementDefinitions
                   .filter(achievement => {
