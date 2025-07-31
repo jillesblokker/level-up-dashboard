@@ -210,7 +210,14 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
             ? { ...item, quantity: item.quantity + quantity }
             : item
         )
+        
+        // Update parent component's state
         onUpdateTiles(newTiles)
+        
+        // Also trigger the inventory update event for realm page
+        setTimeout(() => {
+          window.dispatchEvent(new Event('tile-inventory-update'));
+        }, 100);
         
         // Dispatch event to trigger a refresh of tile inventory
         window.dispatchEvent(new Event('tile-inventory-update'));
