@@ -9,6 +9,7 @@ import { MapGrid } from '../components/MapGrid'
 import { TileInventory } from '@/components/tile-inventory'
 import { Switch } from "@/components/ui/switch"
 import { useUser } from '@clerk/nextjs'
+import { useAuth } from '@clerk/nextjs'
 import React from "react"
 import { createTileFromNumeric, numericToTileType, tileTypeToNumeric } from "@/lib/grid-loader"
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -209,6 +210,7 @@ const creatureRequirements = [
 export default function RealmPage() {
     const { toast } = useToast();
     const { user, isLoaded: isAuthLoaded } = useUser();
+    const { getToken } = useAuth();
     const userId = user?.id;
     const isGuest = !user;
     const router = useRouter();
@@ -576,17 +578,23 @@ export default function RealmPage() {
             const achievementKey = `unlocked_${req.id}`;
             if (!sessionStorage.getItem(achievementKey)) {
               sessionStorage.setItem(achievementKey, 'true');
-              fetch('/api/achievements/unlock', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ achievementId: req.id })
-              });
+              (async () => {
+                const token = await getToken({ template: 'supabase' });
+                fetch('/api/achievements/unlock', {
+                  method: 'POST',
+                  headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                  },
+                  body: JSON.stringify({ achievementId: req.id })
+                });
+              })();
               discoverCreature(req.id);
             }
           }
         }
       }
-    }, [grid, userId, discoverCreature]);
+    }, [grid, userId, discoverCreature, getToken]);
 
     // Achievement unlock effect
     useEffect(() => {
@@ -595,22 +603,28 @@ export default function RealmPage() {
             // Unlock the Necrion achievement (000) - only once per session
             if (userId && !sessionStorage.getItem('unlocked_000')) {
                 sessionStorage.setItem('unlocked_000', 'true');
-                fetch('/api/achievements/unlock', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ achievementId: '000' })
-                })
-                .then(res => {
-                    if (!res.ok) throw new Error('Failed to unlock achievement');
-                })
-                .catch(err => {
-                    toast({
-                        title: 'Achievement Unlock Failed',
-                        description: 'Could not unlock the Necrion achievement. Please try again later.',
-                        variant: 'destructive',
-                    });
-                    console.error('Achievement unlock error:', err);
-                });
+                (async () => {
+                  const token = await getToken({ template: 'supabase' });
+                  fetch('/api/achievements/unlock', {
+                      method: 'POST',
+                      headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                      },
+                      body: JSON.stringify({ achievementId: '000' })
+                  })
+                  .then(res => {
+                      if (!res.ok) throw new Error('Failed to unlock achievement');
+                  })
+                  .catch(err => {
+                      toast({
+                          title: 'Achievement Unlock Failed',
+                          description: 'Could not unlock the Necrion achievement. Please try again later.',
+                          variant: 'destructive',
+                      });
+                      console.error('Achievement unlock error:', err);
+                  });
+                })();
                 // Also unlock Necrion in the local creature store
                 discoverCreature('000');
                 toast({
@@ -619,7 +633,7 @@ export default function RealmPage() {
                 });
             }
         }
-    }, [hasVisitedRealm, isAuthLoaded, userId, setHasVisitedRealm, toast, discoverCreature]);
+    }, [hasVisitedRealm, isAuthLoaded, userId, setHasVisitedRealm, toast, discoverCreature, getToken]);
 
     // Load data from Supabase with localStorage fallback
     useEffect(() => {
@@ -804,7 +818,7 @@ export default function RealmPage() {
         };
 
         loadUserData();
-    }, [isAuthLoaded, isGuest, userId]);
+    }, [isAuthLoaded, isGuest, userId, getToken]);
 
     // --- Polling for grid changes instead of real-time sync ---
     useEffect(() => {
@@ -823,7 +837,7 @@ export default function RealmPage() {
         }, 10000); // Poll every 10 seconds instead of 5
         
         return () => clearInterval(pollInterval);
-    }, [isAuthLoaded, isGuest, userId, loadGridData]);
+    }, [isAuthLoaded, isGuest, userId, loadGridData, getToken]);
 
     // Auto-save grid to Supabase with localStorage fallback
     useEffect(() => {
@@ -851,7 +865,7 @@ export default function RealmPage() {
         }, 1000);
         
         return () => clearTimeout(saveTimeout);
-    }, [grid, autoSave, isLoading, userId]);
+    }, [grid, autoSave, isLoading, userId, getToken]);
 
     // Listen for tile inventory updates
     useEffect(() => {
@@ -893,7 +907,7 @@ export default function RealmPage() {
         return () => {
             window.removeEventListener('tile-inventory-update', handleTileInventoryUpdate);
         };
-    }, [userId]);
+    }, [userId, getToken]);
 
     // Place tile: update grid and send only the changed tile to backend
     const handlePlaceTile = async (x: number, y: number) => {
@@ -1032,9 +1046,13 @@ export default function RealmPage() {
                 const achievementId = tileTypeToAchievement[selectedTile.type];
                 if (achievementId && userId) {
                     try {
+                        const token = await getToken({ template: 'supabase' });
                         const unlockRes = await fetch('/api/achievements/unlock', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
                             body: JSON.stringify({ achievementId })
                         });
                         if (!unlockRes.ok) {
@@ -1548,16 +1566,22 @@ export default function RealmPage() {
                     const achievement = destructionAchievements.find(a => a.type === deletedTileType);
                     if (achievement && newCount >= achievement.threshold) {
                         // Unlock achievement
-                        fetch('/api/achievements/unlock', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ achievementId: achievement.achievementId })
-                        }).then(() => {
-                            toast({
-                                title: "Achievement Unlocked!",
-                                description: `Destroyed ${achievement.threshold} ${deletedTileType} tiles!`,
-                            });
-                        }).catch(console.error);
+                        (async () => {
+                            const token = await getToken({ template: 'supabase' });
+                            fetch('/api/achievements/unlock', {
+                                method: 'POST',
+                                headers: { 
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                },
+                                body: JSON.stringify({ achievementId: achievement.achievementId })
+                            }).then(() => {
+                                toast({
+                                    title: "Achievement Unlocked!",
+                                    description: `Destroyed ${achievement.threshold} ${deletedTileType} tiles!`,
+                                });
+                            }).catch(console.error);
+                        })();
                     }
                 }
             }
