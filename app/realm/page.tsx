@@ -873,19 +873,16 @@ export default function RealmPage() {
     // Listen for tile inventory updates
     useEffect(() => {
         const handleTileInventoryUpdate = async () => {
-            console.log('[Realm] Tile inventory update event received');
             if (!userId) return;
             
             try {
                 // Reload tile inventory
                 const inventoryResult = await loadTileInventory(userId);
-                console.log('[Realm] Reloaded inventory data:', inventoryResult);
                 if (inventoryResult && inventoryResult.data && Object.keys(inventoryResult.data).length > 0) {
                     // Merge with initial inventory
                     const mergedInventory = { ...initialInventory };
                     Object.entries(inventoryResult.data).forEach(([tileId, item]: [string, any]) => {
                         if (!item || typeof item !== 'object') {
-                            console.warn('[Realm] Invalid inventory item:', item);
                             return;
                         }
                         const tileType = item.type as TileType;
@@ -908,7 +905,6 @@ export default function RealmPage() {
                             cost: t.cost ?? 0,
                             quantity: t.quantity || 0,
                         }));
-                    console.log('[Realm] Updated inventoryAsItems:', items.map(i => `${i.type}: ${i.quantity}`));
                     setInventoryAsItems(items);
                 }
             } catch (error) {
@@ -925,16 +921,8 @@ export default function RealmPage() {
 
     // Load inventory items from database and apply starting quantities if needed
     useEffect(() => {
-        console.log('[Realm] Inventory loading useEffect triggered');
-        console.log('[Realm] userId:', userId);
-        console.log('[Realm] isAuthLoaded:', isAuthLoaded);
-        console.log('[Realm] isGuest:', isGuest);
-        
         const loadInventoryItems = async () => {
-            if (!userId) {
-                console.log('[Realm] No userId, skipping inventory load');
-                return;
-            }
+            if (!userId) return;
             
             // Get user level for starting quantities
             const userLevel = (() => {
@@ -946,12 +934,8 @@ export default function RealmPage() {
                 }
             })();
             
-            console.log('[Realm] Loading inventory items...');
-            console.log('[Realm] User level:', userLevel);
-            
             try {
                 const inventoryResult = await loadTileInventory(userId);
-                console.log('[Realm] Database result:', inventoryResult);
                 
                 if (inventoryResult && inventoryResult.data) {
                     const items: TileInventoryItem[] = Object.values(inventoryResult.data)
@@ -967,7 +951,6 @@ export default function RealmPage() {
                     const hasFoundationTiles = items.some(item => foundationTiles.includes(item.type) && item.quantity > 0);
                     
                     if (!hasFoundationTiles && userLevel >= 1) {
-                        console.log('[Realm] No foundation tiles found, giving starting quantities');
                         // Give starting quantities for foundation tiles
                         foundationTiles.forEach(tileType => {
                             const existingItem = items.find(item => item.type === tileType);
@@ -990,11 +973,8 @@ export default function RealmPage() {
                                 });
                             }
                         });
-                    } else {
-                        console.log('[Realm] Found existing tiles:', items.map(i => `${i.type}: ${i.quantity}`));
                     }
                     
-                    console.log('[Realm] Inventory items loaded:', items.map(i => `${i.type}: ${i.quantity}`));
                     setInventoryAsItems(items);
                 }
             } catch (error) {
@@ -1005,15 +985,7 @@ export default function RealmPage() {
         loadInventoryItems();
     }, [userId, isAuthLoaded]);
     
-    // Debug: Log when userId changes
-    useEffect(() => {
-        console.log('[Realm] userId changed:', userId);
-    }, [userId]);
-    
-    // Debug: Log when component mounts
-    useEffect(() => {
-        console.log('[Realm] Component mounted');
-    }, []);
+
 
     // Place tile: update grid and send only the changed tile to backend
     const handlePlaceTile = async (x: number, y: number) => {

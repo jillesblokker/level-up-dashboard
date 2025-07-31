@@ -187,8 +187,6 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
 
     // Use the unified gold spending system
     if (spendGold(totalCost, `purchase-${quantity}-${tile.name || tile.type}-tiles`)) {
-      console.log('[Tile Inventory] Gold spent:', totalCost);
-      
       try {
         // Get user ID from Clerk
         if (!user?.id) {
@@ -197,7 +195,6 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
           return;
         }
 
-        console.log('[Tile Inventory] API call to addTileToInventory');
         // Use the tile inventory manager to add tiles
         const result = await addTileToInventory(user.id, {
           id: tile.id || tile.type,
@@ -216,11 +213,9 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
             ? { ...item, quantity: item.quantity + quantity }
             : item
         )
-        console.log('[Tile Inventory] Updating parent state');
         onUpdateTiles(newTiles)
         
         // Trigger a single inventory update event for realm page
-        console.log('[Tile Inventory] Event dispatched: tile-inventory-update');
         window.dispatchEvent(new Event('tile-inventory-update'));
         
         // Reset the quantity after purchase
@@ -322,7 +317,6 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
               
               // For place tab, use the actual tiles prop (which comes from realm page)
               const categoryTiles = tiles.filter(tile => category.tiles.includes(tile.type));
-              console.log('[Tile Inventory] Place tab tiles:', categoryTiles.map(t => `${t.type}: ${t.quantity}`));
               
               if (!categoryTiles.length) {
                 return (
