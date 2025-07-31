@@ -814,16 +814,11 @@ export default function RealmPage() {
     // Listen for tile inventory updates
     useEffect(() => {
         const handleTileInventoryUpdate = async () => {
-            console.log('[Realm] Tile inventory update event received');
             if (!userId) return;
-            
-            // Add a small delay to ensure database write is complete
-            await new Promise(resolve => setTimeout(resolve, 100));
             
             try {
                 // Comment out database reload since onUpdateTiles is working correctly
                 // The database reload was causing race conditions and overwriting correct data
-                console.log('[Realm] Skipping database reload - onUpdateTiles handles state updates correctly');
                 /*
                 // Reload tile inventory
                 const inventoryResult = await loadTileInventory(userId);
@@ -1956,7 +1951,6 @@ export default function RealmPage() {
                                 selectedTile={selectedTile}
                                 onSelectTile={setSelectedTile}
                                 onUpdateTiles={(newTiles: typeof inventoryAsItems) => {
-                                    console.log('[Realm] onUpdateTiles called with:', newTiles.map(i => `${i.type}: ${i.quantity}`));
                                     // Update the inventoryAsItems state directly
                                     setInventoryAsItems(newTiles);
                                     
