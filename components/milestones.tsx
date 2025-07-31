@@ -808,9 +808,9 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
     <Card 
       className={cn(
         "relative overflow-hidden transition-all duration-300 cursor-pointer group",
-        "bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-amber-800/20",
+        "bg-black border border-amber-800/20",
         "hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/20",
-        "transform hover:-translate-y-1",
+        "transform hover:-translate-y-1 hover:scale-[1.02]",
         completed && "opacity-75"
       )}
       onMouseEnter={() => setIsHovered(true)}

@@ -349,8 +349,8 @@ export default function Page() {
                         </Badge>
                       )}
                     </CardHeader>
-                    <CardContent className="flex flex-col items-center w-full">
-                      <div className="relative w-full aspect-[5/7] mb-4 flex items-center justify-center">
+                    <CardContent className="flex flex-col items-center w-full px-2">
+                      <div className="relative w-full aspect-[4/5] mb-4 flex items-center justify-center">
                         {unlocked ? (
                           <div className="absolute inset-0">
                             <CreatureCard
@@ -423,8 +423,8 @@ export default function Page() {
                           </Badge>
                         )}
                       </CardHeader>
-                      <CardContent className="flex flex-col items-center w-full">
-                        <div className="relative w-full aspect-[5/7] mb-4 flex items-center justify-center">
+                      <CardContent className="flex flex-col items-center w-full px-2">
+                        <div className="relative w-full aspect-[4/5] mb-4 flex items-center justify-center">
                           {unlocked ? (
                             <div className="absolute inset-0">
                               <Image 

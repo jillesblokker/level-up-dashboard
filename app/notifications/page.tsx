@@ -191,7 +191,7 @@ export default function NotificationsPage() {
     description: string
     showMailbox?: boolean
   }) => (
-    <div className="w-full min-h-[80vh] flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-xl border border-amber-800/20">
+    <div className="w-full min-h-[80vh] flex flex-col items-center justify-center relative overflow-hidden bg-black rounded-xl border border-amber-800/20 shadow-lg">
       {/* Background with medieval theme */}
       <div className="absolute inset-0 bg-gradient-to-br from-amber-900/5 via-transparent to-amber-900/5" />
       <div className="absolute inset-0 bg-[url('/images/kingdom-header.jpg')] bg-cover bg-center opacity-5" />

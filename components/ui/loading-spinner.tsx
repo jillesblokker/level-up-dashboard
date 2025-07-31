@@ -146,7 +146,7 @@ export function LoadingSkeleton({ className }: { className?: string }) {
 export function CardSkeleton({ className }: { className?: string }) {
   return (
     <div className={cn(
-      "bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-amber-800/20 rounded-lg p-4",
+      "bg-black border border-amber-800/20 rounded-lg p-4 shadow-lg",
       className || undefined
     )}>
       <div className="flex items-start gap-3 mb-3">
