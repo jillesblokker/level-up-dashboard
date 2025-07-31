@@ -121,6 +121,13 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   }
 
   const currentStepData = ONBOARDING_STEPS[currentStep]
+  
+  // Safety check for undefined currentStepData
+  if (!currentStepData) {
+    console.error('Invalid currentStep:', currentStep)
+    return null
+  }
+  
   const CurrentStepComponent = currentStepData.component
   const progress = ((currentStep + 1) / ONBOARDING_STEPS.length) * 100
 
