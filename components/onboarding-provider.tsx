@@ -71,6 +71,11 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     }
   }, [shouldShowOnboarding, openOnboarding])
 
+  // Debug: Log modal state
+  useEffect(() => {
+    console.log('OnboardingProvider: isOnboardingOpen changed to:', isOnboardingOpen)
+  }, [isOnboardingOpen])
+
   return (
     <>
       {children}

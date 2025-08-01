@@ -85,6 +85,11 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
   const [isSkipping, setIsSkipping] = useState(false)
 
+  // Debug: Log modal state
+  useEffect(() => {
+    console.log('OnboardingModal: isOpen changed to:', isOpen)
+  }, [isOpen])
+
   // Reset state when modal opens
   useEffect(() => {
     if (isOpen) {
