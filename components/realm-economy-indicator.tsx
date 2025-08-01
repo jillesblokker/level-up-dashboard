@@ -163,7 +163,6 @@ export function RealmEconomyIndicator() {
             </Card>
           </div>
         </CardContent>
-        </CardContent>
       </Card>
 
       {/* Tile Affordability */}
