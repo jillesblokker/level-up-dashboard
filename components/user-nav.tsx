@@ -33,7 +33,6 @@ export function UserNav() {
 
   // Full onboarding function
   const openFullOnboarding = () => {
-    console.log('UserNav: Opening full onboarding');
     openOnboarding(true); // Force open the full onboarding
   };
 

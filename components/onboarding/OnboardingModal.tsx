@@ -86,15 +86,9 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   const [isSkipping, setIsSkipping] = useState(false)
   const [canClose, setCanClose] = useState(false)
 
-  // Debug: Log modal state
-  useEffect(() => {
-    console.log('OnboardingModal: isOpen changed to:', isOpen)
-  }, [isOpen])
-
   // Reset state when modal opens
   useEffect(() => {
     if (isOpen) {
-      console.log('OnboardingModal: Resetting state for new modal session')
       setCurrentStep(0)
       setCompletedSteps(new Set())
       setIsSkipping(false)
@@ -102,7 +96,6 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
       
       // Allow closing after 3 seconds (increased from 1 second)
       setTimeout(() => {
-        console.log('OnboardingModal: Enabling close functionality')
         setCanClose(true)
       }, 3000)
     }
@@ -111,7 +104,6 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   // Focus management - focus the modal container when it opens
   useEffect(() => {
     if (isOpen) {
-      console.log('OnboardingModal: Modal opened, managing focus')
       // Focus the modal container to prevent auto-focus on buttons
       const modalContainer = document.querySelector('[data-modal-container]')
       if (modalContainer) {
@@ -120,22 +112,16 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
     }
   }, [isOpen])
 
-  // Debug: Track onClose calls
+  // Track onClose calls
   const handleClose = () => {
-    console.log('OnboardingModal: handleClose called', { canClose, timestamp: Date.now() })
-    
     if (!canClose) {
-      console.log('OnboardingModal: Close blocked due to delay')
       return
     }
     
-    console.log('OnboardingModal: onClose called from modal')
-    console.log('OnboardingModal: onClose stack trace:', new Error().stack)
     onClose()
   }
 
   const handleNext = () => {
-    console.log('OnboardingModal: handleNext called, currentStep:', currentStep)
     if (currentStep < ONBOARDING_STEPS.length - 1) {
       setCompletedSteps(prev => new Set([...prev, currentStep]))
       setCurrentStep(currentStep + 1)
@@ -146,31 +132,26 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   }
 
   const handlePrevious = () => {
-    console.log('OnboardingModal: handlePrevious called, currentStep:', currentStep)
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1)
     }
   }
 
   const handleComplete = () => {
-    console.log('OnboardingModal: handleComplete called')
     setCompletedSteps(prev => new Set([...prev, currentStep]))
     onComplete()
     handleClose()
   }
 
   const handleSkip = () => {
-    console.log('OnboardingModal: handleSkip called')
     setIsSkipping(true)
   }
 
   const handleSkipConfirm = () => {
-    console.log('OnboardingModal: handleSkipConfirm called')
     handleClose()
   }
 
   const handleSkipCancel = () => {
-    console.log('OnboardingModal: handleSkipCancel called')
     setIsSkipping(false)
   }
 
@@ -178,21 +159,15 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   
   // Safety check for undefined currentStepData
   if (!currentStepData) {
-    console.error('Invalid currentStep:', currentStep)
     return null
   }
   
   const CurrentStepComponent = currentStepData.component
   const progress = ((currentStep + 1) / ONBOARDING_STEPS.length) * 100
 
-  console.log('OnboardingModal: Rendering with isOpen:', isOpen, 'currentStep:', currentStep, 'canClose:', canClose)
-
   if (!isOpen) {
-    console.log('OnboardingModal: Not rendering (isOpen is false)')
     return null
   }
-
-  console.log('OnboardingModal: Rendering modal content')
 
   return (
     <div 
@@ -200,7 +175,6 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
       data-modal-container
       tabIndex={-1}
       onClick={(e) => {
-        console.log('OnboardingModal: Container clicked', e.target)
         // Prevent clicks on the backdrop from closing the modal
         if (e.target === e.currentTarget) {
           e.preventDefault()
@@ -252,10 +226,9 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
               disabled={currentStep === 0}
               className="text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 text-sm md:text-base"
               tabIndex={-1}
-              onFocus={() => console.log('OnboardingModal: Previous button focused')}
-              onBlur={() => console.log('OnboardingModal: Previous button blurred')}
+              onFocus={() => {}}
+              onBlur={() => {}}
               onKeyDown={(e) => {
-                console.log('OnboardingModal: Previous button keydown:', e.key)
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault()
                 }
@@ -285,16 +258,15 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
               onClick={handleNext}
               className="bg-amber-500 hover:bg-amber-600 text-black font-semibold text-sm md:text-base"
               tabIndex={-1}
-              onFocus={() => console.log('OnboardingModal: Next button focused')}
-              onBlur={() => console.log('OnboardingModal: Next button blurred')}
+              onFocus={() => {}}
+              onBlur={() => {}}
               onKeyDown={(e) => {
-                console.log('OnboardingModal: Next button keydown:', e.key)
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault()
                 }
               }}
-              onMouseEnter={() => console.log('OnboardingModal: Next button mouse enter')}
-              onMouseLeave={() => console.log('OnboardingModal: Next button mouse leave')}
+              onMouseEnter={() => {}}
+              onMouseLeave={() => {}}
             >
               {currentStep === ONBOARDING_STEPS.length - 1 ? 'Start Playing' : 'Next'}
               <ChevronRight className="h-4 w-4 ml-1 md:ml-2" />
@@ -307,19 +279,17 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
               variant="ghost"
               size="sm"
               onClick={(e) => {
-                console.log('OnboardingModal: Close button clicked manually', e)
                 handleClose()
               }}
               disabled={!canClose}
               className="text-gray-400 hover:text-amber-400 hover:bg-amber-500/10 disabled:opacity-50"
               aria-label="Close tutorial"
               tabIndex={-1}
-              onFocus={() => console.log('OnboardingModal: Close button focused')}
-              onBlur={() => console.log('OnboardingModal: Close button blurred')}
-              onMouseEnter={() => console.log('OnboardingModal: Close button mouse enter')}
-              onMouseLeave={() => console.log('OnboardingModal: Close button mouse leave')}
+              onFocus={() => {}}
+              onBlur={() => {}}
+              onMouseEnter={() => {}}
+              onMouseLeave={() => {}}
               onKeyDown={(e) => {
-                console.log('OnboardingModal: Close button keydown:', e.key)
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault()
                 }

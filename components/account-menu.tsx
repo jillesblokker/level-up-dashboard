@@ -55,17 +55,15 @@ export function AccountMenu() {
   const avatarTextColor = user?.unsafeMetadata?.['avatar_text_color'] as string || "#ffffff";
   const avatarType = (user?.unsafeMetadata?.['avatar_type'] as 'initial' | 'default' | 'uploaded') || (user?.imageUrl ? 'uploaded' : 'initial');
 
-  console.log('AccountMenu: Rendering component, user:', user ? 'present' : 'null')
+
 
   // Simple test modal function
   const openSimpleTestModal = () => {
-    console.log('Opening simple test modal');
     setShowTestModal(true);
   };
 
   // Simple onboarding modal function
   const openSimpleOnboardingModal = () => {
-    console.log('Opening simple onboarding modal');
     setShowOnboardingModal(true);
   };
   
