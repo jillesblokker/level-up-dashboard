@@ -235,6 +235,15 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
               onClick={handlePrevious}
               disabled={currentStep === 0}
               className="text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 text-sm md:text-base"
+              tabIndex={-1}
+              onFocus={() => console.log('OnboardingModal: Previous button focused')}
+              onBlur={() => console.log('OnboardingModal: Previous button blurred')}
+              onKeyDown={(e) => {
+                console.log('OnboardingModal: Previous button keydown:', e.key)
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                }
+              }}
             >
               <ChevronLeft className="h-4 w-4 mr-1 md:mr-2" />
               <span className="hidden sm:inline">Previous</span>
@@ -259,6 +268,17 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
             <Button
               onClick={handleNext}
               className="bg-amber-500 hover:bg-amber-600 text-black font-semibold text-sm md:text-base"
+              tabIndex={-1}
+              onFocus={() => console.log('OnboardingModal: Next button focused')}
+              onBlur={() => console.log('OnboardingModal: Next button blurred')}
+              onKeyDown={(e) => {
+                console.log('OnboardingModal: Next button keydown:', e.key)
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                }
+              }}
+              onMouseEnter={() => console.log('OnboardingModal: Next button mouse enter')}
+              onMouseLeave={() => console.log('OnboardingModal: Next button mouse leave')}
             >
               {currentStep === ONBOARDING_STEPS.length - 1 ? 'Start Playing' : 'Next'}
               <ChevronRight className="h-4 w-4 ml-1 md:ml-2" />
