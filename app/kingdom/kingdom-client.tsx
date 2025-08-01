@@ -25,6 +25,8 @@ import type { InventoryItem as ManagerInventoryItem } from "@/lib/inventory-mana
 import { KingdomStatsBlock, KingStatsBlock } from "@/components/kingdom-stats-graph";
 import { KingdomGrid } from '@/components/kingdom-grid';
 import { KingdomPropertiesInventory } from '@/components/kingdom-properties-inventory';
+import { ProgressionVisualization } from '@/components/progression-visualization';
+import { EconomyTransparency } from '@/components/economy-transparency';
 import type { Tile, TileType, ConnectionDirection } from '@/types/tiles';
 import { gainGold } from '@/lib/gold-manager';
 
@@ -645,12 +647,25 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             </div>
           </TabsContent>
           <TabsContent value="progress">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="w-full" aria-label="kingdom-stats-block-container">
-                <KingdomStatsBlock userId={userId} />
+            <div className="space-y-6">
+              {/* Progression Visualization */}
+              <div className="mb-6">
+                <ProgressionVisualization />
               </div>
-              <div className="w-full" aria-label="king-stats-block-container">
-                <KingStatsBlock userId={userId} />
+              
+              {/* Economy Transparency */}
+              <div className="mb-6">
+                <EconomyTransparency />
+              </div>
+              
+              {/* Existing Stats Blocks */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="w-full" aria-label="kingdom-stats-block-container">
+                  <KingdomStatsBlock userId={userId} />
+                </div>
+                <div className="w-full" aria-label="king-stats-block-container">
+                  <KingStatsBlock userId={userId} />
+                </div>
               </div>
             </div>
           </TabsContent>

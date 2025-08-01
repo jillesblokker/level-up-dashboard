@@ -261,6 +261,14 @@ export default function QuestCard({
               </div>
             )}
           </div>
+          
+          {/* Progression Connection */}
+          <div className="mt-2 p-2 bg-amber-900/20 border border-amber-800/30 rounded-lg">
+            <div className="flex items-center gap-2 text-xs text-amber-300">
+              <Trophy className="h-3 w-3" />
+              <span>Complete → Earn {reward.gold} Gold → Buy Kingdom Tiles</span>
+            </div>
+          </div>
         </div>
 
         {/* Action Button */}
