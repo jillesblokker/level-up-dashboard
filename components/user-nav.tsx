@@ -12,10 +12,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-// import { useSession } from "next-auth/react"
 import { logout } from '@/app/actions/auth'
 import Link from "next/link"
-import { ClipboardCheck, Palette, User, Settings, Monitor, BookOpen } from "lucide-react"
+import { ClipboardCheck, Palette, User, Settings, Monitor, BookOpen, Database } from "lucide-react"
 import type { Session } from '@supabase/supabase-js'
 import { useClerk, useUser } from "@clerk/nextjs";
 import { useOnboarding } from "@/hooks/use-onboarding";
@@ -23,7 +22,7 @@ import { useOnboarding } from "@/hooks/use-onboarding";
 export function UserNav() {
   const { user, isLoaded } = useUser();
   const { openOnboarding } = useOnboarding();
-  const [showOnboardingModal, setShowOnboardingModal] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   // Helper to get the avatar initial as a string
   const getAvatarInitial = () => {
@@ -38,10 +37,10 @@ export function UserNav() {
 
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
-          <Button className="relative h-8 w-8 rounded-full">
-            <Avatar className="h-8 w-8">
+          <Button className="relative h-10 w-10 md:h-8 md:w-8 rounded-full touch-manipulation min-h-[44px]">
+            <Avatar className="h-10 w-10 md:h-8 md:w-8">
               {user?.imageUrl ? (
                 <AvatarImage 
                   src={user.imageUrl} 
@@ -61,67 +60,92 @@ export function UserNav() {
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="end" forceMount>
-          <DropdownMenuLabel className="font-normal">
-            <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">
+        <DropdownMenuContent 
+          className="w-72 md:w-64 max-h-[80vh] overflow-y-auto bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 backdrop-blur-xl" 
+          align="end" 
+          forceMount
+          sideOffset={8}
+        >
+          <DropdownMenuLabel className="font-normal p-4 border-b border-amber-800/20 bg-gradient-to-r from-amber-900/10 to-transparent">
+            <div className="flex flex-col space-y-2">
+              <p className="text-base font-semibold text-white leading-none">
                 {String(user?.unsafeMetadata?.['user_name'] || user?.username || user?.emailAddresses?.[0]?.emailAddress || '')}
               </p>
-              <p className="text-xs leading-none text-muted-foreground">
+              <p className="text-sm leading-none text-amber-400">
                 {String(user?.emailAddresses?.[0]?.emailAddress || '')}
               </p>
             </div>
           </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
+          <DropdownMenuSeparator className="bg-amber-800/20" />
+          <DropdownMenuGroup className="p-2 space-y-1">
             <Link href="/profile">
-              <DropdownMenuItem className="cursor-pointer">
-                <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
+              <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation">
+                <User className="h-5 w-5 text-amber-400" />
+                <div className="flex-1 text-left">
+                  <span className="text-base font-medium text-white">Profile</span>
+                  <p className="text-xs text-gray-400">Manage your profile</p>
+                </div>
               </DropdownMenuItem>
             </Link>
             <Link href="/requirements">
-              <DropdownMenuItem className="cursor-pointer">
-                <ClipboardCheck className="mr-2 h-4 w-4" />
-                <span>Requirements</span>
+              <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation">
+                <ClipboardCheck className="h-5 w-5 text-amber-400" />
+                <div className="flex-1 text-left">
+                  <span className="text-base font-medium text-white">Requirements</span>
+                  <p className="text-xs text-gray-400">View system requirements</p>
+                </div>
               </DropdownMenuItem>
             </Link>
             <Link href="/design-system">
-              <DropdownMenuItem className="cursor-pointer">
-                <Palette className="mr-2 h-4 w-4" />
-                <span>Design System</span>
+              <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation">
+                <Palette className="h-5 w-5 text-amber-400" />
+                <div className="flex-1 text-left">
+                  <span className="text-base font-medium text-white">Design System</span>
+                  <p className="text-xs text-gray-400">View design components</p>
+                </div>
               </DropdownMenuItem>
             </Link>
             <Link href="/stored-data">
-              <DropdownMenuItem className="cursor-pointer" aria-label="Stored Data">
-                <ClipboardCheck className="mr-2 h-4 w-4" />
-                <span>Stored Data</span>
+              <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation" aria-label="Stored Data">
+                <Database className="h-5 w-5 text-amber-400" />
+                <div className="flex-1 text-left">
+                  <span className="text-base font-medium text-white">Stored Data</span>
+                  <p className="text-xs text-gray-400">Manage local data</p>
+                </div>
               </DropdownMenuItem>
             </Link>
-            <DropdownMenuItem>
+            <DropdownMenuItem className="rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation">
               <button
-                className="w-full text-left cursor-pointer flex items-center"
+                className="w-full text-left cursor-pointer flex items-center gap-3"
                 aria-label="Show guide"
                 role="button"
-                onClick={openFullOnboarding}
+                onClick={() => {
+                  openFullOnboarding();
+                  setIsOpen(false);
+                }}
               >
-                <BookOpen className="mr-2 h-4 w-4" />
-                <span>Guide</span>
+                <BookOpen className="h-5 w-5 text-amber-400" />
+                <div className="flex-1">
+                  <span className="text-base font-medium text-white">Guide</span>
+                  <p className="text-xs text-gray-400">Open tutorial</p>
+                </div>
               </button>
             </DropdownMenuItem>
           </DropdownMenuGroup>
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator className="bg-amber-800/20" />
           <form action={logout}>
-            <DropdownMenuItem asChild>
-              <button className="w-full text-left cursor-pointer">
-                Log out
+            <DropdownMenuItem asChild className="rounded-lg hover:bg-red-500/10 focus:bg-red-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation">
+              <button className="w-full text-left cursor-pointer flex items-center gap-3">
+                <Settings className="h-5 w-5 text-red-400" />
+                <div className="flex-1">
+                  <span className="text-base font-medium text-white">Log out</span>
+                  <p className="text-xs text-gray-400">Sign out of your account</p>
+                </div>
               </button>
             </DropdownMenuItem>
           </form>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      {/* Full onboarding system is now active */}
     </>
-  )
+  );
 } 

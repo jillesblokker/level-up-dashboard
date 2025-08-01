@@ -12,8 +12,7 @@ import {
 import { useClerk, useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { eventBus } from "@/app/lib/event-bus";
-// Removed old onboarding system
-// import { useOnboarding } from "@/hooks/use-onboarding";
+import { useOnboarding } from "@/hooks/use-onboarding";
 import { 
   BookOpen, 
   User, 
@@ -33,12 +32,7 @@ export function AccountMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [profileUpdateCount, setProfileUpdateCount] = useState(0);
-  // Removed old onboarding system
-  // const { openOnboarding, debugOnboardingState, resetOnboarding } = useOnboarding();
-  
-  // Simple test modal state
-  const [showTestModal, setShowTestModal] = useState(false);
-  const [showOnboardingModal, setShowOnboardingModal] = useState(false);
+  const { openOnboarding } = useOnboarding();
 
   useEffect(() => {
     const refresh = async () => {
@@ -55,32 +49,24 @@ export function AccountMenu() {
   const avatarTextColor = user?.unsafeMetadata?.['avatar_text_color'] as string || "#ffffff";
   const avatarType = (user?.unsafeMetadata?.['avatar_type'] as 'initial' | 'default' | 'uploaded') || (user?.imageUrl ? 'uploaded' : 'initial');
 
-
-
-  // Simple test modal function
-  const openSimpleTestModal = () => {
-    setShowTestModal(true);
-  };
-
-  // Simple onboarding modal function
-  const openSimpleOnboardingModal = () => {
-    setShowOnboardingModal(true);
+  const handleGuideClick = () => {
+    openOnboarding(true);
   };
   
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
           <Button 
             variant="ghost" 
-            className="relative h-10 w-10 md:h-8 md:w-8 rounded-full touch-manipulation"
+            className="relative h-12 w-12 md:h-8 md:w-8 rounded-full touch-manipulation min-h-[44px]"
             aria-label="Account menu"
           >
-            <Avatar className="h-10 w-10 md:h-8 md:w-8">
+            <Avatar className="h-12 w-12 md:h-8 md:w-8">
               {avatarType === 'uploaded' && user?.imageUrl ? (
                 <AvatarImage src={user.imageUrl} alt="Profile" style={{ objectFit: 'cover', objectPosition: 'center' }} />
               ) : avatarType === 'default' ? (
-                <img src="/images/placeholders/item-placeholder.svg" alt="Default avatar" className="h-10 w-10 md:h-8 md:w-8 rounded-full object-contain bg-gray-800" />
+                <img src="/images/placeholders/item-placeholder.svg" alt="Default avatar" className="h-12 w-12 md:h-8 md:w-8 rounded-full object-contain bg-gray-800" />
               ) : (
                 <AvatarFallback style={{ backgroundColor: avatarBgColor, color: avatarTextColor }}>
                   {displayName?.[0]?.toUpperCase() || '?'}
@@ -89,89 +75,150 @@ export function AccountMenu() {
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-64 md:w-56" align="end" forceMount>
-          <DropdownMenuLabel className="font-normal">
-            <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">User</p>
-              <p className="text-xs leading-none text-muted-foreground">
-                user@example.com
+        <DropdownMenuContent 
+          className="w-72 md:w-64 max-h-[80vh] overflow-y-auto bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 backdrop-blur-xl" 
+          align="end" 
+          forceMount
+          sideOffset={8}
+        >
+          {/* Enhanced Header */}
+          <DropdownMenuLabel className="font-normal p-4 border-b border-amber-800/20 bg-gradient-to-r from-amber-900/10 to-transparent">
+            <div className="flex flex-col space-y-2">
+              <p className="text-base font-semibold text-white leading-none">
+                {String(user?.unsafeMetadata?.['user_name'] || user?.username || user?.emailAddresses?.[0]?.emailAddress || '')}
+              </p>
+              <p className="text-sm leading-none text-amber-400">
+                {String(user?.emailAddresses?.[0]?.emailAddress || '')}
               </p>
             </div>
           </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <Link 
-              href="/account/profile"
-              className="min-h-[44px] md:min-h-[36px] flex items-center touch-manipulation"
-              aria-label="Profile page"
-            >
-              Profile
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link 
-              href="/account/monitoring"
-              className="min-h-[44px] md:min-h-[36px] flex items-center touch-manipulation"
-              aria-label="Monitoring page"
-            >
-              Monitoring
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link 
-              href="/requirements" 
-              className="min-h-[44px] md:min-h-[36px] flex items-center touch-manipulation"
-              aria-label="Requirements page"
-            >
-              Requirements
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link 
-              href="/design-system" 
-              className="min-h-[44px] md:min-h-[36px] flex items-center touch-manipulation"
-              aria-label="Design System page"
-            >
-              Design System
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link 
-              href="/account/stored-data" 
-              className="min-h-[44px] md:min-h-[36px] flex items-center touch-manipulation"
-              aria-label="Stored Data page"
-            >
-              Stored Data
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
+          
+          <DropdownMenuSeparator className="bg-amber-800/20" />
+          
+          {/* Enhanced Menu Items with Better Mobile Support */}
+          <div className="p-2 space-y-1">
+            <DropdownMenuItem asChild className="rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10">
+              <Link 
+                href="/profile"
+                className="min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation"
+                aria-label="Profile page"
+                onClick={() => setIsOpen(false)}
+              >
+                <User className="h-5 w-5 text-amber-400" />
+                <div className="flex-1 text-left">
+                  <span className="text-base font-medium text-white">Profile</span>
+                  <p className="text-xs text-gray-400">Manage your profile</p>
+                </div>
+              </Link>
+            </DropdownMenuItem>
+            
+            <DropdownMenuItem asChild className="rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10">
+              <Link 
+                href="/requirements"
+                className="min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation"
+                aria-label="Requirements page"
+                onClick={() => setIsOpen(false)}
+              >
+                <FileText className="h-5 w-5 text-amber-400" />
+                <div className="flex-1 text-left">
+                  <span className="text-base font-medium text-white">Requirements</span>
+                  <p className="text-xs text-gray-400">View system requirements</p>
+                </div>
+              </Link>
+            </DropdownMenuItem>
+            
+            <DropdownMenuItem asChild className="rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10">
+              <Link 
+                href="/design-system"
+                className="min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation"
+                aria-label="Design System page"
+                onClick={() => setIsOpen(false)}
+              >
+                <Crown className="h-5 w-5 text-amber-400" />
+                <div className="flex-1 text-left">
+                  <span className="text-base font-medium text-white">Design System</span>
+                  <p className="text-xs text-gray-400">View design components</p>
+                </div>
+              </Link>
+            </DropdownMenuItem>
+            
+            <DropdownMenuItem asChild className="rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10">
+              <Link 
+                href="/stored-data"
+                className="min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation"
+                aria-label="Stored Data page"
+                onClick={() => setIsOpen(false)}
+              >
+                <Database className="h-5 w-5 text-amber-400" />
+                <div className="flex-1 text-left">
+                  <span className="text-base font-medium text-white">Stored Data</span>
+                  <p className="text-xs text-gray-400">Manage local data</p>
+                </div>
+              </Link>
+            </DropdownMenuItem>
+            
+            <DropdownMenuItem asChild className="rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10">
+              <Link 
+                href="/account/monitoring"
+                className="min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation"
+                aria-label="Monitoring page"
+                onClick={() => setIsOpen(false)}
+              >
+                <Monitor className="h-5 w-5 text-amber-400" />
+                <div className="flex-1 text-left">
+                  <span className="text-base font-medium text-white">Monitoring</span>
+                  <p className="text-xs text-gray-400">View performance metrics</p>
+                </div>
+              </Link>
+            </DropdownMenuItem>
+            
+            <DropdownMenuItem asChild className="rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10">
+              <Link 
+                href="/settings"
+                className="min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation"
+                aria-label="Settings page"
+                onClick={() => setIsOpen(false)}
+              >
+                <Settings className="h-5 w-5 text-amber-400" />
+                <div className="flex-1 text-left">
+                  <span className="text-base font-medium text-white">Settings</span>
+                  <p className="text-xs text-gray-400">App preferences</p>
+                </div>
+              </Link>
+            </DropdownMenuItem>
+          </div>
+          
+          <DropdownMenuSeparator className="bg-amber-800/20" />
+          
+          {/* Guide Button */}
+          <DropdownMenuItem className="rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10">
             <button
-              className="w-full text-left cursor-pointer min-h-[44px] md:min-h-[36px] flex items-center touch-manipulation"
+              className="w-full min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation text-left"
               aria-label="Show guide"
               role="button"
-              onClick={openSimpleOnboardingModal}
+              onClick={() => {
+                handleGuideClick();
+                setIsOpen(false);
+              }}
             >
-              <BookOpen className="h-4 w-4 mr-2" />
-              Guide
+              <BookOpen className="h-5 w-5 text-amber-400" />
+              <div className="flex-1">
+                <span className="text-base font-medium text-white">Guide</span>
+                <p className="text-xs text-gray-400">Open tutorial</p>
+              </div>
             </button>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          
+          <DropdownMenuSeparator className="bg-amber-800/20" />
+          
+          {/* Logout Button */}
+          <DropdownMenuItem className="rounded-lg hover:bg-red-500/10 focus:bg-red-500/10">
             <button
-              className="w-full text-left cursor-pointer min-h-[44px] md:min-h-[36px] flex items-center touch-manipulation"
-              aria-label="Test simple modal"
-              role="button"
-              onClick={openSimpleTestModal}
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              Test Simple Modal
-            </button>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <button
-              className="w-full text-left cursor-pointer min-h-[44px] md:min-h-[36px] flex items-center touch-manipulation"
+              className="w-full min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation text-left"
               aria-label="Log out"
               role="button"
               onClick={async () => {
+                setIsLoading(true);
                 // Remove guest mode flags
                 if (typeof window !== "undefined") {
                   localStorage.removeItem("skip-auth");
@@ -186,70 +233,19 @@ export function AccountMenu() {
                 // Redirect to a public page (not protected)
                 window.location.href = "/auth/signin";
               }}
+              disabled={isLoading}
             >
-              Log out
+              <LogOut className="h-5 w-5 text-red-400" />
+              <div className="flex-1">
+                <span className="text-base font-medium text-white">
+                  {isLoading ? "Signing out..." : "Log out"}
+                </span>
+                <p className="text-xs text-gray-400">Sign out of your account</p>
+              </div>
             </button>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      {/* Simple Test Modal */}
-      {showTestModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md bg-white rounded-lg shadow-xl p-6">
-            <h2 className="text-xl font-bold mb-4">Simple Test Modal</h2>
-            <p className="text-gray-600 mb-4">
-              This is a simple test modal to verify modal rendering works correctly.
-            </p>
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={() => setShowTestModal(false)}
-                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Simple Onboarding Modal */}
-      {showOnboardingModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="w-full max-w-2xl bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 shadow-2xl rounded-lg p-6">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">Welcome to Thrivehaven</h2>
-              <p className="text-amber-400 text-lg">Every adventure is in need for a quest to achieve greatness</p>
-            </div>
-            
-            <div className="space-y-4 mb-6">
-              <div className="bg-gray-800/50 border border-amber-800/20 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-white mb-2">Complete Quests</h3>
-                <p className="text-gray-300">Transform daily habits into epic adventures and earn gold and experience.</p>
-              </div>
-              
-              <div className="bg-gray-800/50 border border-amber-800/20 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-white mb-2">Build Your Kingdom</h3>
-                <p className="text-gray-300">Buy tiles and create a realm that grows with your progress.</p>
-              </div>
-              
-              <div className="bg-gray-800/50 border border-amber-800/20 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-white mb-2">Level Up & Unlock</h3>
-                <p className="text-gray-300">Gain experience and unlock new content as you progress.</p>
-              </div>
-            </div>
-            
-            <div className="flex justify-center">
-              <button
-                onClick={() => setShowOnboardingModal(false)}
-                className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-black font-semibold rounded-lg"
-              >
-                Start Your Journey
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }; 
