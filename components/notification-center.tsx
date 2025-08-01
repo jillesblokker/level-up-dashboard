@@ -46,27 +46,43 @@ export function NotificationCenter() {
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'achievement': return ''
-      case 'quest': return ''
-      case 'levelup': return ''
-      case 'success': return ''
-      case 'event': return ''
-      case 'discovery': return ''
-      default: return ''
+      case 'achievement': return '🏆'
+      case 'quest': return '📜'
+      case 'levelup': return '⭐'
+      case 'success': return '✅'
+      case 'event': return '🎉'
+      case 'discovery': return '🔍'
+      case 'monster': return '👹'
+      case 'system': return '⚙️'
+      default: return '📢'
     }
   }
 
   const getNotificationColor = (type: string) => {
     switch (type) {
-      case 'achievement': return 'text-amber-500'
-      case 'quest': return 'text-amber-500'
-      case 'levelup': return 'text-amber-500'
-      case 'success': return 'text-amber-500'
-      case 'event': return 'text-amber-500'
-      case 'discovery': return 'text-amber-500'
-      case 'monster': return 'text-amber-500'
-      case 'system': return 'text-amber-600'
-      default: return 'text-amber-600'
+      case 'achievement': return 'text-amber-400'
+      case 'quest': return 'text-amber-400'
+      case 'levelup': return 'text-purple-400'
+      case 'success': return 'text-emerald-400'
+      case 'event': return 'text-blue-400'
+      case 'discovery': return 'text-cyan-400'
+      case 'monster': return 'text-red-400'
+      case 'system': return 'text-gray-400'
+      default: return 'text-amber-400'
+    }
+  }
+
+  const getNotificationBgColor = (type: string) => {
+    switch (type) {
+      case 'achievement': return 'bg-amber-500/10 border-amber-500/20'
+      case 'quest': return 'bg-amber-500/10 border-amber-500/20'
+      case 'levelup': return 'bg-purple-500/10 border-purple-500/20'
+      case 'success': return 'bg-emerald-500/10 border-emerald-500/20'
+      case 'event': return 'bg-blue-500/10 border-blue-500/20'
+      case 'discovery': return 'bg-cyan-500/10 border-cyan-500/20'
+      case 'monster': return 'bg-red-500/10 border-red-500/20'
+      case 'system': return 'bg-gray-500/10 border-gray-500/20'
+      default: return 'bg-amber-500/10 border-amber-500/20'
     }
   }
 
@@ -132,19 +148,22 @@ export function NotificationCenter() {
       </SheetTrigger>
       <SheetContent side="right" aria-label="notification-center-sidepanel" className="w-96 max-w-full bg-black border-l border-amber-800/20 max-w-[90vw] p-0" aria-modal="true">
         {/* Enhanced Header */}
-        <div className="relative p-6 border-b border-amber-800/20">
-          <div className="absolute inset-0 bg-black"></div>
-          <div className="relative flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center shadow-lg">
-                <Mail className="w-5 h-5 text-white" />
+        <div className="relative p-6 border-b border-amber-800/20 bg-gradient-to-r from-gray-900 to-gray-800">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Mail className="w-6 h-6 text-white" />
               </div>
               <div>
-                <SheetTitle className="text-xl font-bold text-amber-400 font-serif">Notifications</SheetTitle>
-                <p className="text-gray-400 text-sm font-medium">Kingdom Messages</p>
+                <SheetTitle className="text-xl font-bold text-amber-400 font-serif tracking-wide">Notifications</SheetTitle>
+                <p className="text-gray-400 text-sm font-medium">Kingdom Messages & Updates</p>
               </div>
             </div>
-
+            {notificationService.getUnreadCount() > 0 && (
+              <div className="bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg">
+                {notificationService.getUnreadCount()}
+              </div>
+            )}
           </div>
         </div>
         
@@ -155,45 +174,45 @@ export function NotificationCenter() {
           ) : (
             <div className="divide-y divide-amber-800/10">
               {notifications.map((notification) => (
-                <div key={notification.id} className={cn("p-4 relative hover:bg-gray-900 transition-colors", !notification.read && "bg-gray-800")}>
-                  <div className="flex items-start gap-3">
-                    <div className="text-lg mt-1">{getNotificationIcon(notification.type)}</div>
+                <div key={notification.id} className={cn("p-4 relative hover:bg-gray-900/50 transition-all duration-200", !notification.read && "bg-gray-800/30")}>
+                  <div className="flex items-start gap-4">
+                    <div className={cn("text-2xl mt-1 flex-shrink-0", getNotificationColor(notification.type))}>
+                      {getNotificationIcon(notification.type)}
+                    </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-medium text-sm flex items-center text-white">
-                          {getPriorityBadge(notification.priority)}
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className={cn("font-semibold text-sm flex items-center text-white leading-tight", getNotificationColor(notification.type))}>
                           {notification.title}
                         </h4>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-gray-500 font-medium">
                           {new Date(notification.timestamp).toLocaleString()}
                         </span>
-
                       </div>
-                      <p className="text-sm text-muted-foreground mt-2 whitespace-pre-line leading-relaxed">
+                      <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-line">
                         {notification.message}
                       </p>
-                      <div className="flex flex-col sm:flex-row gap-2 mt-3">
+                      <div className="flex flex-wrap gap-2 mt-4">
                         {notification.action && (
                           <button
                             onClick={() => {
                               window.location.href = notification.action!.href
                             }}
-                            className="text-xs text-amber-500 hover:text-amber-400 px-3 py-1 rounded border border-amber-800/30 hover:bg-amber-900/20 transition-colors"
+                            className="text-xs font-medium text-amber-400 hover:text-amber-300 px-3 py-1.5 rounded-md border border-amber-600/30 hover:bg-amber-900/20 hover:border-amber-500/50 transition-all duration-200"
                           >
-                            View →
+                            View Details →
                           </button>
                         )}
                         {!notification.read && (
                           <button
                             onClick={() => handleMarkAsRead(notification.id)}
-                            className="text-xs text-blue-500 hover:text-blue-400 px-3 py-1 rounded border border-blue-800 hover:bg-blue-900 transition-colors"
+                            className="text-xs font-medium text-blue-400 hover:text-blue-300 px-3 py-1.5 rounded-md border border-blue-600/30 hover:bg-blue-900/20 hover:border-blue-500/50 transition-all duration-200"
                           >
-                            Mark read
+                            Mark as Read
                           </button>
                         )}
                         <button
                           onClick={() => handleDelete(notification.id)}
-                          className="text-xs text-red-500 hover:text-red-400 px-3 py-1 rounded border border-red-800 hover:bg-red-900 transition-colors"
+                          className="text-xs font-medium text-red-400 hover:text-red-300 px-3 py-1.5 rounded-md border border-red-600/30 hover:bg-red-900/20 hover:border-red-500/50 transition-all duration-200"
                           aria-label="Delete notification"
                         >
                           Delete
@@ -210,5 +229,7 @@ export function NotificationCenter() {
     </Sheet>
   )
 }
+
+
 
 
