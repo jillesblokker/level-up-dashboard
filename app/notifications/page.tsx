@@ -518,6 +518,7 @@ export default function NotificationsPage() {
                                       e.stopPropagation()
                                       deleteNotification(notification.id)
                                     }}
+                                    aria-label={`Delete notification: ${notification.title}`}
                                   >
                                     <Trash2 className="h-4 w-4" />
                                   </Button>
@@ -586,6 +587,7 @@ export default function NotificationsPage() {
                                         e.stopPropagation()
                                         deleteNotification(notification.id)
                                       }}
+                                      aria-label={`Delete notification: ${notification.title}`}
                                     >
                                       <Trash2 className="h-4 w-4" />
                                     </Button>

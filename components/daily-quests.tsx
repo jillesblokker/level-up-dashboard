@@ -457,7 +457,7 @@ export function DailyQuests() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button onClick={addNewQuest} className="bg-blue-600 hover:bg-blue-700 text-white">Add Quest</Button>
+                  <Button onClick={addNewQuest} className="bg-blue-600 hover:bg-blue-700 text-white" aria-label="Add new quest">Add Quest</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -581,7 +581,7 @@ export function DailyQuests() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button onClick={addNewQuest} className="bg-blue-600 hover:bg-blue-700 text-white">Add Quest</Button>
+                  <Button onClick={addNewQuest} className="bg-blue-600 hover:bg-blue-700 text-white" aria-label="Add new quest">Add Quest</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -705,7 +705,7 @@ export function DailyQuests() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button onClick={addNewQuest} className="bg-blue-600 hover:bg-blue-700 text-white">Add Quest</Button>
+                  <Button onClick={addNewQuest} className="bg-blue-600 hover:bg-blue-700 text-white" aria-label="Add new quest">Add Quest</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -829,7 +829,7 @@ export function DailyQuests() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button onClick={addNewQuest} className="bg-blue-600 hover:bg-blue-700 text-white">Add Quest</Button>
+                  <Button onClick={addNewQuest} className="bg-blue-600 hover:bg-blue-700 text-white" aria-label="Add new quest">Add Quest</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -953,7 +953,7 @@ export function DailyQuests() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button onClick={addNewQuest} className="bg-blue-600 hover:bg-blue-700 text-white">Add Quest</Button>
+                  <Button onClick={addNewQuest} className="bg-blue-600 hover:bg-blue-700 text-white" aria-label="Add new quest">Add Quest</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>

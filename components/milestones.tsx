@@ -693,7 +693,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
                         placeholder="Enter gold amount"
                       />
                     </div>
-                    <Button onClick={() => handleAddCustomMilestone(selectedCategoryObj.key)}>Add Milestone</Button>
+                    <Button onClick={() => handleAddCustomMilestone(selectedCategoryObj.key)} aria-label="Add custom milestone">Add Milestone</Button>
                   </div>
                 </DialogContent>
               </Dialog>
@@ -755,8 +755,8 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
               />
               {/* Add more fields as needed */}
               <div className="flex justify-end gap-2">
-                <Button type="button" variant="secondary" onClick={handleCloseEditModal}>Cancel</Button>
-                <Button type="submit" variant="default">Save</Button>
+                <Button type="button" variant="secondary" onClick={handleCloseEditModal} aria-label="Cancel edit milestone">Cancel</Button>
+                <Button type="submit" variant="default" aria-label="Save edited milestone">Save</Button>
               </div>
             </form>
           </div>

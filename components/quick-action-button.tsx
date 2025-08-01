@@ -28,6 +28,7 @@ export function QuickActionButton({ title, icon, color, actions }: QuickActionBu
         <Button
           variant="outline"
           className={`h-24 w-full justify-start ${color} hover:${color}/90`}
+          aria-label={`${title} quick actions`}
         >
           <div className="flex flex-col items-center justify-center w-full space-y-2">
             {icon}

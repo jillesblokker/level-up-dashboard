@@ -1299,7 +1299,7 @@ export default function DesignSystemPage() {
                           <h4 className="text-lg font-medium text-amber-300 mb-3">Toast Notifications</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
-                              <Button onClick={showToastExample}>Show Toast Example</Button>
+                              <Button onClick={showToastExample} aria-label="Show toast notification example">Show Toast Example</Button>
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
