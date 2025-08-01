@@ -130,7 +130,7 @@ export function CompleteStep({ onNext }: CompleteStepProps) {
       {/* Call to Action */}
       <div className="text-center pt-4">
         <p className="text-amber-400 text-sm md:text-base">
-          Use the "Start Playing" button below to begin your adventure
+          Use the &ldquo;Start Playing&rdquo; button below to begin your adventure
         </p>
         <p className="text-sm text-gray-400 mt-2">
           You can always access this tutorial again from the settings menu
