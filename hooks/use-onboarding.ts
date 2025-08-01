@@ -89,6 +89,7 @@ export function useOnboarding() {
   // Close onboarding
   const closeOnboarding = () => {
     console.log('useOnboarding: closeOnboarding called')
+    console.log('useOnboarding: closeOnboarding stack trace:', new Error().stack)
     setIsOnboardingOpen(false)
   }
 

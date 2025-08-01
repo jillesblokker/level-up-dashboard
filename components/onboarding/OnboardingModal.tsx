@@ -112,6 +112,13 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
     }
   }, [isOpen])
 
+  // Debug: Track onClose calls
+  const handleClose = () => {
+    console.log('OnboardingModal: onClose called from modal')
+    console.log('OnboardingModal: onClose stack trace:', new Error().stack)
+    onClose()
+  }
+
   const handleNext = () => {
     console.log('OnboardingModal: handleNext called, currentStep:', currentStep)
     if (currentStep < ONBOARDING_STEPS.length - 1) {
@@ -133,7 +140,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
     console.log('OnboardingModal: handleComplete called')
     setCompletedSteps(prev => new Set([...prev, currentStep]))
     onComplete()
-    onClose()
+    handleClose()
   }
 
   const handleSkip = () => {
@@ -143,7 +150,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
 
   const handleSkipConfirm = () => {
     console.log('OnboardingModal: handleSkipConfirm called')
-    onClose()
+    handleClose()
   }
 
   const handleSkipCancel = () => {
@@ -255,7 +262,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
             <Button
               variant="ghost"
               size="sm"
-              onClick={onClose}
+              onClick={handleClose}
               className="text-gray-400 hover:text-amber-400 hover:bg-amber-500/10"
               aria-label="Close tutorial"
             >
