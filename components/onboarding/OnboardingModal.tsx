@@ -100,11 +100,11 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
       setIsSkipping(false)
       setCanClose(false)
       
-      // Allow closing after 1 second
+      // Allow closing after 3 seconds (increased from 1 second)
       setTimeout(() => {
         console.log('OnboardingModal: Enabling close functionality')
         setCanClose(true)
-      }, 1000)
+      }, 3000)
     }
   }, [isOpen])
 
@@ -314,10 +314,17 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
               disabled={!canClose}
               className="text-gray-400 hover:text-amber-400 hover:bg-amber-500/10 disabled:opacity-50"
               aria-label="Close tutorial"
+              tabIndex={-1}
               onFocus={() => console.log('OnboardingModal: Close button focused')}
               onBlur={() => console.log('OnboardingModal: Close button blurred')}
               onMouseEnter={() => console.log('OnboardingModal: Close button mouse enter')}
               onMouseLeave={() => console.log('OnboardingModal: Close button mouse leave')}
+              onKeyDown={(e) => {
+                console.log('OnboardingModal: Close button keydown:', e.key)
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                }
+              }}
             >
               Close Tutorial {!canClose && '(disabled)'}
             </Button>
