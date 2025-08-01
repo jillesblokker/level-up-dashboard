@@ -93,6 +93,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   // Reset state when modal opens
   useEffect(() => {
     if (isOpen) {
+      console.log('OnboardingModal: Resetting state for new modal session')
       setCurrentStep(0)
       setCompletedSteps(new Set())
       setIsSkipping(false)
@@ -100,6 +101,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   }, [isOpen])
 
   const handleNext = () => {
+    console.log('OnboardingModal: handleNext called, currentStep:', currentStep)
     if (currentStep < ONBOARDING_STEPS.length - 1) {
       setCompletedSteps(prev => new Set([...prev, currentStep]))
       setCurrentStep(currentStep + 1)
@@ -109,26 +111,31 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   }
 
   const handlePrevious = () => {
+    console.log('OnboardingModal: handlePrevious called, currentStep:', currentStep)
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1)
     }
   }
 
   const handleComplete = () => {
+    console.log('OnboardingModal: handleComplete called')
     setCompletedSteps(prev => new Set([...prev, currentStep]))
     onComplete()
     onClose()
   }
 
   const handleSkip = () => {
+    console.log('OnboardingModal: handleSkip called')
     setIsSkipping(true)
   }
 
   const handleSkipConfirm = () => {
+    console.log('OnboardingModal: handleSkipConfirm called')
     onClose()
   }
 
   const handleSkipCancel = () => {
+    console.log('OnboardingModal: handleSkipCancel called')
     setIsSkipping(false)
   }
 
@@ -143,7 +150,14 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   const CurrentStepComponent = currentStepData.component
   const progress = ((currentStep + 1) / ONBOARDING_STEPS.length) * 100
 
-  if (!isOpen) return null
+  console.log('OnboardingModal: Rendering with isOpen:', isOpen, 'currentStep:', currentStep)
+
+  if (!isOpen) {
+    console.log('OnboardingModal: Not rendering (isOpen is false)')
+    return null
+  }
+
+  console.log('OnboardingModal: Rendering modal content')
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">

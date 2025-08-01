@@ -22,6 +22,14 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
   // Use refs to persist state across re-renders
   const hasShownOnboardingRef = useRef(false)
   const isCheckingRef = useRef(false)
+  const openOnboardingRef = useRef(openOnboarding)
+  const shouldShowOnboardingRef = useRef(shouldShowOnboarding)
+
+  // Update refs when functions change
+  useEffect(() => {
+    openOnboardingRef.current = openOnboarding
+    shouldShowOnboardingRef.current = shouldShowOnboarding
+  }, [openOnboarding, shouldShowOnboarding])
 
   // Check if onboarding should be shown on mount (only for automatic opening)
   useEffect(() => {
@@ -47,7 +55,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         hasShownOnboardingRef.current = true
         // Add additional delay to ensure everything is ready
         timer = setTimeout(() => {
-          openOnboarding()
+          openOnboardingRef.current()
         }, 2000)
       } else if (!hasShownOnboardingRef.current) {
         // Check again in 1 second
@@ -58,7 +66,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     }
 
     // Only run automatic onboarding check if onboarding is not currently open
-    if (shouldShowOnboarding() && !isOnboardingOpen) {
+    if (shouldShowOnboardingRef.current() && !isOnboardingOpen) {
       console.log('OnboardingProvider: shouldShowOnboarding is true, starting check')
       // Start checking after initial load
       setTimeout(checkIfReady, 3000)
@@ -74,7 +82,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         clearTimeout(timer)
       }
     }
-  }, [shouldShowOnboarding, openOnboarding, isOnboardingOpen])
+  }, [isOnboardingOpen]) // Only depend on isOnboardingOpen
 
   // Debug: Log modal state
   useEffect(() => {
