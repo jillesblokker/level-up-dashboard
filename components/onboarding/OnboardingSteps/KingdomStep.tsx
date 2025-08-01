@@ -124,22 +124,7 @@ export function KingdomStep({ onNext }: KingdomStepProps) {
         </div>
       </div>
 
-      {/* Placed Tiles Display */}
-      {showGrowth && (
-        <div className="space-y-3">
-          <h4 className="text-md font-semibold text-white">Placed Tiles</h4>
-          <div className="flex justify-center space-x-2">
-            {placedTiles.map((tile, index) => (
-              <div
-                key={index}
-                className="w-8 h-8 bg-gradient-to-br from-amber-500/20 to-amber-600/20 border border-amber-500/40 rounded flex items-center justify-center"
-              >
-                <MapIcon className="h-4 w-4 text-amber-400" />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+
 
       {/* Growth Animation Status */}
       {!showGrowth && (

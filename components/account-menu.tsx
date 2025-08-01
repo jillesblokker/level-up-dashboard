@@ -21,7 +21,7 @@ export function AccountMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [profileUpdateCount, setProfileUpdateCount] = useState(0);
-  const { openOnboarding } = useOnboarding();
+  const { openOnboarding, debugOnboardingState } = useOnboarding();
 
   useEffect(() => {
     const refresh = async () => {
@@ -101,12 +101,28 @@ export function AccountMenu() {
             className="w-full text-left cursor-pointer min-h-[44px] md:min-h-[36px] flex items-center touch-manipulation"
             aria-label="Show guide"
             role="button"
-            onClick={() => openOnboarding()}
+            onClick={() => {
+              console.log('Guide button clicked')
+              openOnboarding()
+            }}
           >
             <BookOpen className="h-4 w-4 mr-2" />
             Guide
           </button>
         </DropdownMenuItem>
+        {process.env.NODE_ENV === 'development' && (
+          <DropdownMenuItem>
+            <button
+              className="w-full text-left cursor-pointer min-h-[44px] md:min-h-[36px] flex items-center touch-manipulation"
+              aria-label="Debug onboarding"
+              role="button"
+              onClick={() => debugOnboardingState()}
+            >
+              <BookOpen className="h-4 w-4 mr-2" />
+              Debug Onboarding
+            </button>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <button

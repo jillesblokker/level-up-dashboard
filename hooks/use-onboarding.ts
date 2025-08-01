@@ -52,6 +52,13 @@ export function useOnboarding() {
     return false
   }
 
+  // Debug function to check onboarding state
+  const debugOnboardingState = () => {
+    console.log('Onboarding State:', onboardingState)
+    console.log('Should Show:', shouldShowOnboarding())
+    console.log('Is Open:', isOnboardingOpen)
+  }
+
   // Open onboarding
   const openOnboarding = () => {
     setIsOnboardingOpen(true)
@@ -98,6 +105,7 @@ export function useOnboarding() {
     closeOnboarding,
     completeOnboarding,
     skipOnboarding,
-    resetOnboarding
+    resetOnboarding,
+    debugOnboardingState
   }
 } 
