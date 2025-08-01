@@ -140,9 +140,8 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
       setCompletedSteps(prev => new Set([...prev, currentStep]))
       setCurrentStep(currentStep + 1)
     } else {
-      // Temporarily disable auto-completion to test
-      console.log('OnboardingModal: Would complete onboarding, but disabled for testing')
-      // handleComplete()
+      // Restored auto-completion for full onboarding experience
+      handleComplete()
     }
   }
 

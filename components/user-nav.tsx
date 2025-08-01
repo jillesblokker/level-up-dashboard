@@ -18,14 +18,12 @@ import Link from "next/link"
 import { ClipboardCheck, Palette, User, Settings, Monitor, BookOpen } from "lucide-react"
 import type { Session } from '@supabase/supabase-js'
 import { useClerk, useUser } from "@clerk/nextjs";
-// Removed old onboarding system
-// import { useOnboarding } from "@/hooks/use-onboarding";
+import { useOnboarding } from "@/hooks/use-onboarding";
 
 export function UserNav() {
   const { user, isLoaded } = useUser();
+  const { openOnboarding } = useOnboarding();
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
-  // Removed old onboarding system
-  // const { openOnboarding } = useOnboarding();
 
   // Helper to get the avatar initial as a string
   const getAvatarInitial = () => {
@@ -33,10 +31,10 @@ export function UserNav() {
     return name && typeof name === 'string' ? name.charAt(0).toUpperCase() : 'U';
   };
 
-  // Simple onboarding modal function
-  const openSimpleOnboardingModal = () => {
-    console.log('UserNav: Opening simple onboarding modal');
-    setShowOnboardingModal(true);
+  // Full onboarding function
+  const openFullOnboarding = () => {
+    console.log('UserNav: Opening full onboarding');
+    openOnboarding(true); // Force open the full onboarding
   };
 
   return (
@@ -106,7 +104,7 @@ export function UserNav() {
                 className="w-full text-left cursor-pointer flex items-center"
                 aria-label="Show guide"
                 role="button"
-                onClick={openSimpleOnboardingModal}
+                onClick={openFullOnboarding}
               >
                 <BookOpen className="mr-2 h-4 w-4" />
                 <span>Guide</span>
@@ -124,43 +122,7 @@ export function UserNav() {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Simple Onboarding Modal */}
-      {showOnboardingModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="w-full max-w-2xl bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 shadow-2xl rounded-lg p-6">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">Welcome to Thrivehaven</h2>
-              <p className="text-amber-400 text-lg">Every adventure is in need for a quest to achieve greatness</p>
-            </div>
-            
-            <div className="space-y-4 mb-6">
-              <div className="bg-gray-800/50 border border-amber-800/20 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-white mb-2">Complete Quests</h3>
-                <p className="text-gray-300">Transform daily habits into epic adventures and earn gold and experience.</p>
-              </div>
-              
-              <div className="bg-gray-800/50 border border-amber-800/20 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-white mb-2">Build Your Kingdom</h3>
-                <p className="text-gray-300">Buy tiles and create a realm that grows with your progress.</p>
-              </div>
-              
-              <div className="bg-gray-800/50 border border-amber-800/20 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-white mb-2">Level Up & Unlock</h3>
-                <p className="text-gray-300">Gain experience and unlock new content as you progress.</p>
-              </div>
-            </div>
-            
-            <div className="flex justify-center">
-              <button
-                onClick={() => setShowOnboardingModal(false)}
-                className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-black font-semibold rounded-lg"
-              >
-                Start Your Journey
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Full onboarding system is now active */}
     </>
   )
 } 

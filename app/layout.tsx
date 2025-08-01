@@ -99,8 +99,8 @@ export default function RootLayout({
               <GradientProvider>
                 <TitleEvolutionProvider>
                   <Providers>
-                    {/* Temporarily disabled OnboardingProvider to use simple modal */}
-                    {/* <OnboardingProvider> */}
+                    {/* Re-enabled OnboardingProvider for full onboarding experience */}
+                    <OnboardingProvider>
                       <div className="flex flex-col h-full">
                         <AuthGate>
                           <NavBar session={null} />
@@ -111,7 +111,7 @@ export default function RootLayout({
                         <Toaster />
                         <SonnerToaster />
                       </div>
-                    {/* </OnboardingProvider> */}
+                    </OnboardingProvider>
                   </Providers>
                 </TitleEvolutionProvider>
               </GradientProvider>
