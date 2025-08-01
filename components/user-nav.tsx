@@ -14,12 +14,14 @@ import {
 // import { useSession } from "next-auth/react"
 import { logout } from '@/app/actions/auth'
 import Link from "next/link"
-import { ClipboardCheck, Palette, User, Settings, Monitor } from "lucide-react"
+import { ClipboardCheck, Palette, User, Settings, Monitor, BookOpen } from "lucide-react"
 import type { Session } from '@supabase/supabase-js'
 import { useClerk, useUser } from "@clerk/nextjs";
+import { useOnboarding } from "@/hooks/use-onboarding";
 
 export function UserNav() {
   const { user, isLoaded } = useUser();
+  const { openOnboarding } = useOnboarding();
 
   // Helper to get the avatar initial as a string
   const getAvatarInitial = () => {
@@ -88,6 +90,20 @@ export function UserNav() {
               <span>Stored Data</span>
             </DropdownMenuItem>
           </Link>
+          <DropdownMenuItem>
+            <button
+              className="w-full text-left cursor-pointer flex items-center"
+              aria-label="Show guide"
+              role="button"
+              onClick={() => {
+                console.log('UserNav: Guide button clicked - opening onboarding')
+                openOnboarding()
+              }}
+            >
+              <BookOpen className="mr-2 h-4 w-4" />
+              <span>Guide</span>
+            </button>
+          </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <form action={logout}>

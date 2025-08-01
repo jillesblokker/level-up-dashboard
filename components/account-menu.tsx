@@ -27,7 +27,8 @@ export function AccountMenu() {
   useEffect(() => {
     console.log('AccountMenu: useOnboarding hook loaded, openOnboarding function:', typeof openOnboarding)
     console.log('AccountMenu: Component rendered with all menu items')
-  }, [openOnboarding])
+    console.log('AccountMenu: User state:', user ? 'Authenticated' : 'Not authenticated')
+  }, [openOnboarding, user])
 
   useEffect(() => {
     const refresh = async () => {
@@ -44,6 +45,8 @@ export function AccountMenu() {
   const avatarTextColor = user?.unsafeMetadata?.['avatar_text_color'] as string || "#ffffff";
   const avatarType = (user?.unsafeMetadata?.['avatar_type'] as 'initial' | 'default' | 'uploaded') || (user?.imageUrl ? 'uploaded' : 'initial');
 
+  console.log('AccountMenu: Rendering component, user:', user ? 'present' : 'null')
+  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

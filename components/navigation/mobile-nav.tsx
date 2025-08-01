@@ -45,6 +45,7 @@ import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperien
 import { Logo } from "@/components/logo";
 import { useUser } from "@clerk/nextjs";
 import { getCharacterStats } from "@/lib/character-stats-manager"
+import { useOnboarding } from "@/hooks/use-onboarding"
 
 interface MobileNavProps {
   tabs?: { value: string; label: string }[]
@@ -237,6 +238,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
 function ExpandableAccountSettings() {
   const { user } = useUser();
   const [isExpanded, setIsExpanded] = useState(false);
+  const { openOnboarding } = useOnboarding();
 
   const getAvatarInitial = () => {
     const displayName = (user?.unsafeMetadata?.['user_name'] as string) || user?.username || user?.emailAddresses?.[0]?.emailAddress || "";
@@ -249,6 +251,11 @@ function ExpandableAccountSettings() {
     { href: "/account/stored-data", label: "Stored Data", icon: BookOpen, description: "Manage local data" },
     { href: "/settings", label: "Settings", icon: Settings, description: "App preferences" },
   ];
+
+  const handleGuideClick = () => {
+    console.log('MobileNav: Guide button clicked - opening onboarding')
+    openOnboarding()
+  }
 
   return (
     <div className="space-y-2">
@@ -294,6 +301,17 @@ function ExpandableAccountSettings() {
               </Link>
             );
           })}
+          <button
+            onClick={handleGuideClick}
+            className="flex items-center gap-3 p-3 rounded-lg text-gray-300 hover:text-amber-400 hover:bg-amber-500/10 active:bg-amber-500/15 transition-all duration-300 group touch-manipulation min-h-[44px] w-full"
+            aria-label="Show guide"
+          >
+            <BookOpen className="h-4 w-4 text-gray-400 group-hover:text-amber-400" />
+            <div>
+              <p className="text-sm font-medium">Guide</p>
+              <p className="text-xs text-gray-500 group-hover:text-gray-400">Open tutorial</p>
+            </div>
+          </button>
         </div>
       )}
     </div>
