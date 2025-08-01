@@ -14,6 +14,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { addTileToInventory } from "@/lib/tile-inventory-manager"
 import { useUser } from "@clerk/nextjs"
+import { Calculator } from "lucide-react"
 
 
 interface TileInventoryProps {
@@ -385,6 +386,11 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                           <div className="capitalize font-semibold text-sm mb-1">{tile.name}</div>
                           <div className="text-xs text-muted-foreground text-center">
                             <span className="text-amber-500 font-medium">{tile.cost} gold</span>
+                            {tile.cost > 0 && (
+                              <div className="text-xs text-gray-500 mt-1">
+                                {tile.cost <= 50 ? 'Budget' : tile.cost <= 150 ? 'Standard' : tile.cost <= 300 ? 'Premium' : 'Luxury'}
+                              </div>
+                            )}
                           </div>
                           {tile.quantity === 0 && (
                             <Button
@@ -410,6 +416,31 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
           </div>
         </TabsContent>
         <TabsContent value="buy" className="space-y-6">
+          {/* Cost Summary */}
+          <div className="p-4 bg-amber-900/20 border border-amber-800/30 rounded-lg">
+            <div className="flex items-center gap-2 mb-3">
+              <Calculator className="h-4 w-4 text-amber-400" />
+              <h3 className="font-semibold text-amber-400">Purchase Summary</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-gray-400">Total Cost:</span>
+                <span className="ml-2 font-semibold text-amber-400">
+                  {Object.entries(buyQuantities).reduce((total, [type, quantity]) => {
+                    const tile = tiles.find(t => t.type === type);
+                    return total + ((tile?.cost || 0) * (quantity || 0));
+                  }, 0)} Gold
+                </span>
+              </div>
+              <div>
+                <span className="text-gray-400">Items:</span>
+                <span className="ml-2 font-semibold text-white">
+                  {Object.values(buyQuantities).reduce((total, quantity) => total + (quantity || 0), 0)}
+                </span>
+              </div>
+            </div>
+          </div>
+          
           {/* Category Dropdown */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
