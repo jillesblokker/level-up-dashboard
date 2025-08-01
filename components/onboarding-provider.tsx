@@ -22,10 +22,10 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
   // Check if onboarding should be shown on mount
   useEffect(() => {
     let timer: NodeJS.Timeout | undefined
+    let hasShownOnboarding = false
 
-    if (shouldShowOnboarding()) {
+    if (shouldShowOnboarding() && !hasShownOnboarding) {
       // Wait for kingdom animation and user to be fully loaded
-      // Check if we're on the main page and kingdom animation is complete
       const checkIfReady = () => {
         // Wait for kingdom animation to complete (usually takes 3-5 seconds)
         const kingdomAnimationComplete = !document.querySelector('.kingdom-animation') || 
@@ -37,12 +37,13 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
           !window.location.pathname.includes('/signin') &&
           !window.location.pathname.includes('/signup');
         
-        if (kingdomAnimationComplete && userLoaded) {
+        if (kingdomAnimationComplete && userLoaded && !hasShownOnboarding) {
+          hasShownOnboarding = true
           // Add additional delay to ensure everything is ready
           timer = setTimeout(() => {
             openOnboarding()
           }, 2000)
-        } else {
+        } else if (!hasShownOnboarding) {
           // Check again in 500ms
           setTimeout(checkIfReady, 500)
         }

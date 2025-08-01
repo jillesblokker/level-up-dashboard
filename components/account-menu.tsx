@@ -96,7 +96,7 @@ export function AccountMenu() {
             Stored Data
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
+        <DropdownMenuItem>
           <button
             className="w-full text-left cursor-pointer min-h-[44px] md:min-h-[36px] flex items-center touch-manipulation"
             aria-label="Show guide"

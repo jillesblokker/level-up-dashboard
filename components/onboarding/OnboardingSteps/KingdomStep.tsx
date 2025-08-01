@@ -62,8 +62,19 @@ export function KingdomStep({ onNext }: KingdomStepProps) {
                   }`}
                 >
                   {tile && (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <MapIcon className="h-6 w-6 text-amber-400" />
+                    <div className="w-full h-full flex items-center justify-center overflow-hidden">
+                      <img 
+                        src={`/images/tiles/${tile}-tile.png`}
+                        alt={`${tile} tile`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const fallback = target.parentElement?.querySelector('.fallback-icon') as HTMLElement;
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
+                      />
+                      <MapIcon className="h-6 w-6 text-amber-400 fallback-icon absolute inset-0 m-auto" style={{ display: 'none' }} />
                     </div>
                   )}
                 </div>
