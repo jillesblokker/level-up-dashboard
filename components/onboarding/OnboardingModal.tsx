@@ -200,6 +200,14 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
       data-modal-container
       tabIndex={-1}
+      onClick={(e) => {
+        console.log('OnboardingModal: Container clicked', e.target)
+        // Prevent clicks on the backdrop from closing the modal
+        if (e.target === e.currentTarget) {
+          e.preventDefault()
+          e.stopPropagation()
+        }
+      }}
       onKeyDown={(e) => {
         // Prevent escape key from closing modal during onboarding
         if (e.key === 'Escape') {
@@ -299,10 +307,17 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
             <Button
               variant="ghost"
               size="sm"
-              onClick={handleClose}
+              onClick={(e) => {
+                console.log('OnboardingModal: Close button clicked manually', e)
+                handleClose()
+              }}
               disabled={!canClose}
               className="text-gray-400 hover:text-amber-400 hover:bg-amber-500/10 disabled:opacity-50"
               aria-label="Close tutorial"
+              onFocus={() => console.log('OnboardingModal: Close button focused')}
+              onBlur={() => console.log('OnboardingModal: Close button blurred')}
+              onMouseEnter={() => console.log('OnboardingModal: Close button mouse enter')}
+              onMouseLeave={() => console.log('OnboardingModal: Close button mouse leave')}
             >
               Close Tutorial {!canClose && '(disabled)'}
             </Button>
