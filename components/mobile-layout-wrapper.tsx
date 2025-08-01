@@ -69,12 +69,20 @@ export function MobileLayoutWrapper({
         !enableScroll && "overflow-hidden",
         "scroll-smooth",
         isMobile && "touch-pan-y",
+        // Enhanced mobile spacing and touch targets
+        isMobile && "space-y-4",
         className
       )}
       style={{
         minHeight: isMobile ? viewportHeight : '100vh',
         WebkitOverflowScrolling: 'touch',
-        overscrollBehavior: 'contain'
+        overscrollBehavior: 'contain',
+        // Enhanced mobile touch targets
+        ...(isMobile && {
+          '--touch-target-size': '44px',
+          '--mobile-spacing': '16px',
+          '--mobile-padding': '20px'
+        })
       }}
       aria-label="mobile-layout-container"
     >
@@ -92,7 +100,7 @@ export const safeAreaClasses = {
   all: 'pt-safe-top pb-safe-bottom pl-safe-left pr-safe-right'
 }
 
-// Mobile-specific scroll container
+// Enhanced mobile scroll container with better touch handling
 export function MobileScrollContainer({ 
   children, 
   className,
@@ -111,11 +119,16 @@ export function MobileScrollContainer({
         direction === 'both' && "overflow-auto",
         "scroll-smooth",
         "touch-pan-y",
+        // Enhanced mobile scroll behavior
+        "scrollbar-thin scrollbar-thumb-amber-500/20 scrollbar-track-transparent",
+        "hover:scrollbar-thumb-amber-500/30",
         className
       )}
       style={{
         WebkitOverflowScrolling: 'touch',
-        overscrollBehavior: 'contain'
+        overscrollBehavior: 'contain',
+        // Enhanced mobile scroll performance
+        scrollBehavior: 'smooth'
       }}
       aria-label="mobile-scroll-container"
     >
@@ -124,7 +137,7 @@ export function MobileScrollContainer({
   )
 }
 
-// Mobile-safe content wrapper
+// Enhanced mobile content wrapper with better spacing
 export function MobileContentWrapper({ 
   children, 
   className,
@@ -138,10 +151,67 @@ export function MobileContentWrapper({
     <div
       className={cn(
         "w-full",
-        padding && "px-4 py-4",
+        padding && "px-5 py-5", // Increased padding for better mobile spacing
+        // Enhanced mobile spacing
+        "space-y-4", // Consistent spacing between elements
         className
       )}
       aria-label="mobile-content-wrapper"
+    >
+      {children}
+    </div>
+  )
+}
+
+// New: Mobile-optimized card wrapper
+export function MobileCardWrapper({ 
+  children, 
+  className,
+  padding = true
+}: {
+  children: React.ReactNode
+  className?: string
+  padding?: boolean
+}) {
+  return (
+    <div
+      className={cn(
+        "bg-gradient-to-br from-gray-900 to-gray-800",
+        "border border-amber-800/20 rounded-lg",
+        "shadow-lg",
+        padding && "p-4", // Consistent mobile padding
+        // Enhanced mobile card styling
+        "touch-manipulation", // Better touch handling
+        className
+      )}
+      aria-label="mobile-card-wrapper"
+    >
+      {children}
+    </div>
+  )
+}
+
+// New: Mobile-optimized button wrapper
+export function MobileButtonWrapper({ 
+  children, 
+  className,
+  fullWidth = false
+}: {
+  children: React.ReactNode
+  className?: string
+  fullWidth?: boolean
+}) {
+  return (
+    <div
+      className={cn(
+        "min-h-[44px]", // Minimum touch target size
+        "flex items-center justify-center",
+        fullWidth && "w-full",
+        // Enhanced mobile button styling
+        "touch-manipulation",
+        className
+      )}
+      aria-label="mobile-button-wrapper"
     >
       {children}
     </div>

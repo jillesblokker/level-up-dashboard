@@ -121,7 +121,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
         <SheetTrigger asChild>
           <Button
             variant="ghost"
-            className="relative h-14 w-14 rounded-lg border border-amber-800/20 bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-sm hover:border-amber-500/40 active:bg-amber-500/10 transition-all duration-300 touch-manipulation"
+            className="relative h-14 w-14 rounded-lg border border-amber-800/20 bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-sm hover:border-amber-500/40 active:bg-amber-500/10 transition-all duration-300 touch-manipulation min-h-[44px]"
             aria-label="Open navigation menu"
           >
             <Menu className="h-6 w-6 text-amber-500" />
@@ -132,42 +132,42 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
           className="w-full bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl border-l border-amber-800/20 pt-safe-top"
         >
           <div className="flex flex-col h-full">
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-amber-800/20">
+            {/* Enhanced Header */}
+            <div className="flex items-center justify-between p-5 border-b border-amber-800/20 bg-gradient-to-r from-amber-900/10 to-transparent">
               <Logo />
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setOpen(false)}
-                className="h-8 w-8 p-0 text-amber-500 hover:text-amber-400 hover:bg-amber-500/10"
+                className="h-10 w-10 p-0 text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 touch-manipulation min-h-[44px]"
                 aria-label="Close navigation menu"
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </Button>
             </div>
 
-            {/* Character Stats */}
-            <div className="p-4 border-b border-amber-800/20 bg-gradient-to-r from-amber-900/10 to-transparent">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full flex items-center justify-center">
-                    <span className="text-xs font-bold text-black">{characterStats.level}</span>
+            {/* Enhanced Character Stats */}
+            <div className="p-5 border-b border-amber-800/20 bg-gradient-to-r from-amber-900/10 to-transparent">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full flex items-center justify-center shadow-lg">
+                    <span className="text-sm font-bold text-black">{characterStats.level}</span>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-white">Level {characterStats.level}</p>
-                    <p className="text-xs text-amber-400">{characterStats.experience} / {characterStats.experienceToNextLevel} XP</p>
+                    <p className="text-base font-semibold text-white">Level {characterStats.level}</p>
+                    <p className="text-sm text-amber-400">{characterStats.experience} / {characterStats.experienceToNextLevel} XP</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-1 text-amber-500">
-                  <Coins className="h-4 w-4" />
-                  <span className="text-sm font-medium">{characterStats.gold}</span>
+                <div className="flex items-center gap-2 text-amber-500 bg-amber-500/10 px-3 py-2 rounded-lg">
+                  <Coins className="h-5 w-5" />
+                  <span className="text-base font-semibold">{characterStats.gold}</span>
                 </div>
               </div>
-              <Progress value={levelProgress} className="h-2 bg-gray-700" />
+              <Progress value={levelProgress} className="h-3 bg-gray-700" />
             </div>
 
-            {/* Navigation Items */}
-            <nav className="flex-1 p-4 space-y-3 overflow-y-auto">
+            {/* Enhanced Navigation Items */}
+            <nav className="flex-1 p-5 space-y-2 overflow-y-auto">
               {mainNavItems.map((item) => {
                 const Icon = item.icon
                 return (
@@ -176,56 +176,56 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                     href={item.href}
                     onClick={() => setOpen(false)}
                     className={cn(
-                      "flex items-center gap-3 p-4 rounded-lg transition-all duration-300 group min-h-[48px] touch-manipulation",
+                      "flex items-center gap-4 p-4 rounded-xl transition-all duration-300 group min-h-[52px] touch-manipulation",
                       isActive(item.href)
-                        ? "bg-gradient-to-r from-amber-500/25 to-amber-600/25 border border-amber-500/40 text-amber-400 shadow-lg"
-                        : "text-gray-300 hover:text-amber-400 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 active:bg-amber-500/15"
+                        ? "bg-gradient-to-r from-amber-500/25 to-amber-600/25 border-2 border-amber-500/40 text-amber-400 shadow-lg"
+                        : "text-gray-300 hover:text-amber-400 hover:bg-amber-500/10 border-2 border-transparent hover:border-amber-500/20 active:bg-amber-500/15"
                     )}
                     aria-label={`Navigate to ${item.label}`}
                     aria-current={isActive(item.href) ? "page" : undefined}
                   >
                     <div className={cn(
-                      "p-2.5 rounded-md transition-all duration-300 flex-shrink-0",
+                      "p-3 rounded-lg transition-all duration-300 flex-shrink-0",
                       isActive(item.href)
                         ? "bg-amber-500/25 text-amber-400 shadow-sm"
                         : "bg-gray-800/50 text-gray-400 group-hover:bg-amber-500/20 group-hover:text-amber-400"
                     )}>
-                      <Icon className="h-5 w-5" />
+                      <Icon className="h-6 w-6" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm">{item.label}</p>
-                      <p className="text-xs text-gray-500 group-hover:text-gray-400 mt-0.5">{item.description}</p>
+                      <p className="font-semibold text-base">{item.label}</p>
+                      <p className="text-sm text-gray-500 group-hover:text-gray-400 mt-1">{item.description}</p>
                     </div>
                     {isActive(item.href) && (
-                      <div className="w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse flex-shrink-0" />
+                      <div className="w-3 h-3 bg-amber-500 rounded-full animate-pulse flex-shrink-0" />
                     )}
                   </Link>
                 )
               })}
             </nav>
 
-            {/* Quick Stats */}
-            <div className="p-4 border-t border-amber-800/20 bg-gradient-to-r from-gray-800/50 to-transparent">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-800/50 border border-gray-700/50">
-                  <Shield className="h-4 w-4 text-blue-400" />
+            {/* Enhanced Quick Stats */}
+            <div className="p-5 border-t border-amber-800/20 bg-gradient-to-r from-gray-800/50 to-transparent">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-800/50 border border-gray-700/50">
+                  <Shield className="h-5 w-5 text-blue-400" />
                   <div>
-                    <p className="text-xs text-gray-400">Titles</p>
-                    <p className="text-sm font-medium text-white">{characterStats.titles.unlocked}/{characterStats.titles.total}</p>
+                    <p className="text-sm text-gray-400">Titles</p>
+                    <p className="text-base font-semibold text-white">{characterStats.titles.unlocked}/{characterStats.titles.total}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-800/50 border border-gray-700/50">
-                  <Zap className="h-4 w-4 text-yellow-400" />
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-800/50 border border-gray-700/50">
+                  <Zap className="h-5 w-5 text-yellow-400" />
                   <div>
-                    <p className="text-xs text-gray-400">Perks</p>
-                    <p className="text-sm font-medium text-white">{characterStats.perks.active}/{characterStats.perks.total}</p>
+                    <p className="text-sm text-gray-400">Perks</p>
+                    <p className="text-base font-semibold text-white">{characterStats.perks.active}/{characterStats.perks.total}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Account Section */}
-            <div className="p-4 border-t border-amber-800/20">
+            {/* Enhanced Account Section */}
+            <div className="p-5 border-t border-amber-800/20">
               <ExpandableAccountSettings />
             </div>
           </div>
@@ -258,58 +258,58 @@ function ExpandableAccountSettings() {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center justify-between w-full p-4 rounded-lg bg-gradient-to-r from-gray-800/50 to-gray-700/50 border border-gray-700/50 hover:border-amber-500/30 active:bg-amber-500/10 transition-all duration-300 group touch-manipulation min-h-[48px]"
+        className="flex items-center justify-between w-full p-4 rounded-xl bg-gradient-to-r from-gray-800/50 to-gray-700/50 border border-gray-700/50 hover:border-amber-500/30 active:bg-amber-500/10 transition-all duration-300 group touch-manipulation min-h-[52px]"
         aria-label="Toggle account settings"
         aria-expanded={isExpanded}
       >
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full flex items-center justify-center">
-            <span className="text-sm font-bold text-black">{getAvatarInitial()}</span>
+          <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full flex items-center justify-center shadow-lg">
+            <span className="text-base font-bold text-black">{getAvatarInitial()}</span>
           </div>
           <div className="text-left">
-            <p className="text-sm font-medium text-white">Account</p>
-            <p className="text-xs text-gray-400">Manage your settings</p>
+            <p className="text-base font-semibold text-white">Account</p>
+            <p className="text-sm text-gray-400">Manage your settings</p>
           </div>
         </div>
         <ChevronDown 
           className={cn(
-            "h-4 w-4 text-gray-400 transition-transform duration-300",
+            "h-5 w-5 text-gray-400 transition-transform duration-300",
             isExpanded && "rotate-180"
           )} 
         />
       </button>
 
       {isExpanded && (
-        <div className="space-y-1 pl-4">
+        <div className="space-y-2 pl-4">
           {accountMenuItems.map((item) => {
             const Icon = item.icon;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center gap-3 p-3 rounded-lg text-gray-300 hover:text-amber-400 hover:bg-amber-500/10 active:bg-amber-500/15 transition-all duration-300 group touch-manipulation min-h-[44px]"
+                className="flex items-center gap-3 p-4 rounded-lg text-gray-300 hover:text-amber-400 hover:bg-amber-500/10 active:bg-amber-500/15 transition-all duration-300 group touch-manipulation min-h-[48px]"
                 aria-label={`Navigate to ${item.label}`}
               >
-                <Icon className="h-4 w-4 text-gray-400 group-hover:text-amber-400" />
+                <Icon className="h-5 w-5 text-gray-400 group-hover:text-amber-400" />
                 <div>
-                  <p className="text-sm font-medium">{item.label}</p>
-                  <p className="text-xs text-gray-500 group-hover:text-gray-400">{item.description}</p>
+                  <p className="text-base font-medium">{item.label}</p>
+                  <p className="text-sm text-gray-500 group-hover:text-gray-400">{item.description}</p>
                 </div>
               </Link>
             );
           })}
           <button
             onClick={handleGuideClick}
-            className="flex items-center gap-3 p-3 rounded-lg text-gray-300 hover:text-amber-400 hover:bg-amber-500/10 active:bg-amber-500/15 transition-all duration-300 group touch-manipulation min-h-[44px] w-full"
+            className="flex items-center gap-3 p-4 rounded-lg text-gray-300 hover:text-amber-400 hover:bg-amber-500/10 active:bg-amber-500/15 transition-all duration-300 group touch-manipulation min-h-[48px] w-full"
             aria-label="Show guide"
           >
-            <BookOpen className="h-4 w-4 text-gray-400 group-hover:text-amber-400" />
+            <BookOpen className="h-5 w-5 text-gray-400 group-hover:text-amber-400" />
             <div>
-              <p className="text-sm font-medium">Guide</p>
-              <p className="text-xs text-gray-500 group-hover:text-gray-400">Open tutorial</p>
+              <p className="text-base font-medium">Guide</p>
+              <p className="text-sm text-gray-500 group-hover:text-gray-400">Open tutorial</p>
             </div>
           </button>
         </div>
