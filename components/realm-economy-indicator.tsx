@@ -160,8 +160,9 @@ export function RealmEconomyIndicator() {
                   Per tile
                 </p>
               </CardContent>
-            </div>
-          </CardContent>
+            </Card>
+          </div>
+        </CardContent>
         </CardContent>
       </Card>
 
