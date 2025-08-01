@@ -36,6 +36,7 @@ export function AccountMenu() {
   
   // Simple test modal state
   const [showTestModal, setShowTestModal] = useState(false);
+  const [showOnboardingModal, setShowOnboardingModal] = useState(false);
 
   // Debug: Log onboarding hook state
   useEffect(() => {
@@ -90,6 +91,12 @@ export function AccountMenu() {
   const openSimpleTestModal = () => {
     console.log('Opening simple test modal');
     setShowTestModal(true);
+  };
+
+  // Simple onboarding modal function
+  const openSimpleOnboardingModal = () => {
+    console.log('Opening simple onboarding modal');
+    setShowOnboardingModal(true);
   };
   
   return (
@@ -174,11 +181,7 @@ export function AccountMenu() {
               className="w-full text-left cursor-pointer min-h-[44px] md:min-h-[36px] flex items-center touch-manipulation"
               aria-label="Show guide"
               role="button"
-              onClick={() => {
-                console.log('Guide button clicked - opening onboarding')
-                // Force reset onboarding state and open
-                debugAndResetOnboarding()
-              }}
+              onClick={openSimpleOnboardingModal}
             >
               <BookOpen className="h-4 w-4 mr-2" />
               Guide
@@ -236,6 +239,44 @@ export function AccountMenu() {
                 className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Simple Onboarding Modal */}
+      {showOnboardingModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="w-full max-w-2xl bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 shadow-2xl rounded-lg p-6">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-white mb-2">Welcome to Thrivehaven</h2>
+              <p className="text-amber-400 text-lg">Every adventure is in need for a quest to achieve greatness</p>
+            </div>
+            
+            <div className="space-y-4 mb-6">
+              <div className="bg-gray-800/50 border border-amber-800/20 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-white mb-2">Complete Quests</h3>
+                <p className="text-gray-300">Transform daily habits into epic adventures and earn gold and experience.</p>
+              </div>
+              
+              <div className="bg-gray-800/50 border border-amber-800/20 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-white mb-2">Build Your Kingdom</h3>
+                <p className="text-gray-300">Buy tiles and create a realm that grows with your progress.</p>
+              </div>
+              
+              <div className="bg-gray-800/50 border border-amber-800/20 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-white mb-2">Level Up & Unlock</h3>
+                <p className="text-gray-300">Gain experience and unlock new content as you progress.</p>
+              </div>
+            </div>
+            
+            <div className="flex justify-center">
+              <button
+                onClick={() => setShowOnboardingModal(false)}
+                className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-black font-semibold rounded-lg"
+              >
+                Start Your Journey
               </button>
             </div>
           </div>
