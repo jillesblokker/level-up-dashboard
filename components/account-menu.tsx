@@ -26,6 +26,7 @@ export function AccountMenu() {
   // Debug: Log onboarding hook state
   useEffect(() => {
     console.log('AccountMenu: useOnboarding hook loaded, openOnboarding function:', typeof openOnboarding)
+    console.log('AccountMenu: Component rendered with all menu items')
   }, [openOnboarding])
 
   useEffect(() => {
@@ -132,6 +133,10 @@ export function AccountMenu() {
             <BookOpen className="h-4 w-4 mr-2" />
             Guide
           </button>
+        </DropdownMenuItem>
+        {/* Debug: Verify Guide button is rendered */}
+        <DropdownMenuItem>
+          <div className="text-xs text-gray-500">Debug: Guide button should be above</div>
         </DropdownMenuItem>
         {process.env.NODE_ENV === 'development' && (
           <DropdownMenuItem>
