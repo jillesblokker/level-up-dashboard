@@ -262,11 +262,25 @@ export default function QuestCard({
             )}
           </div>
           
-          {/* Progression Connection */}
+          {/* Enhanced Reward Display */}
           <div className="mt-2 p-2 bg-amber-900/20 border border-amber-800/30 rounded-lg">
-            <div className="flex items-center gap-2 text-xs text-amber-300">
-              <Trophy className="h-3 w-3" />
-              <span>Complete → Earn {reward.gold} Gold → Buy Kingdom Tiles</span>
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2 text-amber-300">
+                <Trophy className="h-3 w-3" />
+                <span>Complete → Earn {reward.gold} Gold → Buy Kingdom Tiles</span>
+              </div>
+              <div className="flex items-center gap-1">
+                {reward.gold > 0 && (
+                  <Badge variant="outline" className="text-amber-400 border-amber-400 text-xs">
+                    {reward.gold} Gold
+                  </Badge>
+                )}
+                {reward.experience > 0 && (
+                  <Badge variant="outline" className="text-blue-400 border-blue-400 text-xs">
+                    {reward.experience} XP
+                  </Badge>
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -26,6 +26,7 @@ import { gainExperience } from '@/lib/experience-manager'
 import { gainStrengthFromQuest } from '@/lib/strength-manager'
 import { MobileLayoutWrapper, MobileScrollContainer, MobileContentWrapper } from '@/components/mobile-layout-wrapper'
 import { ProgressionVisualization } from '@/components/progression-visualization'
+import { QuestOrganization } from '@/components/quest-organization'
 
 interface Quest {
   id: string;
@@ -1720,47 +1721,15 @@ export default function QuestsPage() {
                 </div>
               </Card>
             </div>
-            <div className="space-y-4">
-              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3">
-                {(questsByCategorySafe[safeQuestCategory] ?? []).map((quest: Quest) => {
-                  const categoryKey: string = String(quest.category ?? '');
-                  const categoryColor = Object.prototype.hasOwnProperty.call(categoryColorMap, categoryKey)
-                    ? categoryColorMap[categoryKey]
-                    : 'text-amber-500 border-amber-800';
-                  // console.log('[Quests Debug] rendering quest:', quest.name, 'completed:', quest.completed);
-                  return (
-                    <QuestCard
-                      key={quest.id}
-                      title={quest.name || quest.title || 'Untitled Quest'}
-                      description={quest.description}
-                      category={quest.category}
-                      difficulty="medium"
-                      progress={quest.completed ? 100 : 5}
-                      maxProgress={100}
-                      reward={{
-                        experience: quest.xp ?? 0,
-                        gold: quest.gold ?? 0
-                      }}
-                      status={quest.completed ? 'completed' : 'not-started'}
-                      onClick={() => handleQuestToggle(quest.id, quest.completed)}
-                      onComplete={() => handleQuestToggle(quest.id, quest.completed)}
-                      onEdit={() => handleEditQuest(quest)}
-                      onDelete={() => handleDeleteQuest(quest.id)}
-                      showEditDelete={true}
-                    />
-                  );
-                })}
-                {(questsByCategorySafe[safeQuestCategory] ?? []).length === 0 && (
-                  <div className="text-center text-gray-400">No quests found for this category.</div>
-                )}
-                <Card className="bg-black border-2 border-dashed border-[#f4f4f4] hover:border-[#f4f4f4] transition-colors cursor-pointer flex items-center justify-center min-h-[160px] shadow-lg" onClick={() => setAddQuestModalOpen(true)} tabIndex={0} role="button" aria-label="add-custom-quest-card" onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setAddQuestModalOpen(true); } }}>
-                  <div className="text-center text-[#F0F0F0]">
-                    <Plus className="w-8 h-8 mx-auto mb-2" />
-                    <p className="font-medium">Add Custom Quest</p>
-                  </div>
-                </Card>
-              </div>
-            </div>
+            {/* Enhanced Quest Organization */}
+            <QuestOrganization
+              quests={quests}
+              onQuestToggle={handleQuestToggle}
+              onQuestFavorite={handleQuestFavorite}
+              onQuestEdit={handleEditQuest}
+              onQuestDelete={handleDeleteQuest}
+              onAddQuest={() => setAddQuestModalOpen(true)}
+            />
           </TabsContent>
 
           {/* Challenges Tab */}
