@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { X } from 'lucide-react'
 import {
@@ -20,8 +20,29 @@ interface OnboardingSkipProps {
 }
 
 export function OnboardingSkip({ onSkip, isSkipping, onSkipConfirm, onSkipCancel }: OnboardingSkipProps) {
+  const [canClick, setCanClick] = useState(false)
+
+  // Prevent immediate clicking
+  useEffect(() => {
+    console.log('OnboardingSkip: Component mounted, setting up click delay')
+    const timer = setTimeout(() => {
+      console.log('OnboardingSkip: Click delay expired, enabling clicks')
+      setCanClick(true)
+    }, 1000) // 1 second delay
+
+    return () => clearTimeout(timer)
+  }, [])
+
   const handleSkipClick = (e: React.MouseEvent) => {
-    console.log('OnboardingSkip: Skip button clicked manually')
+    console.log('OnboardingSkip: Skip button clicked manually', { canClick, timestamp: Date.now() })
+    
+    if (!canClick) {
+      console.log('OnboardingSkip: Click blocked due to delay')
+      e.preventDefault()
+      e.stopPropagation()
+      return
+    }
+    
     e.preventDefault()
     e.stopPropagation()
     onSkip()
@@ -41,7 +62,7 @@ export function OnboardingSkip({ onSkip, isSkipping, onSkipConfirm, onSkipCancel
     onSkipCancel()
   }
 
-  console.log('OnboardingSkip: Rendering with isSkipping:', isSkipping)
+  console.log('OnboardingSkip: Rendering with isSkipping:', isSkipping, 'canClick:', canClick)
 
   return (
     <>
@@ -52,17 +73,20 @@ export function OnboardingSkip({ onSkip, isSkipping, onSkipConfirm, onSkipCancel
         className="text-gray-400 hover:text-amber-400 hover:bg-amber-500/10"
         aria-label="Skip tutorial"
         tabIndex={-1}
-        onFocus={() => console.log('OnboardingSkip: Skip button focused')}
+        disabled={!canClick}
+        onFocus={() => console.log('OnboardingSkip: Skip button focused', { canClick, timestamp: Date.now() })}
         onBlur={() => console.log('OnboardingSkip: Skip button blurred')}
         onKeyDown={(e) => {
-          console.log('OnboardingSkip: Skip button keydown:', e.key)
+          console.log('OnboardingSkip: Skip button keydown:', e.key, { canClick, timestamp: Date.now() })
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault()
           }
         }}
+        onMouseEnter={() => console.log('OnboardingSkip: Skip button mouse enter')}
+        onMouseLeave={() => console.log('OnboardingSkip: Skip button mouse leave')}
       >
         <X className="h-4 w-4 mr-2" />
-        Skip
+        Skip {!canClick && '(disabled)'}
       </Button>
 
       <AlertDialog open={isSkipping} onOpenChange={onSkipCancel}>
