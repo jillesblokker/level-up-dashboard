@@ -214,6 +214,13 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
               </div>
 
               <div className="min-h-[200px] md:min-h-[300px] flex items-center justify-center">
+                {/* Temporarily replace step component with simple content */}
+                <div className="text-center">
+                  <h3 className="text-lg font-semibold text-white mb-4">Step {currentStep + 1}</h3>
+                  <p className="text-gray-300 mb-4">This is step {currentStep + 1} of {ONBOARDING_STEPS.length}</p>
+                  <p className="text-sm text-gray-400">Step component temporarily disabled for debugging</p>
+                </div>
+                {/*
                 <CurrentStepComponent 
                   onNext={handleNext}
                   onPrevious={handlePrevious}
@@ -221,6 +228,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
                   isLastStep={currentStep === ONBOARDING_STEPS.length - 1}
                   stepData={currentStepData}
                 />
+                */}
               </div>
             </div>
           </div>
