@@ -23,7 +23,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
   const hasShownOnboardingRef = useRef(false)
   const isCheckingRef = useRef(false)
 
-  // Check if onboarding should be shown on mount
+  // Check if onboarding should be shown on mount (only for automatic opening)
   useEffect(() => {
     let timer: NodeJS.Timeout | undefined
 
@@ -42,7 +42,8 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         !window.location.pathname.includes('/signin') &&
         !window.location.pathname.includes('/signup');
       
-      if (kingdomAnimationComplete && userLoaded && !hasShownOnboardingRef.current) {
+      // Only auto-open if onboarding is not already open
+      if (kingdomAnimationComplete && userLoaded && !hasShownOnboardingRef.current && !isOnboardingOpen) {
         hasShownOnboardingRef.current = true
         // Add additional delay to ensure everything is ready
         timer = setTimeout(() => {
@@ -56,12 +57,12 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       isCheckingRef.current = false
     }
 
-    if (shouldShowOnboarding()) {
+    if (shouldShowOnboarding() && !isOnboardingOpen) {
       console.log('OnboardingProvider: shouldShowOnboarding is true, starting check')
       // Start checking after initial load
       setTimeout(checkIfReady, 3000)
     } else {
-      console.log('OnboardingProvider: shouldShowOnboarding is false')
+      console.log('OnboardingProvider: shouldShowOnboarding is false or onboarding is already open')
     }
 
     return () => {
@@ -69,7 +70,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         clearTimeout(timer)
       }
     }
-  }, [shouldShowOnboarding, openOnboarding])
+  }, [shouldShowOnboarding, openOnboarding, isOnboardingOpen])
 
   // Debug: Log modal state
   useEffect(() => {

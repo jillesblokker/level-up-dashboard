@@ -132,7 +132,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
     setIsSkipping(false)
   }
 
-  const currentStepData = ONBOARDING_STEPS[currentStep]
+  const currentStepData = ONBOARDING_STEPS[currentStep] as OnboardingStep | undefined
   
   // Safety check for undefined currentStepData
   if (!currentStepData) {

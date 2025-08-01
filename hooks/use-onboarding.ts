@@ -14,6 +14,11 @@ export function useOnboarding() {
   })
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false)
 
+  // Debug: Log state changes
+  useEffect(() => {
+    console.log('useOnboarding: isOnboardingOpen changed to:', isOnboardingOpen)
+  }, [isOnboardingOpen])
+
   // Load onboarding state from localStorage
   useEffect(() => {
     const savedState = localStorage.getItem('onboarding-state')
@@ -68,6 +73,7 @@ export function useOnboarding() {
 
   // Close onboarding
   const closeOnboarding = () => {
+    console.log('useOnboarding: closeOnboarding called')
     setIsOnboardingOpen(false)
   }
 
