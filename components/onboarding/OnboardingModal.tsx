@@ -178,127 +178,40 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
 
   console.log('OnboardingModal: Rendering modal content')
 
+  // Minimal modal for testing
   return (
     <div 
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
       data-modal-container
       tabIndex={-1}
-      onKeyDown={(e) => {
-        // Prevent escape key from closing modal during onboarding
-        if (e.key === 'Escape') {
-          e.preventDefault()
-          e.stopPropagation()
-        }
-      }}
     >
-      <Card className="w-full max-w-2xl bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 shadow-2xl h-[90vh] flex flex-col">
-        <CardContent className="p-0 flex flex-col h-full">
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 md:p-6 border-b border-amber-800/20 flex-shrink-0">
-            <div className="flex-1">
-              <OnboardingProgress progress={progress} currentStep={currentStep + 1} totalSteps={ONBOARDING_STEPS.length} />
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="flex-1 overflow-y-auto">
-            <div className="p-4 md:p-6">
-              <div className="text-center mb-4 md:mb-6">
-                <h2 className="text-xl md:text-2xl font-bold text-white mb-2">{currentStepData.title}</h2>
-                <p className="text-amber-400 text-base md:text-lg">{currentStepData.subtitle}</p>
-              </div>
-
-              <div className="min-h-[200px] md:min-h-[300px] flex items-center justify-center">
-                {/* Temporarily replace step component with simple content */}
-                <div className="text-center">
-                  <h3 className="text-lg font-semibold text-white mb-4">Step {currentStep + 1}</h3>
-                  <p className="text-gray-300 mb-4">This is step {currentStep + 1} of {ONBOARDING_STEPS.length}</p>
-                  <p className="text-sm text-gray-400">Step component temporarily disabled for debugging</p>
-                </div>
-                {/*
-                <CurrentStepComponent 
-                  onNext={handleNext}
-                  onPrevious={handlePrevious}
-                  isFirstStep={currentStep === 0}
-                  isLastStep={currentStep === ONBOARDING_STEPS.length - 1}
-                  stepData={currentStepData}
-                />
-                */}
-              </div>
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <div className="flex items-center justify-between p-4 md:p-6 border-t border-amber-800/20 flex-shrink-0">
-            <Button
-              variant="ghost"
-              onClick={handlePrevious}
-              disabled={currentStep === 0}
-              className="text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 text-sm md:text-base"
-              tabIndex={-1}
-              onFocus={() => console.log('OnboardingModal: Previous button focused')}
-              onBlur={() => console.log('OnboardingModal: Previous button blurred')}
-              onKeyDown={(e) => {
-                console.log('OnboardingModal: Previous button keydown:', e.key)
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                }
-              }}
-            >
-              <ChevronLeft className="h-4 w-4 mr-1 md:mr-2" />
-              <span className="hidden sm:inline">Previous</span>
-            </Button>
-
-            <div className="flex items-center gap-1 md:gap-2">
-              {ONBOARDING_STEPS.map((_, index) => (
-                <div
-                  key={index}
-                  className={cn(
-                    "w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-all duration-300",
-                    index === currentStep 
-                      ? "bg-amber-500" 
-                      : completedSteps.has(index)
-                        ? "bg-amber-400/50"
-                        : "bg-gray-600"
-                  )}
-                />
-              ))}
-            </div>
-
-            <Button
-              onClick={handleNext}
-              className="bg-amber-500 hover:bg-amber-600 text-black font-semibold text-sm md:text-base"
-              tabIndex={-1}
-              onFocus={() => console.log('OnboardingModal: Next button focused')}
-              onBlur={() => console.log('OnboardingModal: Next button blurred')}
-              onKeyDown={(e) => {
-                console.log('OnboardingModal: Next button keydown:', e.key)
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                }
-              }}
-              onMouseEnter={() => console.log('OnboardingModal: Next button mouse enter')}
-              onMouseLeave={() => console.log('OnboardingModal: Next button mouse leave')}
-            >
-              {currentStep === ONBOARDING_STEPS.length - 1 ? 'Start Playing' : 'Next'}
-              <ChevronRight className="h-4 w-4 ml-1 md:ml-2" />
-            </Button>
-          </div>
-
-          {/* Close Button - Fixed at bottom */}
-          <div className="flex justify-center p-4 border-t border-amber-800/20 flex-shrink-0">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleClose}
-              className="text-gray-400 hover:text-amber-400 hover:bg-amber-500/10"
-              aria-label="Close tutorial"
-            >
-              Close Tutorial
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="w-full max-w-2xl bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 shadow-2xl p-6 rounded-lg">
+        <h2 className="text-xl font-bold text-white mb-4">Onboarding Modal Test</h2>
+        <p className="text-gray-300 mb-4">This is a minimal test modal to isolate the issue.</p>
+        <p className="text-sm text-gray-400 mb-4">Step: {currentStep + 1} of {ONBOARDING_STEPS.length}</p>
+        
+        <div className="flex justify-end space-x-2">
+          <button
+            onClick={handlePrevious}
+            disabled={currentStep === 0}
+            className="px-4 py-2 text-amber-400 hover:text-amber-300 disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <button
+            onClick={handleNext}
+            className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-black font-semibold"
+          >
+            {currentStep === ONBOARDING_STEPS.length - 1 ? 'Complete' : 'Next'}
+          </button>
+          <button
+            onClick={handleClose}
+            className="px-4 py-2 text-gray-400 hover:text-amber-400"
+          >
+            Close
+          </button>
+        </div>
+      </div>
     </div>
   )
 } 
