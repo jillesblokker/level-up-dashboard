@@ -100,6 +100,18 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
     }
   }, [isOpen])
 
+  // Focus management - focus the modal container when it opens
+  useEffect(() => {
+    if (isOpen) {
+      console.log('OnboardingModal: Modal opened, managing focus')
+      // Focus the modal container to prevent auto-focus on buttons
+      const modalContainer = document.querySelector('[data-modal-container]')
+      if (modalContainer) {
+        (modalContainer as HTMLElement).focus()
+      }
+    }
+  }, [isOpen])
+
   const handleNext = () => {
     console.log('OnboardingModal: handleNext called, currentStep:', currentStep)
     if (currentStep < ONBOARDING_STEPS.length - 1) {
@@ -160,7 +172,18 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   console.log('OnboardingModal: Rendering modal content')
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+      data-modal-container
+      tabIndex={-1}
+      onKeyDown={(e) => {
+        // Prevent escape key from closing modal during onboarding
+        if (e.key === 'Escape') {
+          e.preventDefault()
+          e.stopPropagation()
+        }
+      }}
+    >
       <Card className="w-full max-w-2xl bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 shadow-2xl h-[90vh] flex flex-col">
         <CardContent className="p-0 flex flex-col h-full">
           {/* Header */}

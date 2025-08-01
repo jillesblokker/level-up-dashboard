@@ -20,14 +20,46 @@ interface OnboardingSkipProps {
 }
 
 export function OnboardingSkip({ onSkip, isSkipping, onSkipConfirm, onSkipCancel }: OnboardingSkipProps) {
+  const handleSkipClick = (e: React.MouseEvent) => {
+    console.log('OnboardingSkip: Skip button clicked manually')
+    e.preventDefault()
+    e.stopPropagation()
+    onSkip()
+  }
+
+  const handleSkipConfirm = (e: React.MouseEvent) => {
+    console.log('OnboardingSkip: Skip confirmed manually')
+    e.preventDefault()
+    e.stopPropagation()
+    onSkipConfirm()
+  }
+
+  const handleSkipCancel = (e: React.MouseEvent) => {
+    console.log('OnboardingSkip: Skip cancelled manually')
+    e.preventDefault()
+    e.stopPropagation()
+    onSkipCancel()
+  }
+
+  console.log('OnboardingSkip: Rendering with isSkipping:', isSkipping)
+
   return (
     <>
       <Button
         variant="ghost"
         size="sm"
-        onClick={onSkip}
+        onClick={handleSkipClick}
         className="text-gray-400 hover:text-amber-400 hover:bg-amber-500/10"
         aria-label="Skip tutorial"
+        tabIndex={-1}
+        onFocus={() => console.log('OnboardingSkip: Skip button focused')}
+        onBlur={() => console.log('OnboardingSkip: Skip button blurred')}
+        onKeyDown={(e) => {
+          console.log('OnboardingSkip: Skip button keydown:', e.key)
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+          }
+        }}
       >
         <X className="h-4 w-4 mr-2" />
         Skip
@@ -48,13 +80,13 @@ export function OnboardingSkip({ onSkip, isSkipping, onSkipConfirm, onSkipCancel
           </AlertDialogHeader>
           <AlertDialogFooter className="flex flex-col sm:flex-row gap-3 pt-2">
             <AlertDialogCancel 
-              onClick={onSkipCancel}
+              onClick={handleSkipCancel}
               className="flex-1 bg-gray-800/80 hover:bg-gray-700/80 text-gray-300 border border-gray-600/50 hover:border-gray-500/50 transition-all duration-200"
             >
               Continue Tutorial
             </AlertDialogCancel>
             <AlertDialogAction 
-              onClick={onSkipConfirm}
+              onClick={handleSkipConfirm}
               className="flex-1 bg-amber-500 hover:bg-amber-600 text-black font-semibold transition-all duration-200 shadow-lg hover:shadow-amber-500/25"
             >
               Skip Tutorial
