@@ -21,7 +21,7 @@ export function AccountMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [profileUpdateCount, setProfileUpdateCount] = useState(0);
-  const { openOnboarding, debugOnboardingState } = useOnboarding();
+  const { openOnboarding, debugOnboardingState, resetOnboarding } = useOnboarding();
 
   // Debug: Log onboarding hook state
   useEffect(() => {
@@ -46,6 +46,31 @@ export function AccountMenu() {
   const avatarType = (user?.unsafeMetadata?.['avatar_type'] as 'initial' | 'default' | 'uploaded') || (user?.imageUrl ? 'uploaded' : 'initial');
 
   console.log('AccountMenu: Rendering component, user:', user ? 'present' : 'null')
+  
+  // Debug function to check and reset onboarding state
+  const debugAndResetOnboarding = () => {
+    console.log('=== ONBOARDING DEBUG ===');
+    const storedState = localStorage.getItem('onboarding-state');
+    console.log('Stored onboarding state:', storedState);
+    if (storedState) {
+      try {
+        const parsed = JSON.parse(storedState);
+        console.log('Parsed onboarding state:', parsed);
+      } catch (error) {
+        console.error('Failed to parse stored state:', error);
+      }
+    }
+    
+    // Reset onboarding state
+    resetOnboarding();
+    console.log('Onboarding state reset');
+    
+    // Force open onboarding
+    setTimeout(() => {
+      openOnboarding(true); // Force open regardless of state
+      console.log('Onboarding forced open after reset');
+    }, 100);
+  };
   
   return (
     <DropdownMenu>
@@ -130,7 +155,8 @@ export function AccountMenu() {
             role="button"
             onClick={() => {
               console.log('Guide button clicked - opening onboarding')
-              openOnboarding()
+              // Force reset onboarding state and open
+              debugAndResetOnboarding()
             }}
           >
             <BookOpen className="h-4 w-4 mr-2" />

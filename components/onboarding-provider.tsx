@@ -57,12 +57,16 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       isCheckingRef.current = false
     }
 
+    // Only run automatic onboarding check if onboarding is not currently open
     if (shouldShowOnboarding() && !isOnboardingOpen) {
       console.log('OnboardingProvider: shouldShowOnboarding is true, starting check')
       // Start checking after initial load
       setTimeout(checkIfReady, 3000)
+    } else if (isOnboardingOpen) {
+      // If onboarding is open (either manually or automatically), don't interfere
+      console.log('OnboardingProvider: Onboarding is currently open, skipping automatic check')
     } else {
-      console.log('OnboardingProvider: shouldShowOnboarding is false or onboarding is already open')
+      console.log('OnboardingProvider: shouldShowOnboarding is false')
     }
 
     return () => {

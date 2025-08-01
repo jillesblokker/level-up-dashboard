@@ -65,10 +65,25 @@ export function useOnboarding() {
   }
 
   // Open onboarding
-  const openOnboarding = () => {
-    console.log('useOnboarding: openOnboarding called')
-    setIsOnboardingOpen(true)
-    saveOnboardingState({ lastShownAt: Date.now() })
+  const openOnboarding = (forceOpen: boolean = false) => {
+    console.log('useOnboarding: openOnboarding called', forceOpen ? '(forced)' : '')
+    
+    // If forceOpen is true, always open regardless of state
+    if (forceOpen) {
+      console.log('useOnboarding: Force opening onboarding')
+      setIsOnboardingOpen(true)
+      saveOnboardingState({ lastShownAt: Date.now() })
+      return
+    }
+    
+    // Otherwise, check if it should be shown
+    if (shouldShowOnboarding()) {
+      console.log('useOnboarding: Opening onboarding (should show is true)')
+      setIsOnboardingOpen(true)
+      saveOnboardingState({ lastShownAt: Date.now() })
+    } else {
+      console.log('useOnboarding: Not opening onboarding (should show is false)')
+    }
   }
 
   // Close onboarding
