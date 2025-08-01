@@ -250,14 +250,17 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
             </Button>
           </div>
 
-          {/* Skip Button - Fixed at bottom */}
+          {/* Close Button - Fixed at bottom */}
           <div className="flex justify-center p-4 border-t border-amber-800/20 flex-shrink-0">
-            <OnboardingSkip 
-              onSkip={handleSkip}
-              isSkipping={isSkipping}
-              onSkipConfirm={handleSkipConfirm}
-              onSkipCancel={handleSkipCancel}
-            />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="text-gray-400 hover:text-amber-400 hover:bg-amber-500/10"
+              aria-label="Close tutorial"
+            >
+              Close Tutorial
+            </Button>
           </div>
         </CardContent>
       </Card>
