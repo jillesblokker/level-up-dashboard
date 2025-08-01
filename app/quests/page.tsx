@@ -25,7 +25,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { gainExperience } from '@/lib/experience-manager'
 import { gainStrengthFromQuest } from '@/lib/strength-manager'
 import { MobileLayoutWrapper, MobileScrollContainer, MobileContentWrapper } from '@/components/mobile-layout-wrapper'
-import { ProgressionVisualization } from '@/components/progression-visualization'
+
 import { QuestOrganization } from '@/components/quest-organization'
 
 interface Quest {
@@ -1485,10 +1485,7 @@ export default function QuestsPage() {
         <MobileContentWrapper>
           {error && <p className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{error}</p>}
           
-          {/* Progression Visualization */}
-          <div className="mb-8">
-            <ProgressionVisualization />
-          </div>
+
           
           <Tabs value={mainTab} onValueChange={v => setMainTab(v as 'quests' | 'challenges' | 'milestones' | 'recovery')} className="space-y-6">
           <TabsList className="mb-6 w-full grid grid-cols-4">

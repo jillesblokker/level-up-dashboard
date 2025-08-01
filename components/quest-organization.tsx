@@ -116,7 +116,7 @@ export function QuestOrganization({
   onQuestDelete, 
   onAddQuest 
 }: QuestOrganizationProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [selectedCategory, setSelectedCategory] = useState<string>('might')
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all')
   const [selectedStatus, setSelectedStatus] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
