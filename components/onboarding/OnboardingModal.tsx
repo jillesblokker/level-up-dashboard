@@ -84,6 +84,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   const [currentStep, setCurrentStep] = useState(0)
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
   const [isSkipping, setIsSkipping] = useState(false)
+  const [canClose, setCanClose] = useState(false)
 
   // Debug: Log modal state
   useEffect(() => {
@@ -97,6 +98,13 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
       setCurrentStep(0)
       setCompletedSteps(new Set())
       setIsSkipping(false)
+      setCanClose(false)
+      
+      // Allow closing after 1 second
+      setTimeout(() => {
+        console.log('OnboardingModal: Enabling close functionality')
+        setCanClose(true)
+      }, 1000)
     }
   }, [isOpen])
 
@@ -114,6 +122,13 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
 
   // Debug: Track onClose calls
   const handleClose = () => {
+    console.log('OnboardingModal: handleClose called', { canClose, timestamp: Date.now() })
+    
+    if (!canClose) {
+      console.log('OnboardingModal: Close blocked due to delay')
+      return
+    }
+    
     console.log('OnboardingModal: onClose called from modal')
     console.log('OnboardingModal: onClose stack trace:', new Error().stack)
     onClose()
@@ -169,7 +184,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   const CurrentStepComponent = currentStepData.component
   const progress = ((currentStep + 1) / ONBOARDING_STEPS.length) * 100
 
-  console.log('OnboardingModal: Rendering with isOpen:', isOpen, 'currentStep:', currentStep)
+  console.log('OnboardingModal: Rendering with isOpen:', isOpen, 'currentStep:', currentStep, 'canClose:', canClose)
 
   if (!isOpen) {
     console.log('OnboardingModal: Not rendering (isOpen is false)')
@@ -189,6 +204,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
         <h2 className="text-xl font-bold text-white mb-4">Onboarding Modal Test</h2>
         <p className="text-gray-300 mb-4">This is a minimal test modal to isolate the issue.</p>
         <p className="text-sm text-gray-400 mb-4">Step: {currentStep + 1} of {ONBOARDING_STEPS.length}</p>
+        <p className="text-xs text-gray-500 mb-4">Close enabled: {canClose ? 'Yes' : 'No'}</p>
         
         <div className="flex justify-end space-x-2">
           <button
@@ -206,9 +222,10 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
           </button>
           <button
             onClick={handleClose}
-            className="px-4 py-2 text-gray-400 hover:text-amber-400"
+            disabled={!canClose}
+            className="px-4 py-2 text-gray-400 hover:text-amber-400 disabled:opacity-50"
           >
-            Close
+            Close {!canClose && '(disabled)'}
           </button>
         </div>
       </div>
