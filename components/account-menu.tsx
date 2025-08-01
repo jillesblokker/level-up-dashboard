@@ -23,6 +23,11 @@ export function AccountMenu() {
   const [profileUpdateCount, setProfileUpdateCount] = useState(0);
   const { openOnboarding, debugOnboardingState } = useOnboarding();
 
+  // Debug: Log onboarding hook state
+  useEffect(() => {
+    console.log('AccountMenu: useOnboarding hook loaded, openOnboarding function:', typeof openOnboarding)
+  }, [openOnboarding])
+
   useEffect(() => {
     const refresh = async () => {
       await user?.reload();
@@ -85,6 +90,24 @@ export function AccountMenu() {
             aria-label="Monitoring page"
           >
             Monitoring
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link 
+            href="/requirements" 
+            className="min-h-[44px] md:min-h-[36px] flex items-center touch-manipulation"
+            aria-label="Requirements page"
+          >
+            Requirements
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link 
+            href="/design-system" 
+            className="min-h-[44px] md:min-h-[36px] flex items-center touch-manipulation"
+            aria-label="Design System page"
+          >
+            Design System
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>

@@ -61,6 +61,7 @@ export function useOnboarding() {
 
   // Open onboarding
   const openOnboarding = () => {
+    console.log('useOnboarding: openOnboarding called')
     setIsOnboardingOpen(true)
     saveOnboardingState({ lastShownAt: Date.now() })
   }
