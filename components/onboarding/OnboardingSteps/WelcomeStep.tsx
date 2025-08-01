@@ -82,12 +82,9 @@ export function WelcomeStep({ onNext }: WelcomeStepProps) {
 
       {/* Call to Action */}
       <div className="text-center pt-3 md:pt-4">
-        <Button 
-          onClick={onNext}
-          className="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-6 md:px-8 py-2 md:py-3 text-sm md:text-base"
-        >
-          Start Your Journey
-        </Button>
+        <p className="text-amber-400 text-sm md:text-base">
+          Use the navigation buttons below to continue
+        </p>
       </div>
     </div>
   )

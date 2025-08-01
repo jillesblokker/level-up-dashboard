@@ -129,12 +129,9 @@ export function CompleteStep({ onNext }: CompleteStepProps) {
 
       {/* Call to Action */}
       <div className="text-center pt-4">
-        <Button 
-          onClick={onNext}
-          className="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-8 py-3"
-        >
-          Start Your Adventure
-        </Button>
+        <p className="text-amber-400 text-sm md:text-base">
+          Use the "Start Playing" button below to begin your adventure
+        </p>
         <p className="text-sm text-gray-400 mt-2">
           You can always access this tutorial again from the settings menu
         </p>
