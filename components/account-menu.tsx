@@ -102,7 +102,7 @@ export function AccountMenu() {
             aria-label="Show guide"
             role="button"
             onClick={() => {
-              console.log('Guide button clicked')
+              console.log('Guide button clicked - opening onboarding')
               openOnboarding()
             }}
           >

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useOnboarding } from '@/hooks/use-onboarding'
 import { OnboardingModal } from './onboarding/OnboardingModal'
 
@@ -19,16 +19,18 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     skipOnboarding
   } = useOnboarding()
 
+  // Use refs to persist state across re-renders
+  const hasShownOnboardingRef = useRef(false)
+  const isCheckingRef = useRef(false)
+
   // Check if onboarding should be shown on mount
   useEffect(() => {
     let timer: NodeJS.Timeout | undefined
-    let hasShownOnboarding = false
-    let isChecking = false
 
     const checkIfReady = () => {
-      if (isChecking || hasShownOnboarding) return
+      if (isCheckingRef.current || hasShownOnboardingRef.current) return
       
-      isChecking = true
+      isCheckingRef.current = true
       
       // Wait for kingdom animation to complete (usually takes 3-5 seconds)
       const kingdomAnimationComplete = !document.querySelector('.kingdom-animation') || 
@@ -40,23 +42,26 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         !window.location.pathname.includes('/signin') &&
         !window.location.pathname.includes('/signup');
       
-      if (kingdomAnimationComplete && userLoaded && !hasShownOnboarding) {
-        hasShownOnboarding = true
+      if (kingdomAnimationComplete && userLoaded && !hasShownOnboardingRef.current) {
+        hasShownOnboardingRef.current = true
         // Add additional delay to ensure everything is ready
         timer = setTimeout(() => {
           openOnboarding()
         }, 2000)
-      } else if (!hasShownOnboarding) {
+      } else if (!hasShownOnboardingRef.current) {
         // Check again in 1 second
         setTimeout(checkIfReady, 1000)
       }
       
-      isChecking = false
+      isCheckingRef.current = false
     }
 
     if (shouldShowOnboarding()) {
+      console.log('OnboardingProvider: shouldShowOnboarding is true, starting check')
       // Start checking after initial load
       setTimeout(checkIfReady, 3000)
+    } else {
+      console.log('OnboardingProvider: shouldShowOnboarding is false')
     }
 
     return () => {
