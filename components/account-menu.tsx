@@ -12,7 +12,8 @@ import {
 import { useClerk, useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { eventBus } from "@/app/lib/event-bus";
-import { useOnboarding } from "@/hooks/use-onboarding";
+// Removed old onboarding system
+// import { useOnboarding } from "@/hooks/use-onboarding";
 import { 
   BookOpen, 
   User, 
@@ -32,18 +33,12 @@ export function AccountMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [profileUpdateCount, setProfileUpdateCount] = useState(0);
-  const { openOnboarding, debugOnboardingState, resetOnboarding } = useOnboarding();
+  // Removed old onboarding system
+  // const { openOnboarding, debugOnboardingState, resetOnboarding } = useOnboarding();
   
   // Simple test modal state
   const [showTestModal, setShowTestModal] = useState(false);
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
-
-  // Debug: Log onboarding hook state
-  useEffect(() => {
-    console.log('AccountMenu: useOnboarding hook loaded, openOnboarding function:', typeof openOnboarding)
-    console.log('AccountMenu: Component rendered with all menu items')
-    console.log('AccountMenu: User state:', user ? 'Authenticated' : 'Not authenticated')
-  }, [openOnboarding, user])
 
   useEffect(() => {
     const refresh = async () => {
@@ -61,31 +56,6 @@ export function AccountMenu() {
   const avatarType = (user?.unsafeMetadata?.['avatar_type'] as 'initial' | 'default' | 'uploaded') || (user?.imageUrl ? 'uploaded' : 'initial');
 
   console.log('AccountMenu: Rendering component, user:', user ? 'present' : 'null')
-  
-  // Debug function to check and reset onboarding state
-  const debugAndResetOnboarding = () => {
-    console.log('=== ONBOARDING DEBUG ===');
-    const storedState = localStorage.getItem('onboarding-state');
-    console.log('Stored onboarding state:', storedState);
-    if (storedState) {
-      try {
-        const parsed = JSON.parse(storedState);
-        console.log('Parsed onboarding state:', parsed);
-      } catch (error) {
-        console.error('Failed to parse stored state:', error);
-      }
-    }
-    
-    // Reset onboarding state
-    resetOnboarding();
-    console.log('Onboarding state reset');
-    
-    // Force open onboarding
-    setTimeout(() => {
-      openOnboarding(true); // Force open regardless of state
-      console.log('Onboarding forced open after reset');
-    }, 100);
-  };
 
   // Simple test modal function
   const openSimpleTestModal = () => {
