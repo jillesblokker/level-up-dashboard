@@ -16,6 +16,7 @@ import { useTitleEvolution } from '@/hooks/title-evolution-context'
 import { migrateLocalStorageToSupabase, checkMigrationStatus } from '@/lib/migration-utils';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
+import { RARE_TILES, unlockRareTile, clearRareTileUnlock } from '@/lib/rare-tiles-manager';
 import { 
   CheckCircle, 
   XCircle, 
@@ -93,6 +94,26 @@ export default function StoredDataPage() {
   const { getToken } = useAuth();
   const { supabase } = useSupabase();
   const { triggerTestModal, triggerTestModal2, triggerTestModal3, triggerTestModal4, triggerTestModal5, triggerTestModal6, triggerTestModal7, triggerTestModal8, triggerTestModal9, triggerTestModal10 } = useTitleEvolution()
+
+  const handleUnlockRareTile = async (tileId: string) => {
+    if (!user?.id) return;
+    try {
+      await unlockRareTile(user.id, tileId);
+      toast.success(`Unlocked ${tileId}`);
+    } catch (error) {
+      toast.error(`Failed to unlock ${tileId}`);
+    }
+  };
+
+  const handleClearRareTile = async (tileId: string) => {
+    if (!user?.id) return;
+    try {
+      await clearRareTileUnlock(user.id, tileId);
+      toast.success(`Cleared ${tileId}`);
+    } catch (error) {
+      toast.error(`Failed to clear ${tileId}`);
+    }
+  };
 
   useEffect(() => {
     async function loadSupabaseData() {
@@ -829,6 +850,34 @@ TECHNICAL DETAILS:
               <Button onClick={clearAllData} variant="destructive">
                 Clear All Data
               </Button>
+            </div>
+            
+            <Separator />
+            
+            <div>
+              <h4 className="font-medium mb-2">Rare Tiles Tests</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                {RARE_TILES.map((tile) => (
+                  <div key={tile.id} className="flex flex-col gap-1">
+                    <Button 
+                      onClick={() => handleUnlockRareTile(tile.id)} 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-xs"
+                    >
+                      Unlock {tile.name}
+                    </Button>
+                    <Button 
+                      onClick={() => handleClearRareTile(tile.id)} 
+                      variant="destructive" 
+                      size="sm" 
+                      className="text-xs"
+                    >
+                      Clear {tile.name}
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </CardContent>

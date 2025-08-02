@@ -14,6 +14,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { addTileToInventory } from "@/lib/tile-inventory-manager"
 import { useUser } from "@clerk/nextjs"
+import { RARE_TILES, RareTile, isRareTileUnlocked, getRareTileUnlockDate } from "@/lib/rare-tiles-manager"
 
 
 
@@ -73,6 +74,14 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
       maxLevel: 100,
       description: 'Epic structures and unique features',
       tiles: ['mystery', 'special', 'treasure', 'monster']
+    },
+    {
+      id: 'rare',
+      name: 'Rare Tiles',
+      minLevel: 0,
+      maxLevel: 100,
+      description: 'Special tiles available on specific dates',
+      tiles: RARE_TILES.map(tile => tile.type)
     }
   ];
 
@@ -130,6 +139,32 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
   const getTilesByCategory = (categoryId: string) => {
     const category = tileCategories.find(cat => cat.id === categoryId);
     if (!category) return [];
+    
+    if (category.id === 'rare') {
+      // Handle rare tiles differently
+      return RARE_TILES.map(rareTile => {
+        const userTile = tiles.find(t => t.type === rareTile.type);
+        const isUnlocked = isRareTileUnlocked(rareTile);
+        
+        return {
+          id: rareTile.id,
+          name: rareTile.name,
+          type: rareTile.type as TileType,
+          quantity: userTile?.quantity || 0,
+          cost: rareTile.cost,
+          connections: [],
+          rotation: 0 as 0,
+          revealed: true,
+          isVisited: false,
+          x: 0,
+          y: 0,
+          ariaLabel: `${rareTile.name} tile`,
+          image: rareTile.image,
+          description: rareTile.description,
+          unlocked: isUnlocked
+        };
+      });
+    }
     
     // Get all possible tiles for this category
     const categoryTiles = allPossibleTiles.filter(tile => category.tiles.includes(tile.type));
@@ -371,6 +406,13 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                             <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
                               <span className="text-white text-xs font-bold bg-gray-600 px-3 py-1 rounded-full">
                                 🔒 Lvl {category.minLevel}
+                              </span>
+                            </div>
+                          )}
+                          {category.id === 'rare' && !tile.unlocked && (
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+                              <span className="text-white text-xs font-bold bg-purple-600 px-3 py-1 rounded-full">
+                                🔒 {getRareTileUnlockDate(RARE_TILES.find(rt => rt.type === tile.type)!)}
                               </span>
                             </div>
                           )}
