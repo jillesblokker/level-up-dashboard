@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
-import { Search, Filter, Star, Trophy, Target, TrendingUp } from 'lucide-react'
+import { Search, Filter, Star, Trophy, Target, TrendingUp, CheckCircle } from 'lucide-react'
 
 interface Quest {
   id: string
@@ -373,11 +373,22 @@ export function QuestOrganization({
             {sortedQuests.map((quest) => (
               <Card
                 key={quest.id}
-                className={`border transition-all duration-300 hover:shadow-lg ${
+                className={`border transition-all duration-300 hover:shadow-lg cursor-pointer ${
                   quest.completed 
                     ? 'border-green-800/30 bg-green-900/10' 
                     : 'border-amber-800/20 bg-gray-900 hover:border-amber-500/40'
                 }`}
+                onClick={() => onQuestToggle(quest.id, quest.completed)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onQuestToggle(quest.id, quest.completed);
+                  }
+                }}
+                tabIndex={0}
+                role="button"
+                aria-pressed={quest.completed}
+                aria-label={`Toggle ${quest.name} quest completion`}
               >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-3">
@@ -396,7 +407,23 @@ export function QuestOrganization({
                     </div>
                     <div className="flex items-center gap-1">
                       {quest.favorited && <Star className="h-4 w-4 text-amber-400 fill-current" />}
-                      {quest.completed && <Trophy className="h-4 w-4 text-green-400" />}
+                      <div 
+                        className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 ${
+                          quest.completed 
+                            ? 'bg-green-500 border-green-500 text-white' 
+                            : 'bg-transparent border-gray-400 text-transparent hover:border-amber-400'
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onQuestToggle(quest.id, quest.completed);
+                        }}
+                      >
+                        {quest.completed ? (
+                          <CheckCircle className="h-3 w-3" />
+                        ) : (
+                          <div className="w-2 h-2 rounded border border-gray-400" />
+                        )}
+                      </div>
                     </div>
                   </div>
 
