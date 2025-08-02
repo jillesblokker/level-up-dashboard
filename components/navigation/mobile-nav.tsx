@@ -224,7 +224,22 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
               </div>
             </div>
 
-            {/* Account section removed - now using proper UserNav component */}
+            {/* Enhanced Account Section */}
+            <div className="p-5 border-t border-amber-800/20">
+              <Link
+                href="/account"
+                className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-gray-800/50 to-gray-700/50 border border-gray-700/50 hover:border-amber-500/30 active:bg-amber-500/10 transition-all duration-300 group touch-manipulation min-h-[52px] w-full"
+                aria-label="Account settings"
+              >
+                <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full flex items-center justify-center shadow-lg">
+                  <User className="h-5 w-5 text-black" />
+                </div>
+                <div className="text-left">
+                  <p className="text-base font-semibold text-white">Account Settings</p>
+                  <p className="text-sm text-gray-400">Manage your profile and preferences</p>
+                </div>
+              </Link>
+            </div>
           </div>
         </SheetContent>
       </Sheet>
