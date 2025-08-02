@@ -34,7 +34,7 @@ import { checkMonsterSpawn, spawnMonsterOnTile, getMonsterAchievementId, Monster
 import { MonsterBattle } from '@/components/monster-battle';
 import { RealmAnimationWrapper } from '@/components/realm-animation-wrapper';
 import { HeaderSection } from '@/components/HeaderSection';
-import { RealmEconomyIndicator } from '@/components/realm-economy-indicator';
+
 // Import new data loaders hook
 import { useDataLoaders } from '@/hooks/use-data-loaders';
 const RevealOverlay = dynamic(() => import('../reveal/page'), { ssr: false });
@@ -1946,10 +1946,6 @@ export default function RealmPage() {
                             </Button>
                         </div>
                         <ScrollArea className="flex-1 p-4">
-                            {/* Economy Indicator */}
-                            <div className="mb-6">
-                                <RealmEconomyIndicator />
-                            </div>
                             
                             <TileInventory
                                 tiles={inventoryAsItems}
