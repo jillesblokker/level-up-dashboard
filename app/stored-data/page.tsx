@@ -17,6 +17,7 @@ import { migrateLocalStorageToSupabase, checkMigrationStatus } from '@/lib/migra
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { RARE_TILES, unlockRareTile, clearRareTileUnlock } from '@/lib/rare-tiles-manager';
+import { EasterEggManager } from '@/lib/easter-egg-manager';
 import { 
   CheckCircle, 
   XCircle, 
@@ -141,6 +142,44 @@ export default function StoredDataPage() {
           border: '1px solid #ef4444'
         }
       });
+    }
+  };
+
+  const handleStartEasterEggHunt = async () => {
+    if (!user?.id) return;
+    try {
+      const manager = EasterEggManager.getInstance();
+      await manager.resetEggs(user.id);
+      
+      toast.success('Easter egg hunt started! Look for eggs around the app.', {
+        style: {
+          background: '#059669',
+          color: '#ffffff',
+          border: '1px solid #10b981'
+        }
+      });
+    } catch (error) {
+      console.error('Error starting Easter egg hunt:', error);
+      toast.error('Failed to start Easter egg hunt');
+    }
+  };
+
+  const handleResetEasterEggs = async () => {
+    if (!user?.id) return;
+    try {
+      const manager = EasterEggManager.getInstance();
+      await manager.resetEggs(user.id);
+      
+      toast.success('Easter eggs reset! All eggs are hidden again.', {
+        style: {
+          background: '#059669',
+          color: '#ffffff',
+          border: '1px solid #10b981'
+        }
+      });
+    } catch (error) {
+      console.error('Error resetting Easter eggs:', error);
+      toast.error('Failed to reset Easter eggs');
     }
   };
 
@@ -907,6 +946,33 @@ TECHNICAL DETAILS:
                   </div>
                 ))}
               </div>
+            </div>
+            
+            <Separator />
+            
+            <div>
+              <h4 className="font-medium mb-2">Easter Egg Hunt Tests</h4>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={handleStartEasterEggHunt} 
+                  variant="outline" 
+                  size="sm"
+                  className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                >
+                  🥚 Start Easter Egg Hunt
+                </Button>
+                <Button 
+                  onClick={handleResetEasterEggs} 
+                  variant="outline" 
+                  size="sm"
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Reset All Eggs
+                </Button>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Start the hunt to place 10 eggs around the app. Click eggs to collect 100 gold each!
+              </p>
             </div>
           </div>
         </CardContent>
