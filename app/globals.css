@@ -33,4 +33,18 @@
 .app\/quests\/page\.tsx .xl\\:grid-cols-4,
 .app\/quests\/page\.tsx .2xl\\:grid-cols-5 {
   grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+/* Mobile dropdown scrolling fix */
+.dropdown-menu-scrollable {
+  max-height: 80vh !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain !important;
+}
+
+/* Ensure dropdown content is scrollable on mobile */
+[data-radix-popper-content-wrapper] {
+  max-height: 80vh !important;
+  overflow-y: auto !important;
 } 
