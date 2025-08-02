@@ -45,7 +45,7 @@ export function AnimalInteractionModal({
     onClose();
   };
 
-  const getAnimalImage = () => {
+  const getAnimalImage = (): string => {
     // Use specific horse images from the horse folder
     if (animalType === 'horse') {
       const horseImages = [
