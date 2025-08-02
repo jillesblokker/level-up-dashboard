@@ -104,7 +104,9 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     const loadRareTilesData = async () => {
       try {
         if (user?.id) {
+          console.log('Loading rare tiles data for user:', user.id);
           const rareTiles = await loadRareTiles(user.id);
+          console.log('Loaded rare tiles:', rareTiles);
           setRareTilesData(rareTiles);
         }
       } catch (error) {
@@ -119,19 +121,30 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
   // Listen for rare tile unlock/clear events
   useEffect(() => {
     const handleRareTileUnlocked = () => {
+      console.log('Received rare-tile-unlocked event');
       // Refresh the rare tiles data when a rare tile is unlocked
       if (user?.id) {
-        loadRareTiles(user.id).then(setRareTilesData);
+        console.log('Refreshing rare tiles data for user:', user.id);
+        loadRareTiles(user.id).then(rareTiles => {
+          console.log('Refreshed rare tiles:', rareTiles);
+          setRareTilesData(rareTiles);
+        });
       }
     };
 
     const handleRareTileCleared = () => {
+      console.log('Received rare-tile-cleared event');
       // Refresh the rare tiles data when a rare tile is cleared
       if (user?.id) {
-        loadRareTiles(user.id).then(setRareTilesData);
+        console.log('Refreshing rare tiles data for user:', user.id);
+        loadRareTiles(user.id).then(rareTiles => {
+          console.log('Refreshed rare tiles:', rareTiles);
+          setRareTilesData(rareTiles);
+        });
       }
     };
 
+    console.log('Setting up event listeners for rare tile updates');
     window.addEventListener('rare-tile-unlocked', handleRareTileUnlocked);
     window.addEventListener('rare-tile-cleared', handleRareTileCleared);
 
@@ -186,6 +199,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         // Use loaded rare tiles data if available, otherwise fall back to date-based check
         const loadedRareTile = rareTilesData.find(rt => rt.id === rareTile.id);
         const isUnlocked = loadedRareTile?.unlocked || isRareTileUnlocked(rareTile);
+        console.log(`Rare tile ${rareTile.name}: loaded=${loadedRareTile?.unlocked}, date-based=${isRareTileUnlocked(rareTile)}, final=${isUnlocked}`);
         
         return {
           id: rareTile.id,
