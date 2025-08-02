@@ -107,7 +107,7 @@ export default function StoredDataPage() {
         }
       });
       // Dispatch a custom event to notify other components
-      console.log('Dispatching rare-tile-unlocked event for:', tileId);
+      
       window.dispatchEvent(new CustomEvent('rare-tile-unlocked', { detail: { tileId } }));
     } catch (error) {
       toast.error(`Failed to unlock ${tileId}`, {

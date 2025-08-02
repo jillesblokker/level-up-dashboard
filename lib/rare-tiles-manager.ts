@@ -114,19 +114,14 @@ export function getRareTileUnlockDate(tile: RareTile): string {
 
 export async function loadRareTiles(supabase: SupabaseClient, userId: string): Promise<RareTile[]> {
   try {
-    console.log('[loadRareTiles] Starting load for userId:', userId);
-    
     // Use the API endpoint instead of direct Supabase call
     const response = await fetch('/api/rare-tiles', {
       method: 'GET',
       credentials: 'include'
     });
 
-    console.log('[loadRareTiles] API response status:', response.status);
-    console.log('[loadRareTiles] API response ok:', response.ok);
-
     if (!response.ok) {
-      console.error('[loadRareTiles] Error loading rare tiles:', response.statusText);
+      console.error('Error loading rare tiles:', response.statusText);
       return RARE_TILES.map(tile => ({
         ...tile,
         unlocked: isRareTileUnlocked(tile)
@@ -134,7 +129,6 @@ export async function loadRareTiles(supabase: SupabaseClient, userId: string): P
     }
 
     const { data } = await response.json();
-    console.log('[loadRareTiles] API response data:', data);
     
     // Merge saved data with default tiles
     return RARE_TILES.map(tile => {
