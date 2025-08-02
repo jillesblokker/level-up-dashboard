@@ -106,8 +106,8 @@ export default function StoredDataPage() {
           border: '1px solid #10b981'
         }
       });
-      // Force a page refresh to update the tile inventory
-      window.location.reload();
+      // Dispatch a custom event to notify other components
+      window.dispatchEvent(new CustomEvent('rare-tile-unlocked', { detail: { tileId } }));
     } catch (error) {
       toast.error(`Failed to unlock ${tileId}`, {
         style: {
@@ -130,8 +130,8 @@ export default function StoredDataPage() {
           border: '1px solid #10b981'
         }
       });
-      // Force a page refresh to update the tile inventory
-      window.location.reload();
+      // Dispatch a custom event to notify other components
+      window.dispatchEvent(new CustomEvent('rare-tile-cleared', { detail: { tileId } }));
     } catch (error) {
       toast.error(`Failed to clear ${tileId}`, {
         style: {

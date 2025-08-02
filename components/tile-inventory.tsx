@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { addTileToInventory } from "@/lib/tile-inventory-manager"
 import { useUser } from "@clerk/nextjs"
-import { RARE_TILES, RareTile, isRareTileUnlocked, getRareTileUnlockDate } from "@/lib/rare-tiles-manager"
+import { RARE_TILES, RareTile, isRareTileUnlocked, getRareTileUnlockDate, loadRareTiles } from "@/lib/rare-tiles-manager"
 
 
 
@@ -88,6 +88,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
 
   // Get user level from character stats
   const [userLevel, setUserLevel] = useState(1);
+  const [rareTilesData, setRareTilesData] = useState<RareTile[]>([]);
   
   useEffect(() => {
     const loadUserLevel = () => {
@@ -99,9 +100,46 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         setUserLevel(1);
       }
     };
+
+    const loadRareTilesData = async () => {
+      try {
+        if (user?.id) {
+          const rareTiles = await loadRareTiles(user.id);
+          setRareTilesData(rareTiles);
+        }
+      } catch (error) {
+        console.error('Error loading rare tiles data:', error);
+      }
+    };
     
     loadUserLevel();
-  }, []);
+    loadRareTilesData();
+  }, [user?.id]);
+
+  // Listen for rare tile unlock/clear events
+  useEffect(() => {
+    const handleRareTileUnlocked = () => {
+      // Refresh the rare tiles data when a rare tile is unlocked
+      if (user?.id) {
+        loadRareTiles(user.id).then(setRareTilesData);
+      }
+    };
+
+    const handleRareTileCleared = () => {
+      // Refresh the rare tiles data when a rare tile is cleared
+      if (user?.id) {
+        loadRareTiles(user.id).then(setRareTilesData);
+      }
+    };
+
+    window.addEventListener('rare-tile-unlocked', handleRareTileUnlocked);
+    window.addEventListener('rare-tile-cleared', handleRareTileCleared);
+
+    return () => {
+      window.removeEventListener('rare-tile-unlocked', handleRareTileUnlocked);
+      window.removeEventListener('rare-tile-cleared', handleRareTileCleared);
+    };
+  }, [user?.id]);
 
   // Create a comprehensive list of all possible tiles
   const allPossibleTiles: InventoryItem[] = [
@@ -145,7 +183,9 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
       // Handle rare tiles differently
       return RARE_TILES.map(rareTile => {
         const userTile = tiles.find(t => t.type === rareTile.type);
-        const isUnlocked = isRareTileUnlocked(rareTile);
+        // Use loaded rare tiles data if available, otherwise fall back to date-based check
+        const loadedRareTile = rareTilesData.find(rt => rt.id === rareTile.id);
+        const isUnlocked = loadedRareTile?.unlocked || isRareTileUnlocked(rareTile);
         
         return {
           id: rareTile.id,
