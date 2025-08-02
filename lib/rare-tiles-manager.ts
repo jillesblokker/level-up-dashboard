@@ -114,97 +114,90 @@ export function getRareTileUnlockDate(tile: RareTile): string {
 
 export async function loadRareTiles(supabase: SupabaseClient, userId: string): Promise<RareTile[]> {
   try {
-    const { data, error } = await supabase
-      .from('rare_tiles')
-      .select('*')
-      .eq('user_id', userId)
-    
-    if (error) {
-      console.error('Error loading rare tiles:', error)
+    // Use the API endpoint instead of direct Supabase call
+    const response = await fetch('/api/rare-tiles', {
+      method: 'GET',
+      credentials: 'include'
+    });
+
+    if (!response.ok) {
+      console.error('Error loading rare tiles:', response.statusText);
       return RARE_TILES.map(tile => ({
         ...tile,
         unlocked: isRareTileUnlocked(tile)
-      }))
+      }));
     }
+
+    const { data } = await response.json();
     
     // Merge saved data with default tiles
     return RARE_TILES.map(tile => {
-      const savedTile = data?.find(saved => saved.tile_id === tile.id)
+      const savedTile = data?.find((saved: any) => saved.tile_id === tile.id);
       return {
         ...tile,
         unlocked: savedTile?.unlocked || isRareTileUnlocked(tile),
         quantity: savedTile?.quantity || 0
-      }
-    })
+      };
+    });
   } catch (error) {
-    console.error('Error loading rare tiles:', error)
+    console.error('Error loading rare tiles:', error);
     return RARE_TILES.map(tile => ({
       ...tile,
       unlocked: isRareTileUnlocked(tile)
-    }))
+    }));
   }
 }
 
 export async function saveRareTiles(supabase: SupabaseClient, userId: string, tiles: RareTile[]): Promise<void> {
-  try {
-    // Prepare data for insertion/update
-    const tilesData = tiles.map(tile => ({
-      user_id: userId,
-      tile_id: tile.id,
-      unlocked: tile.unlocked,
-      quantity: tile.quantity,
-      updated_at: new Date().toISOString()
-    }))
-    
-    // Upsert the data
-    const { error } = await supabase
-      .from('rare_tiles')
-      .upsert(tilesData, { onConflict: 'user_id,tile_id' })
-    
-    if (error) {
-      console.error('Error saving rare tiles:', error)
-    }
-  } catch (error) {
-    console.error('Error saving rare tiles:', error)
-  }
+  // This function is not needed for the current implementation
+  // as we're using individual unlock/clear operations
+  console.log('saveRareTiles called but not implemented');
 }
 
 export async function unlockRareTile(supabase: SupabaseClient, userId: string, tileId: string): Promise<void> {
   try {
-    const { error } = await supabase
-      .from('rare_tiles')
-      .upsert({
-        user_id: userId,
-        tile_id: tileId,
-        unlocked: true,
-        quantity: 1,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'user_id,tile_id' })
-    
-    if (error) {
-      console.error('Error unlocking rare tile:', error)
-      throw error
+    const response = await fetch('/api/rare-tiles', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        action: 'unlock',
+        tileId
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to unlock rare tile');
     }
   } catch (error) {
-    console.error('Error unlocking rare tile:', error)
-    throw error
+    console.error('Error unlocking rare tile:', error);
+    throw error;
   }
 }
 
 export async function clearRareTileUnlock(supabase: SupabaseClient, userId: string, tileId: string): Promise<void> {
   try {
-    const { error } = await supabase
-      .from('rare_tiles')
-      .delete()
-      .eq('user_id', userId)
-      .eq('tile_id', tileId)
-    
-    if (error) {
-      console.error('Error clearing rare tile unlock:', error)
-      throw error
+    const response = await fetch('/api/rare-tiles', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        action: 'clear',
+        tileId
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to clear rare tile');
     }
   } catch (error) {
-    console.error('Error clearing rare tile unlock:', error)
-    throw error
+    console.error('Error clearing rare tile unlock:', error);
+    throw error;
   }
 } 
