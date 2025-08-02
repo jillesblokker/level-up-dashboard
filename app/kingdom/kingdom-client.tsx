@@ -632,7 +632,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             <TabsTrigger value="thrivehaven">Thrivehaven</TabsTrigger>
             <TabsTrigger value="journey">Journey</TabsTrigger>
             <TabsTrigger value="progress">Progress</TabsTrigger>
-            <TabsTrigger value="inventory">Inventory</TabsTrigger>
+            <TabsTrigger value="inventory">Bag</TabsTrigger>
           </TabsList>
           <TabsContent value="thrivehaven">
             <div className="flex flex-col items-center justify-center w-full">
@@ -677,10 +677,10 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             </div>
           </TabsContent>
           <TabsContent value="inventory">
-            <Card className="bg-black border-amber-800/50" aria-label="kingdom-inventory-card">
+            <Card className="bg-black border-amber-800/50" aria-label="kingdom-bag-card">
               <CardHeader>
-                <CardTitle className="text-amber-500">Kingdom Inventory</CardTitle>
-                <CardDescription className="text-gray-400">Your equipment and resources</CardDescription>
+                              <CardTitle className="text-amber-500">Kingdom Bag</CardTitle>
+              <CardDescription className="text-gray-400">Your equipment and resources</CardDescription>
               </CardHeader>
               <CardContent>
                 <Tabs defaultValue="equipped" value={activeTab} onValueChange={setActiveTab} className="w-full">

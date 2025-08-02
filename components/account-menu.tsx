@@ -88,7 +88,7 @@ export function AccountMenu() {
 
       {/* Mobile-friendly dropdown */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-72 md:w-64 max-h-[80vh] overflow-y-auto bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 backdrop-blur-xl rounded-lg shadow-2xl z-50">
+        <div className="absolute right-0 bottom-full mb-2 w-72 md:w-64 max-h-[80vh] overflow-y-auto bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 backdrop-blur-xl rounded-lg shadow-2xl z-50">
           {/* Enhanced Header */}
           <div className="p-4 border-b border-amber-800/20 bg-gradient-to-r from-amber-900/10 to-transparent">
             <div className="flex flex-col space-y-2">
