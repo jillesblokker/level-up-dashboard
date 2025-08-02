@@ -117,7 +117,10 @@ export function NavBar({ session }: NavBarProps) {
         {/* Mobile Navigation: logo on left, hamburger menu on right */}
         <div className="flex md:hidden flex-1 items-center justify-between px-4">
           <Logo size="sm" />
-          <MobileNav />
+          <div className="flex items-center space-x-2">
+            <UserNav />
+            <MobileNav />
+          </div>
         </div>
         {/* Desktop right-side stats, notification, user nav */}
         <div className="ml-auto flex items-center space-x-4 hidden md:flex pr-6">

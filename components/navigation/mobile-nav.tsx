@@ -224,10 +224,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
               </div>
             </div>
 
-            {/* Enhanced Account Section */}
-            <div className="p-5 border-t border-amber-800/20">
-              <ExpandableAccountSettings />
-            </div>
+            {/* Account section removed - now using proper UserNav component */}
           </div>
         </SheetContent>
       </Sheet>
@@ -235,85 +232,4 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
   )
 }
 
-function ExpandableAccountSettings() {
-  const { user } = useUser();
-  const [isExpanded, setIsExpanded] = useState(false);
-  const { openOnboarding } = useOnboarding();
-
-  const getAvatarInitial = () => {
-    const displayName = (user?.unsafeMetadata?.['user_name'] as string) || user?.username || user?.emailAddresses?.[0]?.emailAddress || "";
-    return displayName?.[0]?.toUpperCase() || '?';
-  };
-
-  const accountMenuItems = [
-    { href: "/account/profile", label: "Profile", icon: User, description: "Manage your profile" },
-    { href: "/account/monitoring", label: "Monitoring", icon: BarChart3, description: "View performance metrics" },
-    { href: "/account/stored-data", label: "Stored Data", icon: BookOpen, description: "Manage local data" },
-    { href: "/settings", label: "Settings", icon: Settings, description: "App preferences" },
-  ];
-
-  const handleGuideClick = () => {
-    console.log('MobileNav: Guide button clicked - opening onboarding')
-    openOnboarding()
-  }
-
-  return (
-    <div className="space-y-3">
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center justify-between w-full p-4 rounded-xl bg-gradient-to-r from-gray-800/50 to-gray-700/50 border border-gray-700/50 hover:border-amber-500/30 active:bg-amber-500/10 transition-all duration-300 group touch-manipulation min-h-[52px]"
-        aria-label="Toggle account settings"
-        aria-expanded={isExpanded}
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full flex items-center justify-center shadow-lg">
-            <span className="text-base font-bold text-black">{getAvatarInitial()}</span>
-          </div>
-          <div className="text-left">
-            <p className="text-base font-semibold text-white">Account</p>
-            <p className="text-sm text-gray-400">Manage your settings</p>
-          </div>
-        </div>
-        <ChevronDown 
-          className={cn(
-            "h-5 w-5 text-gray-400 transition-transform duration-300",
-            isExpanded && "rotate-180"
-          )} 
-        />
-      </button>
-
-      {isExpanded && (
-        <div className="space-y-2 pl-4">
-          {accountMenuItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex items-center gap-3 p-4 rounded-lg text-gray-300 hover:text-amber-400 hover:bg-amber-500/10 active:bg-amber-500/15 transition-all duration-300 group touch-manipulation min-h-[48px]"
-                aria-label={`Navigate to ${item.label}`}
-              >
-                <Icon className="h-5 w-5 text-gray-400 group-hover:text-amber-400" />
-                <div>
-                  <p className="text-base font-medium">{item.label}</p>
-                  <p className="text-sm text-gray-500 group-hover:text-gray-400">{item.description}</p>
-                </div>
-              </Link>
-            );
-          })}
-          <button
-            onClick={handleGuideClick}
-            className="flex items-center gap-3 p-4 rounded-lg text-gray-300 hover:text-amber-400 hover:bg-amber-500/10 active:bg-amber-500/15 transition-all duration-300 group touch-manipulation min-h-[48px] w-full"
-            aria-label="Show guide"
-          >
-            <BookOpen className="h-5 w-5 text-gray-400 group-hover:text-amber-400" />
-            <div>
-              <p className="text-base font-medium">Guide</p>
-              <p className="text-sm text-gray-500 group-hover:text-gray-400">Open tutorial</p>
-            </div>
-          </button>
-        </div>
-      )}
-    </div>
-  );
-} 
+ 
