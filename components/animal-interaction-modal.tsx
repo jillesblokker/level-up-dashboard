@@ -48,14 +48,14 @@ export function AnimalInteractionModal({
   const getAnimalImage = (): string => {
     // Use specific horse images from the horse folder
     if (animalType === 'horse') {
-      const horseImages = [
+      const horseImages: string[] = [
         '/images/items/horse/horse-stelony.png',
         '/images/items/horse/horse-perony.png', 
         '/images/items/horse/horse-felony.png'
       ];
       // Randomly select one of the horse images
       const randomIndex = Math.floor(Math.random() * horseImages.length);
-      return horseImages[randomIndex] || horseImages[0]; // Fallback to first image if undefined
+      return horseImages[randomIndex]!; // Use non-null assertion since we know the array has elements
     }
     return `/images/Animals/${animalType}.png`;
   };
