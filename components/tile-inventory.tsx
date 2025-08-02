@@ -464,7 +464,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                           {category.id === 'rare' && !tile.unlocked && (
                             <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
                               <span className="text-white text-xs font-bold bg-purple-600 px-3 py-1 rounded-full">
-                                🔒 {getRareTileUnlockDate(RARE_TILES.find(rt => rt.type === tile.type)!)}
+                                🔒
                               </span>
                             </div>
                           )}
@@ -624,7 +624,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                           {category.id === 'rare' && !tile.unlocked && (
                             <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
                               <span className="text-white text-xs font-bold bg-purple-600 px-3 py-1 rounded-full">
-                                🔒 {getRareTileUnlockDate(RARE_TILES.find(rt => rt.type === tile.type)!)}
+                                🔒
                               </span>
                             </div>
                           )}
