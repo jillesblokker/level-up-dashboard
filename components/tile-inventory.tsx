@@ -32,7 +32,7 @@ interface TileInventoryProps {
 
 export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles, activeTab, setActiveTab, onOutOfTiles }: TileInventoryProps) {
   const { user } = useUser();
-  const { supabase } = useSupabase();
+  const { supabase, isLoading } = useSupabase();
   const [buyQuantities, setBuyQuantities] = useState<{ [key: string]: number }>({})
   const [selectedCategory, setSelectedCategory] = useState<string>('foundation')
 
@@ -108,14 +108,15 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         console.log('[TileInventory] loadRareTilesData called');
         console.log('[TileInventory] user?.id:', user?.id);
         console.log('[TileInventory] supabase:', supabase);
+        console.log('[TileInventory] isLoading:', isLoading);
         
-        if (user?.id && supabase) {
+        if (user?.id && supabase && !isLoading) {
           console.log('[TileInventory] Loading rare tiles data for user:', user.id);
           const rareTiles = await loadRareTiles(supabase, user.id);
           console.log('[TileInventory] Loaded rare tiles:', rareTiles);
           setRareTilesData(rareTiles);
         } else {
-          console.log('[TileInventory] Skipping loadRareTilesData - missing user.id or supabase');
+          console.log('[TileInventory] Skipping loadRareTilesData - missing user.id, supabase, or still loading');
         }
       } catch (error) {
         console.error('[TileInventory] Error loading rare tiles data:', error);
@@ -124,7 +125,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     
     loadUserLevel();
     loadRareTilesData();
-  }, [user?.id]);
+  }, [user?.id, supabase, isLoading]);
 
   // Listen for rare tile unlock/clear events
   useEffect(() => {
