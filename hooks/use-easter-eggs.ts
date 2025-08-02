@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { usePathname } from 'next/navigation';
 import { EasterEggManager, EasterEgg, EasterEggProgress } from '@/lib/easter-egg-manager';
-import { EasterEggComponent } from '@/components/easter-egg';
 
 export function useEasterEggs() {
   const { user } = useUser();
@@ -47,22 +46,10 @@ export function useEasterEggs() {
     setEggs(prev => prev.filter(egg => egg.found === false));
   };
 
-  const renderEggs = () => {
-    if (isLoading || !user?.id) return null;
-
-    return eggs.map((egg) => (
-      <EasterEggComponent
-        key={egg.eggId}
-        egg={egg}
-        onFound={handleEggFound}
-      />
-    ));
-  };
-
   return {
     eggs,
     progress,
     isLoading,
-    renderEggs,
+    handleEggFound,
   };
 } 
