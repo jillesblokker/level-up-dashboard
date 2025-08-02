@@ -55,7 +55,7 @@ export function AnimalInteractionModal({
       ];
       // Randomly select one of the horse images
       const randomIndex = Math.floor(Math.random() * horseImages.length);
-      return horseImages[randomIndex];
+      return horseImages[randomIndex] || horseImages[0]; // Fallback to first image if undefined
     }
     return `/images/Animals/${animalType}.png`;
   };
