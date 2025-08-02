@@ -13,7 +13,7 @@ export function useEasterEggs() {
   const [progress, setProgress] = useState<EasterEggProgress | null>(null);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id || !pathname) return;
 
     const initializeEggs = async () => {
       try {
