@@ -69,7 +69,7 @@ export function AccountMenu() {
     <div className="relative account-menu-container">
       <Button 
         variant="ghost" 
-        className="relative h-12 w-12 md:h-8 md:w-8 rounded-full touch-manipulation min-h-[44px]"
+        className="relative h-12 w-12 md:h-8 md:w-8 rounded-full touch-manipulation min-h-[44px] bg-transparent hover:bg-transparent"
         aria-label="Account menu"
         onClick={() => setIsOpen(!isOpen)}
       >
