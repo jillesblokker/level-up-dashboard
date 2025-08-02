@@ -32,6 +32,7 @@ import { Coins } from "lucide-react"
 import {
   Sheet,
   SheetContent,
+  SheetContentWithoutClose,
   SheetTrigger,
 } from "@/components/ui/sheet"
 import {
@@ -128,7 +129,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
             <Menu className="h-6 w-6 text-amber-500" />
           </Button>
         </SheetTrigger>
-        <SheetContent 
+        <SheetContentWithoutClose 
           side="right" 
           className="w-full bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl border-l border-amber-800/20 pt-safe-top pb-5"
         >
@@ -246,7 +247,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
               </button>
             </div>
           </div>
-        </SheetContent>
+        </SheetContentWithoutClose>
       </Sheet>
     </div>
   )
