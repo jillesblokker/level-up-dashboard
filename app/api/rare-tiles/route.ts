@@ -18,19 +18,47 @@ export async function POST(request: NextRequest) {
     const { action, tileId } = await request.json();
 
     if (action === 'unlock') {
-      const { error } = await supabaseAdmin
+      // First check if the record exists
+      const { data: existingData } = await supabaseAdmin
         .from('rare_tiles')
-        .upsert({
-          user_id: userId,
-          tile_id: tileId,
-          unlocked: true,
-          quantity: 1,
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'user_id,tile_id' });
+        .select('*')
+        .eq('user_id', userId)
+        .eq('tile_id', tileId)
+        .single();
 
-      if (error) {
-        console.error('Error unlocking rare tile:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+      if (existingData) {
+        // Update existing record
+        const { error } = await supabaseAdmin
+          .from('rare_tiles')
+          .update({
+            unlocked: true,
+            quantity: 1,
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', userId)
+          .eq('tile_id', tileId);
+
+        if (error) {
+          console.error('Error updating rare tile:', error);
+          return NextResponse.json({ error: error.message }, { status: 500 });
+        }
+      } else {
+        // Insert new record without relying on auto-increment
+        const { error } = await supabaseAdmin
+          .from('rare_tiles')
+          .insert({
+            user_id: userId,
+            tile_id: tileId,
+            unlocked: true,
+            quantity: 1,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+
+        if (error) {
+          console.error('Error inserting rare tile:', error);
+          return NextResponse.json({ error: error.message }, { status: 500 });
+        }
       }
 
       return NextResponse.json({ success: true });
