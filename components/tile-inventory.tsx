@@ -573,10 +573,17 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                               🔒 Lvl {category.minLevel}
                             </span>
                           )}
-                          {tile.quantity === 0 && userLevel >= category.minLevel && (
+                          {tile.quantity === 0 && userLevel >= category.minLevel && category.id !== 'rare' && (
                             <span className="absolute top-2 left-2 bg-green-500 text-white text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg" aria-label="Buyable tile badge">
                               Buyable
                             </span>
+                          )}
+                          {category.id === 'rare' && !tile.unlocked && (
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+                              <span className="text-white text-xs font-bold bg-purple-600 px-3 py-1 rounded-full">
+                                🔒 {getRareTileUnlockDate(RARE_TILES.find(rt => rt.type === tile.type)!)}
+                              </span>
+                            </div>
                           )}
                         </div>
                         <div className="p-4 bg-background/95 backdrop-blur-sm">
