@@ -99,9 +99,23 @@ export default function StoredDataPage() {
     if (!user?.id) return;
     try {
       await unlockRareTile(user.id, tileId);
-      toast.success(`Unlocked ${tileId}`);
+      toast.success(`Unlocked ${tileId}`, {
+        style: {
+          background: '#059669',
+          color: '#ffffff',
+          border: '1px solid #10b981'
+        }
+      });
+      // Force a page refresh to update the tile inventory
+      window.location.reload();
     } catch (error) {
-      toast.error(`Failed to unlock ${tileId}`);
+      toast.error(`Failed to unlock ${tileId}`, {
+        style: {
+          background: '#dc2626',
+          color: '#ffffff',
+          border: '1px solid #ef4444'
+        }
+      });
     }
   };
 
@@ -109,9 +123,23 @@ export default function StoredDataPage() {
     if (!user?.id) return;
     try {
       await clearRareTileUnlock(user.id, tileId);
-      toast.success(`Cleared ${tileId}`);
+      toast.success(`Cleared ${tileId}`, {
+        style: {
+          background: '#059669',
+          color: '#ffffff',
+          border: '1px solid #10b981'
+        }
+      });
+      // Force a page refresh to update the tile inventory
+      window.location.reload();
     } catch (error) {
-      toast.error(`Failed to clear ${tileId}`);
+      toast.error(`Failed to clear ${tileId}`, {
+        style: {
+          background: '#dc2626',
+          color: '#ffffff',
+          border: '1px solid #ef4444'
+        }
+      });
     }
   };
 
