@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 
 export interface RareTile {
   id: string
@@ -114,8 +114,6 @@ export function getRareTileUnlockDate(tile: RareTile): string {
 
 export async function loadRareTiles(userId: string): Promise<RareTile[]> {
   try {
-    const supabase = createClient()
-    
     const { data, error } = await supabase
       .from('rare_tiles')
       .select('*')
@@ -149,8 +147,6 @@ export async function loadRareTiles(userId: string): Promise<RareTile[]> {
 
 export async function saveRareTiles(userId: string, tiles: RareTile[]): Promise<void> {
   try {
-    const supabase = createClient()
-    
     // Prepare data for insertion/update
     const tilesData = tiles.map(tile => ({
       user_id: userId,
@@ -175,8 +171,6 @@ export async function saveRareTiles(userId: string, tiles: RareTile[]): Promise<
 
 export async function unlockRareTile(userId: string, tileId: string): Promise<void> {
   try {
-    const supabase = createClient()
-    
     const { error } = await supabase
       .from('rare_tiles')
       .upsert({
@@ -197,8 +191,6 @@ export async function unlockRareTile(userId: string, tileId: string): Promise<vo
 
 export async function clearRareTileUnlock(userId: string, tileId: string): Promise<void> {
   try {
-    const supabase = createClient()
-    
     const { error } = await supabase
       .from('rare_tiles')
       .delete()
