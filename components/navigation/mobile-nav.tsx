@@ -129,7 +129,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
         </SheetTrigger>
         <SheetContent 
           side="right" 
-          className="w-full bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl border-l border-amber-800/20 pt-safe-top"
+          className="w-full bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl border-l border-amber-800/20 pt-safe-top pb-5"
         >
           <div className="flex flex-col h-full">
             {/* Enhanced Header */}
