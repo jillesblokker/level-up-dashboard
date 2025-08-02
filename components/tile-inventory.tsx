@@ -105,14 +105,20 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
 
     const loadRareTilesData = async () => {
       try {
+        console.log('[TileInventory] loadRareTilesData called');
+        console.log('[TileInventory] user?.id:', user?.id);
+        console.log('[TileInventory] supabase:', supabase);
+        
         if (user?.id && supabase) {
-          console.log('Loading rare tiles data for user:', user.id);
+          console.log('[TileInventory] Loading rare tiles data for user:', user.id);
           const rareTiles = await loadRareTiles(supabase, user.id);
-          console.log('Loaded rare tiles:', rareTiles);
+          console.log('[TileInventory] Loaded rare tiles:', rareTiles);
           setRareTilesData(rareTiles);
+        } else {
+          console.log('[TileInventory] Skipping loadRareTilesData - missing user.id or supabase');
         }
       } catch (error) {
-        console.error('Error loading rare tiles data:', error);
+        console.error('[TileInventory] Error loading rare tiles data:', error);
       }
     };
     
