@@ -39,7 +39,7 @@ export function UserNav() {
     <>
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
-          <Button className="relative h-10 w-10 md:h-8 md:w-8 rounded-full touch-manipulation min-h-[44px] bg-transparent hover:bg-transparent">
+          <Button className="relative h-10 w-10 md:h-8 md:w-8 rounded-full touch-manipulation min-h-[44px] bg-transparent hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0">
             <Avatar className="h-10 w-10 md:h-8 md:w-8">
               {user?.imageUrl ? (
                 <AvatarImage 
