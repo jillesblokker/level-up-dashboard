@@ -12,6 +12,7 @@ import { spendGold } from "@/lib/gold-manager"
 import { useState, useEffect } from "react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { addTileToInventory } from "@/lib/tile-inventory-manager"
 import { useUser } from "@clerk/nextjs"
 import { RARE_TILES, RareTile, isRareTileUnlocked, getRareTileUnlockDate } from "@/lib/rare-tiles-manager"
@@ -269,6 +270,12 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
   }
 
   const getTileImage = (type: TileType) => {
+    // Handle rare tiles
+    const rareTile = RARE_TILES.find(rt => rt.type === type);
+    if (rareTile) {
+      return rareTile.image;
+    }
+    
     switch (type) {
       case 'city':
         return '/images/tiles/city-tile.png'
@@ -371,27 +378,29 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <ScrollArea className="h-full w-full">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
                     {categoryTiles.map((tile) => (
-                      <Card
-                        key={tile.type}
-                        className={cn(
-                          "relative overflow-hidden transition-all duration-200",
-                          selectedTile?.type === tile.type && "ring-2 ring-amber-500 shadow-lg",
-                          (tile.quantity === 0 || userLevel < category.minLevel) && "opacity-50",
-                          userLevel >= category.minLevel && "cursor-pointer hover:ring-2 hover:ring-amber-500/50 hover:scale-105"
-                        )}
-                        onClick={() => {
-                          if (userLevel < category.minLevel) {
-                            return; // Disabled for locked categories
-                          }
-                          if (tile.quantity === 0) {
-                            setActiveTab('buy');
-                            if (onOutOfTiles) onOutOfTiles(tile);
-                            return;
-                          }
-                          onSelectTile(selectedTile?.type === tile.type ? null : tile);
-                        }}
-                        aria-label={`Select ${tile.name} tile (Quantity: ${tile.quantity})`}
-                      >
+                      <TooltipProvider key={tile.type}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Card
+                              className={cn(
+                                "relative overflow-hidden transition-all duration-200",
+                                selectedTile?.type === tile.type && "ring-2 ring-amber-500 shadow-lg",
+                                (tile.quantity === 0 || userLevel < category.minLevel) && "opacity-50",
+                                userLevel >= category.minLevel && "cursor-pointer hover:ring-2 hover:ring-amber-500/50 hover:scale-105"
+                              )}
+                              onClick={() => {
+                                if (userLevel < category.minLevel) {
+                                  return; // Disabled for locked categories
+                                }
+                                if (tile.quantity === 0) {
+                                  setActiveTab('buy');
+                                  if (onOutOfTiles) onOutOfTiles(tile);
+                                  return;
+                                }
+                                onSelectTile(selectedTile?.type === tile.type ? null : tile);
+                              }}
+                              aria-label={`Select ${tile.name} tile (Quantity: ${tile.quantity})`}
+                            >
                         <div className="aspect-square relative group">
                           <Image
                             src={getTileImage(tile.type)}
@@ -416,7 +425,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                               </span>
                             </div>
                           )}
-                          {tile.quantity === 0 && userLevel >= category.minLevel && (
+                          {tile.quantity === 0 && userLevel >= category.minLevel && category.id !== 'rare' && (
                             <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
                               <span className="text-white text-xs font-bold bg-amber-500 px-3 py-1 rounded-full">
                                 Buy More
@@ -424,32 +433,40 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                             </div>
                           )}
                         </div>
-                        <div className="p-4 bg-background/95 backdrop-blur-sm">
-                          <div className="capitalize font-semibold text-sm mb-1">{tile.name}</div>
-                          <div className="text-xs text-muted-foreground text-center">
-                            <span className="text-amber-500 font-medium">{tile.cost} gold</span>
-                            {tile.cost > 0 && (
-                              <div className="text-xs text-gray-500 mt-1">
-                                {tile.cost <= 50 ? 'Budget' : tile.cost <= 150 ? 'Standard' : tile.cost <= 300 ? 'Premium' : 'Luxury'}
+                                                      <div className="p-4 bg-background/95 backdrop-blur-sm">
+                                <div className="capitalize font-semibold text-sm mb-1">{tile.name}</div>
+                                <div className="text-xs text-muted-foreground text-center">
+                                  <span className="text-amber-500 font-medium">{tile.cost} gold</span>
+                                  {tile.cost > 0 && (
+                                    <div className="text-xs text-gray-500 mt-1">
+                                      {tile.cost <= 50 ? 'Budget' : tile.cost <= 150 ? 'Standard' : tile.cost <= 300 ? 'Premium' : 'Luxury'}
+                                    </div>
+                                  )}
+                                </div>
+                                {tile.quantity === 0 && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="w-full mt-3 bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setActiveTab('buy');
+                                    }}
+                                    aria-label={`Switch to buy tab for ${tile.name}`}
+                                  >
+                                    Buy More
+                                  </Button>
+                                )}
                               </div>
-                            )}
-                          </div>
-                          {tile.quantity === 0 && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="w-full mt-3 bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setActiveTab('buy');
-                              }}
-                              aria-label={`Switch to buy tab for ${tile.name}`}
-                            >
-                              Buy More
-                            </Button>
+                            </Card>
+                          </TooltipTrigger>
+                          {category.id === 'rare' && !tile.unlocked && (
+                            <TooltipContent>
+                              <p>A secret... come back another day... :)</p>
+                            </TooltipContent>
                           )}
-                        </div>
-                      </Card>
+                        </Tooltip>
+                      </TooltipProvider>
                     ))}
                   </div>
                 </ScrollArea>
@@ -530,15 +547,17 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <ScrollArea className="h-full w-full">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
                     {categoryTiles.map((tile) => (
-                      <Card
-                        key={tile.type}
-                        className={cn(
-                          "relative overflow-hidden transition-all duration-200",
-                          (tile.quantity === 0 || userLevel < category.minLevel) && "opacity-50",
-                          userLevel >= category.minLevel && "hover:scale-105",
-                          tile.quantity === 0 && userLevel >= category.minLevel && "border-2 border-amber-500 shadow-lg"
-                        )}
-                      >
+                      <TooltipProvider key={tile.type}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Card
+                              className={cn(
+                                "relative overflow-hidden transition-all duration-200",
+                                (tile.quantity === 0 || userLevel < category.minLevel) && "opacity-50",
+                                userLevel >= category.minLevel && "hover:scale-105",
+                                tile.quantity === 0 && userLevel >= category.minLevel && "border-2 border-amber-500 shadow-lg"
+                              )}
+                            >
                         <div className="aspect-square relative group">
                           <Image
                             src={getTileImage(tile.type)}
@@ -594,16 +613,24 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                           </div>
                         </div>
                       </Card>
-                    ))}
-                  </div>
-                </ScrollArea>
-              );
-            })()}
-          </div>
-        </TabsContent>
-      </Tabs>
-    </>
-  )
+                    </TooltipTrigger>
+                    {category.id === 'rare' && !tile.unlocked && (
+                      <TooltipContent>
+                        <p>A secret... come back another day... :)</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
+                  ))}
+                </div>
+              </ScrollArea>
+            );
+          })()}
+        </div>
+      </TabsContent>
+    </Tabs>
+  </>
+)
 }
 
 // Function to render tile previews

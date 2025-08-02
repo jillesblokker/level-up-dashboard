@@ -490,7 +490,7 @@ export default function ProfilePage() {
 
       {/* Avatar Cropper Modal */}
       <Dialog open={showCropper} onOpenChange={setShowCropper}>
-        <DialogContent role="dialog" aria-label="profile-modal" className="max-w-2xl">
+        <DialogContent role="dialog" aria-label="profile-modal" className="sm:max-w-4xl">
           <DialogDescription id="profile-modal-desc">Crop your profile image to the perfect size</DialogDescription>
           <DialogTitle className="text-xl text-amber-400 mb-4">Crop Avatar</DialogTitle>
           {selectedImage && (

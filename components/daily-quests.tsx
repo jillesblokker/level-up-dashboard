@@ -398,7 +398,7 @@ export function DailyQuests() {
                   <span>Add Knowledge Quest</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-gradient-to-b from-blue-900 to-blue-950 border-blue-800/20" role="dialog" aria-label="daily-quests-modal">
+              <DialogContent className="sm:max-w-lg bg-gradient-to-b from-blue-900 to-blue-950 border-blue-800/20" role="dialog" aria-label="daily-quests-modal">
                 <DialogHeader>
                   <DialogTitle className="text-white">Add New Knowledge Quest</DialogTitle>
                   <DialogDescription className="text-gray-400">Create a new daily quest for learning and wisdom.</DialogDescription>
@@ -522,7 +522,7 @@ export function DailyQuests() {
                   <span>Add Honor Quest</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-gradient-to-b from-blue-900 to-blue-950 border-blue-800/20" role="dialog" aria-label="daily-quests-modal">
+              <DialogContent className="sm:max-w-lg bg-gradient-to-b from-blue-900 to-blue-950 border-blue-800/20" role="dialog" aria-label="daily-quests-modal">
                 <DialogHeader>
                   <DialogTitle className="text-white">Add New Honor Quest</DialogTitle>
                   <DialogDescription className="text-gray-400">Create a new daily quest for personal discipline and honor.</DialogDescription>
@@ -646,7 +646,7 @@ export function DailyQuests() {
                   <span>Add Castle Quest</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-gradient-to-b from-blue-900 to-blue-950 border-blue-800/20" role="dialog" aria-label="daily-quests-modal">
+              <DialogContent className="sm:max-w-lg bg-gradient-to-b from-blue-900 to-blue-950 border-blue-800/20" role="dialog" aria-label="daily-quests-modal">
                 <DialogHeader>
                   <DialogTitle className="text-white">Add New Castle Quest</DialogTitle>
                   <DialogDescription className="text-gray-400">Create a new daily quest for maintaining your castle.</DialogDescription>
@@ -770,7 +770,7 @@ export function DailyQuests() {
                   <span>Add Craft Quest</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-gradient-to-b from-blue-900 to-blue-950 border-blue-800/20" role="dialog" aria-label="daily-quests-modal">
+              <DialogContent className="sm:max-w-lg bg-gradient-to-b from-blue-900 to-blue-950 border-blue-800/20" role="dialog" aria-label="daily-quests-modal">
                 <DialogHeader>
                   <DialogTitle className="text-white">Add New Craft Quest</DialogTitle>
                   <DialogDescription className="text-gray-400">Create a new daily quest for creative activities.</DialogDescription>
@@ -894,7 +894,7 @@ export function DailyQuests() {
                   <span>Add Vitality Quest</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-gradient-to-b from-blue-900 to-blue-950 border-blue-800/20" role="dialog" aria-label="daily-quests-modal">
+              <DialogContent className="sm:max-w-lg bg-gradient-to-b from-blue-900 to-blue-950 border-blue-800/20" role="dialog" aria-label="daily-quests-modal">
                 <DialogHeader>
                   <DialogTitle className="text-white">Add New Vitality Quest</DialogTitle>
                   <DialogDescription className="text-gray-400">Create a new daily quest for health and well-being.</DialogDescription>

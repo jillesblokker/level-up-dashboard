@@ -46,6 +46,17 @@ export function AnimalInteractionModal({
   };
 
   const getAnimalImage = () => {
+    // Use specific horse images from the horse folder
+    if (animalType === 'horse') {
+      const horseImages = [
+        '/images/items/horse/horse-stelony.png',
+        '/images/items/horse/horse-perony.png', 
+        '/images/items/horse/horse-felony.png'
+      ];
+      // Randomly select one of the horse images
+      const randomIndex = Math.floor(Math.random() * horseImages.length);
+      return horseImages[randomIndex];
+    }
     return `/images/Animals/${animalType}.png`;
   };
 
@@ -79,21 +90,30 @@ export function AnimalInteractionModal({
     }
   };
 
+  // Determine modal size based on content
+  const getModalSize = () => {
+    const description = getAnimalDescription();
+    if (description.length > 200) return "sm:max-w-lg";
+    if (description.length > 100) return "sm:max-w-md";
+    return "sm:max-w-sm";
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md bg-gray-900 border-amber-800" role="dialog" aria-label="animal-interaction-modal">
+      <DialogContent className={`${getModalSize()} bg-gray-900 border-amber-800`} role="dialog" aria-label="animal-interaction-modal">
         <DialogDescription id="animal-interaction-modal-desc">Wild animal encounter</DialogDescription>
 
         {/* Animal image */}
-        <div className="mb-3 flex justify-center">
-          <Image
-            src={getAnimalImage()}
-            alt={`${animalName} animal`}
-            width={120}
-            height={120}
-            className="w-32 h-32 object-contain rounded-lg"
-            priority
-          />
+        <div className="mb-4 flex justify-center">
+          <div className="relative w-40 h-40 bg-gradient-to-br from-amber-900/20 to-amber-800/10 rounded-xl border border-amber-800/30 p-4">
+            <Image
+              src={getAnimalImage()}
+              alt={`${animalName} animal`}
+              fill
+              className="object-contain rounded-lg"
+              priority
+            />
+          </div>
         </div>
 
         {/* Title and description */}
