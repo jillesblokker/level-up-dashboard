@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuth } from '@clerk/nextjs/server';
-import { supabaseServer } from '../../../lib/supabase/server-client';
+import { auth } from '@clerk/nextjs/server';
+import { createClient } from '@supabase/supabase-js';
+
+// Create a Supabase client with service role key for admin operations
+const supabaseAdmin = createClient(
+  process.env['NEXT_PUBLIC_SUPABASE_URL']!,
+  process.env['SUPABASE_SERVICE_ROLE_KEY']!
+);
 
 // Comeback challenges - easier versions of regular challenges to rebuild momentum
 const comebackChallenges = {
@@ -28,7 +34,7 @@ const comebackChallenges = {
 
 export async function GET(req: NextRequest) {
   try {
-    const { userId } = await getAuth(req);
+    const { userId } = await auth();
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -41,7 +47,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Check if user qualifies for comeback challenges (only use existing columns)
-    const { data: streak, error: streakError } = await supabaseServer
+    const { data: streak, error: streakError } = await supabaseAdmin
       .from('streaks')
       .select('streak_days, week_streaks')
       .eq('user_id', userId)
@@ -87,7 +93,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = await getAuth(req);
+    const { userId } = await auth();
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -114,7 +120,7 @@ export async function POST(req: NextRequest) {
       // This would integrate with your character stats system
       
       // Get current streak data (only existing columns)
-      const { data: currentStreak, error: fetchError } = await supabaseServer
+      const { data: currentStreak, error: fetchError } = await supabaseAdmin
         .from('streaks')
         .select('streak_days, week_streaks')
         .eq('user_id', userId)
@@ -125,7 +131,7 @@ export async function POST(req: NextRequest) {
       let newStreakDays = (currentStreak?.streak_days || 0) + 1;
 
       // Update streak with basic progress
-      const { data: updatedStreak, error: updateError } = await supabaseServer
+      const { data: updatedStreak, error: updateError } = await supabaseAdmin
         .from('streaks')
         .upsert({
           user_id: userId,

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { useAuth } from '@clerk/nextjs';
 
@@ -14,10 +14,9 @@ export function useSupabase() {
     const { getToken, isLoaded } = useAuth();
     const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const initialized = useRef(false);
 
     useEffect(() => {
-        if (!isLoaded || initialized.current) {
+        if (!isLoaded) {
             return;
         }
 
@@ -62,7 +61,6 @@ export function useSupabase() {
                 
                 setSupabase(supabaseInstance);
                 setIsLoading(false);
-                initialized.current = true;
             } catch (err) {
                 console.error('[useSupabase] Error initializing Supabase:', err);
                 setIsLoading(false);

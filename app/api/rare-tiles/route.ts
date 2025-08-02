@@ -110,19 +110,35 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('[API] Loading rare tiles for user:', userId);
-    const { data, error } = await supabaseAdmin
-      .from('rare_tiles')
-      .select('*')
-      .eq('user_id', userId);
+                    console.log('[API] Loading rare tiles for user:', userId);
+                
+                // First, let's check if there are any records in the table at all
+                const { data: allData, error: allError } = await supabaseAdmin
+                  .from('rare_tiles')
+                  .select('*');
+                
+                if (allError) {
+                  console.error('[API] Error checking all rare tiles:', allError);
+                } else {
+                  console.log('[API] Total records in rare_tiles table:', allData?.length || 0);
+                  console.log('[API] All rare tiles records:', allData);
+                }
+                
+                const { data, error } = await supabaseAdmin
+                  .from('rare_tiles')
+                  .select('*')
+                  .eq('user_id', userId);
 
-    if (error) {
-      console.error('[API] Error loading rare tiles:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+                    if (error) {
+                  console.error('[API] Error loading rare tiles:', error);
+                  return NextResponse.json({ error: error.message }, { status: 500 });
+                }
 
-    console.log('[API] Successfully loaded rare tiles:', data);
-    return NextResponse.json({ data });
+                // Add new log to inspect the data before returning
+                console.log('[API] Raw data from Supabase for rare tiles:', data);
+
+                console.log('[API] Successfully loaded rare tiles:', data);
+                return NextResponse.json({ data });
   } catch (error) {
     console.error('[API] GET /rare-tiles error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
