@@ -18,7 +18,7 @@ export interface RareTile {
 export const RARE_TILES: RareTile[] = [
   {
     id: 'christmas-tile',
-    name: 'Christmas Tile',
+    name: 'Wonderful',
     type: 'christmas',
     image: '/images/tiles/rare tiles/christmas-tile.png',
     cost: 1000,
@@ -29,7 +29,7 @@ export const RARE_TILES: RareTile[] = [
   },
   {
     id: 'eastern-tile',
-    name: 'Eastern Tile',
+    name: 'Eggs',
     type: 'eastern',
     image: '/images/tiles/rare tiles/eastern-tile.png',
     cost: 800,
@@ -40,7 +40,7 @@ export const RARE_TILES: RareTile[] = [
   },
   {
     id: 'fifth-tile',
-    name: 'Fifth Tile',
+    name: 'Presents',
     type: 'fifth',
     image: '/images/tiles/rare tiles/fifth-tile.png',
     cost: 600,
@@ -51,7 +51,7 @@ export const RARE_TILES: RareTile[] = [
   },
   {
     id: 'mango-tile',
-    name: 'Mango Tile',
+    name: 'Friend',
     type: 'mango',
     image: '/images/tiles/rare tiles/mango-tile.png',
     cost: 750,
@@ -62,7 +62,7 @@ export const RARE_TILES: RareTile[] = [
   },
   {
     id: 'newyear-tile',
-    name: 'New Year Tile',
+    name: 'Explosions',
     type: 'newyear',
     image: '/images/tiles/rare tiles/newyear-tile.png',
     cost: 1200,
@@ -73,7 +73,7 @@ export const RARE_TILES: RareTile[] = [
   },
   {
     id: 'orange-tile',
-    name: 'Orange Tile',
+    name: 'Royal',
     type: 'orange',
     image: '/images/tiles/rare tiles/orange-tile.png',
     cost: 900,
@@ -84,7 +84,7 @@ export const RARE_TILES: RareTile[] = [
   },
   {
     id: 'valentine-tile',
-    name: 'Valentine Tile',
+    name: 'Love',
     type: 'valentine',
     image: '/images/tiles/rare tiles/valentine-tile.png',
     cost: 1100,
