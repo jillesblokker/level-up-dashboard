@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase/client'
+import { SupabaseClient } from '@supabase/supabase-js'
 
 export interface RareTile {
   id: string
@@ -112,7 +112,7 @@ export function getRareTileUnlockDate(tile: RareTile): string {
   return `${monthNames[tile.unlockDate.month - 1]} ${tile.unlockDate.day}`
 }
 
-export async function loadRareTiles(userId: string): Promise<RareTile[]> {
+export async function loadRareTiles(supabase: SupabaseClient, userId: string): Promise<RareTile[]> {
   try {
     const { data, error } = await supabase
       .from('rare_tiles')
@@ -145,7 +145,7 @@ export async function loadRareTiles(userId: string): Promise<RareTile[]> {
   }
 }
 
-export async function saveRareTiles(userId: string, tiles: RareTile[]): Promise<void> {
+export async function saveRareTiles(supabase: SupabaseClient, userId: string, tiles: RareTile[]): Promise<void> {
   try {
     // Prepare data for insertion/update
     const tilesData = tiles.map(tile => ({
@@ -169,7 +169,7 @@ export async function saveRareTiles(userId: string, tiles: RareTile[]): Promise<
   }
 }
 
-export async function unlockRareTile(userId: string, tileId: string): Promise<void> {
+export async function unlockRareTile(supabase: SupabaseClient, userId: string, tileId: string): Promise<void> {
   try {
     const { error } = await supabase
       .from('rare_tiles')
@@ -183,13 +183,15 @@ export async function unlockRareTile(userId: string, tileId: string): Promise<vo
     
     if (error) {
       console.error('Error unlocking rare tile:', error)
+      throw error
     }
   } catch (error) {
     console.error('Error unlocking rare tile:', error)
+    throw error
   }
 }
 
-export async function clearRareTileUnlock(userId: string, tileId: string): Promise<void> {
+export async function clearRareTileUnlock(supabase: SupabaseClient, userId: string, tileId: string): Promise<void> {
   try {
     const { error } = await supabase
       .from('rare_tiles')
@@ -199,8 +201,10 @@ export async function clearRareTileUnlock(userId: string, tileId: string): Promi
     
     if (error) {
       console.error('Error clearing rare tile unlock:', error)
+      throw error
     }
   } catch (error) {
     console.error('Error clearing rare tile unlock:', error)
+    throw error
   }
 } 

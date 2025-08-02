@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { addTileToInventory } from "@/lib/tile-inventory-manager"
 import { useUser } from "@clerk/nextjs"
+import { useSupabase } from "@/lib/hooks/useSupabase"
 import { RARE_TILES, RareTile, isRareTileUnlocked, getRareTileUnlockDate, loadRareTiles } from "@/lib/rare-tiles-manager"
 
 
@@ -31,6 +32,7 @@ interface TileInventoryProps {
 
 export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles, activeTab, setActiveTab, onOutOfTiles }: TileInventoryProps) {
   const { user } = useUser();
+  const { supabase } = useSupabase();
   const [buyQuantities, setBuyQuantities] = useState<{ [key: string]: number }>({})
   const [selectedCategory, setSelectedCategory] = useState<string>('foundation')
 
@@ -103,9 +105,9 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
 
     const loadRareTilesData = async () => {
       try {
-        if (user?.id) {
+        if (user?.id && supabase) {
           console.log('Loading rare tiles data for user:', user.id);
-          const rareTiles = await loadRareTiles(user.id);
+          const rareTiles = await loadRareTiles(supabase, user.id);
           console.log('Loaded rare tiles:', rareTiles);
           setRareTilesData(rareTiles);
         }
@@ -123,9 +125,9 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     const handleRareTileUnlocked = () => {
       console.log('Received rare-tile-unlocked event');
       // Refresh the rare tiles data when a rare tile is unlocked
-      if (user?.id) {
+      if (user?.id && supabase) {
         console.log('Refreshing rare tiles data for user:', user.id);
-        loadRareTiles(user.id).then(rareTiles => {
+        loadRareTiles(supabase, user.id).then(rareTiles => {
           console.log('Refreshed rare tiles:', rareTiles);
           setRareTilesData(rareTiles);
         });
@@ -135,9 +137,9 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     const handleRareTileCleared = () => {
       console.log('Received rare-tile-cleared event');
       // Refresh the rare tiles data when a rare tile is cleared
-      if (user?.id) {
+      if (user?.id && supabase) {
         console.log('Refreshing rare tiles data for user:', user.id);
-        loadRareTiles(user.id).then(rareTiles => {
+        loadRareTiles(supabase, user.id).then(rareTiles => {
           console.log('Refreshed rare tiles:', rareTiles);
           setRareTilesData(rareTiles);
         });

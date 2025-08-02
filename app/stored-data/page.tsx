@@ -96,9 +96,9 @@ export default function StoredDataPage() {
   const { triggerTestModal, triggerTestModal2, triggerTestModal3, triggerTestModal4, triggerTestModal5, triggerTestModal6, triggerTestModal7, triggerTestModal8, triggerTestModal9, triggerTestModal10 } = useTitleEvolution()
 
   const handleUnlockRareTile = async (tileId: string) => {
-    if (!user?.id) return;
+    if (!user?.id || !supabase) return;
     try {
-      await unlockRareTile(user.id, tileId);
+      await unlockRareTile(supabase, user.id, tileId);
       toast.success(`Unlocked ${tileId}`, {
         style: {
           background: '#059669',
@@ -121,9 +121,9 @@ export default function StoredDataPage() {
   };
 
   const handleClearRareTile = async (tileId: string) => {
-    if (!user?.id) return;
+    if (!user?.id || !supabase) return;
     try {
-      await clearRareTileUnlock(user.id, tileId);
+      await clearRareTileUnlock(supabase, user.id, tileId);
       toast.success(`Cleared ${tileId}`, {
         style: {
           background: '#059669',
