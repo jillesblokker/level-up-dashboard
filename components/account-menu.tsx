@@ -73,7 +73,7 @@ export function AccountMenu() {
         aria-label="Account menu"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <Avatar className="h-12 w-12 md:h-8 md:w-8 border-2 border-amber-500/20">
+        <Avatar className="h-12 w-12 md:h-8 md:w-8">
           {avatarType === 'uploaded' && user?.imageUrl ? (
             <AvatarImage src={user.imageUrl} alt="Profile" style={{ objectFit: 'cover', objectPosition: 'center' }} />
           ) : avatarType === 'default' ? (
