@@ -22,7 +22,7 @@ export function QuestStep({ onNext }: QuestStepProps) {
     { id: 'castle', name: 'Castle', icon: Castle, color: 'text-purple-400', bgColor: 'bg-purple-500/20' },
     { id: 'craft', name: 'Craft', icon: Hammer, color: 'text-orange-400', bgColor: 'bg-orange-500/20' },
     { id: 'vitality', name: 'Vitality', icon: Heart, color: 'text-pink-400', bgColor: 'bg-pink-500/20' },
-    { id: 'wellness', name: 'Wellness', icon: Sun, color: 'text-green-400', bgColor: 'bg-green-500/20' },
+    { id: 'wellness', name: 'Wellness', icon: Sun, color: 'text-amber-400', bgColor: 'bg-amber-500/20' },
     { id: 'exploration', name: 'Exploration', icon: PersonStanding, color: 'text-cyan-400', bgColor: 'bg-cyan-500/20' }
   ]
 
@@ -96,7 +96,7 @@ export function QuestStep({ onNext }: QuestStepProps) {
                       </div>
                     </div>
                     {isCompleted && (
-                      <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-green-400" />
+                      <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-amber-400" />
                     )}
                   </div>
                 </CardContent>

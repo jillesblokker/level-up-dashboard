@@ -62,21 +62,21 @@ export function GoldStep({ onNext }: GoldStepProps) {
       <Card className="bg-gray-800/50 border border-amber-800/20">
         <CardContent className="p-4">
           <div className="flex items-center space-x-3 mb-3">
-            <TrendingUp className="h-5 w-5 text-green-400" />
+            <TrendingUp className="h-5 w-5 text-amber-400" />
             <h4 className="font-semibold text-white">Earning Gold</h4>
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-300">Morning Exercise</span>
-              <span className="text-green-400">+15 gold</span>
+              <span className="text-amber-400">+15 gold</span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-300">Read 30 Minutes</span>
-              <span className="text-green-400">+10 gold</span>
+              <span className="text-amber-400">+10 gold</span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-300">Help Someone</span>
-              <span className="text-green-400">+20 gold</span>
+              <span className="text-amber-400">+20 gold</span>
             </div>
             {showEarning && (
               <div className="border-t border-amber-800/20 pt-2 mt-2">
@@ -118,8 +118,8 @@ export function GoldStep({ onNext }: GoldStepProps) {
       <div className="space-y-3">
         <h4 className="text-md font-semibold text-white">Gold Economy</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
-            <h5 className="font-medium text-green-400 mb-1">Earning</h5>
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+            <h5 className="font-medium text-amber-400 mb-1">Earning</h5>
             <p className="text-sm text-gray-300">
               Complete quests to earn gold. Different quests give different rewards.
             </p>

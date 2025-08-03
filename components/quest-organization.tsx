@@ -38,49 +38,49 @@ const categoryConfig = {
   might: {
     name: 'Might',
     icon: '⚔️',
-    color: 'text-red-400',
-    bgColor: 'bg-red-500/10',
-    borderColor: 'border-red-800/30',
+    color: 'text-amber-400',
+    bgColor: 'bg-amber-500/10',
+    borderColor: 'border-amber-800/30',
     description: 'Physical strength and combat'
   },
   knowledge: {
     name: 'Knowledge',
     icon: '📚',
-    color: 'text-blue-400',
-    bgColor: 'bg-blue-500/10',
-    borderColor: 'border-blue-800/30',
+    color: 'text-gray-400',
+    bgColor: 'bg-gray-500/10',
+    borderColor: 'border-gray-800/30',
     description: 'Learning and wisdom'
   },
   honor: {
     name: 'Honor',
     icon: '👑',
-    color: 'text-yellow-400',
-    bgColor: 'bg-yellow-500/10',
-    borderColor: 'border-yellow-800/30',
+    color: 'text-amber-500',
+    bgColor: 'bg-amber-500/10',
+    borderColor: 'border-amber-800/30',
     description: 'Nobility and leadership'
   },
   castle: {
     name: 'Castle',
     icon: '🏰',
-    color: 'text-purple-400',
-    bgColor: 'bg-purple-500/10',
-    borderColor: 'border-purple-800/30',
+    color: 'text-amber-400',
+    bgColor: 'bg-amber-500/10',
+    borderColor: 'border-amber-800/30',
     description: 'Kingdom management'
   },
   craft: {
     name: 'Craft',
     icon: '⚒️',
-    color: 'text-orange-400',
-    bgColor: 'bg-orange-500/10',
-    borderColor: 'border-orange-800/30',
+    color: 'text-gray-400',
+    bgColor: 'bg-gray-500/10',
+    borderColor: 'border-gray-800/30',
     description: 'Skill and craftsmanship'
   },
   vitality: {
     name: 'Vitality',
     icon: '❤️',
-    color: 'text-green-400',
-    bgColor: 'bg-green-500/10',
-    borderColor: 'border-green-800/30',
+    color: 'text-amber-400',
+    bgColor: 'bg-amber-500/10',
+    borderColor: 'border-amber-800/30',
     description: 'Health and wellness'
   },
   wellness: {
@@ -94,18 +94,18 @@ const categoryConfig = {
   exploration: {
     name: 'Exploration',
     icon: '🗺️',
-    color: 'text-cyan-400',
-    bgColor: 'bg-cyan-500/10',
-    borderColor: 'border-cyan-800/30',
+    color: 'text-gray-400',
+    bgColor: 'bg-gray-500/10',
+    borderColor: 'border-gray-800/30',
     description: 'Discovery and adventure'
   }
 }
 
 const difficultyConfig = {
-  easy: { name: 'Easy', color: 'text-green-400', bgColor: 'bg-green-500/10' },
-  medium: { name: 'Medium', color: 'text-yellow-400', bgColor: 'bg-yellow-500/10' },
-  hard: { name: 'Hard', color: 'text-orange-400', bgColor: 'bg-orange-500/10' },
-  epic: { name: 'Epic', color: 'text-purple-400', bgColor: 'bg-purple-500/10' }
+  easy: { name: 'Easy', color: 'text-amber-400', bgColor: 'bg-amber-500/10' },
+  medium: { name: 'Medium', color: 'text-gray-400', bgColor: 'bg-gray-500/10' },
+  hard: { name: 'Hard', color: 'text-amber-500', bgColor: 'bg-amber-500/10' },
+  epic: { name: 'Epic', color: 'text-amber-600', bgColor: 'bg-amber-500/10' }
 }
 
 export function QuestOrganization({ 

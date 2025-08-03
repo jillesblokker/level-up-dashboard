@@ -985,3 +985,85 @@ html.device-iphone button {
   flex-grow: 0;
 }
 
+/* Medieval Theme Variables */
+:root {
+  /* Medieval Color Palette */
+  --medieval-gold: #d4af37;        /* Gold for success/achievement */
+  --medieval-amber: #d97706;       /* Amber for warnings/notifications */
+  --medieval-red: #8b0000;         /* Blood red for danger/important */
+  --medieval-green: #228b22;       /* Forest green for nature/growth */
+  --medieval-blue: #4169e1;        /* Royal blue for nobility */
+  --medieval-purple: #9932cc;      /* Magic purple for special items */
+  --medieval-brown: #8b5e34;       /* Wood brown for neutral elements */
+  --medieval-gray: #a0a0a0;        /* Stone gray for secondary text */
+  
+  /* Semantic Colors */
+  --medieval-success: #d4af37;     /* Gold for success */
+  --medieval-info: #a0a0a0;        /* Gray for info */
+  --medieval-warning: #d97706;     /* Amber for warnings */
+  --medieval-danger: #8b0000;      /* Blood red for danger */
+  --medieval-special: #9932cc;     /* Purple for special */
+  --medieval-neutral: #8b5e34;     /* Brown for neutral */
+}
+
+/* Medieval Badge Styling */
+.medieval-badge {
+  background-color: var(--medieval-brown);
+  border: 1px solid var(--medieval-amber);
+  color: var(--medieval-amber);
+  font-family: var(--font-medieval);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Medieval Button Styling */
+.btn-medieval {
+  background: linear-gradient(135deg, #00003c, #0c0047);
+  border: 2px solid #14004a;
+  color: #ffffff;
+  font-family: var(--font-medieval);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.btn-medieval:hover {
+  background: linear-gradient(135deg, #0c0047, #14004a);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Medieval Progress Bar */
+.medieval-progress {
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--medieval-amber);
+}
+
+.medieval-progress-bar {
+  background: linear-gradient(90deg, var(--medieval-amber), #d97706);
+  border: 1px solid var(--medieval-amber);
+}
+
+/* Medieval Text Colors */
+.text-medieval-success { color: var(--medieval-gold); }
+.text-medieval-info { color: var(--medieval-gray); }
+.text-medieval-warning { color: var(--medieval-amber); }
+.text-medieval-danger { color: var(--medieval-red); }
+.text-medieval-special { color: var(--medieval-purple); }
+.text-medieval-neutral { color: var(--medieval-brown); }
+
+/* Medieval Background Colors */
+.bg-medieval-success { background-color: rgba(212, 175, 55, 0.1); }
+.bg-medieval-info { background-color: rgba(160, 160, 160, 0.1); }
+.bg-medieval-warning { background-color: rgba(217, 119, 6, 0.1); }
+.bg-medieval-danger { background-color: rgba(139, 0, 0, 0.1); }
+.bg-medieval-special { background-color: rgba(153, 50, 204, 0.1); }
+.bg-medieval-neutral { background-color: rgba(139, 94, 52, 0.1); }
+
+/* Medieval Border Colors */
+.border-medieval-success { border-color: var(--medieval-gold); }
+.border-medieval-info { border-color: var(--medieval-gray); }
+.border-medieval-warning { border-color: var(--medieval-amber); }
+.border-medieval-danger { border-color: var(--medieval-red); }
+.border-medieval-special { border-color: var(--medieval-purple); }
+.border-medieval-neutral { border-color: var(--medieval-brown); }
+

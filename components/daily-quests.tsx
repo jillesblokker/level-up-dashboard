@@ -410,7 +410,7 @@ export function DailyQuests() {
                       id="quest-name" 
                       value={newQuestName} 
                       onChange={(e) => setNewQuestName(e.target.value)} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                     />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
@@ -419,7 +419,7 @@ export function DailyQuests() {
                       id="quest-icon" 
                       value={newQuestIcon} 
                       onChange={(e) => setNewQuestIcon(e.target.value)} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                       placeholder="Emoji or icon" 
                     />
                   </div>
@@ -430,7 +430,7 @@ export function DailyQuests() {
                       type="number"
                       value={newQuestExperience} 
                       onChange={(e) => setNewQuestExperience(Number(e.target.value))} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                       min={0}
                     />
                   </div>
@@ -441,7 +441,7 @@ export function DailyQuests() {
                       type="number"
                       value={newQuestGold} 
                       onChange={(e) => setNewQuestGold(Number(e.target.value))} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                       min={0}
                     />
                   </div>
@@ -451,13 +451,13 @@ export function DailyQuests() {
                       id="quest-frequency" 
                       value={newQuestFrequency} 
                       onChange={(e) => setNewQuestFrequency(e.target.value)} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                       placeholder="e.g. 3x, 5 minutes, twice daily" 
                     />
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button onClick={addNewQuest} className="bg-blue-600 hover:bg-blue-700 text-white" aria-label="Add new quest">Add Quest</Button>
+                  <Button onClick={addNewQuest} className="bg-amber-600 hover:bg-amber-700 text-white" aria-label="Add new quest">Add Quest</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -534,7 +534,7 @@ export function DailyQuests() {
                       id="quest-name" 
                       value={newQuestName} 
                       onChange={(e) => setNewQuestName(e.target.value)} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                     />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
@@ -543,7 +543,7 @@ export function DailyQuests() {
                       id="quest-icon" 
                       value={newQuestIcon} 
                       onChange={(e) => setNewQuestIcon(e.target.value)} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                       placeholder="Emoji or icon" 
                     />
                   </div>
@@ -554,7 +554,7 @@ export function DailyQuests() {
                       type="number"
                       value={newQuestExperience} 
                       onChange={(e) => setNewQuestExperience(Number(e.target.value))} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                       min={0}
                     />
                   </div>
@@ -565,7 +565,7 @@ export function DailyQuests() {
                       type="number"
                       value={newQuestGold} 
                       onChange={(e) => setNewQuestGold(Number(e.target.value))} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                       min={0}
                     />
                   </div>
@@ -575,7 +575,7 @@ export function DailyQuests() {
                       id="quest-frequency" 
                       value={newQuestFrequency} 
                       onChange={(e) => setNewQuestFrequency(e.target.value)} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                       placeholder="e.g. 3x, 5 minutes, twice daily" 
                     />
                   </div>
@@ -658,7 +658,7 @@ export function DailyQuests() {
                       id="quest-name" 
                       value={newQuestName} 
                       onChange={(e) => setNewQuestName(e.target.value)} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                     />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
@@ -667,7 +667,7 @@ export function DailyQuests() {
                       id="quest-icon" 
                       value={newQuestIcon} 
                       onChange={(e) => setNewQuestIcon(e.target.value)} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                       placeholder="Emoji or icon" 
                     />
                   </div>
@@ -678,7 +678,7 @@ export function DailyQuests() {
                       type="number"
                       value={newQuestExperience} 
                       onChange={(e) => setNewQuestExperience(Number(e.target.value))} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                       min={0}
                     />
                   </div>
@@ -689,7 +689,7 @@ export function DailyQuests() {
                       type="number"
                       value={newQuestGold} 
                       onChange={(e) => setNewQuestGold(Number(e.target.value))} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                       min={0}
                     />
                   </div>
@@ -699,7 +699,7 @@ export function DailyQuests() {
                       id="quest-frequency" 
                       value={newQuestFrequency} 
                       onChange={(e) => setNewQuestFrequency(e.target.value)} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                       placeholder="e.g. 3x, 5 minutes, twice daily" 
                     />
                   </div>
@@ -782,7 +782,7 @@ export function DailyQuests() {
                       id="quest-name" 
                       value={newQuestName} 
                       onChange={(e) => setNewQuestName(e.target.value)} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                     />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
@@ -791,7 +791,7 @@ export function DailyQuests() {
                       id="quest-icon" 
                       value={newQuestIcon} 
                       onChange={(e) => setNewQuestIcon(e.target.value)} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                       placeholder="Emoji or icon" 
                     />
                   </div>
@@ -802,7 +802,7 @@ export function DailyQuests() {
                       type="number"
                       value={newQuestExperience} 
                       onChange={(e) => setNewQuestExperience(Number(e.target.value))} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                       min={0}
                     />
                   </div>
@@ -813,7 +813,7 @@ export function DailyQuests() {
                       type="number"
                       value={newQuestGold} 
                       onChange={(e) => setNewQuestGold(Number(e.target.value))} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                       min={0}
                     />
                   </div>
@@ -823,7 +823,7 @@ export function DailyQuests() {
                       id="quest-frequency" 
                       value={newQuestFrequency} 
                       onChange={(e) => setNewQuestFrequency(e.target.value)} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                       placeholder="e.g. 3x, 5 minutes, twice daily" 
                     />
                   </div>
@@ -906,7 +906,7 @@ export function DailyQuests() {
                       id="quest-name" 
                       value={newQuestName} 
                       onChange={(e) => setNewQuestName(e.target.value)} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                     />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
@@ -915,7 +915,7 @@ export function DailyQuests() {
                       id="quest-icon" 
                       value={newQuestIcon} 
                       onChange={(e) => setNewQuestIcon(e.target.value)} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                       placeholder="Emoji or icon" 
                     />
                   </div>
@@ -926,7 +926,7 @@ export function DailyQuests() {
                       type="number"
                       value={newQuestExperience} 
                       onChange={(e) => setNewQuestExperience(Number(e.target.value))} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                       min={0}
                     />
                   </div>
@@ -937,7 +937,7 @@ export function DailyQuests() {
                       type="number"
                       value={newQuestGold} 
                       onChange={(e) => setNewQuestGold(Number(e.target.value))} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                       min={0}
                     />
                   </div>
@@ -947,7 +947,7 @@ export function DailyQuests() {
                       id="quest-frequency" 
                       value={newQuestFrequency} 
                       onChange={(e) => setNewQuestFrequency(e.target.value)} 
-                      className="col-span-3 bg-blue-900/50 border-blue-800/20 text-white" 
+                      className="col-span-3 bg-gray-900/50 border-gray-800/20 text-white" 
                       placeholder="e.g. 3x, 5 minutes, twice daily" 
                     />
                   </div>

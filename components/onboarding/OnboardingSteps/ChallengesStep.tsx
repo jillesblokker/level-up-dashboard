@@ -60,8 +60,8 @@ export function ChallengesStep({ onNext }: ChallengesStepProps) {
       progress: 3,
       total: 7,
       icon: Zap,
-      color: 'text-green-400',
-      bgColor: 'bg-green-500/20'
+      color: 'text-amber-400',
+              bgColor: 'bg-amber-500/20'
     },
     {
       id: '2',

@@ -160,7 +160,7 @@ export function TileStep({ onNext }: TileStepProps) {
             </p>
           </div>
           <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
-            <h5 className="font-medium text-green-400 mb-1">Placing Tiles</h5>
+            <h5 className="font-medium text-amber-400 mb-1">Placing Tiles</h5>
             <p className="text-sm text-gray-300">
               Place tiles in your kingdom to build and expand your realm. Each tile adds to your kingdom.
             </p>
@@ -174,8 +174,8 @@ export function TileStep({ onNext }: TileStepProps) {
           Try buying a tile and then placing it in your kingdom!
         </p>
         {tileInventory.some(t => t.quantity > 0) && (
-          <div className="bg-green-500/20 border border-green-500/40 rounded-lg p-3">
-            <p className="text-green-400 font-medium">
+                      <div className="bg-amber-500/20 border border-amber-500/40 rounded-lg p-3">
+            <p className="text-amber-400 font-medium">
               Great! You have tiles in your inventory. Select one to place it.
             </p>
           </div>

@@ -132,13 +132,13 @@ export function RealmEconomyIndicator() {
               </CardContent>
             </Card>
 
-            <Card className="border-green-800/20 bg-gradient-to-br from-gray-900 to-gray-800">
+            <Card className="border-amber-800/20 bg-gradient-to-br from-gray-900 to-gray-800">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3 mb-3">
-                  <ShoppingCart className="h-5 w-5 text-green-400" />
+                  <ShoppingCart className="h-5 w-5 text-amber-400" />
                   <h3 className="font-semibold text-white">Affordable Tiles</h3>
                 </div>
-                <div className="text-2xl font-bold text-green-400 mb-2">
+                <div className="text-2xl font-bold text-amber-400 mb-2">
                   {affordableTiles} / {totalTiles}
                 </div>
                 <p className="text-sm text-gray-400">
@@ -147,13 +147,13 @@ export function RealmEconomyIndicator() {
               </CardContent>
             </Card>
 
-            <Card className="border-blue-800/20 bg-gradient-to-br from-gray-900 to-gray-800">
+            <Card className="border-gray-800/20 bg-gradient-to-br from-gray-900 to-gray-800">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3 mb-3">
-                  <TrendingUp className="h-5 w-5 text-blue-400" />
+                  <TrendingUp className="h-5 w-5 text-gray-400" />
                   <h3 className="font-semibold text-white">Average Cost</h3>
                 </div>
-                <div className="text-2xl font-bold text-blue-400 mb-2">
+                <div className="text-2xl font-bold text-gray-400 mb-2">
                   {stats.averageTileCost} Gold
                 </div>
                 <p className="text-sm text-gray-400">
@@ -176,17 +176,17 @@ export function RealmEconomyIndicator() {
             
             {/* Next Affordable Tile */}
             {getNextAffordableTile() && (
-              <div className="p-3 bg-green-900/20 border border-green-800/30 rounded-lg">
+              <div className="p-3 bg-amber-900/20 border border-amber-800/30 rounded-lg">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="font-semibold text-green-400">{getNextAffordableTile()?.name}</h4>
+                    <h4 className="font-semibold text-amber-400">{getNextAffordableTile()?.name}</h4>
                     <p className="text-sm text-gray-400">{getNextAffordableTile()?.description}</p>
                   </div>
-                  <Badge variant="outline" className="text-green-400 border-green-400">
+                  <Badge variant="outline" className="text-amber-400 border-amber-400">
                     {getNextAffordableTile()?.cost} Gold
                   </Badge>
                 </div>
-                <p className="text-xs text-green-300 mt-2">
+                <p className="text-xs text-amber-300 mt-2">
                   ✅ You can afford this tile!
                 </p>
               </div>
@@ -220,7 +220,7 @@ export function RealmEconomyIndicator() {
             {/* Quick Stats */}
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div className="text-center p-3 bg-gray-800/50 rounded-lg">
-                <div className="text-lg font-bold text-green-400">{affordableTiles}</div>
+                <div className="text-lg font-bold text-amber-400">{affordableTiles}</div>
                 <div className="text-xs text-gray-400">Affordable</div>
               </div>
               <div className="text-center p-3 bg-gray-800/50 rounded-lg">

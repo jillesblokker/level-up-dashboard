@@ -33,18 +33,18 @@ interface QuestCardProps {
 }
 
 const difficultyConfig = {
-  easy: { color: 'bg-green-500', icon: Target, label: 'Easy' },
-  medium: { color: 'bg-yellow-500', icon: Shield, label: 'Medium' },
-  hard: { color: 'bg-orange-500', icon: Sword, label: 'Hard' },
-  epic: { color: 'bg-purple-500', icon: Trophy, label: 'Epic' }
+  easy: { color: 'bg-amber-500', icon: Target, label: 'Easy' },
+  medium: { color: 'bg-gray-500', icon: Shield, label: 'Medium' },
+  hard: { color: 'bg-amber-600', icon: Sword, label: 'Hard' },
+  epic: { color: 'bg-amber-700', icon: Trophy, label: 'Epic' }
 }
 
 const categoryConfig = {
-  'physical': { icon: Heart, color: 'text-red-400' },
-  'mental': { icon: BookOpen, color: 'text-blue-400' },
-  'social': { icon: Star, color: 'text-yellow-400' },
-  'creative': { icon: Zap, color: 'text-purple-400' },
-  'productivity': { icon: Target, color: 'text-green-400' }
+  'physical': { icon: Heart, color: 'text-amber-400' },
+  'mental': { icon: BookOpen, color: 'text-gray-400' },
+  'social': { icon: Star, color: 'text-amber-500' },
+  'creative': { icon: Zap, color: 'text-amber-400' },
+  'productivity': { icon: Target, color: 'text-amber-400' }
 }
 
 export default function QuestCard({

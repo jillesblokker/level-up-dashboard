@@ -73,7 +73,7 @@ export function CategoryCard({
                 <div
                   key={task.id}
                   className={`text-xs px-1.5 py-0.5 rounded-sm ${
-                    task.completed ? "bg-green-900 text-green-400" : "bg-gray-800 text-muted-foreground"
+                    task.completed ? "bg-amber-900 text-amber-400" : "bg-gray-800 text-muted-foreground"
                   }`}
                 >
                   {task.icon} {task.name}

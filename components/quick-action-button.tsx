@@ -49,7 +49,7 @@ export function QuickActionButton({ title, icon, color, actions }: QuickActionBu
                   {action.icon}
                   <span className="text-sm">{action.label}</span>
                 </div>
-                <span className="text-sm text-green-500">+{action.xp} XP</span>
+                <span className="text-sm text-amber-500">+{action.xp} XP</span>
               </div>
             ))}
           </div>

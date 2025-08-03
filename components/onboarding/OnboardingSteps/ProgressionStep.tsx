@@ -90,13 +90,13 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
 
       {/* Level Up Animation */}
       {showLevelUp && (
-        <Card className="bg-green-500/20 border border-green-500/40">
+        <Card className="bg-amber-500/20 border border-amber-500/40">
           <CardContent className="p-4 text-center">
             <div className="flex items-center justify-center space-x-2 mb-2">
-              <Star className="h-6 w-6 text-green-400" />
-              <span className="text-xl font-bold text-green-400">Level Up!</span>
+              <Star className="h-6 w-6 text-amber-400" />
+              <span className="text-xl font-bold text-amber-400">Level Up!</span>
             </div>
-            <p className="text-green-300">
+            <p className="text-amber-300">
               You&apos;ve reached Level 2! New content has been unlocked.
             </p>
           </CardContent>
@@ -109,9 +109,9 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
           <h4 className="text-md font-semibold text-white">Newly Unlocked</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {unlockedContent.map((content, index) => (
-              <Card key={index} className="bg-green-500/10 border border-green-500/20">
+              <Card key={index} className="bg-amber-500/10 border border-amber-500/20">
                 <CardContent className="p-3 text-center">
-                  <Unlock className="h-5 w-5 text-green-400 mx-auto mb-2" />
+                  <Unlock className="h-5 w-5 text-amber-400 mx-auto mb-2" />
                   <p className="text-sm font-medium text-white">{content}</p>
                 </CardContent>
               </Card>
@@ -133,16 +133,16 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
                 key={index} 
                 className={`border transition-all duration-300 ${
                   isUnlocked 
-                    ? 'bg-green-500/10 border-green-500/20' 
+                    ? 'bg-amber-500/10 border-amber-500/20' 
                     : 'bg-gray-800/50 border-gray-700/50'
                 }`}
               >
                 <CardContent className="p-3">
                   <div className="flex items-center space-x-3">
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                      isUnlocked ? 'bg-green-500/20' : 'bg-gray-700/50'
+                      isUnlocked ? 'bg-amber-500/20' : 'bg-gray-700/50'
                     }`}>
-                      <Icon className={`h-4 w-4 ${isUnlocked ? 'text-green-400' : 'text-gray-500'}`} />
+                      <Icon className={`h-4 w-4 ${isUnlocked ? 'text-amber-400' : 'text-gray-500'}`} />
                     </div>
                     <div className="flex-1">
                       <h5 className={`font-medium ${isUnlocked ? 'text-white' : 'text-gray-400'}`}>
@@ -150,7 +150,7 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
                       </h5>
                       <div className="flex items-center space-x-2 mt-1">
                         {isUnlocked ? (
-                          <Badge variant="secondary" className="text-xs bg-green-500/20 text-green-400">
+                          <Badge variant="secondary" className="text-xs bg-amber-500/20 text-amber-400">
                             Unlocked
                           </Badge>
                         ) : (
@@ -180,8 +180,8 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
               Each level unlocks new quests, tiles, and special features for your kingdom.
             </p>
           </div>
-          <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
-            <h5 className="font-medium text-green-400 mb-1">Experience Gain</h5>
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+            <h5 className="font-medium text-amber-400 mb-1">Experience Gain</h5>
             <p className="text-sm text-gray-300">
               Complete quests to earn experience points and advance your character.
             </p>

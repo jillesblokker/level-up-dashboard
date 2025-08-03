@@ -339,12 +339,12 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
               </div>
             )}
             {isPlayerTurn && !isShowingSequence && (
-              <div className="text-green-400 font-bold">
+              <div className="text-amber-400 font-bold">
                 Your turn! Repeat the sequence ({playerSequence.length}/{sequence.length})
               </div>
             )}
             {gameState === 'won' && (
-              <div className="text-green-400 font-bold text-xl">
+              <div className="text-amber-400 font-bold text-xl">
                 🎉 Victory! You defeated the monster!
               </div>
             )}
@@ -386,7 +386,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
                 {playerSequence.map((item, index) => (
                   <div
                     key={index}
-                    className="w-4 h-4 rounded-full bg-green-500"
+                    className="w-4 h-4 rounded-full bg-amber-500"
                     aria-label={`Correct item ${index + 1}`}
                   />
                 ))}

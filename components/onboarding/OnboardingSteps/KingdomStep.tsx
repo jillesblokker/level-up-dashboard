@@ -96,7 +96,7 @@ export function KingdomStep({ onNext }: KingdomStepProps) {
                   <div className="text-sm text-gray-400">Tiles Placed</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-400">+{kingdomSize * 10}</div>
+                  <div className="text-2xl font-bold text-amber-400">+{kingdomSize * 10}</div>
                   <div className="text-sm text-gray-400">Kingdom Value</div>
                 </div>
               </div>
@@ -115,8 +115,8 @@ export function KingdomStep({ onNext }: KingdomStepProps) {
               Place tiles strategically to build your kingdom. Each tile adds value and expands your realm.
             </p>
           </div>
-          <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
-            <h5 className="font-medium text-green-400 mb-1">Kingdom Growth</h5>
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+            <h5 className="font-medium text-amber-400 mb-1">Kingdom Growth</h5>
             <p className="text-sm text-gray-300">
               Watch your kingdom grow as you add more tiles. Larger kingdoms unlock new features.
             </p>
@@ -139,15 +139,15 @@ export function KingdomStep({ onNext }: KingdomStepProps) {
           <h4 className="text-md font-semibold text-white">Kingdom Benefits</h4>
           <div className="space-y-2">
             <div className="flex items-center space-x-2 text-sm">
-              <TrendingUp className="h-4 w-4 text-green-400" />
+              <TrendingUp className="h-4 w-4 text-amber-400" />
               <span className="text-gray-300">Unlock new quest categories</span>
             </div>
             <div className="flex items-center space-x-2 text-sm">
-              <TrendingUp className="h-4 w-4 text-green-400" />
+              <TrendingUp className="h-4 w-4 text-amber-400" />
               <span className="text-gray-300">Earn bonus rewards</span>
             </div>
             <div className="flex items-center space-x-2 text-sm">
-              <TrendingUp className="h-4 w-4 text-green-400" />
+              <TrendingUp className="h-4 w-4 text-amber-400" />
               <span className="text-gray-300">Access special events</span>
             </div>
           </div>

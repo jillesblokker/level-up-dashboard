@@ -30,8 +30,8 @@ export function CompleteStep({ onNext }: CompleteStepProps) {
       icon: MapIcon,
       title: 'Buy & Place Tiles',
       description: 'Build your kingdom one tile at a time',
-      color: 'text-green-400',
-      bgColor: 'bg-green-500/20'
+      color: 'text-amber-400',
+              bgColor: 'bg-amber-500/20'
     },
     {
       icon: Crown,
@@ -118,8 +118,8 @@ export function CompleteStep({ onNext }: CompleteStepProps) {
               Complete quests daily to maintain a steady flow of gold and experience.
             </p>
           </div>
-          <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
-            <h5 className="font-medium text-green-400 mb-1">Strategic Building</h5>
+                      <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+            <h5 className="font-medium text-amber-400 mb-1">Strategic Building</h5>
             <p className="text-sm text-gray-300">
               Plan your kingdom layout carefully to maximize efficiency and aesthetics.
             </p>

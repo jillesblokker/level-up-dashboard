@@ -110,7 +110,7 @@ class SeasonalHuntManagerClass {
 
   getCurrentEventConfig(): SeasonalEvent | null {
     const eventKey = this.getCurrentEvent();
-    return eventKey ? SEASONAL_EVENTS[eventKey] : null;
+    return eventKey ? SEASONAL_EVENTS[eventKey] || null : null;
   }
 
   async initialize(userId: string): Promise<void> {

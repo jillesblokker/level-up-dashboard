@@ -836,7 +836,7 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
           "w-6 h-6 rounded border-2 flex items-center justify-center transition-all duration-200",
           "hover:scale-110 hover:shadow-lg",
           completed 
-            ? "bg-green-500 border-green-500 text-white" 
+                            ? "bg-amber-500 border-amber-500 text-white" 
             : "bg-transparent border-gray-400 text-transparent hover:border-amber-400"
         )}>
           {completed ? (
@@ -939,7 +939,7 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
             className={cn(
               "w-full transition-all duration-300",
               completed 
-                ? "bg-green-600 hover:bg-green-700 text-white"
+                ? "bg-amber-600 hover:bg-amber-700 text-white"
                 : "bg-amber-500 hover:bg-amber-600 text-black"
             )}
             onClick={(e) => {
