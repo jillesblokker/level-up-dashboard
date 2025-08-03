@@ -146,40 +146,56 @@ export default function StoredDataPage() {
   };
 
   const handleStartEasterEggHunt = async () => {
-    if (!user?.id) return;
     try {
-      const manager = EasterEggManager.getInstance();
-      await manager.resetEggs(user.id);
-      
-      toast.success('Easter egg hunt started! Look for eggs around the app.', {
+      if (!user?.id) {
+        toast.error('User not authenticated');
+        return;
+      }
+
+      await EasterEggManager.resetEggs(user.id);
+      toast.success('🥚 Easter egg hunt started! Look for eggs around the app!', {
         style: {
-          background: '#059669',
+          backgroundColor: '#059669',
           color: '#ffffff',
-          border: '1px solid #10b981'
+          border: '1px solid #047857'
         }
       });
     } catch (error) {
       console.error('Error starting Easter egg hunt:', error);
-      toast.error('Failed to start Easter egg hunt');
+      toast.error('Failed to start Easter egg hunt', {
+        style: {
+          backgroundColor: '#dc2626',
+          color: '#ffffff',
+          border: '1px solid #b91c1c'
+        }
+      });
     }
   };
 
   const handleResetEasterEggs = async () => {
-    if (!user?.id) return;
     try {
-      const manager = EasterEggManager.getInstance();
-      await manager.resetEggs(user.id);
-      
-      toast.success('Easter eggs reset! All eggs are hidden again.', {
+      if (!user?.id) {
+        toast.error('User not authenticated');
+        return;
+      }
+
+      await EasterEggManager.resetEggs(user.id);
+      toast.success('🥚 All eggs reset!', {
         style: {
-          background: '#059669',
+          backgroundColor: '#059669',
           color: '#ffffff',
-          border: '1px solid #10b981'
+          border: '1px solid #047857'
         }
       });
     } catch (error) {
       console.error('Error resetting Easter eggs:', error);
-      toast.error('Failed to reset Easter eggs');
+      toast.error('Failed to reset Easter eggs', {
+        style: {
+          backgroundColor: '#dc2626',
+          color: '#ffffff',
+          border: '1px solid #b91c1c'
+        }
+      });
     }
   };
 
