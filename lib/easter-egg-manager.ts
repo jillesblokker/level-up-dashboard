@@ -137,7 +137,7 @@ export class EasterEggManager {
 
       // Update local state
       const eggIndex = this.eggs.findIndex(egg => egg.eggId === eggId);
-      if (eggIndex !== -1) {
+      if (eggIndex !== -1 && this.eggs[eggIndex]) {
         this.eggs[eggIndex].found = true;
         this.eggs[eggIndex].foundAt = new Date().toISOString();
       }
