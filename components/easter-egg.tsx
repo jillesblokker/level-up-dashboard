@@ -1,43 +1,46 @@
 "use client"
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
-import { EasterEggManager, EasterEgg, EasterEggProgress } from '@/lib/easter-egg-manager';
+import { SeasonalHuntManager, SeasonalItem, SeasonalProgress, SEASONAL_EVENTS } from '@/lib/easter-egg-manager';
 import { useUser } from '@clerk/nextjs';
 import { gainGold } from '@/lib/gold-manager';
 import { toast } from '@/components/ui/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Trophy, Egg } from 'lucide-react';
+import { Gift, Egg, Pumpkin } from 'lucide-react';
 
-interface EasterEggProps {
-  egg: EasterEgg;
-  onFound: (progress: EasterEggProgress) => void;
+interface SeasonalHuntItemProps {
+  item: SeasonalItem;
+  onFound: (progress: SeasonalProgress) => void;
 }
 
-export function EasterEggComponent({ egg, onFound }: EasterEggProps) {
+export function SeasonalHuntItem({ item, onFound }: SeasonalHuntItemProps) {
   const { user } = useUser();
   const [isFound, setIsFound] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [progress, setProgress] = useState<EasterEggProgress | null>(null);
+  const [progress, setProgress] = useState<SeasonalProgress | null>(null);
 
-  const handleEggClick = async () => {
-    if (!user?.id || isFound) return;
+  const currentEvent = SeasonalHuntManager.getCurrentEvent();
+  const eventConfig = currentEvent ? SEASONAL_EVENTS[currentEvent] : null;
+
+  const handleItemClick = async () => {
+    if (!user?.id || isFound || !eventConfig) return;
 
     try {
-      const foundEgg = await EasterEggManager.findEgg(user.id, egg.egg_id);
+      const foundItem = await SeasonalHuntManager.findItem(user.id, item.item_id);
       
-      if (foundEgg) {
-        // Award 100 gold
-        gainGold(100, 'easter-egg');
+      if (foundItem) {
+        // Award gold based on event
+        gainGold(eventConfig.goldReward, 'seasonal-hunt');
         
         // Get updated progress
-        const currentProgress = EasterEggManager.getProgress();
+        const currentProgress = SeasonalHuntManager.getProgress();
         
         // Show success toast
         toast({
-          title: "🥚 Easter Egg Found!",
-          description: `You found an egg and earned 100 gold! ${currentProgress.remaining} eggs remaining.`,
+          title: `🎉 ${eventConfig.name}!`,
+          description: `You found a ${currentEvent === 'easter' ? 'egg' : currentEvent === 'christmas' ? 'present' : 'pumpkin'} and earned ${eventConfig.goldReward} gold! ${currentProgress.remaining} remaining.`,
         });
 
         setIsFound(true);
@@ -46,40 +49,48 @@ export function EasterEggComponent({ egg, onFound }: EasterEggProps) {
         onFound(currentProgress);
       }
     } catch (error) {
-      console.error('[EasterEgg] Error finding egg:', error);
       toast({
         title: "Error",
-        description: "Failed to collect Easter egg. Please try again.",
+        description: "Failed to collect item. Please try again.",
         variant: "destructive",
       });
     }
   };
 
-  if (isFound) return null;
+  if (isFound || !eventConfig) return null;
+
+  const getIcon = () => {
+    switch (currentEvent) {
+      case 'easter': return <Egg className="h-5 w-5" />;
+      case 'christmas': return <Gift className="h-5 w-5" />;
+      case 'halloween': return <Pumpkin className="h-5 w-5" />;
+      default: return <Gift className="h-5 w-5" />;
+    }
+  };
 
   return (
     <>
       <div
         className="fixed z-50 cursor-pointer transition-all duration-300 hover:scale-110 animate-bounce"
         style={{
-          left: `${egg.position.x}px`,
-          top: `${egg.position.y}px`,
+          left: `${item.position.x}px`,
+          top: `${item.position.y}px`,
         }}
-        onClick={handleEggClick}
+        onClick={handleItemClick}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            handleEggClick();
+            handleItemClick();
           }
         }}
         tabIndex={0}
         role="button"
-        aria-label="Easter egg - click to collect"
+        aria-label={`${eventConfig.name} - click to collect`}
       >
         <div className="relative">
           <Image
-            src="/images/egg.png"
-            alt="Easter egg"
+            src={eventConfig.image}
+            alt={eventConfig.name}
             width={40}
             height={40}
             className="drop-shadow-lg"
@@ -92,18 +103,18 @@ export function EasterEggComponent({ egg, onFound }: EasterEggProps) {
         <DialogContent className="bg-black border border-amber-800/20 text-white">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-amber-400">
-              <Egg className="h-5 w-5" />
-              Easter Egg Hunt Progress
+              {getIcon()}
+              {eventConfig.name}
             </DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-amber-400 mb-2">
-                🥚 Egg Found!
+                🎉 Item Found!
               </div>
               <p className="text-gray-300 mb-4">
-                You found an Easter egg and earned 100 gold!
+                You found a {currentEvent === 'easter' ? 'egg' : currentEvent === 'christmas' ? 'present' : 'pumpkin'} and earned {eventConfig.goldReward} gold!
               </p>
             </div>
 
@@ -125,7 +136,7 @@ export function EasterEggComponent({ egg, onFound }: EasterEggProps) {
                 
                 <div className="mt-2 text-center">
                   <span className="text-sm text-gray-400">
-                    {progress.remaining} eggs remaining
+                    {progress.remaining} items remaining
                   </span>
                 </div>
               </div>

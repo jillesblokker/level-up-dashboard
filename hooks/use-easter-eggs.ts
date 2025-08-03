@@ -3,52 +3,57 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { usePathname } from 'next/navigation';
-import { EasterEggManager, EasterEgg, EasterEggProgress } from '@/lib/easter-egg-manager';
+import { SeasonalHuntManager, SeasonalItem, SeasonalProgress } from '@/lib/easter-egg-manager';
 
-export function useEasterEggs() {
+export function useSeasonalHunt() {
   const { user } = useUser();
   const pathname = usePathname();
-  const [eggs, setEggs] = useState<EasterEgg[]>([]);
+  const [items, setItems] = useState<SeasonalItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [progress, setProgress] = useState<EasterEggProgress | null>(null);
+  const [progress, setProgress] = useState<SeasonalProgress | null>(null);
 
   useEffect(() => {
     if (!user?.id || !pathname) return;
 
-    const initializeEggs = async () => {
+    const initializeItems = async () => {
       try {
         setIsLoading(true);
-        await EasterEggManager.initialize(user.id);
+        await SeasonalHuntManager.initialize(user.id);
         
-        // Get eggs for current page
-        const pageEggs = EasterEggManager.getEggsForPage(pathname);
-        setEggs(pageEggs);
-        
-        // Get overall progress
-        const overallProgress = EasterEggManager.getProgress();
-        setProgress(overallProgress);
-        
-        console.log(`[useEasterEggs] Loaded ${pageEggs.length} eggs for page ${pathname}`);
+        // Only show items if there's an active event
+        if (SeasonalHuntManager.isActiveEvent()) {
+          // Get items for current page
+          const pageItems = SeasonalHuntManager.getItemsForPage(pathname);
+          setItems(pageItems);
+          
+          // Get overall progress
+          const overallProgress = SeasonalHuntManager.getProgress();
+          setProgress(overallProgress);
+        } else {
+          setItems([]);
+          setProgress(null);
+        }
       } catch (error) {
-        console.error('[useEasterEggs] Error initializing eggs:', error);
+        setItems([]);
+        setProgress(null);
       } finally {
         setIsLoading(false);
       }
     };
 
-    initializeEggs();
+    initializeItems();
   }, [user?.id, pathname]);
 
-  const handleEggFound = (newProgress: EasterEggProgress) => {
+  const handleItemFound = (newProgress: SeasonalProgress) => {
     setProgress(newProgress);
-    // Remove the found egg from the list
-    setEggs(prev => prev.filter(egg => egg.found === false));
+    // Remove the found item from the list
+    setItems(prev => prev.filter(item => item.found === false));
   };
 
   return {
-    eggs,
+    items,
     progress,
     isLoading,
-    handleEggFound,
+    handleItemFound,
   };
 } 

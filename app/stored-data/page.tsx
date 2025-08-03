@@ -17,7 +17,6 @@ import { migrateLocalStorageToSupabase, checkMigrationStatus } from '@/lib/migra
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { RARE_TILES, unlockRareTile, clearRareTileUnlock } from '@/lib/rare-tiles-manager';
-import { EasterEggManager } from '@/lib/easter-egg-manager';
 import { 
   CheckCircle, 
   XCircle, 
@@ -97,63 +96,18 @@ export default function StoredDataPage() {
   const { triggerTestModal, triggerTestModal2, triggerTestModal3, triggerTestModal4, triggerTestModal5, triggerTestModal6, triggerTestModal7, triggerTestModal8, triggerTestModal9, triggerTestModal10 } = useTitleEvolution()
 
   const handleUnlockRareTile = async (tileId: string) => {
-    if (!user?.id || !supabase) return;
     try {
-      await unlockRareTile(supabase, user.id, tileId);
-      toast.success(`Unlocked ${tileId}`, {
-        style: {
-          background: '#059669',
-          color: '#ffffff',
-          border: '1px solid #10b981'
-        }
-      });
-      // Dispatch a custom event to notify other components
-      
-      window.dispatchEvent(new CustomEvent('rare-tile-unlocked', { detail: { tileId } }));
-    } catch (error) {
-      toast.error(`Failed to unlock ${tileId}`, {
-        style: {
-          background: '#dc2626',
-          color: '#ffffff',
-          border: '1px solid #ef4444'
-        }
-      });
-    }
-  };
-
-  const handleClearRareTile = async (tileId: string) => {
-    if (!user?.id || !supabase) return;
-    try {
-      await clearRareTileUnlock(supabase, user.id, tileId);
-      toast.success(`Cleared ${tileId}`, {
-        style: {
-          background: '#059669',
-          color: '#ffffff',
-          border: '1px solid #10b981'
-        }
-      });
-      // Dispatch a custom event to notify other components
-      window.dispatchEvent(new CustomEvent('rare-tile-cleared', { detail: { tileId } }));
-    } catch (error) {
-      toast.error(`Failed to clear ${tileId}`, {
-        style: {
-          background: '#dc2626',
-          color: '#ffffff',
-          border: '1px solid #ef4444'
-        }
-      });
-    }
-  };
-
-  const handleStartEasterEggHunt = async () => {
-    try {
-      if (!user?.id) {
-        toast.error('User not authenticated');
+      if (!user?.id || !supabase) {
+        toast.error('User not authenticated or Supabase not available');
         return;
       }
 
-      await EasterEggManager.resetEggs(user.id);
-      toast.success('🥚 Easter egg hunt started! Look for eggs around the app!', {
+      await unlockRareTile(supabase, user.id, tileId);
+      
+      // Dispatch custom event to update UI
+      window.dispatchEvent(new CustomEvent('rare-tile-unlocked', { detail: { tileId } }));
+      
+      toast.success(`Unlocked ${tileId}`, {
         style: {
           backgroundColor: '#059669',
           color: '#ffffff',
@@ -161,8 +115,8 @@ export default function StoredDataPage() {
         }
       });
     } catch (error) {
-      console.error('Error starting Easter egg hunt:', error);
-      toast.error('Failed to start Easter egg hunt', {
+      console.error('Error unlocking rare tile:', error);
+      toast.error('Failed to unlock rare tile', {
         style: {
           backgroundColor: '#dc2626',
           color: '#ffffff',
@@ -172,15 +126,19 @@ export default function StoredDataPage() {
     }
   };
 
-  const handleResetEasterEggs = async () => {
+  const handleClearRareTile = async (tileId: string) => {
     try {
-      if (!user?.id) {
-        toast.error('User not authenticated');
+      if (!user?.id || !supabase) {
+        toast.error('User not authenticated or Supabase not available');
         return;
       }
 
-      await EasterEggManager.resetEggs(user.id);
-      toast.success('🥚 All eggs reset!', {
+      await clearRareTileUnlock(supabase, user.id, tileId);
+      
+      // Dispatch custom event to update UI
+      window.dispatchEvent(new CustomEvent('rare-tile-cleared', { detail: { tileId } }));
+      
+      toast.success(`Cleared ${tileId}`, {
         style: {
           backgroundColor: '#059669',
           color: '#ffffff',
@@ -188,8 +146,8 @@ export default function StoredDataPage() {
         }
       });
     } catch (error) {
-      console.error('Error resetting Easter eggs:', error);
-      toast.error('Failed to reset Easter eggs', {
+      console.error('Error clearing rare tile:', error);
+      toast.error('Failed to clear rare tile', {
         style: {
           backgroundColor: '#dc2626',
           color: '#ffffff',
@@ -940,54 +898,30 @@ TECHNICAL DETAILS:
             
             <div>
               <h4 className="font-medium mb-2">Rare Tiles Tests</h4>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <div className="flex flex-wrap gap-2">
                 {RARE_TILES.map((tile) => (
-                  <div key={tile.id} className="flex flex-col gap-1">
+                  <div key={tile.id} className="flex gap-2">
                     <Button 
                       onClick={() => handleUnlockRareTile(tile.id)} 
                       variant="outline" 
-                      size="sm" 
-                      className="text-xs"
+                      size="sm"
+                      className="bg-green-600 hover:bg-green-700 text-white"
                     >
                       Unlock {tile.name}
                     </Button>
                     <Button 
                       onClick={() => handleClearRareTile(tile.id)} 
-                      variant="destructive" 
-                      size="sm" 
-                      className="text-xs"
+                      variant="outline" 
+                      size="sm"
+                      className="bg-red-600 hover:bg-red-700 text-white"
                     >
                       Clear {tile.name}
                     </Button>
                   </div>
                 ))}
               </div>
-            </div>
-            
-            <Separator />
-            
-            <div>
-              <h4 className="font-medium mb-2">Easter Egg Hunt Tests</h4>
-              <div className="flex gap-2">
-                <Button 
-                  onClick={handleStartEasterEggHunt} 
-                  variant="outline" 
-                  size="sm"
-                  className="bg-yellow-600 hover:bg-yellow-700 text-white"
-                >
-                  🥚 Start Easter Egg Hunt
-                </Button>
-                <Button 
-                  onClick={handleResetEasterEggs} 
-                  variant="outline" 
-                  size="sm"
-                  className="bg-red-600 hover:bg-red-700 text-white"
-                >
-                  Reset All Eggs
-                </Button>
-              </div>
               <p className="text-xs text-gray-500 mt-1">
-                Start the hunt to place 10 eggs around the app. Click eggs to collect 100 gold each!
+                Test buttons for rare tile unlock functionality
               </p>
             </div>
           </div>

@@ -18,7 +18,7 @@ import { GlobalErrorBoundary } from '@/components/global-error-boundary'
 import { TitleEvolutionProvider } from '@/components/title-evolution-provider'
 import { NavBar } from '@/components/nav-bar'
 import { OnboardingProvider } from '@/components/onboarding-provider'
-import { EasterEggWrapper } from '@/components/easter-egg-wrapper'
+import { SeasonalHuntWrapper } from '@/components/easter-egg-wrapper'
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -108,7 +108,7 @@ export default function RootLayout({
                           <main className="flex-1 relative">
                             {children}
                           </main>
-                          <EasterEggWrapper />
+                          <SeasonalHuntWrapper />
                         </AuthGate>
                         <Toaster />
                         <SonnerToaster />

@@ -1,7 +1,7 @@
-export interface EasterEgg {
+export interface SeasonalItem {
   id: number;
   user_id: string;
-  egg_id: number;
+  item_id: number;
   found: boolean;
   found_at?: string;
   position: { x: number; y: number };
@@ -9,161 +9,225 @@ export interface EasterEgg {
   updated_at: string;
 }
 
-export interface EasterEggProgress {
+export interface SeasonalProgress {
   total: number;
   found: number;
   remaining: number;
 }
 
-// Predefined egg positions across different pages
-export const EASTER_EGG_POSITIONS = [
-  { eggId: 1, page: '/', x: 100, y: 200 },
-  { eggId: 2, page: '/', x: 300, y: 150 },
-  { eggId: 3, page: '/quests', x: 200, y: 100 },
-  { eggId: 4, page: '/quests', x: 400, y: 250 },
-  { eggId: 5, page: '/kingdom', x: 150, y: 300 },
-  { eggId: 6, page: '/kingdom', x: 350, y: 200 },
-  { eggId: 7, page: '/realm', x: 250, y: 150 },
-  { eggId: 8, page: '/realm', x: 450, y: 100 },
-  { eggId: 9, page: '/inventory', x: 200, y: 200 },
-  { eggId: 10, page: '/inventory', x: 400, y: 300 }
+export interface SeasonalEvent {
+  name: string;
+  image: string;
+  startDate: { month: number; day: number };
+  endDate: { month: number; day: number };
+  goldReward: number;
+  description: string;
+}
+
+// Seasonal events configuration
+export const SEASONAL_EVENTS: Record<string, SeasonalEvent> = {
+  easter: {
+    name: "Easter Egg Hunt",
+    image: "/images/egg.png",
+    startDate: { month: 3, day: 20 }, // March 20
+    endDate: { month: 4, day: 30 },   // April 30
+    goldReward: 100,
+    description: "Find hidden eggs around the app!"
+  },
+  christmas: {
+    name: "Christmas Present Hunt",
+    image: "/images/present.png",
+    startDate: { month: 12, day: 20 }, // December 20
+    endDate: { month: 12, day: 27 },   // December 27
+    goldReward: 150,
+    description: "Find hidden presents around the app!"
+  },
+  halloween: {
+    name: "Halloween Pumpkin Hunt",
+    image: "/images/pumpkin.png",
+    startDate: { month: 10, day: 20 }, // October 20
+    endDate: { month: 10, day: 31 },   // October 31
+    goldReward: 120,
+    description: "Find hidden pumpkins around the app!"
+  }
+};
+
+// Predefined item positions across different pages
+export const SEASONAL_ITEM_POSITIONS = [
+  { itemId: 1, page: '/', x: 100, y: 200 },
+  { itemId: 2, page: '/', x: 300, y: 150 },
+  { itemId: 3, page: '/quests', x: 200, y: 100 },
+  { itemId: 4, page: '/quests', x: 400, y: 250 },
+  { itemId: 5, page: '/kingdom', x: 150, y: 300 },
+  { itemId: 6, page: '/kingdom', x: 350, y: 200 },
+  { itemId: 7, page: '/realm', x: 250, y: 150 },
+  { itemId: 8, page: '/realm', x: 450, y: 100 },
+  { itemId: 9, page: '/inventory', x: 200, y: 200 },
+  { itemId: 10, page: '/inventory', x: 400, y: 300 }
 ];
 
-class EasterEggManagerClass {
-  private static instance: EasterEggManagerClass;
-  private eggs: EasterEgg[] = [];
+class SeasonalHuntManagerClass {
+  private static instance: SeasonalHuntManagerClass;
+  private items: SeasonalItem[] = [];
   private initialized = false;
+  private currentEvent: string | null = null;
 
   private constructor() {}
 
-  static getInstance(): EasterEggManagerClass {
-    if (!EasterEggManagerClass.instance) {
-      EasterEggManagerClass.instance = new EasterEggManagerClass();
+  static getInstance(): SeasonalHuntManagerClass {
+    if (!SeasonalHuntManagerClass.instance) {
+      SeasonalHuntManagerClass.instance = new SeasonalHuntManagerClass();
     }
-    return EasterEggManagerClass.instance;
+    return SeasonalHuntManagerClass.instance;
+  }
+
+  getCurrentEvent(): string | null {
+    const now = new Date();
+    const month = now.getMonth() + 1; // getMonth() returns 0-11
+    const day = now.getDate();
+
+    for (const [eventKey, event] of Object.entries(SEASONAL_EVENTS)) {
+      const start = event.startDate;
+      const end = event.endDate;
+
+      if (start.month === end.month) {
+        // Same month (e.g., Christmas)
+        if (month === start.month && day >= start.day && day <= end.day) {
+          return eventKey;
+        }
+      } else {
+        // Different months (e.g., Easter, Halloween)
+        if ((month === start.month && day >= start.day) || 
+            (month === end.month && day <= end.day) ||
+            (month > start.month && month < end.month)) {
+          return eventKey;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  getCurrentEventConfig(): SeasonalEvent | null {
+    const eventKey = this.getCurrentEvent();
+    return eventKey ? SEASONAL_EVENTS[eventKey] : null;
   }
 
   async initialize(userId: string): Promise<void> {
     if (this.initialized) return;
 
     try {
-      // Load existing eggs from API
-      const response = await fetch('/api/easter-eggs');
+      const currentEvent = this.getCurrentEvent();
+      if (!currentEvent) {
+        this.initialized = true;
+        return; // No active event
+      }
+
+      // Load existing items from API
+      const response = await fetch('/api/seasonal-hunt');
       if (!response.ok) {
-        throw new Error(`Failed to load eggs: ${response.statusText}`);
+        throw new Error(`Failed to load items: ${response.statusText}`);
       }
 
       const data = await response.json();
-      this.eggs = data.eggs || [];
+      this.items = data.items || [];
 
-      // If no eggs exist, create them
-      if (this.eggs.length === 0) {
-        await this.createEggs(userId);
+      // If no items exist, create them
+      if (this.items.length === 0) {
+        await this.createItems(userId, currentEvent);
       }
 
+      this.currentEvent = currentEvent;
       this.initialized = true;
-      console.log('[EasterEggManager] Initialized with', this.eggs.length, 'eggs');
     } catch (error) {
-      console.error('[EasterEggManager] Error initializing:', error);
       throw error;
     }
   }
 
-  private async createEggs(userId: string): Promise<void> {
+  private async createItems(userId: string, eventKey: string): Promise<void> {
     try {
-      const response = await fetch('/api/easter-eggs', {
+      const response = await fetch('/api/seasonal-hunt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'initialize' })
+        body: JSON.stringify({ action: 'initialize', eventKey })
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to create eggs: ${response.statusText}`);
+        throw new Error(`Failed to create items: ${response.statusText}`);
       }
 
       const data = await response.json();
-      this.eggs = data.eggs || [];
-      console.log('[EasterEggManager] Created', this.eggs.length, 'eggs');
+      this.items = data.items || [];
     } catch (error) {
-      console.error('[EasterEggManager] Error creating eggs:', error);
       throw error;
     }
   }
 
-  async findEgg(userId: string, eggId: number): Promise<EasterEgg | null> {
+  async findItem(userId: string, itemId: number): Promise<SeasonalItem | null> {
     try {
-      const response = await fetch('/api/easter-eggs', {
+      const response = await fetch('/api/seasonal-hunt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'find', eggId })
+        body: JSON.stringify({ action: 'find', itemId })
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to find egg: ${response.statusText}`);
+        throw new Error(`Failed to find item: ${response.statusText}`);
       }
 
       const data = await response.json();
       
       // Update local state
-      const eggIndex = this.eggs.findIndex(egg => egg.egg_id === eggId);
-      if (eggIndex !== -1 && this.eggs[eggIndex]) {
-        this.eggs[eggIndex] = data.egg;
+      const itemIndex = this.items.findIndex(item => item.item_id === itemId);
+      if (itemIndex !== -1 && this.items[itemIndex]) {
+        this.items[itemIndex] = data.item;
       }
 
-      return data.egg;
+      return data.item;
     } catch (error) {
-      console.error('[EasterEggManager] Error finding egg:', error);
       return null;
     }
   }
 
-  getEggsForPage(page: string): EasterEgg[] {
-    return this.eggs.filter(egg => {
-      const position = EASTER_EGG_POSITIONS.find(pos => pos.eggId === egg.egg_id);
-      return position && position.page === page && !egg.found;
+  getItemsForPage(page: string): SeasonalItem[] {
+    return this.items.filter(item => {
+      const position = SEASONAL_ITEM_POSITIONS.find(pos => pos.itemId === item.item_id);
+      return position && position.page === page && !item.found;
     });
   }
 
-  getProgress(): EasterEggProgress {
-    const total = this.eggs.length;
-    const found = this.eggs.filter(egg => egg.found).length;
+  getProgress(): SeasonalProgress {
+    const total = this.items.length;
+    const found = this.items.filter(item => item.found).length;
     const remaining = total - found;
 
     return { total, found, remaining };
   }
 
-  async resetEggs(userId: string): Promise<void> {
+  async resetItems(userId: string): Promise<void> {
     try {
-      const response = await fetch('/api/easter-eggs', {
+      const response = await fetch('/api/seasonal-hunt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'reset' })
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to reset eggs: ${response.statusText}`);
+        throw new Error(`Failed to reset items: ${response.statusText}`);
       }
 
       // Re-initialize
-      this.eggs = [];
+      this.items = [];
       this.initialized = false;
       await this.initialize(userId);
-      
-      console.log('[EasterEggManager] Eggs reset successfully');
     } catch (error) {
-      console.error('[EasterEggManager] Error resetting eggs:', error);
       throw error;
     }
   }
 
-  isEasterPeriod(): boolean {
-    const now = new Date();
-    const month = now.getMonth() + 1; // getMonth() returns 0-11
-    const day = now.getDate();
-    
-    // Easter period: March 20 - April 30
-    return (month === 3 && day >= 20) || (month === 4 && day <= 30);
+  isActiveEvent(): boolean {
+    return this.getCurrentEvent() !== null;
   }
 }
 
-export const EasterEggManager = EasterEggManagerClass.getInstance(); 
+export const SeasonalHuntManager = SeasonalHuntManagerClass.getInstance(); 

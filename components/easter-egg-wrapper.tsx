@@ -1,20 +1,20 @@
 "use client"
 
-import { useEasterEggs } from '@/hooks/use-easter-eggs';
-import { EasterEggComponent } from '@/components/easter-egg';
+import { useSeasonalHunt } from '@/hooks/use-seasonal-hunt';
+import { SeasonalHuntItem } from '@/components/easter-egg';
 
-export function EasterEggWrapper() {
-  const { eggs, isLoading, handleEggFound } = useEasterEggs();
+export function SeasonalHuntWrapper() {
+  const { items, isLoading, handleItemFound } = useSeasonalHunt();
 
   if (isLoading) return null;
 
   return (
     <>
-      {eggs.map((egg) => (
-        <EasterEggComponent
-          key={egg.egg_id}
-          egg={egg}
-          onFound={handleEggFound}
+      {items.map((item) => (
+        <SeasonalHuntItem
+          key={item.item_id}
+          item={item}
+          onFound={handleItemFound}
         />
       ))}
     </>
