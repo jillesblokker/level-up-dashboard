@@ -72,7 +72,7 @@ export function useOnboarding() {
     if (forceOpen) {
       console.log('useOnboarding: Force opening onboarding')
       setIsOnboardingOpen(true)
-      saveOnboardingState({ lastShownAt: Date.now() })
+      // Don't update lastShownAt when force opening to prevent immediate closure
       return
     }
     
