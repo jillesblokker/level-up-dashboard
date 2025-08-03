@@ -16,8 +16,8 @@ export function CompleteStep({ onNext }: CompleteStepProps) {
       icon: Star,
       title: 'Complete Quests',
       description: 'Earn gold and experience through daily tasks',
-      color: 'text-blue-400',
-      bgColor: 'bg-blue-500/20'
+      color: 'text-gray-400',
+      bgColor: 'bg-gray-500/20'
     },
     {
       icon: Coins,
@@ -31,14 +31,14 @@ export function CompleteStep({ onNext }: CompleteStepProps) {
       title: 'Buy & Place Tiles',
       description: 'Build your kingdom one tile at a time',
       color: 'text-amber-400',
-              bgColor: 'bg-amber-500/20'
+      bgColor: 'bg-amber-500/20'
     },
     {
       icon: Crown,
       title: 'Create Your Kingdom',
       description: 'Watch your realm grow with every tile',
-      color: 'text-purple-400',
-      bgColor: 'bg-purple-500/20'
+      color: 'text-amber-500',
+      bgColor: 'bg-amber-500/20'
     }
   ]
 
@@ -112,8 +112,8 @@ export function CompleteStep({ onNext }: CompleteStepProps) {
       <div className="space-y-3">
         <h4 className="text-md font-semibold text-white">Pro Tips</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
-            <h5 className="font-medium text-blue-400 mb-1">Daily Quests</h5>
+          <div className="bg-gray-500/10 border border-gray-500/20 rounded-lg p-3">
+            <h5 className="font-medium text-gray-400 mb-1">Daily Quests</h5>
             <p className="text-sm text-gray-300">
               Complete quests daily to maintain a steady flow of gold and experience.
             </p>
