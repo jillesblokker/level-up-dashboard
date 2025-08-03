@@ -29,18 +29,18 @@ export const EASTER_EGG_POSITIONS = [
   { eggId: 10, page: '/inventory', x: 400, y: 300 }
 ];
 
-class EasterEggManager {
-  private static instance: EasterEggManager;
+class EasterEggManagerClass {
+  private static instance: EasterEggManagerClass;
   private eggs: EasterEgg[] = [];
   private initialized = false;
 
   private constructor() {}
 
-  static getInstance(): EasterEggManager {
-    if (!EasterEggManager.instance) {
-      EasterEggManager.instance = new EasterEggManager();
+  static getInstance(): EasterEggManagerClass {
+    if (!EasterEggManagerClass.instance) {
+      EasterEggManagerClass.instance = new EasterEggManagerClass();
     }
-    return EasterEggManager.instance;
+    return EasterEggManagerClass.instance;
   }
 
   async initialize(userId: string): Promise<void> {
@@ -166,4 +166,4 @@ class EasterEggManager {
   }
 }
 
-export const EasterEggManager = EasterEggManager.getInstance(); 
+export const EasterEggManager = EasterEggManagerClass.getInstance(); 
