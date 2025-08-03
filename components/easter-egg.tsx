@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { EasterEggManager, EasterEgg } from '@/lib/easter-egg-manager';
+import { EasterEggManager, EasterEgg, EasterEggProgress } from '@/lib/easter-egg-manager';
 import { useUser } from '@clerk/nextjs';
 import { gainGold } from '@/lib/gold-manager';
 import { toast } from '@/components/ui/use-toast';
@@ -12,36 +12,38 @@ import { Trophy, Egg } from 'lucide-react';
 
 interface EasterEggProps {
   egg: EasterEgg;
-  onFound: (progress: any) => void;
+  onFound: (progress: EasterEggProgress) => void;
 }
 
 export function EasterEggComponent({ egg, onFound }: EasterEggProps) {
   const { user } = useUser();
   const [isFound, setIsFound] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [progress, setProgress] = useState<any>(null);
+  const [progress, setProgress] = useState<EasterEggProgress | null>(null);
 
   const handleEggClick = async () => {
     if (!user?.id || isFound) return;
 
     try {
-      const manager = EasterEggManager.getInstance();
-      const progress = await manager.findEgg(user.id, egg.eggId);
+      const foundEgg = await EasterEggManager.findEgg(user.id, egg.egg_id);
       
-      if (progress) {
+      if (foundEgg) {
         // Award 100 gold
         gainGold(100, 'easter-egg');
+        
+        // Get updated progress
+        const currentProgress = EasterEggManager.getProgress();
         
         // Show success toast
         toast({
           title: "🥚 Easter Egg Found!",
-          description: `You found an egg and earned 100 gold! ${progress.remainingEggs} eggs remaining.`,
+          description: `You found an egg and earned 100 gold! ${currentProgress.remaining} eggs remaining.`,
         });
 
         setIsFound(true);
-        setProgress(progress);
+        setProgress(currentProgress);
         setShowModal(true);
-        onFound(progress);
+        onFound(currentProgress);
       }
     } catch (error) {
       console.error('[EasterEgg] Error finding egg:', error);
@@ -60,8 +62,8 @@ export function EasterEggComponent({ egg, onFound }: EasterEggProps) {
       <div
         className="fixed z-50 cursor-pointer transition-all duration-300 hover:scale-110 animate-bounce"
         style={{
-          left: `${egg.position.x}%`,
-          top: `${egg.position.y}%`,
+          left: `${egg.position.x}px`,
+          top: `${egg.position.y}px`,
         }}
         onClick={handleEggClick}
         onKeyDown={(e) => {
@@ -110,20 +112,20 @@ export function EasterEggComponent({ egg, onFound }: EasterEggProps) {
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gray-300">Progress:</span>
                   <span className="text-sm font-medium text-amber-400">
-                    {progress.foundEggs} / {progress.totalEggs}
+                    {progress.found} / {progress.total}
                   </span>
                 </div>
                 
                 <div className="w-full bg-gray-700 rounded-full h-2">
                   <div 
                     className="bg-amber-400 h-2 rounded-full transition-all duration-500"
-                    style={{ width: `${(progress.foundEggs / progress.totalEggs) * 100}%` }}
+                    style={{ width: `${(progress.found / progress.total) * 100}%` }}
                   />
                 </div>
                 
                 <div className="mt-2 text-center">
                   <span className="text-sm text-gray-400">
-                    {progress.remainingEggs} eggs remaining
+                    {progress.remaining} eggs remaining
                   </span>
                 </div>
               </div>

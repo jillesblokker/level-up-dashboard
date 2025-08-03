@@ -12,7 +12,7 @@ export function EasterEggWrapper() {
     <>
       {eggs.map((egg) => (
         <EasterEggComponent
-          key={egg.eggId}
+          key={egg.egg_id}
           egg={egg}
           onFound={handleEggFound}
         />

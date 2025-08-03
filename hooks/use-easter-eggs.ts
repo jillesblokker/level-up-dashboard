@@ -18,15 +18,14 @@ export function useEasterEggs() {
     const initializeEggs = async () => {
       try {
         setIsLoading(true);
-        const manager = EasterEggManager.getInstance();
-        await manager.initialize(user.id);
+        await EasterEggManager.initialize(user.id);
         
         // Get eggs for current page
-        const pageEggs = manager.getEggsForPage(pathname);
+        const pageEggs = EasterEggManager.getEggsForPage(pathname);
         setEggs(pageEggs);
         
         // Get overall progress
-        const overallProgress = manager.getProgress();
+        const overallProgress = EasterEggManager.getProgress();
         setProgress(overallProgress);
         
         console.log(`[useEasterEggs] Loaded ${pageEggs.length} eggs for page ${pathname}`);
