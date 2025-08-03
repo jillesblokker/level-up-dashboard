@@ -55,10 +55,13 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         hasShownOnboardingRef.current = true
         // Add additional delay to ensure everything is ready
         timer = setTimeout(() => {
-          openOnboardingRef.current()
+          // Only call if onboarding is still not open (to prevent conflicts)
+          if (!isOnboardingOpen) {
+            openOnboardingRef.current()
+          }
         }, 2000)
-      } else if (!hasShownOnboardingRef.current) {
-        // Check again in 1 second
+      } else if (!hasShownOnboardingRef.current && !isOnboardingOpen) {
+        // Check again in 1 second, but only if onboarding is not open
         setTimeout(checkIfReady, 1000)
       }
       
@@ -73,6 +76,8 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     } else if (isOnboardingOpen) {
       // If onboarding is open (either manually or automatically), don't interfere
       console.log('OnboardingProvider: Onboarding is currently open, skipping automatic check')
+      // Mark as shown to prevent future automatic checks
+      hasShownOnboardingRef.current = true
     } else {
       console.log('OnboardingProvider: shouldShowOnboarding is false')
     }
