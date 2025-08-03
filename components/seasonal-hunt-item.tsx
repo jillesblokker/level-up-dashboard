@@ -8,7 +8,7 @@ import { gainGold } from '@/lib/gold-manager';
 import { toast } from '@/components/ui/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Gift, Egg, Pumpkin } from 'lucide-react';
+import { Gift, Egg, Circle } from 'lucide-react';
 
 interface SeasonalHuntItemProps {
   item: SeasonalItem;
@@ -63,7 +63,7 @@ export function SeasonalHuntItem({ item, onFound }: SeasonalHuntItemProps) {
     switch (currentEvent) {
       case 'easter': return <Egg className="h-5 w-5" />;
       case 'christmas': return <Gift className="h-5 w-5" />;
-      case 'halloween': return <Pumpkin className="h-5 w-5" />;
+      case 'halloween': return <Circle className="h-5 w-5" />;
       default: return <Gift className="h-5 w-5" />;
     }
   };
