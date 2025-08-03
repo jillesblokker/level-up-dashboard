@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { usePathname } from 'next/navigation';
-import { SeasonalHuntManager, SeasonalItem, SeasonalProgress } from '@/lib/easter-egg-manager';
+import { SeasonalHuntManager, SeasonalItem, SeasonalProgress } from '@/lib/seasonal-hunt-manager';
 
 export function useSeasonalHunt() {
   const { user } = useUser();

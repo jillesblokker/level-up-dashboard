@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { SeasonalHuntManager, SeasonalItem, SeasonalProgress, SEASONAL_EVENTS } from '@/lib/easter-egg-manager';
+import { SeasonalHuntManager, SeasonalItem, SeasonalProgress, SEASONAL_EVENTS } from '@/lib/seasonal-hunt-manager';
 import { useUser } from '@clerk/nextjs';
 import { gainGold } from '@/lib/gold-manager';
 import { toast } from '@/components/ui/use-toast';

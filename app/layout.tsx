@@ -18,7 +18,7 @@ import { GlobalErrorBoundary } from '@/components/global-error-boundary'
 import { TitleEvolutionProvider } from '@/components/title-evolution-provider'
 import { NavBar } from '@/components/nav-bar'
 import { OnboardingProvider } from '@/components/onboarding-provider'
-import { SeasonalHuntWrapper } from '@/components/easter-egg-wrapper'
+import { SeasonalHuntWrapper } from '@/components/seasonal-hunt-wrapper'
 
 const fontSans = FontSans({
   subsets: ["latin"],

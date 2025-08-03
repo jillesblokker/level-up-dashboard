@@ -1,7 +1,7 @@
 "use client"
 
 import { useSeasonalHunt } from '@/hooks/use-seasonal-hunt';
-import { SeasonalHuntItem } from '@/components/easter-egg';
+import { SeasonalHuntItem } from '@/components/seasonal-hunt-item';
 
 export function SeasonalHuntWrapper() {
   const { items, isLoading, handleItemFound } = useSeasonalHunt();
