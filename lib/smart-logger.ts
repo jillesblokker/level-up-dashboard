@@ -58,13 +58,14 @@ class SmartLogger {
     action: string,
     details: any
   ): LogEntry {
+    const userId = this.getUserId()
     return {
       timestamp: new Date().toISOString(),
       level,
       component,
       action,
       details,
-      userId: this.getUserId(),
+      userId: userId || undefined,
       sessionId: this.sessionId,
       userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown'
     }
