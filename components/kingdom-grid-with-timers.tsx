@@ -48,7 +48,7 @@ export function KingdomGridWithTimers({
       image: string
       name: string
       type: string
-    }
+    } | undefined
     isLucky: boolean
     message: string
   } | null>(null)
@@ -146,6 +146,16 @@ export function KingdomGridWithTimers({
         itemFound: item ? { image: item, name: kingdomTile.name, type: kingdomTile.itemType } : undefined,
         message: kingdomTile.clickMessage,
         isLucky: isLucky(kingdomTile.luckyChance)
+      } as {
+        tileName: string
+        goldEarned: number
+        itemFound?: {
+          image: string
+          name: string
+          type: string
+        } | undefined
+        isLucky: boolean
+        message: string
       })
       setShowModal(true)
 
