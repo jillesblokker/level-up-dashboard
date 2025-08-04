@@ -302,7 +302,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
 
 export function getRandomItem(items: string[]): string | null {
   if (items.length === 0) return null
-  return items[Math.floor(Math.random() * items.length)]
+  const randomIndex = Math.floor(Math.random() * items.length)
+  return items[randomIndex] || null
 }
 
 export function getRandomGold(min: number, max: number): number {
