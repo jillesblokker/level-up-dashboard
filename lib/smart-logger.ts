@@ -59,16 +59,22 @@ class SmartLogger {
     details: any
   ): LogEntry {
     const userId = this.getUserId()
-    return {
+    const entry: LogEntry = {
       timestamp: new Date().toISOString(),
       level,
       component,
       action,
       details,
-      userId: userId || undefined,
       sessionId: this.sessionId,
       userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown'
     }
+    
+    // Only add userId if it exists
+    if (userId) {
+      entry.userId = userId
+    }
+    
+    return entry
   }
 
   private logToConsole(entry: LogEntry) {
