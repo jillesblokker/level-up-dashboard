@@ -102,6 +102,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         onClose={closeOnboarding}
         onComplete={completeOnboarding}
       />
+      {console.log('OnboardingProvider: Rendering OnboardingModal with isOpen:', isOnboardingOpen)}
     </>
   )
 } 

@@ -184,8 +184,11 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   console.log('OnboardingModal: Rendering step', currentStep, 'component:', currentStepData.id)
 
   if (!isOpen) {
+    console.log('OnboardingModal: Modal is not open, returning null')
     return null
   }
+  
+  console.log('OnboardingModal: Modal is open, rendering modal')
 
   return (
     <div 
@@ -193,6 +196,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
       data-modal-container
       tabIndex={-1}
       onClick={(e) => {
+        console.log('OnboardingModal: Backdrop clicked')
         // Prevent clicks on the backdrop from closing the modal
         if (e.target === e.currentTarget) {
           e.preventDefault()
@@ -273,10 +277,15 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
             </div>
 
             <Button
-              onClick={handleNext}
+              onClick={(e) => {
+                console.log('OnboardingModal: Next button clicked')
+                handleNext()
+              }}
               className="bg-amber-500 hover:bg-amber-600 text-black font-semibold text-sm md:text-base"
               tabIndex={-1}
-              onFocus={() => {}}
+              onFocus={() => {
+                console.log('OnboardingModal: Next button focused')
+              }}
               onBlur={() => {}}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
