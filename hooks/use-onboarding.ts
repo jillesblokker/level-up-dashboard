@@ -112,20 +112,29 @@ export function useOnboarding() {
     smartLogger.info('useOnboarding', 'OPEN_ONBOARDING_CALLED', {
       forceOpen,
       currentIsOnboardingOpen: isOnboardingOpen,
-      currentOnboardingState: onboardingState
+      currentOnboardingState: onboardingState,
+      callStack: new Error().stack?.split('\n').slice(1, 4).join('\n'),
+      timestamp: new Date().toISOString()
     })
     
     // If forceOpen is true, always open regardless of state
     if (forceOpen) {
       smartLogger.info('useOnboarding', 'FORCE_OPEN_ONBOARDING', {
         action: 'force_open',
-        previousState: isOnboardingOpen
+        previousState: isOnboardingOpen,
+        reason: 'manual_trigger_override',
+        bypassChecks: true
       })
       setIsOnboardingOpen(true)
       // Don't update lastShownAt when force opening to prevent immediate closure
       smartLogger.info('useOnboarding', 'FORCE_OPEN_COMPLETE', {
         newState: true,
-        message: 'Modal should now be visible'
+        message: 'Modal should now be visible',
+        nextSteps: [
+          'OnboardingModal should receive isOpen=true',
+          'Modal should reset internal state',
+          'Modal should become visible to user'
+        ]
       })
       return
     }
@@ -134,14 +143,17 @@ export function useOnboarding() {
     if (shouldShowOnboarding()) {
       smartLogger.info('useOnboarding', 'OPEN_ONBOARDING_NORMAL', {
         action: 'normal_open',
-        reason: 'should_show_is_true'
+        reason: 'should_show_is_true',
+        shouldShowResult: shouldShowOnboarding()
       })
       setIsOnboardingOpen(true)
       saveOnboardingState({ lastShownAt: Date.now() })
     } else {
       smartLogger.info('useOnboarding', 'OPEN_ONBOARDING_SKIPPED', {
         action: 'skip_open',
-        reason: 'should_show_is_false'
+        reason: 'should_show_is_false',
+        shouldShowResult: shouldShowOnboarding(),
+        onboardingState: onboardingState
       })
     }
   }

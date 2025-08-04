@@ -50,38 +50,57 @@ export function AccountMenu() {
       userId: user?.id,
       displayName,
       avatarType,
-      isOpen
+      isOpen,
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent
     });
     
     try {
       smartLogger.addGuideStep('BUTTON_CLICK', true, {
         component: 'AccountMenu',
-        action: 'guide_button_click'
+        action: 'guide_button_click',
+        buttonLocation: 'account_menu_dropdown',
+        userContext: {
+          isLoggedIn: !!user,
+          hasDisplayName: !!displayName,
+          avatarType
+        }
       });
       
       // Reset onboarding state to ensure it can be opened again
       smartLogger.addGuideStep('RESET_ONBOARDING', true, {
-        action: 'reset_onboarding_state'
+        action: 'reset_onboarding_state',
+        reason: 'manual_guide_button_click',
+        previousState: 'will_be_cleared'
       });
       resetOnboarding();
       
       smartLogger.addGuideStep('OPEN_ONBOARDING', true, {
         action: 'open_onboarding_modal',
-        forceOpen: true
+        forceOpen: true,
+        method: 'force_open_override',
+        expectedBehavior: 'modal_should_open_immediately'
       });
       openOnboarding(true);
       
       smartLogger.addGuideStep('CLOSE_DROPDOWN', true, {
-        action: 'close_account_menu'
+        action: 'close_account_menu',
+        reason: 'user_selected_guide_option'
       });
       setIsOpen(false);
       
+      smartLogger.addGuideStep('GUIDE_FLOW_COMPLETE', true, {
+        totalSteps: 4,
+        duration: 'calculated_by_smartLogger',
+        success: true
+      });
       smartLogger.endGuideFlow();
       
     } catch (error) {
       smartLogger.error('AccountMenu', 'GUIDE_FLOW_ERROR', {
         error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
+        stack: error instanceof Error ? error.stack : undefined,
+        stepWhereErrorOccurred: 'guide_button_click_flow'
       });
       smartLogger.addGuideStep('ERROR_HANDLING', false, {}, error instanceof Error ? error.message : String(error));
       smartLogger.endGuideFlow();

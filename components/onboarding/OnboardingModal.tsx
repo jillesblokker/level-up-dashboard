@@ -95,7 +95,9 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
       smartLogger.info('OnboardingModal', 'MODAL_OPENED', {
         action: 'reset_state',
         previousStep: currentStep,
-        previousCompletedSteps: Array.from(completedSteps)
+        previousCompletedSteps: Array.from(completedSteps),
+        triggerSource: 'force_open_from_guide_button',
+        timestamp: new Date().toISOString()
       })
       setCurrentStep(0)
       setCompletedSteps(new Set())
@@ -104,11 +106,17 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
       smartLogger.info('OnboardingModal', 'STATE_RESET', {
         newCurrentStep: 0,
         newCompletedSteps: [],
-        newCanClose: false
+        newCanClose: false,
+        resetReason: 'modal_opened_manually'
       })
       // Allow closing after 3 seconds (increased from 1 second)
       setTimeout(() => {
         console.log('OnboardingModal: Setting canClose to true after 3 seconds')
+        smartLogger.info('OnboardingModal', 'CAN_CLOSE_ENABLED', {
+          action: 'enable_close_after_delay',
+          delay: '3000ms',
+          reason: 'prevent_accidental_closing'
+        })
         setCanClose(true)
       }, 3000)
     }
