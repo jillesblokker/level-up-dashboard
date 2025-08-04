@@ -76,7 +76,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
   },
   {
     id: 'complete',
-    title: "You're Ready!",
+    title: "You&apos;re Ready!",
     subtitle: 'Your kingdom awaits',
     component: CompleteStep
   }
