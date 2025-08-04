@@ -27,6 +27,7 @@ import { KingdomGrid } from '@/components/kingdom-grid';
 import { KingdomPropertiesInventory } from '@/components/kingdom-properties-inventory';
 import { ProgressionVisualization } from '@/components/progression-visualization';
 import { EconomyTransparency } from '@/components/economy-transparency';
+import { KingdomTileGrid } from '@/components/kingdom-tile-grid';
 import type { Tile, TileType, ConnectionDirection } from '@/types/tiles';
 import { gainGold } from '@/lib/gold-manager';
 
@@ -560,6 +561,44 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     loadCoverImage();
   }, [userId]);
 
+  const handleKingdomTileGoldEarned = (amount: number) => {
+    // Use the unified gold system
+    gainGold(amount, 'kingdom-tile-reward')
+    
+    // Trigger gold update event
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('gold-updated', { 
+        detail: { amount, source: 'kingdom-tile' } 
+      }))
+    }
+  }
+
+  const handleKingdomTileItemFound = (item: { image: string; name: string; type: string }) => {
+    // Add item to inventory
+    const inventoryItem: InventoryItem = {
+      id: `kingdom-tile-${Date.now()}`,
+      name: item.name,
+      type: item.type as any,
+      quantity: 1,
+      image: item.image,
+      description: `Found from kingdom tile: ${item.name}`,
+      category: item.type
+    }
+
+    // Add to inventory (you'll need to implement this)
+    // For now, we'll store it in localStorage
+    const existingItems = JSON.parse(localStorage.getItem('kingdom-tile-items') || '[]')
+    existingItems.push(inventoryItem)
+    localStorage.setItem('kingdom-tile-items', JSON.stringify(existingItems))
+
+    // Trigger inventory update
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('inventory-updated', { 
+        detail: { item: inventoryItem } 
+      }))
+    }
+  }
+
   if (showEntrance) {
     return (
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black" style={{ width: '100vw', height: '100vh', padding: 0, margin: 0 }}>
@@ -628,11 +667,12 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       {/* Main Content with Tabs */}
       <div className="container mx-auto p-6 space-y-6" aria-label="kingdom-main-content">
         <Tabs value={kingdomTab} onValueChange={setKingdomTab} className="w-full">
-          <TabsList className="mb-6 w-full grid grid-cols-4">
+          <TabsList className="mb-6 w-full grid grid-cols-5">
             <TabsTrigger value="thrivehaven">Thrivehaven</TabsTrigger>
             <TabsTrigger value="journey">Journey</TabsTrigger>
             <TabsTrigger value="progress">Progress</TabsTrigger>
             <TabsTrigger value="inventory">Bag</TabsTrigger>
+            <TabsTrigger value="rewards">Rewards</TabsTrigger>
           </TabsList>
           <TabsContent value="thrivehaven">
             <div className="flex flex-col items-center justify-center w-full">
@@ -679,8 +719,8 @@ export function KingdomClient({ userId }: { userId: string | null }) {
           <TabsContent value="inventory">
             <Card className="bg-black border-amber-800/50" aria-label="kingdom-bag-card">
               <CardHeader>
-                              <CardTitle className="text-amber-500">Kingdom Bag</CardTitle>
-              <CardDescription className="text-gray-400">Your equipment and resources</CardDescription>
+                <CardTitle className="text-amber-500">Kingdom Bag</CardTitle>
+                <CardDescription className="text-gray-400">Your equipment and resources</CardDescription>
               </CardHeader>
               <CardContent>
                 <Tabs defaultValue="equipped" value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -740,9 +780,27 @@ export function KingdomClient({ userId }: { userId: string | null }) {
                 </Tabs>
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
+                     </TabsContent>
+           <TabsContent value="rewards">
+             <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200">
+               <CardHeader>
+                 <CardTitle className="text-xl font-bold text-amber-800">
+                   Kingdom Rewards
+                 </CardTitle>
+                 <CardDescription className="text-amber-700">
+                   Visit your kingdom tiles to earn gold and find items
+                 </CardDescription>
+               </CardHeader>
+               <CardContent>
+                 <KingdomTileGrid 
+                   onGoldEarned={handleKingdomTileGoldEarned}
+                   onItemFound={handleKingdomTileItemFound}
+                 />
+               </CardContent>
+             </Card>
+           </TabsContent>
+         </Tabs>
+       </div>
       {/* Bottom spacing */}
       <div className="h-8 md:h-12"></div>
     </div>
