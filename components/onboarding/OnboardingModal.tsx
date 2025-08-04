@@ -280,7 +280,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
               </div>
               <div>
                 <h2 className="text-xl font-bold text-white">Welcome to Thrivehaven</h2>
-                <p className="text-amber-100 text-sm">Let's get you started on your journey</p>
+                <p className="text-amber-100 text-sm">Let&apos;s get you started on your journey</p>
               </div>
             </div>
             <Button
