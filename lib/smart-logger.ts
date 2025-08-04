@@ -171,9 +171,11 @@ class SmartLogger {
 
     if (this.guideFlowSteps.length > 0) {
       const lastStep = this.guideFlowSteps[this.guideFlowSteps.length - 1]
-      const lastTimestamp = new Date(lastStep.timestamp).getTime()
-      const currentTimestamp = new Date(stepEntry.timestamp).getTime()
-      stepEntry.duration = currentTimestamp - lastTimestamp
+      if (lastStep) {
+        const lastTimestamp = new Date(lastStep.timestamp).getTime()
+        const currentTimestamp = new Date(stepEntry.timestamp).getTime()
+        stepEntry.duration = currentTimestamp - lastTimestamp
+      }
     }
 
     this.guideFlowSteps.push(stepEntry)
