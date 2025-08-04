@@ -111,6 +111,15 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
     if (isOpen) {
       // Don't focus anything automatically - let user interact naturally
       console.log('OnboardingModal: Modal opened, not auto-focusing anything')
+      
+      // Debug: Check if modal is in DOM
+      setTimeout(() => {
+        const modal = document.querySelector('[data-modal-container]') || document.querySelector('.fixed.inset-0.z-\\[9999\\]')
+        console.log('OnboardingModal: Modal in DOM:', !!modal)
+        if (modal) {
+          console.log('OnboardingModal: Modal styles:', window.getComputedStyle(modal))
+        }
+      }, 100)
     }
   }, [isOpen])
 
@@ -191,6 +200,8 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   return (
     <div 
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 }}
+      data-modal-container="onboarding"
       onClick={(e) => {
         console.log('OnboardingModal: Backdrop clicked')
         // Prevent clicks on the backdrop from closing the modal
