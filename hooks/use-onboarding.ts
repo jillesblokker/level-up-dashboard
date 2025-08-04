@@ -41,8 +41,11 @@ export function useOnboarding() {
 
   // Check if onboarding should be shown
   const shouldShowOnboarding = () => {
+    console.log('shouldShowOnboarding called with state:', onboardingState)
+    
     // Show if never completed and never skipped
     if (!onboardingState.hasCompletedOnboarding && !onboardingState.hasSkippedOnboarding) {
+      console.log('shouldShowOnboarding: returning true (never completed/skipped)')
       return true
     }
 
@@ -50,10 +53,12 @@ export function useOnboarding() {
     if (onboardingState.hasCompletedOnboarding && onboardingState.lastShownAt) {
       const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000)
       if (onboardingState.lastShownAt < thirtyDaysAgo) {
+        console.log('shouldShowOnboarding: returning true (completed but 30+ days ago)')
         return true
       }
     }
 
+    console.log('shouldShowOnboarding: returning false')
     return false
   }
 
@@ -67,6 +72,7 @@ export function useOnboarding() {
   // Open onboarding
   const openOnboarding = (forceOpen: boolean = false) => {
     console.log('useOnboarding: openOnboarding called', forceOpen ? '(forced)' : '')
+    console.log('useOnboarding: openOnboarding stack trace:', new Error().stack)
     
     // If forceOpen is true, always open regardless of state
     if (forceOpen) {

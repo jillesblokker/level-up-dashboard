@@ -57,7 +57,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         timer = setTimeout(() => {
           // Only call if onboarding is still not open (to prevent conflicts)
           if (!isOnboardingOpen) {
-            openOnboardingRef.current()
+            openOnboardingRef.current(true) // Force open for automatic display
           }
         }, 2000)
       } else if (!hasShownOnboardingRef.current && !isOnboardingOpen) {
