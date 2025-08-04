@@ -203,6 +203,12 @@ export function useOnboarding() {
       hasSkippedOnboarding: false,
       lastShownAt: null
     })
+    
+    // Also reset the provider's hasShownOnboardingRef if it exists
+    if (typeof window !== 'undefined') {
+      // Dispatch a custom event to reset the provider's state
+      window.dispatchEvent(new CustomEvent('reset-onboarding-provider'))
+    }
   }
 
   return {

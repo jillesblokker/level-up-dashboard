@@ -32,6 +32,21 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     shouldShowOnboardingRef.current = shouldShowOnboarding
   }, [openOnboarding, shouldShowOnboarding])
 
+  // Listen for reset events from the useOnboarding hook
+  useEffect(() => {
+    const handleResetOnboarding = () => {
+      console.log('OnboardingProvider: Received reset-onboarding-provider event')
+      hasShownOnboardingRef.current = false
+      console.log('OnboardingProvider: Reset hasShownOnboardingRef to false')
+    }
+
+    window.addEventListener('reset-onboarding-provider', handleResetOnboarding)
+    
+    return () => {
+      window.removeEventListener('reset-onboarding-provider', handleResetOnboarding)
+    }
+  }, [])
+
   // Track state changes and force re-render if needed
   useEffect(() => {
     if (lastIsOnboardingOpenRef.current !== isOnboardingOpen) {
