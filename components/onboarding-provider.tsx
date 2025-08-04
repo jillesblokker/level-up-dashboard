@@ -71,7 +71,8 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     }
 
     // Only run automatic onboarding check if onboarding is not currently open
-    if (shouldShowOnboardingRef.current() && !isOnboardingOpen) {
+    // AND if we haven't already shown it manually
+    if (shouldShowOnboardingRef.current() && !isOnboardingOpen && !hasShownOnboardingRef.current) {
       console.log('OnboardingProvider: shouldShowOnboarding is true, starting check')
       // Start checking after initial load
       setTimeout(checkIfReady, 3000)
@@ -81,7 +82,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       // Mark as shown to prevent future automatic checks
       hasShownOnboardingRef.current = true
     } else {
-      console.log('OnboardingProvider: shouldShowOnboarding is false - manual opening should still work')
+      console.log('OnboardingProvider: shouldShowOnboarding is false OR already shown - manual opening should still work')
       // Don't interfere with manual opening - let the useOnboarding hook handle it
     }
 
@@ -95,6 +96,11 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
   // Debug: Log modal state
   useEffect(() => {
     console.log('OnboardingProvider: isOnboardingOpen changed to:', isOnboardingOpen)
+    
+    // If modal opens, mark as shown to prevent automatic interference
+    if (isOnboardingOpen) {
+      hasShownOnboardingRef.current = true
+    }
   }, [isOnboardingOpen])
 
   return (
