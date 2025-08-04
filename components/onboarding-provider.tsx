@@ -79,7 +79,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       // Mark as shown to prevent future automatic checks
       hasShownOnboardingRef.current = true
     } else {
-      console.log('OnboardingProvider: shouldShowOnboarding is false')
+      console.log('OnboardingProvider: shouldShowOnboarding is false - but manual opening should still work')
     }
 
     return () => {
