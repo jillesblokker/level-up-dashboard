@@ -85,17 +85,22 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
   const [isSkipping, setIsSkipping] = useState(false)
   const [canClose, setCanClose] = useState(false)
+  
+  console.log('OnboardingModal: Initial canClose state:', false)
 
   // Reset state when modal opens
   useEffect(() => {
     if (isOpen) {
+      console.log('OnboardingModal: Resetting state, setting currentStep to 0')
       setCurrentStep(0)
       setCompletedSteps(new Set())
       setIsSkipping(false)
       setCanClose(false)
+      console.log('OnboardingModal: Set canClose to false')
       
       // Allow closing after 3 seconds (increased from 1 second)
       setTimeout(() => {
+        console.log('OnboardingModal: Setting canClose to true after 3 seconds')
         setCanClose(true)
       }, 3000)
     }
@@ -123,12 +128,20 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
     console.log('OnboardingModal: handleClose proceeding')
     onClose()
   }
+  
+  // Debug canClose changes
+  useEffect(() => {
+    console.log('OnboardingModal: canClose changed to:', canClose)
+  }, [canClose])
 
   const handleNext = () => {
+    console.log('OnboardingModal: handleNext called, currentStep:', currentStep, 'totalSteps:', ONBOARDING_STEPS.length)
     if (currentStep < ONBOARDING_STEPS.length - 1) {
+      console.log('OnboardingModal: Moving to next step')
       setCompletedSteps(prev => new Set([...prev, currentStep]))
       setCurrentStep(currentStep + 1)
     } else {
+      console.log('OnboardingModal: Auto-completing onboarding (last step)')
       // Restored auto-completion for full onboarding experience
       handleComplete()
     }
@@ -167,6 +180,8 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   
   const CurrentStepComponent = currentStepData.component
   const progress = ((currentStep + 1) / ONBOARDING_STEPS.length) * 100
+  
+  console.log('OnboardingModal: Rendering step', currentStep, 'component:', currentStepData.id)
 
   if (!isOpen) {
     return null
