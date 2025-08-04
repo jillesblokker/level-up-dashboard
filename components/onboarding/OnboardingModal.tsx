@@ -109,11 +109,8 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   // Focus management - focus the modal container when it opens
   useEffect(() => {
     if (isOpen) {
-      // Focus the modal container to prevent auto-focus on buttons
-      const modalContainer = document.querySelector('[data-modal-container]')
-      if (modalContainer) {
-        (modalContainer as HTMLElement).focus()
-      }
+      // Don't focus anything automatically - let user interact naturally
+      console.log('OnboardingModal: Modal opened, not auto-focusing anything')
     }
   }, [isOpen])
 
@@ -136,14 +133,14 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
 
   const handleNext = () => {
     console.log('OnboardingModal: handleNext called, currentStep:', currentStep, 'totalSteps:', ONBOARDING_STEPS.length)
+    // Only allow progression if user actually clicked the button
     if (currentStep < ONBOARDING_STEPS.length - 1) {
       console.log('OnboardingModal: Moving to next step')
       setCompletedSteps(prev => new Set([...prev, currentStep]))
       setCurrentStep(currentStep + 1)
     } else {
-      console.log('OnboardingModal: Auto-completing onboarding (last step)')
-      // Restored auto-completion for full onboarding experience
-      handleComplete()
+      console.log('OnboardingModal: On last step - user must click to complete')
+      // Don't auto-complete - let user click the button
     }
   }
 
@@ -193,8 +190,6 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   return (
     <div 
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-      data-modal-container
-      tabIndex={-1}
       onClick={(e) => {
         console.log('OnboardingModal: Backdrop clicked')
         // Prevent clicks on the backdrop from closing the modal
