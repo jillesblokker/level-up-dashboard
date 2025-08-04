@@ -273,14 +273,7 @@ export function KingdomGridWithTimers({
                   </div>
                 )}
 
-                {/* Rarity badge for kingdom tiles */}
-                {isKingdomTile && kingdomTile && (
-                  <div className="absolute top-1 right-1">
-                    <Badge className={`text-xs ${getRarityColor(kingdomTile.rarity)}`}>
-                      {kingdomTile.rarity}
-                    </Badge>
-                  </div>
-                )}
+
               </button>
             )
           })

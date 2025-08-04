@@ -21,7 +21,7 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
   const [itemsFound, setItemsFound] = useState<Array<{ image: string; name: string; type: string }>>([])
   const [placedTiles, setPlacedTiles] = useState<typeof KINGDOM_TILES>([])
 
-  // Extract placed tiles from kingdom grid
+  // Extract placed tiles from kingdom grid and get their timers
   useEffect(() => {
     if (kingdomGrid && kingdomGrid.length > 0) {
       const placed = KINGDOM_TILES.filter(tile => {
@@ -35,6 +35,24 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
       setPlacedTiles(placed)
     }
   }, [kingdomGrid])
+
+  // Load timers from localStorage to sync with kingdom grid
+  useEffect(() => {
+    const savedTimers = localStorage.getItem('kingdom-tile-timers')
+    if (savedTimers) {
+      const timers = JSON.parse(savedTimers)
+      // Update tile states based on actual timers
+      setPlacedTiles(prev => 
+        prev.map(tile => {
+          const timer = timers.find((t: any) => t.tileId === tile.id)
+          return {
+            ...tile,
+            timer: timer || null
+          }
+        })
+      )
+    }
+  }, [])
 
   const handleReward = (gold: number, item?: { image: string; name: string; type: string }) => {
     // Update gold
@@ -114,20 +132,27 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
       {/* Tile Grid */}
       <ScrollArea className="h-[600px]">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 p-4">
-          {placedTiles.map((tile) => (
-            <div key={tile.id} className="relative">
-              <KingdomTileComponent
-                tile={tile}
-                onReward={handleReward}
-              />
-              {/* Rarity Badge */}
-              <Badge 
-                className={`absolute top-2 right-2 text-xs ${getRarityColor(tile.rarity)}`}
-              >
-                {tile.rarity}
-              </Badge>
-            </div>
-          ))}
+          {placedTiles.map((tile) => {
+            const savedTimers = localStorage.getItem('kingdom-tile-timers')
+            const timers = savedTimers ? JSON.parse(savedTimers) : []
+            const timer = timers.find((t: any) => t.tileId === tile.id)
+            
+            return (
+              <div key={tile.id} className="relative">
+                <KingdomTileComponent
+                  tile={tile}
+                  onReward={handleReward}
+                  timer={timer}
+                />
+                {/* Rarity Badge */}
+                <Badge 
+                  className={`absolute top-2 right-2 text-xs ${getRarityColor(tile.rarity)}`}
+                >
+                  {tile.rarity}
+                </Badge>
+              </div>
+            )
+          })}
         </div>
       </ScrollArea>
 

@@ -12,6 +12,7 @@ import { KingdomTileModal } from './kingdom-tile-modal'
 interface KingdomTileProps {
   tile: KingdomTile
   onReward: (gold: number, item?: { image: string; name: string; type: string }) => void
+  timer?: any
 }
 
 interface TileState {
@@ -20,7 +21,7 @@ interface TileState {
   timeRemaining: number
 }
 
-export function KingdomTileComponent({ tile, onReward }: KingdomTileProps) {
+export function KingdomTileComponent({ tile, onReward, timer }: KingdomTileProps) {
   const [state, setState] = useState<TileState>({
     lastClicked: null,
     isReady: false,
@@ -43,10 +44,22 @@ export function KingdomTileComponent({ tile, onReward }: KingdomTileProps) {
     localStorage.setItem(`kingdom-tile-${tile.id}`, JSON.stringify(state))
   }, [state, tile.id])
 
-  // Timer logic
+  // Timer logic - use passed timer if available, otherwise use local state
   useEffect(() => {
     const interval = setInterval(() => {
-      if (state.lastClicked) {
+      if (timer) {
+        // Use timer from kingdom grid
+        const now = Date.now()
+        const timeRemaining = Math.max(0, timer.endTime - now)
+        const isReady = timeRemaining === 0
+        
+        setState(prev => ({
+          ...prev,
+          isReady,
+          timeRemaining
+        }))
+      } else if (state.lastClicked) {
+        // Use local state timer
         const now = Date.now()
         const timeSinceLastClick = now - state.lastClicked
         const timerMs = tile.timerMinutes * 60 * 1000
@@ -61,7 +74,7 @@ export function KingdomTileComponent({ tile, onReward }: KingdomTileProps) {
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [state.lastClicked, tile.timerMinutes])
+  }, [timer, state.lastClicked, tile.timerMinutes])
 
   const formatTime = (ms: number) => {
     const minutes = Math.floor(ms / (1000 * 60))
