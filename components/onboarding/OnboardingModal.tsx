@@ -109,6 +109,36 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
         newCanClose: false,
         resetReason: 'modal_opened_manually'
       })
+      
+      // Force modal to be visible and properly positioned
+      setTimeout(() => {
+        const modal = document.querySelector('[data-modal-container="onboarding"]') as HTMLElement
+        if (modal) {
+          // Ensure modal is visible and properly positioned
+          modal.style.position = 'fixed'
+          modal.style.top = '0'
+          modal.style.left = '0'
+          modal.style.width = '100vw'
+          modal.style.height = '100vh'
+          modal.style.zIndex = '9999'
+          modal.style.display = 'flex'
+          modal.style.alignItems = 'center'
+          modal.style.justifyContent = 'center'
+          modal.style.backgroundColor = 'rgba(0, 0, 0, 0.8)'
+          modal.style.backdropFilter = 'blur(4px)'
+          
+          smartLogger.info('OnboardingModal', 'FORCE_VISIBILITY', {
+            action: 'force_modal_visibility',
+            modalFound: !!modal,
+            stylesApplied: {
+              position: 'fixed',
+              zIndex: '9999',
+              display: 'flex'
+            }
+          })
+        }
+      }, 50)
+      
       // Allow closing after 3 seconds (increased from 1 second)
       setTimeout(() => {
         console.log('OnboardingModal: Setting canClose to true after 3 seconds')
@@ -128,11 +158,26 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
       // Don't focus anything automatically - let user interact naturally
       console.log('OnboardingModal: Modal opened, not auto-focusing anything')
       
-      // Debug: Check if modal is in DOM
+      // Debug: Check if modal is in DOM and ensure it's visible
       setTimeout(() => {
-        const modal = document.querySelector('[data-modal-container]') || document.querySelector('.fixed.inset-0.z-\\[9999\\]')
+        const modal = document.querySelector('[data-modal-container="onboarding"]') as HTMLElement
         console.log('OnboardingModal: Modal in DOM:', !!modal)
         if (modal) {
+          // Force ensure modal is visible and properly positioned
+          modal.style.position = 'fixed'
+          modal.style.top = '0'
+          modal.style.left = '0'
+          modal.style.width = '100vw'
+          modal.style.height = '100vh'
+          modal.style.zIndex = '9999'
+          modal.style.display = 'flex'
+          modal.style.alignItems = 'center'
+          modal.style.justifyContent = 'center'
+          modal.style.backgroundColor = 'rgba(0, 0, 0, 0.8)'
+          modal.style.backdropFilter = 'blur(4px)'
+          modal.style.visibility = 'visible'
+          modal.style.opacity = '1'
+          
           const styles = window.getComputedStyle(modal)
           console.log('OnboardingModal: Modal position:', styles.position)
           console.log('OnboardingModal: Modal z-index:', styles.zIndex)
@@ -151,6 +196,32 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
           const rect = modal.getBoundingClientRect()
           console.log('OnboardingModal: Modal rect:', rect)
           console.log('OnboardingModal: Modal is visible:', rect.width > 0 && rect.height > 0)
+          
+          // Force a reflow to ensure styles are applied
+          modal.offsetHeight
+          
+          smartLogger.info('OnboardingModal', 'VISIBILITY_ENFORCED', {
+            action: 'enforce_modal_visibility',
+            modalFound: true,
+            stylesApplied: {
+              position: 'fixed',
+              zIndex: '9999',
+              display: 'flex',
+              visibility: 'visible',
+              opacity: '1'
+            },
+            rect: {
+              width: rect.width,
+              height: rect.height,
+              top: rect.top,
+              left: rect.left
+            }
+          })
+        } else {
+          smartLogger.error('OnboardingModal', 'MODAL_NOT_FOUND', {
+            action: 'modal_not_found_in_dom',
+            selector: '[data-modal-container="onboarding"]'
+          })
         }
       }, 100)
     }
@@ -233,6 +304,19 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   return (
     <div 
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        backdropFilter: 'blur(4px)'
+      }}
       data-modal-container="onboarding"
       onClick={(e) => {
         console.log('OnboardingModal: Backdrop clicked')
