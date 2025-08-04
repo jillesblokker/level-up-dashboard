@@ -173,7 +173,8 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
       
       // Debug: Check if modal is in DOM and ensure it's visible
       setTimeout(() => {
-        const modal = document.querySelector('[data-modal-container="onboarding"]') as HTMLElement
+        const modal = document.querySelector('[data-modal-container="onboarding-standalone"]') as HTMLElement || 
+                     document.querySelector('[data-modal-container="onboarding"]') as HTMLElement
         console.log('OnboardingModal: Modal in DOM:', !!modal)
         if (modal) {
           // Force ensure modal is visible and properly positioned
@@ -243,7 +244,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
         } else {
           smartLogger.error('OnboardingModal', 'MODAL_NOT_FOUND', {
             action: 'modal_not_found_in_dom',
-            selector: '[data-modal-container="onboarding"]'
+            selector: '[data-modal-container="onboarding-standalone"]'
           })
         }
       }, 100)

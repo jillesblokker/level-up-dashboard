@@ -139,7 +139,8 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       
       // Force modal to be visible after a short delay
       setTimeout(() => {
-        const modal = document.querySelector('[data-modal-container="onboarding"]') as HTMLElement
+        const modal = document.querySelector('[data-modal-container="onboarding-standalone"]') as HTMLElement ||
+                     document.querySelector('[data-modal-container="onboarding"]') as HTMLElement
         if (modal) {
           console.log('OnboardingProvider: Force ensuring modal visibility')
           modal.style.position = 'fixed'
