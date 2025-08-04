@@ -16,6 +16,7 @@ import { TileStep } from './OnboardingSteps/TileStep'
 import { KingdomStep } from './OnboardingSteps/KingdomStep'
 import { ProgressionStep } from './OnboardingSteps/ProgressionStep'
 import { CompleteStep } from './OnboardingSteps/CompleteStep'
+import { createPortal } from 'react-dom'
 
 interface OnboardingModalProps {
   isOpen: boolean
@@ -323,25 +324,27 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   
   console.log('OnboardingModal: Modal is open, rendering modal')
 
-  return (
+  // Create a standalone modal using portal to bypass any CSS conflicts
+  const modalContent = (
     <div 
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm"
       style={{
         position: 'fixed',
         top: 0,
         left: 0,
         width: '100vw',
         height: '100vh',
-        zIndex: 9999,
+        zIndex: 99999,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        backdropFilter: 'blur(4px)',
-        border: '3px solid red',
-        outline: '3px solid yellow'
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        backdropFilter: 'blur(8px)',
+        border: '5px solid red',
+        outline: '5px solid yellow',
+        boxShadow: '0 0 50px rgba(255, 0, 0, 0.8)',
+        pointerEvents: 'auto'
       }}
-      data-modal-container="onboarding"
+      data-modal-container="onboarding-standalone"
       onClick={(e) => {
         console.log('OnboardingModal: Backdrop clicked')
         // Prevent clicks on the backdrop from closing the modal
@@ -477,4 +480,34 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
       </Card>
     </div>
   )
+
+  // Use portal to render modal at the top level of the DOM
+  if (typeof window !== 'undefined') {
+    // Also create a debugging overlay to ensure visibility
+    const debugOverlay = (
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          zIndex: 99998,
+          backgroundColor: 'rgba(255, 0, 0, 0.3)',
+          border: '10px solid lime',
+          pointerEvents: 'none'
+        }}
+        data-debug-overlay="onboarding"
+      />
+    )
+    
+    return (
+      <>
+        {createPortal(debugOverlay, document.body)}
+        {createPortal(modalContent, document.body)}
+      </>
+    )
+  }
+  
+  return modalContent
 } 
