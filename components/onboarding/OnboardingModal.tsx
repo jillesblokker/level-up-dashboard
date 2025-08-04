@@ -114,10 +114,13 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
 
   // Track onClose calls
   const handleClose = () => {
+    console.log('OnboardingModal: handleClose called, canClose:', canClose)
     if (!canClose) {
+      console.log('OnboardingModal: handleClose blocked (canClose is false)')
       return
     }
     
+    console.log('OnboardingModal: handleClose proceeding')
     onClose()
   }
 
@@ -279,6 +282,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
               variant="ghost"
               size="sm"
               onClick={(e) => {
+                console.log('OnboardingModal: Close button clicked')
                 handleClose()
               }}
               disabled={!canClose}

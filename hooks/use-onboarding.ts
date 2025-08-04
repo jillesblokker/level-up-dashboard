@@ -72,7 +72,6 @@ export function useOnboarding() {
   // Open onboarding
   const openOnboarding = (forceOpen: boolean = false) => {
     console.log('useOnboarding: openOnboarding called', forceOpen ? '(forced)' : '')
-    console.log('useOnboarding: openOnboarding stack trace:', new Error().stack)
     
     // If forceOpen is true, always open regardless of state
     if (forceOpen) {
@@ -95,12 +94,13 @@ export function useOnboarding() {
   // Close onboarding
   const closeOnboarding = () => {
     console.log('useOnboarding: closeOnboarding called')
-    console.log('useOnboarding: closeOnboarding stack trace:', new Error().stack)
     setIsOnboardingOpen(false)
   }
 
   // Complete onboarding
   const completeOnboarding = () => {
+    console.log('useOnboarding: completeOnboarding called')
+    console.log('useOnboarding: completeOnboarding stack trace:', new Error().stack)
     saveOnboardingState({
       hasCompletedOnboarding: true,
       lastShownAt: Date.now()
