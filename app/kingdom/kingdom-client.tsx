@@ -23,7 +23,7 @@ import { getUserPreference, setUserPreference } from '@/lib/user-preferences-man
 import type { InventoryItem as DefaultInventoryItem } from "@/app/lib/default-inventory"
 import type { InventoryItem as ManagerInventoryItem } from "@/lib/inventory-manager"
 import { KingdomStatsBlock, KingStatsBlock } from "@/components/kingdom-stats-graph";
-import { KingdomGrid } from '@/components/kingdom-grid';
+import { KingdomGridWithTimers } from '@/components/kingdom-grid-with-timers';
 import { KingdomPropertiesInventory } from '@/components/kingdom-properties-inventory';
 import { ProgressionVisualization } from '@/components/progression-visualization';
 import { EconomyTransparency } from '@/components/economy-transparency';
@@ -667,33 +667,28 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       {/* Main Content with Tabs */}
       <div className="container mx-auto p-6 space-y-6" aria-label="kingdom-main-content">
         <Tabs value={kingdomTab} onValueChange={setKingdomTab} className="w-full">
-          <TabsList className="mb-6 w-full grid grid-cols-5">
+          <TabsList className="mb-6 w-full grid grid-cols-4">
             <TabsTrigger value="thrivehaven">Thrivehaven</TabsTrigger>
             <TabsTrigger value="journey">Journey</TabsTrigger>
-            <TabsTrigger value="progress">Progress</TabsTrigger>
             <TabsTrigger value="inventory">Bag</TabsTrigger>
             <TabsTrigger value="rewards">Rewards</TabsTrigger>
           </TabsList>
           <TabsContent value="thrivehaven">
             <div className="flex flex-col items-center justify-center w-full">
               <div className="flex items-center justify-center w-full">
-                <KingdomGrid
+                <KingdomGridWithTimers
                   grid={kingdomGrid}
                   onTilePlace={handlePlaceKingdomTile}
                   selectedTile={selectedKingdomTile}
                   setSelectedTile={setSelectedKingdomTile}
-                  onGridExpand={(newGrid) => setKingdomGrid(newGrid)}
+                  onGridExpand={(newGrid: Tile[][]) => setKingdomGrid(newGrid)}
+                  onGoldEarned={handleKingdomTileGoldEarned}
+                  onItemFound={handleKingdomTileItemFound}
                 />
               </div>
             </div>
           </TabsContent>
           <TabsContent value="journey">
-            <div className="space-y-6">
-              {/* Your Kingdom Journey */}
-              <ProgressionVisualization />
-            </div>
-          </TabsContent>
-          <TabsContent value="progress">
             <div className="space-y-6">
               {/* Progression Visualization */}
               <div className="mb-6">
@@ -782,12 +777,12 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             </Card>
                      </TabsContent>
            <TabsContent value="rewards">
-             <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200">
+             <Card className="bg-gradient-to-br from-blue-900 to-blue-800 border-blue-700">
                <CardHeader>
-                 <CardTitle className="text-xl font-bold text-amber-800">
+                 <CardTitle className="text-xl font-bold text-blue-100">
                    Kingdom Rewards
                  </CardTitle>
-                 <CardDescription className="text-amber-700">
+                 <CardDescription className="text-blue-200">
                    Visit your kingdom tiles to earn gold and find items
                  </CardDescription>
                </CardHeader>
