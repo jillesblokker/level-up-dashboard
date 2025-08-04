@@ -1,23 +1,40 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { KingdomTileComponent } from './kingdom-tile'
-import { KINGDOM_TILES } from '@/lib/kingdom-tiles'
+import { KINGDOM_TILES, getRarityColor } from '@/lib/kingdom-tiles'
 import { useToast } from '@/components/ui/use-toast'
-import { Coins, Package } from 'lucide-react'
+import { Coins, Package, Crown } from 'lucide-react'
 
 interface KingdomTileGridProps {
   onGoldEarned: (amount: number) => void
   onItemFound: (item: { image: string; name: string; type: string }) => void
+  kingdomGrid?: any[][] // The actual kingdom grid with placed tiles
 }
 
-export function KingdomTileGrid({ onGoldEarned, onItemFound }: KingdomTileGridProps) {
+export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }: KingdomTileGridProps) {
   const { toast } = useToast()
   const [totalGoldEarned, setTotalGoldEarned] = useState(0)
   const [itemsFound, setItemsFound] = useState<Array<{ image: string; name: string; type: string }>>([])
+  const [placedTiles, setPlacedTiles] = useState<typeof KINGDOM_TILES>([])
+
+  // Extract placed tiles from kingdom grid
+  useEffect(() => {
+    if (kingdomGrid && kingdomGrid.length > 0) {
+      const placed = KINGDOM_TILES.filter(tile => {
+        // Check if this tile type exists anywhere in the kingdom grid
+        return kingdomGrid.some(row => 
+          row.some(cell => 
+            cell && cell.type && cell.type.toLowerCase() === tile.id
+          )
+        )
+      })
+      setPlacedTiles(placed)
+    }
+  }, [kingdomGrid])
 
   const handleReward = (gold: number, item?: { image: string; name: string; type: string }) => {
     // Update gold
@@ -35,6 +52,30 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound }: KingdomTileGridPr
       title: "Kingdom Reward!",
       description: `You earned ${gold} gold${item ? ` and found a ${item.type}!` : '!'}`,
     })
+  }
+
+  if (placedTiles.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Crown className="h-5 w-5 text-amber-500" />
+            Kingdom Rewards
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 flex items-center justify-center">
+              <Crown className="h-8 w-8 text-amber-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">No Kingdom Tiles Placed</h3>
+            <p className="text-gray-600 text-sm">
+              Place tiles on your kingdom grid to unlock rewards and start earning gold!
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
@@ -62,6 +103,10 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound }: KingdomTileGridPr
                 </Badge>
               </div>
             </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Placed Tiles:</span>
+              <Badge variant="outline">{placedTiles.length}</Badge>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -69,12 +114,19 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound }: KingdomTileGridPr
       {/* Tile Grid */}
       <ScrollArea className="h-[600px]">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 p-4">
-          {KINGDOM_TILES.map((tile) => (
-            <KingdomTileComponent
-              key={tile.id}
-              tile={tile}
-              onReward={handleReward}
-            />
+          {placedTiles.map((tile) => (
+            <div key={tile.id} className="relative">
+              <KingdomTileComponent
+                tile={tile}
+                onReward={handleReward}
+              />
+              {/* Rarity Badge */}
+              <Badge 
+                className={`absolute top-2 right-2 text-xs ${getRarityColor(tile.rarity)}`}
+              >
+                {tile.rarity}
+              </Badge>
+            </div>
           ))}
         </div>
       </ScrollArea>

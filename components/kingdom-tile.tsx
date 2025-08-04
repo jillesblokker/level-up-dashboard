@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Clock, Sparkles } from 'lucide-react'
 import Image from 'next/image'
-import { KingdomTile, getRandomItem, getRandomGold, isLucky } from '@/lib/kingdom-tiles'
+import { KingdomTile, getRandomItem, getRandomGold, isLucky, getRarityColor } from '@/lib/kingdom-tiles'
 import { KingdomTileModal } from './kingdom-tile-modal'
 
 interface KingdomTileProps {
@@ -156,10 +156,15 @@ export function KingdomTileComponent({ tile, onReward }: KingdomTileProps) {
 
             {/* Lucky Indicator */}
             {state.isReady && (
-              <div className="mt-2 text-center">
+              <div className="mt-2 text-center space-y-1">
                 <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700">
                   {Math.round(tile.luckyChance * 100)}% lucky chance
                 </Badge>
+                <div className="flex justify-center">
+                  <Badge className={`text-xs ${getRarityColor(tile.rarity)}`}>
+                    {tile.rarity}
+                  </Badge>
+                </div>
               </div>
             )}
           </div>

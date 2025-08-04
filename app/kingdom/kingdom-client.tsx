@@ -792,10 +792,11 @@ export function KingdomClient({ userId }: { userId: string | null }) {
                  </CardDescription>
                </CardHeader>
                <CardContent>
-                 <KingdomTileGrid 
-                   onGoldEarned={handleKingdomTileGoldEarned}
-                   onItemFound={handleKingdomTileItemFound}
-                 />
+                                 <KingdomTileGrid 
+                  onGoldEarned={handleKingdomTileGoldEarned}
+                  onItemFound={handleKingdomTileItemFound}
+                  kingdomGrid={kingdomGrid}
+                />
                </CardContent>
              </Card>
            </TabsContent>

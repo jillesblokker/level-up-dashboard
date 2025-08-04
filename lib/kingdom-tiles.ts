@@ -8,6 +8,7 @@ export interface KingdomTile {
   clickMessage: string
   possibleItems: string[]
   itemType: 'weapon' | 'armor' | 'scroll' | 'potion' | 'food' | 'material' | 'artifact' | 'none'
+  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
 }
 
 export const KINGDOM_TILES: KingdomTile[] = [
@@ -21,7 +22,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.15,
     clickMessage: "With a big throw your bucket lands with a splash in the water. You start pulling it up and there are 5 gold coins shining on the bottom of the bucket!",
     possibleItems: [],
-    itemType: 'none'
+    itemType: 'none',
+    rarity: 'common'
   },
   {
     id: 'blacksmith',
@@ -39,7 +41,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/armor/armor-darko.png',
       '/images/items/armor/armor-blanko.png'
     ],
-    itemType: 'weapon'
+    itemType: 'weapon',
+    rarity: 'uncommon'
   },
   {
     id: 'sawmill',
@@ -53,7 +56,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/materials/logs.png',
       '/images/items/materials/planks.png'
     ],
-    itemType: 'material'
+    itemType: 'material',
+    rarity: 'common'
   },
   {
     id: 'fisherman',
@@ -64,7 +68,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.18,
     clickMessage: "You cast your line into the water and feel a tug. Reeling it in, you catch a fish with gold coins in its mouth!",
     possibleItems: ['/images/items/food/goldenfish.png'],
-    itemType: 'food'
+    itemType: 'food',
+    rarity: 'common'
   },
   {
     id: 'grocery',
@@ -75,7 +80,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.20,
     clickMessage: "The grocer greets you warmly and shows you today's fresh produce. Hidden among the vegetables, you discover some gold coins!",
     possibleItems: ['/images/items/food/goldenfish.png'],
-    itemType: 'food'
+    itemType: 'food',
+    rarity: 'common'
   },
   {
     id: 'foodcourt',
@@ -86,7 +92,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.16,
     clickMessage: "The aroma of freshly cooked meals fills the air. As you enjoy your meal, you find gold coins hidden under your plate!",
     possibleItems: ['/images/items/food/goldenfish.png'],
-    itemType: 'food'
+    itemType: 'food',
+    rarity: 'uncommon'
   },
   {
     id: 'vegetables',
@@ -97,7 +104,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.14,
     clickMessage: "You tend to the vegetable garden, pulling up carrots and potatoes. Among the roots, you discover gold coins buried in the soil!",
     possibleItems: ['/images/items/food/goldenfish.png'],
-    itemType: 'food'
+    itemType: 'food',
+    rarity: 'common'
   },
 
   // Knowledge & Magic Tiles
@@ -114,7 +122,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/scroll/scroll-perkamento.png',
       '/images/items/scroll/scroll-memento.png'
     ],
-    itemType: 'scroll'
+    itemType: 'scroll',
+    rarity: 'rare'
   },
   {
     id: 'temple',
@@ -129,7 +138,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/potion/potion-gold.png',
       '/images/items/potion/potion-exp.png'
     ],
-    itemType: 'potion'
+    itemType: 'potion',
+    rarity: 'uncommon'
   },
   {
     id: 'castle',
@@ -144,7 +154,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/artifact/ring/ring.png',
       '/images/items/artifact/scepter/scepter.png'
     ],
-    itemType: 'artifact'
+    itemType: 'artifact',
+    rarity: 'legendary'
   },
   {
     id: 'mansion',
@@ -159,7 +170,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/artifact/ring/ring.png',
       '/images/items/artifact/scepter/scepter.png'
     ],
-    itemType: 'artifact'
+    itemType: 'artifact',
+    rarity: 'epic'
   },
   {
     id: 'fountain',
@@ -174,7 +186,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/potion/potion-gold.png',
       '/images/items/potion/potion-exp.png'
     ],
-    itemType: 'potion'
+    itemType: 'potion',
+    rarity: 'uncommon'
   },
   {
     id: 'mayor',
@@ -189,7 +202,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/artifact/ring/ring.png',
       '/images/items/artifact/scepter/scepter.png'
     ],
-    itemType: 'artifact'
+    itemType: 'artifact',
+    rarity: 'rare'
   },
   {
     id: 'inn',
@@ -204,7 +218,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/artifact/ring/ring.png',
       '/images/items/artifact/scepter/scepter.png'
     ],
-    itemType: 'artifact'
+    itemType: 'artifact',
+    rarity: 'common'
   },
 
   // Entertainment & Social Tiles
@@ -224,7 +239,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/armor/armor-darko.png',
       '/images/items/armor/armor-blanko.png'
     ],
-    itemType: 'weapon'
+    itemType: 'weapon',
+    rarity: 'rare'
   },
   {
     id: 'archery',
@@ -239,7 +255,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/sword/sword-sunblade.png',
       '/images/items/sword/sword-irony.png'
     ],
-    itemType: 'weapon'
+    itemType: 'weapon',
+    rarity: 'uncommon'
   },
   {
     id: 'watchtower',
@@ -254,7 +271,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/artifact/ring/ring.png',
       '/images/items/artifact/scepter/scepter.png'
     ],
-    itemType: 'artifact'
+    itemType: 'artifact',
+    rarity: 'rare'
   },
   {
     id: 'pond',
@@ -265,7 +283,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.20,
     clickMessage: "The pond's surface ripples as you approach. You spot gold coins glinting at the bottom and fish them out!",
     possibleItems: ['/images/items/food/goldenfish.png'],
-    itemType: 'food'
+    itemType: 'food',
+    rarity: 'common'
   },
   {
     id: 'windmill',
@@ -276,7 +295,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.14,
     clickMessage: "The windmill's sails turn steadily. You collect freshly ground flour and discover gold coins mixed in with the grain!",
     possibleItems: ['/images/items/food/goldenfish.png'],
-    itemType: 'food'
+    itemType: 'food',
+    rarity: 'uncommon'
   }
 ]
 
@@ -291,4 +311,15 @@ export function getRandomGold(min: number, max: number): number {
 
 export function isLucky(chance: number): boolean {
   return Math.random() < chance
+}
+
+export function getRarityColor(rarity: string): string {
+  switch (rarity) {
+    case 'common': return 'bg-gray-500 text-white'
+    case 'uncommon': return 'bg-green-500 text-white'
+    case 'rare': return 'bg-blue-500 text-white'
+    case 'epic': return 'bg-purple-500 text-white'
+    case 'legendary': return 'bg-amber-500 text-white'
+    default: return 'bg-gray-500 text-white'
+  }
 } 
