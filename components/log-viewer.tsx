@@ -54,6 +54,9 @@ export function LogViewer() {
       const interval = setInterval(loadLogs, 2000) // Refresh every 2 seconds
       return () => clearInterval(interval)
     }
+    
+    // Return undefined when autoRefresh is false
+    return undefined
   }, [autoRefresh])
 
   // Filter logs based on search and filters
