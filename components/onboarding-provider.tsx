@@ -9,6 +9,8 @@ interface OnboardingProviderProps {
 }
 
 export function OnboardingProvider({ children }: OnboardingProviderProps) {
+  console.log('OnboardingProvider: Component re-rendered')
+  
   const {
     onboardingState,
     isOnboardingOpen,
@@ -22,15 +24,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
   // Use refs to persist state across re-renders
   const hasShownOnboardingRef = useRef(false)
   const isCheckingRef = useRef(false)
-  const openOnboardingRef = useRef(openOnboarding)
-  const shouldShowOnboardingRef = useRef(shouldShowOnboarding)
   const lastIsOnboardingOpenRef = useRef(isOnboardingOpen)
-
-  // Update refs when functions change
-  useEffect(() => {
-    openOnboardingRef.current = openOnboarding
-    shouldShowOnboardingRef.current = shouldShowOnboarding
-  }, [openOnboarding, shouldShowOnboarding])
 
   // Listen for reset events from the useOnboarding hook
   useEffect(() => {
@@ -49,6 +43,9 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
 
   // Track state changes and force re-render if needed
   useEffect(() => {
+    console.log('OnboardingProvider: isOnboardingOpen changed to:', isOnboardingOpen)
+    console.log('OnboardingProvider: hasShownOnboardingRef.current:', hasShownOnboardingRef.current)
+    
     if (lastIsOnboardingOpenRef.current !== isOnboardingOpen) {
       console.log('OnboardingProvider: State changed from', lastIsOnboardingOpenRef.current, 'to', isOnboardingOpen)
       lastIsOnboardingOpenRef.current = isOnboardingOpen
@@ -93,7 +90,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
           // Only call if onboarding is still not open (to prevent conflicts)
           if (!isOnboardingOpen) {
             console.log('OnboardingProvider: Auto-opening onboarding')
-            openOnboardingRef.current(true) // Force open for automatic display
+            openOnboarding(true) // Force open for automatic display
           }
         }, 2000)
       } else if (!hasShownOnboardingRef.current && !isOnboardingOpen) {
@@ -106,7 +103,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
 
     // Only run automatic onboarding check if onboarding is not currently open
     // AND if we haven't already shown it manually
-    if (shouldShowOnboardingRef.current() && !isOnboardingOpen && !hasShownOnboardingRef.current) {
+    if (shouldShowOnboarding() && !isOnboardingOpen && !hasShownOnboardingRef.current) {
       console.log('OnboardingProvider: shouldShowOnboarding is true, starting check')
       // Start checking after initial load
       setTimeout(checkIfReady, 3000)

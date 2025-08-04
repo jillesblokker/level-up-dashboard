@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, createContext, useContext, ReactNode } from 'react'
 import { smartLogger } from '@/lib/smart-logger'
 
 interface OnboardingState {
@@ -7,7 +7,25 @@ interface OnboardingState {
   lastShownAt: number | null
 }
 
-export function useOnboarding() {
+interface OnboardingContextType {
+  onboardingState: OnboardingState
+  isOnboardingOpen: boolean
+  shouldShowOnboarding: () => boolean
+  openOnboarding: (forceOpen?: boolean) => void
+  closeOnboarding: () => void
+  completeOnboarding: () => void
+  skipOnboarding: () => void
+  resetOnboarding: () => void
+  debugOnboardingState: () => void
+}
+
+const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined)
+
+interface OnboardingProviderProps {
+  children: ReactNode
+}
+
+export function OnboardingProvider({ children }: OnboardingProviderProps) {
   const [onboardingState, setOnboardingState] = useState<OnboardingState>({
     hasCompletedOnboarding: false,
     hasSkippedOnboarding: false,
@@ -98,12 +116,13 @@ export function useOnboarding() {
     return false
   }
 
-  // Debug function to check onboarding state
+  // Debug function to log current state
   const debugOnboardingState = () => {
     smartLogger.info('useOnboarding', 'DEBUG_STATE', {
       onboardingState,
-      shouldShow: shouldShowOnboarding(),
-      isOnboardingOpen
+      isOnboardingOpen,
+      shouldShowResult: shouldShowOnboarding(),
+      localStorage: localStorage.getItem('onboarding-state')
     })
   }
 
@@ -208,10 +227,14 @@ export function useOnboarding() {
     if (typeof window !== 'undefined') {
       // Dispatch a custom event to reset the provider's state
       window.dispatchEvent(new CustomEvent('reset-onboarding-provider'))
+      smartLogger.info('useOnboarding', 'RESET_EVENT_DISPATCHED', {
+        event: 'reset-onboarding-provider',
+        message: 'Event dispatched to reset provider state'
+      })
     }
   }
 
-  return {
+  const contextValue: OnboardingContextType = {
     onboardingState,
     isOnboardingOpen,
     shouldShowOnboarding,
@@ -222,4 +245,18 @@ export function useOnboarding() {
     resetOnboarding,
     debugOnboardingState
   }
+
+  return (
+    <OnboardingContext.Provider value={contextValue}>
+      {children}
+    </OnboardingContext.Provider>
+  )
+}
+
+export function useOnboarding() {
+  const context = useContext(OnboardingContext)
+  if (context === undefined) {
+    throw new Error('useOnboarding must be used within an OnboardingProvider')
+  }
+  return context
 } 
