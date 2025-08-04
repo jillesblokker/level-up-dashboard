@@ -127,13 +127,25 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
           modal.style.backgroundColor = 'rgba(0, 0, 0, 0.8)'
           modal.style.backdropFilter = 'blur(4px)'
           
+          // Force visibility with bright border for debugging
+          modal.style.border = '3px solid red'
+          modal.style.outline = '3px solid yellow'
+          modal.style.visibility = 'visible'
+          modal.style.opacity = '1'
+          modal.style.pointerEvents = 'auto'
+          
+          // Force modal to be the topmost element
+          document.body.appendChild(modal)
+          
           smartLogger.info('OnboardingModal', 'FORCE_VISIBILITY', {
             action: 'force_modal_visibility',
             modalFound: !!modal,
             stylesApplied: {
               position: 'fixed',
               zIndex: '9999',
-              display: 'flex'
+              display: 'flex',
+              border: '3px solid red',
+              outline: '3px solid yellow'
             }
           })
         }
@@ -178,6 +190,14 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
           modal.style.visibility = 'visible'
           modal.style.opacity = '1'
           
+          // Force visibility with bright border for debugging
+          modal.style.border = '3px solid red'
+          modal.style.outline = '3px solid yellow'
+          modal.style.pointerEvents = 'auto'
+          
+          // Force modal to be the topmost element
+          document.body.appendChild(modal)
+          
           const styles = window.getComputedStyle(modal)
           console.log('OnboardingModal: Modal position:', styles.position)
           console.log('OnboardingModal: Modal z-index:', styles.zIndex)
@@ -200,23 +220,25 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
           // Force a reflow to ensure styles are applied
           modal.offsetHeight
           
-          smartLogger.info('OnboardingModal', 'VISIBILITY_ENFORCED', {
-            action: 'enforce_modal_visibility',
-            modalFound: true,
-            stylesApplied: {
-              position: 'fixed',
-              zIndex: '9999',
-              display: 'flex',
-              visibility: 'visible',
-              opacity: '1'
-            },
-            rect: {
-              width: rect.width,
-              height: rect.height,
-              top: rect.top,
-              left: rect.left
-            }
-          })
+                      smartLogger.info('OnboardingModal', 'VISIBILITY_ENFORCED', {
+              action: 'enforce_modal_visibility',
+              modalFound: true,
+              stylesApplied: {
+                position: 'fixed',
+                zIndex: '9999',
+                display: 'flex',
+                visibility: 'visible',
+                opacity: '1',
+                border: '3px solid red',
+                outline: '3px solid yellow'
+              },
+              rect: {
+                width: rect.width,
+                height: rect.height,
+                top: rect.top,
+                left: rect.left
+              }
+            })
         } else {
           smartLogger.error('OnboardingModal', 'MODAL_NOT_FOUND', {
             action: 'modal_not_found_in_dom',
@@ -315,7 +337,9 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        backdropFilter: 'blur(4px)'
+        backdropFilter: 'blur(4px)',
+        border: '3px solid red',
+        outline: '3px solid yellow'
       }}
       data-modal-container="onboarding"
       onClick={(e) => {
