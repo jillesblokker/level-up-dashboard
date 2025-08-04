@@ -117,7 +117,13 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
         const modal = document.querySelector('[data-modal-container]') || document.querySelector('.fixed.inset-0.z-\\[9999\\]')
         console.log('OnboardingModal: Modal in DOM:', !!modal)
         if (modal) {
-          console.log('OnboardingModal: Modal styles:', window.getComputedStyle(modal))
+          const styles = window.getComputedStyle(modal)
+          console.log('OnboardingModal: Modal position:', styles.position)
+          console.log('OnboardingModal: Modal z-index:', styles.zIndex)
+          console.log('OnboardingModal: Modal background:', styles.backgroundColor)
+          console.log('OnboardingModal: Modal display:', styles.display)
+          console.log('OnboardingModal: Modal visibility:', styles.visibility)
+          console.log('OnboardingModal: Modal opacity:', styles.opacity)
         }
       }, 100)
     }
@@ -200,7 +206,18 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   return (
     <div 
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 }}
+      style={{ 
+        position: 'fixed', 
+        top: 0, 
+        left: 0, 
+        right: 0, 
+        bottom: 0, 
+        zIndex: 9999,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
       data-modal-container="onboarding"
       onClick={(e) => {
         console.log('OnboardingModal: Backdrop clicked')
