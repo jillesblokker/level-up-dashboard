@@ -42,10 +42,15 @@ export function KingdomGridWithTimers({
   const [tileTimers, setTileTimers] = useState<TileTimer[]>([])
   const [showModal, setShowModal] = useState(false)
   const [modalData, setModalData] = useState<{
-    gold: number
-    item?: { image: string; name: string; type: string } | undefined
-    message: string
+    tileName: string
+    goldEarned: number
+    itemFound?: {
+      image: string
+      name: string
+      type: string
+    }
     isLucky: boolean
+    message: string
   } | null>(null)
 
   // Load timers from localStorage on mount
@@ -136,15 +141,11 @@ export function KingdomGridWithTimers({
 
       // Show modal
       setModalData({
-        gold,
-        item: item ? { image: item, name: kingdomTile.name, type: kingdomTile.itemType } : undefined,
+        tileName: kingdomTile.name,
+        goldEarned: gold,
+        itemFound: item ? { image: item, name: kingdomTile.name, type: kingdomTile.itemType } : undefined,
         message: kingdomTile.clickMessage,
         isLucky: isLucky(kingdomTile.luckyChance)
-      } as {
-        gold: number
-        item?: { image: string; name: string; type: string } | undefined
-        message: string
-        isLucky: boolean
       })
       setShowModal(true)
 
@@ -286,10 +287,7 @@ export function KingdomGridWithTimers({
         <KingdomTileModal
           isOpen={showModal}
           onClose={() => setShowModal(false)}
-          gold={modalData.gold}
-          item={modalData.item}
-          message={modalData.message}
-          isLucky={modalData.isLucky}
+          reward={modalData}
         />
       )}
     </>
