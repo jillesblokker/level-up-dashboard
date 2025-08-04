@@ -97,6 +97,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
   // Debug: Log modal state
   useEffect(() => {
     console.log('OnboardingProvider: isOnboardingOpen changed to:', isOnboardingOpen)
+    console.log('OnboardingProvider: hasShownOnboardingRef.current:', hasShownOnboardingRef.current)
     
     // If modal opens, mark as shown to prevent automatic interference
     if (isOnboardingOpen) {

@@ -25,7 +25,7 @@ export function AccountMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [profileUpdateCount, setProfileUpdateCount] = useState(0);
-  const { openOnboarding } = useOnboarding();
+  const { openOnboarding, resetOnboarding } = useOnboarding();
 
   useEffect(() => {
     const refresh = async () => {
@@ -45,6 +45,8 @@ export function AccountMenu() {
   const handleGuideClick = () => {
     console.log('AccountMenu: Guide button clicked')
     console.log('AccountMenu: Calling openOnboarding(true)')
+    // Reset onboarding state to ensure it can be opened again
+    resetOnboarding();
     openOnboarding(true);
     console.log('AccountMenu: openOnboarding called, closing dropdown')
     setIsOpen(false);

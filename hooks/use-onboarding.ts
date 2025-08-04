@@ -74,12 +74,14 @@ export function useOnboarding() {
   const openOnboarding = (forceOpen: boolean = false) => {
     console.log('useOnboarding: openOnboarding called', forceOpen ? '(forced)' : '')
     console.log('useOnboarding: Current isOnboardingOpen state:', isOnboardingOpen)
+    console.log('useOnboarding: Current onboardingState:', onboardingState)
     
     // If forceOpen is true, always open regardless of state
     if (forceOpen) {
-      console.log('useOnboarding: Force opening onboarding')
+      console.log('useOnboarding: Force opening onboarding - setting isOnboardingOpen to true')
       setIsOnboardingOpen(true)
       // Don't update lastShownAt when force opening to prevent immediate closure
+      console.log('useOnboarding: Force opening complete - modal should now be visible')
       return
     }
     
