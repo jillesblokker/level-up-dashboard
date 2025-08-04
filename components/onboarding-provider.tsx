@@ -59,6 +59,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         timer = setTimeout(() => {
           // Only call if onboarding is still not open (to prevent conflicts)
           if (!isOnboardingOpen) {
+            console.log('OnboardingProvider: Auto-opening onboarding')
             openOnboardingRef.current(true) // Force open for automatic display
           }
         }, 2000)
@@ -100,6 +101,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     // If modal opens, mark as shown to prevent automatic interference
     if (isOnboardingOpen) {
       hasShownOnboardingRef.current = true
+      console.log('OnboardingProvider: Marking onboarding as shown to prevent automatic interference')
     }
   }, [isOnboardingOpen])
 

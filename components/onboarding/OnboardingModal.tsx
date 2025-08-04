@@ -216,20 +216,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
 
   return (
     <div 
-      style={{ 
-        position: 'fixed', 
-        top: 0, 
-        left: 0, 
-        right: 0, 
-        bottom: 0, 
-        zIndex: 9999,
-        backgroundColor: 'red',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        border: '5px solid yellow',
-        padding: '20px'
-      }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm"
       data-modal-container="onboarding"
       onClick={(e) => {
         console.log('OnboardingModal: Backdrop clicked')
@@ -247,24 +234,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
         }
       }}
     >
-      {/* Debug overlay to make modal unmistakable */}
-      <div 
-        style={{
-          position: 'absolute',
-          top: '10px',
-          left: '10px',
-          background: 'lime',
-          color: 'black',
-          padding: '10px',
-          fontSize: '20px',
-          fontWeight: 'bold',
-          zIndex: 10000,
-          border: '3px solid black'
-        }}
-      >
-        MODAL IS OPEN - CLICK GUIDE BUTTON
-      </div>
-      <Card className="w-full max-w-2xl bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 shadow-2xl h-[90vh] flex flex-col" style={{ backgroundColor: 'white', border: '3px solid blue' }}>
+      <Card className="w-full max-w-2xl bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 shadow-2xl h-[90vh] flex flex-col">
         <CardContent className="p-0 flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-4 md:p-6 border-b border-amber-800/20 flex-shrink-0">

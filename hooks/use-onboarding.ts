@@ -73,6 +73,7 @@ export function useOnboarding() {
   // Open onboarding
   const openOnboarding = (forceOpen: boolean = false) => {
     console.log('useOnboarding: openOnboarding called', forceOpen ? '(forced)' : '')
+    console.log('useOnboarding: Current isOnboardingOpen state:', isOnboardingOpen)
     
     // If forceOpen is true, always open regardless of state
     if (forceOpen) {

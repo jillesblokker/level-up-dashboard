@@ -43,7 +43,10 @@ export function AccountMenu() {
   const avatarType = (user?.unsafeMetadata?.['avatar_type'] as 'initial' | 'default' | 'uploaded') || (user?.imageUrl ? 'uploaded' : 'initial');
 
   const handleGuideClick = () => {
+    console.log('AccountMenu: Guide button clicked')
+    console.log('AccountMenu: Calling openOnboarding(true)')
     openOnboarding(true);
+    console.log('AccountMenu: openOnboarding called, closing dropdown')
     setIsOpen(false);
   };
 
