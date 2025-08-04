@@ -43,7 +43,7 @@ export function KingdomGridWithTimers({
   const [showModal, setShowModal] = useState(false)
   const [modalData, setModalData] = useState<{
     gold: number
-    item?: { image: string; name: string; type: string }
+    item?: { image: string; name: string; type: string } | undefined
     message: string
     isLucky: boolean
   } | null>(null)
@@ -140,6 +140,11 @@ export function KingdomGridWithTimers({
         item: item ? { image: item, name: kingdomTile.name, type: kingdomTile.itemType } : undefined,
         message: kingdomTile.clickMessage,
         isLucky: isLucky(kingdomTile.luckyChance)
+      } as {
+        gold: number
+        item?: { image: string; name: string; type: string } | undefined
+        message: string
+        isLucky: boolean
       })
       setShowModal(true)
 
