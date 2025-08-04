@@ -44,11 +44,13 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       const kingdomAnimationComplete = !document.querySelector('.kingdom-animation') || 
         document.querySelector('.kingdom-animation')?.classList.contains('completed');
       
-      // Wait for user to be fully loaded
+      // Wait for user to be fully loaded and authenticated
       const userLoaded = typeof window !== 'undefined' && 
         !window.location.pathname.includes('/auth') &&
         !window.location.pathname.includes('/signin') &&
-        !window.location.pathname.includes('/signup');
+        !window.location.pathname.includes('/signup') &&
+        !window.location.pathname.includes('/login') &&
+        window.location.pathname !== '/';
       
       // Only auto-open if onboarding is not already open
       if (kingdomAnimationComplete && userLoaded && !hasShownOnboardingRef.current && !isOnboardingOpen) {
@@ -79,7 +81,8 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       // Mark as shown to prevent future automatic checks
       hasShownOnboardingRef.current = true
     } else {
-      console.log('OnboardingProvider: shouldShowOnboarding is false - but manual opening should still work')
+      console.log('OnboardingProvider: shouldShowOnboarding is false - manual opening should still work')
+      // Don't interfere with manual opening - let the useOnboarding hook handle it
     }
 
     return () => {
