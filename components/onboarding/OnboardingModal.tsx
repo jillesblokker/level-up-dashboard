@@ -124,6 +124,17 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
           console.log('OnboardingModal: Modal display:', styles.display)
           console.log('OnboardingModal: Modal visibility:', styles.visibility)
           console.log('OnboardingModal: Modal opacity:', styles.opacity)
+          
+          // Additional debugging for manual vs automatic opening
+          console.log('OnboardingModal: Current URL:', window.location.href)
+          console.log('OnboardingModal: Modal element:', modal)
+          console.log('OnboardingModal: Modal parent:', modal.parentElement)
+          console.log('OnboardingModal: Modal children count:', modal.children.length)
+          
+          // Check if modal is actually visible
+          const rect = modal.getBoundingClientRect()
+          console.log('OnboardingModal: Modal rect:', rect)
+          console.log('OnboardingModal: Modal is visible:', rect.width > 0 && rect.height > 0)
         }
       }, 100)
     }
@@ -236,6 +247,23 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
         }
       }}
     >
+      {/* Debug overlay to make modal unmistakable */}
+      <div 
+        style={{
+          position: 'absolute',
+          top: '10px',
+          left: '10px',
+          background: 'lime',
+          color: 'black',
+          padding: '10px',
+          fontSize: '20px',
+          fontWeight: 'bold',
+          zIndex: 10000,
+          border: '3px solid black'
+        }}
+      >
+        MODAL IS OPEN - CLICK GUIDE BUTTON
+      </div>
       <Card className="w-full max-w-2xl bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 shadow-2xl h-[90vh] flex flex-col" style={{ backgroundColor: 'white', border: '3px solid blue' }}>
         <CardContent className="p-0 flex flex-col h-full">
           {/* Header */}
