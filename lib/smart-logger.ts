@@ -157,9 +157,16 @@ class SmartLogger {
     const stepEntry: GuideFlowStep = {
       step,
       timestamp: new Date().toISOString(),
-      success,
-      data,
-      error
+      success
+    }
+    
+    // Only add optional properties if they exist
+    if (data !== undefined) {
+      stepEntry.data = data
+    }
+    
+    if (error !== undefined) {
+      stepEntry.error = error
     }
 
     if (this.guideFlowSteps.length > 0) {
