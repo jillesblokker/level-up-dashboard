@@ -15,7 +15,7 @@ interface KingdomTileReward {
     image: string
     name: string
     type: string
-  }
+  } | undefined
   isLucky: boolean
   message: string
 }
