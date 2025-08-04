@@ -42,6 +42,7 @@ export function useOnboarding() {
   // Check if onboarding should be shown
   const shouldShowOnboarding = () => {
     console.log('shouldShowOnboarding called with state:', onboardingState)
+    console.log('shouldShowOnboarding stack trace:', new Error().stack)
     
     // Show if never completed and never skipped
     if (!onboardingState.hasCompletedOnboarding && !onboardingState.hasSkippedOnboarding) {

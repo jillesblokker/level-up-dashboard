@@ -205,7 +205,6 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
 
   return (
     <div 
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
       style={{ 
         position: 'fixed', 
         top: 0, 
@@ -217,7 +216,8 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        border: '5px solid yellow'
+        border: '5px solid yellow',
+        padding: '20px'
       }}
       data-modal-container="onboarding"
       onClick={(e) => {
