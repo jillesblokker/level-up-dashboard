@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { smartLogger } from '@/lib/smart-logger'
 
 interface OnboardingState {
   hasCompletedOnboarding: boolean
@@ -16,8 +17,12 @@ export function useOnboarding() {
 
   // Debug: Log state changes
   useEffect(() => {
-    console.log('useOnboarding: isOnboardingOpen changed to:', isOnboardingOpen)
-  }, [isOnboardingOpen])
+    smartLogger.debug('useOnboarding', 'STATE_CHANGED', {
+      isOnboardingOpen,
+      onboardingState,
+      timestamp: Date.now()
+    })
+  }, [isOnboardingOpen, onboardingState])
 
   // Load onboarding state from localStorage
   useEffect(() => {
@@ -26,9 +31,20 @@ export function useOnboarding() {
       try {
         const parsed = JSON.parse(savedState)
         setOnboardingState(parsed)
+        smartLogger.info('useOnboarding', 'STATE_LOADED', {
+          loadedState: parsed,
+          source: 'localStorage'
+        })
       } catch (error) {
-        console.error('Failed to parse onboarding state:', error)
+        smartLogger.error('useOnboarding', 'STATE_PARSE_ERROR', {
+          error: error instanceof Error ? error.message : String(error),
+          savedState
+        })
       }
+    } else {
+      smartLogger.info('useOnboarding', 'NO_SAVED_STATE', {
+        message: 'No saved onboarding state found'
+      })
     }
   }, [])
 
@@ -37,16 +53,27 @@ export function useOnboarding() {
     const updatedState = { ...onboardingState, ...newState }
     setOnboardingState(updatedState)
     localStorage.setItem('onboarding-state', JSON.stringify(updatedState))
+    
+    smartLogger.info('useOnboarding', 'STATE_SAVED', {
+      previousState: onboardingState,
+      newState: updatedState,
+      changes: newState
+    })
   }
 
   // Check if onboarding should be shown
   const shouldShowOnboarding = () => {
-    console.log('shouldShowOnboarding called with state:', onboardingState)
-    console.log('shouldShowOnboarding stack trace:', new Error().stack)
+    smartLogger.debug('useOnboarding', 'SHOULD_SHOW_CHECK', {
+      currentState: onboardingState,
+      stackTrace: new Error().stack
+    })
     
     // Show if never completed and never skipped
     if (!onboardingState.hasCompletedOnboarding && !onboardingState.hasSkippedOnboarding) {
-      console.log('shouldShowOnboarding: returning true (never completed/skipped)')
+      smartLogger.info('useOnboarding', 'SHOULD_SHOW_TRUE', {
+        reason: 'never_completed_or_skipped',
+        state: onboardingState
+      })
       return true
     }
 
@@ -54,57 +81,86 @@ export function useOnboarding() {
     if (onboardingState.hasCompletedOnboarding && onboardingState.lastShownAt) {
       const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000)
       if (onboardingState.lastShownAt < thirtyDaysAgo) {
-        console.log('shouldShowOnboarding: returning true (completed but 30+ days ago)')
+        smartLogger.info('useOnboarding', 'SHOULD_SHOW_TRUE', {
+          reason: 'completed_but_30_days_ago',
+          lastShownAt: onboardingState.lastShownAt,
+          thirtyDaysAgo,
+          daysSinceLastShown: Math.floor((Date.now() - onboardingState.lastShownAt) / (24 * 60 * 60 * 1000))
+        })
         return true
       }
     }
 
-    console.log('shouldShowOnboarding: returning false')
+    smartLogger.info('useOnboarding', 'SHOULD_SHOW_FALSE', {
+      reason: 'conditions_not_met',
+      state: onboardingState
+    })
     return false
   }
 
   // Debug function to check onboarding state
   const debugOnboardingState = () => {
-    console.log('Onboarding State:', onboardingState)
-    console.log('Should Show:', shouldShowOnboarding())
-    console.log('Is Open:', isOnboardingOpen)
+    smartLogger.info('useOnboarding', 'DEBUG_STATE', {
+      onboardingState,
+      shouldShow: shouldShowOnboarding(),
+      isOnboardingOpen
+    })
   }
 
   // Open onboarding
   const openOnboarding = (forceOpen: boolean = false) => {
-    console.log('useOnboarding: openOnboarding called', forceOpen ? '(forced)' : '')
-    console.log('useOnboarding: Current isOnboardingOpen state:', isOnboardingOpen)
-    console.log('useOnboarding: Current onboardingState:', onboardingState)
+    smartLogger.info('useOnboarding', 'OPEN_ONBOARDING_CALLED', {
+      forceOpen,
+      currentIsOnboardingOpen: isOnboardingOpen,
+      currentOnboardingState: onboardingState
+    })
     
     // If forceOpen is true, always open regardless of state
     if (forceOpen) {
-      console.log('useOnboarding: Force opening onboarding - setting isOnboardingOpen to true')
+      smartLogger.info('useOnboarding', 'FORCE_OPEN_ONBOARDING', {
+        action: 'force_open',
+        previousState: isOnboardingOpen
+      })
       setIsOnboardingOpen(true)
       // Don't update lastShownAt when force opening to prevent immediate closure
-      console.log('useOnboarding: Force opening complete - modal should now be visible')
+      smartLogger.info('useOnboarding', 'FORCE_OPEN_COMPLETE', {
+        newState: true,
+        message: 'Modal should now be visible'
+      })
       return
     }
     
     // Otherwise, check if it should be shown
     if (shouldShowOnboarding()) {
-      console.log('useOnboarding: Opening onboarding (should show is true)')
+      smartLogger.info('useOnboarding', 'OPEN_ONBOARDING_NORMAL', {
+        action: 'normal_open',
+        reason: 'should_show_is_true'
+      })
       setIsOnboardingOpen(true)
       saveOnboardingState({ lastShownAt: Date.now() })
     } else {
-      console.log('useOnboarding: Not opening onboarding (should show is false)')
+      smartLogger.info('useOnboarding', 'OPEN_ONBOARDING_SKIPPED', {
+        action: 'skip_open',
+        reason: 'should_show_is_false'
+      })
     }
   }
 
   // Close onboarding
   const closeOnboarding = () => {
-    console.log('useOnboarding: closeOnboarding called')
+    smartLogger.info('useOnboarding', 'CLOSE_ONBOARDING', {
+      action: 'close_onboarding',
+      previousState: isOnboardingOpen
+    })
     setIsOnboardingOpen(false)
   }
 
   // Complete onboarding
   const completeOnboarding = () => {
-    console.log('useOnboarding: completeOnboarding called')
-    console.log('useOnboarding: completeOnboarding stack trace:', new Error().stack)
+    smartLogger.info('useOnboarding', 'COMPLETE_ONBOARDING', {
+      action: 'complete_onboarding',
+      stackTrace: new Error().stack
+    })
     saveOnboardingState({
       hasCompletedOnboarding: true,
       lastShownAt: Date.now()
@@ -114,6 +170,9 @@ export function useOnboarding() {
 
   // Skip onboarding
   const skipOnboarding = () => {
+    smartLogger.info('useOnboarding', 'SKIP_ONBOARDING', {
+      action: 'skip_onboarding'
+    })
     saveOnboardingState({
       hasSkippedOnboarding: true,
       lastShownAt: Date.now()
@@ -123,6 +182,10 @@ export function useOnboarding() {
 
   // Reset onboarding (for testing or admin purposes)
   const resetOnboarding = () => {
+    smartLogger.info('useOnboarding', 'RESET_ONBOARDING', {
+      action: 'reset_onboarding',
+      previousState: onboardingState
+    })
     saveOnboardingState({
       hasCompletedOnboarding: false,
       hasSkippedOnboarding: false,

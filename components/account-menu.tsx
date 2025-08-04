@@ -5,6 +5,7 @@ import { useClerk, useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { eventBus } from "@/app/lib/event-bus";
 import { useOnboarding } from "@/hooks/use-onboarding";
+import { smartLogger } from "@/lib/smart-logger";
 import { 
   BookOpen, 
   User, 
@@ -16,7 +17,8 @@ import {
   Database,
   Monitor,
   Activity,
-  ChevronDown
+  ChevronDown,
+  Bug
 } from "lucide-react";
 
 export function AccountMenu() {
@@ -43,13 +45,47 @@ export function AccountMenu() {
   const avatarType = (user?.unsafeMetadata?.['avatar_type'] as 'initial' | 'default' | 'uploaded') || (user?.imageUrl ? 'uploaded' : 'initial');
 
   const handleGuideClick = () => {
-    console.log('AccountMenu: Guide button clicked')
-    console.log('AccountMenu: Calling openOnboarding(true)')
-    // Reset onboarding state to ensure it can be opened again
-    resetOnboarding();
-    openOnboarding(true);
-    console.log('AccountMenu: openOnboarding called, closing dropdown')
-    setIsOpen(false);
+    smartLogger.startGuideFlow();
+    smartLogger.info('AccountMenu', 'GUIDE_BUTTON_CLICKED', {
+      userId: user?.id,
+      displayName,
+      avatarType,
+      isOpen
+    });
+    
+    try {
+      smartLogger.addGuideStep('BUTTON_CLICK', true, {
+        component: 'AccountMenu',
+        action: 'guide_button_click'
+      });
+      
+      // Reset onboarding state to ensure it can be opened again
+      smartLogger.addGuideStep('RESET_ONBOARDING', true, {
+        action: 'reset_onboarding_state'
+      });
+      resetOnboarding();
+      
+      smartLogger.addGuideStep('OPEN_ONBOARDING', true, {
+        action: 'open_onboarding_modal',
+        forceOpen: true
+      });
+      openOnboarding(true);
+      
+      smartLogger.addGuideStep('CLOSE_DROPDOWN', true, {
+        action: 'close_account_menu'
+      });
+      setIsOpen(false);
+      
+      smartLogger.endGuideFlow();
+      
+    } catch (error) {
+      smartLogger.error('AccountMenu', 'GUIDE_FLOW_ERROR', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      smartLogger.addGuideStep('ERROR_HANDLING', false, {}, error instanceof Error ? error.message : String(error));
+      smartLogger.endGuideFlow();
+    }
   };
 
   // Close dropdown when clicking outside
@@ -204,6 +240,20 @@ export function AccountMenu() {
               <p className="text-xs text-gray-400">Open tutorial</p>
             </div>
           </button>
+          
+          {/* Log Center Button */}
+          <Link 
+            href="/account/log-center"
+            className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
+            aria-label="Log Center page"
+            onClick={() => setIsOpen(false)}
+          >
+            <Bug className="h-5 w-5 text-amber-400" />
+            <div className="flex-1 text-left">
+              <span className="text-base font-medium text-white">Log Center</span>
+              <p className="text-xs text-gray-400">View debug logs</p>
+            </div>
+          </Link>
           
           <div className="border-b border-amber-800/20" />
           

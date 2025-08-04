@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { smartLogger } from '@/lib/smart-logger'
 import { OnboardingProgress } from './OnboardingProgress'
 import { OnboardingSkip } from './OnboardingSkip'
 import { WelcomeStep } from './OnboardingSteps/WelcomeStep'
@@ -91,13 +92,20 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   // Reset state when modal opens
   useEffect(() => {
     if (isOpen) {
-      console.log('OnboardingModal: Resetting state, setting currentStep to 0')
+      smartLogger.info('OnboardingModal', 'MODAL_OPENED', {
+        action: 'reset_state',
+        previousStep: currentStep,
+        previousCompletedSteps: Array.from(completedSteps)
+      })
       setCurrentStep(0)
       setCompletedSteps(new Set())
       setIsSkipping(false)
       setCanClose(false)
-      console.log('OnboardingModal: Set canClose to false')
-      
+      smartLogger.info('OnboardingModal', 'STATE_RESET', {
+        newCurrentStep: 0,
+        newCompletedSteps: [],
+        newCanClose: false
+      })
       // Allow closing after 3 seconds (increased from 1 second)
       setTimeout(() => {
         console.log('OnboardingModal: Setting canClose to true after 3 seconds')
