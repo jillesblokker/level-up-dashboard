@@ -139,8 +139,9 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
       setCompletedSteps(prev => new Set([...prev, currentStep]))
       setCurrentStep(currentStep + 1)
     } else {
-      console.log('OnboardingModal: On last step - user must click to complete')
-      // Don't auto-complete - let user click the button
+      console.log('OnboardingModal: Completing onboarding on last step')
+      // Complete onboarding when user clicks "Start Playing"
+      handleComplete()
     }
   }
 
