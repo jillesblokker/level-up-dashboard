@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react'
 import { smartLogger } from '@/lib/smart-logger'
 
