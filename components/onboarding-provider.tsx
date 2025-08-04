@@ -91,7 +91,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         clearTimeout(timer)
       }
     }
-  }, [isOnboardingOpen]) // Only depend on isOnboardingOpen
+  }, []) // Remove isOnboardingOpen dependency to prevent interference
 
   // Debug: Log modal state
   useEffect(() => {
