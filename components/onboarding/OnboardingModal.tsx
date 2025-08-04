@@ -213,10 +213,11 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
         right: 0, 
         bottom: 0, 
         zIndex: 9999,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        backgroundColor: 'red',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        border: '5px solid yellow'
       }}
       data-modal-container="onboarding"
       onClick={(e) => {
@@ -235,7 +236,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
         }
       }}
     >
-      <Card className="w-full max-w-2xl bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 shadow-2xl h-[90vh] flex flex-col">
+      <Card className="w-full max-w-2xl bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 shadow-2xl h-[90vh] flex flex-col" style={{ backgroundColor: 'white', border: '3px solid blue' }}>
         <CardContent className="p-0 flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-4 md:p-6 border-b border-amber-800/20 flex-shrink-0">
