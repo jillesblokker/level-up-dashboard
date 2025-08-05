@@ -23,7 +23,6 @@ export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
   try {
     console.log('[JWT Verification] Starting verification for:', request.url);
     console.log('[JWT Verification] Request method:', request.method);
-    console.log('[JWT Verification] Request headers:', Object.fromEntries(request.headers.entries()));
     
     // Try to get auth from cookies first (this is the most reliable method)
     let nextReq: NextRequest;
@@ -47,7 +46,6 @@ export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
     }
 
     console.log('[JWT Verification] Trying getAuth...');
-    console.log('[JWT Verification] NextReq headers:', Object.fromEntries(nextReq.headers.entries()));
     const { userId } = await getAuth(nextReq);
     console.log('[JWT Verification] Clerk userId from getAuth:', userId);
     
@@ -64,14 +62,8 @@ export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
       const token = authHeader.substring(7);
       console.log('[JWT Verification] Token found in Authorization header, length:', token.length);
       
-      // For now, let's try a temporary approach - extract user ID from token if possible
-      // This is a simplified approach for debugging
-      console.log('[JWT Verification] Token starts with:', token.substring(0, 20) + '...');
-      
-      // Try to extract user ID from the token (this is a temporary solution)
-      // In production, you should properly verify the JWT
+      // Try to extract user ID from the token
       try {
-        // Simple base64 decode of the payload part (this is not secure, just for debugging)
         const parts = token.split('.');
         if (parts.length === 3 && parts[1]) {
           const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
@@ -88,10 +80,7 @@ export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
     }
     
     console.error('[JWT Verification] No valid authentication found');
-    
-    // TEMPORARY: For debugging, let's return a test user ID to see if the issue is auth or database
-    console.log('[JWT Verification] TEMPORARY: Returning test user ID for debugging');
-    return { success: true, userId: 'user_test_debug_123' };
+    return { success: false, error: 'No valid authentication found' };
   } catch (error) {
     console.error('[JWT Verification] Clerk verification failed:', error);
     return { success: false, error: 'JWT verification failed' };

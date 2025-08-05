@@ -36,8 +36,6 @@ export async function POST(request: NextRequest) {
           health,
           max_health,
           character_name: 'Adventurer',
-          build_tokens: 0,
-          kingdom_expansions: 0,
           updated_at: new Date().toISOString()
         }, {
           onConflict: 'character_stats_user_id_unique'
