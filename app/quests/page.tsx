@@ -654,8 +654,23 @@ export default function QuestsPage() {
   const [addQuestError, setAddQuestError] = useState<string | null>(null);
 
   const handleMilestoneToggle = async (milestoneId: string, currentCompleted: boolean) => {
-    // Placeholder function
-    console.log('handleMilestoneToggle called:', milestoneId, currentCompleted);
+    // Placeholder for milestone toggle functionality
+    console.log('Milestone toggle:', milestoneId, currentCompleted);
+  };
+
+  const handleMilestoneEdit = (milestone: any) => {
+    // Placeholder for milestone edit functionality
+    console.log('Milestone edit:', milestone);
+  };
+
+  const handleMilestoneDelete = async (milestoneId: string) => {
+    // Placeholder for milestone delete functionality
+    console.log('Milestone delete:', milestoneId);
+  };
+
+  const handleAddMilestone = () => {
+    // Placeholder for add milestone functionality
+    console.log('Add milestone clicked');
   };
 
   const handleChallengeCategoryChange = (value: string) => {
@@ -1104,9 +1119,9 @@ export default function QuestsPage() {
               quests={milestones}
               onQuestToggle={handleMilestoneToggle}
               onQuestFavorite={() => {}} // Milestones don't have favorites
-              onQuestEdit={() => {}} // Milestones don't have edit
-              onQuestDelete={() => {}} // Milestones don't have delete
-              onAddQuest={() => {}} // Milestones don't have add
+              onQuestEdit={handleMilestoneEdit}
+              onQuestDelete={handleMilestoneDelete}
+              onAddQuest={handleAddMilestone}
               showCategoryFilter={true}
               context="milestones"
             />

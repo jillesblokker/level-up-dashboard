@@ -214,6 +214,13 @@ export function QuestOrganization({
     return Object.keys(categoryConfig);
   };
 
+  // Set default selected category based on context
+  useEffect(() => {
+    if (context === 'challenges' && selectedCategory === 'all') {
+      setSelectedCategory('Push/Legs/Core');
+    }
+  }, [context, selectedCategory]);
+
   // Filter and sort quests
   const filteredQuests = quests.filter(quest => {
     const matchesCategory = selectedCategory === 'all' || quest.category === selectedCategory

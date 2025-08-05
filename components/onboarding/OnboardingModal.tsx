@@ -282,8 +282,8 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
                   onClick={handlePrevious}
                   aria-label="Previous step"
                   size="sm"
-                  className="sm:size-default border-amber-500 text-amber-900 hover:bg-amber-50 font-semibold"
-                  style={{ color: '#78350f' }}
+                  className="sm:size-default border-amber-500 hover:bg-amber-50 font-semibold"
+                  style={{ color: '#d97706' }}
                 >
                   <span className="hidden sm:inline">Previous</span>
                   <span className="sm:hidden">←</span>
