@@ -22,23 +22,10 @@ export function UserNav() {
   const { user, isLoaded } = useUser();
   const [isClient, setIsClient] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [onboardingHook, setOnboardingHook] = useState<any>(null);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
-
-  useEffect(() => {
-    if (isClient) {
-      try {
-        const { useOnboarding } = require("@/hooks/use-onboarding");
-        const { openOnboarding } = useOnboarding();
-        setOnboardingHook({ openOnboarding });
-      } catch (error) {
-        console.warn('Onboarding hook not available:', error);
-      }
-    }
-  }, [isClient]);
 
   // Helper to get the avatar initial as a string
   const getAvatarInitial = () => {
@@ -46,11 +33,9 @@ export function UserNav() {
     return name && typeof name === 'string' ? name.charAt(0).toUpperCase() : 'U';
   };
 
-  // Full onboarding function
+  // Full onboarding function - temporarily disabled
   const openFullOnboarding = () => {
-    if (onboardingHook?.openOnboarding) {
-      onboardingHook.openOnboarding(true); // Force open the full onboarding
-    }
+    console.log('Onboarding temporarily disabled');
   };
 
   if (!isClient || !user) {

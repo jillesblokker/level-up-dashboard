@@ -28,23 +28,10 @@ export function AccountMenu() {
   const [isLoading, setIsLoading] = useState(false);
   const [profileUpdateCount, setProfileUpdateCount] = useState(0);
   const [isClient, setIsClient] = useState(false);
-  const [onboardingHook, setOnboardingHook] = useState<any>(null);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
-
-  useEffect(() => {
-    if (isClient) {
-      try {
-        const { useOnboarding } = require("@/hooks/use-onboarding");
-        const { openOnboarding, resetOnboarding } = useOnboarding();
-        setOnboardingHook({ openOnboarding, resetOnboarding });
-      } catch (error) {
-        console.warn('Onboarding hook not available:', error);
-      }
-    }
-  }, [isClient]);
 
   useEffect(() => {
     const refresh = async () => {
@@ -90,9 +77,7 @@ export function AccountMenu() {
         reason: 'manual_guide_button_click',
         previousState: 'will_be_cleared'
       });
-      if (onboardingHook?.resetOnboarding) {
-        onboardingHook.resetOnboarding();
-      }
+      console.log('Onboarding reset temporarily disabled');
       
       smartLogger.addGuideStep('OPEN_ONBOARDING', true, {
         action: 'open_onboarding_modal',
@@ -100,9 +85,7 @@ export function AccountMenu() {
         method: 'force_open_override',
         expectedBehavior: 'modal_should_open_immediately'
       });
-      if (onboardingHook?.openOnboarding) {
-        onboardingHook.openOnboarding(true);
-      }
+      console.log('Onboarding open temporarily disabled');
       
       smartLogger.addGuideStep('CLOSE_DROPDOWN', true, {
         action: 'close_account_menu',
