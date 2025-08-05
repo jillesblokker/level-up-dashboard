@@ -17,8 +17,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { GlobalErrorBoundary } from '@/components/global-error-boundary'
 import { TitleEvolutionProvider } from '@/components/title-evolution-provider'
 import { NavBar } from '@/components/nav-bar'
-import { OnboardingProvider } from '@/hooks/use-onboarding'
-import { OnboardingModalWrapper } from '@/components/onboarding-modal-wrapper'
+import { OnboardingProvider } from '@/components/onboarding-provider'
 import { SeasonalHuntWrapper } from '@/components/seasonal-hunt-wrapper'
 
 const fontSans = FontSans({
@@ -111,9 +110,6 @@ export default function RootLayout({
                           </main>
                           <SeasonalHuntWrapper />
                         </AuthGate>
-                        <OnboardingModalWrapper />
-                        <Toaster />
-                        <SonnerToaster />
                       </div>
                     </OnboardingProvider>
                   </Providers>
