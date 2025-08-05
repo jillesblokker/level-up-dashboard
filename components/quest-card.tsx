@@ -167,37 +167,39 @@ export default function QuestCard({
         </div>
       )}
 
+      {/* Card Header */}
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            <CardTitle className="text-xl font-semibold text-white line-clamp-2 group-hover:text-amber-400 transition-colors duration-300">
+            <CardTitle className="text-lg font-bold text-white line-clamp-2 leading-tight">
               {title}
             </CardTitle>
-            <CardDescription className="text-sm text-gray-400 line-clamp-2 mt-1">
+            <CardDescription className="text-gray-400 mt-1 line-clamp-2 text-sm leading-relaxed">
               {description}
             </CardDescription>
           </div>
-        </div>
-
-        {/* Tags */}
-        {tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2">
-            {tags.slice(0, 3).map((tag, index) => (
-              <Badge 
-                key={index}
-                variant="secondary" 
-                className="text-xs px-2 py-0.5 bg-gray-800/50 text-gray-300 border border-gray-700/50"
-              >
-                {tag}
-              </Badge>
-            ))}
-            {tags.length > 3 && (
-              <Badge variant="secondary" className="text-xs px-2 py-0.5 bg-gray-800/50 text-gray-400">
-                +{tags.length - 3}
-              </Badge>
-            )}
+          <div className="flex flex-col items-end gap-2 flex-shrink-0">
+            {/* Status Badge */}
+            <Badge 
+              className={cn(
+                "text-xs font-semibold",
+                status === 'completed' && "bg-green-600 text-white",
+                status === 'in-progress' && "bg-amber-600 text-white",
+                status === 'not-started' && "bg-gray-600 text-white"
+              )}
+            >
+              {status === 'completed' && 'Completed'}
+              {status === 'in-progress' && 'In Progress'}
+              {status === 'not-started' && 'Not Started'}
+            </Badge>
+            
+            {/* Difficulty Badge */}
+            <Badge className={cn("text-xs", difficultyInfo.color, "text-white")}>
+              <DifficultyIcon className="w-3 h-3 mr-1" />
+              {difficultyInfo.label}
+            </Badge>
           </div>
-        )}
+        </div>
       </CardHeader>
 
       <CardContent className="space-y-4">

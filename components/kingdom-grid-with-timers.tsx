@@ -253,20 +253,23 @@ export function KingdomGridWithTimers({
                 {isKingdomTile && timer && (
                   <div className="absolute bottom-1 left-1 right-1">
                     <div className={cn(
-                      "text-xs px-1 py-0.5 rounded text-center font-mono",
+                      "text-xs px-2 py-1 rounded text-center font-mono",
                       isReady 
                         ? "bg-green-500 text-white" 
-                        : "bg-black/80 text-white"
+                        : "bg-black/80 text-white",
+                      // Mobile-specific improvements
+                      "sm:text-xs md:text-sm",
+                      "min-h-[24px] flex items-center justify-center"
                     )}>
                       {isReady ? (
                         <div className="flex items-center justify-center gap-1">
-                          <Sparkles className="w-3 h-3" />
-                          Ready!
+                          <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
+                          <span className="whitespace-nowrap">Ready!</span>
                         </div>
                       ) : (
                         <div className="flex items-center justify-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {formatTimeRemaining(timer.endTime)}
+                          <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                          <span className="whitespace-nowrap">{formatTimeRemaining(timer.endTime)}</span>
                         </div>
                       )}
                     </div>

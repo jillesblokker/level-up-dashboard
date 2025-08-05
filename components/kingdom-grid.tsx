@@ -320,7 +320,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
       <div className="relative w-full flex items-center justify-center">
         {/* Floating + button in top right corner of grid */}
         <button
-          className="absolute top-4 right-4 z-20 w-12 h-12 bg-amber-700 text-white rounded-full shadow-lg flex items-center justify-center text-3xl font-bold hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          className="absolute top-4 right-4 z-20 w-14 h-14 sm:w-12 sm:h-12 bg-amber-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl sm:text-3xl font-bold hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 touch-manipulation min-h-[44px]"
           aria-label="Open properties panel"
           onClick={() => setPropertiesOpen(true)}
         >
@@ -330,7 +330,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
         <Tooltip>
           <TooltipTrigger asChild>
             <button
-              className="absolute top-20 right-4 z-20 w-12 h-12 bg-amber-600 text-white rounded-full shadow-lg flex items-center justify-center text-sm font-bold hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="absolute top-24 sm:top-20 right-4 z-20 w-14 h-14 sm:w-12 sm:h-12 bg-amber-600 text-white rounded-full shadow-lg flex items-center justify-center text-base sm:text-sm font-bold hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation min-h-[44px]"
               onClick={expandKingdomGrid}
               disabled={!canExpand}
               aria-label="Expand kingdom grid"
@@ -340,7 +340,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
           </TooltipTrigger>
           <TooltipContent 
             side="left" 
-            className="bg-gray-900 text-white border-amber-800/30"
+            className="bg-gray-900 text-white border-amber-800/30 max-w-xs break-words"
           >
             {canExpand 
               ? `Expand kingdom (Level ${playerLevel} required: ${nextExpansionLevel})`

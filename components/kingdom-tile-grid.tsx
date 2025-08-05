@@ -130,8 +130,8 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
       </Card>
 
       {/* Tile Grid */}
-      <ScrollArea className="h-[600px]">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 p-4">
+      <ScrollArea className="h-[600px] sm:h-[500px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 p-2 sm:p-4">
           {placedTiles.map((tile) => {
             const savedTimers = localStorage.getItem('kingdom-tile-timers')
             const timers = savedTimers ? JSON.parse(savedTimers) : []

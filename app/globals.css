@@ -48,3 +48,134 @@
   max-height: 80vh !important;
   overflow-y: auto !important;
 } 
+
+/* Mobile-First Responsive Design */
+@media (max-width: 768px) {
+  /* Mobile-specific overrides */
+  html, body {
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Safe area handling */
+  main, .main-content, [role="main"] {
+    padding-top: env(safe-area-inset-top, 0);
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height */
+  }
+
+  /* Touch-friendly sizing */
+  .card {
+    margin: 0.5rem;
+    border-radius: 8px;
+  }
+
+  .btn-primary {
+    min-height: 44px; /* iOS touch target minimum */
+    padding: 12px 16px;
+  }
+
+  /* Mobile navigation fixes */
+  .nav-item {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+
+  /* Mobile scroll containers */
+  .scroll-container {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  /* Prevent zoom on input focus */
+  input, textarea, select {
+    font-size: 16px;
+  }
+
+  /* Mobile-specific spacing */
+  .card-content {
+    padding: 1rem;
+  }
+
+  /* Mobile grid adjustments */
+  .grid-container {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  /* Mobile button groups */
+  .button-group {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .button-group > * {
+    width: 100%;
+  }
+
+  /* Enhanced mobile text fitting */
+  .mobile-text-fit {
+    font-size: 14px;
+    line-height: 1.4;
+    word-break: break-word;
+  }
+
+  /* Mobile badge improvements */
+  .badge-mobile {
+    font-size: 11px;
+    padding: 4px 8px;
+    min-height: 20px;
+  }
+
+  /* Mobile tooltip improvements */
+  .tooltip-mobile {
+    max-width: 200px;
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+
+  /* Mobile modal improvements */
+  .modal-mobile {
+    margin: 16px;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+  }
+
+  /* Mobile touch improvements */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+
+  /* Mobile text truncation */
+  .text-truncate-mobile {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+
+  /* Mobile spacing improvements */
+  .mobile-spacing {
+    gap: 12px;
+    padding: 16px;
+  }
+
+  /* Mobile icon sizing */
+  .icon-mobile {
+    width: 20px;
+    height: 20px;
+  }
+
+  .icon-mobile-sm {
+    width: 16px;
+    height: 16px;
+  }
+} 

@@ -168,42 +168,43 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
               <Progress value={levelProgress} className="h-3 bg-gray-700" />
             </div>
 
-            {/* Enhanced Navigation Items */}
-            <nav className="flex-1 p-5 space-y-2 overflow-y-auto">
-              {mainNavItems.map((item) => {
-                const Icon = item.icon
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setOpen(false)}
-                    className={cn(
-                      "flex items-center gap-4 p-4 rounded-xl transition-all duration-300 group min-h-[52px] touch-manipulation",
-                      isActive(item.href)
-                        ? "bg-gradient-to-r from-amber-500/25 to-amber-600/25 border-2 border-amber-500/40 text-amber-400 shadow-lg"
-                        : "text-gray-300 hover:text-amber-400 hover:bg-amber-500/10 border-2 border-transparent hover:border-amber-500/20 active:bg-amber-500/15"
-                    )}
-                    aria-label={`Navigate to ${item.label}`}
-                    aria-current={isActive(item.href) ? "page" : undefined}
-                  >
-                    <div className={cn(
-                      "p-3 rounded-lg transition-all duration-300 flex-shrink-0",
-                      isActive(item.href)
-                        ? "bg-amber-500/25 text-amber-400 shadow-sm"
-                        : "bg-gray-800/50 text-gray-400 group-hover:bg-amber-500/20 group-hover:text-amber-400"
-                    )}>
-                      <Icon className="h-6 w-6" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-base">{item.label}</p>
-                      <p className="text-sm text-gray-500 group-hover:text-gray-400 mt-1">{item.description}</p>
-                    </div>
-                    {isActive(item.href) && (
-                      <div className="w-3 h-3 bg-amber-500 rounded-full animate-pulse flex-shrink-0" />
-                    )}
-                  </Link>
-                )
-              })}
+            {/* Navigation Items */}
+            <nav className="flex-1 overflow-y-auto py-4">
+              <div className="space-y-2 px-4">
+                {mainNavItems.map((item) => {
+                  const Icon = item.icon
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        "flex items-center gap-4 p-4 rounded-lg transition-all duration-200 touch-manipulation min-h-[44px]",
+                        "bg-gradient-to-r from-gray-800/50 to-gray-700/50 border border-amber-800/20",
+                        "hover:from-amber-800/20 hover:to-amber-700/20 hover:border-amber-500/40",
+                        "active:from-amber-600/30 active:to-amber-500/30",
+                        isActive(item.href) && "from-amber-700/30 to-amber-600/30 border-amber-500/50 shadow-lg shadow-amber-500/20"
+                      )}
+                      onClick={() => setOpen(false)}
+                      aria-label={`Navigate to ${item.label}`}
+                    >
+                      <div className="flex-shrink-0 w-10 h-10 bg-amber-600/20 rounded-lg flex items-center justify-center border border-amber-500/30">
+                        <Icon className="w-5 h-5 text-amber-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-white font-semibold text-base truncate">
+                          {item.label}
+                        </div>
+                        <div className="text-gray-400 text-sm truncate">
+                          {item.description}
+                        </div>
+                      </div>
+                      {isActive(item.href) && (
+                        <div className="flex-shrink-0 w-2 h-2 bg-amber-400 rounded-full" />
+                      )}
+                    </Link>
+                  )
+                })}
+              </div>
             </nav>
 
             {/* Enhanced Quick Stats */}
