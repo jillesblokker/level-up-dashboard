@@ -192,17 +192,19 @@ export default function QuestCard({
                 {status === 'in-progress' && 'In Progress'}
               </Badge>
             )}
-            
-            {/* Difficulty Badge */}
-            <Badge className={cn("text-xs", difficultyInfo.color, "text-white")}>
-              <DifficultyIcon className="w-3 h-3 mr-1" />
-              {difficultyInfo.label}
-            </Badge>
           </div>
         </div>
       </CardHeader>
 
       <CardContent className="space-y-4">
+        {/* Difficulty Tag - Moved to content area */}
+        <div className="flex items-center gap-2">
+          <Badge className={cn("text-xs", difficultyInfo.color, "text-white")}>
+            <DifficultyIcon className="w-3 h-3 mr-1" />
+            {difficultyInfo.label}
+          </Badge>
+        </div>
+
         {/* Progress Section */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">

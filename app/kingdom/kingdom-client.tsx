@@ -159,7 +159,7 @@ function getItemImagePath(item: KingdomInventoryItem): string {
   
   console.log(`No specific path found for ${item.name}, using fallback`);
   // Fallback
-  return "/images/items/placeholder.jpg";
+  return "/images/placeholders/item-placeholder.svg";
 }
 
 // Helper to determine if an item is equippable
@@ -303,7 +303,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
           aria-label={`${item.name}-image`}
           onError={(e: React.SyntheticEvent<HTMLImageElement>) => { 
             console.error(`Failed to load image for ${item.name}:`, getItemImagePath(item));
-            (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; 
+            (e.target as HTMLImageElement).src = "/images/placeholders/item-placeholder.svg"; 
           }}
           onLoad={() => {
             console.log(`Successfully loaded image for ${item.name}:`, getItemImagePath(item));

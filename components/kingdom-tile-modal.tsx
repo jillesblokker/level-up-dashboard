@@ -31,9 +31,9 @@ export function KingdomTileModal({ isOpen, onClose, reward }: KingdomTileModalPr
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md bg-gray-900 border-gray-700">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-white">
             <Sparkles className="h-5 w-5 text-amber-500" />
             {reward.isLucky ? 'Lucky Find!' : 'Kingdom Reward'}
           </DialogTitle>
@@ -41,23 +41,23 @@ export function KingdomTileModal({ isOpen, onClose, reward }: KingdomTileModalPr
         
         <div className="space-y-4">
           {/* Story Message */}
-          <Card>
+          <Card className="bg-gray-800 border-gray-700">
             <CardContent className="pt-6">
-              <p className="text-sm text-gray-700 leading-relaxed">
+              <p className="text-sm text-gray-200 leading-relaxed">
                 {reward.message}
               </p>
             </CardContent>
           </Card>
 
           {/* Gold Reward */}
-          <Card className="border-amber-200 bg-amber-50">
+          <Card className="border-amber-600 bg-amber-900/20">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Coins className="h-5 w-5 text-amber-600" />
-                  <span className="font-semibold text-amber-800">Gold Earned</span>
+                  <Coins className="h-5 w-5 text-amber-400" />
+                  <span className="font-semibold text-amber-200">Gold Earned</span>
                 </div>
-                <Badge variant="secondary" className="bg-amber-100 text-amber-800">
+                <Badge variant="secondary" className="bg-amber-600 text-white">
                   +{reward.goldEarned} gold
                 </Badge>
               </div>
@@ -66,14 +66,14 @@ export function KingdomTileModal({ isOpen, onClose, reward }: KingdomTileModalPr
 
           {/* Item Found */}
           {reward.itemFound && (
-            <Card className="border-blue-200 bg-blue-50">
+            <Card className="border-blue-600 bg-blue-900/20">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Gift className="h-5 w-5 text-blue-600" />
+                    <Gift className="h-5 w-5 text-blue-400" />
                     <div>
-                      <p className="font-semibold text-blue-800">Item Found</p>
-                      <p className="text-sm text-blue-600 capitalize">{reward.itemFound.type}</p>
+                      <p className="font-semibold text-blue-200">Item Found</p>
+                      <p className="text-sm text-blue-300 capitalize">{reward.itemFound.type}</p>
                     </div>
                   </div>
                   <div className="relative w-12 h-12">
@@ -82,6 +82,9 @@ export function KingdomTileModal({ isOpen, onClose, reward }: KingdomTileModalPr
                       alt={reward.itemFound.name}
                       fill
                       className="object-contain"
+                      onError={(e) => { 
+                        e.currentTarget.src = '/images/placeholders/item-placeholder.svg' 
+                      }}
                     />
                   </div>
                 </div>
@@ -91,13 +94,13 @@ export function KingdomTileModal({ isOpen, onClose, reward }: KingdomTileModalPr
 
           {/* Lucky Bonus Indicator */}
           {reward.isLucky && (
-            <Card className="border-green-200 bg-green-50">
+            <Card className="border-green-600 bg-green-900/20">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-green-600" />
-                  <span className="font-semibold text-green-800">Lucky Bonus!</span>
+                  <Sparkles className="h-5 w-5 text-green-400" />
+                  <span className="font-semibold text-green-200">Lucky Bonus!</span>
                 </div>
-                <p className="text-sm text-green-600 mt-1">
+                <p className="text-sm text-green-300 mt-1">
                   You found extra gold and a rare item!
                 </p>
               </CardContent>
@@ -105,7 +108,7 @@ export function KingdomTileModal({ isOpen, onClose, reward }: KingdomTileModalPr
           )}
 
           {/* Close Button */}
-          <Button onClick={onClose} className="w-full">
+          <Button onClick={onClose} className="w-full bg-amber-600 hover:bg-amber-700 text-white">
             Continue
           </Button>
         </div>
