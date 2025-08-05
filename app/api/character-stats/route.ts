@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
           max_health: max_health || 100,
           updated_at: new Date().toISOString()
         }, {
-          onConflict: 'character_stats_user_id_unique'
+          onConflict: 'user_id' // Use the column name instead of constraint name
         })
         .select()
         .single();

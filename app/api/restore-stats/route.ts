@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
           character_name: 'Adventurer',
           updated_at: new Date().toISOString()
         }, {
-          onConflict: 'character_stats_user_id_unique'
+          onConflict: 'user_id' // Use the column name instead of constraint name
         })
         .select()
         .single();
