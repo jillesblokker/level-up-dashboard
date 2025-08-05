@@ -19,18 +19,18 @@ export async function POST(request: NextRequest) {
       const { error: statsError } = await supabase.rpc('exec_sql', {
         sql: `
           CREATE TABLE IF NOT EXISTS public.character_stats (
-            id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-            user_id TEXT NOT NULL,
-            gold INTEGER NOT NULL DEFAULT 0,
-            experience INTEGER NOT NULL DEFAULT 0,
-            level INTEGER NOT NULL DEFAULT 1,
-            health INTEGER NOT NULL DEFAULT 100,
-            max_health INTEGER NOT NULL DEFAULT 100,
-            character_name TEXT DEFAULT 'Adventurer',
-            build_tokens INTEGER NOT NULL DEFAULT 0,
-            kingdom_expansions INTEGER NOT NULL DEFAULT 0,
-            created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-            updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+            id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+            user_id uuid REFERENCES auth.users(id) NOT NULL,
+            gold integer NOT NULL DEFAULT 0,
+            experience integer NOT NULL DEFAULT 0,
+            level integer NOT NULL DEFAULT 1,
+            health integer NOT NULL DEFAULT 100,
+            max_health integer NOT NULL DEFAULT 100,
+            character_name text DEFAULT 'Adventurer',
+            build_tokens integer NOT NULL DEFAULT 0,
+            kingdom_expansions integer NOT NULL DEFAULT 0,
+            created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+            updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
             UNIQUE(user_id)
           );
         `
@@ -51,15 +51,15 @@ export async function POST(request: NextRequest) {
       const { error: goldError } = await supabase.rpc('exec_sql', {
         sql: `
           CREATE TABLE IF NOT EXISTS public.gold_transactions (
-            id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-            user_id TEXT NOT NULL,
-            transaction_type TEXT NOT NULL,
-            amount INTEGER NOT NULL,
-            balance_after INTEGER NOT NULL,
-            source TEXT,
-            description TEXT,
-            metadata JSONB,
-            created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+            id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+            user_id uuid REFERENCES auth.users(id) NOT NULL,
+            transaction_type text NOT NULL,
+            amount integer NOT NULL,
+            balance_after integer NOT NULL,
+            source text,
+            description text,
+            metadata jsonb,
+            created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
           );
         `
       });
@@ -79,15 +79,15 @@ export async function POST(request: NextRequest) {
       const { error: expError } = await supabase.rpc('exec_sql', {
         sql: `
           CREATE TABLE IF NOT EXISTS public.experience_transactions (
-            id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-            user_id TEXT NOT NULL,
-            transaction_type TEXT NOT NULL,
-            amount INTEGER NOT NULL,
-            total_after INTEGER NOT NULL,
-            source TEXT,
-            description TEXT,
-            metadata JSONB,
-            created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+            id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+            user_id uuid REFERENCES auth.users(id) NOT NULL,
+            transaction_type text NOT NULL,
+            amount integer NOT NULL,
+            total_after integer NOT NULL,
+            source text,
+            description text,
+            metadata jsonb,
+            created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
           );
         `
       });
