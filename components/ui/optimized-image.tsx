@@ -39,7 +39,7 @@ export function OptimizedImage({
     }
   }
 
-  const imageProps = {
+  const imageProps: ImageProps = {
     src: imageSrc,
     alt,
     className: cn('object-cover', className),
