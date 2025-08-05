@@ -296,106 +296,131 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   }
 
   // Restore renderItemCard for inventory display
-  const renderItemCard = (item: KingdomInventoryItem, isEquipped: boolean = false) => (
-    <Card 
-      key={item.id} 
-      className={`bg-black border-2 border-amber-500/30 rounded-xl shadow-lg transition-all duration-300 hover:border-amber-400/50 hover:shadow-amber-500/20 hover:-translate-y-1 hover:scale-[1.02] ${isEquipped ? 'ring-2 ring-amber-500 shadow-amber-500/30' : ''}`}
-      aria-label={`inventory-item-${item.id}`}
-    >
-      {/* Full-width image container */}
-      <div className="w-full h-80 relative overflow-hidden rounded-t-xl">
-        <Image
-          src={getItemImagePath(item)}
-          alt={`${item.name} ${item.type}`}
-          fill
-          className="object-cover w-full h-full"
-          aria-label={`${item.name}-image`}
-          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { 
-            console.error(`Failed to load image for ${item.name}:`, getItemImagePath(item));
-            (e.target as HTMLImageElement).src = "/images/placeholders/item-placeholder.svg"; 
-          }}
-          onLoad={() => {
-            console.log(`Successfully loaded image for ${item.name}:`, getItemImagePath(item));
-          }}
-        />
-        {/* Equipped label in top right corner */}
-        {isEquipped && (
-          <div className="absolute top-2 right-2">
-            <div className="bg-amber-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
-              Equipped
+  const renderItemCard = (item: KingdomInventoryItem, isEquipped: boolean = false) => {
+    const imagePath = getItemImagePath(item);
+    console.log(`[Kingdom] Rendering item card for ${item.name}:`, {
+      item,
+      imagePath,
+      isEquipped
+    });
+    
+    return (
+      <Card 
+        key={item.id} 
+        className={`bg-black border-2 border-amber-500/30 rounded-xl shadow-lg transition-all duration-300 hover:border-amber-400/50 hover:shadow-amber-500/20 hover:-translate-y-1 hover:scale-[1.02] ${isEquipped ? 'ring-2 ring-amber-500 shadow-amber-500/30' : ''}`}
+        aria-label={`inventory-item-${item.id}`}
+      >
+        {/* Full-width image container */}
+        <div className="w-full h-80 relative overflow-hidden rounded-t-xl">
+          <Image
+            src={imagePath}
+            alt={`${item.name} ${item.type}`}
+            fill
+            className="object-cover w-full h-full"
+            aria-label={`${item.name}-image`}
+            onError={(e: React.SyntheticEvent<HTMLImageElement>) => { 
+              console.error(`Failed to load image for ${item.name}:`, imagePath);
+              (e.target as HTMLImageElement).src = "/images/placeholders/item-placeholder.svg"; 
+            }}
+            onLoad={() => {
+              console.log(`Successfully loaded image for ${item.name}:`, imagePath);
+            }}
+          />
+          {/* Equipped label in top right corner */}
+          {isEquipped && (
+            <div className="absolute top-2 right-2">
+              <div className="bg-amber-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
+                Equipped
+              </div>
+            </div>
+          )}
+        </div>
+        
+        <CardHeader className="p-4 pb-2">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <CardTitle className="text-amber-500 text-lg font-semibold mb-1">
+                {item.name}
+              </CardTitle>
+              {item.type && (
+                <Badge className="text-xs bg-gray-700 text-gray-300 mb-2">
+                  {item.type}
+                </Badge>
+              )}
+              {item.description && (
+                <CardDescription className="text-gray-400 text-sm leading-relaxed">
+                  {item.description}
+                </CardDescription>
+              )}
             </div>
           </div>
-        )}
-      </div>
-      
-      <CardHeader className="p-4 pb-2">
-        <div className="flex flex-col items-center space-y-2">
-          <h4 className="text-amber-400 font-bold text-lg text-center">{item.name}</h4>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="bg-gray-800/50 text-gray-300 border-gray-700/50 text-xs">
-              {item.type}
-            </Badge>
-            {item.category && (
-              <Badge variant="secondary" className="bg-amber-900/30 text-amber-400 border-amber-800/30 text-xs">
-                {item.category}
-              </Badge>
-            )}
-          </div>
-        </div>
+        </CardHeader>
         
-        {/* Stats badges */}
-        {Object.entries(item.stats ?? {}).map(([stat, value]) => (
-          <Badge key={stat} className="bg-amber-950/30 text-amber-400 border-amber-800/30 mt-2 text-xs">
-            {stat} +{value}
-          </Badge>
-        ))}
-      </CardHeader>
-      
-      <CardContent className="p-4 pt-0">
-        {item.description && (
-          <p className="text-sm text-gray-400 mb-4 text-center leading-relaxed">{item.description}</p>
-        )}
-        
-        <div className="flex justify-between items-center">
-          {/* Quantity for consumables */}
-          {isConsumable(item) && (
-            <span className="text-xs text-gray-500 font-medium">Qty: {item.quantity}</span>
-          )}
-          
-          <Button
-            size="sm"
-            variant={isEquipped ? "destructive" : isConsumable(item) ? "default" : "default"}
-            onClick={() => isEquipped ? handleUnequip(item) : (isEquippable(item) ? handleEquip(item) : undefined)}
-            className={`transition-all duration-200 ${
-              isEquipped 
-                ? 'bg-red-600 hover:bg-red-700' 
-                : isConsumable(item)
-                  ? 'bg-amber-600 hover:bg-amber-700'
-                  : 'bg-blue-600 hover:bg-blue-700'
-            }`}
-            aria-label={
-              isEquipped
-                ? `Unequip ${item.name}`
-                : isConsumable(item)
-                  ? `Use ${item.name}`
+        <CardContent className="p-4 pt-0">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              {item.stats && Object.keys(item.stats).length > 0 && (
+                <div className="flex gap-2">
+                  {item.stats.movement && (
+                    <Badge variant="outline" className="text-xs">
+                      🏃 {item.stats.movement}
+                    </Badge>
+                  )}
+                  {item.stats.attack && (
+                    <Badge variant="outline" className="text-xs">
+                      ⚔️ {item.stats.attack}
+                    </Badge>
+                  )}
+                  {item.stats.defense && (
+                    <Badge variant="outline" className="text-xs">
+                      🛡️ {item.stats.defense}
+                    </Badge>
+                  )}
+                </div>
+              )}
+              {item.quantity && item.quantity > 1 && (
+                <span className="text-gray-400 text-sm">
+                  Qty: {item.quantity}
+                </span>
+              )}
+            </div>
+            
+            <Button
+              size="sm"
+              onClick={() => isEquipped ? handleUnequip(item) : handleEquip(item)}
+              className={`${
+                isEquipped
+                  ? 'bg-red-600 hover:bg-red-700'
                   : isEquippable(item)
-                    ? `Equip ${item.name}`
-                    : undefined
-            }
-            disabled={!isEquippable(item) && !isConsumable(item)}
-          >
-            {isEquipped
-              ? "Unequip"
-              : isConsumable(item)
-                ? "Use"
-                : isEquippable(item)
-                  ? "Equip"
-                  : null}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
+                    ? 'bg-green-600 hover:bg-green-700'
+                    : isConsumable(item)
+                      ? 'bg-amber-600 hover:bg-amber-700'
+                      : 'bg-blue-600 hover:bg-blue-700'
+              }`}
+              aria-label={
+                isEquipped
+                  ? `Unequip ${item.name}`
+                  : isConsumable(item)
+                    ? `Use ${item.name}`
+                    : isEquippable(item)
+                      ? `Equip ${item.name}`
+                      : undefined
+              }
+              disabled={!isEquippable(item) && !isConsumable(item)}
+            >
+              {isEquipped
+                ? "Unequip"
+                : isConsumable(item)
+                  ? "Use"
+                  : isEquippable(item)
+                    ? "Equip"
+                    : null}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   // All useEffect hooks at the top
   useEffect(() => {
