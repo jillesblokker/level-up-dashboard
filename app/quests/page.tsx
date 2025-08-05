@@ -145,130 +145,6 @@ function getStreakBonus(streak: number) {
 }
 
 export default function QuestsPage() {
-  // Predefined challenges data
-  const predefinedChallenges = [
-    {
-      id: 'challenge-1',
-      name: 'Push-up Challenge',
-      description: 'Complete 3 sets of 12 push-ups',
-      category: 'might',
-      difficulty: 'medium',
-      xp: 50,
-      gold: 25,
-      completed: false,
-      favorited: false,
-      isNew: false
-    },
-    {
-      id: 'challenge-2',
-      name: 'Plank Challenge',
-      description: 'Hold plank position for 3 sets of 45 seconds',
-      category: 'vitality',
-      difficulty: 'medium',
-      xp: 50,
-      gold: 25,
-      completed: false,
-      favorited: false,
-      isNew: false
-    },
-    {
-      id: 'challenge-3',
-      name: 'Burpee Challenge',
-      description: 'Complete 3 sets of 15 burpees',
-      category: 'might',
-      difficulty: 'hard',
-      xp: 75,
-      gold: 35,
-      completed: false,
-      favorited: false,
-      isNew: false
-    },
-    {
-      id: 'challenge-4',
-      name: 'Reading Challenge',
-      description: 'Read for 30 minutes',
-      category: 'knowledge',
-      difficulty: 'easy',
-      xp: 30,
-      gold: 15,
-      completed: false,
-      favorited: false,
-      isNew: false
-    },
-    {
-      id: 'challenge-5',
-      name: 'Meditation Challenge',
-      description: 'Meditate for 10 minutes',
-      category: 'wellness',
-      difficulty: 'easy',
-      xp: 25,
-      gold: 10,
-      completed: false,
-      favorited: false,
-      isNew: false
-    }
-  ];
-
-  // Predefined milestones data
-  const predefinedMilestones = [
-    {
-      id: 'milestone-1',
-      name: 'Workout Consistency',
-      description: 'Complete 7 workout challenges in a week',
-      category: 'might',
-      difficulty: 'medium',
-      xp: 200,
-      gold: 100,
-      completed: false,
-      favorited: false,
-      isNew: false,
-      progress: 3,
-      total: 7
-    },
-    {
-      id: 'milestone-2',
-      name: 'Strength Builder',
-      description: 'Complete 20 strength-based challenges',
-      category: 'might',
-      difficulty: 'hard',
-      xp: 500,
-      gold: 250,
-      completed: false,
-      favorited: false,
-      isNew: false,
-      progress: 12,
-      total: 20
-    },
-    {
-      id: 'milestone-3',
-      name: 'Knowledge Seeker',
-      description: 'Complete 15 knowledge-based challenges',
-      category: 'knowledge',
-      difficulty: 'medium',
-      xp: 300,
-      gold: 150,
-      completed: false,
-      favorited: false,
-      isNew: false,
-      progress: 8,
-      total: 15
-    },
-    {
-      id: 'milestone-4',
-      name: 'Wellness Champion',
-      description: 'Complete 10 wellness challenges',
-      category: 'wellness',
-      difficulty: 'medium',
-      xp: 250,
-      gold: 125,
-      completed: false,
-      favorited: false,
-      isNew: false,
-      progress: 5,
-      total: 10
-    }
-  ];
-
   const { isLoaded: isClerkLoaded, user } = useUser();
   const { getToken } = useAuth();
   const userId = user?.id;
@@ -774,7 +650,7 @@ export default function QuestsPage() {
   };
 
   // Add remaining missing variables and functions
-  const [milestones] = useState<any[]>(predefinedMilestones);
+  const [milestones, setMilestones] = useState<any[]>([]);
   const [addQuestError, setAddQuestError] = useState<string | null>(null);
 
   const handleMilestoneToggle = async (milestoneId: string, currentCompleted: boolean) => {
@@ -814,9 +690,35 @@ export default function QuestsPage() {
 
   // Initialize predefined data - must be before any early returns
   useEffect(() => {
-    setChallenges(predefinedChallenges);
-    // Note: milestones is already set to predefinedMilestones in the useState
-  }, []);
+    // Fetch challenges and milestones from Supabase instead of using predefined data
+    const fetchChallengesAndMilestones = async () => {
+      if (!token) return;
+      
+      try {
+        // Fetch challenges
+        const challengesRes = await fetch('/api/challenges', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (challengesRes.ok) {
+          const challengesData = await challengesRes.json();
+          setChallenges(challengesData || []);
+        }
+
+        // Fetch milestones
+        const milestonesRes = await fetch('/api/milestones', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (milestonesRes.ok) {
+          const milestonesData = await milestonesRes.json();
+          setMilestones(milestonesData || []);
+        }
+      } catch (error) {
+        console.error('Error fetching challenges and milestones:', error);
+      }
+    };
+
+    fetchChallengesAndMilestones();
+  }, [token]);
 
   if (!isClerkLoaded || !isUserLoaded) {
     console.log('Waiting for auth and Clerk client...');
