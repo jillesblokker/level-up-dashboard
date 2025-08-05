@@ -16,25 +16,6 @@ import {
 
 
 export default function AccountPage() {
-  const [isClient, setIsClient] = useState(false);
-  const [onboardingHook, setOnboardingHook] = useState<any>(null);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  useEffect(() => {
-    if (isClient) {
-      try {
-        const { useOnboarding } = require("@/hooks/use-onboarding");
-        const { openOnboarding } = useOnboarding();
-        setOnboardingHook({ openOnboarding });
-      } catch (error) {
-        console.warn('Onboarding hook not available:', error);
-      }
-    }
-  }, [isClient]);
-
   const accountMenuItems = [
     { 
       href: "/profile", 
@@ -67,9 +48,7 @@ export default function AccountPage() {
   ]
 
   const handleGuideClick = () => {
-    if (onboardingHook?.openOnboarding) {
-      onboardingHook.openOnboarding(true)
-    }
+    console.log('Onboarding guide temporarily disabled');
   }
 
   return (

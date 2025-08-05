@@ -121,28 +121,15 @@ export default function SettingsPage() {
   }
 
   const handleResetOnboarding = () => {
-    try {
-      if (onboardingHook?.resetOnboarding) {
-        onboardingHook.resetOnboarding()
-      }
-      toast({
-        title: "Onboarding Reset",
-        description: "The tutorial will be shown again on your next visit.",
-      })
-    } catch (error) {
-      console.error("Error resetting onboarding:", error)
-      toast({
-        title: "Error",
-        description: "Failed to reset onboarding.",
-        variant: "destructive",
-      })
-    }
+    console.log('Onboarding reset temporarily disabled');
+    toast({
+      title: "Onboarding Reset",
+      description: "The tutorial will be shown again on your next visit.",
+    })
   }
 
   const handleShowTutorial = () => {
-    if (onboardingHook?.openOnboarding) {
-      onboardingHook.openOnboarding()
-    }
+    console.log('Onboarding tutorial temporarily disabled');
   }
 
   const handleGithubToggle = async (checked: boolean) => {
