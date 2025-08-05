@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { X, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react'
@@ -87,6 +87,12 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
   const [isSkipping, setIsSkipping] = useState(false)
   const [canClose, setCanClose] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
+  
+  // Ensure component is mounted before using portal
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
   
   // Reset state when modal opens
   useEffect(() => {
@@ -98,67 +104,11 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
         triggerSource: 'force_open_from_guide_button',
         timestamp: new Date().toISOString()
       })
+      
       setCurrentStep(0)
       setCompletedSteps(new Set())
       setIsSkipping(false)
       setCanClose(false)
-      smartLogger.info('OnboardingModal', 'STATE_RESET', {
-        newCurrentStep: 0,
-        newCompletedSteps: [],
-        newCanClose: false,
-        resetReason: 'modal_opened_manually'
-      })
-      
-      // Force modal to be visible and properly positioned
-      setTimeout(() => {
-        const modal = document.querySelector('[data-modal-container="onboarding"]') as HTMLElement
-        if (modal) {
-          // Ensure modal is visible and properly positioned
-          modal.style.position = 'fixed'
-          modal.style.top = '0'
-          modal.style.left = '0'
-          modal.style.width = '100vw'
-          modal.style.height = '100vh'
-          modal.style.zIndex = '9999'
-          modal.style.display = 'flex'
-          modal.style.alignItems = 'center'
-          modal.style.justifyContent = 'center'
-          modal.style.backgroundColor = 'rgba(0, 0, 0, 0.8)'
-          modal.style.backdropFilter = 'blur(4px)'
-          
-          // Force visibility with bright border for debugging
-          modal.style.border = '3px solid red'
-          modal.style.outline = '3px solid yellow'
-          modal.style.visibility = 'visible'
-          modal.style.opacity = '1'
-          modal.style.pointerEvents = 'auto'
-          
-          // Force modal to be the topmost element
-          document.body.appendChild(modal)
-          
-          smartLogger.info('OnboardingModal', 'FORCE_VISIBILITY', {
-            action: 'force_modal_visibility',
-            modalFound: !!modal,
-            stylesApplied: {
-              position: 'fixed',
-              zIndex: '9999',
-              display: 'flex',
-              border: '3px solid red',
-              outline: '3px solid yellow'
-            }
-          })
-        }
-      }, 50)
-      
-      // Allow closing after 3 seconds (increased from 1 second)
-      setTimeout(() => {
-        smartLogger.info('OnboardingModal', 'CAN_CLOSE_ENABLED', {
-          action: 'enable_close_after_delay',
-          delay: '3000ms',
-          reason: 'prevent_accidental_closing'
-        })
-        setCanClose(true)
-      }, 3000)
     }
   }, [isOpen])
 
@@ -246,15 +196,23 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   const CurrentStepComponent = currentStepData.component
   const progress = ((currentStep + 1) / ONBOARDING_STEPS.length) * 100
   
-  const currentStepComponent = (
-    <CurrentStepComponent 
-      onNext={handleNext}
-      onPrevious={handlePrevious}
-      isFirstStep={currentStep === 0}
-      isLastStep={currentStep === ONBOARDING_STEPS.length - 1}
-      stepData={currentStepData}
-    />
-  )
+  const currentStepComponent = React.createElement(ONBOARDING_STEPS[currentStep]?.component || WelcomeStep, {
+    onNext: handleNext,
+    onPrevious: handlePrevious,
+    isFirstStep: currentStep === 0,
+    isLastStep: currentStep === ONBOARDING_STEPS.length - 1,
+    stepData: { currentStep, totalSteps: ONBOARDING_STEPS.length }
+  })
+
+  // Don't render anything until mounted
+  if (!isMounted) {
+    return null
+  }
+
+  // Don't render if not open
+  if (!isOpen) {
+    return null
+  }
 
   // Create portal content with aggressive debugging styles
   const modalContent = (
@@ -348,12 +306,8 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   )
 
   // Use portal to render modal at the top level of the DOM
-  if (typeof window !== 'undefined') {
-    return (
-      <>
-        {createPortal(modalContent, document.body)}
-      </>
-    )
+  if (typeof window !== 'undefined' && document.body) {
+    return createPortal(modalContent, document.body)
   }
   
   return modalContent
