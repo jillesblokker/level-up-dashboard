@@ -17,7 +17,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { GlobalErrorBoundary } from '@/components/global-error-boundary'
 import { TitleEvolutionProvider } from '@/components/title-evolution-provider'
 import { NavBar } from '@/components/nav-bar'
-import { OnboardingProvider } from '@/components/onboarding-provider'
+
 import { SeasonalHuntWrapper } from '@/components/seasonal-hunt-wrapper'
 
 const fontSans = FontSans({
@@ -100,18 +100,16 @@ export default function RootLayout({
               <GradientProvider>
                 <TitleEvolutionProvider>
                   <Providers>
-                    {/* Re-enabled OnboardingProvider for full onboarding experience */}
-                    <OnboardingProvider>
-                      <div className="flex flex-col h-full">
-                        <AuthGate>
-                          <NavBar session={null} />
-                          <main className="flex-1 relative">
-                            {children}
-                          </main>
-                          <SeasonalHuntWrapper />
-                        </AuthGate>
-                      </div>
-                    </OnboardingProvider>
+                    {/* Temporarily disabled OnboardingProvider to fix build errors */}
+                    <div className="flex flex-col h-full">
+                      <AuthGate>
+                        <NavBar session={null} />
+                        <main className="flex-1 relative">
+                          {children}
+                        </main>
+                        <SeasonalHuntWrapper />
+                      </AuthGate>
+                    </div>
                   </Providers>
                 </TitleEvolutionProvider>
               </GradientProvider>

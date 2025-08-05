@@ -46,7 +46,7 @@ import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperien
 import { Logo } from "@/components/logo";
 import { useUser } from "@clerk/nextjs";
 import { getCharacterStats } from "@/lib/character-stats-manager"
-import { useOnboarding } from "@/hooks/use-onboarding"
+
 
 interface MobileNavProps {
   tabs?: { value: string; label: string }[]
