@@ -338,10 +338,9 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       >
         {/* Full-width image container */}
         <div className="w-full h-80 relative overflow-hidden rounded-t-xl">
-          <Image
+          <img
             src={imagePath}
             alt={`${item.name} ${item.type}`}
-            fill
             className="object-cover w-full h-full"
             aria-label={`${item.name}-image`}
             onError={(e: React.SyntheticEvent<HTMLImageElement>) => { 
