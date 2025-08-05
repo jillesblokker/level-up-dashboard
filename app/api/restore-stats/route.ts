@@ -79,14 +79,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Authentication failed' }, { status: 401 });
     }
 
-    if (data.error) {
+    if (data?.error) {
       return NextResponse.json({ error: 'Failed to restore stats', details: data.error }, { status: 500 });
     }
 
     return NextResponse.json({ 
       success: true, 
       message: 'Character stats restored successfully',
-      data: data.data 
+      data: data?.data 
     });
   } catch (error) {
     console.error('[Restore Stats API] Error:', error);
