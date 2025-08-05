@@ -17,9 +17,9 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { GlobalErrorBoundary } from '@/components/global-error-boundary'
 import { TitleEvolutionProvider } from '@/components/title-evolution-provider'
 import { NavBar } from '@/components/nav-bar'
-
 import { SeasonalHuntWrapper } from '@/components/seasonal-hunt-wrapper'
-import { ClientOnboardingProvider } from '@/components/client-onboarding-provider'
+import { OnboardingProvider } from '@/components/onboarding-provider'
+
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -101,8 +101,8 @@ export default function RootLayout({
               <GradientProvider>
                 <TitleEvolutionProvider>
                   <Providers>
-                    {/* Restored OnboardingProvider with client-side wrapper */}
-                    <ClientOnboardingProvider>
+                    {/* OnboardingProvider restored with disabled functionality */}
+                    <OnboardingProvider>
                       <div className="flex flex-col h-full">
                         <AuthGate>
                           <NavBar session={null} />
@@ -112,7 +112,7 @@ export default function RootLayout({
                           <SeasonalHuntWrapper />
                         </AuthGate>
                       </div>
-                    </ClientOnboardingProvider>
+                    </OnboardingProvider>
                   </Providers>
                 </TitleEvolutionProvider>
               </GradientProvider>
