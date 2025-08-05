@@ -77,9 +77,15 @@ export function KingdomTileComponent({ tile, onReward, timer }: KingdomTileProps
   }, [timer, state.lastClicked, tile.timerMinutes])
 
   const formatTime = (ms: number) => {
-    const minutes = Math.floor(ms / (1000 * 60))
+    const hours = Math.floor(ms / (1000 * 60 * 60))
+    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60))
     const seconds = Math.floor((ms % (1000 * 60)) / 1000)
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`
+    
+    if (hours > 0) {
+      return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+    } else {
+      return `${minutes}:${seconds.toString().padStart(2, '0')}`
+    }
   }
 
   const handleTileClick = () => {
@@ -126,7 +132,7 @@ export function KingdomTileComponent({ tile, onReward, timer }: KingdomTileProps
   return (
     <>
       <Card 
-        className={`relative cursor-pointer transition-all duration-200 hover:scale-105 ${
+        className={`group relative cursor-pointer transition-all duration-200 hover:scale-105 ${
           state.isReady 
             ? 'ring-2 ring-amber-400 shadow-lg' 
             : 'opacity-75'
@@ -148,8 +154,8 @@ export function KingdomTileComponent({ tile, onReward, timer }: KingdomTileProps
             {/* Tile Name */}
             <h3 className="font-semibold text-center text-sm mb-2">{tile.name}</h3>
 
-            {/* Timer or Ready Status */}
-            <div className="flex items-center justify-center gap-1">
+            {/* Timer or Ready Status - Only show on hover */}
+            <div className="group-hover:opacity-100 opacity-0 transition-opacity duration-200 flex items-center justify-center gap-1">
               {state.isReady ? (
                 <>
                   <Sparkles className="h-4 w-4 text-amber-500" />
@@ -167,9 +173,9 @@ export function KingdomTileComponent({ tile, onReward, timer }: KingdomTileProps
               )}
             </div>
 
-            {/* Lucky Indicator */}
+            {/* Lucky Indicator - Only show on hover */}
             {state.isReady && (
-              <div className="mt-2 text-center space-y-1">
+              <div className="group-hover:opacity-100 opacity-0 transition-opacity duration-200 mt-2 text-center space-y-1">
                 <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700">
                   {Math.round(tile.luckyChance * 100)}% lucky chance
                 </Badge>

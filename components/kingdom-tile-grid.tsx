@@ -171,6 +171,9 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
                       src={item.image}
                       alt={item.name}
                       className="object-contain w-full h-full"
+                      onError={(e) => { 
+                        e.currentTarget.src = '/images/placeholders/item-placeholder.svg' 
+                      }}
                     />
                   </div>
                   <div>
