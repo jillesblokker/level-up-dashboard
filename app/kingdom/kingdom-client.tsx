@@ -125,13 +125,20 @@ const getConsumableEffect = (item: KingdomInventoryItem) => {
 
 // Helper to get fallback image path (copy logic from getItemImagePath in city location page)
 function getItemImagePath(item: KingdomInventoryItem): string {
-  console.log(`Getting image path for item: ${item.name} (type: ${item.type})`);
+  console.log(`[getItemImagePath] Getting image path for item:`, {
+    name: item.name,
+    type: item.type,
+    category: item.category,
+    image: item.image,
+    id: item.id
+  });
   
   if (item.image) {
-    console.log(`Using item.image: ${item.image}`);
+    console.log(`[getItemImagePath] Using item.image: ${item.image}`);
     return item.image;
   }
   
+  // Handle specific item names from database
   if (item.name === "Iron Sword") return "/images/items/sword/sword-irony.png";
   if (item.name === "Steel Sword") return "/images/items/sword/sword-sunblade.png";
   if (item.name === "Health Potion") return "/images/items/potion/potion-health.png";
@@ -156,7 +163,7 @@ function getItemImagePath(item: KingdomInventoryItem): string {
   if (item.name === "Tome of Knowledge") return "/images/items/scroll/scroll-perkamento.png";
   if (item.name === "Magic Scroll") return "/images/items/scroll/scroll-scrolly.png";
   
-  // Handle generic types
+  // Handle generic types with better fallbacks
   if (item.type === "scroll") return "/images/items/scroll/scroll-scrolly.png";
   if (item.type === "artifact") return "/images/items/artifact/crown/artifact-crowny.png";
   if (item.type === "equipment") return "/images/items/sword/sword-irony.png";
@@ -166,7 +173,26 @@ function getItemImagePath(item: KingdomInventoryItem): string {
   if (item.type === "mount") return "/images/items/horse/horse-stelony.png";
   if (item.type === "creature") return "/images/items/horse/horse-stelony.png";
   
-  console.log(`No specific path found for ${item.name}, using fallback`);
+  // Handle category-based mapping
+  if (item.category === "sword") return "/images/items/sword/sword-irony.png";
+  if (item.category === "armor") return "/images/items/armor/armor-normalo.png";
+  if (item.category === "shield") return "/images/items/shield/shield-defecto.png";
+  if (item.category === "potion") return "/images/items/potion/potion-health.png";
+  if (item.category === "scroll") return "/images/items/scroll/scroll-scrolly.png";
+  if (item.category === "artifact") return "/images/items/artifact/crown/artifact-crowny.png";
+  if (item.category === "horse") return "/images/items/horse/horse-stelony.png";
+  
+  // Handle partial name matching
+  const lowerName = item.name.toLowerCase();
+  if (lowerName.includes("sword")) return "/images/items/sword/sword-irony.png";
+  if (lowerName.includes("armor")) return "/images/items/armor/armor-normalo.png";
+  if (lowerName.includes("shield")) return "/images/items/shield/shield-defecto.png";
+  if (lowerName.includes("potion")) return "/images/items/potion/potion-health.png";
+  if (lowerName.includes("scroll")) return "/images/items/scroll/scroll-scrolly.png";
+  if (lowerName.includes("artifact")) return "/images/items/artifact/crown/artifact-crowny.png";
+  if (lowerName.includes("horse")) return "/images/items/horse/horse-stelony.png";
+  
+  console.log(`[getItemImagePath] No specific path found for ${item.name}, using fallback`);
   // Fallback
   return "/images/placeholders/item-placeholder.svg";
 }
@@ -470,6 +496,11 @@ export function KingdomClient({ userId }: { userId: string | null }) {
         const equipped = await getEquippedItems(userId);
         const stored = await getStoredItems(userId);
         const stats = await getTotalStats(userId);
+        
+        console.log('[Kingdom] Loaded items from database:', {
+          equipped: equipped.map(item => ({ name: item.name, type: item.type, category: item.category })),
+          stored: stored.map(item => ({ name: item.name, type: item.type, category: item.category }))
+        });
         
         // Normalize items to always have a 'stats' property and description
         const normalizeItems = (items: any[]) => items.map(item => ({
