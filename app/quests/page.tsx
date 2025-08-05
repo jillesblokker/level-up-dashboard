@@ -269,7 +269,10 @@ export default function QuestsPage() {
     }
   ];
 
-  const { isLoaded: isClerkLoaded, userId } = useUser();
+  const { isLoaded: isClerkLoaded, user } = useUser();
+  const { getToken } = useAuth();
+  const userId = user?.id;
+  const isUserLoaded = isClerkLoaded;
 
   const [quests, setQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(false);
@@ -830,7 +833,7 @@ export default function QuestsPage() {
     return categoryLabels[category as keyof typeof categoryLabels] || category.charAt(0).toUpperCase() + category.slice(1);
   }
 
-  // Initialize predefined data
+  // Initialize predefined data - must be before any early returns
   useEffect(() => {
     setChallenges(predefinedChallenges);
     // Note: milestones is already set to predefinedMilestones in the useState
