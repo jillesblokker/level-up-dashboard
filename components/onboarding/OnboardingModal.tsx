@@ -219,19 +219,16 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
     <div
       data-modal-container="onboarding-standalone"
       className={cn(
-        "fixed inset-0 z-50 flex items-center justify-center",
+        "fixed inset-0 z-50 flex items-center justify-center p-4",
         "bg-black/80 backdrop-blur-sm",
         "transition-all duration-300 ease-in-out",
         isOpen ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
       )}
-
     >
-      
-      
-      <div className="relative w-full max-w-4xl mx-4">
-        <Card className="relative overflow-hidden">
+      <div className="relative w-full max-w-5xl max-h-[90vh] mx-auto">
+        <Card className="relative overflow-hidden max-h-full flex flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-amber-500 to-amber-600">
+          <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-amber-500 to-amber-600 flex-shrink-0">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
                 <BookOpen className="w-4 h-4 text-amber-800" />
@@ -252,15 +249,15 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
             </Button>
           </div>
 
-          {/* Content */}
-          <div className="p-6">
+          {/* Content - Scrollable */}
+          <div className="flex-1 overflow-y-auto p-6">
             <div className="min-h-[400px]">
               {currentStepComponent}
             </div>
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between p-6 border-t bg-gray-50">
+          <div className="flex items-center justify-between p-6 border-t bg-gray-50 flex-shrink-0">
             <div className="flex items-center space-x-2">
               <div className="flex space-x-1">
                 {ONBOARDING_STEPS.map((_, index) => (
