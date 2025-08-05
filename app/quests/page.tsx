@@ -812,6 +812,12 @@ export default function QuestsPage() {
     console.log('handleAddChallengeType called');
   };
 
+  // Initialize predefined data - must be before any early returns
+  useEffect(() => {
+    setChallenges(predefinedChallenges);
+    // Note: milestones is already set to predefinedMilestones in the useState
+  }, []);
+
   if (!isClerkLoaded || !isUserLoaded) {
     console.log('Waiting for auth and Clerk client...');
     return <FullPageLoading message="Loading authentication..." />;
@@ -833,11 +839,7 @@ export default function QuestsPage() {
     return categoryLabels[category as keyof typeof categoryLabels] || category.charAt(0).toUpperCase() + category.slice(1);
   }
 
-  // Initialize predefined data - must be before any early returns
-  useEffect(() => {
-    setChallenges(predefinedChallenges);
-    // Note: milestones is already set to predefinedMilestones in the useState
-  }, []);
+
 
   return (
     <div className="min-h-full quests-page-container scroll-prevent" style={{ overscrollBehavior: 'none' }}>
