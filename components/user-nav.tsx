@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -17,12 +17,28 @@ import Link from "next/link"
 import { ClipboardCheck, Palette, User, Settings, Monitor, BookOpen, Database } from "lucide-react"
 import type { Session } from '@supabase/supabase-js'
 import { useClerk, useUser } from "@clerk/nextjs";
-import { useOnboarding } from "@/hooks/use-onboarding";
 
 export function UserNav() {
   const { user, isLoaded } = useUser();
-  const { openOnboarding } = useOnboarding();
+  const [isClient, setIsClient] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [onboardingHook, setOnboardingHook] = useState<any>(null);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (isClient) {
+      try {
+        const { useOnboarding } = require("@/hooks/use-onboarding");
+        const { openOnboarding } = useOnboarding();
+        setOnboardingHook({ openOnboarding });
+      } catch (error) {
+        console.warn('Onboarding hook not available:', error);
+      }
+    }
+  }, [isClient]);
 
   // Helper to get the avatar initial as a string
   const getAvatarInitial = () => {
@@ -32,8 +48,14 @@ export function UserNav() {
 
   // Full onboarding function
   const openFullOnboarding = () => {
-    openOnboarding(true); // Force open the full onboarding
+    if (onboardingHook?.openOnboarding) {
+      onboardingHook.openOnboarding(true); // Force open the full onboarding
+    }
   };
+
+  if (!isClient || !user) {
+    return null;
+  }
 
   return (
     <>

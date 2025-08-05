@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useClerk, useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { eventBus } from "@/app/lib/event-bus";
-import { useOnboarding } from "@/hooks/use-onboarding";
+
 import { smartLogger } from "@/lib/smart-logger";
 import { 
   BookOpen, 
@@ -27,7 +27,24 @@ export function AccountMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [profileUpdateCount, setProfileUpdateCount] = useState(0);
-  const { openOnboarding, resetOnboarding } = useOnboarding();
+  const [isClient, setIsClient] = useState(false);
+  const [onboardingHook, setOnboardingHook] = useState<any>(null);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (isClient) {
+      try {
+        const { useOnboarding } = require("@/hooks/use-onboarding");
+        const { openOnboarding, resetOnboarding } = useOnboarding();
+        setOnboardingHook({ openOnboarding, resetOnboarding });
+      } catch (error) {
+        console.warn('Onboarding hook not available:', error);
+      }
+    }
+  }, [isClient]);
 
   useEffect(() => {
     const refresh = async () => {
@@ -73,7 +90,9 @@ export function AccountMenu() {
         reason: 'manual_guide_button_click',
         previousState: 'will_be_cleared'
       });
-      resetOnboarding();
+      if (onboardingHook?.resetOnboarding) {
+        onboardingHook.resetOnboarding();
+      }
       
       smartLogger.addGuideStep('OPEN_ONBOARDING', true, {
         action: 'open_onboarding_modal',
@@ -81,7 +100,9 @@ export function AccountMenu() {
         method: 'force_open_override',
         expectedBehavior: 'modal_should_open_immediately'
       });
-      openOnboarding(true);
+      if (onboardingHook?.openOnboarding) {
+        onboardingHook.openOnboarding(true);
+      }
       
       smartLogger.addGuideStep('CLOSE_DROPDOWN', true, {
         action: 'close_account_menu',
