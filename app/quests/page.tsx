@@ -145,18 +145,134 @@ function getStreakBonus(streak: number) {
 }
 
 export default function QuestsPage() {
+  // Predefined challenges data
+  const predefinedChallenges = [
+    {
+      id: 'challenge-1',
+      name: 'Push-up Challenge',
+      description: 'Complete 3 sets of 12 push-ups',
+      category: 'might',
+      difficulty: 'medium',
+      xp: 50,
+      gold: 25,
+      completed: false,
+      favorited: false,
+      isNew: false
+    },
+    {
+      id: 'challenge-2',
+      name: 'Plank Challenge',
+      description: 'Hold plank position for 3 sets of 45 seconds',
+      category: 'vitality',
+      difficulty: 'medium',
+      xp: 50,
+      gold: 25,
+      completed: false,
+      favorited: false,
+      isNew: false
+    },
+    {
+      id: 'challenge-3',
+      name: 'Burpee Challenge',
+      description: 'Complete 3 sets of 15 burpees',
+      category: 'might',
+      difficulty: 'hard',
+      xp: 75,
+      gold: 35,
+      completed: false,
+      favorited: false,
+      isNew: false
+    },
+    {
+      id: 'challenge-4',
+      name: 'Reading Challenge',
+      description: 'Read for 30 minutes',
+      category: 'knowledge',
+      difficulty: 'easy',
+      xp: 30,
+      gold: 15,
+      completed: false,
+      favorited: false,
+      isNew: false
+    },
+    {
+      id: 'challenge-5',
+      name: 'Meditation Challenge',
+      description: 'Meditate for 10 minutes',
+      category: 'wellness',
+      difficulty: 'easy',
+      xp: 25,
+      gold: 10,
+      completed: false,
+      favorited: false,
+      isNew: false
+    }
+  ];
 
-  // All hooks must be at the top
-  const { user, isLoaded: isUserLoaded } = useUser();
-  const { getToken, isLoaded: isClerkLoaded } = useAuth();
-  const userId = user?.id;
-  const isGuest = !user;
+  // Predefined milestones data
+  const predefinedMilestones = [
+    {
+      id: 'milestone-1',
+      name: 'Workout Consistency',
+      description: 'Complete 7 workout challenges in a week',
+      category: 'might',
+      difficulty: 'medium',
+      xp: 200,
+      gold: 100,
+      completed: false,
+      favorited: false,
+      isNew: false,
+      progress: 3,
+      total: 7
+    },
+    {
+      id: 'milestone-2',
+      name: 'Strength Builder',
+      description: 'Complete 20 strength-based challenges',
+      category: 'might',
+      difficulty: 'hard',
+      xp: 500,
+      gold: 250,
+      completed: false,
+      favorited: false,
+      isNew: false,
+      progress: 12,
+      total: 20
+    },
+    {
+      id: 'milestone-3',
+      name: 'Knowledge Seeker',
+      description: 'Complete 15 knowledge-based challenges',
+      category: 'knowledge',
+      difficulty: 'medium',
+      xp: 300,
+      gold: 150,
+      completed: false,
+      favorited: false,
+      isNew: false,
+      progress: 8,
+      total: 15
+    },
+    {
+      id: 'milestone-4',
+      name: 'Wellness Champion',
+      description: 'Complete 10 wellness challenges',
+      category: 'wellness',
+      difficulty: 'medium',
+      xp: 250,
+      gold: 125,
+      completed: false,
+      favorited: false,
+      isNew: false,
+      progress: 5,
+      total: 10
+    }
+  ];
 
-  // Debug: log auth and supabase loading states
-  // console.log('[Quests Debug] isClerkLoaded:', isClerkLoaded, 'isUserLoaded:', isUserLoaded);
+  const { isLoaded: isClerkLoaded, userId } = useUser();
 
   const [quests, setQuests] = useState<Quest[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [allCategories, setAllCategories] = useState<string[]>(questCategories);
   const [mainTab, setMainTab] = useState<'quests' | 'challenges' | 'milestones' | 'recovery'>('quests');
@@ -655,7 +771,7 @@ export default function QuestsPage() {
   };
 
   // Add remaining missing variables and functions
-  const [milestones] = useState<any[]>([]);
+  const [milestones] = useState<any[]>(predefinedMilestones);
   const [addQuestError, setAddQuestError] = useState<string | null>(null);
 
   const handleMilestoneToggle = async (milestoneId: string, currentCompleted: boolean) => {
@@ -714,6 +830,12 @@ export default function QuestsPage() {
     return categoryLabels[category as keyof typeof categoryLabels] || category.charAt(0).toUpperCase() + category.slice(1);
   }
 
+  // Initialize predefined data
+  useEffect(() => {
+    setChallenges(predefinedChallenges);
+    // Note: milestones is already set to predefinedMilestones in the useState
+  }, []);
+
   return (
     <div className="min-h-full quests-page-container scroll-prevent" style={{ overscrollBehavior: 'none' }}>
       <HeaderSection
@@ -762,22 +884,7 @@ export default function QuestsPage() {
                 </Button>
               </div>
               
-              {/* Category Dropdown */}
-              <div>
-                <label htmlFor="quest-category-select" className="sr-only">Select quest category</label>
-                <Select value={questCategory || ''} onValueChange={setQuestCategory}>
-                  <SelectTrigger className="w-full border border-[#F59E0B] bg-black text-amber-200" aria-label="Quest category dropdown">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-black border border-[#F59E0B]">
-                    {questCategories.map((category: string) => (
-                      <SelectItem key={category} value={category}>
-                        {getCategoryLabel(category)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {/* Category Dropdown - REMOVED for Tasks tab */}
             </div>
             {/* Quest Streak Summary Card */}
             <div className="mb-6 w-full">
