@@ -153,7 +153,7 @@ export function QuestOrganization({
   showCategoryFilter = true,
   context = 'quests'
 }: QuestOrganizationProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string>('might')
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all')
   const [selectedStatus, setSelectedStatus] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -216,10 +216,12 @@ export function QuestOrganization({
 
   // Set default selected category based on context
   useEffect(() => {
-    if (context === 'challenges' && selectedCategory === 'all') {
+    if (context === 'challenges') {
       setSelectedCategory('Push/Legs/Core');
+    } else {
+      setSelectedCategory('all');
     }
-  }, [context, selectedCategory]);
+  }, [context]);
 
   // Filter and sort quests
   const filteredQuests = quests.filter(quest => {

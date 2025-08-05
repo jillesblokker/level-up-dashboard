@@ -197,6 +197,15 @@ export default function QuestsPage() {
   const [favoritedQuests, setFavoritedQuests] = useState<Set<string>>(new Set());
   // const [milestones, setMilestones] = useState<any[]>([]);
   const [challenges, setChallenges] = useState<any[]>([]);
+  const [addMilestoneModalOpen, setAddMilestoneModalOpen] = useState(false);
+  const [newMilestone, setNewMilestone] = useState({
+    name: '',
+    description: '',
+    category: 'might',
+    difficulty: 'medium',
+    xp: 100,
+    gold: 50
+  });
   const [token, setToken] = useState<string | null>(null);
   // --- Quest Streak Logic ---
   // Remove localStorage fallback for streak/history
@@ -669,8 +678,7 @@ export default function QuestsPage() {
   };
 
   const handleAddMilestone = () => {
-    // Placeholder for add milestone functionality
-    console.log('Add milestone clicked');
+    setAddMilestoneModalOpen(true);
   };
 
   const handleChallengeCategoryChange = (value: string) => {
@@ -1248,6 +1256,88 @@ export default function QuestsPage() {
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="secondary" onClick={() => { setEditModalOpen(false); setEditingQuest(null); }}>Cancel</Button>
                 <Button type="submit" variant="default">Save</Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Add Milestone Modal */}
+      {addMilestoneModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => setAddMilestoneModalOpen(false)} />
+          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">Add Milestone</h2>
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                // TODO: Implement milestone creation
+                console.log('Add milestone:', newMilestone);
+                setAddMilestoneModalOpen(false);
+              }}
+            >
+              <label className="block mb-2 text-sm font-medium">Name</label>
+              <input
+                className="w-full mb-4 p-2 border rounded"
+                value={newMilestone.name}
+                onChange={e => setNewMilestone({ ...newMilestone, name: e.target.value })}
+                placeholder="Milestone name"
+                title="Milestone name"
+                aria-label="Milestone name"
+                required
+              />
+              <label className="block mb-2 text-sm font-medium">Description</label>
+              <textarea
+                className="w-full mb-4 p-2 border rounded resize-none"
+                rows={3}
+                value={newMilestone.description}
+                onChange={e => setNewMilestone({ ...newMilestone, description: e.target.value })}
+                placeholder="Milestone description"
+                title="Milestone description"
+                aria-label="Milestone description"
+              />
+              <label className="block mb-2 text-sm font-medium">Category</label>
+              <select 
+                className="w-full mb-4 p-2 border rounded" 
+                value={newMilestone.category} 
+                onChange={e => setNewMilestone({ ...newMilestone, category: e.target.value })} 
+                aria-label="Milestone category"
+              >
+                {questCategories.map((category: string) => (
+                  <option key={category} value={category}>{getCategoryLabel(category)}</option>
+                ))}
+              </select>
+              <label className="block mb-2 text-sm font-medium">Difficulty</label>
+              <input 
+                className="w-full mb-4 p-2 border rounded" 
+                value={newMilestone.difficulty} 
+                onChange={e => setNewMilestone({ ...newMilestone, difficulty: e.target.value })} 
+                placeholder="Difficulty" 
+                title="Difficulty" 
+                aria-label="Difficulty" 
+              />
+              <label className="block mb-2 text-sm font-medium">XP Reward</label>
+              <input 
+                type="number" 
+                className="w-full mb-4 p-2 border rounded" 
+                value={newMilestone.xp} 
+                onChange={e => setNewMilestone({ ...newMilestone, xp: Number(e.target.value) })} 
+                placeholder="XP" 
+                title="XP" 
+                aria-label="XP" 
+              />
+              <label className="block mb-2 text-sm font-medium">Gold Reward</label>
+              <input 
+                type="number" 
+                className="w-full mb-4 p-2 border rounded" 
+                value={newMilestone.gold} 
+                onChange={e => setNewMilestone({ ...newMilestone, gold: Number(e.target.value) })} 
+                placeholder="Gold" 
+                title="Gold" 
+                aria-label="Gold" 
+              />
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="secondary" onClick={() => setAddMilestoneModalOpen(false)}>Cancel</Button>
+                <Button type="submit" variant="default">Add Milestone</Button>
               </div>
             </form>
           </div>
