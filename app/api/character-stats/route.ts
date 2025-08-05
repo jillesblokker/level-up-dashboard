@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { gold, experience, level, health, max_health, build_tokens, kingdom_expansions } = body;
+    const { gold, experience, level, health, max_health } = body;
 
     const { data, error } = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
       const { data, error } = await supabase
@@ -40,11 +40,9 @@ export async function POST(request: NextRequest) {
           level: level || 1,
           health: health || 100,
           max_health: max_health || 100,
-          build_tokens: build_tokens || 0,
-          kingdom_expansions: kingdom_expansions || 0,
           updated_at: new Date().toISOString()
         }, {
-          onConflict: 'character_stats_user_id_key'
+          onConflict: 'character_stats_user_id_unique'
         })
         .select()
         .single();
