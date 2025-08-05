@@ -5,7 +5,6 @@ import { ArrowLeft, Save, User, Shield, Play } from "lucide-react"
 import Link from "next/link"
 // import { useSession, signIn, signOut } from "next-auth/react"
 import { Switch } from "@/components/ui/switch"
-import { useOnboarding } from "@/hooks/use-onboarding"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -38,24 +37,6 @@ export default function SettingsPage() {
   const [email, setEmail] = useState("")
   const [isGithubConnected, setIsGithubConnected] = useState(false)
   const [activeTab, setActiveTab] = useState("profile")
-  const [isClient, setIsClient] = useState(false);
-  const [onboardingHook, setOnboardingHook] = useState<any>(null);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  useEffect(() => {
-    if (isClient) {
-      try {
-        const { useOnboarding } = require("@/hooks/use-onboarding");
-        const { openOnboarding, resetOnboarding } = useOnboarding();
-        setOnboardingHook({ openOnboarding, resetOnboarding });
-      } catch (error) {
-        console.warn('Onboarding hook not available:', error);
-      }
-    }
-  }, [isClient]);
 
   // Load user data
   useEffect(() => {
