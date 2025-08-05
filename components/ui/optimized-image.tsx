@@ -1,5 +1,6 @@
 import Image, { ImageProps } from 'next/image'
 import { cn } from '@/lib/utils'
+import { useState } from 'react'
 
 interface OptimizedImageProps extends Omit<ImageProps, 'src' | 'alt'> {
   src: string
@@ -11,6 +12,7 @@ interface OptimizedImageProps extends Omit<ImageProps, 'src' | 'alt'> {
   quality?: number
   width?: number
   height?: number
+  fallbackSrc?: string
 }
 
 export function OptimizedImage({
@@ -23,16 +25,29 @@ export function OptimizedImage({
   quality = 75,
   width,
   height,
+  fallbackSrc = '/images/placeholders/item-placeholder.svg',
   ...props
 }: OptimizedImageProps) {
-  const imageProps: ImageProps = {
-    src,
+  const [imageSrc, setImageSrc] = useState(src)
+  const [hasError, setHasError] = useState(false)
+
+  const handleError = () => {
+    if (!hasError && imageSrc !== fallbackSrc) {
+      console.warn(`Image failed to load: ${src}, using fallback`)
+      setImageSrc(fallbackSrc)
+      setHasError(true)
+    }
+  }
+
+  const imageProps = {
+    src: imageSrc,
     alt,
     className: cn('object-cover', className),
     fill,
     sizes,
     priority,
     quality,
+    onError: handleError,
     ...props,
   }
 

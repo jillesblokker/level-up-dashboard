@@ -17,7 +17,15 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'images.clerk.dev',
       },
+      {
+        protocol: 'https',
+        hostname: 'lvlup.jillesblokker.com',
+      },
     ],
+    dangerouslyAllowSVG: true,
+    unoptimized: false,
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 60,
   },
   experimental: {
     serverActions: {
