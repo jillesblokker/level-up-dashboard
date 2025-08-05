@@ -225,10 +225,10 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
         isOpen ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
       )}
     >
-      <div className="relative w-full max-w-4xl max-h-[95vh] mx-auto flex flex-col">
+      <div className="relative w-full max-w-3xl max-h-[90vh] mx-auto flex flex-col">
         <Card className="relative overflow-hidden flex flex-col max-h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 sm:p-6 border-b bg-gradient-to-r from-amber-500 to-amber-600 flex-shrink-0">
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b bg-gradient-to-r from-amber-600 to-amber-700 flex-shrink-0">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
                 <BookOpen className="w-4 h-4 text-amber-800" />
@@ -242,7 +242,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="text-white hover:bg-amber-600"
+              className="text-white hover:bg-amber-700 hover:text-white"
               aria-label="Close onboarding"
             >
               <X className="w-4 h-4" />
@@ -251,7 +251,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
 
           {/* Content - Scrollable */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-            <div className="min-h-[300px] sm:min-h-[400px]">
+            <div className="min-h-[250px] sm:min-h-[350px]">
               {currentStepComponent}
             </div>
           </div>
@@ -265,7 +265,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
                     key={index}
                     className={cn(
                       "w-2 h-2 rounded-full transition-colors",
-                      index === currentStep ? "bg-amber-500" : "bg-gray-300"
+                      index === currentStep ? "bg-amber-600" : "bg-gray-300"
                     )}
                   />
                 ))}
@@ -282,7 +282,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
                   onClick={handlePrevious}
                   aria-label="Previous step"
                   size="sm"
-                  className="sm:size-default"
+                  className="sm:size-default border-gray-300 text-gray-700 hover:bg-gray-100"
                 >
                   <span className="hidden sm:inline">Previous</span>
                   <span className="sm:hidden">←</span>
@@ -294,7 +294,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
                   onClick={handleNext} 
                   aria-label="Next step"
                   size="sm"
-                  className="sm:size-default"
+                  className="sm:size-default bg-amber-600 hover:bg-amber-700 text-white"
                 >
                   <span className="hidden sm:inline">Next</span>
                   <span className="sm:hidden">→</span>
@@ -304,7 +304,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
                   onClick={handleComplete} 
                   aria-label="Complete onboarding"
                   size="sm"
-                  className="sm:size-default"
+                  className="sm:size-default bg-amber-600 hover:bg-amber-700 text-white"
                 >
                   <span className="hidden sm:inline">Get Started</span>
                   <span className="sm:hidden">Start</span>
