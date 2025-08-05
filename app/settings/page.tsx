@@ -38,8 +38,24 @@ export default function SettingsPage() {
   const [email, setEmail] = useState("")
   const [isGithubConnected, setIsGithubConnected] = useState(false)
   const [activeTab, setActiveTab] = useState("profile")
-  
-  const { openOnboarding, resetOnboarding } = useOnboarding()
+  const [isClient, setIsClient] = useState(false);
+  const [onboardingHook, setOnboardingHook] = useState<any>(null);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (isClient) {
+      try {
+        const { useOnboarding } = require("@/hooks/use-onboarding");
+        const { openOnboarding, resetOnboarding } = useOnboarding();
+        setOnboardingHook({ openOnboarding, resetOnboarding });
+      } catch (error) {
+        console.warn('Onboarding hook not available:', error);
+      }
+    }
+  }, [isClient]);
 
   // Load user data
   useEffect(() => {
@@ -106,7 +122,9 @@ export default function SettingsPage() {
 
   const handleResetOnboarding = () => {
     try {
-      resetOnboarding()
+      if (onboardingHook?.resetOnboarding) {
+        onboardingHook.resetOnboarding()
+      }
       toast({
         title: "Onboarding Reset",
         description: "The tutorial will be shown again on your next visit.",
@@ -122,7 +140,9 @@ export default function SettingsPage() {
   }
 
   const handleShowTutorial = () => {
-    openOnboarding()
+    if (onboardingHook?.openOnboarding) {
+      onboardingHook.openOnboarding()
+    }
   }
 
   const handleGithubToggle = async (checked: boolean) => {

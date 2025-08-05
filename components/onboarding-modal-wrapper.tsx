@@ -1,20 +1,36 @@
 "use client"
 
-import { useEffect, useRef } from 'react'
-import { useOnboarding } from '@/hooks/use-onboarding'
+import { useEffect, useRef, useState } from 'react'
 import { OnboardingModal } from './onboarding/OnboardingModal'
 
 export function OnboardingModalWrapper() {
-  const {
-    isOnboardingOpen,
-    closeOnboarding,
-    completeOnboarding
-  } = useOnboarding()
+  const [isClient, setIsClient] = useState(false);
+  const [onboardingState, setOnboardingState] = useState({
+    isOnboardingOpen: false,
+    closeOnboarding: () => {},
+    completeOnboarding: () => {}
+  });
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (isClient) {
+      try {
+        const { useOnboarding } = require('@/hooks/use-onboarding');
+        const hook = useOnboarding();
+        setOnboardingState(hook);
+      } catch (error) {
+        console.warn('Onboarding hook not available:', error);
+      }
+    }
+  }, [isClient]);
 
   // Use refs to persist state across re-renders
   const hasShownOnboardingRef = useRef(false)
   const isCheckingRef = useRef(false)
-  const lastIsOnboardingOpenRef = useRef(isOnboardingOpen)
+  const lastIsOnboardingOpenRef = useRef(onboardingState.isOnboardingOpen)
 
   // Listen for reset events from the useOnboarding hook
   useEffect(() => {
@@ -31,20 +47,25 @@ export function OnboardingModalWrapper() {
 
   // Track state changes
   useEffect(() => {
-    if (lastIsOnboardingOpenRef.current !== isOnboardingOpen) {
-      lastIsOnboardingOpenRef.current = isOnboardingOpen
+    if (lastIsOnboardingOpenRef.current !== onboardingState.isOnboardingOpen) {
+      lastIsOnboardingOpenRef.current = onboardingState.isOnboardingOpen
     }
-  }, [isOnboardingOpen])
+  }, [onboardingState.isOnboardingOpen])
+
+  // Don't render until client-side
+  if (!isClient) {
+    return null;
+  }
 
   // Ensure we always render with the latest state
-  const modalKey = `onboarding-modal-${isOnboardingOpen ? 'open' : 'closed'}-${Date.now()}`
+  const modalKey = `onboarding-modal-${onboardingState.isOnboardingOpen ? 'open' : 'closed'}-${Date.now()}`
   
   return (
     <OnboardingModal
       key={modalKey}
-      isOpen={isOnboardingOpen}
-      onClose={closeOnboarding}
-      onComplete={completeOnboarding}
+      isOpen={onboardingState.isOnboardingOpen}
+      onClose={onboardingState.closeOnboarding}
+      onComplete={onboardingState.completeOnboarding}
     />
   )
 } 

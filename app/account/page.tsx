@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -13,10 +13,27 @@ import {
   ArrowLeft,
   ChevronRight
 } from "lucide-react"
-import { useOnboarding } from "@/hooks/use-onboarding"
+
 
 export default function AccountPage() {
-  const { openOnboarding } = useOnboarding()
+  const [isClient, setIsClient] = useState(false);
+  const [onboardingHook, setOnboardingHook] = useState<any>(null);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (isClient) {
+      try {
+        const { useOnboarding } = require("@/hooks/use-onboarding");
+        const { openOnboarding } = useOnboarding();
+        setOnboardingHook({ openOnboarding });
+      } catch (error) {
+        console.warn('Onboarding hook not available:', error);
+      }
+    }
+  }, [isClient]);
 
   const accountMenuItems = [
     { 
@@ -50,7 +67,9 @@ export default function AccountPage() {
   ]
 
   const handleGuideClick = () => {
-    openOnboarding(true)
+    if (onboardingHook?.openOnboarding) {
+      onboardingHook.openOnboarding(true)
+    }
   }
 
   return (
