@@ -146,16 +146,25 @@ function getItemImagePath(item: KingdomInventoryItem): string {
   if (item.name === "Sally Swift Horse") return "/images/items/horse/horse-stelony.png";
   if (item.name === "Buster Endurance Horse") return "/images/items/horse/horse-perony.png";
   if (item.name === "Shadow War Horse") return "/images/items/horse/horse-felony.png";
-  if (item.name === "Crown") return "/images/items/artifact/crown.png";
-  if (item.name === "Ring") return "/images/items/artifact/ring.png";
-  if (item.name === "Scepter") return "/images/items/artifact/scepter.png";
+  if (item.name === "Crown") return "/images/items/artifact/crown/artifact-crowny.png";
+  if (item.name === "Ring") return "/images/items/artifact/ring/artifact-ringo.png";
+  if (item.name === "Scepter") return "/images/items/artifact/scepter/artifact-staffy.png";
   if (item.name === "Ancient Artifact") return "/images/items/artifact/crown/artifact-crowny.png";
-  if (item.name === "Ancient Artifact" && item.type === "artifact") return "/images/items/artifact/crown/artifact-crowny.png";
   if (item.name === "Scroll of Memory") return "/images/items/scroll/scroll-memento.png";
   if (item.name === "Scroll of Perkament") return "/images/items/scroll/scroll-perkamento.png";
   if (item.name === "Scroll of Scrolly") return "/images/items/scroll/scroll-scrolly.png";
   if (item.name === "Tome of Knowledge") return "/images/items/scroll/scroll-perkamento.png";
   if (item.name === "Magic Scroll") return "/images/items/scroll/scroll-scrolly.png";
+  
+  // Handle generic types
+  if (item.type === "scroll") return "/images/items/scroll/scroll-scrolly.png";
+  if (item.type === "artifact") return "/images/items/artifact/crown/artifact-crowny.png";
+  if (item.type === "equipment") return "/images/items/sword/sword-irony.png";
+  if (item.type === "weapon") return "/images/items/sword/sword-irony.png";
+  if (item.type === "armor") return "/images/items/armor/armor-normalo.png";
+  if (item.type === "shield") return "/images/items/shield/shield-defecto.png";
+  if (item.type === "mount") return "/images/items/horse/horse-stelony.png";
+  if (item.type === "creature") return "/images/items/horse/horse-stelony.png";
   
   console.log(`No specific path found for ${item.name}, using fallback`);
   // Fallback
