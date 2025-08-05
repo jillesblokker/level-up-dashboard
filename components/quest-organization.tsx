@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
-import { Search, Filter, Star, Trophy, Target, TrendingUp, CheckCircle } from 'lucide-react'
+import { Search, Filter, Star, Trophy, Target, TrendingUp, CheckCircle, Pencil, Trash2 } from 'lucide-react'
 
 interface Quest {
   id: string
@@ -100,6 +100,39 @@ const categoryConfig = {
     bgColor: 'bg-gray-500/10',
     borderColor: 'border-gray-800/30',
     description: 'Discovery and adventure'
+  },
+  // Workout categories for challenges
+  'Push/Legs/Core': {
+    name: 'Push/Legs/Core',
+    icon: '💪',
+    color: 'text-blue-400',
+    bgColor: 'bg-blue-500/10',
+    borderColor: 'border-blue-800/30',
+    description: 'Push exercises, legs, and core training'
+  },
+  'Pull/Shoulder/Core': {
+    name: 'Pull/Shoulder/Core',
+    icon: '🏋️',
+    color: 'text-green-400',
+    bgColor: 'bg-green-500/10',
+    borderColor: 'border-green-800/30',
+    description: 'Pull exercises, shoulders, and core training'
+  },
+  'Core & Flexibility': {
+    name: 'Core & Flexibility',
+    icon: '🧘',
+    color: 'text-purple-400',
+    bgColor: 'bg-purple-500/10',
+    borderColor: 'border-purple-800/30',
+    description: 'Core strength and flexibility training'
+  },
+  'HIIT & Full Body': {
+    name: 'HIIT & Full Body',
+    icon: '⚡',
+    color: 'text-red-400',
+    bgColor: 'bg-red-500/10',
+    borderColor: 'border-red-800/30',
+    description: 'High-intensity interval training and full body workouts'
   }
 }
 
@@ -167,6 +200,19 @@ export function QuestOrganization({
   }
 
   const currentLabels = labels[context]
+
+  // Get appropriate categories based on context
+  const getAvailableCategories = () => {
+    if (context === 'challenges') {
+      return [
+        'Push/Legs/Core',
+        'Pull/Shoulder/Core', 
+        'Core & Flexibility',
+        'HIIT & Full Body'
+      ];
+    }
+    return Object.keys(categoryConfig);
+  };
 
   // Filter and sort quests
   const filteredQuests = quests.filter(quest => {
@@ -331,11 +377,11 @@ export function QuestOrganization({
                   </SelectTrigger>
                   <SelectContent className="bg-gray-900 border-gray-700">
                     <SelectItem value="all">All Categories</SelectItem>
-                    {Object.entries(categoryConfig).map(([key, config]) => (
+                    {getAvailableCategories().map(key => (
                       <SelectItem key={key} value={key}>
                         <div className="flex items-center gap-2">
-                          <span>{config.icon}</span>
-                          <span>{config.name}</span>
+                          <span>{categoryConfig[key as keyof typeof categoryConfig]?.icon || '📋'}</span>
+                          <span>{categoryConfig[key as keyof typeof categoryConfig]?.name || key}</span>
                         </div>
                       </SelectItem>
                     ))}
@@ -471,6 +517,31 @@ export function QuestOrganization({
                         ) : (
                           <div className="w-2 h-2 rounded border border-gray-400" />
                         )}
+                      </div>
+                      {/* Edit and Delete buttons */}
+                      <div className="flex items-center gap-1 ml-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0 text-gray-400 hover:text-amber-400"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onQuestEdit(quest);
+                          }}
+                        >
+                          <Pencil className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0 text-gray-400 hover:text-red-400"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onQuestDelete(quest.id);
+                          }}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
                       </div>
                     </div>
                   </div>
