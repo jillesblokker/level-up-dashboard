@@ -38,6 +38,16 @@ export function UserNav() {
     console.log('Onboarding temporarily disabled');
   };
 
+  // Guide button click handler
+  const handleGuideClick = () => {
+    if (typeof window !== 'undefined' && (window as any).openOnboarding) {
+      console.log('Opening onboarding via guide button');
+      (window as any).openOnboarding();
+    } else {
+      console.log('Onboarding function not available');
+    }
+  };
+
   if (!isClient || !user) {
     return null;
   }
@@ -132,7 +142,7 @@ export function UserNav() {
                 aria-label="Show guide"
                 role="button"
                 onClick={() => {
-                  openFullOnboarding();
+                  handleGuideClick();
                   setIsOpen(false);
                 }}
               >
