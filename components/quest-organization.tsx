@@ -33,6 +33,7 @@ interface QuestOrganizationProps {
   onQuestDelete: (questId: string) => void
   onAddQuest: () => void
   showCategoryFilter?: boolean
+  context?: 'quests' | 'challenges' | 'milestones'
 }
 
 const categoryConfig = {
@@ -116,13 +117,56 @@ export function QuestOrganization({
   onQuestEdit, 
   onQuestDelete, 
   onAddQuest,
-  showCategoryFilter = true
+  showCategoryFilter = true,
+  context = 'quests'
 }: QuestOrganizationProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('might')
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all')
   const [selectedStatus, setSelectedStatus] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState<'name' | 'reward' | 'difficulty'>('name')
+
+  // Context-based labels
+  const labels = {
+    quests: {
+      title: 'Quest Overview',
+      subtitle: 'Track your quest progress and rewards',
+      categories: 'Quest Categories',
+      categoriesSubtitle: 'Progress by quest type',
+      filters: 'Quest Filters',
+      searchPlaceholder: 'Search quests...',
+      addButton: 'Add Quest',
+      noItems: 'No quests found',
+      noItemsSubtitle: 'Try adjusting your filters or add a new quest',
+      showing: 'quests'
+    },
+    challenges: {
+      title: 'Challenge Overview',
+      subtitle: 'Track your challenge progress and rewards',
+      categories: 'Challenge Categories',
+      categoriesSubtitle: 'Progress by challenge type',
+      filters: 'Challenge Filters',
+      searchPlaceholder: 'Search challenges...',
+      addButton: 'Add Challenge',
+      noItems: 'No challenges found',
+      noItemsSubtitle: 'Try adjusting your filters or add a new challenge',
+      showing: 'challenges'
+    },
+    milestones: {
+      title: 'Milestone Overview',
+      subtitle: 'Track your milestone progress and rewards',
+      categories: 'Milestone Categories',
+      categoriesSubtitle: 'Progress by milestone type',
+      filters: 'Milestone Filters',
+      searchPlaceholder: 'Search milestones...',
+      addButton: 'Add Milestone',
+      noItems: 'No milestones found',
+      noItemsSubtitle: 'Try adjusting your filters or add a new milestone',
+      showing: 'milestones'
+    }
+  }
+
+  const currentLabels = labels[context]
 
   // Filter and sort quests
   const filteredQuests = quests.filter(quest => {
@@ -176,10 +220,10 @@ export function QuestOrganization({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-amber-400">
             <TrendingUp className="h-5 w-5" />
-            Quest Overview
+            {currentLabels.title}
           </CardTitle>
           <CardDescription className="text-gray-300">
-            Track your quest progress and rewards
+            {currentLabels.subtitle}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -209,10 +253,10 @@ export function QuestOrganization({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-amber-400">
             <Target className="h-5 w-5" />
-            Quest Categories
+            {currentLabels.categories}
           </CardTitle>
           <CardDescription className="text-gray-300">
-            Progress by quest type
+            {currentLabels.categoriesSubtitle}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -261,7 +305,7 @@ export function QuestOrganization({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-amber-400">
             <Filter className="h-5 w-5" />
-            Quest Filters
+            {currentLabels.filters}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -269,7 +313,7 @@ export function QuestOrganization({
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="Search quests..."
+              placeholder={currentLabels.searchPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 bg-gray-800 border-gray-700 text-white"
@@ -349,14 +393,14 @@ export function QuestOrganization({
           {/* Results Summary */}
           <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
             <span className="text-sm text-gray-300">
-              Showing {sortedQuests.length} of {quests.length} quests
+              Showing {sortedQuests.length} of {quests.length} {currentLabels.showing}
             </span>
             <Button
               onClick={onAddQuest}
               className="bg-amber-500 hover:bg-amber-600 text-black"
               size="sm"
             >
-              Add Quest
+              {currentLabels.addButton}
             </Button>
           </div>
         </CardContent>
@@ -368,8 +412,8 @@ export function QuestOrganization({
           <Card className="border-amber-800/20 bg-gradient-to-br from-gray-900 to-gray-800">
             <CardContent className="p-8 text-center">
               <Trophy className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-300 mb-2">No quests found</h3>
-              <p className="text-gray-400">Try adjusting your filters or add a new quest</p>
+              <h3 className="text-lg font-semibold text-gray-300 mb-2">{currentLabels.noItems}</h3>
+              <p className="text-gray-400">{currentLabels.noItemsSubtitle}</p>
             </CardContent>
           </Card>
         ) : (
