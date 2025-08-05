@@ -157,7 +157,7 @@ export default function RestoreStatsPage() {
                     Restoring...
                   </>
                 ) : (
-                  'Restore to Database'
+                  "Restore to Database"
                 )}
               </Button>
 
@@ -183,7 +183,7 @@ export default function RestoreStatsPage() {
               </p>
               <ul className="text-gray-600 mt-2 text-left max-w-md mx-auto">
                 <li>• Your stats were already cleared</li>
-                <li>• You haven't played the game yet</li>
+                <li>• You haven&apos;t played the game yet</li>
                 <li>• The data is stored differently</li>
               </ul>
             </div>
