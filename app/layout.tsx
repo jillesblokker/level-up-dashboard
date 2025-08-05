@@ -19,6 +19,7 @@ import { TitleEvolutionProvider } from '@/components/title-evolution-provider'
 import { NavBar } from '@/components/nav-bar'
 
 import { SeasonalHuntWrapper } from '@/components/seasonal-hunt-wrapper'
+import { ClientOnboardingProvider } from '@/components/client-onboarding-provider'
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -100,16 +101,18 @@ export default function RootLayout({
               <GradientProvider>
                 <TitleEvolutionProvider>
                   <Providers>
-                    {/* Temporarily disabled OnboardingProvider to fix build errors */}
-                    <div className="flex flex-col h-full">
-                      <AuthGate>
-                        <NavBar session={null} />
-                        <main className="flex-1 relative">
-                          {children}
-                        </main>
-                        <SeasonalHuntWrapper />
-                      </AuthGate>
-                    </div>
+                    {/* Restored OnboardingProvider with client-side wrapper */}
+                    <ClientOnboardingProvider>
+                      <div className="flex flex-col h-full">
+                        <AuthGate>
+                          <NavBar session={null} />
+                          <main className="flex-1 relative">
+                            {children}
+                          </main>
+                          <SeasonalHuntWrapper />
+                        </AuthGate>
+                      </div>
+                    </ClientOnboardingProvider>
                   </Providers>
                 </TitleEvolutionProvider>
               </GradientProvider>
