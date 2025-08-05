@@ -968,6 +968,7 @@ export default function QuestsPage() {
               onQuestEdit={handleEditQuest}
               onQuestDelete={handleDeleteQuest}
               onAddQuest={() => setAddQuestModalOpen(true)}
+              showCategoryFilter={false}
             />
           </TabsContent>
 
@@ -1076,6 +1077,7 @@ export default function QuestsPage() {
               onQuestEdit={handleEditChallenge}
               onQuestDelete={(challengeId) => handleDeleteChallenge(challengeId)}
               onAddQuest={() => setAddChallengeModalOpen(true)}
+              showCategoryFilter={true}
             />
           </TabsContent>
 
@@ -1089,6 +1091,7 @@ export default function QuestsPage() {
               onQuestEdit={() => {}} // Milestones don't have edit
               onQuestDelete={() => {}} // Milestones don't have delete
               onAddQuest={() => {}} // Milestones don't have add
+              showCategoryFilter={true}
             />
           </TabsContent>
 

@@ -32,6 +32,7 @@ interface QuestOrganizationProps {
   onQuestEdit: (quest: Quest) => void
   onQuestDelete: (questId: string) => void
   onAddQuest: () => void
+  showCategoryFilter?: boolean
 }
 
 const categoryConfig = {
@@ -114,7 +115,8 @@ export function QuestOrganization({
   onQuestFavorite, 
   onQuestEdit, 
   onQuestDelete, 
-  onAddQuest 
+  onAddQuest,
+  showCategoryFilter = true
 }: QuestOrganizationProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('might')
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all')
@@ -275,26 +277,28 @@ export function QuestOrganization({
           </div>
 
           {/* Filters */}
-          <div className="grid gap-4 md:grid-cols-4">
-            <div>
-              <label className="text-sm text-gray-300 mb-2 block">Category</label>
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="bg-gray-800 border-gray-700">
-                  <SelectValue placeholder="All categories" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-700">
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {Object.entries(categoryConfig).map(([key, config]) => (
-                    <SelectItem key={key} value={key}>
-                      <div className="flex items-center gap-2">
-                        <span>{config.icon}</span>
-                        <span>{config.name}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div className={`grid gap-4 ${showCategoryFilter ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
+            {showCategoryFilter && (
+              <div>
+                <label className="text-sm text-gray-300 mb-2 block">Category</label>
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger className="bg-gray-800 border-gray-700">
+                    <SelectValue placeholder="All categories" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-900 border-gray-700">
+                    <SelectItem value="all">All Categories</SelectItem>
+                    {Object.entries(categoryConfig).map(([key, config]) => (
+                      <SelectItem key={key} value={key}>
+                        <div className="flex items-center gap-2">
+                          <span>{config.icon}</span>
+                          <span>{config.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <div>
               <label className="text-sm text-gray-300 mb-2 block">Difficulty</label>
