@@ -179,19 +179,19 @@ export default function QuestCard({
             </CardDescription>
           </div>
           <div className="flex flex-col items-end gap-2 flex-shrink-0">
-            {/* Status Badge */}
-            <Badge 
-              className={cn(
-                "text-xs font-semibold",
-                status === 'completed' && "bg-green-600 text-white",
-                status === 'in-progress' && "bg-amber-600 text-white",
-                status === 'not-started' && "bg-gray-600 text-white"
-              )}
-            >
-              {status === 'completed' && 'Completed'}
-              {status === 'in-progress' && 'In Progress'}
-              {status === 'not-started' && 'Not Started'}
-            </Badge>
+            {/* Status Badge - Only show for completed and in-progress */}
+            {(status === 'completed' || status === 'in-progress') && (
+              <Badge 
+                className={cn(
+                  "text-xs font-semibold",
+                  status === 'completed' && "bg-green-600 text-white",
+                  status === 'in-progress' && "bg-amber-600 text-white"
+                )}
+              >
+                {status === 'completed' && 'Completed'}
+                {status === 'in-progress' && 'In Progress'}
+              </Badge>
+            )}
             
             {/* Difficulty Badge */}
             <Badge className={cn("text-xs", difficultyInfo.color, "text-white")}>
@@ -217,32 +217,15 @@ export default function QuestCard({
           />
         </div>
 
-        {/* Difficulty and Time */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className={cn(
-              "flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium",
-              "bg-gray-800/50 border border-gray-700/50"
-            )}>
-              <DifficultyIcon className="h-3 w-3" />
-              <span className={cn(
-                difficulty === 'easy' && 'text-green-400',
-                difficulty === 'medium' && 'text-yellow-400',
-                difficulty === 'hard' && 'text-orange-400',
-                difficulty === 'epic' && 'text-purple-400'
-              )}>
-                {difficultyInfo.label}
-              </span>
-            </div>
-          </div>
-          
-          {timeRemaining && (
+        {/* Time Remaining */}
+        {timeRemaining && (
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-1 text-xs text-gray-400">
               <Clock className="h-3 w-3" />
               <span>{timeRemaining}</span>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Rewards */}
         <div className="space-y-2">

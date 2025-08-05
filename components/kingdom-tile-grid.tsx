@@ -104,7 +104,30 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
           <CardTitle className="text-lg">Kingdom Rewards</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between">
+          {/* Mobile Layout - Vertical */}
+          <div className="block sm:hidden space-y-3">
+            <div className="flex items-center gap-2">
+              <Coins className="h-5 w-5 text-amber-500" />
+              <span className="font-semibold">Total Gold Earned:</span>
+              <Badge variant="secondary" className="bg-amber-100 text-amber-800">
+                {totalGoldEarned} gold
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <Package className="h-5 w-5 text-blue-500" />
+              <span className="font-semibold">Items Found:</span>
+              <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                {itemsFound.length}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Placed Tiles:</span>
+              <Badge variant="outline">{placedTiles.length}</Badge>
+            </div>
+          </div>
+          
+          {/* Desktop Layout - Horizontal */}
+          <div className="hidden sm:flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <Coins className="h-5 w-5 text-amber-500" />
@@ -163,7 +186,30 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
             <CardTitle className="text-lg">Recent Items Found</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-2">
+            {/* Mobile Layout - Vertical Stack */}
+            <div className="block sm:hidden space-y-2">
+              {itemsFound.slice(-6).map((item, index) => (
+                <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <div className="relative w-10 h-10 flex-shrink-0">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="object-contain w-full h-full"
+                      onError={(e) => { 
+                        e.currentTarget.src = '/images/placeholders/item-placeholder.svg' 
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{item.name}</p>
+                    <p className="text-xs text-gray-500 capitalize">{item.type}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Desktop Layout - Horizontal Grid */}
+            <div className="hidden sm:flex flex-wrap gap-2">
               {itemsFound.slice(-6).map((item, index) => (
                 <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
                   <div className="relative w-8 h-8">

@@ -225,7 +225,7 @@ export function KingdomGridWithTimers({
               <button
                 key={`tile-${x}-${y}`}
                 className={cn(
-                  "relative w-full h-full aspect-square bg-black/60 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-amber-500",
+                  "group relative w-full h-full aspect-square bg-black/60 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-amber-500",
                   selectedTile && "ring-2 ring-amber-500",
                   isKingdomTile && isReady && "ring-2 ring-green-500 animate-pulse"
                 )}
@@ -249,9 +249,9 @@ export function KingdomGridWithTimers({
                   onError={(e) => { e.currentTarget.src = '/images/placeholders/item-placeholder.svg' }}
                 />
                 
-                {/* Timer overlay for kingdom tiles */}
+                {/* Timer overlay for kingdom tiles - Only show on hover */}
                 {isKingdomTile && timer && (
-                  <div className="absolute bottom-1 left-1 right-1">
+                  <div className="group-hover:opacity-100 opacity-0 transition-opacity duration-200 absolute bottom-1 left-1 right-1">
                     <div className={cn(
                       "text-xs px-2 py-1 rounded text-center font-mono",
                       isReady 
