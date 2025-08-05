@@ -159,8 +159,6 @@ export default function QuestsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [allCategories, setAllCategories] = useState<string[]>(questCategories);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editingQuest, setEditingQuest] = useState<Quest | null>(null);
   const [mainTab, setMainTab] = useState<'quests' | 'challenges' | 'milestones' | 'recovery'>('quests');
   const [questCategory, setQuestCategory] = useState(questCategories[0]);
   const [challengeCategory, setChallengeCategory] = useState<string>(
@@ -168,7 +166,6 @@ export default function QuestsPage() {
   );
   const [milestoneCategory, setMilestoneCategory] = useState(questCategories[0]);
   const [completedChallenges, setCompletedChallenges] = useState<Record<string, boolean[]>>({});
-  const [addChallengeModalOpen, setAddChallengeModalOpen] = useState(false);
   const [newChallenge, setNewChallenge] = useState({
     name: '',
     instructions: '',
@@ -179,23 +176,29 @@ export default function QuestsPage() {
   const [customChallenges, setCustomChallenges] = useState<Record<string, any[]>>({});
   const [challengeStreaks, setChallengeStreaks] = useState<Record<string, number[]>>({});
   const [challengeLastCompleted, setChallengeLastCompleted] = useState<Record<string, string[]>>({});
-  const [editCustomChallengeIdx, setEditCustomChallengeIdx] = useState<number | null>(null);
-  const [editCustomChallengeData, setEditCustomChallengeData] = useState<any | null>(null);
-  const [addQuestModalOpen, setAddQuestModalOpen] = useState(false);
-  const [showAddChallengeTypeModal, setShowAddChallengeTypeModal] = useState(false);
-  const [newChallengeTypeName, setNewChallengeTypeName] = useState('');
   const [newQuest, setNewQuest] = useState({
     name: '',
     description: '',
-    category: questCategory,
-    difficulty: '',
+    category: questCategories[0],
+    difficulty: 'medium',
     xp: 0,
     gold: 0,
   });
-  const [addQuestError, setAddQuestError] = useState<string | null>(null);
-  const [addQuestLoading, setAddQuestLoading] = useState(false);
+
+  // Add missing state variables
+  const [streakData, setStreakData] = useState<{ streak_days: number; week_streaks: number }>({ streak_days: 0, week_streaks: 0 });
+  const [challengeStreakData, setChallengeStreakData] = useState<{ streak_days: number; week_streaks: number }>({ streak_days: 0, week_streaks: 0 });
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingQuest, setEditingQuest] = useState<Quest | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [questToDelete, setQuestToDelete] = useState<Quest | null>(null);
+  const [addChallengeModalOpen, setAddChallengeModalOpen] = useState(false);
+  const [showAddChallengeTypeModal, setShowAddChallengeTypeModal] = useState(false);
+  const [newChallengeTypeName, setNewChallengeTypeName] = useState('');
+  const [editCustomChallengeIdx, setEditCustomChallengeIdx] = useState<number | null>(null);
+  const [editCustomChallengeData, setEditCustomChallengeData] = useState<any>(null);
+  const [addQuestModalOpen, setAddQuestModalOpen] = useState(false);
+  const [addQuestLoading, setAddQuestLoading] = useState(false);
   const [favoritedQuests, setFavoritedQuests] = useState<Set<string>>(new Set());
   // const [milestones, setMilestones] = useState<any[]>([]);
   const [challenges, setChallenges] = useState<any[]>([]);
@@ -600,7 +603,95 @@ export default function QuestsPage() {
     }
   }, [challenges.length, challengeCategory, challengeStreakData]);
 
+  // Add missing functions
+  const updateStreak = async (newStreak: number, newWeekStreaks: number) => {
+    // Placeholder function
+    console.log('updateStreak called:', newStreak, newWeekStreaks);
+  };
 
+  const handleQuestToggle = async (questId: string, currentCompleted: boolean) => {
+    // Placeholder function
+    console.log('handleQuestToggle called:', questId, currentCompleted);
+  };
+
+  const handleQuestFavorite = async (questId: string) => {
+    // Placeholder function
+    console.log('handleQuestFavorite called:', questId);
+  };
+
+  const handleEditQuest = (quest: Quest) => {
+    // Placeholder function
+    console.log('handleEditQuest called:', quest);
+  };
+
+  const handleDeleteQuest = async (questId: string) => {
+    // Placeholder function
+    console.log('handleDeleteQuest called:', questId);
+  };
+
+  const handleChallengeToggle = async (challengeId: string, currentCompleted: boolean) => {
+    // Placeholder function
+    console.log('handleChallengeToggle called:', challengeId, currentCompleted);
+  };
+
+  const handleEditChallenge = (challenge: any) => {
+    // Placeholder function
+    console.log('handleEditChallenge called:', challenge);
+  };
+
+  const handleDeleteChallenge = (challengeId: string) => {
+    // Placeholder function
+    console.log('handleDeleteChallenge called:', challengeId);
+  };
+
+  const handleBulkCompleteFavorites = async () => {
+    // Placeholder function
+    console.log('handleBulkCompleteFavorites called');
+  };
+
+  const handleBulkCompleteAllFavorites = async () => {
+    // Placeholder function
+    console.log('handleBulkCompleteAllFavorites called');
+  };
+
+  // Add remaining missing variables and functions
+  const [milestones] = useState<any[]>([]);
+  const [addQuestError, setAddQuestError] = useState<string | null>(null);
+
+  const handleMilestoneToggle = async (milestoneId: string, currentCompleted: boolean) => {
+    // Placeholder function
+    console.log('handleMilestoneToggle called:', milestoneId, currentCompleted);
+  };
+
+  const handleChallengeCategoryChange = (value: string) => {
+    // Placeholder function
+    console.log('handleChallengeCategoryChange called:', value);
+  };
+
+  const handleEditQuestSubmit = async (updatedQuest: Quest) => {
+    // Placeholder function
+    console.log('handleEditQuestSubmit called:', updatedQuest);
+  };
+
+  const handleAddQuestSubmit = async (quest: Quest) => {
+    // Placeholder function
+    console.log('handleAddQuestSubmit called:', quest);
+  };
+
+  const confirmDeleteQuest = () => {
+    // Placeholder function
+    console.log('confirmDeleteQuest called');
+  };
+
+  const cancelDeleteQuest = () => {
+    // Placeholder function
+    console.log('cancelDeleteQuest called');
+  };
+
+  const handleAddChallengeType = () => {
+    // Placeholder function
+    console.log('handleAddChallengeType called');
+  };
 
   if (!isClerkLoaded || !isUserLoaded) {
     console.log('Waiting for auth and Clerk client...');
