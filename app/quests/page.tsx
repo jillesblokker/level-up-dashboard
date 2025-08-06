@@ -268,7 +268,7 @@ export default function QuestsPage() {
   useEffect(() => {
     let cancelled = false;
     async function getClerkToken() {
-      if (!isClerkLoaded || !isUserLoaded) return;
+      if (!isClerkLoaded || !isUserLoaded || !user) return;
       let t = await getToken({ template: 'supabase' });
       let attempts = 0;
       while (!t && attempts < 2) {
@@ -282,9 +282,9 @@ export default function QuestsPage() {
     return () => { cancelled = true; };
   }, [isClerkLoaded, isUserLoaded, getToken]);
 
-  // Fetch quests when token is present
+  // Fetch quests when token is present and user is authenticated
   useEffect(() => {
-    if (!token) return;
+    if (!token || !user) return;
     setLoading(true);
     async function fetchQuests() {
       try {
@@ -309,7 +309,7 @@ export default function QuestsPage() {
     }
     fetchQuests();
     fetchFavorites();
-  }, [token]);
+  }, [token, user]);
 
   // Fetch user's favorited quests
   const fetchFavorites = async () => {
