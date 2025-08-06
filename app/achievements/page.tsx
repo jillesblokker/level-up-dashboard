@@ -338,50 +338,56 @@ export default function Page() {
                 return (
                   <Card
                     key={creature.id}
-                    className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-start h-[calc(100vh-1rem)] md:h-[700px] lg:h-[951px] lg:w-[1352px] p-0 md:p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
+                    className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-start h-[calc(100vh-1rem)] md:h-[700px] lg:h-[951px] lg:w-[1352px] p-6 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
                     aria-label={`creature-card-${creature.id}`}
                   >
-                    <CardHeader className="w-full flex flex-col items-start text-left mb-4">
-                      <CardTitle className={`text-lg md:text-xl font-semibold ${unlocked ? 'text-amber-400' : 'text-white'}`}>{creature.name} {creature.number}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex flex-col items-start w-full px-0 md:px-4 flex-1 gap-4">
-                      <div className="relative w-full h-[calc(100vh-24rem)] md:h-96 lg:h-[28rem] flex items-center justify-center">
+                    {/* 1. Title */}
+                    <div className="mb-6">
+                      <h3 className={`text-lg md:text-xl font-semibold ${unlocked ? 'text-amber-400' : 'text-white'}`}>{creature.name} {creature.number}</h3>
+                    </div>
+
+                    {/* 2. Image */}
+                    <div className="flex-1 w-full mb-6">
+                      <div className="relative w-full h-[calc(100vh-32rem)] md:h-[400px] lg:h-[600px]">
                         {unlocked ? (
-                          <div className="absolute inset-0">
-                            <CreatureCard
-                              creature={creature}
-                              discovered={true}
-                              showCard={true}
-                              previewMode={false}
-                            />
-                          </div>
+                          <CreatureCard
+                            creature={creature}
+                            discovered={true}
+                            showCard={true}
+                            previewMode={false}
+                          />
                         ) : (
-                          <Image src={'/images/undiscovered.png'} alt="Undiscovered Card" fill sizes="(max-width: 768px) 100vw, 340px" className="object-cover rounded-lg opacity-50" />
+                          <Image 
+                            src={'/images/undiscovered.png'} 
+                            alt="Undiscovered Achievement" 
+                            fill 
+                            className="object-contain rounded-lg opacity-50" 
+                          />
                         )}
                       </div>
-                      
-                      {/* Content area - always present for consistent layout */}
-                      <div className="flex flex-col items-center w-full flex-1 justify-end">
-                        {unlocked ? (
-                          <>
-                            {unlockDate && unlockDate !== "Invalid Date" && (
-                              <div className="mt-2 md:mt-3 text-xs md:text-sm text-gray-400" aria-label={`unlock-date-for-${creature.id}`}>
-                                <span>Unlocked on {unlockDate}</span>
-                              </div>
-                            )}
-                            {creature.requirement && (
-                              <div className="mt-2 md:mt-3 text-center text-xs md:text-sm text-white" aria-label={`creature-card-${creature.id}-requirement`}>
-                                <span>Requirement: {creature.requirement}</span>
-                              </div>
-                            )}
-                          </>
-                        ) : (
-                          <div className="text-center text-xs md:text-sm text-gray-400 mb-2 md:mb-3">
-                            <p>Undiscovered</p>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
+                    </div>
+
+                    {/* 3. Text/Label */}
+                    <div className="w-full">
+                      {unlocked ? (
+                        <>
+                          {unlockDate && unlockDate !== "Invalid Date" && (
+                            <div className="text-xs md:text-sm text-gray-400 mb-2" aria-label={`unlock-date-for-${creature.id}`}>
+                              <span>Unlocked on {unlockDate}</span>
+                            </div>
+                          )}
+                          {creature.requirement && (
+                            <div className="text-xs md:text-sm text-white" aria-label={`creature-card-${creature.id}-requirement`}>
+                              <span>Requirement: {creature.requirement}</span>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="text-xs md:text-sm text-gray-400">
+                          <p>Undiscovered</p>
+                        </div>
+                      )}
+                    </div>
                   </Card>
                 );
               })}
@@ -417,43 +423,50 @@ export default function Page() {
                   const monsterName = monsterNames[achievement.id] || achievement.name;
                   
                   return (
-                                          <Card
+                                                                <Card
                         key={achievement.id}
-                        className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-start h-[calc(100vh-1rem)] md:h-[700px] lg:h-[951px] lg:w-[1352px] p-0 md:p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
+                        className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-start h-[calc(100vh-1rem)] md:h-[700px] lg:h-[951px] lg:w-[1352px] p-6 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
                         aria-label={`achievement-card-${achievement.id}`}
                       >
-                                              <CardHeader className="w-full flex flex-col items-start text-left mb-4">
-                          <CardTitle className={`font-serif text-lg md:text-xl ${unlocked ? 'text-amber-400' : 'text-white'}`}>{monsterName} #{achievement.id}</CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex flex-col items-start w-full px-0 md:px-4 flex-1 gap-4">
-                          <div className="relative w-full h-[calc(100vh-24rem)] md:h-96 lg:h-[28rem] flex items-center justify-center">
-                          {unlocked ? (
-                            <div className="absolute inset-0">
+                        {/* 1. Title */}
+                        <div className="mb-6">
+                          <h3 className={`font-serif text-lg md:text-xl ${unlocked ? 'text-amber-400' : 'text-white'}`}>{monsterName} #{achievement.id}</h3>
+                        </div>
+
+                        {/* 2. Image */}
+                        <div className="flex-1 w-full mb-6">
+                          <div className="relative w-full h-[calc(100vh-32rem)] md:h-[400px] lg:h-[600px]">
+                            {unlocked ? (
                               <Image 
                                 src={achievement.image_url} 
                                 alt={monsterName}
                                 fill
-                                className="object-cover rounded-lg"
+                                className="object-contain rounded-lg"
                               />
-                            </div>
-                          ) : (
-                            <Image src={'/images/undiscovered.png'} alt="Undiscovered Achievement" fill sizes="(max-width: 768px) 100vw, 340px" className="object-cover rounded-lg opacity-50" />
-                          )}
+                            ) : (
+                              <Image 
+                                src={'/images/undiscovered.png'} 
+                                alt="Undiscovered Achievement" 
+                                fill 
+                                className="object-contain rounded-lg opacity-50" 
+                              />
+                            )}
+                          </div>
                         </div>
-                        
-                        {/* Content area - always present for consistent layout */}
-                        <div className="flex flex-col items-center w-full flex-1 justify-end">
+
+                        {/* 3. Text/Label */}
+                        <div className="w-full">
                           {unlocked ? (
                             <>
-                              <div className="text-center text-xs md:text-sm text-gray-300 mb-2 md:mb-3">
+                              <div className="text-xs md:text-sm text-gray-300 mb-2">
                                 <p>{achievement.description}</p>
                               </div>
                               {unlockDate && unlockDate !== "Invalid Date" && (
-                                <div className="mt-2 md:mt-3 text-xs md:text-sm text-gray-400" aria-label={`unlock-date-for-${achievement.id}`}>
+                                <div className="text-xs md:text-sm text-gray-400 mb-2" aria-label={`unlock-date-for-${achievement.id}`}>
                                   <span>Unlocked on {unlockDate}</span>
                                 </div>
                               )}
-                              <div className="mt-2 md:mt-3 flex gap-1 md:gap-2">
+                              <div className="flex gap-2">
                                 <Badge variant="outline" className="text-xs">
                                   +{achievement.xp_reward} XP
                                 </Badge>
@@ -463,13 +476,12 @@ export default function Page() {
                               </div>
                             </>
                           ) : (
-                            <div className="text-center text-xs md:text-sm text-gray-400 mb-2 md:mb-3">
+                            <div className="text-xs md:text-sm text-gray-400">
                               <p>Undiscovered</p>
                             </div>
                           )}
                         </div>
-                      </CardContent>
-                    </Card>
+                      </Card>
                   );
                 })}
               </div>
