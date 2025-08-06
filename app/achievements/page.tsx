@@ -429,27 +429,34 @@ export default function Page() {
                             <Image src={'/images/undiscovered.png'} alt="Undiscovered Achievement" fill sizes="(max-width: 768px) 100vw, 340px" className="object-cover rounded-lg opacity-50" />
                           )}
                         </div>
-                        {unlocked && (
-                          <>
-                            <div className="text-center text-sm text-gray-300 mb-2">
-                              <p>{achievement.description}</p>
-                            </div>
-                            {unlockDate && unlockDate !== "Invalid Date" && (
-                              <div className="mt-2 text-sm text-gray-400" aria-label={`unlock-date-for-${achievement.id}`}>
-                                <span>Unlocked on {unlockDate}</span>
+                        
+                        {/* Content area - always present for consistent layout */}
+                        <div className="flex flex-col items-center w-full">
+                          {unlocked ? (
+                            <>
+                              <div className="text-center text-sm text-gray-300 mb-2">
+                                <p>{achievement.description}</p>
                               </div>
-                            )}
-
-                            <div className="mt-2 flex gap-2">
-                              <Badge variant="outline" className="text-xs">
-                                +{achievement.xp_reward} XP
-                              </Badge>
-                              <Badge variant="outline" className="text-xs">
-                                +{achievement.gold_reward} Gold
-                              </Badge>
+                              {unlockDate && unlockDate !== "Invalid Date" && (
+                                <div className="mt-2 text-sm text-gray-400" aria-label={`unlock-date-for-${achievement.id}`}>
+                                  <span>Unlocked on {unlockDate}</span>
+                                </div>
+                              )}
+                              <div className="mt-2 flex gap-2">
+                                <Badge variant="outline" className="text-xs">
+                                  +{achievement.xp_reward} XP
+                                </Badge>
+                                <Badge variant="outline" className="text-xs">
+                                  +{achievement.gold_reward} Gold
+                                </Badge>
+                              </div>
+                            </>
+                          ) : (
+                            <div className="text-center text-sm text-gray-400 mb-2">
+                              <p>Undiscovered</p>
                             </div>
-                          </>
-                        )}
+                          )}
+                        </div>
                       </CardContent>
                     </Card>
                   );
