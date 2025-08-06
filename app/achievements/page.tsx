@@ -345,7 +345,7 @@ export default function Page() {
                     <h3 className={`text-lg font-semibold mb-4 ${unlocked ? 'text-amber-400' : 'text-white'}`}>{creature.name} {creature.number}</h3>
 
                     {/* 2. Image */}
-                    <div className="relative w-full flex-1 mb-4">
+                    <div className={`relative w-full mb-4 ${unlocked ? 'flex-1' : 'h-80'}`}>
                       {unlocked ? (
                         <CreatureCard
                           creature={creature}
@@ -428,7 +428,7 @@ export default function Page() {
                         <h3 className={`font-serif text-lg font-semibold mb-4 ${unlocked ? 'text-amber-400' : 'text-white'}`}>{monsterName} #{achievement.id}</h3>
 
                         {/* 2. Image */}
-                        <div className="relative w-full flex-1 mb-4">
+                        <div className={`relative w-full mb-4 ${unlocked ? 'flex-1' : 'h-80'}`}>
                           {unlocked ? (
                             <Image 
                               src={achievement.image_url} 
