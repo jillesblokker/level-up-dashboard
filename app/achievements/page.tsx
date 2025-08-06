@@ -408,7 +408,7 @@ export default function Page() {
                   return (
                     <Card
                       key={achievement.id}
-                      className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-center justify-start min-h-[640px] p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
+                      className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-center h-[640px] p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
                       aria-label={`achievement-card-${achievement.id}`}
                     >
                       <CardHeader className="w-full flex flex-col items-center text-center mb-4">
@@ -431,7 +431,7 @@ export default function Page() {
                         </div>
                         
                         {/* Content area - always present for consistent layout */}
-                        <div className="flex flex-col items-center w-full">
+                        <div className="flex flex-col items-center w-full flex-1 justify-end">
                           {unlocked ? (
                             <>
                               <div className="text-center text-sm text-gray-300 mb-2">
