@@ -268,7 +268,12 @@ export default function QuestsPage() {
   useEffect(() => {
     let cancelled = false;
     async function getClerkToken() {
-      if (!isClerkLoaded || !isUserLoaded || !user) return;
+      console.log('[Token Debug] isClerkLoaded:', isClerkLoaded, 'isUserLoaded:', isUserLoaded, 'user:', !!user);
+      if (!isClerkLoaded || !isUserLoaded || !user) {
+        console.log('[Token Debug] Skipping token fetch - not ready');
+        return;
+      }
+      console.log('[Token Debug] Fetching token...');
       let t = await getToken({ template: 'supabase' });
       let attempts = 0;
       while (!t && attempts < 2) {
@@ -276,6 +281,7 @@ export default function QuestsPage() {
         t = await getToken({ template: 'supabase' });
         attempts++;
       }
+      console.log('[Token Debug] Token result:', !!t);
       if (!cancelled) setToken(t || null);
     }
     getClerkToken();
@@ -284,7 +290,12 @@ export default function QuestsPage() {
 
   // Fetch quests when token is present and user is authenticated
   useEffect(() => {
-    if (!token || !user) return;
+    console.log('[Auth Debug] Token:', !!token, 'User:', !!user, 'isClerkLoaded:', isClerkLoaded, 'isUserLoaded:', isUserLoaded);
+    if (!token || !user) {
+      console.log('[Auth Debug] Skipping API call - not authenticated');
+      return;
+    }
+    console.log('[Auth Debug] Making API call - user is authenticated');
     setLoading(true);
     async function fetchQuests() {
       try {
