@@ -330,7 +330,7 @@ export default function Page() {
                 {showAllUnlocked ? "Hide unlocked" : "Show unlocked"}
               </button>
             </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3" aria-label="creature-cards-grid">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="creature-cards-grid">
               {creatures.map(creature => {
                 if (!creature) return null;
                 const unlocked = isCreatureUnlocked(creature.id);
@@ -338,52 +338,48 @@ export default function Page() {
                 return (
                   <Card
                     key={creature.id}
-                    className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-start h-[calc(100vh-1rem)] md:h-[700px] lg:h-[951px] lg:w-[1352px] p-6 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
+                    className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
                     aria-label={`creature-card-${creature.id}`}
                   >
                     {/* 1. Title */}
-                    <div className="mb-6">
-                      <h3 className={`text-lg md:text-xl font-semibold ${unlocked ? 'text-amber-400' : 'text-white'}`}>{creature.name} {creature.number}</h3>
-                    </div>
+                    <h3 className={`text-lg font-semibold mb-4 ${unlocked ? 'text-amber-400' : 'text-white'}`}>{creature.name} {creature.number}</h3>
 
                     {/* 2. Image */}
-                    <div className="flex-1 w-full mb-6">
-                      <div className="relative w-full h-[calc(100vh-32rem)] md:h-[400px] lg:h-[600px]">
-                        {unlocked ? (
-                          <CreatureCard
-                            creature={creature}
-                            discovered={true}
-                            showCard={true}
-                            previewMode={false}
-                          />
-                        ) : (
-                          <Image 
-                            src={'/images/undiscovered.png'} 
-                            alt="Undiscovered Achievement" 
-                            fill 
-                            className="object-contain rounded-lg opacity-50" 
-                          />
-                        )}
-                      </div>
+                    <div className="relative w-full h-64 md:h-80 mb-4">
+                      {unlocked ? (
+                        <CreatureCard
+                          creature={creature}
+                          discovered={true}
+                          showCard={true}
+                          previewMode={false}
+                        />
+                      ) : (
+                        <Image 
+                          src={'/images/undiscovered.png'} 
+                          alt="Undiscovered Achievement" 
+                          fill 
+                          className="object-contain rounded-lg opacity-50" 
+                        />
+                      )}
                     </div>
 
                     {/* 3. Text/Label */}
-                    <div className="w-full">
+                    <div className="mt-auto">
                       {unlocked ? (
                         <>
                           {unlockDate && unlockDate !== "Invalid Date" && (
-                            <div className="text-xs md:text-sm text-gray-400 mb-2" aria-label={`unlock-date-for-${creature.id}`}>
+                            <div className="text-xs text-gray-400 mb-2" aria-label={`unlock-date-for-${creature.id}`}>
                               <span>Unlocked on {unlockDate}</span>
                             </div>
                           )}
                           {creature.requirement && (
-                            <div className="text-xs md:text-sm text-white" aria-label={`creature-card-${creature.id}-requirement`}>
+                            <div className="text-xs text-white" aria-label={`creature-card-${creature.id}-requirement`}>
                               <span>Requirement: {creature.requirement}</span>
                             </div>
                           )}
                         </>
                       ) : (
-                        <div className="text-xs md:text-sm text-gray-400">
+                        <div className="text-xs text-gray-400">
                           <p>Undiscovered</p>
                         </div>
                       )}
@@ -398,7 +394,7 @@ export default function Page() {
           {achievementDefinitions.length > 0 && (
             <div className="mb-8">
               <h2 className="text-xl font-semibold text-amber-400 mb-4">Monster Battles</h2>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3" aria-label="achievement-cards-grid">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="achievement-cards-grid">
                 {achievementDefinitions
                   .filter(achievement => {
                     // Only show monster battle achievements (201-206)
@@ -425,44 +421,40 @@ export default function Page() {
                   return (
                                                                 <Card
                         key={achievement.id}
-                        className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-start h-[calc(100vh-1rem)] md:h-[700px] lg:h-[951px] lg:w-[1352px] p-6 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
+                        className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
                         aria-label={`achievement-card-${achievement.id}`}
                       >
                         {/* 1. Title */}
-                        <div className="mb-6">
-                          <h3 className={`font-serif text-lg md:text-xl ${unlocked ? 'text-amber-400' : 'text-white'}`}>{monsterName} #{achievement.id}</h3>
-                        </div>
+                        <h3 className={`font-serif text-lg font-semibold mb-4 ${unlocked ? 'text-amber-400' : 'text-white'}`}>{monsterName} #{achievement.id}</h3>
 
                         {/* 2. Image */}
-                        <div className="flex-1 w-full mb-6">
-                          <div className="relative w-full h-[calc(100vh-32rem)] md:h-[400px] lg:h-[600px]">
-                            {unlocked ? (
-                              <Image 
-                                src={achievement.image_url} 
-                                alt={monsterName}
-                                fill
-                                className="object-contain rounded-lg"
-                              />
-                            ) : (
-                              <Image 
-                                src={'/images/undiscovered.png'} 
-                                alt="Undiscovered Achievement" 
-                                fill 
-                                className="object-contain rounded-lg opacity-50" 
-                              />
-                            )}
-                          </div>
+                        <div className="relative w-full h-64 md:h-80 mb-4">
+                          {unlocked ? (
+                            <Image 
+                              src={achievement.image_url} 
+                              alt={monsterName}
+                              fill
+                              className="object-contain rounded-lg"
+                            />
+                          ) : (
+                            <Image 
+                              src={'/images/undiscovered.png'} 
+                              alt="Undiscovered Achievement" 
+                              fill 
+                              className="object-contain rounded-lg opacity-50" 
+                            />
+                          )}
                         </div>
 
                         {/* 3. Text/Label */}
-                        <div className="w-full">
+                        <div className="mt-auto">
                           {unlocked ? (
                             <>
-                              <div className="text-xs md:text-sm text-gray-300 mb-2">
+                              <div className="text-xs text-gray-300 mb-2">
                                 <p>{achievement.description}</p>
                               </div>
                               {unlockDate && unlockDate !== "Invalid Date" && (
-                                <div className="text-xs md:text-sm text-gray-400 mb-2" aria-label={`unlock-date-for-${achievement.id}`}>
+                                <div className="text-xs text-gray-400 mb-2" aria-label={`unlock-date-for-${achievement.id}`}>
                                   <span>Unlocked on {unlockDate}</span>
                                 </div>
                               )}
@@ -476,7 +468,7 @@ export default function Page() {
                               </div>
                             </>
                           ) : (
-                            <div className="text-xs md:text-sm text-gray-400">
+                            <div className="text-xs text-gray-400">
                               <p>Undiscovered</p>
                             </div>
                           )}
