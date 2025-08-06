@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+
 // Accessibility utilities for better keyboard navigation and screen reader support
 
 /**
