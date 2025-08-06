@@ -344,11 +344,11 @@ export default function Page() {
                     {/* Full-width/height image only */}
                     <div className="absolute inset-0 w-full h-full">
                       {unlocked ? (
-                        <CreatureCard
-                          creature={creature}
-                          discovered={true}
-                          showCard={true}
-                          previewMode={false}
+                        <Image 
+                          src={creature.image} 
+                          alt={creature.name}
+                          fill 
+                          className="object-cover" 
                         />
                       ) : (
                         <Image 
