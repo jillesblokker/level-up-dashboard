@@ -338,14 +338,14 @@ export default function Page() {
                 return (
                   <Card
                     key={creature.id}
-                    className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-center h-[calc(100vh-4rem)] md:h-[500px] lg:h-[600px] p-3 md:p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
+                    className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-center h-[calc(100vh-2rem)] md:h-[600px] lg:h-[700px] p-3 md:p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
                     aria-label={`creature-card-${creature.id}`}
                   >
                     <CardHeader className="w-full flex flex-col items-center text-center mb-3 md:mb-4">
                       <CardTitle className={`text-lg md:text-xl font-semibold ${unlocked ? 'text-amber-400' : 'text-white'}`}>{creature.name} {creature.number}</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col items-center w-full px-3 md:px-4 flex-1">
-                      <div className="relative w-full h-[calc(100vh-16rem)] md:h-72 lg:h-80 mb-3 md:mb-4 flex items-center justify-center">
+                      <div className="relative w-full h-[calc(100vh-20rem)] md:h-80 lg:h-96 mb-3 md:mb-4 flex items-center justify-center">
                         {unlocked ? (
                           <div className="absolute inset-0">
                             <CreatureCard
@@ -417,16 +417,16 @@ export default function Page() {
                   const monsterName = monsterNames[achievement.id] || achievement.name;
                   
                   return (
-                    <Card
-                      key={achievement.id}
-                      className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-center h-[calc(100vh-4rem)] md:h-[500px] lg:h-[600px] p-3 md:p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
-                      aria-label={`achievement-card-${achievement.id}`}
-                    >
+                                          <Card
+                        key={achievement.id}
+                        className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-center h-[calc(100vh-2rem)] md:h-[600px] lg:h-[700px] p-3 md:p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
+                        aria-label={`achievement-card-${achievement.id}`}
+                      >
                       <CardHeader className="w-full flex flex-col items-center text-center mb-3 md:mb-4">
                         <CardTitle className={`font-serif text-lg md:text-xl ${unlocked ? 'text-amber-400' : 'text-white'}`}>{monsterName} #{achievement.id}</CardTitle>
                       </CardHeader>
-                      <CardContent className="flex flex-col items-center w-full px-3 md:px-4 flex-1">
-                        <div className="relative w-full h-[calc(100vh-16rem)] md:h-72 lg:h-80 mb-3 md:mb-4 flex items-center justify-center">
+                                              <CardContent className="flex flex-col items-center w-full px-3 md:px-4 flex-1">
+                          <div className="relative w-full h-[calc(100vh-20rem)] md:h-80 lg:h-96 mb-3 md:mb-4 flex items-center justify-center">
                           {unlocked ? (
                             <div className="absolute inset-0">
                               <Image 
