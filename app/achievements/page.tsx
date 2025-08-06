@@ -355,7 +355,7 @@ export default function Page() {
                           src={'/images/undiscovered.png'} 
                           alt="Undiscovered Achievement" 
                           fill 
-                          className="object-contain rounded-lg opacity-50" 
+                          className="object-cover opacity-50" 
                         />
                       )}
                     </div>
@@ -406,14 +406,14 @@ export default function Page() {
                               src={achievement.image_url} 
                               alt={monsterName}
                               fill
-                              className="object-contain rounded-lg"
+                              className="object-cover"
                             />
                           ) : (
                             <Image 
                               src={'/images/undiscovered.png'} 
                               alt="Undiscovered Achievement" 
                               fill 
-                              className="object-contain rounded-lg opacity-50" 
+                              className="object-cover opacity-50" 
                             />
                           )}
                         </div>
