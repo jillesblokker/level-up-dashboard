@@ -30,6 +30,22 @@ export default function RequirementsPage() {
     // Accessibility & UX
     'All interactive elements have ARIA labels and follow accessibility rules.',
     'Cards, grids, and sections use semantic HTML and ARIA attributes.',
+    'Focus trapping implemented for all modals and dialogs.',
+    'Live regions for screen reader announcements.',
+    'Enhanced loading states and error handling.',
+
+    // Keyboard Shortcuts
+    'Q - Navigate to Quests',
+    'C - Navigate to Challenges', 
+    'M - Navigate to Milestones',
+    'K - Navigate to Kingdom',
+    'I - Open Inventory',
+    'A - Navigate to Achievements',
+    'N - Add New Quest',
+    'B - Buy Tile',
+    'H - Show Help/Shortcuts',
+    'Escape - Close modals/dialogs',
+    'W/A/S/D or Arrow Keys - Move character',
 
     // State Management & Persistence
     'Local storage fallback for offline progress.',

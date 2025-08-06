@@ -36,21 +36,66 @@ export function trapFocus(container: HTMLElement) {
 }
 
 /**
+ * Create a live region for screen reader announcements
+ */
+export function createLiveRegion(): HTMLElement {
+  const liveRegion = document.createElement('div')
+  liveRegion.setAttribute('aria-live', 'polite')
+  liveRegion.setAttribute('aria-atomic', 'true')
+  liveRegion.className = 'sr-only'
+  liveRegion.id = 'live-region'
+  document.body.appendChild(liveRegion)
+  return liveRegion
+}
+
+/**
  * Announce message to screen readers
  */
-export function announceToScreenReader(message: string, priority: 'polite' | 'assertive' = 'polite') {
-  const announcement = document.createElement('div')
-  announcement.setAttribute('aria-live', priority)
-  announcement.setAttribute('aria-atomic', 'true')
-  announcement.className = 'sr-only'
-  announcement.textContent = message
-  
-  document.body.appendChild(announcement)
-  
-  // Remove after announcement
-  setTimeout(() => {
-    document.body.removeChild(announcement)
-  }, 1000)
+export function announceToScreenReader(message: string) {
+  let liveRegion = document.getElementById('live-region')
+  if (!liveRegion) {
+    liveRegion = createLiveRegion()
+  }
+  liveRegion.textContent = message
+}
+
+/**
+ * Enhanced focus trap hook for modals
+ */
+export function useFocusTrap(isOpen: boolean) {
+  useEffect(() => {
+    if (!isOpen) return
+    
+    const focusableElements = document.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    ) as NodeListOf<HTMLElement>
+    
+    const firstElement = focusableElements[0]
+    const lastElement = focusableElements[focusableElements.length - 1]
+    
+    if (firstElement) {
+      firstElement.focus()
+    }
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Tab' && firstElement && lastElement) {
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement) {
+            e.preventDefault()
+            lastElement.focus()
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            e.preventDefault()
+            firstElement.focus()
+          }
+        }
+      }
+    }
+    
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen])
 }
 
 /**
@@ -78,17 +123,6 @@ export function generateAccessibleLabel(element: string, context?: Record<string
 }
 
 /**
- * Check if element is visible to screen readers
- */
-export function isVisibleToScreenReader(element: HTMLElement): boolean {
-  const style = window.getComputedStyle(element)
-  return style.display !== 'none' && 
-         style.visibility !== 'hidden' && 
-         element.offsetWidth > 0 && 
-         element.offsetHeight > 0
-}
-
-/**
  * Skip to main content link for keyboard users
  */
 export function createSkipLink(): HTMLElement {
@@ -101,34 +135,41 @@ export function createSkipLink(): HTMLElement {
 }
 
 /**
- * Debounce function for performance optimization
+ * Keyboard shortcuts manager
  */
-export function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout
+export class KeyboardShortcuts {
+  private shortcuts: Map<string, () => void> = new Map()
   
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => func(...args), wait)
+  register(key: string, callback: () => void) {
+    this.shortcuts.set(key.toLowerCase(), callback)
   }
-}
-
-/**
- * Throttle function for performance optimization
- */
-export function throttle<T extends (...args: any[]) => any>(
-  func: T,
-  limit: number
-): (...args: Parameters<T>) => void {
-  let inThrottle: boolean
   
-  return (...args: Parameters<T>) => {
-    if (!inThrottle) {
-      func(...args)
-      inThrottle = true
-      setTimeout(() => inThrottle = false, limit)
+  unregister(key: string) {
+    this.shortcuts.delete(key.toLowerCase())
+  }
+  
+  handleKeyDown = (event: KeyboardEvent) => {
+    const key = event.key.toLowerCase()
+    const callback = this.shortcuts.get(key)
+    
+    if (callback && !this.isInInput(event.target as HTMLElement)) {
+      event.preventDefault()
+      callback()
     }
+  }
+  
+  private isInInput(element: HTMLElement | null): boolean {
+    if (!element) return false
+    return element.tagName === 'INPUT' || 
+           element.tagName === 'TEXTAREA' || 
+           element.isContentEditable
+  }
+  
+  enable() {
+    document.addEventListener('keydown', this.handleKeyDown)
+  }
+  
+  disable() {
+    document.removeEventListener('keydown', this.handleKeyDown)
   }
 } 

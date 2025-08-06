@@ -27,6 +27,11 @@ import { gainStrengthFromQuest } from '@/lib/strength-manager'
 import { MobileLayoutWrapper, MobileScrollContainer, MobileContentWrapper } from '@/components/mobile-layout-wrapper'
 
 import { QuestOrganization } from '@/components/quest-organization'
+import { GameplayLoopIndicator } from '@/components/gameplay-loop-indicator'
+import { ProgressDashboard } from '@/components/progress-dashboard'
+import { KeyboardShortcutsProvider } from '@/components/keyboard-shortcuts'
+import { showQuestCompletionToast } from '@/components/enhanced-reward-toast'
+import { EmptyQuests } from '@/components/empty-states'
 
 interface Quest {
   id: string;
@@ -768,6 +773,25 @@ export default function QuestsPage() {
 
   return (
     <div className="min-h-full quests-page-container scroll-prevent" style={{ overscrollBehavior: 'none' }}>
+      {/* Keyboard Shortcuts Provider */}
+      <KeyboardShortcutsProvider 
+        onNavigate={(route) => {
+          // TODO: Implement navigation
+          console.log('Navigate to:', route)
+        }}
+        onAddQuest={() => setAddQuestModalOpen(true)}
+        onAddChallenge={() => setAddChallengeModalOpen(true)}
+        onAddMilestone={() => setAddMilestoneModalOpen(true)}
+        onBuyTile={() => {
+          // TODO: Navigate to kingdom and open tile purchase
+          console.log('Buy tile')
+        }}
+        onShowHelp={() => {
+          // TODO: Show help modal
+          console.log('Show help')
+        }}
+      />
+      
       <HeaderSection
         title="Message Board"
         subtitle="Embark on epic journeys and complete tasks to earn rewards."
@@ -779,7 +803,14 @@ export default function QuestsPage() {
         <MobileContentWrapper>
           {error && <p className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{error}</p>}
           
-
+          {/* Gameplay Loop Indicator */}
+          <div className="mb-6">
+            <GameplayLoopIndicator 
+              questsCompleted={quests.filter(q => q.completed).length}
+              goldEarned={quests.reduce((sum, q) => sum + (q.completed ? (q.gold || 0) : 0), 0)}
+              kingdomTiles={0} // TODO: Get from kingdom state
+            />
+          </div>
           
           <Tabs value={mainTab} onValueChange={v => setMainTab(v as 'quests' | 'challenges' | 'milestones' | 'recovery')} className="space-y-6">
           <TabsList className="mb-6 w-full grid grid-cols-4">
