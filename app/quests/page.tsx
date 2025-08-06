@@ -654,13 +654,66 @@ export default function QuestsPage() {
   };
 
   const handleBulkCompleteFavorites = async () => {
-    // Placeholder function
-    console.log('handleBulkCompleteFavorites called');
+    if (!token) return;
+    
+    try {
+      const favoritedQuestsInCategory = quests.filter(q => 
+        q.category === questCategory && 
+        favoritedQuests.has(q.id) && 
+        !q.completed
+      );
+      
+      if (favoritedQuestsInCategory.length === 0) return;
+      
+      // Complete each favorited quest in the current category
+      for (const quest of favoritedQuestsInCategory) {
+        await handleQuestToggle(quest.id, false); // false = currently not completed, so this will complete it
+      }
+      
+      toast({
+        title: "Bulk Complete Successful!",
+        description: `Completed ${favoritedQuestsInCategory.length} favorited quests in ${getCategoryLabel(questCategory || '')} category.`,
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error bulk completing favorites:', error);
+      toast({
+        title: "Error",
+        description: "Failed to complete favorited quests. Please try again.",
+        duration: 3000,
+      });
+    }
   };
 
   const handleBulkCompleteAllFavorites = async () => {
-    // Placeholder function
-    console.log('handleBulkCompleteAllFavorites called');
+    if (!token) return;
+    
+    try {
+      const allFavoritedQuests = quests.filter(q => 
+        favoritedQuests.has(q.id) && 
+        !q.completed
+      );
+      
+      if (allFavoritedQuests.length === 0) return;
+      
+      // Complete each favorited quest across all categories
+      for (const quest of allFavoritedQuests) {
+        await handleQuestToggle(quest.id, false); // false = currently not completed, so this will complete it
+      }
+      
+      toast({
+        title: "Bulk Complete Successful!",
+        description: `Completed ${allFavoritedQuests.length} favorited quests across all categories.`,
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error bulk completing all favorites:', error);
+      toast({
+        title: "Error",
+        description: "Failed to complete favorited quests. Please try again.",
+        duration: 3000,
+      });
+    }
   };
 
   // Add remaining missing variables and functions
