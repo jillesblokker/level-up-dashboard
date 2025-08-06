@@ -415,7 +415,7 @@ export default function Page() {
                         <CardTitle className={`font-serif text-2xl ${unlocked ? 'text-amber-400' : 'text-white'}`}>{monsterName} #{achievement.id}</CardTitle>
 
                       </CardHeader>
-                      <CardContent className="flex flex-col items-center w-full px-1">
+                      <CardContent className="flex flex-col items-center w-full px-4">
                         <div className="relative w-full aspect-[2/3] mb-4 flex items-center justify-center">
                           {unlocked ? (
                             <div className="absolute inset-0">
@@ -440,11 +440,7 @@ export default function Page() {
                                 <span>Unlocked on {unlockDate}</span>
                               </div>
                             )}
-                            {achievement.unlock_condition && (
-                              <div className="mt-2 text-center text-xs text-amber-400" aria-label={`achievement-card-${achievement.id}-requirement`}>
-                                <span>{achievement.unlock_condition}</span>
-                              </div>
-                            )}
+
                             <div className="mt-2 flex gap-2">
                               <Badge variant="outline" className="text-xs">
                                 +{achievement.xp_reward} XP
