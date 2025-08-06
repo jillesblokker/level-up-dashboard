@@ -206,7 +206,7 @@ export async function PUT(request: Request) {
       .from('quest_completion')
       .select('*')
       .eq('user_id', userId)
-      .eq('quest_name', updateTitle)
+      .eq('title', updateTitle)
       .limit(1);
     let questCompletion = completions?.[0];
     if (!questCompletion) {
@@ -216,7 +216,7 @@ export async function PUT(request: Request) {
         .insert([
           {
             user_id: userId,
-            quest_name: updateTitle,
+            title: updateTitle,
             category: 'general',
             completed: false
           }
@@ -264,19 +264,19 @@ export async function PUT(request: Request) {
           type: 'exp',
           amount: defaultRewards.experience,
           relatedId: String(questCompletion['id']),
-          context: { source: 'quest_completion', questTitle: String(questCompletion['quest_name']) }
+          context: { source: 'quest_completion', questTitle: String(questCompletion['title']) }
         });
         await grantReward({
           userId,
           type: 'gold',
           amount: defaultRewards.gold,
           relatedId: String(questCompletion['id']),
-          context: { source: 'quest_completion', questTitle: String(questCompletion['quest_name']) }
+          context: { source: 'quest_completion', questTitle: String(questCompletion['title']) }
         });
       }
     }
     const response: QuestResponse = {
-      title: (updatedCompletion as any)['quest_name'],
+      title: (updatedCompletion as any)['title'],
       category: (updatedCompletion as any)['category'],
       completed: (updatedCompletion as any)['completed'],
       date: (updatedCompletion as any)['date']
