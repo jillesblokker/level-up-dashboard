@@ -678,6 +678,7 @@ export default function QuestsPage() {
       );
       
       // Update in Supabase
+      console.log('Sending quest update:', { title: questObj.name, completed: newCompleted });
       const response = await fetch('/api/quests', {
         method: 'PUT',
         headers: {
@@ -689,8 +690,13 @@ export default function QuestsPage() {
         })
       });
       
+      console.log('Response status:', response.status);
+      const responseText = await response.text();
+      console.log('Response body:', responseText);
+      
       if (!response.ok) {
-        throw new Error('Failed to update quest');
+        const errorData = responseText ? JSON.parse(responseText) : { error: 'Unknown error' };
+        throw new Error(`Failed to update quest: ${errorData.error || 'Unknown error'}`);
       }
       
       // Show success toast
