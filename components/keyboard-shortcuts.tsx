@@ -134,7 +134,7 @@ export function KeyboardShortcutsHelp() {
         
         <div className="mt-6 p-4 bg-amber-900/20 rounded-lg">
           <p className="text-sm text-amber-300">
-            💡 Tip: Keyboard shortcuts work when you're not typing in input fields
+            💡 Tip: Keyboard shortcuts work when you&apos;re not typing in input fields
           </p>
         </div>
       </DialogContent>
