@@ -619,8 +619,82 @@ export default function QuestsPage() {
   };
 
   const handleQuestToggle = async (questId: string, currentCompleted: boolean) => {
-    // Placeholder function
-    console.log('handleQuestToggle called:', questId, currentCompleted);
+    if (!token || !userId) return;
+    
+    try {
+      const newCompleted = !currentCompleted;
+      
+      // Update the quest in the local state
+      setQuests(prevQuests => 
+        prevQuests.map(quest => 
+          quest.id === questId 
+            ? { ...quest, completed: newCompleted }
+            : quest
+        )
+      );
+      
+      // Update in Supabase
+      const response = await fetch('/api/quests', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          questId,
+          completed: newCompleted,
+          userId
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update quest');
+      }
+      
+      // Show success toast
+      const quest = quests.find(q => q.id === questId);
+      if (quest) {
+        if (newCompleted) {
+          // Quest completed
+          const goldEarned = quest.gold || 0;
+          const xpEarned = quest.xp || 0;
+          
+          showQuestCompletionToast(quest.name, goldEarned, xpEarned);
+          
+          // Update character stats
+          await gainGold(goldEarned, 'quest-completion');
+          await gainExperience(xpEarned, 'quest-completion', 'general');
+          await gainStrengthFromQuest(quest.category, 1);
+        } else {
+          // Quest uncompleted
+          toast({
+            title: "Quest Uncompleted",
+            description: `${quest.name} has been marked as incomplete.`,
+            duration: 2000,
+          });
+        }
+      }
+      
+      // Local state is already updated, no need to refetch
+      
+    } catch (error) {
+      console.error('Error toggling quest:', error);
+      
+      // Revert local state on error
+      setQuests(prevQuests => 
+        prevQuests.map(quest => 
+          quest.id === questId 
+            ? { ...quest, completed: currentCompleted }
+            : quest
+        )
+      );
+      
+      toast({
+        title: "Error",
+        description: "Failed to update quest. Please try again.",
+        duration: 3000,
+      });
+    }
   };
 
   const handleQuestFavorite = async (questId: string) => {
