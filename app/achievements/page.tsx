@@ -338,7 +338,7 @@ export default function Page() {
                 return (
                   <Card
                     key={creature.id}
-                    className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} relative shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02] h-[600px]`}
+                    className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} relative shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02] h-[600px] p-0`}
                     aria-label={`creature-card-${creature.id}`}
                   >
                     {/* Full-width/height image only */}
@@ -396,7 +396,7 @@ export default function Page() {
                   return (
                                                                 <Card
                         key={achievement.id}
-                        className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} relative shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02] h-[600px]`}
+                        className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} relative shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02] h-[600px] p-0`}
                         aria-label={`achievement-card-${achievement.id}`}
                       >
                         {/* Full-width/height image only */}
