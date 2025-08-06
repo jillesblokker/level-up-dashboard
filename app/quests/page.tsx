@@ -297,7 +297,7 @@ export default function QuestsPage() {
         });
         if (!res.ok) throw new Error('Failed to fetch quests');
         const data = await res.json();
-        // console.log('[Quests Debug] fetched quests:', data);
+        console.log('[Quests Debug] fetched quests:', data);
         setQuests(data || []);
       } catch (err: any) {
         setError('[Quests Debug] Error fetching quests: ' + (err.message || 'Failed to fetch quests'));
