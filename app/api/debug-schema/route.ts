@@ -43,9 +43,9 @@ export async function GET(request: Request) {
       questCompletionColumns: questCompletionColumns || [],
       questCompletionSample: questCompletionSample || [],
       errors: {
-        tablesError: tablesError?.message || null,
-        columnsError: columnsError?.message || null,
-        sampleError: sampleError?.message || null
+        tablesError: tablesError ? tablesError.message : null,
+        columnsError: columnsError ? columnsError.message : null,
+        sampleError: sampleError ? sampleError.message : null
       }
     });
 
