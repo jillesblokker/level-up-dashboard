@@ -65,66 +65,37 @@ export async function GET(request: Request) {
       console.error('[QUESTS][GET] Supabase client not initialized.');
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
     }
-    // Get all available quests (system quests)
-    console.log('Fetching system quests...');
-    const { data: systemQuests, error: questsError } = await supabase
-      .from('quests')
-      .select('*')
-      .order('category', { ascending: true });
-    if (questsError) {
-      console.error('Quests error:', questsError);
-      return NextResponse.json({ error: questsError.message }, { status: 500 });
-    }
 
-    // Get user-created quests from checked_quests table
-    console.log('Fetching user-created quests...');
-    const { data: userQuests, error: userQuestsError } = await supabase
+    // Get user's quest completions from checked_quests table
+    console.log('Fetching user quest completions...');
+    const { data: questCompletions, error } = await supabase
       .from('checked_quests')
       .select('*')
       .eq('user_id', userId);
 
-    if (userQuestsError) {
-      console.error('User quests error:', userQuestsError);
-      // Don't fail completely, just log the error
-    }
-
-    // Combine system quests and user-created quests
-    const allQuests = [...(systemQuests || []), ...(userQuests || [])];
-    // Get user's quest completions
-    let questCompletions: any[] = [];
-    const { data, error } = await supabase
-      .from('checked_quests')
-      .select('*')
-      .eq('user_id', userId);
     if (error) {
       console.error('Quest completion fetch error:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    questCompletions = data || [];
-    // Combine quests with completion status (by quest_id)
-    const completionMap = new Map();
-    questCompletions.forEach((completion: any) => {
-      const key = String(completion['quest_id']);
-      completionMap.set(key, completion);
-    });
-    const questsWithCompletions = (allQuests as any[]).map((quest: any) => {
-      const key = String(quest['id']);
-      const completion = completionMap.get(key) as any;
+
+    // Convert checked_quests data to quest format
+    const questsWithCompletions = (questCompletions || []).map((completion: any) => {
       return {
-        id: quest['id'],
-        name: quest['name'],
-        title: quest['name'],
-        description: quest['description'],
-        category: quest['category'],
-        difficulty: quest['difficulty'],
-        xp: quest['xp_reward'],
-        gold: quest['gold_reward'],
-        completed: !!completion,
-        date: completion?.checked_at,
-        isNew: !completion,
-        completionId: completion?.id
+        id: completion['quest_id'],
+        name: completion['quest_id'],
+        title: completion['quest_id'],
+        description: `User-created quest: ${completion['quest_id']}`,
+        category: 'general',
+        difficulty: 'medium',
+        xp: 50,
+        gold: 25,
+        completed: !!completion['checked_at'],
+        date: completion['checked_at'],
+        isNew: !completion['checked_at'],
+        completionId: completion['id']
       };
     });
+
     return NextResponse.json(questsWithCompletions);
   } catch (error) {
     console.error('Error fetching quests:', error instanceof Error ? error.stack : error);
