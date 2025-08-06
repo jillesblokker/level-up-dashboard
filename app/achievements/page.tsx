@@ -338,14 +338,14 @@ export default function Page() {
                 return (
                   <Card
                     key={creature.id}
-                    className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
+                    className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02] h-[500px]`}
                     aria-label={`creature-card-${creature.id}`}
                   >
                     {/* 1. Title */}
                     <h3 className={`text-lg font-semibold mb-4 ${unlocked ? 'text-amber-400' : 'text-white'}`}>{creature.name} {creature.number}</h3>
 
                     {/* 2. Image */}
-                    <div className="relative w-full h-64 md:h-80 mb-4">
+                    <div className="relative w-full flex-1 mb-4">
                       {unlocked ? (
                         <CreatureCard
                           creature={creature}
@@ -364,7 +364,7 @@ export default function Page() {
                     </div>
 
                     {/* 3. Text/Label */}
-                    <div className="mt-auto">
+                    <div className="min-h-[60px]">
                       {unlocked ? (
                         <>
                           {unlockDate && unlockDate !== "Invalid Date" && (
@@ -421,14 +421,14 @@ export default function Page() {
                   return (
                                                                 <Card
                         key={achievement.id}
-                        className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
+                        className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02] h-[500px]`}
                         aria-label={`achievement-card-${achievement.id}`}
                       >
                         {/* 1. Title */}
                         <h3 className={`font-serif text-lg font-semibold mb-4 ${unlocked ? 'text-amber-400' : 'text-white'}`}>{monsterName} #{achievement.id}</h3>
 
                         {/* 2. Image */}
-                        <div className="relative w-full h-64 md:h-80 mb-4">
+                        <div className="relative w-full flex-1 mb-4">
                           {unlocked ? (
                             <Image 
                               src={achievement.image_url} 
@@ -447,7 +447,7 @@ export default function Page() {
                         </div>
 
                         {/* 3. Text/Label */}
-                        <div className="mt-auto">
+                        <div className="min-h-[60px]">
                           {unlocked ? (
                             <>
                               <div className="text-xs text-gray-300 mb-2">
