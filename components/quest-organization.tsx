@@ -316,7 +316,8 @@ export function QuestOrganization({
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {Object.entries(categoryConfig).map(([key, config]) => {
+            {getAvailableCategories().map(key => {
+              const config = categoryConfig[key as keyof typeof categoryConfig];
               const stats = getCategoryStats(key)
               const progress = stats.total > 0 ? (stats.completed / stats.total) * 100 : 0
               
