@@ -614,8 +614,46 @@ export default function QuestsPage() {
 
   // Add missing functions
   const updateStreak = async (newStreak: number, newWeekStreaks: number) => {
-    // Placeholder function
-    console.log('updateStreak called:', newStreak, newWeekStreaks);
+    if (!token || !userId) return;
+    
+    try {
+      // Update local state
+      setStreakData(prev => ({
+        ...prev,
+        currentStreak: newStreak,
+        weekStreaks: newWeekStreaks
+      }));
+      
+      // Update in Supabase
+      const response = await fetch('/api/streaks', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          currentStreak: newStreak,
+          weekStreaks: newWeekStreaks
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update streak');
+      }
+      
+      toast({
+        title: "Streak Updated",
+        description: `Your streak is now ${newStreak} days!`,
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error('Error updating streak:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update streak. Please try again.",
+        duration: 3000,
+      });
+    }
   };
 
   const handleQuestToggle = async (questId: string, currentCompleted: boolean) => {
@@ -624,12 +662,18 @@ export default function QuestsPage() {
     try {
       const newCompleted = !currentCompleted;
       
+      // Find the quest object
+      const questObj = quests.find(q => q.id === questId);
+      if (!questObj) {
+        throw new Error('Quest not found');
+      }
+      
       // Update the quest in the local state
       setQuests(prevQuests => 
-        prevQuests.map(quest => 
-          quest.id === questId 
-            ? { ...quest, completed: newCompleted }
-            : quest
+        prevQuests.map(q => 
+          q.id === questId 
+            ? { ...q, completed: newCompleted }
+            : q
         )
       );
       
@@ -638,12 +682,10 @@ export default function QuestsPage() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          questId,
-          completed: newCompleted,
-          userId
+          title: questObj.name,
+          completed: newCompleted
         })
       });
       
@@ -698,33 +740,180 @@ export default function QuestsPage() {
   };
 
   const handleQuestFavorite = async (questId: string) => {
-    // Placeholder function
-    console.log('handleQuestFavorite called:', questId);
+    if (!token || !userId) return;
+    
+    try {
+      // Toggle favorite status in local state
+      setFavoritedQuests(prev => {
+        const newFavorites = new Set(prev);
+        if (newFavorites.has(questId)) {
+          newFavorites.delete(questId);
+        } else {
+          newFavorites.add(questId);
+        }
+        return newFavorites;
+      });
+      
+      // Update in Supabase (if you have a favorites table)
+      // For now, we'll just use local state
+      
+      toast({
+        title: "Favorite Updated",
+        description: "Quest favorite status updated.",
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error('Error updating favorite:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update favorite status.",
+        duration: 3000,
+      });
+    }
   };
 
   const handleEditQuest = (quest: Quest) => {
-    // Placeholder function
-    console.log('handleEditQuest called:', quest);
+    setEditingQuest(quest);
+    setEditModalOpen(true);
   };
 
   const handleDeleteQuest = async (questId: string) => {
-    // Placeholder function
-    console.log('handleDeleteQuest called:', questId);
+    if (!token || !userId) return;
+    
+    try {
+      // Remove from local state
+      setQuests(prevQuests => prevQuests.filter(q => q.id !== questId));
+      
+      // Delete from Supabase
+      const response = await fetch('/api/quests', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          questId
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete quest');
+      }
+      
+      toast({
+        title: "Quest Deleted",
+        description: "Quest has been successfully deleted.",
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error('Error deleting quest:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete quest. Please try again.",
+        duration: 3000,
+      });
+    }
   };
 
   const handleChallengeToggle = async (challengeId: string, currentCompleted: boolean) => {
-    // Placeholder function
-    console.log('handleChallengeToggle called:', challengeId, currentCompleted);
+    if (!token || !userId) return;
+    
+    try {
+      const newCompleted = !currentCompleted;
+      
+      // Update local state
+      setChallenges(prevChallenges => 
+        prevChallenges.map(challenge => 
+          challenge.id === challengeId 
+            ? { ...challenge, completed: newCompleted }
+            : challenge
+        )
+      );
+      
+      // Update in Supabase
+      const response = await fetch('/api/challenges', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          challengeId,
+          completed: newCompleted
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update challenge');
+      }
+      
+      const challenge = challenges.find(c => c.id === challengeId);
+      if (challenge) {
+        if (newCompleted) {
+          toast({
+            title: "Challenge Completed!",
+            description: `${challenge.name} has been completed!`,
+            duration: 3000,
+          });
+        } else {
+          toast({
+            title: "Challenge Uncompleted",
+            description: `${challenge.name} has been marked as incomplete.`,
+            duration: 2000,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling challenge:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update challenge. Please try again.",
+        duration: 3000,
+      });
+    }
   };
 
   const handleEditChallenge = (challenge: any) => {
-    // Placeholder function
-    console.log('handleEditChallenge called:', challenge);
+    toast({
+      title: "Edit Challenge",
+      description: "Challenge editing functionality coming soon!",
+      duration: 2000,
+    });
   };
 
-  const handleDeleteChallenge = (challengeId: string) => {
-    // Placeholder function
-    console.log('handleDeleteChallenge called:', challengeId);
+  const handleDeleteChallenge = async (challengeId: string) => {
+    if (!token || !userId) return;
+    
+    try {
+      // Remove from local state
+      setChallenges(prevChallenges => prevChallenges.filter(c => c.id !== challengeId));
+      
+      // Delete from Supabase
+      const response = await fetch('/api/challenges', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          challengeId
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete challenge');
+      }
+      
+      toast({
+        title: "Challenge Deleted",
+        description: "Challenge has been successfully deleted.",
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error('Error deleting challenge:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete challenge. Please try again.",
+        duration: 3000,
+      });
+    }
   };
 
   const handleBulkCompleteFavorites = async () => {
@@ -795,18 +984,105 @@ export default function QuestsPage() {
   const [addQuestError, setAddQuestError] = useState<string | null>(null);
 
   const handleMilestoneToggle = async (milestoneId: string, currentCompleted: boolean) => {
-    // Placeholder for milestone toggle functionality
-    console.log('Milestone toggle:', milestoneId, currentCompleted);
+    if (!token || !userId) return;
+    
+    try {
+      const newCompleted = !currentCompleted;
+      
+      // Update local state
+      setMilestones(prevMilestones => 
+        prevMilestones.map(milestone => 
+          milestone.id === milestoneId 
+            ? { ...milestone, completed: newCompleted }
+            : milestone
+        )
+      );
+      
+      // Update in Supabase
+      const response = await fetch('/api/milestones', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          milestoneId,
+          completed: newCompleted
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update milestone');
+      }
+      
+      const milestone = milestones.find(m => m.id === milestoneId);
+      if (milestone) {
+        if (newCompleted) {
+          toast({
+            title: "Milestone Completed!",
+            description: `${milestone.name} has been completed!`,
+            duration: 3000,
+          });
+        } else {
+          toast({
+            title: "Milestone Uncompleted",
+            description: `${milestone.name} has been marked as incomplete.`,
+            duration: 2000,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling milestone:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update milestone. Please try again.",
+        duration: 3000,
+      });
+    }
   };
 
   const handleMilestoneEdit = (milestone: any) => {
-    // Placeholder for milestone edit functionality
-    console.log('Milestone edit:', milestone);
+    toast({
+      title: "Edit Milestone",
+      description: "Milestone editing functionality coming soon!",
+      duration: 2000,
+    });
   };
 
   const handleMilestoneDelete = async (milestoneId: string) => {
-    // Placeholder for milestone delete functionality
-    console.log('Milestone delete:', milestoneId);
+    if (!token || !userId) return;
+    
+    try {
+      // Remove from local state
+      setMilestones(prevMilestones => prevMilestones.filter(m => m.id !== milestoneId));
+      
+      // Delete from Supabase
+      const response = await fetch('/api/milestones', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          milestoneId
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete milestone');
+      }
+      
+      toast({
+        title: "Milestone Deleted",
+        description: "Milestone has been successfully deleted.",
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error('Error deleting milestone:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete milestone. Please try again.",
+        duration: 3000,
+      });
+    }
   };
 
   const handleAddMilestone = () => {
@@ -814,33 +1090,104 @@ export default function QuestsPage() {
   };
 
   const handleChallengeCategoryChange = (value: string) => {
-    // Placeholder function
-    console.log('handleChallengeCategoryChange called:', value);
+    setChallengeCategory(value);
   };
 
   const handleEditQuestSubmit = async (updatedQuest: Quest) => {
-    // Placeholder function
-    console.log('handleEditQuestSubmit called:', updatedQuest);
+    if (!token || !userId) return;
+    
+    try {
+      // Update local state
+      setQuests(prevQuests => 
+        prevQuests.map(q => 
+          q.id === updatedQuest.id 
+            ? updatedQuest
+            : q
+        )
+      );
+      
+      // Update in Supabase
+      const response = await fetch('/api/quests', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedQuest)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update quest');
+      }
+      
+      toast({
+        title: "Quest Updated",
+        description: "Quest has been successfully updated.",
+        duration: 2000,
+      });
+      
+      setEditModalOpen(false);
+      setEditingQuest(null);
+    } catch (error) {
+      console.error('Error updating quest:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update quest. Please try again.",
+        duration: 3000,
+      });
+    }
   };
 
   const handleAddQuestSubmit = async (quest: Quest) => {
-    // Placeholder function
-    console.log('handleAddQuestSubmit called:', quest);
+    if (!token || !userId) return;
+    
+    try {
+      // Add to local state
+      const newQuest = { ...quest, id: Date.now().toString(), isNew: false };
+      setQuests(prevQuests => [...prevQuests, newQuest]);
+      
+      // Add to Supabase
+      const response = await fetch('/api/quests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(quest)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to add quest');
+      }
+      
+      toast({
+        title: "Quest Added",
+        description: "New quest has been successfully added.",
+        duration: 2000,
+      });
+      
+      setAddQuestModalOpen(false);
+    } catch (error) {
+      console.error('Error adding quest:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add quest. Please try again.",
+        duration: 3000,
+      });
+    }
   };
 
   const confirmDeleteQuest = () => {
-    // Placeholder function
-    console.log('confirmDeleteQuest called');
+    if (questToDelete) {
+      handleDeleteQuest(questToDelete.id);
+      setQuestToDelete(null);
+    }
   };
 
   const cancelDeleteQuest = () => {
-    // Placeholder function
-    console.log('cancelDeleteQuest called');
+    setQuestToDelete(null);
   };
 
   const handleAddChallengeType = () => {
-    // Placeholder function
-    console.log('handleAddChallengeType called');
+    setAddChallengeModalOpen(true);
   };
 
   // Initialize predefined data - must be before any early returns
