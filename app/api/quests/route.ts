@@ -76,13 +76,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: questsError.message }, { status: 500 });
     }
 
-    // Get user-created quests from quest_completion table
+    // Get user-created quests from checked_quests table
     console.log('Fetching user-created quests...');
     const { data: userQuests, error: userQuestsError } = await supabase
-      .from('quest_completion')
+      .from('checked_quests')
       .select('*')
-      .eq('user_id', userId)
-      .is('quest_id', null); // User-created quests don't have a quest_id reference
+      .eq('user_id', userId);
 
     if (userQuestsError) {
       console.error('User quests error:', userQuestsError);
@@ -94,7 +93,7 @@ export async function GET(request: Request) {
     // Get user's quest completions
     let questCompletions: any[] = [];
     const { data, error } = await supabase
-      .from('quest_completion')
+      .from('checked_quests')
       .select('*')
       .eq('user_id', userId);
     if (error) {
@@ -105,7 +104,7 @@ export async function GET(request: Request) {
     // Combine quests with completion status (by quest_id)
     const completionMap = new Map();
     questCompletions.forEach((completion: any) => {
-      const key = String(completion['quest_id'] ?? completion['quest_name']);
+      const key = String(completion['quest_id']);
       completionMap.set(key, completion);
     });
     const questsWithCompletions = (allQuests as any[]).map((quest: any) => {
@@ -120,8 +119,8 @@ export async function GET(request: Request) {
         difficulty: quest['difficulty'],
         xp: quest['xp_reward'],
         gold: quest['gold_reward'],
-        completed: completion?.completed ?? false,
-        date: completion?.date,
+        completed: !!completion,
+        date: completion?.checked_at,
         isNew: !completion,
         completionId: completion?.id
       };
@@ -155,13 +154,12 @@ export async function POST(request: Request) {
     const { title, category } = result.data;
     // Create the quest completion
     const { data: questCompletion, error } = await supabase
-      .from('quest_completion')
+      .from('checked_quests')
       .insert([
         {
           user_id: userId,
-          quest_name: title,
-          category: category,
-          completed: false
+          quest_id: title,
+          checked_at: null
         }
       ])
       .single();
@@ -169,10 +167,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
     const response: QuestResponse = {
-      title: (questCompletion as any)['quest_name'],
-      category: (questCompletion as any)['category'],
-      completed: (questCompletion as any)['completed'],
-      date: (questCompletion as any)['date']
+      title: (questCompletion as any)['quest_id'],
+      category: 'general',
+      completed: false,
+      date: (questCompletion as any)['checked_at']
     };
     return NextResponse.json(response);
   } catch (error) {
@@ -203,21 +201,21 @@ export async function PUT(request: Request) {
     const { title: updateTitle, completed } = result.data;
     // Find or create quest completion
     const { data: completions, error: findError } = await supabase
-      .from('quest_completion')
+      .from('checked_quests')
       .select('*')
       .eq('user_id', userId)
-      .eq('quest_name', updateTitle)
+      .eq('quest_id', updateTitle)
       .limit(1);
     let questCompletion = completions?.[0];
     if (!questCompletion) {
       // Create a new completion record
       const { data: newCompletion, error: createError } = await supabase
-        .from('quest_completion')
+        .from('checked_quests')
         .insert([
           {
             user_id: userId,
-            quest_name: updateTitle,
-            completed: false
+            quest_id: updateTitle,
+            checked_at: completed ? new Date().toISOString() : null
           }
         ])
         .single();
@@ -225,17 +223,19 @@ export async function PUT(request: Request) {
         return NextResponse.json({ error: createError.message }, { status: 500 });
       }
       questCompletion = newCompletion;
-    }
-    // Update the completion status
-    const { data: updatedCompletion, error: updateError } = await supabase
-      .from('quest_completion')
-      .update({
-        completed
-      })
-      .eq('id', String(questCompletion['id']))
-      .single();
-    if (updateError) {
-      return NextResponse.json({ error: updateError.message }, { status: 500 });
+    } else {
+      // Update the completion status
+      const { data: updatedCompletion, error: updateError } = await supabase
+        .from('checked_quests')
+        .update({
+          checked_at: completed ? new Date().toISOString() : null
+        })
+        .eq('id', String(questCompletion['id']))
+        .single();
+      if (updateError) {
+        return NextResponse.json({ error: updateError.message }, { status: 500 });
+      }
+      questCompletion = updatedCompletion;
     }
     // If quest is completed, update character stats with default rewards
     if (completed) {
@@ -263,22 +263,22 @@ export async function PUT(request: Request) {
           type: 'exp',
           amount: defaultRewards.experience,
           relatedId: String(questCompletion['id']),
-          context: { source: 'quest_completion', questTitle: String(questCompletion['quest_name']) }
+          context: { source: 'checked_quests', questTitle: String(questCompletion['quest_id']) }
         });
         await grantReward({
           userId,
           type: 'gold',
           amount: defaultRewards.gold,
           relatedId: String(questCompletion['id']),
-          context: { source: 'quest_completion', questTitle: String(questCompletion['quest_name']) }
+          context: { source: 'checked_quests', questTitle: String(questCompletion['quest_id']) }
         });
       }
     }
     const response: QuestResponse = {
-      title: (updatedCompletion as any)['quest_name'],
+      title: (questCompletion as any)['quest_id'],
       category: 'general', // Default category since it might not exist in DB
-      completed: (updatedCompletion as any)['completed'],
-      date: (updatedCompletion as any)['date']
+      completed: !!(questCompletion as any)['checked_at'],
+      date: (questCompletion as any)['checked_at']
     };
     return NextResponse.json(response);
   } catch (error) {
