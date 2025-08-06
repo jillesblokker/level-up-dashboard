@@ -75,6 +75,11 @@ export async function GET(request: Request) {
 
     if (error) {
       console.error('Quest completion fetch error:', error);
+      // If the table doesn't exist, return empty array instead of error
+      if (error.message && error.message.includes('does not exist')) {
+        console.log('checked_quests table does not exist, returning empty array');
+        return NextResponse.json([]);
+      }
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
