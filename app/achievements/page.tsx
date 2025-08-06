@@ -330,7 +330,7 @@ export default function Page() {
                 {showAllUnlocked ? "Hide unlocked" : "Show unlocked"}
               </button>
             </div>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3" aria-label="creature-cards-grid">
+            <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" aria-label="creature-cards-grid">
               {creatures.map(creature => {
                 if (!creature) return null;
                 const unlocked = isCreatureUnlocked(creature.id);
@@ -338,14 +338,14 @@ export default function Page() {
                 return (
                   <Card
                     key={creature.id}
-                    className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-center h-[640px] p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
+                    className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-center min-h-[calc(100vh-2rem)] sm:h-[640px] p-2 sm:p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
                     aria-label={`creature-card-${creature.id}`}
                   >
-                    <CardHeader className="w-full flex flex-col items-center text-center mb-4">
-                      <CardTitle className={`text-lg font-semibold ${unlocked ? 'text-amber-400' : 'text-white'}`}>{creature.name} {creature.number}</CardTitle>
+                    <CardHeader className="w-full flex flex-col items-center text-center mb-2 sm:mb-4">
+                      <CardTitle className={`text-xl sm:text-lg font-semibold ${unlocked ? 'text-amber-400' : 'text-white'}`}>{creature.name} {creature.number}</CardTitle>
                     </CardHeader>
-                    <CardContent className="flex flex-col items-center w-full px-4 flex-1">
-                      <div className="relative w-full h-80 mb-4 flex items-center justify-center">
+                    <CardContent className="flex flex-col items-center w-full px-2 sm:px-4 flex-1">
+                      <div className="relative w-full h-[calc(100vh-12rem)] sm:h-80 mb-2 sm:mb-4 flex items-center justify-center">
                         {unlocked ? (
                           <div className="absolute inset-0">
                             <CreatureCard
@@ -365,18 +365,18 @@ export default function Page() {
                         {unlocked ? (
                           <>
                             {unlockDate && unlockDate !== "Invalid Date" && (
-                              <div className="mt-2 text-sm text-gray-400" aria-label={`unlock-date-for-${creature.id}`}>
+                              <div className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-400" aria-label={`unlock-date-for-${creature.id}`}>
                                 <span>Unlocked on {unlockDate}</span>
                               </div>
                             )}
                             {creature.requirement && (
-                              <div className="mt-2 text-center text-base text-white" aria-label={`creature-card-${creature.id}-requirement`}>
+                              <div className="mt-1 sm:mt-2 text-center text-sm sm:text-base text-white" aria-label={`creature-card-${creature.id}-requirement`}>
                                 <span>Requirement: {creature.requirement}</span>
                               </div>
                             )}
                           </>
                         ) : (
-                          <div className="text-center text-sm text-gray-400 mb-2">
+                          <div className="text-center text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">
                             <p>Undiscovered</p>
                           </div>
                         )}
@@ -392,7 +392,7 @@ export default function Page() {
           {achievementDefinitions.length > 0 && (
             <div className="mb-8">
               <h2 className="text-xl font-semibold text-amber-400 mb-4">Monster Battles</h2>
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3" aria-label="achievement-cards-grid">
+              <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" aria-label="achievement-cards-grid">
                 {achievementDefinitions
                   .filter(achievement => {
                     // Only show monster battle achievements (201-206)
@@ -419,14 +419,14 @@ export default function Page() {
                   return (
                     <Card
                       key={achievement.id}
-                      className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-center h-[640px] p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
+                      className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-center min-h-[calc(100vh-2rem)] sm:h-[640px] p-2 sm:p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
                       aria-label={`achievement-card-${achievement.id}`}
                     >
-                      <CardHeader className="w-full flex flex-col items-center text-center mb-4">
-                        <CardTitle className={`font-serif text-2xl ${unlocked ? 'text-amber-400' : 'text-white'}`}>{monsterName} #{achievement.id}</CardTitle>
+                      <CardHeader className="w-full flex flex-col items-center text-center mb-2 sm:mb-4">
+                        <CardTitle className={`font-serif text-xl sm:text-2xl ${unlocked ? 'text-amber-400' : 'text-white'}`}>{monsterName} #{achievement.id}</CardTitle>
                       </CardHeader>
-                      <CardContent className="flex flex-col items-center w-full px-4 flex-1">
-                        <div className="relative w-full h-80 mb-4 flex items-center justify-center">
+                      <CardContent className="flex flex-col items-center w-full px-2 sm:px-4 flex-1">
+                        <div className="relative w-full h-[calc(100vh-12rem)] sm:h-80 mb-2 sm:mb-4 flex items-center justify-center">
                           {unlocked ? (
                             <div className="absolute inset-0">
                               <Image 
@@ -445,15 +445,15 @@ export default function Page() {
                         <div className="flex flex-col items-center w-full flex-1 justify-end">
                           {unlocked ? (
                             <>
-                              <div className="text-center text-sm text-gray-300 mb-2">
+                              <div className="text-center text-xs sm:text-sm text-gray-300 mb-1 sm:mb-2">
                                 <p>{achievement.description}</p>
                               </div>
                               {unlockDate && unlockDate !== "Invalid Date" && (
-                                <div className="mt-2 text-sm text-gray-400" aria-label={`unlock-date-for-${achievement.id}`}>
+                                <div className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-400" aria-label={`unlock-date-for-${achievement.id}`}>
                                   <span>Unlocked on {unlockDate}</span>
                                 </div>
                               )}
-                              <div className="mt-2 flex gap-2">
+                              <div className="mt-1 sm:mt-2 flex gap-1 sm:gap-2">
                                 <Badge variant="outline" className="text-xs">
                                   +{achievement.xp_reward} XP
                                 </Badge>
@@ -463,7 +463,7 @@ export default function Page() {
                               </div>
                             </>
                           ) : (
-                            <div className="text-center text-sm text-gray-400 mb-2">
+                            <div className="text-center text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">
                               <p>Undiscovered</p>
                             </div>
                           )}
