@@ -217,7 +217,6 @@ export async function PUT(request: Request) {
           {
             user_id: userId,
             title: updateTitle,
-            category: 'general',
             completed: false
           }
         ])
@@ -277,7 +276,7 @@ export async function PUT(request: Request) {
     }
     const response: QuestResponse = {
       title: (updatedCompletion as any)['title'],
-      category: (updatedCompletion as any)['category'],
+      category: 'general', // Default category since it might not exist in DB
       completed: (updatedCompletion as any)['completed'],
       date: (updatedCompletion as any)['date']
     };
