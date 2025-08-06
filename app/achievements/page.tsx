@@ -338,7 +338,7 @@ export default function Page() {
                 return (
                   <Card
                     key={creature.id}
-                    className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02] h-[500px]`}
+                    className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02] h-[600px]`}
                     aria-label={`creature-card-${creature.id}`}
                   >
                     {/* 1. Title */}
@@ -364,7 +364,7 @@ export default function Page() {
                     </div>
 
                     {/* 3. Text/Label */}
-                    <div className="min-h-[60px]">
+                    <div className="min-h-[80px]">
                       {unlocked ? (
                         <>
                           {unlockDate && unlockDate !== "Invalid Date" && (
@@ -421,7 +421,7 @@ export default function Page() {
                   return (
                                                                 <Card
                         key={achievement.id}
-                        className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02] h-[500px]`}
+                        className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02] h-[600px]`}
                         aria-label={`achievement-card-${achievement.id}`}
                       >
                         {/* 1. Title */}
@@ -447,7 +447,7 @@ export default function Page() {
                         </div>
 
                         {/* 3. Text/Label */}
-                        <div className="min-h-[60px]">
+                        <div className="min-h-[80px]">
                           {unlocked ? (
                             <>
                               <div className="text-xs text-gray-300 mb-2">
