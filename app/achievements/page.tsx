@@ -338,15 +338,14 @@ export default function Page() {
                 return (
                   <Card
                     key={creature.id}
-                    className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-center justify-center min-h-[640px] p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
+                    className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} flex flex-col items-center h-[640px] p-4 shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02]`}
                     aria-label={`creature-card-${creature.id}`}
                   >
-                    <CardHeader className="w-full flex flex-col items-center text-center">
+                    <CardHeader className="w-full flex flex-col items-center text-center mb-4">
                       <CardTitle className={`text-lg font-semibold ${unlocked ? 'text-amber-400' : 'text-white'}`}>{creature.name} {creature.number}</CardTitle>
-
                     </CardHeader>
-                    <CardContent className="flex flex-col items-center w-full px-1">
-                      <div className="relative w-full aspect-[2/3] mb-4 flex items-center justify-center">
+                    <CardContent className="flex flex-col items-center w-full px-4 flex-1">
+                      <div className="relative w-full h-80 mb-4 flex items-center justify-center">
                         {unlocked ? (
                           <div className="absolute inset-0">
                             <CreatureCard
@@ -360,16 +359,28 @@ export default function Page() {
                           <Image src={'/images/undiscovered.png'} alt="Undiscovered Card" fill sizes="(max-width: 768px) 100vw, 340px" className="object-cover rounded-lg opacity-50" />
                         )}
                       </div>
-                      {unlocked && unlockDate && unlockDate !== "Invalid Date" && (
-                        <div className="mt-2 text-sm text-gray-400" aria-label={`unlock-date-for-${creature.id}`}>
-                          <span>Unlocked on {unlockDate}</span>
-                        </div>
-                      )}
-                      {unlocked && creature.requirement && (
-                        <div className="mt-2 text-center text-base text-white" aria-label={`creature-card-${creature.id}-requirement`}>
-                          <span>Requirement: {creature.requirement}</span>
-                        </div>
-                      )}
+                      
+                      {/* Content area - always present for consistent layout */}
+                      <div className="flex flex-col items-center w-full flex-1 justify-end">
+                        {unlocked ? (
+                          <>
+                            {unlockDate && unlockDate !== "Invalid Date" && (
+                              <div className="mt-2 text-sm text-gray-400" aria-label={`unlock-date-for-${creature.id}`}>
+                                <span>Unlocked on {unlockDate}</span>
+                              </div>
+                            )}
+                            {creature.requirement && (
+                              <div className="mt-2 text-center text-base text-white" aria-label={`creature-card-${creature.id}-requirement`}>
+                                <span>Requirement: {creature.requirement}</span>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <div className="text-center text-sm text-gray-400 mb-2">
+                            <p>Undiscovered</p>
+                          </div>
+                        )}
+                      </div>
                     </CardContent>
                   </Card>
                 );
