@@ -94,7 +94,7 @@ export async function POST(request: Request) {
       // Update quantity
       const { data, error } = await supabaseServer
         .from('inventory_items')
-        .update({ quantity: existing.quantity + item.quantity })
+        .update({ quantity: existing.quantity + (item.quantity || 1) })
         .eq('user_id', userId)
         .eq('item_id', item.id)
         .select()
@@ -109,21 +109,24 @@ export async function POST(request: Request) {
         .insert({
           user_id: userId,
           item_id: item.id,
-          name: item.name,
-          type: item.type,
-          category: item.category,
-          description: item.description,
-          emoji: item.emoji,
-          image: item.image,
-          stats: item.stats,
-          quantity: item.quantity,
+          name: item.name || 'Unknown Item',
+          type: item.type || 'item',
+          category: item.category || item.type || 'misc',
+          description: item.description || `Found: ${item.name}`,
+          emoji: item.emoji || '📦',
+          image: item.image || '',
+          stats: item.stats || {},
+          quantity: item.quantity || 1,
           equipped: item.equipped || false,
           is_default: false,
         })
         .select()
         .single();
         
-      if (error) throw error;
+      if (error) {
+        console.error('[Inventory API] Insert error:', error);
+        throw error;
+      }
       return NextResponse.json(data);
     }
     // });
