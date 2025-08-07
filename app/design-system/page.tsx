@@ -12,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { Toaster } from "@/components/ui/toaster"
 import { useState } from "react"
 import { useGradient } from '@/app/providers/gradient-provider'
 import { HeaderSection } from "@/components/HeaderSection"
@@ -1400,8 +1401,17 @@ export default function DesignSystemPage() {
                                   gold: 50
                                 }}
                                 status="in-progress"
-                                onClick={() => {}}
-                                onComplete={() => {}}
+                                onClick={() => {
+                                  console.log('Quest card clicked');
+                                }}
+                                onComplete={() => {
+                                  console.log('Quest completed');
+                                  toast({
+                                    title: "Quest Completed!",
+                                    description: "You have defeated the dragon!",
+                                    variant: "default"
+                                  });
+                                }}
                               />
                             </CardContent>
                           </Card>
@@ -1587,6 +1597,102 @@ export default function DesignSystemPage() {
                             Includes search functionality and keyboard shortcuts.
                           </p>
                         </div>
+
+                        {/* Design System Rules */}
+                        <div className="mb-8">
+                          <h3 className="text-xl font-semibold text-white mb-4">Design System Rules</h3>
+                          
+                          {/* Card Background Guidelines */}
+                          <div className="mb-6">
+                            <h4 className="text-lg font-medium text-amber-300 mb-3">Card Background Guidelines</h4>
+                            <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                              <CardContent className="p-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div className="space-y-3">
+                                    <div className="p-3 bg-black border border-amber-800/20 rounded-lg">
+                                      <h5 className="font-semibold text-white">Black Background</h5>
+                                      <p className="text-sm text-gray-300">Primary content cards, main UI elements</p>
+                                    </div>
+                                    <div className="p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
+                                      <h5 className="font-semibold text-white">Red Background</h5>
+                                      <p className="text-sm text-gray-300">Warning cards, error states, destructive actions</p>
+                                    </div>
+                                    <div className="p-3 bg-blue-900/20 border border-blue-500/30 rounded-lg">
+                                      <h5 className="font-semibold text-white">Blue Background</h5>
+                                      <p className="text-sm text-gray-300">Information cards, help content, neutral information</p>
+                                    </div>
+                                  </div>
+                                  <div className="space-y-3">
+                                    <div className="p-3 bg-gray-900/50 border border-gray-700/30 rounded-lg">
+                                      <h5 className="font-semibold text-white">Gray Background</h5>
+                                      <p className="text-sm text-gray-300">Secondary content, sidebar elements</p>
+                                    </div>
+                                    <div className="p-3 bg-amber-900/20 border border-amber-500/30 rounded-lg">
+                                      <h5 className="font-semibold text-white">Amber/Gold Background</h5>
+                                      <p className="text-sm text-gray-300">Achievement cards, reward displays</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          </div>
+
+                          {/* Component Usage Rules */}
+                          <div className="mb-6">
+                            <h4 className="text-lg font-medium text-amber-300 mb-3">Component Usage Rules</h4>
+                            <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                              <CardContent className="p-4">
+                                <div className="space-y-4">
+                                  <div>
+                                    <h5 className="font-semibold text-white mb-2">Buttons</h5>
+                                    <div className="flex flex-wrap gap-2">
+                                      <Button className="bg-amber-600 hover:bg-amber-700">Primary</Button>
+                                      <Button className="bg-gray-700 hover:bg-gray-600">Secondary</Button>
+                                      <Button className="bg-red-600 hover:bg-red-700">Destructive</Button>
+                                      <Button disabled className="bg-gray-600 text-gray-400">Disabled</Button>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <h5 className="font-semibold text-white mb-2">Text Colors</h5>
+                                    <div className="space-y-1 text-sm">
+                                      <p className="text-white">Primary text (text-white)</p>
+                                      <p className="text-gray-300">Secondary text (text-gray-300)</p>
+                                      <p className="text-gray-400">Muted text (text-gray-400)</p>
+                                      <p className="text-amber-400">Accent text (text-amber-400)</p>
+                                      <p className="text-green-400">Success text (text-green-400)</p>
+                                      <p className="text-red-400">Error text (text-red-400)</p>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <h5 className="font-semibold text-white mb-2">Spacing</h5>
+                                    <ul className="text-sm text-gray-300 space-y-1">
+                                      <li><strong>Cards:</strong> p-4 (standard), p-6 (larger)</li>
+                                      <li><strong>Sections:</strong> mb-6 (standard), mb-4 (components)</li>
+                                      <li><strong>Grid:</strong> gap-4 (standard), gap-6 (larger)</li>
+                                    </ul>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          </div>
+
+                          {/* Accessibility Guidelines */}
+                          <div className="mb-6">
+                            <h4 className="text-lg font-medium text-amber-300 mb-3">Accessibility Guidelines</h4>
+                            <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                              <CardContent className="p-4">
+                                <ul className="text-sm text-gray-300 space-y-2">
+                                  <li>✓ Always include focus-visible rings for interactive elements</li>
+                                  <li>✓ Use aria-label for all interactive elements</li>
+                                  <li>✓ Ensure sufficient contrast ratios for all text combinations</li>
+                                  <li>✓ All interactive elements must be keyboard accessible</li>
+                                  <li>✓ Use semantic HTML elements (section, main, nav, etc.)</li>
+                                  <li>✓ Provide alternative text for images and icons</li>
+                                </ul>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1596,6 +1702,7 @@ export default function DesignSystemPage() {
           </div>
         </div>
       </div>
+      <Toaster />
     </div>
   )
 }                        {/* Tooltips */}
@@ -1629,4 +1736,99 @@ export default function DesignSystemPage() {
                             <strong>Tooltip</strong> components for displaying additional information 
                             when hovering over elements. Includes proper positioning and animations.
                           </p>
+                        </div>
+                        {/* Design System Rules */}
+                        <div className="mb-8">
+                          <h3 className="text-xl font-semibold text-white mb-4">Design System Rules</h3>
+                          
+                          {/* Card Background Guidelines */}
+                          <div className="mb-6">
+                            <h4 className="text-lg font-medium text-amber-300 mb-3">Card Background Guidelines</h4>
+                            <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                              <CardContent className="p-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div className="space-y-3">
+                                    <div className="p-3 bg-black border border-amber-800/20 rounded-lg">
+                                      <h5 className="font-semibold text-white">Black Background</h5>
+                                      <p className="text-sm text-gray-300">Primary content cards, main UI elements</p>
+                                    </div>
+                                    <div className="p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
+                                      <h5 className="font-semibold text-white">Red Background</h5>
+                                      <p className="text-sm text-gray-300">Warning cards, error states, destructive actions</p>
+                                    </div>
+                                    <div className="p-3 bg-blue-900/20 border border-blue-500/30 rounded-lg">
+                                      <h5 className="font-semibold text-white">Blue Background</h5>
+                                      <p className="text-sm text-gray-300">Information cards, help content, neutral information</p>
+                                    </div>
+                                  </div>
+                                  <div className="space-y-3">
+                                    <div className="p-3 bg-gray-900/50 border border-gray-700/30 rounded-lg">
+                                      <h5 className="font-semibold text-white">Gray Background</h5>
+                                      <p className="text-sm text-gray-300">Secondary content, sidebar elements</p>
+                                    </div>
+                                    <div className="p-3 bg-amber-900/20 border border-amber-500/30 rounded-lg">
+                                      <h5 className="font-semibold text-white">Amber/Gold Background</h5>
+                                      <p className="text-sm text-gray-300">Achievement cards, reward displays</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          </div>
+
+                          {/* Component Usage Rules */}
+                          <div className="mb-6">
+                            <h4 className="text-lg font-medium text-amber-300 mb-3">Component Usage Rules</h4>
+                            <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                              <CardContent className="p-4">
+                                <div className="space-y-4">
+                                  <div>
+                                    <h5 className="font-semibold text-white mb-2">Buttons</h5>
+                                    <div className="flex flex-wrap gap-2">
+                                      <Button className="bg-amber-600 hover:bg-amber-700">Primary</Button>
+                                      <Button className="bg-gray-700 hover:bg-gray-600">Secondary</Button>
+                                      <Button className="bg-red-600 hover:bg-red-700">Destructive</Button>
+                                      <Button disabled className="bg-gray-600 text-gray-400">Disabled</Button>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <h5 className="font-semibold text-white mb-2">Text Colors</h5>
+                                    <div className="space-y-1 text-sm">
+                                      <p className="text-white">Primary text (text-white)</p>
+                                      <p className="text-gray-300">Secondary text (text-gray-300)</p>
+                                      <p className="text-gray-400">Muted text (text-gray-400)</p>
+                                      <p className="text-amber-400">Accent text (text-amber-400)</p>
+                                      <p className="text-green-400">Success text (text-green-400)</p>
+                                      <p className="text-red-400">Error text (text-red-400)</p>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <h5 className="font-semibold text-white mb-2">Spacing</h5>
+                                    <ul className="text-sm text-gray-300 space-y-1">
+                                      <li><strong>Cards:</strong> p-4 (standard), p-6 (larger)</li>
+                                      <li><strong>Sections:</strong> mb-6 (standard), mb-4 (components)</li>
+                                      <li><strong>Grid:</strong> gap-4 (standard), gap-6 (larger)</li>
+                                    </ul>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          </div>
+
+                          {/* Accessibility Guidelines */}
+                          <div className="mb-6">
+                            <h4 className="text-lg font-medium text-amber-300 mb-3">Accessibility Guidelines</h4>
+                            <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                              <CardContent className="p-4">
+                                <ul className="text-sm text-gray-300 space-y-2">
+                                  <li>✓ Always include focus-visible rings for interactive elements</li>
+                                  <li>✓ Use aria-label for all interactive elements</li>
+                                  <li>✓ Ensure sufficient contrast ratios for all text combinations</li>
+                                  <li>✓ All interactive elements must be keyboard accessible</li>
+                                  <li>✓ Use semantic HTML elements (section, main, nav, etc.)</li>
+                                  <li>✓ Provide alternative text for images and icons</li>
+                                </ul>
+                              </CardContent>
+                            </Card>
+                          </div>
                         </div>
