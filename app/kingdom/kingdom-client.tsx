@@ -163,32 +163,6 @@ function getItemImagePath(item: KingdomInventoryItem): string {
   if (item.name === "Scroll of Scrolly") return "/images/items/scroll/scroll-scrolly.png";
   if (item.name === "Tome of Knowledge") return "/images/items/scroll/scroll-perkamento.png";
   if (item.name === "Magic Scroll") return "/images/items/scroll/scroll-scrolly.png";
-  if (item.name === "Golden Fish") return "/images/items/food/goldenfish.png";
-  if (item.name === "Twig Sword") return "/images/items/sword/sword-twig.png";
-  if (item.name === "Sunblade") return "/images/items/sword/sword-sunblade.png";
-  if (item.name === "Iron Sword") return "/images/items/sword/sword-irony.png";
-  if (item.name === "Normal Armor") return "/images/items/armor/armor-normalo.png";
-  if (item.name === "Dark Armor") return "/images/items/armor/armor-darko.png";
-  if (item.name === "Blank Armor") return "/images/items/armor/armor-blanko.png";
-  if (item.name === "Wood Logs") return "/images/items/materials/logs.png";
-  if (item.name === "Wood Planks") return "/images/items/materials/planks.png";
-  if (item.name === "Golden Fish") return "/images/items/food/goldenfish.png";
-  if (item.name === "Twig Sword") return "/images/items/sword/sword-twig.png";
-  if (item.name === "Sunblade") return "/images/items/sword/sword-sunblade.png";
-  if (item.name === "Iron Sword") return "/images/items/sword/sword-irony.png";
-  if (item.name === "Normal Armor") return "/images/items/armor/armor-normalo.png";
-  if (item.name === "Dark Armor") return "/images/items/armor/armor-darko.png";
-  if (item.name === "Blank Armor") return "/images/items/armor/armor-blanko.png";
-  if (item.name === "Wood Logs") return "/images/items/materials/logs.png";
-  if (item.name === "Wood Planks") return "/images/items/materials/planks.png";
-  if (item.name === "Twig Sword") return "/images/items/sword/sword-twig.png";
-  if (item.name === "Sunblade") return "/images/items/sword/sword-sunblade.png";
-  if (item.name === "Iron Sword") return "/images/items/sword/sword-irony.png";
-  if (item.name === "Normal Armor") return "/images/items/armor/armor-normalo.png";
-  if (item.name === "Dark Armor") return "/images/items/armor/armor-darko.png";
-  if (item.name === "Blank Armor") return "/images/items/armor/armor-blanko.png";
-  if (item.name === "Wood Logs") return "/images/items/materials/logs.png";
-  if (item.name === "Wood Planks") return "/images/items/materials/planks.png";
   
   // Handle generic types with better fallbacks
   if (item.type === "scroll") return "/images/items/scroll/scroll-scrolly.png";
@@ -669,7 +643,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     const inventoryItem: InventoryItem = {
       id: `kingdom-tile-${Date.now()}`,
       name: item.name,
-      type: item.type as any,
+      type: 'item', // Use 'item' as default type for kingdom tile items
       quantity: 1,
       image: item.image,
       description: `Found from kingdom tile: ${item.name}`,
