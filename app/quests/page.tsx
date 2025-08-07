@@ -1527,7 +1527,7 @@ export default function QuestsPage() {
               onQuestEdit={handleEditQuest}
               onQuestDelete={handleDeleteQuest}
               onAddQuest={() => setAddQuestModalOpen(true)}
-              showCategoryFilter={false}
+              showCategoryFilter={true}
               context="quests"
             />
           </TabsContent>
