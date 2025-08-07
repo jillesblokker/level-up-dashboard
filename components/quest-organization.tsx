@@ -230,6 +230,8 @@ export function QuestOrganization({
   useEffect(() => {
     if (context === 'challenges') {
       setSelectedCategory('Push/Legs/Core');
+    } else if (context === 'quests') {
+      setSelectedCategory('might');
     } else {
       setSelectedCategory('all');
     }
