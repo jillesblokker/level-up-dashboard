@@ -39,8 +39,32 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: questsError.message }, { status: 500 });
     }
 
-    // For now, return quests without completion status since checked_quests table doesn't exist
+    // Get user's quest completions from quest_completion table
+    console.log('Fetching user quest completions...');
+    const { data: questCompletions, error: completionsError } = await supabase
+      .from('quest_completion')
+      .select('*')
+      .eq('user_id', userId);
+
+    if (completionsError) {
+      console.error('Quest completions fetch error:', completionsError);
+      // If the table doesn't exist, continue with empty completions
+      console.log('quest_completion table error, continuing with empty completions');
+    }
+
+    // Create a map of completed quests
+    const completedQuests = new Map();
+    if (questCompletions) {
+      questCompletions.forEach((completion: any) => {
+        completedQuests.set(completion.quest_id, completion);
+      });
+    }
+
+    // Convert quests data to quest format
     const questsWithCompletions = (quests || []).map((quest: any) => {
+      const completion = completedQuests.get(quest.id);
+      const isCompleted = !!completion;
+      
       return {
         id: quest.id,
         name: quest.name,
@@ -48,12 +72,12 @@ export async function GET(request: Request) {
         description: quest.description,
         category: quest.category,
         difficulty: quest.difficulty,
-        xp: quest.xp,
-        gold: quest.gold,
-        completed: false, // Default to false since we can't track completion yet
-        date: null,
-        isNew: true,
-        completionId: undefined
+        xp: quest.xp_reward || quest.xp,
+        gold: quest.gold_reward || quest.gold,
+        completed: isCompleted,
+        date: completion?.date || null,
+        isNew: !isCompleted,
+        completionId: completion?.id
       };
     });
 
@@ -81,14 +105,64 @@ export async function PUT(request: Request) {
     const body = await request.json();
     console.log('Quest completion request:', body);
     
-    // For now, just return success since we can't track completion without the checked_quests table
-    // TODO: Create a proper completion tracking system
+    const { title, completed } = body;
+    
+    // Find the quest by name to get its ID
+    const { data: quest, error: questError } = await supabase
+      .from('quests')
+      .select('id, xp_reward, gold_reward')
+      .eq('name', title)
+      .single();
+
+    if (questError || !quest) {
+      console.error('Quest not found:', questError);
+      return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
+    }
+
+    if (completed) {
+      // Mark quest as completed
+      const { data: questCompletion, error } = await supabase
+        .from('quest_completion')
+        .upsert([
+          {
+            user_id: userId,
+            quest_id: quest.id,
+            xp_earned: quest.xp_reward || 0,
+            gold_earned: quest.gold_reward || 0,
+            completed: true,
+            date: new Date().toISOString()
+          },
+        ], { onConflict: 'user_id,quest_id' })
+        .single();
+
+      if (error) {
+        console.error('Error upserting quest completion:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      console.log('Quest completion upserted:', questCompletion);
+    } else {
+      // Mark quest as not completed (delete the completion record)
+      const { error } = await supabase
+        .from('quest_completion')
+        .delete()
+        .eq('user_id', userId)
+        .eq('quest_id', quest.id);
+
+      if (error) {
+        console.error('Error deleting quest completion:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      console.log('Quest completion deleted');
+    }
+
     return NextResponse.json({ 
       success: true, 
-      message: 'Quest completion tracked (temporary - no database storage)' 
+      message: `Quest ${completed ? 'completed' : 'uncompleted'} successfully` 
     });
   } catch (error) {
     console.error('Error updating quest completion:', error instanceof Error ? error.stack : error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-} 
+}
