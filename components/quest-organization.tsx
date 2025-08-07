@@ -211,6 +211,18 @@ export function QuestOrganization({
         'HIIT & Full Body'
       ];
     }
+    if (context === 'quests') {
+      return [
+        'might',
+        'knowledge',
+        'honor',
+        'castle',
+        'craft',
+        'vitality',
+        'wellness',
+        'exploration'
+      ];
+    }
     return Object.keys(categoryConfig);
   };
 
