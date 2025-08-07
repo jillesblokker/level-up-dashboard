@@ -66,38 +66,50 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
     }
 
-    // Get user's quest completions from checked_quests table
+    // First, try to fetch from the challenges table (which seems to contain the quest data)
+    console.log('Fetching quests from challenges table...');
+    const { data: challenges, error: challengesError } = await supabase
+      .from('challenges')
+      .select('*');
+
+    if (challengesError) {
+      console.error('Challenges fetch error:', challengesError);
+      return NextResponse.json({ error: challengesError.message }, { status: 500 });
+    }
+
+    // Get user's quest completions from checked_quests table (if it exists)
     console.log('Fetching user quest completions...');
-    const { data: questCompletions, error } = await supabase
+    const { data: questCompletions, error: completionsError } = await supabase
       .from('checked_quests')
       .select('*')
       .eq('user_id', userId);
 
-    if (error) {
-      console.error('Quest completion fetch error:', error);
-      // If the table doesn't exist, return empty array instead of error
-      if (error.message && error.message.includes('does not exist')) {
-        console.log('checked_quests table does not exist, returning empty array');
-        return NextResponse.json([]);
-      }
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    // Create a map of completed quests
+    const completedQuests = new Map();
+    if (!completionsError && questCompletions) {
+      questCompletions.forEach((completion: any) => {
+        completedQuests.set(completion['quest_id'], completion['checked_at']);
+      });
     }
 
-    // Convert checked_quests data to quest format
-    const questsWithCompletions = (questCompletions || []).map((completion: any) => {
+    // Convert challenges data to quest format
+    const questsWithCompletions = (challenges || []).map((challenge: any) => {
+      const isCompleted = completedQuests.has(challenge.id);
+      const completionDate = completedQuests.get(challenge.id);
+      
       return {
-        id: completion['quest_id'],
-        name: completion['quest_id'],
-        title: completion['quest_id'],
-        description: `User-created quest: ${completion['quest_id']}`,
-        category: 'general',
-        difficulty: 'medium',
-        xp: 50,
-        gold: 25,
-        completed: !!completion['checked_at'],
-        date: completion['checked_at'],
-        isNew: !completion['checked_at'],
-        completionId: completion['id']
+        id: challenge.id,
+        name: challenge.name,
+        title: challenge.name,
+        description: challenge.description,
+        category: challenge.category,
+        difficulty: challenge.difficulty,
+        xp: challenge.xp,
+        gold: challenge.gold,
+        completed: isCompleted,
+        date: completionDate,
+        isNew: !isCompleted,
+        completionId: isCompleted ? challenge.id : undefined
       };
     });
 
