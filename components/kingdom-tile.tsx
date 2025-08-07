@@ -7,6 +7,38 @@ import { Button } from '@/components/ui/button'
 import { Clock, Sparkles } from 'lucide-react'
 import Image from 'next/image'
 import { KingdomTile, getRandomItem, getRandomGold, isLucky, getRarityColor } from '@/lib/kingdom-tiles'
+
+// Helper function to get proper item names from image paths
+function getItemNameFromImage(imagePath: string, itemType: string): string {
+  const fileName = imagePath.split('/').pop()?.replace('.png', '') || ''
+  
+  // Map image filenames to proper item names
+  switch (fileName) {
+    case 'scroll-scrolly':
+      return 'Magic Scroll'
+    case 'scroll-perkamento':
+      return 'Scroll of Perkament'
+    case 'scroll-memento':
+      return 'Scroll of Memory'
+    case 'artifact-crowny':
+      return 'Ancient Artifact'
+    case 'artifact-ringo':
+      return 'Ring'
+    case 'artifact-staffy':
+      return 'Scepter'
+    case 'potion-health':
+      return 'Health Potion'
+    case 'potion-gold':
+      return 'Gold Potion'
+    case 'potion-exp':
+      return 'Mana Potion'
+    default:
+      // Fallback: convert filename to readable name
+      return fileName.split('-').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1)
+      ).join(' ')
+  }
+}
 import { KingdomTileModal } from './kingdom-tile-modal'
 
 interface KingdomTileProps {
@@ -102,7 +134,7 @@ export function KingdomTileComponent({ tile, onReward, timer }: KingdomTileProps
       goldEarned,
       itemFound: itemFound ? {
         image: itemFound,
-        name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown',
+        name: getItemNameFromImage(itemFound, tile.itemType),
         type: tile.itemType
       } : undefined,
       isLucky: isLuckyReward,

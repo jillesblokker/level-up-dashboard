@@ -417,7 +417,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
     setIsLoading(true);
     const fetchData = async () => {
       try {
-        const res = await fetch(`/api/kingdom-stats?userId=${uid}&tab=${activeTab}&period=${timePeriod}`);
+        const res = await fetch(`/api/kingdom-stats?tab=${activeTab}&period=${timePeriod}`);
         if (!res.ok) throw new Error('Failed to fetch stats');
         const { data } = await res.json();
         setGraphData(data || []);
