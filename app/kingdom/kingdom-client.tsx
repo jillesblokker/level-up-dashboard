@@ -17,6 +17,7 @@ import {
   equipItem, 
   unequipItem,
   getTotalStats,
+  addToInventory,
   type InventoryItem 
 } from "@/lib/inventory-manager"
 import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager';
@@ -649,8 +650,12 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       category: item.type
     }
 
-    // Add to inventory (you'll need to implement this)
-    // For now, we'll store it in localStorage
+    // Add to proper inventory system
+    if (userId) {
+      addToInventory(userId, inventoryItem);
+    }
+
+    // Also store in localStorage for backwards compatibility
     const existingItems = JSON.parse(localStorage.getItem('kingdom-tile-items') || '[]')
     existingItems.push(inventoryItem)
     localStorage.setItem('kingdom-tile-items', JSON.stringify(existingItems))
