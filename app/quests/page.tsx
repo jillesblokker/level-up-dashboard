@@ -300,8 +300,8 @@ export default function QuestsPage() {
     async function fetchQuests() {
       try {
         if (!token) return; // Guard for linter
-        // console.log('[Quests Debug] Fetching /api/quests with token:', token.slice(0, 10), '...');
-        const res = await fetch('/api/quests-fixed', {
+        // console.log('[Quests Debug] Fetching /api/quests-complete with token:', token.slice(0, 10), '...');
+        const res = await fetch('/api/quests-complete', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -690,7 +690,7 @@ export default function QuestsPage() {
       
       // Update in Supabase
       console.log('Sending quest update:', { title: questObj.name, completed: newCompleted });
-      const response = await fetch('/api/quests', {
+      const response = await fetch('/api/quests-complete', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -802,7 +802,7 @@ export default function QuestsPage() {
       setQuests(prevQuests => prevQuests.filter(q => q.id !== questId));
       
       // Delete from Supabase
-      const response = await fetch('/api/quests', {
+      const response = await fetch('/api/quests-complete', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -1124,7 +1124,7 @@ export default function QuestsPage() {
       );
       
       // Update in Supabase
-      const response = await fetch('/api/quests', {
+      const response = await fetch('/api/quests-complete', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -1163,7 +1163,7 @@ export default function QuestsPage() {
       setQuests(prevQuests => [...prevQuests, newQuest]);
       
       // Add to Supabase
-      const response = await fetch('/api/quests', {
+      const response = await fetch('/api/quests-complete', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
