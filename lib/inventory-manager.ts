@@ -22,11 +22,9 @@ export async function getInventory(userId: string): Promise<InventoryItem[]> {
   if (!userId) return [];
   
   try {
-    const response = await authenticatedFetch('/api/inventory', {}, 'Inventory');
-    
-    if (!response) {
-      return [];
-    }
+    const response = await fetch('/api/inventory', {
+      credentials: 'include'
+    });
     
     if (!response.ok) {
       throw new Error(`Failed to fetch inventory: ${response.status}`);
