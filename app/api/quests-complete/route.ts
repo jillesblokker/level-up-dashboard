@@ -75,7 +75,7 @@ export async function GET(request: Request) {
         xp: quest.xp_reward || quest.xp,
         gold: quest.gold_reward || quest.gold,
         completed: isCompleted,
-        date: completion?.date || null,
+        date: completion?.completed_at || null,
         isNew: !isCompleted,
         completionId: completion?.id
       };
@@ -129,8 +129,6 @@ export async function PUT(request: Request) {
             quest_id: quest.id,
             xp_earned: quest.xp_reward || 0,
             gold_earned: quest.gold_reward || 0,
-            completed: true,
-            date: new Date().toISOString()
           },
         ], { onConflict: 'user_id,quest_id' })
         .single();
