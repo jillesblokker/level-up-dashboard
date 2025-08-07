@@ -48,19 +48,14 @@ export async function GET(request: Request) {
       throw error;
     }
     
-         return (data || []).map((row: any) => ({
-       ...row,
-       id: row.item_id,
-       equipped: row.equipped,
-       stats: row.stats || {},
-     }));
-    // });
-
-    // if (!result.success) {
-    //   return NextResponse.json({ error: result.error }, { status: 401 });
-    // }
-
-    return NextResponse.json(data || []);
+    const mappedData = (data || []).map((row: any) => ({
+      ...row,
+      id: row.item_id,
+      equipped: row.equipped,
+      stats: row.stats || {},
+    }));
+    
+    return NextResponse.json(mappedData);
   } catch (error) {
     console.error('[Inventory API] Error:', error);
     return NextResponse.json(
