@@ -190,4 +190,54 @@ export async function DELETE(request: Request) {
     console.error('[Milestones DELETE] Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-} 
+} export async function PUT(request: Request) {
+  try {
+    const body = await request.json();
+    const { milestoneId, completed } = body;
+    
+    if (!milestoneId || completed === undefined) {
+      return NextResponse.json({ error: "Missing milestoneId or completed status" }, { status: 400 });
+    }
+
+    // TEMPORARILY DISABLE AUTHENTICATION FOR TESTING
+    const userId = "test-user-id"; // Use test user ID for now
+    
+    if (completed) {
+      // Mark milestone as completed
+      const { data, error } = await supabaseServer
+        .from("milestone_completion")
+        .upsert({
+          user_id: userId,
+          milestone_id: milestoneId,
+          completed: true,
+          date: new Date().toISOString(),
+        }, { onConflict: "user_id,milestone_id" })
+        .select()
+        .single();
+        
+      if (error) {
+        console.error("[Milestones PUT] Error upserting completion:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+      
+      return NextResponse.json(data);
+    } else {
+      // Mark milestone as not completed (delete the completion record)
+      const { error } = await supabaseServer
+        .from("milestone_completion")
+        .delete()
+        .eq("user_id", userId)
+        .eq("milestone_id", milestoneId);
+        
+      if (error) {
+        console.error("[Milestones PUT] Error deleting completion:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+      
+      return NextResponse.json({ success: true });
+    }
+  } catch (error) {
+    console.error("[Milestones PUT] Error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
