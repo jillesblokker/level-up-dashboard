@@ -109,3 +109,4 @@ export async function PUT(request: Request) {
     console.error('[Challenges PUT] Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
+}
