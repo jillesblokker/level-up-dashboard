@@ -5,6 +5,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/components/ui/use-toast"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { useState } from "react"
 import { useGradient } from '@/app/providers/gradient-provider'
 import { HeaderSection } from "@/components/HeaderSection"
@@ -1176,16 +1183,60 @@ export default function DesignSystemPage() {
                           <h4 className="text-lg font-medium text-amber-300 mb-3">Tabs</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
-                              <div className="inline-flex h-10 items-center justify-center rounded-md bg-gray-900 border-amber-800/20 p-1 text-muted-foreground">
-                                <button className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-amber-900/20 data-[state=active]:text-amber-500 data-[state=active]:shadow-sm bg-amber-900/20 text-amber-500">Overview</button>
-                                <button className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-amber-900/20 data-[state=active]:text-amber-500 data-[state=active]:shadow-sm">Settings</button>
-                                <button className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-amber-900/20 data-[state=active]:text-amber-500 data-[state=active]:shadow-sm">Profile</button>
-                              </div>
+                              <Tabs defaultValue="overview" className="w-full">
+                                <TabsList className="grid w-full grid-cols-3">
+                                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                                  <TabsTrigger value="settings">Settings</TabsTrigger>
+                                  <TabsTrigger value="profile">Profile</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="overview" className="mt-4">
+                                  <p className="text-sm text-gray-300">Overview content goes here</p>
+                                </TabsContent>
+                                <TabsContent value="settings" className="mt-4">
+                                  <p className="text-sm text-gray-300">Settings content goes here</p>
+                                </TabsContent>
+                                <TabsContent value="profile" className="mt-4">
+                                  <p className="text-sm text-gray-300">Profile content goes here</p>
+                                </TabsContent>
+                              </Tabs>
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
                             <strong>Tabs</strong> component for organizing content into sections. 
                             Includes proper keyboard navigation and accessibility features.
+                          </p>
+                        </div>
+
+                        {/* Tooltips */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">Tooltips</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4">
+                              <TooltipProvider>
+                                <div className="flex space-x-4">
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button variant="outline">Hover me</Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>This is a tooltip</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button variant="outline">Another tooltip</Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Another tooltip example</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </div>
+                              </TooltipProvider>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>Tooltip</strong> components for displaying additional information 
+                            when hovering over elements. Includes proper positioning and animations.
                           </p>
                         </div>
 
@@ -1547,4 +1598,35 @@ export default function DesignSystemPage() {
       </div>
     </div>
   )
-}
+}                        {/* Tooltips */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">Tooltips</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4">
+                              <TooltipProvider>
+                                <div className="flex space-x-4">
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button variant="outline">Hover me</Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>This is a tooltip</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button variant="outline">Another tooltip</Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Another tooltip example</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </div>
+                              </TooltipProvider>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>Tooltip</strong> components for displaying additional information 
+                            when hovering over elements. Includes proper positioning and animations.
+                          </p>
+                        </div>
