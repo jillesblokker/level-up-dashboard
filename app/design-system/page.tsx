@@ -665,30 +665,101 @@ export default function DesignSystemPage() {
                           <div className="space-y-4">
                             <Card className="bg-gray-900/50 border-amber-800/20">
                               <CardContent className="p-4">
-                                <h5 className="font-medium text-white mb-2">1. Dropdown Border Consistency ✅ COMPLETED</h5>
+                                <h5 className="font-medium text-white mb-2">1. API Endpoints & Authentication ✅ COMPLETED</h5>
+                                <p className="text-sm text-gray-300 mb-2">Added PUT methods to challenges and milestones APIs, fixed inventory API error handling</p>
+                                <p className="text-xs text-green-400">✅ IMPLEMENTED - All completion updates now work properly</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <h5 className="font-medium text-white mb-2">2. Kingdom Stats Graphs ✅ COMPLETED</h5>
+                                <p className="text-sm text-gray-300 mb-2">Fixed kingdom stats and gains graphs with proper authentication and test data</p>
+                                <p className="text-xs text-green-400">✅ IMPLEMENTED - Graphs now display data correctly with proper API integration</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <h5 className="font-medium text-white mb-2">3. Inventory System Updates ✅ COMPLETED</h5>
+                                <p className="text-sm text-gray-300 mb-2">Fixed inventory API to handle missing item properties gracefully</p>
+                                <p className="text-xs text-green-400">✅ IMPLEMENTED - Kingdom tile items now properly stored in database</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <h5 className="font-medium text-white mb-2">4. Quest Category Filter ✅ COMPLETED</h5>
+                                <p className="text-sm text-gray-300 mb-2">Added category filter to quests page with proper quest-specific categories</p>
+                                <p className="text-xs text-green-400">✅ IMPLEMENTED - Quest categories: Might, Knowledge, Honor, Castle, Craft, Vitality, Wellness, Exploration</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <h5 className="font-medium text-white mb-2">5. Achievements Layout Fix ✅ COMPLETED</h5>
+                                <p className="text-sm text-gray-300 mb-2">Fixed achievements page layout (2 columns on desktop/tablet, 1 on mobile) and removed polling</p>
+                                <p className="text-xs text-green-400">✅ IMPLEMENTED - Responsive layout with no unintended page reloads</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <h5 className="font-medium text-white mb-2">6. Dropdown Border Consistency ✅ COMPLETED</h5>
                                 <p className="text-sm text-gray-300 mb-2">Removed double amber borders from all dropdowns (border-2 → border)</p>
                                 <p className="text-xs text-green-400">✅ IMPLEMENTED - All quest page dropdowns updated</p>
                               </CardContent>
                             </Card>
                             <Card className="bg-gray-900/50 border-amber-800/20">
                               <CardContent className="p-4">
-                                <h5 className="font-medium text-white mb-2">2. Disabled Button Transparency ✅ COMPLETED</h5>
+                                <h5 className="font-medium text-white mb-2">7. Disabled Button Transparency ✅ COMPLETED</h5>
                                 <p className="text-sm text-gray-300 mb-2">Fixed disabled button transparency by removing disabled:opacity-50</p>
                                 <p className="text-xs text-green-400">✅ IMPLEMENTED - Buttons now use darker backgrounds with lighter text</p>
                               </CardContent>
                             </Card>
                             <Card className="bg-gray-900/50 border-amber-800/20">
                               <CardContent className="p-4">
-                                <h5 className="font-medium text-white mb-2">3. Notification Center Updates ✅ COMPLETED</h5>
+                                <h5 className="font-medium text-white mb-2">8. Notification Center Updates ✅ COMPLETED</h5>
                                 <p className="text-sm text-gray-300 mb-2">Removed emojis, simplified buttons, changed title to &quot;New achievement&quot;</p>
                                 <p className="text-xs text-green-400">✅ IMPLEMENTED - Cleaner notification interface with better UX</p>
                               </CardContent>
                             </Card>
                             <Card className="bg-gray-900/50 border-amber-800/20">
                               <CardContent className="p-4">
-                                <h5 className="font-medium text-white mb-2">4. Page Padding Optimization ✅ COMPLETED</h5>
+                                <h5 className="font-medium text-white mb-2">9. Page Padding Optimization ✅ COMPLETED</h5>
                                 <p className="text-sm text-gray-300 mb-2">Removed horizontal padding for better space utilization</p>
                                 <p className="text-xs text-green-400">✅ IMPLEMENTED - Full-width content with minimal element spacing</p>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        </div>
+
+                        {/* Recent API & Component Updates */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-blue-300 mb-3">🔧 Recent API & Component Updates</h4>
+                          <div className="space-y-4">
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <h5 className="font-medium text-white mb-2">Challenges & Milestones APIs</h5>
+                                <p className="text-sm text-gray-300 mb-2">Added PUT methods to handle completion updates with proper error handling</p>
+                                <code className="text-amber-400 text-xs bg-gray-800 px-2 py-1 rounded">PUT /api/challenges</code>
+                                <code className="text-amber-400 text-xs bg-gray-800 px-2 py-1 rounded ml-2">PUT /api/milestones</code>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <h5 className="font-medium text-white mb-2">Inventory API Improvements</h5>
+                                <p className="text-sm text-gray-300 mb-2">Enhanced error handling and graceful property handling for missing item data</p>
+                                <code className="text-amber-400 text-xs bg-gray-800 px-2 py-1 rounded">POST /api/inventory</code>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <h5 className="font-medium text-white mb-2">Kingdom Stats Graph Component</h5>
+                                <p className="text-sm text-gray-300 mb-2">Fixed authentication and data display with proper API integration</p>
+                                <code className="text-amber-400 text-xs bg-gray-800 px-2 py-1 rounded">components/kingdom-stats-graph.tsx</code>
+                              </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <h5 className="font-medium text-white mb-2">Quest Organization Component</h5>
+                                <p className="text-sm text-gray-300 mb-2">Added category filtering with quest-specific categories</p>
+                                <code className="text-amber-400 text-xs bg-gray-800 px-2 py-1 rounded">components/quest-organization.tsx</code>
                               </CardContent>
                             </Card>
                           </div>
