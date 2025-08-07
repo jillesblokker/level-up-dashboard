@@ -28,15 +28,15 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
     }
 
-    // Fetch quests from challenges table
-    console.log('Fetching quests from challenges table...');
-    const { data: challenges, error: challengesError } = await supabase
-      .from('challenges')
+    // Fetch quests from quests table
+    console.log('Fetching quests from quests table...');
+    const { data: quests, error: questsError } = await supabase
+      .from('quests')
       .select('*');
 
-    if (challengesError) {
-      console.error('Challenges fetch error:', challengesError);
-      return NextResponse.json({ error: challengesError.message }, { status: 500 });
+    if (questsError) {
+      console.error('Quests fetch error:', questsError);
+      return NextResponse.json({ error: questsError.message }, { status: 500 });
     }
 
     // Get user's quest completions from checked_quests table (if it exists)
@@ -54,24 +54,24 @@ export async function GET(request: Request) {
       });
     }
 
-    // Convert challenges data to quest format
-    const questsWithCompletions = (challenges || []).map((challenge: any) => {
-      const isCompleted = completedQuests.has(challenge.id);
-      const completionDate = completedQuests.get(challenge.id);
+    // Convert quests data to quest format
+    const questsWithCompletions = (quests || []).map((quest: any) => {
+      const isCompleted = completedQuests.has(quest.id);
+      const completionDate = completedQuests.get(quest.id);
       
       return {
-        id: challenge.id,
-        name: challenge.name,
-        title: challenge.name,
-        description: challenge.description,
-        category: challenge.category,
-        difficulty: challenge.difficulty,
-        xp: challenge.xp,
-        gold: challenge.gold,
+        id: quest.id,
+        name: quest.name,
+        title: quest.title,
+        description: quest.description,
+        category: quest.category,
+        difficulty: quest.difficulty,
+        xp: quest.xp,
+        gold: quest.gold,
         completed: isCompleted,
         date: completionDate,
         isNew: !isCompleted,
-        completionId: isCompleted ? challenge.id : undefined
+        completionId: isCompleted ? quest.id : undefined
       };
     });
 
@@ -81,4 +81,4 @@ export async function GET(request: Request) {
     console.error('Error fetching quests:', error instanceof Error ? error.stack : error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-} 
+}

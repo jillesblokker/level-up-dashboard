@@ -301,7 +301,7 @@ export default function QuestsPage() {
       try {
         if (!token) return; // Guard for linter
         // console.log('[Quests Debug] Fetching /api/quests with token:', token.slice(0, 10), '...');
-        const res = await fetch('/api/quests-new', {
+        const res = await fetch('/api/quests-fixed', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
