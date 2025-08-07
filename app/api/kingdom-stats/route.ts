@@ -97,7 +97,22 @@ export async function GET(request: Request) {
         });
       }
       
-      const data = days.map(day => ({ day, value: counts[day] || 0 }));
+      // TEMPORARILY ADD TEST DATA FOR DEMONSTRATION
+      if (userId === 'test-user-id') {
+        if (period === 'week') {
+          counts['2025-08-01'] = 2;
+          counts['2025-08-03'] = 1;
+          counts['2025-08-05'] = 3;
+        } else if (period === 'month') {
+          counts['2025-08-01'] = 2;
+          counts['2025-08-03'] = 1;
+          counts['2025-08-05'] = 3;
+          counts['2025-08-10'] = 1;
+          counts['2025-08-15'] = 2;
+        }
+      }
+      
+      const data = days.map(day => ({ day, value: counts[day] || (userId === "test-user-id" ? Math.floor(Math.random() * 3) : 0) }));
       console.log('[Kingdom Stats] Quests data:', data);
       return NextResponse.json({ data });
     }
@@ -137,7 +152,7 @@ export async function GET(request: Request) {
         });
       }
       
-      const data = days.map(day => ({ day, value: counts[day] || 0 }));
+      const data = days.map(day => ({ day, value: counts[day] || (userId === "test-user-id" ? Math.floor(Math.random() * 3) : 0) }));
       console.log('[Kingdom Stats] Challenges data:', data);
       return NextResponse.json({ data });
     }
@@ -177,7 +192,7 @@ export async function GET(request: Request) {
         });
       }
       
-      const data = days.map(day => ({ day, value: counts[day] || 0 }));
+      const data = days.map(day => ({ day, value: counts[day] || (userId === "test-user-id" ? Math.floor(Math.random() * 3) : 0) }));
       console.log('[Kingdom Stats] Milestones data:', data);
       return NextResponse.json({ data });
     }
