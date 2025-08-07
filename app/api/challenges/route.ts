@@ -2,7 +2,6 @@ import { supabaseServer } from '@/lib/supabase/server-client';
 import { NextResponse } from 'next/server';
 import { NextRequest } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
-import { supabaseServer } from '@/lib/supabase/server-client';
 
 export async function GET(request: Request) {
   try {
