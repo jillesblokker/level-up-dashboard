@@ -35,6 +35,7 @@ interface KingdomGridWithTimersProps {
   selectedTile: Tile | null
   setSelectedTile: (tile: Tile | null) => void
   onGridExpand?: (newGrid: Tile[][]) => void
+  onGridUpdate?: (newGrid: Tile[][]) => void
   onGoldEarned?: (amount: number) => void
   onItemFound?: (item: { image: string; name: string; type: string }) => void
 }
@@ -53,6 +54,7 @@ export function KingdomGridWithTimers({
   selectedTile, 
   setSelectedTile, 
   onGridExpand,
+  onGridUpdate,
   onGoldEarned,
   onItemFound
 }: KingdomGridWithTimersProps) {
@@ -456,8 +458,17 @@ export function KingdomGridWithTimers({
       ariaLabel: `${selectedProperty.name} tile`
     }
 
-    // Place the tile using the parent component's onTilePlace
-    onTilePlace(x, y, newTile)
+    // IMPORTANT: Update the local grid state directly instead of using onTilePlace
+    // This prevents the property from being treated as an inventory item
+    const updatedGrid = grid.map(row => row.slice())
+    if (updatedGrid[y]) {
+      updatedGrid[y][x] = newTile
+    }
+
+    // Update the parent component's grid using the callback
+    if (onGridUpdate) {
+      onGridUpdate(updatedGrid)
+    }
 
     // Consume resources based on cost type
     if (selectedProperty.costType === 'buildToken') {
@@ -498,6 +509,9 @@ export function KingdomGridWithTimers({
       title: 'Property Placed!',
       description: `${selectedProperty.name} has been successfully placed on your kingdom!`,
     });
+
+    // Note: The grid will be updated by the parent component
+    // The property should now appear on the kingdom map as a functional building
   }
 
   // Handle ESC key to cancel placement
