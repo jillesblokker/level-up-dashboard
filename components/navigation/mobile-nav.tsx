@@ -83,14 +83,17 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
         // Get current stats
         const stats = getCharacterStats()
         const currentLevel = calculateLevelFromExperience(stats.experience)
-        setCharacterStats({
+        const newStats = {
           level: currentLevel,
           experience: stats.experience,
           experienceToNextLevel: calculateExperienceForLevel(currentLevel),
           gold: stats.gold,
           titles: { equipped: '', unlocked: 0, total: 0 },
           perks: { active: 0, total: 0 }
-        })
+        }
+        
+        console.log('[Mobile Nav] Loading stats:', newStats)
+        setCharacterStats(newStats)
       } catch (error) {
         console.error("Error loading character stats:", error)
       }
@@ -106,28 +109,22 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
         const currentStats = getCharacterStats()
         const currentLevel = calculateLevelFromExperience(currentStats.experience)
         
-        // Only update if stats have actually changed
-        if (
-          currentStats.experience !== characterStats.experience ||
-          currentStats.gold !== characterStats.gold ||
-          currentLevel !== characterStats.level
-        ) {
-          console.log('[Mobile Nav] Stats changed, updating state:', {
-            old: { level: characterStats.level, exp: characterStats.experience, gold: characterStats.gold },
-            new: { level: currentLevel, exp: currentStats.experience, gold: currentStats.gold }
-          })
-          
-          setCharacterStats({
-            level: currentLevel,
-            experience: currentStats.experience,
-            experienceToNextLevel: calculateExperienceForLevel(currentLevel),
-            gold: currentStats.gold,
-            titles: { equipped: '', unlocked: 0, total: 0 },
-            perks: { active: 0, total: 0 }
-          })
-        } else {
-          console.log('[Mobile Nav] No stat changes detected')
+        console.log('[Mobile Nav] Current localStorage stats:', currentStats)
+        console.log('[Mobile Nav] Current component state:', characterStats)
+        
+        // Always update to ensure we're in sync
+        const newStats = {
+          level: currentLevel,
+          experience: currentStats.experience,
+          experienceToNextLevel: calculateExperienceForLevel(currentLevel),
+          gold: currentStats.gold,
+          titles: { equipped: '', unlocked: 0, total: 0 },
+          perks: { active: 0, total: 0 }
         }
+        
+        console.log('[Mobile Nav] Setting new stats:', newStats)
+        setCharacterStats(newStats)
+        
       } catch (error) {
         console.error('[Mobile Nav] Error during periodic sync:', error)
       }
@@ -152,7 +149,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
       window.removeEventListener("character-stats-update", handleStatsUpdate)
       window.removeEventListener("level-update", handleLevelUpdate)
     }
-  }, [])
+  }, [characterStats]) // Add characterStats as dependency to ensure fresh values
   
   const mainNavItems = [
     { href: "/kingdom", label: "Kingdom", icon: Crown, description: "Manage your realm" },
@@ -228,6 +225,13 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                       
                       // Also dispatch a level update event specifically
                       window.dispatchEvent(new Event('level-update'))
+                      
+                      // Force localStorage sync by reading again
+                      setTimeout(() => {
+                        const refreshedStats = getCharacterStats()
+                        console.log('[Mobile Nav] After refresh - localStorage stats:', refreshedStats)
+                        console.log('[Mobile Nav] After refresh - component state:', characterStats)
+                      }, 100)
                       
                       console.log('[Mobile Nav] Refresh completed successfully')
                       
