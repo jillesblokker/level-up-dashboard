@@ -68,11 +68,11 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.18,
     clickMessage: "You cast your line into the water and feel a tug. Reeling it in, you catch a fish with gold coins in its mouth!",
     possibleItems: [
-      '/images/items/food/goldenfish.png',
-      '/images/items/food/silverfish.png',
-      '/images/items/food/bronzefish.png',
-      '/images/items/food/rainbowfish.png',
-      '/images/items/food/crystalfish.png'
+      '/images/items/food/fish-red.png',
+      '/images/items/food/fish-blue.png',
+      '/images/items/food/fish-silver.png',
+      '/images/items/food/fish-golden.png',
+      '/images/items/food/fish-rainbow.png'
     ],
     itemType: 'food',
     rarity: 'common'
@@ -86,9 +86,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.20,
     clickMessage: "The grocer greets you warmly and shows you today's fresh produce. Hidden among the vegetables, you discover some gold coins!",
     possibleItems: [
-      '/images/items/food/goldenfish.png',
-      '/images/items/food/silverfish.png',
-      '/images/items/food/bronzefish.png'
+      '/images/items/food/fish-red.png',
+      '/images/items/food/fish-blue.png',
+      '/images/items/food/fish-silver.png'
     ],
     itemType: 'food',
     rarity: 'common'
@@ -102,9 +102,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.16,
     clickMessage: "The aroma of freshly cooked meals fills the air. As you enjoy your meal, you find gold coins hidden under your plate!",
     possibleItems: [
-      '/images/items/food/goldenfish.png',
-      '/images/items/food/silverfish.png',
-      '/images/items/food/bronzefish.png'
+      '/images/items/food/fish-red.png',
+      '/images/items/food/fish-blue.png',
+      '/images/items/food/fish-silver.png'
     ],
     itemType: 'food',
     rarity: 'uncommon'
@@ -118,9 +118,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.14,
     clickMessage: "You tend to the vegetable garden, pulling up carrots and potatoes. Among the roots, you discover gold coins buried in the soil!",
     possibleItems: [
-      '/images/items/food/goldenfish.png',
-      '/images/items/food/silverfish.png',
-      '/images/items/food/bronzefish.png'
+      '/images/items/food/fish-red.png',
+      '/images/items/food/fish-blue.png',
+      '/images/items/food/fish-silver.png'
     ],
     itemType: 'food',
     rarity: 'common'
@@ -301,9 +301,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.20,
     clickMessage: "The pond's surface ripples as you approach. You spot gold coins glinting at the bottom and fish them out!",
     possibleItems: [
-      '/images/items/food/goldenfish.png',
-      '/images/items/food/silverfish.png',
-      '/images/items/food/bronzefish.png'
+      '/images/items/food/fish-red.png',
+      '/images/items/food/fish-blue.png',
+      '/images/items/food/fish-silver.png'
     ],
     itemType: 'food',
     rarity: 'common'
@@ -317,9 +317,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.14,
     clickMessage: "The windmill's sails turn steadily. You collect freshly ground flour and discover gold coins mixed in with the grain!",
     possibleItems: [
-      '/images/items/food/goldenfish.png',
-      '/images/items/food/silverfish.png',
-      '/images/items/food/bronzefish.png'
+      '/images/items/food/fish-red.png',
+      '/images/items/food/fish-blue.png',
+      '/images/items/food/fish-silver.png'
     ],
     itemType: 'food',
     rarity: 'uncommon'

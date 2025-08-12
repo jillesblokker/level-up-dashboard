@@ -92,6 +92,21 @@ export const defaultInventoryItems: InventoryItem[] = [
     isEquippable: false,
     isConsumable: true,
   },
+  {
+    id: 'food-red-starter',
+    name: 'Red Fish',
+    description: 'A vibrant red fish that provides basic nourishment',
+    type: 'food',
+    stats: { health: 15, stamina: 10 },
+    emoji: '🐟',
+    quantity: 2,
+    isDefault: true,
+    image: '/images/items/food/fish-red.png',
+    rarity: 'common',
+    cost: 25,
+    isEquippable: false,
+    isConsumable: true,
+  },
 ];
 
 // Helper function to get all items by type

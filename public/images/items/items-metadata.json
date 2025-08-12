@@ -635,77 +635,60 @@
       "image": "/images/items/materials/planks.png",
       "description": "Refined wood planks for advanced construction"
     },
-    "food-goldenfish": {
-      "name": "Golden Fish",
-      "type": "food",
-      "category": "fish",
-      "rarity": "rare",
-      "stats": {
-        "health": 30,
-        "stamina": 20
-      },
-      "cost": 75,
-      "isDefault": false,
-      "image": "/images/items/food/goldenfish.png",
-      "description": "A rare golden fish that provides nourishment and luck"
-    },
-    "food-silverfish": {
-      "name": "Silver Fish",
-      "type": "food",
-      "category": "fish",
-      "rarity": "uncommon",
-      "stats": {
-        "health": 20,
-        "stamina": 15
-      },
-      "cost": 50,
-      "isDefault": false,
-      "image": "/images/items/food/silverfish.png",
-      "description": "A shimmering silver fish that boosts energy"
-    },
-    "food-bronzefish": {
-      "name": "Bronze Fish",
+    "food-red": {
+      "name": "Red Fish",
       "type": "food",
       "category": "fish",
       "rarity": "common",
-      "stats": {
-        "health": 15,
-        "stamina": 10
-      },
+      "stats": { "health": 15, "stamina": 10 },
       "cost": 25,
       "isDefault": false,
-      "image": "/images/items/food/bronzefish.png",
-      "description": "A sturdy bronze fish that provides basic sustenance"
+      "image": "/images/items/food/fish-red.png",
+      "description": "A vibrant red fish that provides basic nourishment"
     },
-    "food-rainbowfish": {
-      "name": "Rainbow Fish",
+    "food-blue": {
+      "name": "Blue Fish",
+      "type": "food",
+      "category": "fish",
+      "rarity": "uncommon",
+      "stats": { "health": 20, "stamina": 15, "mana": 5 },
+      "cost": 40,
+      "isDefault": false,
+      "image": "/images/items/food/fish-blue.png",
+      "description": "A cool blue fish that refreshes and energizes"
+    },
+    "food-silver": {
+      "name": "Silver Fish",
+      "type": "food",
+      "category": "fish",
+      "rarity": "rare",
+      "stats": { "health": 25, "stamina": 20, "defense": 2 },
+      "cost": 60,
+      "isDefault": false,
+      "image": "/images/items/food/fish-silver.png",
+      "description": "A shimmering silver fish that enhances vitality"
+    },
+    "food-golden": {
+      "name": "Golden Fish",
       "type": "food",
       "category": "fish",
       "rarity": "epic",
-      "stats": {
-        "health": 40,
-        "stamina": 25,
-        "mana": 10
-      },
-      "cost": 120,
+      "stats": { "health": 35, "stamina": 25, "mana": 10 },
+      "cost": 100,
       "isDefault": false,
-      "image": "/images/items/food/rainbowfish.png",
-      "description": "A colorful fish that grants multiple benefits"
+      "image": "/images/items/food/fish-golden.png",
+      "description": "A rare golden fish that provides nourishment and luck"
     },
-    "food-crystalfish": {
-      "name": "Crystal Fish",
+    "food-rainbow": {
+      "name": "Rainbow Fish",
       "type": "food",
       "category": "fish",
       "rarity": "legendary",
-      "stats": {
-        "health": 50,
-        "stamina": 30,
-        "mana": 20
-      },
+      "stats": { "health": 50, "stamina": 35, "mana": 20, "attack": 5 },
       "cost": 200,
       "isDefault": false,
-      "image": "/images/items/food/crystalfish.png",
-      "description": "A crystalline fish that enhances magical abilities"
+      "image": "/images/items/food/fish-rainbow.png",
+      "description": "A magical rainbow fish that grants multiple benefits"
     }
   }
 }
