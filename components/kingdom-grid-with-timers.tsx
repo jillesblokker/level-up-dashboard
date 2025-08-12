@@ -7,9 +7,27 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Clock, Sparkles } from 'lucide-react'
-import { KINGDOM_TILES, getRandomItem, getRandomGold, isLucky, getRarityColor } from '@/lib/kingdom-tiles'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { KINGDOM_TILES, getRandomItem, getRandomGold, isLucky as isLuckyTile, getRarityColor } from '@/lib/kingdom-tiles'
 import { KingdomTileModal } from './kingdom-tile-modal'
 import { useToast } from '@/components/ui/use-toast'
+import { getCharacterStats } from '@/lib/character-stats-manager'
+import { spendGold } from '@/lib/gold-manager'
+
+// Helper function to calculate level from experience
+const calculateLevelFromExperience = (experience: number): number => {
+  if (experience < 100) return 1
+  if (experience < 300) return 2
+  if (experience < 600) return 3
+  if (experience < 1000) return 4
+  if (experience < 1500) return 5
+  if (experience < 2100) return 6
+  if (experience < 2800) return 7
+  if (experience < 3600) return 8
+  if (experience < 4500) return 9
+  if (experience < 5500) return 10
+  return Math.floor(experience / 1000) + 1
+}
 
 interface KingdomGridWithTimersProps {
   grid: Tile[][]
@@ -52,6 +70,226 @@ export function KingdomGridWithTimers({
     isLucky: boolean
     message: string
   } | null>(null)
+  
+  // Add missing state for expand functionality
+  const [propertiesOpen, setPropertiesOpen] = useState(false)
+  const [propertyTab, setPropertyTab] = useState<'place' | 'buy'>('place')
+  const [kingdomExpansions, setKingdomExpansions] = useState(0)
+  const [buildTokens, setBuildTokens] = useState(0)
+  const [playerLevel, setPlayerLevel] = useState(1)
+
+  // Load kingdom expansions from localStorage on mount
+  useEffect(() => {
+    const savedExpansions = localStorage.getItem('kingdom-grid-expansions')
+    if (savedExpansions) {
+      setKingdomExpansions(parseInt(savedExpansions, 10))
+    }
+  }, [])
+
+  // Load build tokens from localStorage on mount
+  useEffect(() => {
+    const stats = JSON.parse(localStorage.getItem('character-stats') || '{}')
+    setBuildTokens(stats.buildTokens || 0)
+  }, [])
+
+  // Calculate player level and expansion requirements
+  useEffect(() => {
+    const stats = getCharacterStats()
+    const currentLevel = calculateLevelFromExperience(stats.experience || 0)
+    setPlayerLevel(currentLevel)
+  }, [])
+
+  // Calculate if kingdom can be expanded
+  const nextExpansionLevel = 5 + kingdomExpansions * 5
+  const canExpand = playerLevel >= nextExpansionLevel
+
+  // Expand kingdom grid function
+  const expandKingdomGrid = () => {
+    console.log('[Kingdom Grid] Expand button clicked')
+    console.log('[Kingdom Grid] Current level:', playerLevel, 'Required level:', nextExpansionLevel, 'Can expand:', canExpand)
+    
+    if (!canExpand) {
+      toast({
+        title: 'Expansion Locked',
+        description: `Reach level ${nextExpansionLevel} to expand your kingdom! (Current level: ${playerLevel})`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const currentRows = grid.length;
+    const currentCols = grid[0]?.length || 6;
+    const newRows = currentRows + 3;
+    
+    // Create new grid with 3 additional rows
+    const newGrid: Tile[][] = [];
+    
+    // Add existing rows
+    for (let y = 0; y < currentRows; y++) {
+      const currentRow = grid[y];
+      if (currentRow && Array.isArray(currentRow)) {
+        newGrid[y] = [...currentRow];
+      }
+    }
+    
+    // Add 3 new rows with vacant tiles
+    for (let y = currentRows; y < newRows; y++) {
+      newGrid[y] = new Array(currentCols);
+      for (let x = 0; x < currentCols; x++) {
+        newGrid[y]![x] = {
+          id: `vacant-${x}-${y}`,
+          name: 'Vacant',
+          description: 'A vacant plot of land',
+          type: 'vacant',
+          image: '/images/kingdom-tiles/Vacant.png',
+          cost: 0,
+          quantity: 0,
+          x,
+          y,
+          connections: [],
+          rotation: 0,
+          revealed: true,
+          isVisited: false,
+          ariaLabel: 'Vacant tile'
+        };
+      }
+    }
+    
+    // Update expansion count
+    setKingdomExpansions((prev: number) => {
+      const newVal = prev + 1;
+      localStorage.setItem('kingdom-grid-expansions', String(newVal));
+      return newVal;
+    });
+
+    // Call the callback to update the parent component's grid
+    if (onGridExpand) {
+      onGridExpand(newGrid);
+    }
+
+    toast({
+      title: "Kingdom Expanded",
+      description: "Your kingdom has been expanded with 3 new rows of vacant land!",
+    });
+  };
+
+  // Kingdom tile inventory for properties panel
+  const propertyInventory = [
+    {
+      id: 'archery',
+      name: 'Archery',
+      image: '/images/kingdom-tiles/Archery.png',
+      cost: 1
+    },
+    {
+      id: 'blacksmith',
+      name: 'Blacksmith',
+      image: '/images/kingdom-tiles/Blacksmith.png',
+      cost: 1
+    },
+    {
+      id: 'fisherman',
+      name: 'Fisherman',
+      image: '/images/kingdom-tiles/Fisherman.png',
+      cost: 1
+    },
+    {
+      id: 'foodcourt',
+      name: 'Food Court',
+      image: '/images/kingdom-tiles/Foodcourt.png',
+      cost: 1
+    },
+    {
+      id: 'fountain',
+      name: 'Fountain',
+      image: '/images/kingdom-tiles/Fountain.png',
+      cost: 1
+    },
+    {
+      id: 'grocery',
+      name: 'Grocery',
+      image: '/images/kingdom-tiles/Grocery.png',
+      cost: 1
+    },
+    {
+      id: 'house',
+      name: 'House',
+      image: '/images/kingdom-tiles/House.png',
+      cost: 1
+    },
+    {
+      id: 'inn',
+      name: 'Inn',
+      image: '/images/kingdom-tiles/Inn.png',
+      cost: 1
+    },
+    {
+      id: 'jousting',
+      name: 'Jousting',
+      image: '/images/kingdom-tiles/Jousting.png',
+      cost: 1
+    },
+    {
+      id: 'mansion',
+      name: 'Mansion',
+      image: '/images/kingdom-tiles/Mansion.png',
+      cost: 2
+    },
+    {
+      id: 'mayor',
+      name: 'Mayor',
+      image: '/images/kingdom-tiles/Mayor.png',
+      cost: 2
+    },
+    {
+      id: 'pond',
+      name: 'Pond',
+      image: '/images/kingdom-tiles/Pond.png',
+      cost: 1
+    },
+    {
+      id: 'sawmill',
+      name: 'Sawmill',
+      image: '/images/kingdom-tiles/Sawmill.png',
+      cost: 1
+    },
+    {
+      id: 'temple',
+      name: 'Temple',
+      image: '/images/kingdom-tiles/Temple.png',
+      cost: 2
+    },
+    {
+      id: 'vegetables',
+      name: 'Vegetables',
+      image: '/images/kingdom-tiles/Vegetables.png',
+      cost: 1
+    },
+    {
+      id: 'watchtower',
+      name: 'Watchtower',
+      image: '/images/kingdom-tiles/Watchtower.png',
+      cost: 1
+    },
+    {
+      id: 'well',
+      name: 'Well',
+      image: '/images/kingdom-tiles/Well.png',
+      cost: 1
+    },
+    {
+      id: 'windmill',
+      name: 'Windmill',
+      image: '/images/kingdom-tiles/Windmill.png',
+      cost: 1
+    },
+    {
+      id: 'wizard',
+      name: 'Wizard',
+      image: '/images/kingdom-tiles/Wizard.png',
+      cost: 2
+    }
+  ];
 
   // Load timers from localStorage on mount
   useEffect(() => {
@@ -116,87 +354,69 @@ export function KingdomGridWithTimers({
     const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase())
     if (!kingdomTile) return
 
+    // Check if tile is ready
     const timer = tileTimers.find(t => t.x === x && t.y === y)
-    if (!timer) return
+    if (!timer || !timer.isReady) return
 
-    if (timer.isReady) {
-      // Calculate rewards
-      const gold = isLucky(kingdomTile.luckyChance) 
-        ? kingdomTile.luckyGoldAmount 
-        : getRandomGold(...kingdomTile.normalGoldRange)
-      
-      const item = kingdomTile.possibleItems.length > 0 
-        ? getRandomItem(kingdomTile.possibleItems)
-        : null
+    // Generate rewards
+    const wasLucky = isLuckyTile(kingdomTile.luckyChance)
+    const goldEarned = wasLucky ? kingdomTile.luckyGoldAmount : getRandomGold(...kingdomTile.normalGoldRange)
+    const itemFound = kingdomTile.possibleItems.length > 0 ? getRandomItem(kingdomTile.possibleItems) : null
 
-      // Reset timer
-      const newEndTime = Date.now() + (kingdomTile.timerMinutes * 60 * 1000)
-      setTileTimers(prev => 
-        prev.map(t => 
-          t.x === x && t.y === y 
-            ? { ...t, endTime: newEndTime, isReady: false }
-            : t
-        )
+    // Update timer
+    const newEndTime = Date.now() + (kingdomTile.timerMinutes * 60 * 1000)
+    setTileTimers(prev => 
+      prev.map(t => 
+        t.x === x && t.y === y 
+          ? { ...t, endTime: newEndTime, isReady: false }
+          : t
       )
+    )
 
-      // Show modal
-      setModalData({
-        tileName: kingdomTile.name,
-        goldEarned: gold,
-        itemFound: item ? { image: item, name: kingdomTile.name, type: kingdomTile.itemType } : undefined,
-        message: kingdomTile.clickMessage,
-        isLucky: isLucky(kingdomTile.luckyChance)
-      } as {
-        tileName: string
-        goldEarned: number
-        itemFound?: {
-          image: string
-          name: string
-          type: string
-        } | undefined
-        isLucky: boolean
-        message: string
-      })
-      setShowModal(true)
+    // Show modal with rewards
+    setModalData({
+      tileName: kingdomTile.name,
+      goldEarned,
+      itemFound: itemFound ? {
+        image: itemFound,
+        name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
+        type: kingdomTile.itemType
+      } : undefined,
+      isLucky: wasLucky,
+      message: kingdomTile.clickMessage
+    })
+    setShowModal(true)
 
-      // Update gold and items
-      if (onGoldEarned) onGoldEarned(gold)
-      if (item && onItemFound) {
-        onItemFound({ image: item, name: kingdomTile.name, type: kingdomTile.itemType })
-      }
-
-      // Show toast
-      toast({
-        title: "Kingdom Reward!",
-        description: `You earned ${gold} gold${item ? ` and found a ${kingdomTile.itemType}!` : '!'}`,
+    // Trigger callbacks
+    if (onGoldEarned) onGoldEarned(goldEarned)
+    if (onItemFound && itemFound) {
+      onItemFound({
+        image: itemFound,
+        name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
+        type: kingdomTile.itemType
       })
     }
   }
 
   const formatTimeRemaining = (endTime: number) => {
     const now = Date.now()
-    const remaining = Math.max(0, endTime - now)
+    const timeLeft = endTime - now
     
-    if (remaining === 0) return "Ready!"
+    if (timeLeft <= 0) return 'Ready!'
     
-    const hours = Math.floor(remaining / (1000 * 60 * 60))
-    const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60))
-    const seconds = Math.floor((remaining % (1000 * 60)) / 1000)
+    const minutes = Math.floor(timeLeft / 60000)
+    const seconds = Math.floor((timeLeft % 60000) / 1000)
     
-    if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-    } else {
-      return `${minutes}:${seconds.toString().padStart(2, '0')}`
-    }
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
 
   const renderGridWithBorder = () => {
     const rows = grid.length
-    const cols = grid[0]?.length || 0
-    
+    const cols = grid[0]?.length || 6
+
     return (
       <div
-        className="grid gap-0 border-5 border-gray-700"
+        className="grid gap-0 border-4 border-gray-700 rounded-lg overflow-hidden shadow-2xl"
         style={{
           gridTemplateColumns: `repeat(${cols}, 1fr)`,
           gridTemplateRows: `repeat(${rows}, 1fr)`,
@@ -275,8 +495,6 @@ export function KingdomGridWithTimers({
                     </div>
                   </div>
                 )}
-
-
               </button>
             )
           })
@@ -287,7 +505,118 @@ export function KingdomGridWithTimers({
 
   return (
     <>
-      {renderGridWithBorder()}
+      <div className="relative w-full flex items-center justify-center">
+        {/* Floating + button in top right corner of grid */}
+        <button
+          className="absolute top-4 right-4 z-20 w-14 h-14 sm:w-12 sm:h-12 bg-amber-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl sm:text-3xl font-bold hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 touch-manipulation min-h-[44px]"
+          aria-label="Open properties panel"
+          onClick={() => setPropertiesOpen(true)}
+        >
+          +
+        </button>
+        {/* Floating expand button below the + button */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              className="absolute top-24 sm:top-20 right-4 z-20 w-14 h-14 sm:w-12 sm:h-12 bg-amber-600 text-white rounded-full shadow-lg flex items-center justify-center text-base sm:text-sm font-bold hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation min-h-[44px]"
+              onClick={expandKingdomGrid}
+              disabled={!canExpand}
+              aria-label="Expand kingdom grid"
+            >
+              🏗️
+            </button>
+          </TooltipTrigger>
+          <TooltipContent 
+            side="left" 
+            className="bg-gray-900 text-white border-amber-800/30 max-w-xs break-words"
+          >
+            {canExpand 
+              ? `Expand kingdom (Level ${playerLevel} required: ${nextExpansionLevel})`
+              : `Requires Level ${nextExpansionLevel} to expand (Current: ${playerLevel})`
+            }
+          </TooltipContent>
+        </Tooltip>
+        
+        {renderGridWithBorder()}
+      </div>
+      
+      {/* Side panel for properties */}
+      {propertiesOpen && (
+        <div className="fixed inset-y-0 right-0 w-full max-w-md bg-gray-900 z-50 shadow-lg border-l border-amber-800/40 flex flex-col" role="dialog" aria-modal="true" aria-label="Properties side panel">
+          <div className="flex justify-between items-center p-4 border-b border-amber-800/20">
+            <h3 className="text-2xl font-bold text-amber-400">Properties</h3>
+            <button onClick={() => setPropertiesOpen(false)} className="text-amber-400 hover:text-amber-200 text-2xl bg-black/40 rounded-full w-10 h-10 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-amber-500" aria-label="Close properties panel">×</button>
+          </div>
+          <div className="px-4 pt-2 pb-0">
+            <div className="text-lg font-bold text-amber-300 mb-2 flex items-center justify-between">
+              <span><a href="/quests" className="text-blue-800 hover:text-blue-700 underline cursor-pointer">Streak</a> tokens: <span className="text-amber-400">{buildTokens}</span></span>
+              <Button
+                onClick={() => {
+                  if (spendGold(1000, 'build-token-purchase')) {
+                    const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
+                    stats.buildTokens = (stats.buildTokens || 0) + 1;
+                    localStorage.setItem('character-stats', JSON.stringify(stats));
+                    setBuildTokens(stats.buildTokens);
+                  }
+                }}
+                className="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 text-sm"
+                disabled={(() => {
+                  const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
+                  return (stats.gold || 0) < 1000;
+                })()}
+              >
+                Buy (1000g)
+              </Button>
+            </div>
+            {/* Tabs for Place and Buy */}
+            <div className="flex gap-2 mb-4">
+              <button
+                className={`flex-1 py-2 rounded-t bg-gray-800 text-amber-300 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500 ${propertyTab === 'place' ? 'bg-amber-800 text-white' : ''}`}
+                aria-label="Place properties tab"
+                onClick={() => setPropertyTab('place')}
+              >
+                Place
+              </button>
+              <button
+                className={`flex-1 py-2 rounded-t bg-gray-800 text-amber-300 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500 ${propertyTab === 'buy' ? 'bg-amber-800 text-white' : ''}`}
+                aria-label="Buy properties tab"
+                onClick={() => setPropertyTab('buy')}
+              >
+                Buy
+              </button>
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4">
+            <div className="grid grid-cols-2 gap-6">
+              {propertyInventory.map(tile => (
+                <div key={tile.id} className="relative flex flex-col items-center border border-amber-800/30 bg-black/60 rounded-xl p-3 shadow-lg">
+                  <div className="relative w-full aspect-square mb-3">
+                    <Image
+                      src={tile.image.startsWith('/') ? tile.image : `/images/kingdom-tiles/${tile.image}`}
+                      alt={tile.name}
+                      fill
+                      className="object-contain rounded-xl"
+                      draggable={false}
+                      unoptimized
+                    />
+                  </div>
+                  <div className="text-base font-bold text-amber-300 text-center truncate w-full mb-1">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="truncate">{tile.name}</span>
+                      </TooltipTrigger>
+                      <TooltipContent>{tile.name}</TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <div className="text-sm text-amber-400 text-center">
+                    Cost: {tile.cost} token{tile.cost !== 1 ? 's' : ''}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       
       {showModal && modalData && (
         <KingdomTileModal

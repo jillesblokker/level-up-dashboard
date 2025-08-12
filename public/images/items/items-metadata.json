@@ -2,57 +2,101 @@
   "metadata": {
     "version": "1.0.0",
     "lastUpdated": "2024-12-15",
-    "totalItems": 45,
+    "totalItems": 42,
     "categories": 9,
     "description": "Complete metadata for all items in the Level Up game"
   },
   "categories": {
     "weapons": {
       "description": "Combat weapons that provide attack bonuses",
-      "subcategories": ["swords", "axes", "maces"],
-      "stats": ["attack"],
+      "subcategories": [
+        "swords",
+        "axes",
+        "maces"
+      ],
+      "stats": [
+        "attack"
+      ],
       "equippable": true,
       "consumable": false
     },
     "defense": {
       "description": "Protective equipment that provides defense bonuses",
-      "subcategories": ["shields", "armor"],
-      "stats": ["defense", "health"],
+      "subcategories": [
+        "shields",
+        "armor"
+      ],
+      "stats": [
+        "defense",
+        "health"
+      ],
       "equippable": true,
       "consumable": false
     },
     "mounts": {
       "description": "Riding animals that provide movement bonuses",
-      "subcategories": ["horses"],
-      "stats": ["movement", "attack"],
+      "subcategories": [
+        "horses"
+      ],
+      "stats": [
+        "movement",
+        "attack"
+      ],
       "equippable": true,
       "consumable": false
     },
     "consumables": {
       "description": "Items that provide temporary effects when used",
-      "subcategories": ["potions", "scrolls"],
-      "stats": ["health", "mana", "stamina", "experience", "gold"],
+      "subcategories": [
+        "potions",
+        "scrolls"
+      ],
+      "stats": [
+        "health",
+        "mana",
+        "stamina",
+        "experience",
+        "gold"
+      ],
       "equippable": false,
       "consumable": true
     },
     "artifacts": {
       "description": "Magical items with powerful effects",
-      "subcategories": ["rings", "crowns", "scepters", "thrones", "robes"],
-      "stats": ["attack", "defense", "health", "mana"],
+      "subcategories": [
+        "rings",
+        "crowns",
+        "scepters",
+        "thrones",
+        "robes"
+      ],
+      "stats": [
+        "attack",
+        "defense",
+        "health",
+        "mana"
+      ],
       "equippable": true,
       "consumable": false
     },
     "materials": {
       "description": "Building and crafting materials",
-      "subcategories": ["wood"],
+      "subcategories": [
+        "wood"
+      ],
       "stats": [],
       "equippable": false,
       "consumable": true
     },
     "food": {
       "description": "Nourishing items that provide sustenance",
-      "subcategories": ["fish"],
-      "stats": ["health", "stamina"],
+      "subcategories": [
+        "fish"
+      ],
+      "stats": [
+        "health",
+        "stamina"
+      ],
       "equippable": false,
       "consumable": true
     }
@@ -90,7 +134,9 @@
       "type": "weapon",
       "category": "swords",
       "rarity": "common",
-      "stats": { "attack": 2 },
+      "stats": {
+        "attack": 2
+      },
       "cost": 25,
       "isDefault": true,
       "image": "/images/items/sword/sword-twig.png",
@@ -101,7 +147,9 @@
       "type": "weapon",
       "category": "swords",
       "rarity": "uncommon",
-      "stats": { "attack": 5 },
+      "stats": {
+        "attack": 5
+      },
       "cost": 120,
       "isDefault": false,
       "image": "/images/items/sword/sword-irony.png",
@@ -112,7 +160,9 @@
       "type": "weapon",
       "category": "maces",
       "rarity": "rare",
-      "stats": { "attack": 8 },
+      "stats": {
+        "attack": 8
+      },
       "cost": 250,
       "isDefault": false,
       "image": "/images/items/sword/sword-morningstar.png",
@@ -123,7 +173,10 @@
       "type": "weapon",
       "category": "swords",
       "rarity": "epic",
-      "stats": { "attack": 12, "mana": 5 },
+      "stats": {
+        "attack": 12,
+        "mana": 5
+      },
       "cost": 500,
       "isDefault": false,
       "image": "/images/items/sword/sword-sunblade.png",
@@ -134,7 +187,10 @@
       "type": "weapon",
       "category": "axes",
       "rarity": "legendary",
-      "stats": { "attack": 18, "health": 10 },
+      "stats": {
+        "attack": 18,
+        "health": 10
+      },
       "cost": 1000,
       "isDefault": false,
       "image": "/images/items/sword/sword-solaraxe.png",
@@ -145,7 +201,9 @@
       "type": "defense",
       "category": "shields",
       "rarity": "common",
-      "stats": { "defense": 2 },
+      "stats": {
+        "defense": 2
+      },
       "cost": 30,
       "isDefault": true,
       "image": "/images/items/shield/shield-reflecto.png",
@@ -156,7 +214,9 @@
       "type": "defense",
       "category": "shields",
       "rarity": "uncommon",
-      "stats": { "defense": 4 },
+      "stats": {
+        "defense": 4
+      },
       "cost": 80,
       "isDefault": false,
       "image": "/images/items/shield/shield-defecto.png",
@@ -167,7 +227,9 @@
       "type": "defense",
       "category": "shields",
       "rarity": "rare",
-      "stats": { "defense": 7 },
+      "stats": {
+        "defense": 7
+      },
       "cost": 200,
       "isDefault": false,
       "image": "/images/items/shield/shield-blockado.png",
@@ -178,7 +240,10 @@
       "type": "defense",
       "category": "shields",
       "rarity": "epic",
-      "stats": { "defense": 10, "health": 5 },
+      "stats": {
+        "defense": 10,
+        "health": 5
+      },
       "cost": 400,
       "isDefault": false,
       "image": "/images/items/shield/shield-shellow.png",
@@ -189,7 +254,11 @@
       "type": "defense",
       "category": "shields",
       "rarity": "legendary",
-      "stats": { "defense": 15, "health": 10, "mana": 5 },
+      "stats": {
+        "defense": 15,
+        "health": 10,
+        "mana": 5
+      },
       "cost": 800,
       "isDefault": false,
       "image": "/images/items/shield/shield-shielow.png",
@@ -200,7 +269,9 @@
       "type": "defense",
       "category": "armor",
       "rarity": "common",
-      "stats": { "defense": 1 },
+      "stats": {
+        "defense": 1
+      },
       "cost": 50,
       "isDefault": true,
       "image": "/images/items/armor/armor-normalo.png",
@@ -211,7 +282,10 @@
       "type": "defense",
       "category": "armor",
       "rarity": "uncommon",
-      "stats": { "defense": 3, "health": 2 },
+      "stats": {
+        "defense": 3,
+        "health": 2
+      },
       "cost": 150,
       "isDefault": false,
       "image": "/images/items/armor/armor-darko.png",
@@ -222,7 +296,9 @@
       "type": "defense",
       "category": "armor",
       "rarity": "rare",
-      "stats": { "defense": 5 },
+      "stats": {
+        "defense": 5
+      },
       "cost": 300,
       "isDefault": false,
       "image": "/images/items/armor/armor-blanko.png",
@@ -233,7 +309,10 @@
       "type": "defense",
       "category": "armor",
       "rarity": "epic",
-      "stats": { "defense": 8, "mana": 3 },
+      "stats": {
+        "defense": 8,
+        "mana": 3
+      },
       "cost": 600,
       "isDefault": false,
       "image": "/images/items/armor/armor-silvo.png",
@@ -244,7 +323,11 @@
       "type": "defense",
       "category": "armor",
       "rarity": "legendary",
-      "stats": { "defense": 12, "health": 8, "mana": 5 },
+      "stats": {
+        "defense": 12,
+        "health": 8,
+        "mana": 5
+      },
       "cost": 1200,
       "isDefault": false,
       "image": "/images/items/armor/armor-goldo.png",
@@ -255,7 +338,9 @@
       "type": "mounts",
       "category": "horses",
       "rarity": "common",
-      "stats": { "movement": 5 },
+      "stats": {
+        "movement": 5
+      },
       "cost": 100,
       "isDefault": true,
       "image": "/images/items/horse/horse-stelony.png",
@@ -266,7 +351,9 @@
       "type": "mounts",
       "category": "horses",
       "rarity": "uncommon",
-      "stats": { "movement": 8 },
+      "stats": {
+        "movement": 8
+      },
       "cost": 250,
       "isDefault": false,
       "image": "/images/items/horse/horse-perony.png",
@@ -277,7 +364,10 @@
       "type": "mounts",
       "category": "horses",
       "rarity": "rare",
-      "stats": { "movement": 6, "attack": 3 },
+      "stats": {
+        "movement": 6,
+        "attack": 3
+      },
       "cost": 500,
       "isDefault": false,
       "image": "/images/items/horse/horse-felony.png",
@@ -288,7 +378,10 @@
       "type": "mounts",
       "category": "horses",
       "rarity": "epic",
-      "stats": { "movement": 10, "mana": 5 },
+      "stats": {
+        "movement": 10,
+        "mana": 5
+      },
       "cost": 800,
       "isDefault": false,
       "image": "/images/items/horse/horse-goldy.png",
@@ -299,7 +392,11 @@
       "type": "mounts",
       "category": "horses",
       "rarity": "legendary",
-      "stats": { "movement": 15, "health": 10, "mana": 8 },
+      "stats": {
+        "movement": 15,
+        "health": 10,
+        "mana": 8
+      },
       "cost": 1500,
       "isDefault": false,
       "image": "/images/items/horse/horse-silvy.png",
@@ -310,7 +407,9 @@
       "type": "consumables",
       "category": "potions",
       "rarity": "common",
-      "stats": { "health": 50 },
+      "stats": {
+        "health": 50
+      },
       "cost": 25,
       "isDefault": false,
       "image": "/images/items/potion/potion-health.png",
@@ -321,7 +420,9 @@
       "type": "consumables",
       "category": "potions",
       "rarity": "common",
-      "stats": { "mana": 50 },
+      "stats": {
+        "mana": 50
+      },
       "cost": 30,
       "isDefault": false,
       "image": "/images/items/potion/potion-mana.png",
@@ -332,7 +433,9 @@
       "type": "consumables",
       "category": "potions",
       "rarity": "uncommon",
-      "stats": { "stamina": 75 },
+      "stats": {
+        "stamina": 75
+      },
       "cost": 40,
       "isDefault": false,
       "image": "/images/items/potion/potion-stamina.png",
@@ -343,7 +446,9 @@
       "type": "consumables",
       "category": "potions",
       "rarity": "rare",
-      "stats": { "experience": 100 },
+      "stats": {
+        "experience": 100
+      },
       "cost": 100,
       "isDefault": false,
       "image": "/images/items/potion/potion-exp.png",
@@ -354,7 +459,9 @@
       "type": "consumables",
       "category": "potions",
       "rarity": "epic",
-      "stats": { "gold": 200 },
+      "stats": {
+        "gold": 200
+      },
       "cost": 150,
       "isDefault": false,
       "image": "/images/items/potion/potion-gold.png",
@@ -365,7 +472,9 @@
       "type": "consumables",
       "category": "scrolls",
       "rarity": "common",
-      "stats": { "mana": 20 },
+      "stats": {
+        "mana": 20
+      },
       "cost": 50,
       "isDefault": false,
       "image": "/images/items/scroll/scroll-scrolly.png",
@@ -376,7 +485,10 @@
       "type": "consumables",
       "category": "scrolls",
       "rarity": "uncommon",
-      "stats": { "experience": 50, "mana": 30 },
+      "stats": {
+        "experience": 50,
+        "mana": 30
+      },
       "cost": 100,
       "isDefault": false,
       "image": "/images/items/scroll/scroll-memento.png",
@@ -387,7 +499,11 @@
       "type": "consumables",
       "category": "scrolls",
       "rarity": "rare",
-      "stats": { "attack": 5, "defense": 5, "mana": 40 },
+      "stats": {
+        "attack": 5,
+        "defense": 5,
+        "mana": 40
+      },
       "cost": 200,
       "isDefault": false,
       "image": "/images/items/scroll/scroll-perkamento.png",
@@ -398,7 +514,12 @@
       "type": "consumables",
       "category": "scrolls",
       "rarity": "epic",
-      "stats": { "attack": 8, "defense": 8, "health": 50, "mana": 60 },
+      "stats": {
+        "attack": 8,
+        "defense": 8,
+        "health": 50,
+        "mana": 60
+      },
       "cost": 400,
       "isDefault": false,
       "image": "/images/items/scroll/scroll-diamono.png",
@@ -409,7 +530,10 @@
       "type": "consumables",
       "category": "scrolls",
       "rarity": "legendary",
-      "stats": { "mana": 100, "experience": 200 },
+      "stats": {
+        "mana": 100,
+        "experience": 200
+      },
       "cost": 800,
       "isDefault": false,
       "image": "/images/items/scroll/scroll-observio.png",
@@ -420,7 +544,10 @@
       "type": "artifacts",
       "category": "rings",
       "rarity": "rare",
-      "stats": { "mana": 30, "health": 20 },
+      "stats": {
+        "mana": 30,
+        "health": 20
+      },
       "cost": 500,
       "isDefault": false,
       "image": "/images/items/artifact/ring/artifact-ringo.png",
@@ -431,7 +558,11 @@
       "type": "artifacts",
       "category": "crowns",
       "rarity": "epic",
-      "stats": { "health": 50, "mana": 40, "defense": 5 },
+      "stats": {
+        "health": 50,
+        "mana": 40,
+        "defense": 5
+      },
       "cost": 1000,
       "isDefault": false,
       "image": "/images/items/artifact/crown/artifact-crowny.png",
@@ -442,7 +573,10 @@
       "type": "artifacts",
       "category": "scepters",
       "rarity": "epic",
-      "stats": { "mana": 60, "attack": 8 },
+      "stats": {
+        "mana": 60,
+        "attack": 8
+      },
       "cost": 800,
       "isDefault": false,
       "image": "/images/items/artifact/scepter/artifact-staffy.png",
@@ -453,7 +587,12 @@
       "type": "artifacts",
       "category": "thrones",
       "rarity": "legendary",
-      "stats": { "health": 100, "mana": 80, "defense": 10, "attack": 10 },
+      "stats": {
+        "health": 100,
+        "mana": 80,
+        "defense": 10,
+        "attack": 10
+      },
       "cost": 2000,
       "isDefault": false,
       "image": "/images/items/artifact/throne/artifact-throny.png",
@@ -464,7 +603,11 @@
       "type": "artifacts",
       "category": "robes",
       "rarity": "epic",
-      "stats": { "mana": 70, "defense": 8, "health": 30 },
+      "stats": {
+        "mana": 70,
+        "defense": 8,
+        "health": 30
+      },
       "cost": 1200,
       "isDefault": false,
       "image": "/images/items/artifact/robe/artifact-ropy.png",
@@ -497,11 +640,72 @@
       "type": "food",
       "category": "fish",
       "rarity": "rare",
-      "stats": { "health": 30, "stamina": 20 },
+      "stats": {
+        "health": 30,
+        "stamina": 20
+      },
       "cost": 75,
       "isDefault": false,
       "image": "/images/items/food/goldenfish.png",
       "description": "A rare golden fish that provides nourishment and luck"
+    },
+    "food-silverfish": {
+      "name": "Silver Fish",
+      "type": "food",
+      "category": "fish",
+      "rarity": "uncommon",
+      "stats": {
+        "health": 20,
+        "stamina": 15
+      },
+      "cost": 50,
+      "isDefault": false,
+      "image": "/images/items/food/silverfish.png",
+      "description": "A shimmering silver fish that boosts energy"
+    },
+    "food-bronzefish": {
+      "name": "Bronze Fish",
+      "type": "food",
+      "category": "fish",
+      "rarity": "common",
+      "stats": {
+        "health": 15,
+        "stamina": 10
+      },
+      "cost": 25,
+      "isDefault": false,
+      "image": "/images/items/food/bronzefish.png",
+      "description": "A sturdy bronze fish that provides basic sustenance"
+    },
+    "food-rainbowfish": {
+      "name": "Rainbow Fish",
+      "type": "food",
+      "category": "fish",
+      "rarity": "epic",
+      "stats": {
+        "health": 40,
+        "stamina": 25,
+        "mana": 10
+      },
+      "cost": 120,
+      "isDefault": false,
+      "image": "/images/items/food/rainbowfish.png",
+      "description": "A colorful fish that grants multiple benefits"
+    },
+    "food-crystalfish": {
+      "name": "Crystal Fish",
+      "type": "food",
+      "category": "fish",
+      "rarity": "legendary",
+      "stats": {
+        "health": 50,
+        "stamina": 30,
+        "mana": 20
+      },
+      "cost": 200,
+      "isDefault": false,
+      "image": "/images/items/food/crystalfish.png",
+      "description": "A crystalline fish that enhances magical abilities"
     }
   }
 }
