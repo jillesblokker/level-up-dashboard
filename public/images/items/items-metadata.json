@@ -626,14 +626,47 @@
     },
     "material-planks": {
       "name": "Wooden Planks",
-      "type": "materials",
+      "type": "material",
       "category": "wood",
       "rarity": "uncommon",
       "stats": {},
       "cost": 25,
       "isDefault": false,
-      "image": "/images/items/materials/planks.png",
+      "image": "/images/items/materials/material-planks.png",
       "description": "Refined wood planks for advanced construction"
+    },
+    "material-steel": {
+      "name": "Steel Ingots",
+      "type": "material",
+      "category": "metal",
+      "rarity": "rare",
+      "stats": {},
+      "cost": 100,
+      "isDefault": false,
+      "image": "/images/items/materials/material-steel.png",
+      "description": "Strong metal for weapons and armor crafting"
+    },
+    "material-silver": {
+      "name": "Silver Bars",
+      "type": "material",
+      "category": "metal",
+      "rarity": "epic",
+      "stats": {},
+      "cost": 250,
+      "isDefault": false,
+      "image": "/images/items/materials/material-silver.png",
+      "description": "Precious metal for magical items and advanced crafting"
+    },
+    "material-gold": {
+      "name": "Gold Bars",
+      "type": "material",
+      "category": "metal",
+      "rarity": "legendary",
+      "stats": {},
+      "cost": 500,
+      "isDefault": false,
+      "image": "/images/items/materials/material-gold.png",
+      "description": "Legendary material for the most powerful items"
     },
     "food-red": {
       "name": "Red Fish",
