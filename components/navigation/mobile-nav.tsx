@@ -59,6 +59,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [open, setOpen] = useState(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const [characterStats, setCharacterStats] = useState<CharacterStats>({
     level: 1,
     experience: 0,
@@ -154,22 +155,63 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                   variant="ghost"
                   size="sm"
                   onClick={() => {
+                    if (isRefreshing) return; // Prevent multiple clicks
+                    
                     console.log('[Mobile Nav] Manual refresh clicked, reloading stats...')
-                    const stats = getCharacterStats()
-                    const currentLevel = calculateLevelFromExperience(stats.experience)
-                    setCharacterStats({
-                      level: currentLevel,
-                      experience: stats.experience,
-                      experienceToNextLevel: calculateExperienceForLevel(currentLevel),
-                      gold: stats.gold,
-                      titles: { equipped: '', unlocked: 0, total: 0 },
-                      perks: { active: 0, total: 0 }
-                    })
+                    setIsRefreshing(true)
+                    
+                    try {
+                      // Force reload from localStorage
+                      const stats = getCharacterStats()
+                      console.log('[Mobile Nav] Raw stats from localStorage:', stats)
+                      
+                      // Calculate new level
+                      const currentLevel = calculateLevelFromExperience(stats.experience)
+                      console.log('[Mobile Nav] Calculated level:', currentLevel, 'from experience:', stats.experience)
+                      
+                      // Calculate experience needed for next level
+                      const expToNext = calculateExperienceForLevel(currentLevel)
+                      console.log('[Mobile Nav] Experience to next level:', expToNext)
+                      
+                      // Update state with new values
+                      const newStats = {
+                        level: currentLevel,
+                        experience: stats.experience,
+                        experienceToNextLevel: expToNext,
+                        gold: stats.gold,
+                        titles: { equipped: '', unlocked: 0, total: 0 },
+                        perks: { active: 0, total: 0 }
+                      }
+                      
+                      console.log('[Mobile Nav] Setting new stats:', newStats)
+                      setCharacterStats(newStats)
+                      
+                      // Force a re-render by dispatching an event
+                      window.dispatchEvent(new Event('character-stats-update'))
+                      
+                      console.log('[Mobile Nav] Refresh completed successfully')
+                      
+                      // Show success feedback
+                      setTimeout(() => setIsRefreshing(false), 1000)
+                    } catch (error) {
+                      console.error('[Mobile Nav] Error during refresh:', error)
+                      setIsRefreshing(false)
+                    }
                   }}
-                  className="h-8 w-8 p-0 text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 touch-manipulation min-h-[32px]"
-                  aria-label="Refresh character stats"
+                  disabled={isRefreshing}
+                  className={cn(
+                    "h-8 w-8 p-0 touch-manipulation min-h-[32px] transition-all duration-200",
+                    isRefreshing 
+                      ? "text-green-500 bg-green-500/10" 
+                      : "text-amber-500 hover:text-amber-400 hover:bg-amber-500/10"
+                  )}
+                  aria-label={isRefreshing ? "Refreshing..." : "Refresh character stats"}
                 >
-                  <RotateCcw className="h-4 w-4" />
+                  {isRefreshing ? (
+                    <div className="w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <RotateCcw className="h-4 w-4" />
+                  )}
                 </Button>
                 <Button
                   variant="ghost"
