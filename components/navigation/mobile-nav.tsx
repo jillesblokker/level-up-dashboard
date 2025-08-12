@@ -43,7 +43,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
-import { CharacterStats, calculateExperienceToNextLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character"
+import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character"
 import { Logo } from "@/components/logo";
 import { useUser } from "@clerk/nextjs";
 import { getCharacterStats } from "@/lib/character-stats-manager"
@@ -86,7 +86,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
         setCharacterStats({
           level: currentLevel,
           experience: stats.experience,
-          experienceToNextLevel: calculateExperienceToNextLevel(stats.experience),
+          experienceToNextLevel: calculateExperienceForLevel(currentLevel),
           gold: stats.gold,
           titles: { equipped: '', unlocked: 0, total: 0 },
           perks: { active: 0, total: 0 }
@@ -120,7 +120,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
           setCharacterStats({
             level: currentLevel,
             experience: currentStats.experience,
-            experienceToNextLevel: calculateExperienceToNextLevel(currentStats.experience),
+            experienceToNextLevel: calculateExperienceForLevel(currentLevel),
             gold: currentStats.gold,
             titles: { equipped: '', unlocked: 0, total: 0 },
             perks: { active: 0, total: 0 }
@@ -207,7 +207,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                       console.log('[Mobile Nav] Calculated level:', currentLevel, 'from experience:', stats.experience)
                       
                       // Calculate experience needed for next level
-                      const expToNext = calculateExperienceToNextLevel(stats.experience)
+                      const expToNext = calculateExperienceForLevel(currentLevel)
                       console.log('[Mobile Nav] Experience to next level:', expToNext)
                       
                       // Update state with new values
