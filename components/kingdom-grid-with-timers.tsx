@@ -179,117 +179,239 @@ export function KingdomGridWithTimers({
       id: 'archery',
       name: 'Archery',
       image: '/images/kingdom-tiles/Archery.png',
-      cost: 1
+      cost: 1,
+      levelRequired: 1
     },
     {
       id: 'blacksmith',
       name: 'Blacksmith',
       image: '/images/kingdom-tiles/Blacksmith.png',
-      cost: 1
+      cost: 1,
+      levelRequired: 1
     },
     {
       id: 'fisherman',
       name: 'Fisherman',
       image: '/images/kingdom-tiles/Fisherman.png',
-      cost: 1
+      cost: 1,
+      levelRequired: 1
     },
     {
       id: 'foodcourt',
       name: 'Food Court',
       image: '/images/kingdom-tiles/Foodcourt.png',
-      cost: 1
+      cost: 1,
+      levelRequired: 1
     },
     {
       id: 'fountain',
       name: 'Fountain',
       image: '/images/kingdom-tiles/Fountain.png',
-      cost: 1
+      cost: 1,
+      levelRequired: 1
     },
     {
       id: 'grocery',
       name: 'Grocery',
       image: '/images/kingdom-tiles/Grocery.png',
-      cost: 1
+      cost: 1,
+      levelRequired: 1
     },
     {
       id: 'house',
       name: 'House',
       image: '/images/kingdom-tiles/House.png',
-      cost: 1
+      cost: 1,
+      levelRequired: 1
     },
     {
       id: 'inn',
       name: 'Inn',
       image: '/images/kingdom-tiles/Inn.png',
-      cost: 1
+      cost: 1,
+      levelRequired: 1
     },
     {
       id: 'jousting',
       name: 'Jousting',
       image: '/images/kingdom-tiles/Jousting.png',
-      cost: 1
+      cost: 1,
+      levelRequired: 1
     },
     {
       id: 'mansion',
       name: 'Mansion',
       image: '/images/kingdom-tiles/Mansion.png',
-      cost: 2
+      cost: 2,
+      levelRequired: 3
     },
     {
       id: 'mayor',
       name: 'Mayor',
       image: '/images/kingdom-tiles/Mayor.png',
-      cost: 2
+      cost: 2,
+      levelRequired: 5
     },
     {
       id: 'pond',
       name: 'Pond',
       image: '/images/kingdom-tiles/Pond.png',
-      cost: 1
+      cost: 1,
+      levelRequired: 1
     },
     {
       id: 'sawmill',
       name: 'Sawmill',
       image: '/images/kingdom-tiles/Sawmill.png',
-      cost: 1
+      cost: 1,
+      levelRequired: 1
     },
     {
       id: 'temple',
       name: 'Temple',
       image: '/images/kingdom-tiles/Temple.png',
-      cost: 2
+      cost: 2,
+      levelRequired: 4
     },
     {
       id: 'vegetables',
       name: 'Vegetables',
       image: '/images/kingdom-tiles/Vegetables.png',
-      cost: 1
+      cost: 1,
+      levelRequired: 1
     },
     {
       id: 'watchtower',
       name: 'Watchtower',
       image: '/images/kingdom-tiles/Watchtower.png',
-      cost: 1
+      cost: 1,
+      levelRequired: 1
     },
     {
       id: 'well',
       name: 'Well',
       image: '/images/kingdom-tiles/Well.png',
-      cost: 1
+      cost: 1,
+      levelRequired: 1
     },
     {
       id: 'windmill',
       name: 'Windmill',
       image: '/images/kingdom-tiles/Windmill.png',
-      cost: 1
+      cost: 1,
+      levelRequired: 1
     },
     {
       id: 'wizard',
       name: 'Wizard',
       image: '/images/kingdom-tiles/Wizard.png',
-      cost: 2
+      cost: 2,
+      levelRequired: 6
     }
   ];
+
+  // Property placement state
+  const [selectedProperty, setSelectedProperty] = useState<typeof propertyInventory[0] | null>(null)
+  const [placementMode, setPlacementMode] = useState(false)
+
+  // Check if player can place a property
+  const canPlaceProperty = (property: typeof propertyInventory[0]) => {
+    return buildTokens >= property.cost && playerLevel >= property.levelRequired
+  }
+
+  // Handle property selection for placement
+  const handlePropertySelect = (property: typeof propertyInventory[0]) => {
+    if (!canPlaceProperty(property)) {
+      toast({
+        title: 'Cannot Place Property',
+        description: `You need ${property.cost} build token${property.cost !== 1 ? 's' : ''} and level ${property.levelRequired} to place ${property.name}.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setSelectedProperty(property)
+    setPlacementMode(true)
+    setPropertiesOpen(false)
+    
+    toast({
+      title: 'Property Selected',
+      description: `Click on a vacant tile to place ${property.name}. Press ESC to cancel.`,
+    });
+  }
+
+  // Handle property placement on grid
+  const handlePropertyPlacement = (x: number, y: number) => {
+    if (!selectedProperty || !placementMode) return
+
+    const targetTile = grid[y]?.[x]
+    if (!targetTile || targetTile.type !== 'vacant') {
+      toast({
+        title: 'Invalid Placement',
+        description: 'You can only place properties on vacant tiles.',
+        variant: 'destructive',
+      });
+      return
+    }
+
+    // Create the new kingdom tile
+    const newTile: Tile = {
+      id: `${selectedProperty.id}-${x}-${y}`,
+      name: selectedProperty.name,
+      description: `A ${selectedProperty.name.toLowerCase()} building`,
+      type: selectedProperty.id as TileType,
+      image: selectedProperty.image,
+      cost: 0,
+      quantity: 0,
+      x,
+      y,
+      connections: [],
+      rotation: 0,
+      revealed: true,
+      isVisited: false,
+      ariaLabel: `${selectedProperty.name} tile`
+    }
+
+    // Place the tile using the parent component's onTilePlace
+    onTilePlace(x, y, newTile)
+
+    // Deduct build tokens
+    const stats = JSON.parse(localStorage.getItem('character-stats') || '{}')
+    stats.buildTokens = Math.max(0, (stats.buildTokens || 0) - selectedProperty.cost)
+    localStorage.setItem('character-stats', JSON.stringify(stats))
+    setBuildTokens(stats.buildTokens)
+
+    // Reset placement mode
+    setSelectedProperty(null)
+    setPlacementMode(false)
+
+    toast({
+      title: 'Property Placed!',
+      description: `${selectedProperty.name} has been successfully placed on your kingdom!`,
+    });
+  }
+
+  // Handle ESC key to cancel placement
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && placementMode) {
+        setSelectedProperty(null)
+        setPlacementMode(false)
+        toast({
+          title: 'Placement Cancelled',
+          description: 'Property placement has been cancelled.',
+        });
+      }
+    }
+
+    if (placementMode) {
+      document.addEventListener('keydown', handleKeyDown)
+      return () => document.removeEventListener('keydown', handleKeyDown)
+    }
+    
+    // Return undefined when not in placement mode
+    return undefined
+  }, [placementMode])
 
   // Load timers from localStorage on mount
   useEffect(() => {
@@ -350,7 +472,15 @@ export function KingdomGridWithTimers({
     }
   }, [grid])
 
+  // Update tile click handler to support property placement
   const handleTileClick = (x: number, y: number, tile: Tile) => {
+    // If in placement mode, handle property placement
+    if (placementMode && selectedProperty) {
+      handlePropertyPlacement(x, y)
+      return
+    }
+
+    // Otherwise, handle normal tile interaction
     const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase())
     if (!kingdomTile) return
 
@@ -447,11 +577,15 @@ export function KingdomGridWithTimers({
                 className={cn(
                   "group relative w-full h-full aspect-square bg-black/60 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-amber-500",
                   selectedTile && "ring-2 ring-amber-500",
-                  isKingdomTile && isReady && "ring-2 ring-green-500 animate-pulse"
+                  isKingdomTile && isReady && "ring-2 ring-green-500 animate-pulse",
+                  // Add placement mode styling for vacant tiles
+                  placementMode && tile.type === 'vacant' && "ring-2 ring-amber-500 animate-pulse cursor-pointer hover:ring-amber-400"
                 )}
                 aria-label={tile.ariaLabel || tile.name || `Tile ${x},${y}`}
                 onClick={() => {
-                  if (isKingdomTile && isReady) {
+                  if (placementMode && selectedProperty) {
+                    handlePropertyPlacement(x, y)
+                  } else if (isKingdomTile && isReady) {
                     handleTileClick(x, y, tile)
                   } else if (selectedTile && (selectedTile.quantity || 0) > 0) {
                     onTilePlace(x, y, selectedTile)
@@ -468,6 +602,15 @@ export function KingdomGridWithTimers({
                   unoptimized
                   onError={(e) => { e.currentTarget.src = '/images/placeholders/item-placeholder.svg' }}
                 />
+                
+                {/* Placement mode indicator for vacant tiles */}
+                {placementMode && tile.type === 'vacant' && (
+                  <div className="absolute inset-0 bg-amber-500/20 flex items-center justify-center">
+                    <div className="bg-amber-600 text-white px-3 py-1 rounded-lg text-sm font-bold shadow-lg">
+                      Place {selectedProperty?.name}
+                    </div>
+                  </div>
+                )}
                 
                 {/* Timer overlay for kingdom tiles - Only show on hover */}
                 {isKingdomTile && timer && (
@@ -506,6 +649,14 @@ export function KingdomGridWithTimers({
   return (
     <>
       <div className="relative w-full flex items-center justify-center">
+        {/* Placement mode indicator */}
+        {placementMode && selectedProperty && (
+          <div className="absolute top-4 left-4 z-20 bg-amber-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
+            <span className="text-sm font-bold">Placing: {selectedProperty.name}</span>
+            <span className="text-xs">Click vacant tile or press ESC to cancel</span>
+          </div>
+        )}
+        
         {/* Floating + button in top right corner of grid */}
         <button
           className="absolute top-4 right-4 z-20 w-14 h-14 sm:w-12 sm:h-12 bg-amber-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl sm:text-3xl font-bold hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 touch-manipulation min-h-[44px]"
@@ -588,31 +739,71 @@ export function KingdomGridWithTimers({
           </div>
           <div className="flex-1 overflow-y-auto p-4">
             <div className="grid grid-cols-2 gap-6">
-              {propertyInventory.map(tile => (
-                <div key={tile.id} className="relative flex flex-col items-center border border-amber-800/30 bg-black/60 rounded-xl p-3 shadow-lg">
-                  <div className="relative w-full aspect-square mb-3">
-                    <Image
-                      src={tile.image.startsWith('/') ? tile.image : `/images/kingdom-tiles/${tile.image}`}
-                      alt={tile.name}
-                      fill
-                      className="object-contain rounded-xl"
-                      draggable={false}
-                      unoptimized
-                    />
-                  </div>
-                  <div className="text-base font-bold text-amber-300 text-center truncate w-full mb-1">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="truncate">{tile.name}</span>
-                      </TooltipTrigger>
-                      <TooltipContent>{tile.name}</TooltipContent>
-                    </Tooltip>
-                  </div>
-                  <div className="text-sm text-amber-400 text-center">
-                    Cost: {tile.cost} token{tile.cost !== 1 ? 's' : ''}
-                  </div>
-                </div>
-              ))}
+              {propertyInventory.map(tile => {
+                const canPlace = canPlaceProperty(tile)
+                return (
+                  <button
+                    key={tile.id}
+                    className={`relative flex flex-col items-center border border-amber-800/30 bg-black/60 rounded-xl p-3 shadow-lg transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-500 ${
+                      canPlace 
+                        ? 'hover:border-amber-500/50 hover:shadow-amber-500/20 cursor-pointer' 
+                        : 'opacity-50 cursor-not-allowed'
+                    }`}
+                    onClick={() => canPlace && handlePropertySelect(tile)}
+                    disabled={!canPlace}
+                    aria-label={`Select ${tile.name} for placement`}
+                  >
+                    <div className="relative w-full aspect-square mb-3">
+                      <Image
+                        src={tile.image.startsWith('/') ? tile.image : `/images/kingdom-tiles/${tile.image}`}
+                        alt={tile.name}
+                        fill
+                        className="object-contain rounded-xl"
+                        draggable={false}
+                        unoptimized
+                      />
+                      {/* Level requirement badge */}
+                      {tile.levelRequired > 1 && (
+                        <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                          Lv.{tile.levelRequired}
+                        </div>
+                      )}
+                      {/* Cost badge */}
+                      <div className="absolute top-2 left-2 bg-amber-600 text-white text-xs px-2 py-1 rounded-full">
+                        {tile.cost} token{tile.cost !== 1 ? 's' : ''}
+                      </div>
+                    </div>
+                    <div className="text-base font-bold text-amber-300 text-center truncate w-full mb-1">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="truncate">{tile.name}</span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <div className="text-center">
+                            <div className="font-bold">{tile.name}</div>
+                            <div className="text-sm text-gray-300">
+                              Cost: {tile.cost} build token{tile.cost !== 1 ? 's' : ''}
+                            </div>
+                            {tile.levelRequired > 1 && (
+                              <div className="text-sm text-blue-300">
+                                Requires Level {tile.levelRequired}
+                              </div>
+                            )}
+                            {!canPlace && (
+                              <div className="text-sm text-red-300 mt-1">
+                                {buildTokens < tile.cost ? 'Not enough tokens' : `Need Level ${tile.levelRequired}`}
+                              </div>
+                            )}
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                    <div className="text-sm text-amber-400 text-center">
+                      {canPlace ? 'Click to place' : 'Requirements not met'}
+                    </div>
+                  </button>
+                )
+              })}
             </div>
           </div>
         </div>
