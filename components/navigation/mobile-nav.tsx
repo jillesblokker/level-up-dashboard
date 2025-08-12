@@ -23,6 +23,7 @@ import {
   Shield,
   Heart,
   Zap,
+  RotateCcw,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -96,11 +97,22 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     loadCharacterStats()
 
     // Listen for character stats updates
-    const handleStatsUpdate = () => loadCharacterStats()
+    const handleStatsUpdate = () => {
+      console.log('[Mobile Nav] Character stats update event received, refreshing stats...')
+      loadCharacterStats()
+    }
     window.addEventListener("character-stats-update", handleStatsUpdate)
+    
+    // Also listen for level-specific updates
+    const handleLevelUpdate = () => {
+      console.log('[Mobile Nav] Level update event received, refreshing stats...')
+      loadCharacterStats()
+    }
+    window.addEventListener("level-update", handleLevelUpdate)
     
     return () => {
       window.removeEventListener("character-stats-update", handleStatsUpdate)
+      window.removeEventListener("level-update", handleLevelUpdate)
     }
   }, [])
   
@@ -137,15 +149,38 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
             {/* Enhanced Header */}
             <div className="flex items-center justify-between p-5 border-b border-amber-800/20 bg-gradient-to-r from-amber-900/10 to-transparent">
               <Logo />
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setOpen(false)}
-                className="h-10 w-10 p-0 text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 touch-manipulation min-h-[44px]"
-                aria-label="Close navigation menu"
-              >
-                <X className="h-5 w-5" />
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    console.log('[Mobile Nav] Manual refresh clicked, reloading stats...')
+                    const stats = getCharacterStats()
+                    const currentLevel = calculateLevelFromExperience(stats.experience)
+                    setCharacterStats({
+                      level: currentLevel,
+                      experience: stats.experience,
+                      experienceToNextLevel: calculateExperienceForLevel(currentLevel),
+                      gold: stats.gold,
+                      titles: { equipped: '', unlocked: 0, total: 0 },
+                      perks: { active: 0, total: 0 }
+                    })
+                  }}
+                  className="h-8 w-8 p-0 text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 touch-manipulation min-h-[32px]"
+                  aria-label="Refresh character stats"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setOpen(false)}
+                  className="h-10 w-10 p-0 text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 touch-manipulation min-h-[44px]"
+                  aria-label="Close navigation menu"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
             </div>
 
             {/* Enhanced Character Stats */}
