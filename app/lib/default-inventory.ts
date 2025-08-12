@@ -34,7 +34,7 @@ const convertToInventoryItem = (item: ComprehensiveItem): InventoryItem => ({
   stats: item.stats,
   emoji: item.emoji,
   quantity: item.isDefault ? 1 : 0,
-  isDefault: item.isDefault,
+  isDefault: item.isDefault || false,
   image: item.image,
   rarity: item.rarity,
   cost: item.cost,
