@@ -1255,10 +1255,18 @@ export default function RealmPage() {
     };
 
     const handleTileSelection = (tile: TileInventoryItem | null) => {
+        console.log('[Realm] handleTileSelection called with:', { tile, inventory: tile ? inventory[tile.type] : null });
+        
         if (tile?.type && inventory[tile.type] && (inventory[tile.type].owned ?? 0) > 0) {
+            console.log('[Realm] Setting selectedTile to:', tile);
             setSelectedTile(tile);
             setShowInventory(false);
         } else {
+            console.log('[Realm] Cannot select tile:', { 
+                tileType: tile?.type, 
+                hasInventory: tile?.type ? !!inventory[tile.type] : false, 
+                owned: tile?.type ? inventory[tile.type]?.owned : null 
+            });
             setSelectedTile(null);
         }
     };
@@ -2172,6 +2180,11 @@ export default function RealmPage() {
             });
         }
     };
+
+    // Debug selectedTile changes
+    useEffect(() => {
+        console.log('[Realm] selectedTile changed:', selectedTile);
+    }, [selectedTile]);
 
     if (isLoading) {
         return (
