@@ -935,6 +935,8 @@ export default function RealmPage() {
 
     // Place tile: update grid and send only the changed tile to backend
     const handlePlaceTile = async (x: number, y: number) => {
+        console.log('[Realm] handlePlaceTile called with:', { x, y, gameMode, selectedTile });
+        
         // Check for monster battle first (regardless of game mode)
         const clickedTile = grid[y]?.[x];
         if (clickedTile?.hasMonster) {
@@ -949,9 +951,14 @@ export default function RealmPage() {
             return;
         }
         
-        if (gameMode !== 'build' || !selectedTile) return;
+        if (gameMode !== 'build' || !selectedTile) {
+            console.log('[Realm] Cannot place tile:', { gameMode, selectedTile });
+            return;
+        }
+        
         const tileToPlace = inventory[selectedTile.type];
         if (!tileToPlace || (tileToPlace.owned ?? 0) <= 0) {
+            console.log('[Realm] No inventory for tile:', { tileType: selectedTile.type, inventory: tileToPlace });
             toast({
                 title: "Cannot Place Tile",
                 description: "You don't have any of this tile type in your inventory",
@@ -960,11 +967,20 @@ export default function RealmPage() {
             return;
         }
 
+        console.log('[Realm] Placing tile:', { 
+            x, 
+            y, 
+            tileType: selectedTile.type, 
+            tileToPlace, 
+            currentGrid: grid[y]?.[x] 
+        });
+
         // Optimistically update the UI first for better user experience
         setGrid(prevGrid => {
             const newGrid = prevGrid.map(row => row.slice());
             if (newGrid[y]?.[x]) {
                 newGrid[y][x] = { ...tileToPlace, x, y, owned: 1 };
+                console.log('[Realm] Grid updated optimistically:', { x, y, newTile: newGrid[y][x] });
             }
             return newGrid;
         });
