@@ -959,6 +959,8 @@ export default function RealmPage() {
             });
             return;
         }
+
+        // Optimistically update the UI first for better user experience
         setGrid(prevGrid => {
             const newGrid = prevGrid.map(row => row.slice());
             if (newGrid[y]?.[x]) {
@@ -966,6 +968,7 @@ export default function RealmPage() {
             }
             return newGrid;
         });
+
         setInventory(prev => {
             const newInventory = { ...prev };
             const invTile = newInventory[selectedTile.type];
@@ -982,7 +985,8 @@ export default function RealmPage() {
             
             return newInventory;
         });
-        // Save only the changed tile
+
+        // Save only the changed tile with retry logic
         try {
             if (!selectedTile?.type) {
                 console.error('No tile type selected');
@@ -998,101 +1002,239 @@ export default function RealmPage() {
             }
             
             console.log('[Realm] Saving tile:', { x, y, tile_type: tileTypeNum, tile_type_name: selectedTile.type });
-            const res = await fetch('/api/realm-tiles', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ x, y, tile_type: tileTypeNum })
-            });
+            
+            // Enhanced fetch with retry logic and timeout
+            const saveTileWithRetry = async (attempt: number = 1): Promise<Response> => {
+                const maxAttempts = 3;
+                const timeoutMs = 10000; // 10 second timeout
+                
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+                    
+                    const response = await fetch('/api/realm-tiles', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ x, y, tile_type: tileTypeNum }),
+                        signal: controller.signal
+                    });
+                    
+                    clearTimeout(timeoutId);
+                    return response;
+                } catch (error) {
+                    if (error instanceof Error && error.name === 'AbortError') {
+                        console.warn(`[Realm] Tile save attempt ${attempt} timed out`);
+                    } else {
+                        console.warn(`[Realm] Tile save attempt ${attempt} failed:`, error);
+                    }
+                    
+                    if (attempt < maxAttempts) {
+                        // Exponential backoff: 1s, 2s, 4s
+                        const delay = Math.pow(2, attempt - 1) * 1000;
+                        console.log(`[Realm] Retrying tile save in ${delay}ms (attempt ${attempt + 1}/${maxAttempts})`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        return saveTileWithRetry(attempt + 1);
+                    }
+                    
+                    throw error;
+                }
+            };
+            
+            const res = await saveTileWithRetry();
+            
             if (!res.ok) {
                 const err = await res.json();
                 toast({ title: 'Error', description: `Failed to save tile: ${err.error}`, variant: 'destructive' });
                 console.error('Tile save error:', err);
-            } else {
-                console.log('[Realm] Tile saved successfully');
-                // Check for monster spawns after successful tile placement
-                console.log('[Realm] Checking monster spawn for tile type:', selectedTile.type);
-                // Create updated grid with the new tile for spawn check
-                const updatedGrid = grid.map(row => row.slice());
-                if (updatedGrid[y] && updatedGrid[y][x]) {
-                    updatedGrid[y][x] = { ...tileToPlace, x, y, owned: 1 };
-                }
-                const spawnResult = checkMonsterSpawn(updatedGrid, selectedTile.type);
-                console.log('[Realm] Monster spawn result:', spawnResult);
                 
-                if (spawnResult.shouldSpawn && spawnResult.position && spawnResult.monsterType) {
-                    console.log('[Realm] Spawning monster:', spawnResult.monsterType, 'at position:', spawnResult.position);
-                    // Spawn the monster
-                    const success = spawnMonsterOnTile(grid, spawnResult.position.x, spawnResult.position.y, spawnResult.monsterType as any);
-                    if (success) {
-                        // Update grid to show monster
-                        setGrid(prevGrid => {
-                            const newGrid = prevGrid.map(row => row.slice());
-                            const pos = spawnResult.position!;
-                            const monsterType = spawnResult.monsterType;
-                            const row = newGrid[pos.y];
-                            const tile = row?.[pos.x];
-                            if (row && tile && monsterType) {
-                                tile.hasMonster = monsterType as MonsterType;
-                                tile.monsterAchievementId = getMonsterAchievementId(monsterType as MonsterType);
-                                console.log('[Realm] Monster added to grid:', monsterType, 'at', pos);
-                            }
-                            return newGrid;
-                        });
-                        
-                        // Show notification
-                        toast({
-                            title: "Monster Appeared!",
-                            description: `A ${spawnResult.monsterType} has appeared on the map!`,
-                        });
+                // Revert the optimistic update on failure
+                setGrid(prevGrid => {
+                    const newGrid = prevGrid.map(row => row.slice());
+                    if (newGrid[y]?.[x]) {
+                        newGrid[y][x] = clickedTile || { ...defaultTile('empty'), x, y, id: `empty-${x}-${y}` };
                     }
-                }
+                    return newGrid;
+                });
                 
-                // Check for creature discoveries
-                const iceCount = countTiles(grid, 'ice');
-                console.log('[Realm] Ice tiles count:', iceCount);
+                // Restore inventory
+                setInventory(prev => {
+                    const newInventory = { ...prev };
+                    const invTile = newInventory[selectedTile.type];
+                    if (invTile) {
+                        invTile.owned = (invTile.owned ?? 0) + 1;
+                    }
+                    return newInventory;
+                });
                 
-                if (iceCount >= 5 && !useCreatureStore.getState().isCreatureDiscovered('014')) {
-                    // Discover Blizzey when 5 ice tiles are placed
-                    useCreatureStore.getState().discoverCreature('014');
+                return;
+            }
+            
+            console.log('[Realm] Tile saved successfully');
+            
+            // Check for monster spawns after successful tile placement
+            console.log('[Realm] Checking monster spawn for tile type:', selectedTile.type);
+            // Create updated grid with the new tile for spawn check
+            const updatedGrid = grid.map(row => row.slice());
+            if (updatedGrid[y] && updatedGrid[y][x]) {
+                updatedGrid[y][x] = { ...tileToPlace, x, y, owned: 1 };
+            }
+            const spawnResult = checkMonsterSpawn(updatedGrid, selectedTile.type);
+            console.log('[Realm] Monster spawn result:', spawnResult);
+            
+            if (spawnResult.shouldSpawn && spawnResult.position && spawnResult.monsterType) {
+                console.log('[Realm] Spawning monster:', spawnResult.monsterType, 'at position:', spawnResult.position);
+                // Spawn the monster
+                const success = spawnMonsterOnTile(grid, spawnResult.position.x, spawnResult.position.y, spawnResult.monsterType as any);
+                if (success) {
+                    // Update grid to show monster
+                    setGrid(prevGrid => {
+                        const newGrid = prevGrid.map(row => row.slice());
+                        const pos = spawnResult.position!;
+                        const monsterType = spawnResult.monsterType;
+                        const row = newGrid[pos.y];
+                        const tile = row?.[pos.x];
+                        if (row && tile && monsterType) {
+                            tile.hasMonster = monsterType as MonsterType;
+                            tile.monsterAchievementId = getMonsterAchievementId(monsterType as MonsterType);
+                            console.log('[Realm] Monster added to grid:', monsterType, 'at', pos);
+                        }
+                        return newGrid;
+                    });
+                    
+                    // Show notification
                     toast({
-                        title: "Creature Discovered!",
-                        description: "You discovered Blizzey, the powerful ice spirit!",
+                        title: "Monster Appeared!",
+                        description: `A ${spawnResult.monsterType} has appeared on the map!`,
                     });
                 }
-                
-                // Unlock achievement for special tiles
-                const tileTypeToAchievement: Record<string, string> = {
-                    'ice': '013', // Example: 013 = first ice tile placed
-                    'snow': '016', // Example: 016 = first snow tile placed
-                    'cave': '011', // Example: 011 = first cave tile placed
-                    // Add more mappings as needed
-                };
-                const achievementId = tileTypeToAchievement[selectedTile.type];
-                if (achievementId && userId) {
-                    try {
-                        const token = await getToken({ template: 'supabase' });
-                        const unlockRes = await fetch('/api/achievements/unlock', {
-                            method: 'POST',
-                            headers: { 
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${token}`
-                            },
-                            body: JSON.stringify({ achievementId })
-                        });
-                        if (!unlockRes.ok) {
-                            const unlockErr = await unlockRes.json();
-                            toast({ title: 'Achievement Error', description: `Failed to unlock achievement: ${unlockErr.error}`, variant: 'destructive' });
-                            console.error('Achievement unlock error:', unlockErr);
-                        }
-                    } catch (err) {
-                        toast({ title: 'Achievement Error', description: 'Failed to unlock achievement', variant: 'destructive' });
-                        console.error('Achievement unlock error:', err);
+            }
+            
+            // Check for creature discoveries
+            const iceCount = countTiles(grid, 'ice');
+            console.log('[Realm] Ice tiles count:', iceCount);
+            
+            if (iceCount >= 5 && !useCreatureStore.getState().isCreatureDiscovered('014')) {
+                // Discover Blizzey when 5 ice tiles are placed
+                useCreatureStore.getState().discoverCreature('014');
+                toast({
+                    title: "Creature Discovered!",
+                    description: "You discovered Blizzey, the powerful ice spirit!",
+                });
+            }
+            
+            // Unlock achievement for special tiles
+            const tileTypeToAchievement: Record<string, string> = {
+                'ice': '013', // Example: 013 = first ice tile placed
+                'snow': '016', // Example: 016 = first snow tile placed
+                'cave': '011', // Example: 011 = first cave tile placed
+                // Add more mappings as needed
+            };
+            const achievementId = tileTypeToAchievement[selectedTile.type];
+            if (achievementId && userId) {
+                try {
+                    const token = await getToken({ template: 'supabase' });
+                    const unlockRes = await fetch('/api/achievements/unlock', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ achievementId })
+                    });
+                    if (!unlockRes.ok) {
+                        const unlockErr = await unlockRes.json();
+                        toast({ title: 'Achievement Error', description: `Failed to unlock achievement: ${unlockErr.error}`, variant: 'destructive' });
+                        console.error('Achievement unlock error:', unlockErr);
                     }
+                } catch (err) {
+                    toast({ title: 'Achievement Error', description: 'Failed to unlock achievement', variant: 'destructive' });
+                    console.error('Achievement unlock error:', err);
                 }
             }
         } catch (err) {
-            toast({ title: 'Error', description: 'Failed to save tile', variant: 'destructive' });
             console.error('Tile save error:', err);
+            
+            // Determine if it's a network error
+            const isNetworkError = err instanceof Error && (
+                err.message.includes('Failed to fetch') ||
+                err.message.includes('NetworkError') ||
+                err.message.includes('ERR_TIMED_OUT') ||
+                err.message.includes('ERR_NETWORK_CHANGED') ||
+                err.message.includes('ERR_INTERNET_DISCONNECTED')
+            );
+            
+            if (isNetworkError) {
+                toast({ 
+                    title: 'Network Error', 
+                    description: 'Tile placed locally but failed to save due to network issues. It will be saved when connection is restored.',
+                    variant: 'destructive' 
+                });
+                
+                // Store the tile placement for later sync when network is restored
+                const pendingTile = { x, y, tile_type: tileTypeToNumeric[selectedTile.type], timestamp: Date.now() };
+                const pendingTiles = JSON.parse(localStorage.getItem('pendingTilePlacements') || '[]');
+                pendingTiles.push(pendingTile);
+                localStorage.setItem('pendingTilePlacements', JSON.stringify(pendingTiles));
+                
+                // Set up a retry mechanism when network is restored
+                const checkNetworkAndRetry = () => {
+                    if (navigator.onLine) {
+                        console.log('[Realm] Network restored, retrying pending tile placements');
+                        // Retry pending placements
+                        const pendingTiles = JSON.parse(localStorage.getItem('pendingTilePlacements') || '[]');
+                        if (pendingTiles.length > 0) {
+                            pendingTiles.forEach(async (pendingTile: any) => {
+                                try {
+                                    const res = await fetch('/api/realm-tiles', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ 
+                                            x: pendingTile.x, 
+                                            y: pendingTile.y, 
+                                            tile_type: pendingTile.tile_type 
+                                        })
+                                    });
+                                    if (res.ok) {
+                                        console.log('[Realm] Pending tile placement synced successfully');
+                                        // Remove from pending list
+                                        const updatedPending = pendingTiles.filter((t: any) => 
+                                            !(t.x === pendingTile.x && t.y === pendingTile.y && t.tile_type === pendingTile.tile_type)
+                                        );
+                                        localStorage.setItem('pendingTilePlacements', JSON.stringify(updatedPending));
+                                    }
+                                } catch (retryError) {
+                                    console.error('[Realm] Failed to sync pending tile placement:', retryError);
+                                }
+                            });
+                        }
+                        // Remove the event listener
+                        window.removeEventListener('online', checkNetworkAndRetry);
+                    }
+                };
+                
+                window.addEventListener('online', checkNetworkAndRetry);
+            } else {
+                toast({ title: 'Error', description: 'Failed to save tile', variant: 'destructive' });
+                
+                                 // Revert the optimistic update on non-network errors
+                 setGrid(prevGrid => {
+                     const newGrid = prevGrid.map(row => row.slice());
+                     if (newGrid[y]?.[x]) {
+                         newGrid[y][x] = clickedTile || { ...defaultTile('empty'), x, y, id: `empty-${x}-${y}` };
+                     }
+                     return newGrid;
+                 });
+                
+                // Restore inventory
+                setInventory(prev => {
+                    const newInventory = { ...prev };
+                    const invTile = newInventory[selectedTile.type];
+                    if (invTile) {
+                        invTile.owned = (invTile.owned ?? 0) + 1;
+                    }
+                    return newInventory;
+                });
+            }
         }
     };
 
@@ -1770,6 +1912,251 @@ export default function RealmPage() {
       }
     }, [grid, isHorsePresent, horsePos, isSheepPresent, sheepPos]);
 
+    // Network status and resilience
+    const [isOnline, setIsOnline] = useState(navigator.onLine);
+    const [networkStatus, setNetworkStatus] = useState<'online' | 'offline' | 'unstable'>('online');
+    const [pendingSyncCount, setPendingSyncCount] = useState(0);
+
+    // Monitor network status
+    useEffect(() => {
+        const handleOnline = () => {
+            setIsOnline(true);
+            setNetworkStatus('online');
+            console.log('[Realm] Network connection restored');
+            
+            // Sync any pending tile placements
+            syncPendingTilePlacements();
+        };
+
+        const handleOffline = () => {
+            setIsOnline(false);
+            setNetworkStatus('offline');
+            console.log('[Realm] Network connection lost');
+        };
+
+        const handleNetworkChange = () => {
+            if (navigator.onLine) {
+                setIsOnline(true);
+                setNetworkStatus('online');
+            } else {
+                setIsOnline(false);
+                setNetworkStatus('offline');
+            }
+        };
+
+        // Check for pending syncs on mount
+        const checkPendingSyncs = () => {
+            const pendingTiles = JSON.parse(localStorage.getItem('pendingTilePlacements') || '[]');
+            setPendingSyncCount(pendingTiles.length);
+        };
+
+        checkPendingSyncs();
+
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+        window.addEventListener('focus', checkPendingSyncs);
+
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+            window.removeEventListener('focus', checkPendingSyncs);
+        };
+    }, []);
+
+    // Sync pending tile placements when network is restored
+    const syncPendingTilePlacements = async () => {
+        try {
+            const pendingTiles = JSON.parse(localStorage.getItem('pendingTilePlacements') || '[]');
+            if (pendingTiles.length === 0) return;
+
+            console.log(`[Realm] Syncing ${pendingTiles.length} pending tile placements`);
+            setPendingSyncCount(pendingTiles.length);
+
+            const successfulSyncs: any[] = [];
+            const failedSyncs: any[] = [];
+
+            for (const pendingTile of pendingTiles) {
+                try {
+                    const res = await fetch('/api/realm-tiles', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            x: pendingTile.x, 
+                            y: pendingTile.y, 
+                            tile_type: pendingTile.tile_type 
+                        })
+                    });
+
+                    if (res.ok) {
+                        successfulSyncs.push(pendingTile);
+                        console.log(`[Realm] Successfully synced tile at ${pendingTile.x},${pendingTile.y}`);
+                    } else {
+                        // Increment retry count for failed syncs
+                        const updatedTile = { ...pendingTile, retryCount: (pendingTile.retryCount || 0) + 1 };
+                        
+                        // Remove tiles that have been retried too many times
+                        if (updatedTile.retryCount < 5) {
+                            failedSyncs.push(updatedTile);
+                        } else {
+                            console.warn(`[Realm] Tile at ${pendingTile.x},${pendingTile.y} exceeded retry limit, removing from pending list`);
+                        }
+                        
+                        console.error(`[Realm] Failed to sync tile at ${pendingTile.x},${pendingTile.y}`);
+                    }
+                } catch (error) {
+                    // Increment retry count for network errors
+                    const updatedTile = { ...pendingTile, retryCount: (pendingTile.retryCount || 0) + 1 };
+                    
+                    // Remove tiles that have been retried too many times
+                    if (updatedTile.retryCount < 5) {
+                        failedSyncs.push(updatedTile);
+                    } else {
+                        console.warn(`[Realm] Tile at ${pendingTile.x},${pendingTile.y} exceeded retry limit, removing from pending list`);
+                    }
+                    
+                    console.error(`[Realm] Error syncing tile at ${pendingTile.x},${pendingTile.y}:`, error);
+                }
+            }
+
+            // Update pending list with only failed syncs
+            localStorage.setItem('pendingTilePlacements', JSON.stringify(failedSyncs));
+            setPendingSyncCount(failedSyncs.length);
+
+            if (successfulSyncs.length > 0) {
+                toast({
+                    title: "Sync Complete",
+                    description: `Successfully synced ${successfulSyncs.length} tile placements`,
+                });
+            }
+
+            if (failedSyncs.length > 0) {
+                toast({
+                    title: "Sync Incomplete",
+                    description: `${failedSyncs.length} tile placements failed to sync and will be retried later`,
+                    variant: "destructive",
+                });
+            }
+        } catch (error) {
+            console.error('[Realm] Error during sync:', error);
+        }
+    };
+
+    // Enhanced error handling for tile placement failures
+    const handleTilePlacementError = (error: any, x: number, y: number, tileType: TileType) => {
+        console.error('[Realm] Tile placement error:', error);
+        
+        // Determine error type
+        const isNetworkError = error instanceof Error && (
+            error.message.includes('Failed to fetch') ||
+            error.message.includes('NetworkError') ||
+            error.message.includes('ERR_TIMED_OUT') ||
+            error.message.includes('ERR_NETWORK_CHANGED') ||
+            error.message.includes('ERR_INTERNET_DISCONNECTED') ||
+            error.message.includes('timeout') ||
+            error.message.includes('network')
+        );
+        
+        const isAuthError = error instanceof Error && (
+            error.message.includes('Unauthorized') ||
+            error.message.includes('401') ||
+            error.message.includes('auth')
+        );
+        
+        const isServerError = error instanceof Error && (
+            error.message.includes('500') ||
+            error.message.includes('Internal server error') ||
+            error.message.includes('Database')
+        );
+        
+        if (isNetworkError) {
+            toast({ 
+                title: 'Network Error', 
+                description: 'Tile placed locally but failed to save due to network issues. It will be saved when connection is restored.',
+                variant: 'destructive' 
+            });
+            
+            // Store for later sync
+            const pendingTile = { 
+                x, 
+                y, 
+                tile_type: tileTypeToNumeric[tileType], 
+                timestamp: Date.now(),
+                retryCount: 0
+            };
+            
+            const pendingTiles = JSON.parse(localStorage.getItem('pendingTilePlacements') || '[]');
+            pendingTiles.push(pendingTile);
+            localStorage.setItem('pendingTilePlacements', JSON.stringify(pendingTiles));
+            setPendingSyncCount(pendingTiles.length);
+            
+        } else if (isAuthError) {
+            toast({ 
+                title: 'Authentication Error', 
+                description: 'Please log in again to continue placing tiles.',
+                variant: 'destructive' 
+            });
+            
+            // Revert the optimistic update
+            revertTilePlacement(x, y);
+            
+        } else if (isServerError) {
+            toast({ 
+                title: 'Server Error', 
+                description: 'The server is experiencing issues. Please try again later.',
+                variant: 'destructive' 
+            });
+            
+            // Store for later retry
+            const pendingTile = { 
+                x, 
+                y, 
+                tile_type: tileTypeToNumeric[tileType], 
+                timestamp: Date.now(),
+                retryCount: 0
+            };
+            
+            const pendingTiles = JSON.parse(localStorage.getItem('pendingTilePlacements') || '[]');
+            pendingTiles.push(pendingTile);
+            localStorage.setItem('pendingTilePlacements', JSON.stringify(pendingTiles));
+            setPendingSyncCount(pendingTiles.length);
+            
+        } else {
+            toast({ 
+                title: 'Unknown Error', 
+                description: 'An unexpected error occurred. Please try again.',
+                variant: 'destructive' 
+            });
+            
+            // Revert the optimistic update for unknown errors
+            revertTilePlacement(x, y);
+        }
+    };
+    
+    // Helper function to revert tile placement
+    const revertTilePlacement = (x: number, y: number) => {
+        setGrid(prevGrid => {
+            const newGrid = prevGrid.map(row => row.slice());
+            if (newGrid[y]?.[x]) {
+                // Find the original tile at this position
+                const originalTile = grid[y]?.[x];
+                newGrid[y][x] = originalTile || { ...defaultTile('empty'), x, y, id: `empty-${x}-${y}` };
+            }
+            return newGrid;
+        });
+        
+        // Restore inventory
+        if (selectedTile) {
+            setInventory(prev => {
+                const newInventory = { ...prev };
+                const invTile = newInventory[selectedTile.type];
+                if (invTile) {
+                    invTile.owned = (invTile.owned ?? 0) + 1;
+                }
+                return newInventory;
+            });
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="flex flex-col items-center justify-center h-screen bg-gray-900 text-white p-8">
@@ -1891,9 +2278,87 @@ export default function RealmPage() {
                         <RotateCcw className="w-4 h-4" />
                         <span className="hidden sm:inline">Reset Position</span>
                       </Button>
-                    </div>
-                  </div>
+                      
+                      {/* Manual Sync Button */}
+                      {pendingSyncCount > 0 && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={syncPendingTilePlacements}
+                              className="flex items-center gap-2 min-w-[44px] min-h-[44px] bg-amber-700 border-amber-500 text-white hover:bg-amber-600"
+                              aria-label="sync-pending-tiles-button"
+                            >
+                              <div className="w-3 h-3 bg-amber-400 rounded-full animate-pulse"></div>
+                              <span className="hidden sm:inline">Sync ({pendingSyncCount})</span>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent 
+                            side="top" 
+                            className="bg-gray-900 text-white border-amber-800/30"
+                          >
+                            Sync {pendingSyncCount} pending tile placements
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                                    </div>
+              </div>
+            </div>
+
+            {/* Network Status Indicator */}
+            {!isOnline && (
+              <div className="bg-red-900/80 border border-red-600 text-white px-4 py-2 text-sm text-center z-20">
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+                  <span>Offline Mode - Tile placements will be saved locally and synced when connection is restored</span>
+                  {pendingSyncCount > 0 && (
+                    <span className="bg-red-600 px-2 py-1 rounded text-xs">
+                      {pendingSyncCount} pending
+                    </span>
+                  )}
                 </div>
+              </div>
+            )}
+            
+            {isOnline && pendingSyncCount > 0 && (
+              <div className="bg-amber-900/80 border border-amber-600 text-white px-4 py-2 text-sm text-center z-20">
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
+                  <span>Syncing {pendingSyncCount} pending tile placements...</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={syncPendingTilePlacements}
+                    className="h-6 px-2 text-xs bg-amber-700 border-amber-500 text-white hover:bg-amber-600"
+                  >
+                    Retry Now
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Debug Network Status (only show in development) */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="bg-gray-800/80 border border-gray-600 text-gray-300 px-4 py-2 text-xs text-center z-20">
+                <div className="flex items-center justify-center gap-4">
+                  <span>Network: {networkStatus}</span>
+                  <span>Online: {isOnline ? 'Yes' : 'No'}</span>
+                  <span>Pending: {pendingSyncCount}</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      console.log('[Realm] Network status:', { isOnline, networkStatus, pendingSyncCount });
+                      console.log('[Realm] Pending tiles:', JSON.parse(localStorage.getItem('pendingTilePlacements') || '[]'));
+                    }}
+                    className="h-6 px-2 text-xs bg-gray-700 border-gray-500 text-gray-300 hover:bg-gray-600"
+                  >
+                    Debug
+                  </Button>
+                </div>
+              </div>
+            )}
                 {modalState && (
                     <EnterLocationModal
                         isOpen={modalState.isOpen}

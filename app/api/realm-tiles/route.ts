@@ -85,29 +85,102 @@ export async function POST(request: Request) {
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    
     const { x, y, tile_type, event_type } = await request.json();
     if (typeof x !== 'number' || typeof y !== 'number' || typeof tile_type !== 'number') {
       return NextResponse.json({ error: 'Missing or invalid tile data', details: { x, y, tile_type } }, { status: 400 });
     }
+
+    // Validate tile coordinates
+    if (x < 0 || y < 0 || x > 100 || y > 100) {
+      return NextResponse.json({ error: 'Invalid tile coordinates', details: { x, y } }, { status: 400 });
+    }
+
     // Build the update object for the correct tile column
     const updateObj: any = {
       [`tile_${x}_type`]: tile_type,
       [`tile_${x}_updated_at`]: new Date().toISOString(),
       [`tile_${x}_event`]: event_type || null
     };
-    // Upsert the row for (user_id, y)
-    const { error } = await supabaseServer
+
+    // Add timeout to the database operation
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Database operation timed out')), 15000); // 15 second timeout
+    });
+
+    // Perform the database operation with timeout
+    const dbOperation = supabaseServer
       .from('realm_tiles')
       .upsert([
         { user_id: userId, y, ...updateObj }
       ], { onConflict: 'user_id,y' });
+
+    const { error } = await Promise.race([dbOperation, timeoutPromise]) as any;
+
     if (error) {
       console.error('[REALM-TILES][POST] Supabase error:', error, { x, y, tile_type, event_type });
-      return NextResponse.json({ error: error.message, details: error }, { status: 500 });
+      
+      // Handle specific database errors
+      if (error.code === '23505') { // Unique constraint violation
+        return NextResponse.json({ 
+          error: 'Tile already exists at this position', 
+          details: 'A tile is already placed at these coordinates' 
+        }, { status: 409 });
+      }
+      
+      if (error.code === '23503') { // Foreign key constraint violation
+        return NextResponse.json({ 
+          error: 'Invalid user reference', 
+          details: 'User not found in database' 
+        }, { status: 400 });
+      }
+      
+      if (error.code === '42P01') { // Undefined table
+        return NextResponse.json({ 
+          error: 'Database schema error', 
+          details: 'Required table not found' 
+        }, { status: 500 });
+      }
+      
+      return NextResponse.json({ 
+        error: 'Database operation failed', 
+        details: error.message 
+      }, { status: 500 });
     }
-    return NextResponse.json({ success: true });
+
+    console.log(`[REALM-TILES][POST] Successfully placed tile at (${x}, ${y}) for user ${userId}`);
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Tile placed successfully',
+      data: { x, y, tile_type, event_type }
+    });
+    
   } catch (error) {
     console.error('[REALM-TILES][POST] Internal server error:', error);
-    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)), details: error }, { status: 500 });
+    
+    // Handle timeout errors specifically
+    if (error instanceof Error && error.message.includes('timed out')) {
+      return NextResponse.json({ 
+        error: 'Request timeout', 
+        details: 'The operation took too long to complete. Please try again.' 
+      }, { status: 408 });
+    }
+    
+    // Handle network-related errors
+    if (error instanceof Error && (
+      error.message.includes('fetch') || 
+      error.message.includes('network') ||
+      error.message.includes('connection')
+    )) {
+      return NextResponse.json({ 
+        error: 'Network error', 
+        details: 'Unable to connect to the database. Please check your connection and try again.' 
+      }, { status: 503 });
+    }
+    
+    return NextResponse.json({ 
+      error: 'Internal server error', 
+      details: error instanceof Error ? error.message : 'Unknown error occurred' 
+    }, { status: 500 });
   }
 } 
