@@ -88,99 +88,72 @@ const chapters = [
     content: (
       <>
         <p className="text-lg font-serif text-amber-100 mb-4">
-          Master the art of swift navigation with these keyboard shortcuts. From quick quest access to seamless realm management, these commands will make your journey through Thrivehaven even more fluid.
+          Master the art of swift navigation with these keyboard shortcuts. These are the actual shortcuts that work in the game, making your journey through Thrivehaven more fluid.
         </p>
         <div className="space-y-4">
           <div>
-            <h3 className="text-lg font-semibold text-amber-200 mb-2">Global Navigation</h3>
+            <h3 className="text-lg font-semibold text-amber-200 mb-2">Realm Navigation</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-amber-100">⌘/Ctrl + K</span>
-                <span className="text-gray-300">Open Command Palette</span>
+                <span className="text-amber-100">I</span>
+                <span className="text-gray-300">Open Tile Inventory</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-amber-100">⌘/Ctrl + Shift + K</span>
-                <span className="text-gray-300">Quick Quest Access</span>
+                <span className="text-amber-100">W / ↑</span>
+                <span className="text-gray-300">Move Up</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-amber-100">⌘/Ctrl + I</span>
-                <span className="text-gray-300">Open Inventory</span>
+                <span className="text-amber-100">S / ↓</span>
+                <span className="text-gray-300">Move Down</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-amber-100">⌘/Ctrl + C</span>
-                <span className="text-gray-300">Character Stats</span>
+                <span className="text-amber-100">A / ←</span>
+                <span className="text-gray-300">Move Left</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-amber-100">D / →</span>
+                <span className="text-gray-300">Move Right</span>
               </div>
             </div>
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold text-amber-200 mb-2">Realm & Kingdom</h3>
+            <h3 className="text-lg font-semibold text-amber-200 mb-2">Kingdom Management</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-amber-100">R</span>
-                <span className="text-gray-300">Return to Realm</span>
+                <span className="text-amber-100">ESC</span>
+                <span className="text-gray-300">Cancel Property Placement</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-amber-100">K</span>
-                <span className="text-gray-300">Kingdom Overview</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-amber-100">M</span>
-                <span className="text-gray-300">World Map</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-amber-100">Q</span>
-                <span className="text-gray-300">Quest Log</span>
+                <span className="text-amber-100">Click</span>
+                <span className="text-gray-300">Select & Place Properties</span>
               </div>
             </div>
+            <p className="text-xs text-gray-400 mt-2">
+              <em>Note: Property menu is accessed via the Properties button on the kingdom page</em>
+            </p>
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold text-amber-200 mb-2">Game Actions</h3>
+            <h3 className="text-lg font-semibold text-amber-200 mb-2">General Navigation</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-amber-100">Space</span>
-                <span className="text-gray-300">Place Selected Tile</span>
+                <span className="text-amber-100">Tab</span>
+                <span className="text-gray-300">Next Element</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-amber-100">Enter</span>
                 <span className="text-gray-300">Confirm Action</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-amber-100">Escape</span>
-                <span className="text-gray-300">Cancel/Close</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-amber-100">Tab</span>
-                <span className="text-gray-300">Next Element</span>
-              </div>
-            </div>
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-semibold text-amber-200 mb-2">Accessibility</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-amber-100">F1</span>
-                <span className="text-gray-300">Help & Shortcuts</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-amber-100">F2</span>
-                <span className="text-gray-300">Toggle High Contrast</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-amber-100">F3</span>
-                <span className="text-gray-300">Focus Mode</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-amber-100">F4</span>
-                <span className="text-gray-300">Screen Reader Mode</span>
+                <span className="text-amber-100">Space</span>
+                <span className="text-gray-300">Activate Button</span>
               </div>
             </div>
           </div>
         </div>
         <p className="text-base text-amber-200 mt-4">
-          These shortcuts will become second nature as you explore Thrivehaven. Use them to navigate swiftly and focus on your adventures!
+          These shortcuts are fully functional and will enhance your gaming experience. More shortcuts may be added in future updates!
         </p>
       </>
     ),
