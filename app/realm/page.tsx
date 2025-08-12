@@ -1107,6 +1107,11 @@ export default function RealmPage() {
                     return newInventory;
                 });
                 
+                // Restore selectedTile quantity if it was used
+                if (hasTileInSelected && selectedTile.quantity !== undefined) {
+                    setSelectedTile(prev => prev ? { ...prev, quantity: (prev.quantity ?? 0) + 1 } : null);
+                }
+                
                 return;
             }
             
@@ -1117,7 +1122,7 @@ export default function RealmPage() {
             // Create updated grid with the new tile for spawn check
             const updatedGrid = grid.map(row => row.slice());
             if (updatedGrid[y] && updatedGrid[y][x]) {
-                updatedGrid[y][x] = { ...tileToPlace, x, y, owned: 1 };
+                updatedGrid[y][x] = { ...tileToUse, x, y, owned: 1 };
             }
             const spawnResult = checkMonsterSpawn(updatedGrid, selectedTile.type);
             console.log('[Realm] Monster spawn result:', spawnResult);
@@ -1212,7 +1217,14 @@ export default function RealmPage() {
                 });
                 
                 // Store the tile placement for later sync when network is restored
-                const pendingTile = { x, y, tile_type: tileTypeToNumeric[selectedTile.type], timestamp: Date.now() };
+                const pendingTile = { 
+                    x, 
+                    y, 
+                    tile_type: tileTypeToNumeric[selectedTile.type], 
+                    timestamp: Date.now(),
+                    selectedTileType: selectedTile.type,
+                    wasUsingSelectedTile: hasTileInSelected
+                };
                 const pendingTiles = JSON.parse(localStorage.getItem('pendingTilePlacements') || '[]');
                 pendingTiles.push(pendingTile);
                 localStorage.setItem('pendingTilePlacements', JSON.stringify(pendingTiles));
@@ -1275,6 +1287,11 @@ export default function RealmPage() {
                     }
                     return newInventory;
                 });
+                
+                // Restore selectedTile quantity if it was used
+                if (hasTileInSelected && selectedTile.quantity !== undefined) {
+                    setSelectedTile(prev => prev ? { ...prev, quantity: (prev.quantity ?? 0) + 1 } : null);
+                }
             }
         }
     };
@@ -1282,15 +1299,21 @@ export default function RealmPage() {
     const handleTileSelection = (tile: TileInventoryItem | null) => {
         console.log('[Realm] handleTileSelection called with:', { tile, inventory: tile ? inventory[tile.type] : null });
         
-        if (tile?.type && inventory[tile.type] && (inventory[tile.type].owned ?? 0) > 0) {
+        // Check if tile can be selected - either from main inventory (owned) or from tile itself (quantity)
+        const hasMainInventory = tile?.type && inventory[tile.type] && (inventory[tile.type].owned ?? 0) > 0;
+        const hasTileQuantity = tile && (tile.quantity ?? 0) > 0;
+        
+        if (hasMainInventory || hasTileQuantity) {
             console.log('[Realm] Setting selectedTile to:', tile);
             setSelectedTile(tile);
             setShowInventory(false);
         } else {
             console.log('[Realm] Cannot select tile:', { 
                 tileType: tile?.type, 
-                hasInventory: tile?.type ? !!inventory[tile.type] : false, 
-                owned: tile?.type ? inventory[tile.type]?.owned : null 
+                hasMainInventory,
+                hasTileQuantity,
+                mainInventoryOwned: tile?.type ? inventory[tile.type]?.owned : null,
+                tileQuantity: tile?.quantity
             });
             setSelectedTile(null);
         }
