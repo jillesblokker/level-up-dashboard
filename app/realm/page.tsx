@@ -956,9 +956,19 @@ export default function RealmPage() {
             return;
         }
         
+        // Check if we have the tile in inventory (either from main inventory or selectedTile)
         const tileToPlace = inventory[selectedTile.type];
-        if (!tileToPlace || (tileToPlace.owned ?? 0) <= 0) {
-            console.log('[Realm] No inventory for tile:', { tileType: selectedTile.type, inventory: tileToPlace });
+        const hasTileInInventory = tileToPlace && (tileToPlace.owned ?? 0) > 0;
+        const hasTileInSelected = selectedTile && (selectedTile.quantity ?? 0) > 0;
+        
+        if (!hasTileInInventory && !hasTileInSelected) {
+            console.log('[Realm] No inventory for tile:', { 
+                tileType: selectedTile.type, 
+                inventory: tileToPlace, 
+                selectedTileQuantity: selectedTile?.quantity,
+                hasTileInInventory,
+                hasTileInSelected
+            });
             toast({
                 title: "Cannot Place Tile",
                 description: "You don't have any of this tile type in your inventory",
@@ -966,12 +976,15 @@ export default function RealmPage() {
             });
             return;
         }
+        
+        // Use the selectedTile if it has quantity, otherwise fall back to inventory
+        const tileToUse = hasTileInSelected ? selectedTile : tileToPlace;
 
         console.log('[Realm] Placing tile:', { 
             x, 
             y, 
             tileType: selectedTile.type, 
-            tileToPlace, 
+            tileToUse, 
             currentGrid: grid[y]?.[x] 
         });
 
@@ -979,17 +992,24 @@ export default function RealmPage() {
         setGrid(prevGrid => {
             const newGrid = prevGrid.map(row => row.slice());
             if (newGrid[y]?.[x]) {
-                newGrid[y][x] = { ...tileToPlace, x, y, owned: 1 };
+                newGrid[y][x] = { ...tileToUse, x, y, owned: 1 };
                 console.log('[Realm] Grid updated optimistically:', { x, y, newTile: newGrid[y][x] });
             }
             return newGrid;
         });
 
+        // Update inventory - handle both owned and quantity properties
         setInventory(prev => {
             const newInventory = { ...prev };
             const invTile = newInventory[selectedTile.type];
             if (invTile) {
-                invTile.owned = (invTile.owned ?? 0) - 1;
+                // If we're using the selectedTile (which has quantity), update the main inventory
+                if (hasTileInSelected) {
+                    invTile.owned = Math.max(0, (invTile.owned ?? 0) - 1);
+                } else {
+                    // If we're using the main inventory, update owned
+                    invTile.owned = Math.max(0, (invTile.owned ?? 0) - 1);
+                }
             }
             
             // Save inventory to Supabase
@@ -1001,6 +1021,11 @@ export default function RealmPage() {
             
             return newInventory;
         });
+        
+        // Also update the selectedTile quantity if it has one
+        if (hasTileInSelected && selectedTile.quantity !== undefined) {
+            setSelectedTile(prev => prev ? { ...prev, quantity: Math.max(0, prev.quantity - 1) } : null);
+        }
 
         // Save only the changed tile with retry logic
         try {
