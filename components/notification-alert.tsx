@@ -112,7 +112,7 @@ export function NotificationAlert() {
               className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-blue-900 text-white"
               aria-label={`${notifications.filter((n) => !n.read).length} unread notifications`}
             >
-              {notifications.filter((n) => !n.read).length}
+              {notifications.filter((n) => !n.read).length > 99 ? '99+' : notifications.filter((n) => !n.read).length}
             </Badge>
           )}
         </Button>

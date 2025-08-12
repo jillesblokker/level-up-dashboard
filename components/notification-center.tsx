@@ -140,13 +140,13 @@ export function NotificationCenter() {
           <Bell className="h-5 w-5" />
           {notificationService.getUnreadCount() > 0 && (
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-              {notificationService.getUnreadCount()}
+              {notificationService.getUnreadCount() > 99 ? '99+' : notificationService.getUnreadCount()}
             </span>
           )}
           <span className="sr-only">Notifications</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" aria-label="notification-center-sidepanel" className="w-96 max-w-full bg-black border-l border-amber-800/20 max-w-[90vw] p-0" aria-modal="true">
+      <SheetContent side="right" aria-label="notification-center-sidepanel" className="w-[95vw] md:w-96 bg-black border-l border-amber-800/20 p-0" aria-modal="true">
         {/* Enhanced Header */}
         <div className="relative p-6 border-b border-amber-800/20 bg-gradient-to-r from-gray-900 to-gray-800">
           <div className="flex items-center justify-between">
@@ -161,7 +161,7 @@ export function NotificationCenter() {
             </div>
             {notificationService.getUnreadCount() > 0 && (
               <div className="bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg">
-                {notificationService.getUnreadCount()}
+                {notificationService.getUnreadCount() > 99 ? '99+' : notificationService.getUnreadCount()}
               </div>
             )}
           </div>

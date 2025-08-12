@@ -334,7 +334,7 @@ export default function NotificationsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
           {/* Enhanced Sidebar */}
           <div className="space-y-6 lg:block hidden">
             <Card className="bg-gradient-to-b from-gray-900/50 to-black/50 border-amber-800/30 shadow-lg">
@@ -481,7 +481,9 @@ export default function NotificationsPage() {
                 <TabsTrigger value="unread" className="flex-1 data-[state=active]:bg-amber-900/20 data-[state=active]:text-amber-400">
                   Unread Messages
                   {notifications.filter((n) => !n.read).length > 0 && (
-                    <Badge className="ml-2 bg-red-500 text-white">{notifications.filter((n) => !n.read).length}</Badge>
+                    <Badge className="ml-2 bg-red-500 text-white">
+                      {notifications.filter((n) => !n.read).length > 99 ? '99+' : notifications.filter((n) => !n.read).length}
+                    </Badge>
                   )}
                 </TabsTrigger>
               </TabsList>

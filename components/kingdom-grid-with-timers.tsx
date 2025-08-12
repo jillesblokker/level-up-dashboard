@@ -618,7 +618,10 @@ export function KingdomGridWithTimers({
         
         {/* Floating + button in top right corner of grid */}
         <button
-          className="absolute top-4 right-4 z-20 w-14 h-14 sm:w-12 sm:h-12 bg-amber-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl sm:text-3xl font-bold hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 touch-manipulation min-h-[44px]"
+          className={cn(
+            "absolute top-4 right-4 z-20 w-14 h-14 sm:w-12 sm:h-12 bg-amber-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl sm:text-3xl font-bold hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 touch-manipulation min-h-[44px] min-w-[44px]",
+            "transition-all duration-200 hover:scale-105 active:scale-95"
+          )}
           aria-label="Open properties panel"
           onClick={() => setPropertiesOpen(true)}
         >
@@ -628,7 +631,10 @@ export function KingdomGridWithTimers({
         <Tooltip>
           <TooltipTrigger asChild>
             <button
-              className="absolute top-24 sm:top-20 right-4 z-20 w-14 h-14 sm:w-12 sm:h-12 bg-amber-600 text-white rounded-full shadow-lg flex items-center justify-center text-base sm:text-sm font-bold hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation min-h-[44px]"
+              className={cn(
+                "absolute top-24 sm:top-20 right-4 z-20 w-14 h-14 sm:w-12 sm:h-12 bg-amber-600 text-white rounded-full shadow-lg flex items-center justify-center text-base sm:text-sm font-bold hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation min-h-[44px] min-w-[44px]",
+                "transition-all duration-200 hover:scale-105 active:scale-95"
+              )}
               onClick={expandKingdomGrid}
               disabled={!canExpand}
               aria-label="Expand kingdom grid"

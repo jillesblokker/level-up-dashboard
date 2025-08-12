@@ -2271,7 +2271,7 @@ export default function RealmPage() {
                 <div className="flex items-center justify-between bg-gray-800 z-30 overflow-visible">
                   {/* On mobile, make action rows horizontally scrollable and touch-friendly */}
                   <div className="flex flex-1 flex-col gap-2 overflow-visible">
-                    <div className="flex items-center gap-2 overflow-x-auto flex-nowrap md:gap-4 md:overflow-visible md:flex-wrap overflow-visible p-2" style={{ WebkitOverflowScrolling: 'touch' }}>
+                    <div className="flex items-center gap-2 overflow-x-auto flex-nowrap md:gap-4 md:overflow-visible md:flex-wrap overflow-visible p-2" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                       <Button
                         variant={gameMode === 'move' ? 'default' : 'outline'}
                         size="sm"

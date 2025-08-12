@@ -1413,7 +1413,7 @@ export default function QuestsPage() {
                       <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <div className="text-xl font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
+                          <div className="text-lg sm:text-xl font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
                         </TooltipTrigger>
                         <TooltipContent>+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</TooltipContent>
                       </Tooltip>
@@ -1499,7 +1499,7 @@ export default function QuestsPage() {
                       <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <div className="text-lg font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
+                          <div className="text-lg sm:text-xl font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
                         </TooltipTrigger>
                         <TooltipContent>+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</TooltipContent>
                       </Tooltip>
@@ -1609,7 +1609,7 @@ export default function QuestsPage() {
                       <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <div className="text-lg font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
+                          <div className="text-lg sm:text-xl font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
                         </TooltipTrigger>
                         <TooltipContent>+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</TooltipContent>
                       </Tooltip>

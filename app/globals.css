@@ -119,6 +119,16 @@
     width: 100%;
   }
 
+  /* Mobile scrollbar improvements */
+  .mobile-scroll-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .mobile-scroll-hide::-webkit-scrollbar {
+    display: none;
+  }
+
   /* Enhanced mobile text fitting */
   .mobile-text-fit {
     font-size: 14px;
