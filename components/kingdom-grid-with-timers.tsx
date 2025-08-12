@@ -178,60 +178,6 @@ export function KingdomGridWithTimers({
   // Kingdom tile inventory for properties panel
   const propertyInventory = [
     {
-      id: 'archery',
-      name: 'Archery',
-      image: '/images/kingdom-tiles/Archery.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 2 }
-    },
-    {
-      id: 'blacksmith',
-      name: 'Blacksmith',
-      image: '/images/kingdom-tiles/Blacksmith.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 3, planks: 1 }
-    },
-    {
-      id: 'fisherman',
-      name: 'Fisherman',
-      image: '/images/kingdom-tiles/Fisherman.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 2 }
-    },
-    {
-      id: 'foodcourt',
-      name: 'Food Court',
-      image: '/images/kingdom-tiles/Foodcourt.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 4, planks: 2 }
-    },
-    {
-      id: 'fountain',
-      name: 'Fountain',
-      image: '/images/kingdom-tiles/Fountain.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 2, planks: 1 }
-    },
-    {
-      id: 'grocery',
-      name: 'Grocery',
-      image: '/images/kingdom-tiles/Grocery.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 3 }
-    },
-    {
       id: 'house',
       name: 'House',
       image: '/images/kingdom-tiles/House.png',
@@ -239,114 +185,6 @@ export function KingdomGridWithTimers({
       levelRequired: 1,
       costType: 'material',
       materialCost: { logs: 5, planks: 3 }
-    },
-    {
-      id: 'inn',
-      name: 'Inn',
-      image: '/images/kingdom-tiles/Inn.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 4, planks: 2 }
-    },
-    {
-      id: 'jousting',
-      name: 'Jousting',
-      image: '/images/kingdom-tiles/Jousting.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 3, planks: 1 }
-    },
-    {
-      id: 'mansion',
-      name: 'Mansion',
-      image: '/images/kingdom-tiles/Mansion.png',
-      cost: 2,
-      levelRequired: 3,
-      costType: 'material',
-      materialCost: { logs: 8, planks: 5, steel: 2 }
-    },
-    {
-      id: 'mayor',
-      name: 'Mayor',
-      image: '/images/kingdom-tiles/Mayor.png',
-      cost: 2,
-      levelRequired: 5,
-      costType: 'material',
-      materialCost: { logs: 10, planks: 6, steel: 3, silver: 1 }
-    },
-    {
-      id: 'pond',
-      name: 'Pond',
-      image: '/images/kingdom-tiles/Pond.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 2 }
-    },
-    {
-      id: 'sawmill',
-      name: 'Sawmill',
-      image: '/images/kingdom-tiles/Sawmill.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 3, planks: 1 }
-    },
-    {
-      id: 'temple',
-      name: 'Temple',
-      image: '/images/kingdom-tiles/Temple.png',
-      cost: 2,
-      levelRequired: 4,
-      costType: 'material',
-      materialCost: { logs: 12, planks: 8, steel: 4, silver: 2 }
-    },
-    {
-      id: 'vegetables',
-      name: 'Vegetables',
-      image: '/images/kingdom-tiles/Vegetables.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 1 }
-    },
-    {
-      id: 'watchtower',
-      name: 'Watchtower',
-      image: '/images/kingdom-tiles/Watchtower.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 4, planks: 2 }
-    },
-    {
-      id: 'well',
-      name: 'Well',
-      image: '/images/kingdom-tiles/Well.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 2, planks: 1 }
-    },
-    {
-      id: 'windmill',
-      name: 'Windmill',
-      image: '/images/kingdom-tiles/Windmill.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 3, planks: 2 }
-    },
-    {
-      id: 'wizard',
-      name: 'Wizard',
-      image: '/images/kingdom-tiles/Wizard.png',
-      cost: 2,
-      levelRequired: 6,
-      costType: 'material',
-      materialCost: { logs: 15, planks: 10, steel: 5, silver: 3, gold: 1 }
     }
   ];
 
@@ -354,66 +192,52 @@ export function KingdomGridWithTimers({
   const [selectedProperty, setSelectedProperty] = useState<typeof propertyInventory[0] | null>(null)
   const [placementMode, setPlacementMode] = useState(false)
 
-  // Get current inventory counts for materials
-  const getMaterialCounts = () => {
-    try {
-      // Try to get from kingdom inventory first
-      const kingdomInventory = JSON.parse(localStorage.getItem('kingdom-inventory') || '[]')
-      const logs = kingdomInventory.find((item: any) => item.id === 'material-logs')?.quantity || 0
-      const planks = kingdomInventory.find((item: any) => item.id === 'material-planks')?.quantity || 0
-      const steel = kingdomInventory.find((item: any) => item.id === 'material-steel')?.quantity || 0
-      const silver = kingdomInventory.find((item: any) => item.id === 'material-silver')?.quantity || 0
-      const gold = kingdomInventory.find((item: any) => item.id === 'material-gold')?.quantity || 0
-      return { logs, planks, steel, silver, gold }
-    } catch (error) {
-      console.error('[Property Placement] Error getting material counts:', error)
-      return { logs: 0, planks: 0, steel: 0, silver: 0, gold: 0 }
+    // Get material counts from kingdom inventory
+    const getMaterialCounts = () => {
+      try {
+        const kingdomInventoryData = localStorage.getItem('kingdom-inventory')
+        if (!kingdomInventoryData) return { logs: 0, planks: 0 }
+        
+        const kingdomInventory = JSON.parse(kingdomInventoryData)
+        const logs = kingdomInventory.find((item: any) => item.id === 'material-logs')?.quantity || 0
+        const planks = kingdomInventory.find((item: any) => item.id === 'material-planks')?.quantity || 0
+        return { logs, planks }
+      } catch (error) {
+        console.error('[Property Placement] Error getting material counts:', error)
+        return { logs: 0, planks: 0 }
+      }
     }
-  }
 
-  // Check if player can place a property
-  const canPlaceProperty = (property: typeof propertyInventory[0]) => {
-    const { logs, planks, steel, silver, gold } = getMaterialCounts()
-    
-    if (property.costType === 'buildToken') {
-      return buildTokens >= property.cost && playerLevel >= property.levelRequired
-    } else if (property.costType === 'material') {
-      if (!property.materialCost) return false
+    // Check if player can place a property
+    const canPlaceProperty = (property: typeof propertyInventory[0]) => {
+      const { logs, planks } = getMaterialCounts()
       
-      const hasLogs = logs >= (property.materialCost.logs || 0)
-      const hasPlanks = planks >= (property.materialCost.planks || 0)
-      const hasSteel = steel >= (property.materialCost.steel || 0)
-      const hasSilver = silver >= (property.materialCost.silver || 0)
-      const hasGold = gold >= (property.materialCost.gold || 0)
-      
-      return hasLogs && hasPlanks && hasSteel && hasSilver && hasGold && playerLevel >= property.levelRequired
+      if (property.costType === 'buildToken') {
+        return buildTokens >= property.cost && playerLevel >= property.levelRequired
+      } else {
+        const hasLogs = logs >= (property.materialCost.logs || 0)
+        const hasPlanks = planks >= (property.materialCost.planks || 0)
+        
+        return hasLogs && hasPlanks && playerLevel >= property.levelRequired
+      }
     }
-    
-    return false
-  }
 
   // Handle property selection for placement
   const handlePropertySelect = (property: typeof propertyInventory[0]) => {
     if (!canPlaceProperty(property)) {
-      const { logs, planks, steel, silver, gold } = getMaterialCounts()
+      const { logs, planks } = getMaterialCounts()
       
       let errorMessage = ''
       if (property.costType === 'buildToken') {
         errorMessage = `You need ${property.cost} build token${property.cost !== 1 ? 's' : ''} and level ${property.levelRequired} to place ${property.name}.`
-      } else if (property.costType === 'material') {
+      } else {
         const missingLogs = Math.max(0, (property.materialCost?.logs || 0) - logs)
         const missingPlanks = Math.max(0, (property.materialCost?.planks || 0) - planks)
-        const missingSteel = Math.max(0, (property.materialCost?.steel || 0) - steel)
-        const missingSilver = Math.max(0, (property.materialCost?.silver || 0) - silver)
-        const missingGold = Math.max(0, (property.materialCost?.gold || 0) - gold)
         
-        if (missingLogs > 0 || missingPlanks > 0 || missingSteel > 0 || missingSilver > 0 || missingGold > 0) {
+        if (missingLogs > 0 || missingPlanks > 0) {
           const missingItems = []
           if (missingLogs > 0) missingItems.push(`${missingLogs} logs`)
           if (missingPlanks > 0) missingItems.push(`${missingPlanks} planks`)
-          if (missingSteel > 0) missingItems.push(`${missingSteel} steel`)
-          if (missingSilver > 0) missingItems.push(`${missingSilver} silver`)
-          if (missingGold > 0) missingItems.push(`${missingGold} gold`)
           errorMessage = `You need ${missingItems.join(' and ')} to place ${property.name}.`
         } else {
           errorMessage = `You need level ${property.levelRequired} to place ${property.name}.`
@@ -504,24 +328,6 @@ export function KingdomGridWithTimers({
             const planksIndex = kingdomInventory.findIndex((item: any) => item.id === 'material-planks')
             if (planksIndex !== -1) {
               kingdomInventory[planksIndex].quantity = Math.max(0, kingdomInventory[planksIndex].quantity - selectedProperty.materialCost.planks)
-            }
-          }
-          if (selectedProperty.materialCost.steel) {
-            const steelIndex = kingdomInventory.findIndex((item: any) => item.id === 'material-steel')
-            if (steelIndex !== -1) {
-              kingdomInventory[steelIndex].quantity = Math.max(0, kingdomInventory[steelIndex].quantity - selectedProperty.materialCost.steel)
-            }
-          }
-          if (selectedProperty.materialCost.silver) {
-            const silverIndex = kingdomInventory.findIndex((item: any) => item.id === 'material-silver')
-            if (silverIndex !== -1) {
-              kingdomInventory[silverIndex].quantity = Math.max(0, kingdomInventory[silverIndex].quantity - selectedProperty.materialCost.silver)
-            }
-          }
-          if (selectedProperty.materialCost.gold) {
-            const goldIndex = kingdomInventory.findIndex((item: any) => item.id === 'material-gold')
-            if (goldIndex !== -1) {
-              kingdomInventory[goldIndex].quantity = Math.max(0, kingdomInventory[goldIndex].quantity - selectedProperty.materialCost.gold)
             }
           }
           localStorage.setItem('kingdom-inventory', JSON.stringify(kingdomInventory))
@@ -894,7 +700,7 @@ export function KingdomGridWithTimers({
             <div className="grid grid-cols-2 gap-6">
               {propertyInventory.map(tile => {
                 const canPlace = canPlaceProperty(tile)
-                const { logs, planks, steel, silver, gold } = getMaterialCounts()
+                const { logs, planks } = getMaterialCounts()
                 
                 return (
                   <button
@@ -954,15 +760,6 @@ export function KingdomGridWithTimers({
                                 {tile.materialCost?.planks && (
                                   <div className="text-green-300">🪵 {planks}/{tile.materialCost.planks}</div>
                                 )}
-                                {tile.materialCost?.steel && (
-                                  <div className="text-green-300">⚙️ {steel}/{tile.materialCost.steel}</div>
-                                )}
-                                {tile.materialCost?.silver && (
-                                  <div className="text-green-300">💎 {silver}/{tile.materialCost.silver}</div>
-                                )}
-                                {tile.materialCost?.gold && (
-                                  <div className="text-green-300">💰 {gold}/{tile.materialCost.gold}</div>
-                                )}
                               </div>
                             )}
                             {tile.levelRequired > 1 && (
@@ -974,7 +771,7 @@ export function KingdomGridWithTimers({
                               <div className="text-sm text-red-300 mt-1">
                                 {tile.costType === 'buildToken' 
                                   ? (buildTokens < tile.cost ? 'Not enough tokens' : `Need Level ${tile.levelRequired}`)
-                                  : (logs < (tile.materialCost?.logs || 0) || planks < (tile.materialCost?.planks || 0) || steel < (tile.materialCost?.steel || 0) || silver < (tile.materialCost?.silver || 0) || gold < (tile.materialCost?.gold || 0) 
+                                  : (logs < (tile.materialCost?.logs || 0) || planks < (tile.materialCost?.planks || 0) 
                                       ? 'Not enough materials' 
                                       : `Need Level ${tile.levelRequired}`)
                                 }
@@ -999,21 +796,6 @@ export function KingdomGridWithTimers({
                           {tile.materialCost.planks && (
                             <span className={`${planks >= tile.materialCost.planks ? 'text-green-400' : 'text-red-400'}`}>
                               🪵 {planks}/{tile.materialCost.planks}
-                            </span>
-                          )}
-                          {tile.materialCost.steel && (
-                            <span className={`${steel >= tile.materialCost.steel ? 'text-green-400' : 'text-red-400'}`}>
-                              ⚙️ {steel}/{tile.materialCost.steel}
-                            </span>
-                          )}
-                          {tile.materialCost.silver && (
-                            <span className={`${silver >= tile.materialCost.silver ? 'text-green-400' : 'text-red-400'}`}>
-                              💎 {silver}/{tile.materialCost.silver}
-                            </span>
-                          )}
-                          {tile.materialCost.gold && (
-                            <span className={`${gold >= tile.materialCost.gold ? 'text-green-400' : 'text-red-400'}`}>
-                              💰 {gold}/{tile.materialCost.gold}
                             </span>
                           )}
                         </div>

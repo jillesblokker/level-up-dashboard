@@ -734,6 +734,13 @@ export default function DesignSystemPage() {
                                 <p className="text-xs text-green-400">✅ IMPLEMENTED - Full-width content with minimal element spacing</p>
                               </CardContent>
                             </Card>
+                            <Card className="bg-gray-900/50 border-amber-800/20">
+                              <CardContent className="p-4">
+                                <h5 className="font-medium text-white mb-2">10. Kingdom Properties System ✅ COMPLETED</h5>
+                                <p className="text-sm text-gray-300 mb-2">Fixed property placement system to separate placeable buildings from functional reward tiles</p>
+                                <p className="text-xs text-green-400">✅ IMPLEMENTED - Properties now stay on map, functional tiles generate rewards properly</p>
+                              </CardContent>
+                            </Card>
                           </div>
                         </div>
 
@@ -1598,6 +1605,40 @@ export default function DesignSystemPage() {
                           </p>
                         </div>
 
+                        {/* Kingdom Properties System */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">Kingdom Properties System</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4">
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-gray-300">Placeable Properties:</span>
+                                  <span className="text-green-400">1</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-gray-300">Functional Tiles:</span>
+                                  <span className="text-blue-400">20+</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-gray-300">Material System:</span>
+                                  <span className="text-amber-400">5 Materials</span>
+                                </div>
+                                <div className="text-xs text-gray-400 mt-2">
+                                  <strong>Current Properties:</strong> House (5 logs + 3 planks)
+                                </div>
+                                <div className="text-xs text-gray-400">
+                                  <strong>Materials:</strong> Logs → Planks → Steel → Silver → Gold
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>Kingdom Properties System</strong> allows players to place buildings using materials. 
+                            Separated from functional kingdom tiles that generate rewards. Properties stay on the map 
+                            as functional buildings, not as inventory items.
+                          </p>
+                        </div>
+
                         {/* Design System Rules */}
                         <div className="mb-8">
                           <h3 className="text-xl font-semibold text-white mb-4">Design System Rules</h3>
@@ -1692,6 +1733,29 @@ export default function DesignSystemPage() {
                               </CardContent>
                             </Card>
                           </div>
+                        </div>
+
+                        {/* Kingdom Stats Graph Component */}
+                        <div className="mb-6">
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">Kingdom Stats Graph Component</h4>
+                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <CardContent className="p-4">
+                              <div className="flex space-x-4">
+                                <div className="text-center">
+                                  <div className="text-2xl font-bold text-amber-400">📊</div>
+                                  <div className="text-sm text-gray-300">Stats Graph</div>
+                                </div>
+                                <div className="text-center">
+                                  <div className="text-2xl font-bold text-amber-400">📈</div>
+                                  <div className="text-sm text-gray-300">Gains Graph</div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                          <p className="text-sm text-gray-400 mb-4">
+                            <strong>Kingdom Stats Graph</strong> displays kingdom statistics and gains over time. 
+                            Fixed authentication and data display with proper API integration.
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -1705,130 +1769,4 @@ export default function DesignSystemPage() {
       <Toaster />
     </div>
   )
-}                        {/* Tooltips */}
-                        <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">Tooltips</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
-                            <CardContent className="p-4">
-                              <TooltipProvider>
-                                <div className="flex space-x-4">
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button variant="outline">Hover me</Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p>This is a tooltip</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button variant="outline">Another tooltip</Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p>Another tooltip example</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </div>
-                              </TooltipProvider>
-                            </CardContent>
-                          </Card>
-                          <p className="text-sm text-gray-400 mb-4">
-                            <strong>Tooltip</strong> components for displaying additional information 
-                            when hovering over elements. Includes proper positioning and animations.
-                          </p>
-                        </div>
-                        {/* Design System Rules */}
-                        <div className="mb-8">
-                          <h3 className="text-xl font-semibold text-white mb-4">Design System Rules</h3>
-                          
-                          {/* Card Background Guidelines */}
-                          <div className="mb-6">
-                            <h4 className="text-lg font-medium text-amber-300 mb-3">Card Background Guidelines</h4>
-                            <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
-                              <CardContent className="p-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <div className="space-y-3">
-                                    <div className="p-3 bg-black border border-amber-800/20 rounded-lg">
-                                      <h5 className="font-semibold text-white">Black Background</h5>
-                                      <p className="text-sm text-gray-300">Primary content cards, main UI elements</p>
-                                    </div>
-                                    <div className="p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
-                                      <h5 className="font-semibold text-white">Red Background</h5>
-                                      <p className="text-sm text-gray-300">Warning cards, error states, destructive actions</p>
-                                    </div>
-                                    <div className="p-3 bg-blue-900/20 border border-blue-500/30 rounded-lg">
-                                      <h5 className="font-semibold text-white">Blue Background</h5>
-                                      <p className="text-sm text-gray-300">Information cards, help content, neutral information</p>
-                                    </div>
-                                  </div>
-                                  <div className="space-y-3">
-                                    <div className="p-3 bg-gray-900/50 border border-gray-700/30 rounded-lg">
-                                      <h5 className="font-semibold text-white">Gray Background</h5>
-                                      <p className="text-sm text-gray-300">Secondary content, sidebar elements</p>
-                                    </div>
-                                    <div className="p-3 bg-amber-900/20 border border-amber-500/30 rounded-lg">
-                                      <h5 className="font-semibold text-white">Amber/Gold Background</h5>
-                                      <p className="text-sm text-gray-300">Achievement cards, reward displays</p>
-                                    </div>
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          </div>
-
-                          {/* Component Usage Rules */}
-                          <div className="mb-6">
-                            <h4 className="text-lg font-medium text-amber-300 mb-3">Component Usage Rules</h4>
-                            <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
-                              <CardContent className="p-4">
-                                <div className="space-y-4">
-                                  <div>
-                                    <h5 className="font-semibold text-white mb-2">Buttons</h5>
-                                    <div className="flex flex-wrap gap-2">
-                                      <Button className="bg-amber-600 hover:bg-amber-700">Primary</Button>
-                                      <Button className="bg-gray-700 hover:bg-gray-600">Secondary</Button>
-                                      <Button className="bg-red-600 hover:bg-red-700">Destructive</Button>
-                                      <Button disabled className="bg-gray-600 text-gray-400">Disabled</Button>
-                                    </div>
-                                  </div>
-                                  <div>
-                                    <h5 className="font-semibold text-white mb-2">Text Colors</h5>
-                                    <div className="space-y-1 text-sm">
-                                      <p className="text-white">Primary text (text-white)</p>
-                                      <p className="text-gray-300">Secondary text (text-gray-300)</p>
-                                      <p className="text-gray-400">Muted text (text-gray-400)</p>
-                                      <p className="text-amber-400">Accent text (text-amber-400)</p>
-                                      <p className="text-green-400">Success text (text-green-400)</p>
-                                      <p className="text-red-400">Error text (text-red-400)</p>
-                                    </div>
-                                  </div>
-                                  <div>
-                                    <h5 className="font-semibold text-white mb-2">Spacing</h5>
-                                    <ul className="text-sm text-gray-300 space-y-1">
-                                      <li><strong>Cards:</strong> p-4 (standard), p-6 (larger)</li>
-                                      <li><strong>Sections:</strong> mb-6 (standard), mb-4 (components)</li>
-                                      <li><strong>Grid:</strong> gap-4 (standard), gap-6 (larger)</li>
-                                    </ul>
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          </div>
-
-                          {/* Accessibility Guidelines */}
-                          <div className="mb-6">
-                            <h4 className="text-lg font-medium text-amber-300 mb-3">Accessibility Guidelines</h4>
-                            <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
-                              <CardContent className="p-4">
-                                <ul className="text-sm text-gray-300 space-y-2">
-                                  <li>✓ Always include focus-visible rings for interactive elements</li>
-                                  <li>✓ Use aria-label for all interactive elements</li>
-                                  <li>✓ Ensure sufficient contrast ratios for all text combinations</li>
-                                  <li>✓ All interactive elements must be keyboard accessible</li>
-                                  <li>✓ Use semantic HTML elements (section, main, nav, etc.)</li>
-                                  <li>✓ Provide alternative text for images and icons</li>
-                                </ul>
-                              </CardContent>
-                            </Card>
-                          </div>
-                        </div>
+}
