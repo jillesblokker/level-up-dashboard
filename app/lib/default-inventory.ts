@@ -1,70 +1,114 @@
+import { ComprehensiveItem, getDefaultItems, getItemsByType } from './comprehensive-items';
+
 export interface InventoryItem {
   id: string;
   name: string;
   description: string;
-  type: 'mount' | 'weapon' | 'shield' | 'armor';
+  type: 'mount' | 'weapon' | 'shield' | 'armor' | 'potion' | 'scroll' | 'artifact' | 'material' | 'food';
   stats: {
     movement?: number;
     attack?: number;
     defense?: number;
+    health?: number;
+    mana?: number;
+    stamina?: number;
+    gold?: number;
+    experience?: number;
   };
   emoji: string;
   quantity: number;
   isDefault?: boolean;
   image: string;
+  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+  cost: number;
+  isEquippable: boolean;
+  isConsumable: boolean;
 }
 
+// Convert comprehensive items to inventory format
+const convertToInventoryItem = (item: ComprehensiveItem): InventoryItem => ({
+  id: item.id,
+  name: item.name,
+  description: item.description,
+  type: item.type as any,
+  stats: item.stats,
+  emoji: item.emoji,
+  quantity: item.isDefault ? 1 : 0,
+  isDefault: item.isDefault,
+  image: item.image,
+  rarity: item.rarity,
+  cost: item.cost,
+  isEquippable: item.isEquippable,
+  isConsumable: item.isConsumable,
+});
+
 export const defaultInventoryItems: InventoryItem[] = [
+  // Get all default items from comprehensive system
+  ...getDefaultItems().map(convertToInventoryItem),
+  
+  // Add some additional starter items
   {
-    id: 'stelony',
-    name: 'Stelony',
-    description: 'A sturdy pony with basic armor - your trusty starter mount',
-    type: 'mount',
-    stats: {
-      movement: 5
-    },
-    emoji: '🐎',
-    quantity: 1,
+    id: 'potion-health-starter',
+    name: 'Health Potion',
+    description: 'A basic health potion to get you started',
+    type: 'potion',
+    stats: { health: 50 },
+    emoji: '❤️',
+    quantity: 3,
     isDefault: true,
-    image: '/images/items/horse/horse-stelony.png',
+    image: '/images/items/potion/potion-health.png',
+    rarity: 'common',
+    cost: 25,
+    isEquippable: false,
+    isConsumable: true,
   },
   {
-    id: 'twig',
-    name: 'Twig',
-    description: 'A simple wooden sword - every adventurer starts somewhere',
-    type: 'weapon',
-    stats: {
-      attack: 2
-    },
-    emoji: '🗡️',
-    quantity: 1,
+    id: 'potion-mana-starter',
+    name: 'Mana Potion',
+    description: 'A basic mana potion to restore magical energy',
+    type: 'potion',
+    stats: { mana: 50 },
+    emoji: '🌀',
+    quantity: 2,
     isDefault: true,
-    image: '/images/items/sword/sword-twig.png',
+    image: '/images/items/potion/potion-mana.png',
+    rarity: 'common',
+    cost: 30,
+    isEquippable: false,
+    isConsumable: true,
   },
   {
-    id: 'reflecto',
-    name: 'Reflecto',
-    description: 'A basic wooden shield - it may not look like much, but it gets the job done',
-    type: 'shield',
-    stats: {
-      defense: 2
-    },
-    emoji: '🛡️',
-    quantity: 1,
+    id: 'material-logs-starter',
+    name: 'Wooden Logs',
+    description: 'Basic building material for construction',
+    type: 'material',
+    stats: {},
+    emoji: '🪵',
+    quantity: 5,
     isDefault: true,
-    image: '/images/items/shield/shield-reflecto.png',
+    image: '/images/items/materials/logs.png',
+    rarity: 'common',
+    cost: 10,
+    isEquippable: false,
+    isConsumable: true,
   },
-  {
-    id: 'normalo',
-    name: 'Normalo',
-    description: 'Standard issue armor for new adventurers',
-    type: 'armor',
-    stats: {
-      defense: 1
-    },
-    emoji: '🥋',
-    quantity: 1,
-    isDefault: true,
-    image: '/images/items/armor/armor-normalo.png',
-  },
-]; 
+];
+
+// Helper function to get all items by type
+export const getInventoryItemsByType = (type: string): InventoryItem[] => {
+  return getItemsByType(type).map(convertToInventoryItem);
+};
+
+// Helper function to get all available items (not just defaults)
+export const getAllAvailableItems = (): InventoryItem[] => {
+  return getItemsByType('weapon')
+    .concat(getItemsByType('shield'))
+    .concat(getItemsByType('armor'))
+    .concat(getItemsByType('mount'))
+    .concat(getItemsByType('potion'))
+    .concat(getItemsByType('scroll'))
+    .concat(getItemsByType('artifact'))
+    .concat(getItemsByType('material'))
+    .concat(getItemsByType('food'))
+    .map(convertToInventoryItem);
+}; 

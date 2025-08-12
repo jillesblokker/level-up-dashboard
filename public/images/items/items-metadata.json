@@ -1,0 +1,507 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdated": "2024-12-15",
+    "totalItems": 45,
+    "categories": 9,
+    "description": "Complete metadata for all items in the Level Up game"
+  },
+  "categories": {
+    "weapons": {
+      "description": "Combat weapons that provide attack bonuses",
+      "subcategories": ["swords", "axes", "maces"],
+      "stats": ["attack"],
+      "equippable": true,
+      "consumable": false
+    },
+    "defense": {
+      "description": "Protective equipment that provides defense bonuses",
+      "subcategories": ["shields", "armor"],
+      "stats": ["defense", "health"],
+      "equippable": true,
+      "consumable": false
+    },
+    "mounts": {
+      "description": "Riding animals that provide movement bonuses",
+      "subcategories": ["horses"],
+      "stats": ["movement", "attack"],
+      "equippable": true,
+      "consumable": false
+    },
+    "consumables": {
+      "description": "Items that provide temporary effects when used",
+      "subcategories": ["potions", "scrolls"],
+      "stats": ["health", "mana", "stamina", "experience", "gold"],
+      "equippable": false,
+      "consumable": true
+    },
+    "artifacts": {
+      "description": "Magical items with powerful effects",
+      "subcategories": ["rings", "crowns", "scepters", "thrones", "robes"],
+      "stats": ["attack", "defense", "health", "mana"],
+      "equippable": true,
+      "consumable": false
+    },
+    "materials": {
+      "description": "Building and crafting materials",
+      "subcategories": ["wood"],
+      "stats": [],
+      "equippable": false,
+      "consumable": true
+    },
+    "food": {
+      "description": "Nourishing items that provide sustenance",
+      "subcategories": ["fish"],
+      "stats": ["health", "stamina"],
+      "equippable": false,
+      "consumable": true
+    }
+  },
+  "rarityLevels": {
+    "common": {
+      "color": "#9CA3AF",
+      "dropRate": "high",
+      "description": "Basic items, easily obtainable"
+    },
+    "uncommon": {
+      "color": "#10B981",
+      "dropRate": "medium",
+      "description": "Improved items, moderately rare"
+    },
+    "rare": {
+      "color": "#3B82F6",
+      "dropRate": "low",
+      "description": "Powerful items, hard to find"
+    },
+    "epic": {
+      "color": "#8B5CF6",
+      "dropRate": "very low",
+      "description": "Exceptional items, very rare"
+    },
+    "legendary": {
+      "color": "#F59E0B",
+      "dropRate": "extremely low",
+      "description": "Mythical items, extremely rare"
+    }
+  },
+  "items": {
+    "sword-twig": {
+      "name": "Twig Sword",
+      "type": "weapon",
+      "category": "swords",
+      "rarity": "common",
+      "stats": { "attack": 2 },
+      "cost": 25,
+      "isDefault": true,
+      "image": "/images/items/sword/sword-twig.png",
+      "description": "A simple wooden sword - every adventurer starts somewhere"
+    },
+    "sword-irony": {
+      "name": "Iron Sword",
+      "type": "weapon",
+      "category": "swords",
+      "rarity": "uncommon",
+      "stats": { "attack": 5 },
+      "cost": 120,
+      "isDefault": false,
+      "image": "/images/items/sword/sword-irony.png",
+      "description": "A sturdy iron sword with good balance and durability"
+    },
+    "sword-morningstar": {
+      "name": "Morningstar",
+      "type": "weapon",
+      "category": "maces",
+      "rarity": "rare",
+      "stats": { "attack": 8 },
+      "cost": 250,
+      "isDefault": false,
+      "image": "/images/items/sword/sword-morningstar.png",
+      "description": "A spiked mace that delivers devastating crushing blows"
+    },
+    "sword-sunblade": {
+      "name": "Sunblade",
+      "type": "weapon",
+      "category": "swords",
+      "rarity": "epic",
+      "stats": { "attack": 12, "mana": 5 },
+      "cost": 500,
+      "isDefault": false,
+      "image": "/images/items/sword/sword-sunblade.png",
+      "description": "A radiant sword that glows with the power of the sun"
+    },
+    "sword-solaraxe": {
+      "name": "Solar Axe",
+      "type": "weapon",
+      "category": "axes",
+      "rarity": "legendary",
+      "stats": { "attack": 18, "health": 10 },
+      "cost": 1000,
+      "isDefault": false,
+      "image": "/images/items/sword/sword-solaraxe.png",
+      "description": "A mighty axe that channels the fury of the sun"
+    },
+    "shield-reflecto": {
+      "name": "Reflecto Shield",
+      "type": "defense",
+      "category": "shields",
+      "rarity": "common",
+      "stats": { "defense": 2 },
+      "cost": 30,
+      "isDefault": true,
+      "image": "/images/items/shield/shield-reflecto.png",
+      "description": "A basic wooden shield - it may not look like much, but it gets the job done"
+    },
+    "shield-defecto": {
+      "name": "Defecto Shield",
+      "type": "defense",
+      "category": "shields",
+      "rarity": "uncommon",
+      "stats": { "defense": 4 },
+      "cost": 80,
+      "isDefault": false,
+      "image": "/images/items/shield/shield-defecto.png",
+      "description": "A reinforced wooden shield with iron bands"
+    },
+    "shield-blockado": {
+      "name": "Blockado Shield",
+      "type": "defense",
+      "category": "shields",
+      "rarity": "rare",
+      "stats": { "defense": 7 },
+      "cost": 200,
+      "isDefault": false,
+      "image": "/images/items/shield/shield-blockado.png",
+      "description": "A solid iron shield that blocks most attacks"
+    },
+    "shield-shellow": {
+      "name": "Shellow Shield",
+      "type": "defense",
+      "category": "shields",
+      "rarity": "epic",
+      "stats": { "defense": 10, "health": 5 },
+      "cost": 400,
+      "isDefault": false,
+      "image": "/images/items/shield/shield-shellow.png",
+      "description": "A magical shield that absorbs and reflects damage"
+    },
+    "shield-shielow": {
+      "name": "Shielow Shield",
+      "type": "defense",
+      "category": "shields",
+      "rarity": "legendary",
+      "stats": { "defense": 15, "health": 10, "mana": 5 },
+      "cost": 800,
+      "isDefault": false,
+      "image": "/images/items/shield/shield-shielow.png",
+      "description": "A legendary shield that grants divine protection"
+    },
+    "armor-normalo": {
+      "name": "Normalo Armor",
+      "type": "defense",
+      "category": "armor",
+      "rarity": "common",
+      "stats": { "defense": 1 },
+      "cost": 50,
+      "isDefault": true,
+      "image": "/images/items/armor/armor-normalo.png",
+      "description": "Standard issue armor for new adventurers"
+    },
+    "armor-darko": {
+      "name": "Darko Armor",
+      "type": "defense",
+      "category": "armor",
+      "rarity": "uncommon",
+      "stats": { "defense": 3, "health": 2 },
+      "cost": 150,
+      "isDefault": false,
+      "image": "/images/items/armor/armor-darko.png",
+      "description": "Dark leather armor that provides stealth and protection"
+    },
+    "armor-blanko": {
+      "name": "Blanko Armor",
+      "type": "defense",
+      "category": "armor",
+      "rarity": "rare",
+      "stats": { "defense": 5 },
+      "cost": 300,
+      "isDefault": false,
+      "image": "/images/items/armor/armor-blanko.png",
+      "description": "A blank canvas armor that can be enchanted"
+    },
+    "armor-silvo": {
+      "name": "Silvo Armor",
+      "type": "defense",
+      "category": "armor",
+      "rarity": "epic",
+      "stats": { "defense": 8, "mana": 3 },
+      "cost": 600,
+      "isDefault": false,
+      "image": "/images/items/armor/armor-silvo.png",
+      "description": "Silvery armor that gleams with magical properties"
+    },
+    "armor-goldo": {
+      "name": "Goldo Armor",
+      "type": "defense",
+      "category": "armor",
+      "rarity": "legendary",
+      "stats": { "defense": 12, "health": 8, "mana": 5 },
+      "cost": 1200,
+      "isDefault": false,
+      "image": "/images/items/armor/armor-goldo.png",
+      "description": "Golden armor that radiates with divine power"
+    },
+    "horse-stelony": {
+      "name": "Stelony",
+      "type": "mounts",
+      "category": "horses",
+      "rarity": "common",
+      "stats": { "movement": 5 },
+      "cost": 100,
+      "isDefault": true,
+      "image": "/images/items/horse/horse-stelony.png",
+      "description": "A sturdy pony with basic armor - your trusty starter mount"
+    },
+    "horse-perony": {
+      "name": "Perony",
+      "type": "mounts",
+      "category": "horses",
+      "rarity": "uncommon",
+      "stats": { "movement": 8 },
+      "cost": 250,
+      "isDefault": false,
+      "image": "/images/items/horse/horse-perony.png",
+      "description": "A swift horse bred for speed and endurance"
+    },
+    "horse-felony": {
+      "name": "Felony",
+      "type": "mounts",
+      "category": "horses",
+      "rarity": "rare",
+      "stats": { "movement": 6, "attack": 3 },
+      "cost": 500,
+      "isDefault": false,
+      "image": "/images/items/horse/horse-felony.png",
+      "description": "A fierce war horse trained for battle"
+    },
+    "horse-goldy": {
+      "name": "Goldy",
+      "type": "mounts",
+      "category": "horses",
+      "rarity": "epic",
+      "stats": { "movement": 10, "mana": 5 },
+      "cost": 800,
+      "isDefault": false,
+      "image": "/images/items/horse/horse-goldy.png",
+      "description": "A golden horse with magical properties"
+    },
+    "horse-silvy": {
+      "name": "Silvy",
+      "type": "mounts",
+      "category": "horses",
+      "rarity": "legendary",
+      "stats": { "movement": 15, "health": 10, "mana": 8 },
+      "cost": 1500,
+      "isDefault": false,
+      "image": "/images/items/horse/horse-silvy.png",
+      "description": "A legendary silver horse that can fly"
+    },
+    "potion-health": {
+      "name": "Health Potion",
+      "type": "consumables",
+      "category": "potions",
+      "rarity": "common",
+      "stats": { "health": 50 },
+      "cost": 25,
+      "isDefault": false,
+      "image": "/images/items/potion/potion-health.png",
+      "description": "Restores health and vitality"
+    },
+    "potion-mana": {
+      "name": "Mana Potion",
+      "type": "consumables",
+      "category": "potions",
+      "rarity": "common",
+      "stats": { "mana": 50 },
+      "cost": 30,
+      "isDefault": false,
+      "image": "/images/items/potion/potion-mana.png",
+      "description": "Restores magical energy"
+    },
+    "potion-stamina": {
+      "name": "Stamina Potion",
+      "type": "consumables",
+      "category": "potions",
+      "rarity": "uncommon",
+      "stats": { "stamina": 75 },
+      "cost": 40,
+      "isDefault": false,
+      "image": "/images/items/potion/potion-stamina.png",
+      "description": "Boosts endurance and movement"
+    },
+    "potion-exp": {
+      "name": "Experience Potion",
+      "type": "consumables",
+      "category": "potions",
+      "rarity": "rare",
+      "stats": { "experience": 100 },
+      "cost": 100,
+      "isDefault": false,
+      "image": "/images/items/potion/potion-exp.png",
+      "description": "Grants bonus experience points"
+    },
+    "potion-gold": {
+      "name": "Gold Potion",
+      "type": "consumables",
+      "category": "potions",
+      "rarity": "epic",
+      "stats": { "gold": 200 },
+      "cost": 150,
+      "isDefault": false,
+      "image": "/images/items/potion/potion-gold.png",
+      "description": "Increases gold drops temporarily"
+    },
+    "scroll-scrolly": {
+      "name": "Scroll of Scrolly",
+      "type": "consumables",
+      "category": "scrolls",
+      "rarity": "common",
+      "stats": { "mana": 20 },
+      "cost": 50,
+      "isDefault": false,
+      "image": "/images/items/scroll/scroll-scrolly.png",
+      "description": "A basic magical scroll with simple spells"
+    },
+    "scroll-memento": {
+      "name": "Scroll of Memory",
+      "type": "consumables",
+      "category": "scrolls",
+      "rarity": "uncommon",
+      "stats": { "experience": 50, "mana": 30 },
+      "cost": 100,
+      "isDefault": false,
+      "image": "/images/items/scroll/scroll-memento.png",
+      "description": "Enhances memory and learning abilities"
+    },
+    "scroll-perkamento": {
+      "name": "Scroll of Perkament",
+      "type": "consumables",
+      "category": "scrolls",
+      "rarity": "rare",
+      "stats": { "attack": 5, "defense": 5, "mana": 40 },
+      "cost": 200,
+      "isDefault": false,
+      "image": "/images/items/scroll/scroll-perkamento.png",
+      "description": "Grants temporary skill bonuses"
+    },
+    "scroll-diamono": {
+      "name": "Scroll of Diamono",
+      "type": "consumables",
+      "category": "scrolls",
+      "rarity": "epic",
+      "stats": { "attack": 8, "defense": 8, "health": 50, "mana": 60 },
+      "cost": 400,
+      "isDefault": false,
+      "image": "/images/items/scroll/scroll-diamono.png",
+      "description": "A precious scroll that enhances all attributes"
+    },
+    "scroll-observio": {
+      "name": "Scroll of Observio",
+      "type": "consumables",
+      "category": "scrolls",
+      "rarity": "legendary",
+      "stats": { "mana": 100, "experience": 200 },
+      "cost": 800,
+      "isDefault": false,
+      "image": "/images/items/scroll/scroll-observio.png",
+      "description": "Reveals hidden secrets and treasures"
+    },
+    "artifact-ringo": {
+      "name": "Ring of Power",
+      "type": "artifacts",
+      "category": "rings",
+      "rarity": "rare",
+      "stats": { "mana": 30, "health": 20 },
+      "cost": 500,
+      "isDefault": false,
+      "image": "/images/items/artifact/ring/artifact-ringo.png",
+      "description": "A magical ring that enhances magical abilities"
+    },
+    "artifact-crowny": {
+      "name": "Royal Crown",
+      "type": "artifacts",
+      "category": "crowns",
+      "rarity": "epic",
+      "stats": { "health": 50, "mana": 40, "defense": 5 },
+      "cost": 1000,
+      "isDefault": false,
+      "image": "/images/items/artifact/crown/artifact-crowny.png",
+      "description": "A crown that grants leadership and charisma"
+    },
+    "artifact-staffy": {
+      "name": "Staff of Wisdom",
+      "type": "artifacts",
+      "category": "scepters",
+      "rarity": "epic",
+      "stats": { "mana": 60, "attack": 8 },
+      "cost": 800,
+      "isDefault": false,
+      "image": "/images/items/artifact/scepter/artifact-staffy.png",
+      "description": "A staff that channels ancient knowledge"
+    },
+    "artifact-throny": {
+      "name": "Throne of Authority",
+      "type": "artifacts",
+      "category": "thrones",
+      "rarity": "legendary",
+      "stats": { "health": 100, "mana": 80, "defense": 10, "attack": 10 },
+      "cost": 2000,
+      "isDefault": false,
+      "image": "/images/items/artifact/throne/artifact-throny.png",
+      "description": "A throne that grants dominion over realms"
+    },
+    "artifact-ropy": {
+      "name": "Robe of the Archmage",
+      "type": "artifacts",
+      "category": "robes",
+      "rarity": "epic",
+      "stats": { "mana": 70, "defense": 8, "health": 30 },
+      "cost": 1200,
+      "isDefault": false,
+      "image": "/images/items/artifact/robe/artifact-ropy.png",
+      "description": "A robe that enhances magical prowess"
+    },
+    "material-logs": {
+      "name": "Wooden Logs",
+      "type": "materials",
+      "category": "wood",
+      "rarity": "common",
+      "stats": {},
+      "cost": 10,
+      "isDefault": false,
+      "image": "/images/items/materials/logs.png",
+      "description": "Basic building material for construction"
+    },
+    "material-planks": {
+      "name": "Wooden Planks",
+      "type": "materials",
+      "category": "wood",
+      "rarity": "uncommon",
+      "stats": {},
+      "cost": 25,
+      "isDefault": false,
+      "image": "/images/items/materials/planks.png",
+      "description": "Refined wood planks for advanced construction"
+    },
+    "food-goldenfish": {
+      "name": "Golden Fish",
+      "type": "food",
+      "category": "fish",
+      "rarity": "rare",
+      "stats": { "health": 30, "stamina": 20 },
+      "cost": 75,
+      "isDefault": false,
+      "image": "/images/items/food/goldenfish.png",
+      "description": "A rare golden fish that provides nourishment and luck"
+    }
+  }
+}
