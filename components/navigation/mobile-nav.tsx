@@ -95,7 +95,43 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
         console.error("Error loading character stats:", error)
       }
     }
+    
+    // Load stats immediately
     loadCharacterStats()
+
+    // Set up interval to actively sync stats every 2 seconds
+    const syncInterval = setInterval(() => {
+      console.log('[Mobile Nav] Periodic sync - checking for stat updates...')
+      try {
+        const currentStats = getCharacterStats()
+        const currentLevel = calculateLevelFromExperience(currentStats.experience)
+        
+        // Only update if stats have actually changed
+        if (
+          currentStats.experience !== characterStats.experience ||
+          currentStats.gold !== characterStats.gold ||
+          currentLevel !== characterStats.level
+        ) {
+          console.log('[Mobile Nav] Stats changed, updating state:', {
+            old: { level: characterStats.level, exp: characterStats.experience, gold: characterStats.gold },
+            new: { level: currentLevel, exp: currentStats.experience, gold: currentStats.gold }
+          })
+          
+          setCharacterStats({
+            level: currentLevel,
+            experience: currentStats.experience,
+            experienceToNextLevel: calculateExperienceForLevel(currentLevel),
+            gold: currentStats.gold,
+            titles: { equipped: '', unlocked: 0, total: 0 },
+            perks: { active: 0, total: 0 }
+          })
+        } else {
+          console.log('[Mobile Nav] No stat changes detected')
+        }
+      } catch (error) {
+        console.error('[Mobile Nav] Error during periodic sync:', error)
+      }
+    }, 2000)
 
     // Listen for character stats updates
     const handleStatsUpdate = () => {
@@ -112,6 +148,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     window.addEventListener("level-update", handleLevelUpdate)
     
     return () => {
+      clearInterval(syncInterval)
       window.removeEventListener("character-stats-update", handleStatsUpdate)
       window.removeEventListener("level-update", handleLevelUpdate)
     }
@@ -188,6 +225,9 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                       
                       // Force a re-render by dispatching an event
                       window.dispatchEvent(new Event('character-stats-update'))
+                      
+                      // Also dispatch a level update event specifically
+                      window.dispatchEvent(new Event('level-update'))
                       
                       console.log('[Mobile Nav] Refresh completed successfully')
                       
