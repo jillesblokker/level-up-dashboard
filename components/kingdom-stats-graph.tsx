@@ -16,6 +16,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import { useSupabase } from '@/lib/hooks/useSupabase'
+import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 import { useAuth } from '@clerk/nextjs'
 
 import { format, parseISO, isThisWeek, isThisMonth, isThisYear } from 'date-fns';
@@ -23,10 +24,11 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsToolti
 import { useRef } from 'react';
 
 // ---
-// KingdomStatsBlock and KingStatsBlock are now fully data-driven.
+// KingdomStatsBlock and KingStatsBlock are now fully data-driven with REAL-TIME SUPABASE SUBSCRIPTIONS.
 // They fetch real, time-aggregated data for all tabs (quests, challenges, milestones, gold, experience)
-// from the /api/kingdom-stats endpoint. The UI will update reactively as soon as the user completes
-// a quest, challenge, milestone, or earns gold/experience. Empty/data states are handled automatically.
+// from the /api/kingdom-stats endpoint and automatically update via Supabase real-time channels.
+// The UI will update instantly when database changes occur in quest_completion, challenge_completion,
+// or milestone_completion tables. Empty/data states are handled automatically.
 // ---
 
 // Time period types
@@ -427,32 +429,54 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
   const uid = userId;
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
 
-  // Fetch and aggregate data for the selected tab and period (keep as is for now)
-  useEffect(() => {
+  // Fetch and aggregate data for the selected tab and period
+  const fetchData = async () => {
     if (!uid) return;
     setIsLoading(true);
-    const fetchData = async () => {
-      try {
-        const res = await fetch(`/api/kingdom-stats?tab=${activeTab}&period=${timePeriod}`, {
-          credentials: 'include'
-        });
-        if (!res.ok) throw new Error('Failed to fetch stats');
-        const { data } = await res.json();
-        setGraphData(data || []);
-      } catch (err) {
-        setGraphData([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
+    try {
+      const res = await fetch(`/api/kingdom-stats?tab=${activeTab}&period=${timePeriod}`, {
+        credentials: 'include'
+      });
+      if (!res.ok) throw new Error('Failed to fetch stats');
+      const { data } = await res.json();
+      setGraphData(data || []);
+    } catch (err) {
+      setGraphData([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    // 🎯 LISTEN FOR REAL-TIME UPDATES when challenges/milestones are completed
+  // Initial data fetch
+  useEffect(() => {
+    fetchData();
+  }, [activeTab, uid, timePeriod]);
+
+  // 🎯 REAL-TIME SUPABASE SUBSCRIPTIONS for instant updates
+  useSupabaseRealtimeSync({
+    table: 'quest_completion',
+    userId: uid,
+    onChange: fetchData
+  });
+
+  useSupabaseRealtimeSync({
+    table: 'challenge_completion',
+    userId: uid,
+    onChange: fetchData
+  });
+
+  useSupabaseRealtimeSync({
+    table: 'milestone_completion',
+    userId: uid,
+    onChange: fetchData
+  });
+
+  // Keep legacy event listeners for backward compatibility
+  useEffect(() => {
     const handleDataUpdate = () => {
       fetchData();
     };
 
-    // Listen for completion events
     window.addEventListener('kingdom:challengeCompleted', handleDataUpdate);
     window.addEventListener('kingdom:milestoneCompleted', handleDataUpdate);
     window.addEventListener('kingdom:questCompleted', handleDataUpdate);
@@ -466,7 +490,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
       window.removeEventListener('kingdom:goldGained', handleDataUpdate);
       window.removeEventListener('kingdom:experienceGained', handleDataUpdate);
     };
-  }, [activeTab, uid, timePeriod]);
+  }, []);
 
   // Show chart if there is at least one non-zero value in the data
   const hasData = graphData.some(d => d.value > 0);
@@ -554,32 +578,54 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
   const uid = userId;
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
 
-  // Fetch and aggregate data for the selected tab and period (keep as is for now)
-  useEffect(() => {
+  // Fetch and aggregate data for the selected tab and period
+  const fetchData = async () => {
     if (!uid) return;
     setIsLoading(true);
-    const fetchData = async () => {
-      try {
-        const res = await fetch(`/api/kingdom-stats?tab=${activeTab}&period=${timePeriod}`, {
-          credentials: 'include'
-        });
-        if (!res.ok) throw new Error('Failed to fetch stats');
-        const { data } = await res.json();
-        setGraphData(data || []);
-      } catch (err) {
-        setGraphData([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
+    try {
+      const res = await fetch(`/api/kingdom-stats?tab=${activeTab}&period=${timePeriod}`, {
+        credentials: 'include'
+      });
+      if (!res.ok) throw new Error('Failed to fetch stats');
+      const { data } = await res.json();
+      setGraphData(data || []);
+    } catch (err) {
+      setGraphData([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    // 🎯 LISTEN FOR REAL-TIME UPDATES when challenges/milestones are completed  
+  // Initial data fetch
+  useEffect(() => {
+    fetchData();
+  }, [activeTab, uid, timePeriod]);
+
+  // 🎯 REAL-TIME SUPABASE SUBSCRIPTIONS for instant updates
+  useSupabaseRealtimeSync({
+    table: 'quest_completion',
+    userId: uid,
+    onChange: fetchData
+  });
+
+  useSupabaseRealtimeSync({
+    table: 'challenge_completion',
+    userId: uid,
+    onChange: fetchData
+  });
+
+  useSupabaseRealtimeSync({
+    table: 'milestone_completion',
+    userId: uid,
+    onChange: fetchData
+  });
+
+  // Keep legacy event listeners for backward compatibility
+  useEffect(() => {
     const handleDataUpdate = () => {
       fetchData();
     };
 
-    // Listen for completion events
     window.addEventListener('kingdom:challengeCompleted', handleDataUpdate);
     window.addEventListener('kingdom:milestoneCompleted', handleDataUpdate);
     window.addEventListener('kingdom:questCompleted', handleDataUpdate);
@@ -593,7 +639,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
       window.removeEventListener('kingdom:goldGained', handleDataUpdate);
       window.removeEventListener('kingdom:experienceGained', handleDataUpdate);
     };
-  }, [activeTab, uid, timePeriod]);
+  }, []);
 
   // Show chart if there is at least one non-zero value in the data
   const hasData = graphData.some(d => d.value > 0);
