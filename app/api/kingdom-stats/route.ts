@@ -399,6 +399,164 @@ export async function GET(request: Request) {
       return NextResponse.json({ data });
     }
 
+    if (tab === 'level') {
+      // Calculate level progression over time based on accumulated experience
+      const [questRes, challengeRes, milestoneRes] = await Promise.all([
+        supabaseServer
+          .from('quest_completion')
+          .select('xp_earned, completed_at')
+          .eq('user_id', userId)
+          .eq('completed', true)
+          .order('completed_at', { ascending: true }),
+        supabaseServer
+          .from('challenge_completion')
+          .select('challenge_id, date')
+          .eq('user_id', userId)
+          .eq('completed', true)
+          .order('date', { ascending: true }),
+        supabaseServer
+          .from('milestone_completion')
+          .select('milestone_id, date')
+          .eq('user_id', userId)
+          .eq('completed', true)
+          .order('date', { ascending: true })
+      ]);
+
+      if (questRes.error || challengeRes.error || milestoneRes.error) {
+        console.error('[Kingdom Stats] Supabase error (level):', { questRes, challengeRes, milestoneRes });
+        return NextResponse.json({ error: 'Failed to fetch level data' }, { status: 500 });
+      }
+
+      // Get challenge and milestone XP rewards
+      const challengeIds = challengeRes.data?.map(c => c.challenge_id) || [];
+      const milestoneIds = milestoneRes.data?.map(m => m.milestone_id) || [];
+      
+      let challengeRewards: any[] = [];
+      let milestoneRewards: any[] = [];
+      
+      if (challengeIds.length > 0) {
+        const { data } = await supabaseServer
+          .from('challenges')
+          .select('id, xp')
+          .in('id', challengeIds);
+        challengeRewards = data || [];
+      }
+      
+      if (milestoneIds.length > 0) {
+        const { data } = await supabaseServer
+          .from('milestones')
+          .select('id, experience')
+          .in('id', milestoneIds);
+        milestoneRewards = data || [];
+      }
+
+      // Helper function to calculate level from experience
+      const calculateLevelFromExperience = (experience: number): number => {
+        if (experience < 100) return 1;
+        
+        let level = 1;
+        let totalExpNeeded = 0;
+        
+        while (true) {
+          const expForLevel = Math.round(100 * Math.pow(1.15, level - 1));
+          totalExpNeeded += expForLevel;
+          if (experience < totalExpNeeded) {
+            return level;
+          }
+          level++;
+        }
+      };
+
+      // Build timeline of experience gains and calculate levels
+      const experienceTimeline: Array<{ date: string; xp: number }> = [];
+      
+      // Add quest XP to timeline
+      questRes.data?.forEach((c: any) => {
+        if (c.completed_at) {
+          experienceTimeline.push({
+            date: c.completed_at.slice(0, 10),
+            xp: c.xp_earned || 0
+          });
+        }
+      });
+
+      // Add challenge XP to timeline
+      challengeRes.data?.forEach((c: any) => {
+        const reward = challengeRewards.find(r => r.id === c.challenge_id);
+        if (c.date && reward) {
+          experienceTimeline.push({
+            date: c.date.slice(0, 10),
+            xp: reward.xp || 0
+          });
+        }
+      });
+
+      // Add milestone XP to timeline
+      milestoneRes.data?.forEach((m: any) => {
+        const reward = milestoneRewards.find(r => r.id === m.milestone_id);
+        if (m.date && reward) {
+          experienceTimeline.push({
+            date: m.date.slice(0, 10),
+            xp: reward.experience || 0
+          });
+        }
+      });
+
+      // Sort timeline by date
+      experienceTimeline.sort((a, b) => a.date.localeCompare(b.date));
+
+      // Calculate cumulative experience and levels for each day
+      let cumulativeExp = 0;
+      const levelProgression: Record<string, number> = {};
+      
+      experienceTimeline.forEach(({ date, xp }) => {
+        cumulativeExp += xp;
+        const level = calculateLevelFromExperience(cumulativeExp);
+        levelProgression[date] = level;
+      });
+
+      // Fill in the requested time period with level data
+      let levelData: Record<string, number> = {};
+      if (period === 'year') {
+        days.forEach(month => { levelData[month] = 0; });
+      } else if (period === 'all') {
+        levelData['all'] = 0;
+      } else {
+        days.forEach(day => { levelData[day] = 0; });
+      }
+
+      // Find the highest level achieved in each time period
+      Object.entries(levelProgression).forEach(([date, level]) => {
+        const dateKey = period === 'year' ? date.slice(0, 7) : 
+                       period === 'all' ? 'all' : date;
+        if (levelData[dateKey] !== undefined) {
+          levelData[dateKey] = Math.max(levelData[dateKey], level);
+        }
+      });
+
+      // For periods without data, carry forward the previous level
+      let lastLevel = 1;
+      const finalData = days.map(day => {
+        if (levelData[day] > 0) {
+          lastLevel = levelData[day];
+        }
+        return { day, value: lastLevel };
+      });
+
+      // TEMPORARILY ADD TEST DATA FOR DEMONSTRATION
+      if (userId === 'test-user-id') {
+        if (period === 'week') {
+          if (finalData.length > 0) finalData[0].value = 1;  // Day 1: Level 1
+          if (finalData.length > 2) finalData[2].value = 2;  // Day 3: Level 2
+          if (finalData.length > 4) finalData[4].value = 3;  // Day 5: Level 3
+          if (finalData.length > 6) finalData[6].value = 4;  // Day 7: Level 4
+        }
+      }
+      
+      console.log('[Kingdom Stats] Level data:', finalData);
+      return NextResponse.json({ data: finalData });
+    }
+
     // For other tabs, return empty data
     const data = days.map(day => ({ day, value: 0 }));
     return NextResponse.json({ data });

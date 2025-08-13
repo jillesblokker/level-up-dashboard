@@ -149,12 +149,28 @@ function GoldEmptyState() {
 }
 function ExperienceEmptyState() {
   return (
-    <section className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden" aria-label="king-stats-empty-state-section">
+    <section className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden" aria-label="kingdom-stats-empty-state-section">
       <Image src="/images/quests-header.jpg" alt="Empty experience placeholder" className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none" width={400} height={300} aria-hidden="true" />
       <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
       <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3">
-        <div className="text-amber-500 text-xl font-bold drop-shadow-md">No experience earned yet</div>
-        <div className="text-gray-100 text-base">Complete quests to earn experience!</div>
+        <div className="text-amber-500 text-xl font-bold drop-shadow-md">No experience gained yet</div>
+        <div className="text-gray-100 text-base">Complete quests and challenges to start leveling up!</div>
+        <Link href="/quests?tab=quests" passHref legacyBehavior>
+          <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md" aria-label="Start your first quest" tabIndex={0} role="button">Start Your First Quest</a>
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+function LevelEmptyState() {
+  return (
+    <section className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden" aria-label="kingdom-stats-empty-state-section">
+      <Image src="/images/quests-header.jpg" alt="Empty level placeholder" className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none" width={400} height={300} aria-hidden="true" />
+      <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
+      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3">
+        <div className="text-amber-500 text-xl font-bold drop-shadow-md">No level progression yet</div>
+        <div className="text-gray-100 text-base">Gain experience to see your character level up over time!</div>
         <Link href="/quests?tab=quests" passHref legacyBehavior>
           <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md" aria-label="Start your first quest" tabIndex={0} role="button">Start Your First Quest</a>
         </Link>
@@ -531,7 +547,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
 
 // --- Block 2: KingStatsBlock ---
 export function KingStatsBlock({ userId }: { userId: string | null }) {
-  const [activeTab, setActiveTab] = useState<'gold' | 'experience'>('gold');
+  const [activeTab, setActiveTab] = useState<'gold' | 'experience' | 'level'>('gold');
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('week');
   const [graphData, setGraphData] = useState<Array<{ day: string; value: number }>>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -611,7 +627,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
         <div className="flex justify-end mt-2">
           <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
         </div>
-        <CardDescription className="text-gray-300">Track your gold and experience</CardDescription>
+        <CardDescription className="text-gray-300">Track your gold, experience, and level progression</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="py-4">
@@ -627,18 +643,22 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
             >
               <option value="gold">Gold</option>
               <option value="experience">Experience</option>
+              <option value="level">Level</option>
             </select>
           </div>
           <Tabs value={activeTab} onValueChange={v => setActiveTab(v as typeof activeTab)} className="mb-4 hidden md:block">
             <TabsList aria-label="king-stats-tabs">
               <TabsTrigger value="gold" aria-label="gold-tab">Gold</TabsTrigger>
               <TabsTrigger value="experience" aria-label="experience-tab">Experience</TabsTrigger>
+              <TabsTrigger value="level" aria-label="level-tab">Level</TabsTrigger>
             </TabsList>
           </Tabs>
           {isLoading ? (
             <div className="h-64 flex items-center justify-center text-gray-400">Loading...</div>
           ) : !hasData ? (
-            activeTab === 'gold' ? <GoldEmptyState /> : <ExperienceEmptyState />
+            activeTab === 'gold' ? <GoldEmptyState /> : 
+            activeTab === 'experience' ? <ExperienceEmptyState /> : 
+            <LevelEmptyState />
           ) : (
             <ChartBlock
               graphData={graphData}
