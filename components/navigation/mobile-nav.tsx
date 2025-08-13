@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { 
   Crown, 
   MapIcon,
@@ -50,6 +50,18 @@ import { getCharacterStats } from "@/lib/character-stats-manager"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
 import { MobileErrorFallback } from "@/components/MobileErrorFallback"
 
+// Debounce utility for touch events
+const debounce = (func: Function, wait: number) => {
+  let timeout: NodeJS.Timeout
+  return function executedFunction(...args: any[]) {
+    const later = () => {
+      clearTimeout(timeout)
+      func(...args)
+    }
+    clearTimeout(timeout)
+    timeout = setTimeout(later, wait)
+  }
+}
 
 interface MobileNavProps {
   tabs?: { value: string; label: string }[]
@@ -87,15 +99,34 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     }
   })
 
-  // Pull-to-refresh handlers
-  const handleTouchStart = (e: React.TouchEvent) => {
+  // Memoized character stats calculations
+  const levelProgress = useMemo(() => 
+    calculateLevelProgress(characterStats.experience), 
+    [characterStats.experience]
+  )
+
+  // Memoized navigation items to prevent re-creation
+  const mainNavItems = useMemo(() => [
+    { href: "/kingdom", label: "Kingdom", icon: Crown, description: "Manage your realm" },
+    { href: "/quests", label: "Tasks", icon: Compass, description: "Complete challenges" },
+    { href: "/realm", label: "Realm", icon: MapIcon, description: "Explore the world" },
+    { href: "/achievements", label: "Achievements", icon: Trophy, description: "Track progress" },
+    { href: "/inventory", label: "Inventory", icon: Building, description: "Manage items" },
+    { href: "/character", label: "Character", icon: User, description: "View stats" },
+  ], [])
+
+  // Memoized active state check
+  const isActive = useCallback((path: string) => pathname === path, [pathname])
+
+  // Optimized touch handlers with debouncing
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (e.touches.length === 1 && e.touches[0]) {
       setPullStartY(e.touches[0].clientY)
       setPullDistance(0)
     }
-  }
+  }, [])
 
-  const handleTouchMove = (e: React.TouchEvent) => {
+  const handleTouchMove = useCallback(debounce((e: React.TouchEvent) => {
     if (pullStartY !== null && e.touches.length === 1 && e.touches[0]) {
       const currentY = e.touches[0].clientY
       const distance = Math.max(0, currentY - pullStartY)
@@ -105,78 +136,11 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
         setPullToRefreshState('pulling')
       }
     }
-  }
+  }, 16), [pullStartY]) // 60fps optimization
 
-  const handleTouchEnd = async () => {
-    if (pullStartY !== null && pullDistance > 50) {
-      // Check if user is authenticated before making API calls
-      if (!user || !isLoaded) {
-        console.log('[Mobile Nav] User not authenticated, skipping pull-to-refresh')
-        setPullToRefreshState('idle')
-        setPullDistance(0)
-        setPullStartY(null)
-        return
-      }
-      
-      // Trigger simple refresh with visual feedback
-      console.log('[Mobile Nav] Pull-to-refresh triggered, starting refresh...')
-      
-      // Show immediate visual feedback
-      setPullToRefreshState('refreshing')
-      
-      try {
-        // Use the simple, reliable refresh function
-        const success = await refreshCharacterStats()
-        
-        if (success) {
-          setPullToRefreshState('success')
-          console.log('[Mobile Nav] Pull-to-refresh completed successfully')
-        } else {
-          setPullToRefreshState('error')
-          console.log('[Mobile Nav] Pull-to-refresh completed but no data received')
-        }
-      } catch (error) {
-        console.error('[Mobile Nav] Pull-to-refresh failed:', error)
-        setPullToRefreshState('error')
-      }
-      
-      // Reset pull state and hide feedback after delay
-      setPullStartY(null)
-      setPullDistance(0)
-      
-      setTimeout(() => {
-        setPullToRefreshState('idle')
-      }, 1500)
-    } else {
-      // Reset pull state if not enough distance
-      setPullStartY(null)
-      setPullDistance(0)
-      setPullToRefreshState('idle')
-    }
-  }
-
-  // Debug effect to log state changes
-  useEffect(() => {
-    console.log('[Mobile Nav] State changed:', {
-      isRefreshing,
-      backgroundRefreshState,
-      pullToRefreshState,
-      user: !!user,
-      isLoaded,
-      dataSource,
-      lastDataUpdate: lastDataUpdate?.toISOString(),
-      characterStats: {
-        level: characterStats.level,
-        experience: characterStats.experience,
-        gold: characterStats.gold
-      }
-    })
-  }, [isRefreshing, backgroundRefreshState, pullToRefreshState, user, isLoaded, dataSource, lastDataUpdate, characterStats.level, characterStats.experience, characterStats.gold])
-
-  // Simple, reliable refresh function
-  const refreshCharacterStats = async () => {
+  // Simple, reliable refresh function - optimized with useCallback
+  const refreshCharacterStats = useCallback(async () => {
     try {
-      // Check authentication
       if (!user || !isLoaded) {
         console.log('[Mobile Nav] User not authenticated, skipping refresh')
         return false
@@ -184,7 +148,6 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
 
       console.log('[Mobile Nav] Starting character stats refresh...')
       
-      // Fetch fresh data from API
       const response = await fetch('/api/character-stats', {
         method: 'GET',
         headers: {
@@ -198,7 +161,6 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
         if (result.data) {
           console.log('[Mobile Nav] Refresh successful:', result.data)
           
-          // Update localStorage with fresh data
           const freshStats = {
             gold: result.data.gold || 0,
             experience: result.data.experience || 0,
@@ -210,7 +172,6 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
           
           localStorage.setItem('character-stats', JSON.stringify(freshStats))
           
-          // Update component state
           const currentLevel = calculateLevelFromExperience(result.data.experience)
           const newStats = {
             level: currentLevel,
@@ -242,25 +203,78 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
       console.error('[Mobile Nav] Refresh error:', error)
       return false
     }
-  }
+  }, [user, isLoaded])
 
-  // Smart background refresh for pull-to-refresh (non-blocking)
-  const smartBackgroundRefresh = async (showVisualFeedback = false) => {
+  const handleTouchEnd = useCallback(async () => {
+    if (pullStartY !== null && pullDistance > 50) {
+      if (!user || !isLoaded) {
+        console.log('[Mobile Nav] User not authenticated, skipping pull-to-refresh')
+        setPullToRefreshState('idle')
+        setPullDistance(0)
+        setPullStartY(null)
+        return
+      }
+      
+      console.log('[Mobile Nav] Pull-to-refresh triggered, starting refresh...')
+      setPullToRefreshState('refreshing')
+      
+      try {
+        const success = await refreshCharacterStats()
+        setPullToRefreshState(success ? 'success' : 'error')
+        console.log('[Mobile Nav] Pull-to-refresh completed successfully')
+      } catch (error) {
+        console.error('[Mobile Nav] Pull-to-refresh failed:', error)
+        setPullToRefreshState('error')
+      }
+      
+      setPullStartY(null)
+      setPullDistance(0)
+      
+      setTimeout(() => {
+        setPullToRefreshState('idle')
+      }, 1500)
+    } else {
+      setPullStartY(null)
+      setPullDistance(0)
+      setPullToRefreshState('idle')
+    }
+  }, [pullStartY, pullDistance, user, isLoaded, refreshCharacterStats])
+
+  // Optimized load character stats function
+  const loadCharacterStats = useCallback(() => {
     try {
-      // Check authentication
+      const stats = getCharacterStats()
+      const currentLevel = calculateLevelFromExperience(stats.experience)
+      const newStats = {
+        level: currentLevel,
+        experience: stats.experience,
+        experienceToNextLevel: calculateExperienceForLevel(currentLevel),
+        gold: stats.gold,
+        titles: { equipped: '', unlocked: 0, total: 0 },
+        perks: { active: 0, total: 0 }
+      }
+      
+      console.log('[Mobile Nav] Loading stats:', newStats)
+      setCharacterStats(newStats)
+    } catch (error) {
+      console.error("Error loading character stats:", error)
+    }
+  }, [])
+
+  // Optimized background refresh for pull-to-refresh (non-blocking)
+  const smartBackgroundRefresh = useCallback(async (showVisualFeedback = false) => {
+    try {
       if (!user || !isLoaded) {
         console.log('[Mobile Nav] User not authenticated, skipping background refresh')
         return false
       }
 
-      // Set background refresh state
       if (showVisualFeedback) {
         setBackgroundRefreshState('refreshing')
       }
 
       console.log('[Mobile Nav] Starting smart background refresh...')
       
-      // Start background fetch without blocking UI
       const refreshPromise = fetch('/api/character-stats', {
         method: 'GET',
         headers: {
@@ -269,24 +283,19 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
         credentials: 'include'
       })
 
-      // Continue with UI updates while fetch happens in background
       if (showVisualFeedback) {
-        // Show immediate visual feedback
         setPullToRefreshState('refreshing')
         
-        // Simulate smooth pull-back animation
         setTimeout(() => {
           setPullDistance(0)
           setPullToRefreshState('success')
           
-          // Hide success state after brief moment
           setTimeout(() => {
             setPullToRefreshState('idle')
           }, 800)
         }, 300)
       }
 
-      // Wait for fetch to complete in background
       const response = await refreshPromise
       
       if (response.ok) {
@@ -294,7 +303,6 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
         if (result.data) {
           console.log('[Mobile Nav] Background refresh successful:', result.data)
           
-          // Update localStorage with fresh data
           const freshStats = {
             gold: result.data.gold || 0,
             experience: result.data.experience || 0,
@@ -306,7 +314,6 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
           
           localStorage.setItem('character-stats', JSON.stringify(freshStats))
           
-          // Update component state smoothly
           const currentLevel = calculateLevelFromExperience(result.data.experience)
           const newStats = {
             level: currentLevel,
@@ -317,20 +324,15 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
             perks: { active: 0, total: 0 }
           }
           
-          // Smooth state update with animation
           setCharacterStats(prev => ({ ...prev, ...newStats }))
-          
-          // Track data freshness
           setLastDataUpdate(new Date())
           setLastRefreshAttempt(new Date())
           setDataSource('supabase')
           setBackgroundRefreshState('success')
           
-          // Dispatch update events
           window.dispatchEvent(new Event('character-stats-update'))
           window.dispatchEvent(new Event('level-update'))
           
-          // Show success feedback briefly
           setTimeout(() => {
             setBackgroundRefreshState('idle')
           }, 2000)
@@ -346,7 +348,6 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
         console.warn('[Mobile Nav] Background refresh failed:', response.status)
         setBackgroundRefreshState('error')
         
-        // Show error feedback briefly
         setTimeout(() => {
           setBackgroundRefreshState('idle')
         }, 3000)
@@ -357,130 +358,18 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
       console.error('[Mobile Nav] Background refresh error:', error)
       setBackgroundRefreshState('error')
       
-      // Show error feedback briefly
       setTimeout(() => {
         setBackgroundRefreshState('idle')
       }, 3000)
       
       return false
     }
-  }
+  }, [user, isLoaded])
 
+  // Single optimized effect for data loading and sync
   useEffect(() => {
-    // Initialize character stats and load them (same as desktop)
-    const loadCharacterStats = () => {
-      try {
-        // Get current stats
-        const stats = getCharacterStats()
-        const currentLevel = calculateLevelFromExperience(stats.experience)
-        const newStats = {
-          level: currentLevel,
-          experience: stats.experience,
-          experienceToNextLevel: calculateExperienceForLevel(currentLevel),
-          gold: stats.gold,
-          titles: { equipped: '', unlocked: 0, total: 0 },
-          perks: { active: 0, total: 0 }
-        }
-        
-        console.log('[Mobile Nav] Loading stats:', newStats)
-        setCharacterStats(newStats)
-      } catch (error) {
-        console.error("Error loading character stats:", error)
-      }
-    }
-
-    // Enhanced function to fetch fresh data from Supabase
-    const fetchFreshStatsFromSupabase = async () => {
-      try {
-        // Check if user is authenticated before making API calls
-        if (!user || !isLoaded) {
-          console.log('[Mobile Nav] User not authenticated, skipping Supabase fetch')
-          setDataSource('localStorage')
-          loadCharacterStats()
-          return false
-        }
-
-        console.log('[Mobile Nav] Fetching fresh stats from Supabase...')
-        
-        // Fetch fresh data from Supabase API
-        const response = await fetch('/api/character-stats', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include'
-        })
-
-        if (response.ok) {
-          const result = await response.json()
-          if (result.data) {
-            console.log('[Mobile Nav] Fresh Supabase data received:', result.data)
-            
-            // Update localStorage with fresh data
-            const freshStats = {
-              gold: result.data.gold || 0,
-              experience: result.data.experience || 0,
-              level: result.data.level || 1,
-              health: result.data.health || 100,
-              max_health: result.data.max_health || 100,
-              buildTokens: result.data.build_tokens || 0
-            }
-            
-            localStorage.setItem('character-stats', JSON.stringify(freshStats))
-            console.log('[Mobile Nav] Updated localStorage with fresh data:', freshStats)
-            
-            // Update component state
-            const currentLevel = calculateLevelFromExperience(result.data.experience)
-            const newStats = {
-              level: currentLevel,
-              experience: result.data.experience,
-              experienceToNextLevel: calculateExperienceForLevel(currentLevel),
-              gold: result.data.gold,
-              titles: { equipped: '', unlocked: 0, total: 0 },
-              perks: { active: 0, total: 0 }
-            }
-            
-            console.log('[Mobile Nav] Setting fresh stats in component:', newStats)
-            setCharacterStats(newStats)
-            
-            // Track data freshness
-            setLastDataUpdate(new Date())
-            setDataSource('supabase')
-            
-            // Dispatch update event to notify other components
-            window.dispatchEvent(new Event('character-stats-update'))
-            window.dispatchEvent(new Event('level-update'))
-            
-            return true
-          } else {
-            console.warn('[Mobile Nav] No data in Supabase response')
-          }
-        } else {
-          console.warn('[Mobile Nav] Supabase fetch failed:', response.status, response.statusText)
-          // If it's an authentication error, don't retry
-          if (response.status === 401 || response.status === 403) {
-            console.log('[Mobile Nav] Authentication error, falling back to localStorage')
-            setDataSource('localStorage')
-            loadCharacterStats()
-            return false
-          }
-        }
-      } catch (error) {
-        console.error('[Mobile Nav] Error fetching from Supabase:', error)
-        // Don't crash the app, just log the error and continue
-      }
-      
-      // Fallback to localStorage if Supabase fails
-      console.log('[Mobile Nav] Falling back to localStorage data')
-      setDataSource('localStorage')
-      loadCharacterStats()
-      return false
-    }
-
-    // Load stats immediately (try Supabase first, fallback to localStorage)
     if (user && isLoaded) {
       console.log('[Mobile Nav] User authenticated, loading fresh stats from API...')
-      // Use the reliable refresh function to get fresh data
       refreshCharacterStats().then(success => {
         if (success) {
           console.log('[Mobile Nav] Initial API load successful')
@@ -497,34 +386,27 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
       loadCharacterStats()
     }
     
-    // Mark as initialized to prevent premature API calls
     setIsInitialized(true)
 
-    // Set up interval to actively sync stats every 30 seconds (reduced frequency)
+    // Optimized periodic sync with longer interval
     const syncInterval = setInterval(() => {
-      console.log('[Mobile Nav] Periodic sync - checking for stat updates...')
       if (user && isLoaded) {
-        // Use simple refresh for periodic sync
         refreshCharacterStats().catch(error => {
           console.error('[Mobile Nav] Periodic sync failed:', error)
         })
-      } else {
-        console.log('[Mobile Nav] User not authenticated, skipping periodic sync')
       }
-    }, 30000) // 30 seconds instead of 2 seconds
+    }, 60000) // Increased to 60 seconds for better performance
 
-    // Listen for character stats updates
+    // Event listeners for updates
     const handleStatsUpdate = () => {
-      console.log('[Mobile Nav] Character stats update event received, refreshing stats...')
       loadCharacterStats()
     }
-    window.addEventListener("character-stats-update", handleStatsUpdate)
     
-    // Also listen for level-specific updates
     const handleLevelUpdate = () => {
-      console.log('[Mobile Nav] Level update event received, refreshing stats...')
       loadCharacterStats()
     }
+    
+    window.addEventListener("character-stats-update", handleStatsUpdate)
     window.addEventListener("level-update", handleLevelUpdate)
     
     return () => {
@@ -532,29 +414,11 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
       window.removeEventListener("character-stats-update", handleStatsUpdate)
       window.removeEventListener("level-update", handleLevelUpdate)
     }
-  }, [user, isLoaded]) // Add dependencies so it re-runs when auth changes
-  
-  // Force refresh on mount to ensure fresh data
-  useEffect(() => {
-    if (user && isLoaded && isInitialized) {
-      console.log('[Mobile Nav] Component mounted with user, forcing refresh...')
-      // Force a refresh to get the latest data
-      refreshCharacterStats().then(success => {
-        if (success) {
-          console.log('[Mobile Nav] Force refresh successful')
-        } else {
-          console.log('[Mobile Nav] Force refresh failed, using cached data')
-        }
-      }).catch(error => {
-        console.error('[Mobile Nav] Force refresh error:', error)
-      })
-    }
-  }, [user, isLoaded, isInitialized])
+  }, [user, isLoaded, refreshCharacterStats, loadCharacterStats])
 
-  // Cleanup effect to reset refresh states
+  // Single cleanup effect for all states
   useEffect(() => {
     return () => {
-      // Reset all refresh states on cleanup
       setIsRefreshing(false)
       setBackgroundRefreshState('idle')
       setPullToRefreshState('idle')
@@ -562,39 +426,25 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
       setPullStartY(null)
     }
   }, [])
-  
-  // Reset refresh states when authentication changes
-  useEffect(() => {
-    if (!user || !isLoaded) {
-      setIsRefreshing(false)
-      setBackgroundRefreshState('idle')
-      setPullToRefreshState('idle')
-    }
-  }, [user, isLoaded])
 
-  // Global error handler for refresh states
+  // Optimized global error handler
   useEffect(() => {
     const handleGlobalError = () => {
-      console.log('[Mobile Nav] Global error detected, resetting refresh states')
       setIsRefreshing(false)
       setBackgroundRefreshState('idle')
       setPullToRefreshState('idle')
     }
 
-    // Listen for global errors
-    window.addEventListener('error', handleGlobalError)
-    window.addEventListener('unhandledrejection', handleGlobalError)
-    
-    // Listen for page visibility changes to reset stuck states
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        console.log('[Mobile Nav] Page hidden, resetting refresh states')
         setIsRefreshing(false)
         setBackgroundRefreshState('idle')
         setPullToRefreshState('idle')
       }
     }
     
+    window.addEventListener('error', handleGlobalError)
+    window.addEventListener('unhandledrejection', handleGlobalError)
     document.addEventListener('visibilitychange', handleVisibilityChange)
     
     return () => {
@@ -604,18 +454,40 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     }
   }, [])
 
-  const mainNavItems = [
-    { href: "/kingdom", label: "Kingdom", icon: Crown, description: "Manage your realm" },
-    { href: "/quests", label: "Tasks", icon: Compass, description: "Complete challenges" },
-    { href: "/realm", label: "Realm", icon: MapIcon, description: "Explore the world" },
-    { href: "/achievements", label: "Achievements", icon: Trophy, description: "Track progress" },
-    { href: "/inventory", label: "Inventory", icon: Building, description: "Manage items" },
-    { href: "/character", label: "Character", icon: User, description: "View stats" },
-  ]
+  // Optimized click handlers
+  const handleRefreshClick = useCallback(async () => {
+    if (isRefreshing) return;
+    
+    if (!user || !isLoaded) {
+      console.log('[Mobile Nav] User not authenticated, skipping refresh')
+      setIsRefreshing(false)
+      return
+    }
+    
+    console.log('[Mobile Nav] Manual refresh clicked, starting refresh...')
+    setIsRefreshing(true)
+    
+    try {
+      const success = await refreshCharacterStats()
+      
+      if (success) {
+        console.log('[Mobile Nav] Manual refresh completed successfully')
+      } else {
+        console.log('[Mobile Nav] Manual refresh completed but no data received')
+      }
+    } catch (error) {
+      console.error('[Mobile Nav] Manual refresh failed:', error)
+    } finally {
+      setIsRefreshing(false)
+    }
+  }, [isRefreshing, user, isLoaded, refreshCharacterStats])
 
-  const isActive = (path: string) => pathname === path
-
-  const levelProgress = calculateLevelProgress(characterStats.experience)
+  const handleDoubleClick = useCallback(() => {
+    console.log('[Mobile Nav] Emergency reset triggered by double-click')
+    setIsRefreshing(false)
+    setBackgroundRefreshState('idle')
+    setPullToRefreshState('idle')
+  }, [])
 
   return (
     <div className="lg:hidden">
@@ -738,42 +610,8 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={async () => {
-                          if (isRefreshing) return; // Prevent multiple clicks
-                          
-                          // Check if user is authenticated before making API calls
-                          if (!user || !isLoaded) {
-                            console.log('[Mobile Nav] User not authenticated, skipping refresh')
-                            setIsRefreshing(false)
-                            return
-                          }
-                          
-                          console.log('[Mobile Nav] Manual refresh clicked, starting refresh...')
-                          setIsRefreshing(true)
-                          
-                          try {
-                            // Use the simple, reliable refresh function
-                            const success = await refreshCharacterStats()
-                            
-                            if (success) {
-                              console.log('[Mobile Nav] Manual refresh completed successfully')
-                            } else {
-                              console.log('[Mobile Nav] Manual refresh completed but no data received')
-                            }
-                          } catch (error) {
-                            console.error('[Mobile Nav] Manual refresh failed:', error)
-                          } finally {
-                            // Always reset the loading state
-                            setIsRefreshing(false)
-                          }
-                        }}
-                        onDoubleClick={() => {
-                          // Emergency reset on double-click if button gets stuck
-                          console.log('[Mobile Nav] Emergency reset triggered by double-click')
-                          setIsRefreshing(false)
-                          setBackgroundRefreshState('idle')
-                          setPullToRefreshState('idle')
-                        }}
+                        onClick={handleRefreshClick}
+                        onDoubleClick={handleDoubleClick}
                         disabled={isRefreshing}
                         className={cn(
                           "h-8 w-8 p-0 touch-manipulation min-h-[32px] transition-all duration-200",
