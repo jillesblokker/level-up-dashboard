@@ -110,24 +110,31 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
 
       if (response.ok) {
         const result = await response.json();
-        if (result.data) {
+        console.log('[Mobile Nav] API response received:', result);
+        
+        // Handle the nested data structure from the API
+        const characterData = result.data?.data || result.data;
+        
+        if (characterData) {
+          console.log('[Mobile Nav] Character data extracted:', characterData);
+          
           const freshStats = {
-            gold: result.data.gold || 0,
-            experience: result.data.experience || 0,
-            level: result.data.level || 1,
-            health: result.data.health || 100,
-            max_health: result.data.max_health || 100,
-            buildTokens: result.data.build_tokens || 0
+            gold: characterData.gold || 0,
+            experience: characterData.experience || 0,
+            level: characterData.level || 1,
+            health: characterData.health || 100,
+            max_health: characterData.max_health || 100,
+            buildTokens: characterData.build_tokens || 0
           }
           
           localStorage.setItem('character-stats', JSON.stringify(freshStats));
           
-          const currentLevel = calculateLevelFromExperience(result.data.experience);
+          const currentLevel = calculateLevelFromExperience(characterData.experience);
           const newStats = {
             level: currentLevel,
-            experience: result.data.experience,
+            experience: characterData.experience,
             experienceToNextLevel: calculateExperienceForLevel(currentLevel),
-            gold: result.data.gold,
+            gold: characterData.gold,
             titles: { equipped: '', unlocked: 0, total: 0 },
             perks: { active: 0, total: 0 }
           }
@@ -136,6 +143,8 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
           setDataSource('supabase');
           console.log('[Mobile Nav] Successfully refreshed stats from API:', newStats);
           return true;
+        } else {
+          console.error('[Mobile Nav] No character data found in response');
         }
       } else {
         console.error('[Mobile Nav] API response not ok:', response.status, response.statusText);
@@ -239,12 +248,18 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
   return (
     <div className="lg:hidden">
       <ErrorBoundary fallback={MobileErrorFallback}>
-        <Sheet open={open} onOpenChange={setOpen}>
+        <Sheet open={open} onOpenChange={(newOpen) => {
+          console.log('[Mobile Nav] Sheet open state changing from', open, 'to', newOpen);
+          setOpen(newOpen);
+        }}>
           <SheetTrigger asChild>
             <Button
               variant="ghost"
               className="relative h-14 w-14 rounded-lg border border-amber-800/20 bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-sm hover:border-amber-500/40 active:bg-amber-500/10 transition-all duration-300 touch-manipulation min-h-[44px]"
               aria-label="Open navigation menu"
+              onClick={() => {
+                console.log('[Mobile Nav] Menu button clicked, current open state:', open);
+              }}
             >
               <Menu className="h-6 w-6 text-amber-500" />
             </Button>
@@ -333,6 +348,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
               <div className="space-y-2 px-4">
                 {mainNavItems.map((item) => {
                   const Icon = item.icon
+                  console.log('[Mobile Nav] Rendering navigation item:', item.href, item.label);
                   return (
                     <Link
                       key={item.href}
@@ -344,7 +360,10 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                         "active:from-amber-600/30 active:to-amber-500/30",
                         isActive(item.href) && "from-amber-700/30 to-amber-600/30 border-amber-500/50 shadow-lg shadow-amber-500/20"
                       )}
-                      onClick={() => setOpen(false)}
+                      onClick={() => {
+                        console.log('[Mobile Nav] Navigation item clicked:', item.href);
+                        setOpen(false);
+                      }}
                       aria-label={`Navigate to ${item.label}`}
                     >
                       <div className="flex-shrink-0 w-10 h-10 bg-amber-600/20 rounded-lg flex items-center justify-center border border-amber-500/30">
