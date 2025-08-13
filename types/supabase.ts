@@ -9,72 +9,25 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
-      realm_grids: {
+      users: {
         Row: {
           id: string
-          user_id: string
-          grid: number[][]
-          version: number
-          is_public: boolean
-          character_position: Json
-          discovered_tiles: Json
-          current_dungeon: Json | null
+          clerk_id: string
+          email: string | null
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
-          user_id: string
-          grid: number[][]
-          version?: number
-          is_public?: boolean
-          character_position?: Json
-          discovered_tiles?: Json
-          current_dungeon?: Json | null
+          clerk_id: string
+          email?: string | null
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
-          user_id?: string
-          grid?: number[][]
-          version?: number
-          is_public?: boolean
-          character_position?: Json
-          discovered_tiles?: Json
-          current_dungeon?: Json | null
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      quest_completions: {
-        Row: {
-          id: string
-          user_id: string
-          category: string
-          quest_name: string
-          completed: boolean
-          date: string
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          category: string
-          quest_name: string
-          completed?: boolean
-          date: string
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          category?: string
-          quest_name?: string
-          completed?: boolean
-          date?: string
+          clerk_id?: string
+          email?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -129,7 +82,7 @@ export interface Database {
           quantity: number
           emoji: string | null
           image: string | null
-          stats: Json | null
+          stats: any
           equipped: boolean
           is_default: boolean
           created_at: string
@@ -146,7 +99,7 @@ export interface Database {
           quantity?: number
           emoji?: string | null
           image?: string | null
-          stats?: Json | null
+          stats?: any
           equipped?: boolean
           is_default?: boolean
           created_at?: string
@@ -163,232 +116,11 @@ export interface Database {
           quantity?: number
           emoji?: string | null
           image?: string | null
-          stats?: Json | null
+          stats?: any
           equipped?: boolean
           is_default?: boolean
           created_at?: string
           updated_at?: string
-        }
-      }
-      character_perks: {
-        Row: {
-          id: string
-          user_id: string
-          perk_name: string
-          perk_type: string
-          description: string | null
-          effect_value: number | null
-          expires_at: string | null
-          is_active: boolean
-          equipped: boolean
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          perk_name: string
-          perk_type: string
-          description?: string | null
-          effect_value?: number | null
-          expires_at?: string | null
-          is_active?: boolean
-          equipped?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          perk_name?: string
-          perk_type?: string
-          description?: string | null
-          effect_value?: number | null
-          expires_at?: string | null
-          is_active?: boolean
-          equipped?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      character_titles: {
-        Row: {
-          id: string
-          user_id: string
-          title_name: string
-          description: string | null
-          unlocked_at: string
-          is_active: boolean
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          title_name: string
-          description?: string | null
-          unlocked_at?: string
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          title_name?: string
-          description?: string | null
-          unlocked_at?: string
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      character_strengths: {
-        Row: {
-          id: string
-          user_id: string
-          strength_name: string
-          strength_type: string
-          value: number
-          max_value: number
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          strength_name: string
-          strength_type: string
-          value?: number
-          max_value?: number
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          strength_name?: string
-          strength_type?: string
-          value?: number
-          max_value?: number
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      achievements: {
-        Row: {
-          id: string
-          user_id: string
-          achievement_id: string
-          achievement_name: string
-          description: string | null
-          unlocked_at: string
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          achievement_id: string
-          achievement_name: string
-          description?: string | null
-          unlocked_at?: string
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          achievement_id?: string
-          achievement_name?: string
-          description?: string | null
-          unlocked_at?: string
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      notifications: {
-        Row: {
-          id: string
-          user_id: string
-          title: string
-          message: string
-          type: string
-          read: boolean
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          title: string
-          message: string
-          type?: string
-          read?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          title?: string
-          message?: string
-          type?: string
-          read?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      app_logs: {
-        Row: {
-          id: string
-          user_id: string
-          level: string
-          message: string
-          category: string | null
-          metadata: Json | null
-          timestamp: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          level: string
-          message: string
-          category?: string | null
-          metadata?: Json | null
-          timestamp?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          level?: string
-          message?: string
-          category?: string | null
-          metadata?: Json | null
-          timestamp?: string
-        }
-      }
-      kingdom_time_series: {
-        Row: {
-          id: string
-          user_id: string
-          event_type: string
-          event_data: Json
-          timestamp: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          event_type: string
-          event_data: Json
-          timestamp?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          event_type?: string
-          event_data?: Json
-          timestamp?: string
         }
       }
       tile_inventory: {
@@ -399,7 +131,7 @@ export interface Database {
           tile_type: string
           quantity: number
           cost: number
-          connections: Json
+          connections: any
           rotation: number
           last_updated: string
           version: number
@@ -413,7 +145,7 @@ export interface Database {
           tile_type: string
           quantity?: number
           cost?: number
-          connections?: Json
+          connections?: any
           rotation?: number
           last_updated?: string
           version?: number
@@ -427,12 +159,149 @@ export interface Database {
           tile_type?: string
           quantity?: number
           cost?: number
-          connections?: Json
+          connections?: any
           rotation?: number
           last_updated?: string
           version?: number
           created_at?: string
           updated_at?: string
+        }
+      }
+      kingdom_grid: {
+        Row: {
+          id: string
+          user_id: string
+          grid: any
+          version: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          grid?: any
+          version?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          grid?: any
+          version?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      property_timers: {
+        Row: {
+          id: string
+          user_id: string
+          tile_id: string
+          x: number
+          y: number
+          tile_type: string
+          end_time: string
+          is_ready: boolean
+          placed_at: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          tile_id: string
+          x: number
+          y: number
+          tile_type: string
+          end_time: string
+          is_ready?: boolean
+          placed_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          tile_id?: string
+          x?: number
+          y?: number
+          tile_type?: string
+          end_time?: string
+          is_ready?: boolean
+          placed_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      gold_transactions: {
+        Row: {
+          id: string
+          user_id: string
+          transaction_type: string
+          amount: number
+          balance_after: number
+          source: string
+          description: string | null
+          metadata: any
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          transaction_type: string
+          amount: number
+          balance_after: number
+          source: string
+          description?: string | null
+          metadata?: any
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          transaction_type?: string
+          amount?: number
+          balance_after?: number
+          source?: string
+          description?: string | null
+          metadata?: any
+          created_at?: string
+        }
+      }
+      experience_transactions: {
+        Row: {
+          id: string
+          user_id: string
+          transaction_type: string
+          amount: number
+          total_after: number
+          source: string
+          description: string | null
+          metadata: any
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          transaction_type: string
+          amount: number
+          total_after: number
+          source: string
+          description?: string | null
+          metadata?: any
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          transaction_type?: string
+          amount?: number
+          total_after?: number
+          source?: string
+          description?: string | null
+          metadata?: any
+          created_at?: string
         }
       }
       discoveries: {
@@ -508,38 +377,105 @@ export interface Database {
           updated_at?: string
         }
       }
-      image_descriptions: {
+      achievements: {
         Row: {
           id: string
           user_id: string
-          image_path: string
+          achievement_id: string
+          achievement_name: string
           description: string | null
+          unlocked_at: string
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
           user_id: string
-          image_path: string
+          achievement_id: string
+          achievement_name: string
           description?: string | null
+          unlocked_at?: string
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
           user_id?: string
-          image_path?: string
+          achievement_id?: string
+          achievement_name?: string
           description?: string | null
+          unlocked_at?: string
           created_at?: string
           updated_at?: string
         }
       }
-      game_settings: {
+      notifications: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          message: string
+          type: string
+          read: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          message: string
+          type?: string
+          read?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          message?: string
+          type?: string
+          read?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      app_logs: {
+        Row: {
+          id: string
+          user_id: string
+          level: string
+          message: string
+          category: string | null
+          metadata: any
+          timestamp: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          level: string
+          message: string
+          category?: string | null
+          metadata?: any
+          timestamp?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          level?: string
+          message?: string
+          category?: string | null
+          metadata?: any
+          timestamp?: string
+        }
+      }
+      user_preferences: {
         Row: {
           id: string
           user_id: string
           setting_key: string
-          setting_value: Json
+          setting_value: any
           created_at: string
           updated_at: string
         }
@@ -547,7 +483,7 @@ export interface Database {
           id?: string
           user_id: string
           setting_key: string
-          setting_value: Json
+          setting_value: any
           created_at?: string
           updated_at?: string
         }
@@ -555,91 +491,18 @@ export interface Database {
           id?: string
           user_id?: string
           setting_key?: string
-          setting_value?: Json
+          setting_value?: any
           created_at?: string
           updated_at?: string
         }
       }
-      purchased_items: {
+      quest_completion: {
         Row: {
           id: string
           user_id: string
-          item_id: string
-          location_id: string
-          purchased_at: string
-          price: number
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          item_id: string
-          location_id: string
-          purchased_at?: string
-          price: number
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          item_id?: string
-          location_id?: string
-          purchased_at?: string
-          price?: number
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      notable_locations: {
-        Row: {
-          id: string
-          user_id: string
-          location_id: string
-          location_name: string
-          description: string | null
-          image: string | null
-          discovered_at: string
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          location_id: string
-          location_name: string
-          description?: string | null
-          image?: string | null
-          discovered_at?: string
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          location_id?: string
-          location_name?: string
-          description?: string | null
-          image?: string | null
-          discovered_at?: string
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      milestones: {
-        Row: {
-          id: string
-          user_id: string
-          milestone_id: string
-          name: string
-          description: string | null
-          category: string
-          target: number
-          progress: number
-          experience: number
-          gold: number
-          icon: string | null
+          quest_id: string
+          xp_earned: number
+          gold_earned: number
           completed: boolean
           completed_at: string | null
           created_at: string
@@ -648,376 +511,138 @@ export interface Database {
         Insert: {
           id?: string
           user_id: string
-          milestone_id: string
-          name: string
-          description?: string | null
-          category: string
-          target?: number
-          progress?: number
-          experience?: number
-          gold?: number
-          icon?: string | null
+          quest_id: string
+          xp_earned?: number
+          gold_earned?: number
           completed?: boolean
           completed_at?: string | null
           created_at?: string
           updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          milestone_id?: string
-          name?: string
-          description?: string | null
-          category?: string
-          target?: number
-          progress?: number
-          experience?: number
-          gold?: number
-          icon?: string | null
-          completed?: boolean
-          completed_at?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      checked_milestones: {
-        Row: {
-          id: string
-          user_id: string
-          milestone_id: string
-          checked_at: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          milestone_id: string
-          checked_at?: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          milestone_id?: string
-          checked_at?: string
-          created_at?: string
-        }
-      }
-      checked_quests: {
-        Row: {
-          id: string
-          user_id: string
-          quest_id: string
-          checked_at: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          quest_id: string
-          checked_at?: string
-          created_at?: string
         }
         Update: {
           id?: string
           user_id?: string
           quest_id?: string
-          checked_at?: string
-          created_at?: string
-        }
-      }
-      tile_counts: {
-        Row: {
-          id: string
-          user_id: string
-          tile_type: string
-          count: number
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          tile_type: string
-          count?: number
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          tile_type?: string
-          count?: number
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      tilemap: {
-        Row: {
-          id: string
-          user_id: string
-          map_data: Json
-          version: number
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          map_data: Json
-          version?: number
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          map_data?: Json
-          version?: number
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      user_preferences: {
-        Row: {
-          id: string
-          user_id: string
-          preference_key: string
-          preference_value: Json
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          preference_key: string
-          preference_value: Json
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          preference_key?: string
-          preference_value?: Json
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      realm_visits: {
-        Row: {
-          id: string
-          user_id: string
-          visit_type: string
-          visited_at: string
-          metadata: Json | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          visit_type: string
-          visited_at?: string
-          metadata?: Json | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          visit_type?: string
-          visited_at?: string
-          metadata?: Json | null
-          created_at?: string
-        }
-      }
-      dungeon_sessions: {
-        Row: {
-          id: string
-          user_id: string
-          dungeon_type: string
-          position: Json
-          started_at: string
-          completed_at: string | null
-          rewards: Json | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          dungeon_type: string
-          position: Json
-          started_at?: string
+          xp_earned?: number
+          gold_earned?: number
+          completed?: boolean
           completed_at?: string | null
-          rewards?: Json | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          dungeon_type?: string
-          position?: Json
-          started_at?: string
-          completed_at?: string | null
-          rewards?: Json | null
           created_at?: string
           updated_at?: string
         }
       }
-      character_positions: {
+      challenge_completion: {
         Row: {
           id: string
           user_id: string
-          position_x: number
-          position_y: number
-          last_moved_at: string
+          challenge_id: string
+          completed: boolean
+          date: string
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
           user_id: string
-          position_x?: number
-          position_y?: number
-          last_moved_at?: string
+          challenge_id: string
+          completed?: boolean
+          date?: string
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
           user_id?: string
-          position_x?: number
-          position_y?: number
-          last_moved_at?: string
+          challenge_id?: string
+          completed?: boolean
+          date?: string
           created_at?: string
           updated_at?: string
         }
       }
-      gold_transactions: {
+      milestone_completion: {
         Row: {
           id: string
           user_id: string
-          transaction_type: string
-          amount: number
-          balance_after: number
-          source: string | null
+          milestone_id: string
+          completed: boolean
+          date: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          milestone_id: string
+          completed?: boolean
+          date?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          milestone_id?: string
+          completed?: boolean
+          date?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      challenges: {
+        Row: {
+          id: string
+          name: string
           description: string | null
-          metadata: Json | null
+          xp: number
+          gold: number
           created_at: string
+          updated_at: string
         }
         Insert: {
           id?: string
-          user_id: string
-          transaction_type: string
-          amount: number
-          balance_after: number
-          source?: string | null
+          name: string
           description?: string | null
-          metadata?: Json | null
+          xp?: number
+          gold?: number
           created_at?: string
+          updated_at?: string
         }
         Update: {
           id?: string
-          user_id?: string
-          transaction_type?: string
-          amount?: number
-          balance_after?: number
-          source?: string | null
+          name?: string
           description?: string | null
-          metadata?: Json | null
+          xp?: number
+          gold?: number
           created_at?: string
+          updated_at?: string
         }
       }
-      experience_transactions: {
+      milestones: {
         Row: {
           id: string
-          user_id: string
-          transaction_type: string
-          amount: number
-          total_after: number
-          source: string | null
+          name: string
           description: string | null
-          metadata: Json | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          transaction_type: string
-          amount: number
-          total_after: number
-          source?: string | null
-          description?: string | null
-          metadata?: Json | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          transaction_type?: string
-          amount?: number
-          total_after?: number
-          source?: string | null
-          description?: string | null
-          metadata?: Json | null
-          created_at?: string
-        }
-      }
-      user_sessions: {
-        Row: {
-          id: string
-          user_id: string
-          session_key: string
-          session_value: Json
-          expires_at: string | null
+          experience: number
+          gold: number
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
-          user_id: string
-          session_key: string
-          session_value: Json
-          expires_at?: string | null
+          name: string
+          description?: string | null
+          experience?: number
+          gold?: number
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
-          user_id?: string
-          session_key?: string
-          session_value?: Json
-          expires_at?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      realm_grid_data: {
-        Row: {
-          id: string
-          user_id: string
-          grid_data: Json
-          version: number
-          is_current: boolean
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          grid_data: Json
-          version?: number
-          is_current?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          grid_data?: Json
-          version?: number
-          is_current?: boolean
+          name?: string
+          description?: string | null
+          experience?: number
+          gold?: number
           created_at?: string
           updated_at?: string
         }
@@ -1032,5 +657,19 @@ export interface Database {
     Enums: {
       [_ in never]: never
     }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
+}
+
+export type SupabaseRealtimePayload<T = unknown> = {
+  commit_timestamp: string
+  errors: any[] | null
+  schema: string
+  table: string
+  type: 'INSERT' | 'UPDATE' | 'DELETE'
+  new: T | null
+  old: T | null
+  eventType: string
 } 

@@ -1,68 +1,111 @@
-import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
-import { supabaseServer } from '../../../lib/supabase/server-client';
+import { NextRequest, NextResponse } from 'next/server';
+import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
-// GET: Return kingdom grid for the user
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      const { data, error } = await supabase
+        .from('kingdom_grid')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('[Kingdom Grid API] Select error:', error);
+        throw error;
+      }
+
+      // Return empty grid if none exists
+      return data || { grid: [], version: 1 };
+    });
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 401 });
     }
 
-    const { data, error } = await supabaseServer
-      .from('kingdom_grid')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
+    return NextResponse.json({ 
+      success: true, 
+      data: result.data 
+    });
 
-    if (error) {
-      // Handle any database error gracefully
-      console.log('Database error in kingdom grid GET:', error.message);
-      return NextResponse.json({ grid: null });
-    }
-
-    return NextResponse.json({ grid: data?.grid || null });
   } catch (error) {
-    console.log('Error in kingdom grid GET:', error);
-    // Return null grid for any error
-    return NextResponse.json({ grid: null });
+    console.error('[Kingdom Grid API] Error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' }, 
+      { status: 500 }
+    );
   }
 }
 
-// POST: Save kingdom grid for the user
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const body = await request.json();
+    const { grid, version } = body;
 
-    const { grid } = await request.json();
     if (!grid) {
-      return NextResponse.json({ error: 'Grid is required' }, { status: 400 });
+      return NextResponse.json({ 
+        error: 'Missing required field: grid' 
+      }, { status: 400 });
     }
 
-    const { error } = await supabaseServer
-      .from('kingdom_grid')
-      .upsert([
-        { 
-          user_id: userId, 
-          grid, 
-          updated_at: new Date().toISOString() 
-        }
-      ], { onConflict: 'user_id' });
+    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      // Check if grid exists
+      const { data: existing, error: fetchError } = await supabase
+        .from('kingdom_grid')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+        
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        throw fetchError;
+      }
+      
+      if (existing) {
+        // Update existing grid
+        const { data, error } = await supabase
+          .from('kingdom_grid')
+          .update({ 
+            grid, 
+            version: (version || existing.version || 1) + 1,
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', userId)
+          .select()
+          .single();
+          
+        if (error) throw error;
+        return data;
+      } else {
+        // Insert new grid
+        const { data, error } = await supabase
+          .from('kingdom_grid')
+          .insert({
+            user_id: userId,
+            grid,
+            version: version || 1
+          })
+          .select()
+          .single();
+          
+        if (error) throw error;
+        return data;
+      }
+    });
 
-    if (error) {
-      // Handle any database error gracefully
-      console.log('Database error in kingdom grid POST:', error.message);
-      return NextResponse.json({ success: true });
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 401 });
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ 
+      success: true, 
+      data: result.data 
+    });
+
   } catch (error) {
-    console.log('Error in kingdom grid POST:', error);
-    // Return success for any error to prevent UI crashes
-    return NextResponse.json({ success: true });
+    console.error('[Kingdom Grid API] Error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' }, 
+      { status: 500 }
+    );
   }
 } 

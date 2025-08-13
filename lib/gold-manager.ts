@@ -3,13 +3,17 @@ import { emitGoldGained } from "@/lib/kingdom-events";
 import { getCharacterStats, addToCharacterStatSync } from "@/lib/character-stats-manager";
 import { createGoldGainedNotification } from "@/lib/notifications";
 
-export function gainGold(amount: number, source: string) {
+// Enhanced gold manager with database transaction logging
+export async function gainGold(amount: number, source: string, metadata?: any) {
   try {
     // Get current stats using the character stats manager
     const currentStats = getCharacterStats();
 
     // Add gold to stats using synchronous update for immediate effect
     addToCharacterStatSync('gold', amount);
+
+    // Log transaction to database for audit trail
+    await logGoldTransaction(amount, currentStats.gold + amount, 'gain', source, metadata);
 
     // Emit kingdom event for tracking weekly progress
     emitGoldGained(amount, source);
@@ -38,7 +42,7 @@ export function gainGold(amount: number, source: string) {
   }
 }
 
-export function spendGold(amount: number, source: string) {
+export async function spendGold(amount: number, source: string, metadata?: any) {
   try {
     // Get current stats using the character stats manager
     const currentStats = getCharacterStats();
@@ -55,6 +59,9 @@ export function spendGold(amount: number, source: string) {
 
     // Subtract gold from stats using synchronous update for immediate effect
     addToCharacterStatSync('gold', -amount);
+
+    // Log transaction to database for audit trail
+    await logGoldTransaction(-amount, currentStats.gold - amount, 'spend', source, metadata);
 
     // Emit kingdom event for tracking weekly progress (negative amount)
     emitGoldGained(-amount, source);
@@ -80,10 +87,45 @@ export function spendGold(amount: number, source: string) {
 
 export function hasEnoughGold(amount: number): boolean {
   try {
-    const currentStats = getCharacterStats();
-    return currentStats.gold >= amount;
+    const stats = getCharacterStats();
+    return stats.gold >= amount;
   } catch (error) {
     console.error("Error checking gold balance:", error);
     return false;
+  }
+}
+
+// New function to log gold transactions to database
+async function logGoldTransaction(
+  amount: number, 
+  balanceAfter: number, 
+  transactionType: 'gain' | 'spend', 
+  source: string, 
+  metadata?: any
+) {
+  try {
+    const response = await fetch('/api/gold-transactions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        amount,
+        balanceAfter,
+        transactionType,
+        source,
+        metadata
+      }),
+    });
+
+    if (!response.ok) {
+      console.warn('[Gold Manager] Failed to log transaction to database:', response.status);
+    } else {
+      console.log('[Gold Manager] Transaction logged successfully:', { amount, source, balanceAfter });
+    }
+  } catch (error) {
+    console.warn('[Gold Manager] Error logging transaction:', error);
+    // Don't fail the main operation if logging fails
   }
 } 

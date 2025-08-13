@@ -1,39 +1,38 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
-import Image from "next/image"
-import { Tile, TileType } from '@/types/tiles'
-import { cn } from '@/lib/utils'
+import { useState, useEffect, useCallback } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Clock, Sparkles } from 'lucide-react'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { KINGDOM_TILES, getRandomItem, getRandomGold, isLucky as isLuckyTile, getRarityColor } from '@/lib/kingdom-tiles'
-import { KingdomTileModal } from './kingdom-tile-modal'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useToast } from '@/components/ui/use-toast'
+import { useUser } from '@clerk/nextjs'
+import { useSupabase } from '@/lib/hooks/useSupabase'
+import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 import { getCharacterStats } from '@/lib/character-stats-manager'
-import { spendGold } from '@/lib/gold-manager'
 import { calculateLevelFromExperience } from '@/types/character'
+import { Tile, TileType } from '@/types/tiles'
+import { gainGold } from '@/lib/gold-manager'
 
-// Remove the incorrect local function and use the imported one
+interface TileTimer {
+  id: string
+  x: number
+  y: number
+  tileType: string
+  endTime: number
+  isReady: boolean
+}
 
 interface KingdomGridWithTimersProps {
   grid: Tile[][]
   onTilePlace: (x: number, y: number, tile: Tile) => void
   selectedTile: Tile | null
   setSelectedTile: (tile: Tile | null) => void
-  onGridExpand?: (newGrid: Tile[][]) => void
+  onGridExpand?: () => void
   onGridUpdate?: (newGrid: Tile[][]) => void
   onGoldEarned?: (amount: number) => void
   onItemFound?: (item: { image: string; name: string; type: string }) => void
-}
-
-interface TileTimer {
-  x: number
-  y: number
-  tileId: string
-  endTime: number
-  isReady: boolean
 }
 
 export function KingdomGridWithTimers({ 
@@ -47,6 +46,9 @@ export function KingdomGridWithTimers({
   onItemFound
 }: KingdomGridWithTimersProps) {
   const { toast } = useToast()
+  const { user } = useUser()
+  const { supabase, isLoading: supabaseLoading } = useSupabase()
+  
   const [tileTimers, setTileTimers] = useState<TileTimer[]>([])
   const [showModal, setShowModal] = useState(false)
   const [modalData, setModalData] = useState<{
@@ -67,6 +69,7 @@ export function KingdomGridWithTimers({
   const [kingdomExpansions, setKingdomExpansions] = useState(0)
   const [buildTokens, setBuildTokens] = useState(0)
   const [playerLevel, setPlayerLevel] = useState(1)
+  const [isLoading, setIsLoading] = useState(false)
 
   // Load kingdom expansions from localStorage on mount
   useEffect(() => {
@@ -93,11 +96,76 @@ export function KingdomGridWithTimers({
   const nextExpansionLevel = 5 + kingdomExpansions * 5
   const canExpand = playerLevel >= nextExpansionLevel
 
+  // 🎯 REAL-TIME SUPABASE SUBSCRIPTIONS for property timers
+  useSupabaseRealtimeSync({
+    table: 'property_timers',
+    userId: user?.id,
+    onChange: () => {
+      console.log('[Kingdom Grid With Timers] Real-time update received from property_timers table');
+      loadPropertyTimers();
+    }
+  });
+
+  // 🎯 REAL-TIME SUPABASE SUBSCRIPTIONS for kingdom grid updates
+  useSupabaseRealtimeSync({
+    table: 'kingdom_grid',
+    userId: user?.id,
+    onChange: () => {
+      console.log('[Kingdom Grid With Timers] Real-time update received from kingdom_grid table');
+      // Trigger grid refresh
+      window.dispatchEvent(new Event('kingdom-grid-update'));
+    }
+  });
+
+  // Load property timers from database
+  const loadPropertyTimers = useCallback(async () => {
+    if (!user?.id) return;
+    
+    try {
+      const response = await fetch('/api/property-timers', {
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          const timers = data.data.map((timer: any) => ({
+            id: timer.id,
+            x: timer.x,
+            y: timer.y,
+            tileType: timer.tile_type,
+            endTime: new Date(timer.end_time).getTime(),
+            isReady: timer.is_ready
+          }));
+          setTileTimers(timers);
+        }
+      }
+    } catch (error) {
+      console.error('[Kingdom Grid With Timers] Error loading property timers:', error);
+    }
+  }, [user?.id]);
+
+  // Load timers on mount
+  useEffect(() => {
+    loadPropertyTimers();
+  }, [loadPropertyTimers]);
+
+  // Update timers every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTileTimers(prev => 
+        prev.map(timer => ({
+          ...timer,
+          isReady: Date.now() >= timer.endTime
+        }))
+      );
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   // Expand kingdom grid function
   const expandKingdomGrid = () => {
-    console.log('[Kingdom Grid] Expand button clicked')
-    console.log('[Kingdom Grid] Current level:', playerLevel, 'Required level:', nextExpansionLevel, 'Can expand:', canExpand)
-    
     if (!canExpand) {
       toast({
         title: 'Expansion Locked',
@@ -122,7 +190,7 @@ export function KingdomGridWithTimers({
       }
     }
     
-    // Add 3 new rows with vacant tiles
+    // Add 3 new rows with grass tiles
     for (let y = currentRows; y < newRows; y++) {
       newGrid[y] = new Array(currentCols);
       for (let x = 0; x < currentCols; x++) {
@@ -153,8 +221,8 @@ export function KingdomGridWithTimers({
     });
 
     // Call the callback to update the parent component's grid
-    if (onGridExpand) {
-      onGridExpand(newGrid);
+    if (onGridUpdate) {
+      onGridUpdate(newGrid);
     }
 
     toast({
@@ -163,292 +231,29 @@ export function KingdomGridWithTimers({
     });
   };
 
-  // Kingdom tile inventory for properties panel
-  const propertyInventory = [
-    {
-      id: 'house',
-      name: 'House',
-      image: '/images/kingdom-tiles/House.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 5, planks: 3 }
-    }
-  ];
-
-  // Property placement state
-  const [selectedProperty, setSelectedProperty] = useState<typeof propertyInventory[0] | null>(null)
-  const [placementMode, setPlacementMode] = useState(false)
-
-    // Get material counts from kingdom inventory
-    const getMaterialCounts = () => {
-      try {
-        const kingdomInventoryData = localStorage.getItem('kingdom-inventory')
-        if (!kingdomInventoryData) return { logs: 0, planks: 0 }
-        
-        const kingdomInventory = JSON.parse(kingdomInventoryData)
-        const logs = kingdomInventory.find((item: any) => item.id === 'material-logs')?.quantity || 0
-        const planks = kingdomInventory.find((item: any) => item.id === 'material-planks')?.quantity || 0
-        return { logs, planks }
-      } catch (error) {
-        console.error('[Property Placement] Error getting material counts:', error)
-        return { logs: 0, planks: 0 }
-      }
-    }
-
-    // Check if player can place a property
-    const canPlaceProperty = (property: typeof propertyInventory[0]) => {
-      const { logs, planks } = getMaterialCounts()
-      
-      if (property.costType === 'buildToken') {
-        return buildTokens >= property.cost && playerLevel >= property.levelRequired
-      } else {
-        const hasLogs = logs >= (property.materialCost.logs || 0)
-        const hasPlanks = planks >= (property.materialCost.planks || 0)
-        
-        return hasLogs && hasPlanks && playerLevel >= property.levelRequired
-      }
-    }
-
-  // Handle property selection for placement
-  const handlePropertySelect = (property: typeof propertyInventory[0]) => {
-    if (!canPlaceProperty(property)) {
-      const { logs, planks } = getMaterialCounts()
-      
-      let errorMessage = ''
-      if (property.costType === 'buildToken') {
-        errorMessage = `You need ${property.cost} build token${property.cost !== 1 ? 's' : ''} and level ${property.levelRequired} to place ${property.name}.`
-      } else {
-        const missingLogs = Math.max(0, (property.materialCost?.logs || 0) - logs)
-        const missingPlanks = Math.max(0, (property.materialCost?.planks || 0) - planks)
-        
-        if (missingLogs > 0 || missingPlanks > 0) {
-          const missingItems = []
-          if (missingLogs > 0) missingItems.push(`${missingLogs} logs`)
-          if (missingPlanks > 0) missingItems.push(`${missingPlanks} planks`)
-          errorMessage = `You need ${missingItems.join(' and ')} to place ${property.name}.`
-        } else {
-          errorMessage = `You need level ${property.levelRequired} to place ${property.name}.`
-        }
-      }
-      
-      toast({
-        title: 'Cannot Place Property',
-        description: errorMessage,
-        variant: 'destructive',
-      });
+  // Update tile click handler to support property placement
+  const handleTileClick = async (x: number, y: number, tile: Tile) => {
+    // If in placement mode, handle property placement
+    if (selectedTile) {
+      await handlePropertyPlacement(x, y);
       return;
     }
 
-    setSelectedProperty(property)
-    setPlacementMode(true)
-    setPropertiesOpen(false)
-    
-    toast({
-      title: 'Property Selected',
-      description: `Click on a vacant tile to place ${property.name}. Press ESC to cancel.`,
-    });
-  }
-
-  // Handle property placement on grid
-  const handlePropertyPlacement = (x: number, y: number) => {
-    if (!selectedProperty || !placementMode) return
-
-    const targetTile = grid[y]?.[x]
-    if (!targetTile || targetTile.type !== 'vacant') {
-      toast({
-        title: 'Invalid Placement',
-        description: 'You can only place properties on vacant tiles.',
-        variant: 'destructive',
-      });
-      return
-    }
-
-    // Create the new kingdom tile
-    const newTile: Tile = {
-      id: `${selectedProperty.id}-${x}-${y}`,
-      name: selectedProperty.name,
-      description: `A ${selectedProperty.name.toLowerCase()} building`,
-      type: selectedProperty.id as TileType,
-      image: selectedProperty.image,
-      cost: 0,
-      quantity: 0,
-      x,
-      y,
-      connections: [],
-      rotation: 0,
-      revealed: true,
-      isVisited: false,
-      ariaLabel: `${selectedProperty.name} tile`
-    }
-
-    // IMPORTANT: Update the local grid state directly instead of using onTilePlace
-    // This prevents the property from being treated as an inventory item
-    const updatedGrid = grid.map(row => row.slice())
-    if (updatedGrid[y]) {
-      updatedGrid[y][x] = newTile
-    }
-
-    // Update the parent component's grid using the callback
-    if (onGridUpdate) {
-      onGridUpdate(updatedGrid)
-    }
-
-    // Consume resources based on cost type
-    if (selectedProperty.costType === 'buildToken') {
-      // Deduct build tokens
-      const stats = JSON.parse(localStorage.getItem('character-stats') || '{}')
-      stats.buildTokens = Math.max(0, (stats.buildTokens || 0) - selectedProperty.cost)
-      localStorage.setItem('character-stats', JSON.stringify(stats))
-      setBuildTokens(stats.buildTokens)
-    } else if (selectedProperty.costType === 'material') {
-      // Consume materials
-      try {
-        const kingdomInventory = JSON.parse(localStorage.getItem('kingdom-inventory') || '[]')
-        if (selectedProperty.materialCost) {
-          if (selectedProperty.materialCost.logs) {
-            const logsIndex = kingdomInventory.findIndex((item: any) => item.id === 'material-logs')
-            if (logsIndex !== -1) {
-              kingdomInventory[logsIndex].quantity = Math.max(0, kingdomInventory[logsIndex].quantity - selectedProperty.materialCost.logs)
-            }
-          }
-          if (selectedProperty.materialCost.planks) {
-            const planksIndex = kingdomInventory.findIndex((item: any) => item.id === 'material-planks')
-            if (planksIndex !== -1) {
-              kingdomInventory[planksIndex].quantity = Math.max(0, kingdomInventory[planksIndex].quantity - selectedProperty.materialCost.planks)
-            }
-          }
-          localStorage.setItem('kingdom-inventory', JSON.stringify(kingdomInventory))
-        }
-      } catch (error) {
-        console.error('[Property Placement] Error consuming materials:', error)
-      }
-    }
-
-    // Reset placement mode
-    setSelectedProperty(null)
-    setPlacementMode(false)
-
-    toast({
-      title: 'Property Placed!',
-      description: `${selectedProperty.name} has been successfully placed on your kingdom!`,
-    });
-
-    // Note: The grid will be updated by the parent component
-    // The property should now appear on the kingdom map as a functional building
-  }
-
-  // Handle ESC key to cancel placement
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && placementMode) {
-        setSelectedProperty(null)
-        setPlacementMode(false)
-        toast({
-          title: 'Placement Cancelled',
-          description: 'Property placement has been cancelled.',
-        });
-      }
-    }
-
-    if (placementMode) {
-      document.addEventListener('keydown', handleKeyDown)
-      return () => document.removeEventListener('keydown', handleKeyDown)
-    }
-    
-    // Return undefined when not in placement mode
-    return undefined
-  }, [placementMode])
-
-  // Load timers from localStorage on mount
-  useEffect(() => {
-    const savedTimers = localStorage.getItem('kingdom-tile-timers')
-    if (savedTimers) {
-      setTileTimers(JSON.parse(savedTimers))
-    }
-  }, [])
-
-  // Save timers to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('kingdom-tile-timers', JSON.stringify(tileTimers))
-  }, [tileTimers])
-
-  // Update timers every second
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTileTimers(prev => 
-        prev.map(timer => {
-          const now = Date.now()
-          const isReady = now >= timer.endTime
-          return { ...timer, isReady }
-        })
-      )
-    }, 1000)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  // Initialize timers for placed kingdom tiles
-  useEffect(() => {
-    const newTimers: TileTimer[] = []
-    
-    grid.forEach((row, y) => {
-      row.forEach((tile, x) => {
-        if (tile && tile.type !== 'empty' && tile.type !== 'vacant') {
-          const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase())
-          if (kingdomTile) {
-            const existingTimer = tileTimers.find(t => t.x === x && t.y === y)
-            if (!existingTimer) {
-              // Create new timer
-              const endTime = Date.now() + (kingdomTile.timerMinutes * 60 * 1000)
-              newTimers.push({
-                x,
-                y,
-                tileId: kingdomTile.id,
-                endTime,
-                isReady: false
-              })
-            }
-          }
-        }
-      })
-    })
-
-    if (newTimers.length > 0) {
-      setTileTimers(prev => [...prev, ...newTimers])
-    }
-  }, [grid])
-
-  // Update tile click handler to support property placement
-  const handleTileClick = (x: number, y: number, tile: Tile) => {
-    // If in placement mode, handle property placement
-    if (placementMode && selectedProperty) {
-      handlePropertyPlacement(x, y)
-      return
-    }
-
     // Otherwise, handle normal tile interaction
-    const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase())
-    if (!kingdomTile) return
+    const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase());
+    if (!kingdomTile) return;
 
     // Check if tile is ready
-    const timer = tileTimers.find(t => t.x === x && t.y === y)
-    if (!timer || !timer.isReady) return
+    const timer = tileTimers.find(t => t.x === x && t.y === y);
+    if (!timer || !timer.isReady) return;
 
-    // Generate rewards
-    const wasLucky = isLuckyTile(kingdomTile.luckyChance)
-    const goldEarned = wasLucky ? kingdomTile.luckyGoldAmount : getRandomGold(...kingdomTile.normalGoldRange)
-    const itemFound = kingdomTile.possibleItems.length > 0 ? getRandomItem(kingdomTile.possibleItems) : null
+         // Generate rewards
+     const wasLucky = isLuckyTile(kingdomTile.luckyChance);
+     const goldEarned = wasLucky ? kingdomTile.luckyGoldAmount : getRandomGold(kingdomTile.normalGoldRange[0] || 50, kingdomTile.normalGoldRange[1] || 100);
+    const itemFound = kingdomTile.possibleItems.length > 0 ? getRandomItem(kingdomTile.possibleItems) : null;
 
-    // Update timer
-    const newEndTime = Date.now() + (kingdomTile.timerMinutes * 60 * 1000)
-    setTileTimers(prev => 
-      prev.map(t => 
-        t.x === x && t.y === y 
-          ? { ...t, endTime: newEndTime, isReady: false }
-          : t
-      )
-    )
+    // Update timer in database
+    await updateTimerInDatabase(x, y, false);
 
     // Show modal with rewards
     setModalData({
@@ -461,355 +266,290 @@ export function KingdomGridWithTimers({
       } : undefined,
       isLucky: wasLucky,
       message: kingdomTile.clickMessage
-    })
-    setShowModal(true)
+    });
+    setShowModal(true);
 
     // Trigger callbacks
-    if (onGoldEarned) onGoldEarned(goldEarned)
+    if (onGoldEarned) onGoldEarned(goldEarned);
     if (onItemFound && itemFound) {
       onItemFound({
         image: itemFound,
         name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
         type: kingdomTile.itemType
-      })
+      });
     }
-  }
+
+    // Gain gold
+    await gainGold(goldEarned, `kingdom-${tile.type.toLowerCase()}`);
+  };
+
+  // Handle property placement with database sync
+  const handlePropertyPlacement = async (x: number, y: number) => {
+    if (!selectedTile || !user?.id) return;
+    
+    setIsLoading(true);
+    try {
+      // Call the original onTilePlace function
+      onTilePlace(x, y, selectedTile);
+      
+             // Create timer in database
+       const timerEndTime = Date.now() + 60 * 60 * 1000; // Default 1 hour timer
+      
+      const response = await fetch('/api/property-timers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          tileId: selectedTile.id,
+          x,
+          y,
+          tileType: selectedTile.type,
+          endTime: new Date(timerEndTime).toISOString(),
+          isReady: false
+        })
+      });
+      
+      if (!response.ok) {
+        console.warn('[Kingdom Grid With Timers] Failed to create timer in database');
+      } else {
+        console.log('[Kingdom Grid With Timers] Timer created in database successfully');
+        // Refresh timers
+        loadPropertyTimers();
+      }
+      
+      // Clear selected tile
+      setSelectedTile(null);
+      
+    } catch (error) {
+      console.error('[Kingdom Grid With Timers] Error placing property:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Update timer in database
+  const updateTimerInDatabase = async (x: number, y: number, isReady: boolean) => {
+    if (!user?.id) return;
+    
+    try {
+      const response = await fetch('/api/property-timers', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          x,
+          y,
+          isReady,
+          endTime: new Date(Date.now() + 60 * 60 * 1000).toISOString() // 1 hour from now
+        })
+      });
+      
+      if (!response.ok) {
+        console.warn('[Kingdom Grid With Timers] Failed to update timer in database');
+      }
+    } catch (error) {
+      console.error('[Kingdom Grid With Timers] Error updating timer:', error);
+    }
+  };
 
   const formatTimeRemaining = (endTime: number) => {
-    const now = Date.now()
-    const timeLeft = endTime - now
+    const now = Date.now();
+    const timeRemaining = Math.max(0, endTime - now);
     
-    if (timeLeft <= 0) return 'Ready!'
+    if (timeRemaining === 0) return 'Ready!';
     
-    const minutes = Math.floor(timeLeft / 60000)
-    const seconds = Math.floor((timeLeft % 60000) / 1000)
+    const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
+    const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
     
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`
-  }
+    if (hours > 0) {
+      return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    } else {
+      return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+  };
 
-  const renderGridWithBorder = () => {
-    const rows = grid.length
-    const cols = grid[0]?.length || 6
+  // Helper functions for rewards
+  const isLuckyTile = (chance: number) => Math.random() < chance;
+  const getRandomGold = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+  const getRandomItem = (items: string[]) => items[Math.floor(Math.random() * items.length)];
 
-    return (
-      <div
-        className="grid gap-0 border-4 border-gray-700 rounded-lg overflow-hidden shadow-2xl"
-        style={{
-          gridTemplateColumns: `repeat(${cols}, 1fr)`,
-          gridTemplateRows: `repeat(${rows}, 1fr)`,
-          width: '100%',
-          height: 'auto',
-          minHeight: '400px',
-          background: 'none',
-          border: '20px solid #374151',
-        }}
-        aria-label="thrivehaven-grid"
-      >
-        {Array.from({ length: rows }).map((_, y) =>
-          Array.from({ length: cols }).map((_, x) => {
-            const tile = grid[y]?.[x]
-            const timer = tileTimers.find(t => t.x === x && t.y === y)
-            const kingdomTile = tile ? KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase()) : null
-            
-            if (!tile) {
-              return <div key={`empty-${x}-${y}`} className="w-full h-full aspect-square bg-black/40" />
-            }
-
-            const isKingdomTile = kingdomTile !== null
-            const isReady = timer?.isReady || false
-
-            return (
-              <button
-                key={`tile-${x}-${y}`}
-                className={cn(
-                  "group relative w-full h-full aspect-square bg-black/60 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-amber-500",
-                  selectedTile && "ring-2 ring-amber-500",
-                  isKingdomTile && isReady && "ring-2 ring-green-500 animate-pulse",
-                  // Add placement mode styling for vacant tiles
-                  placementMode && tile.type === 'vacant' && "ring-2 ring-amber-500 animate-pulse cursor-pointer hover:ring-amber-400"
-                )}
-                aria-label={tile.ariaLabel || tile.name || `Tile ${x},${y}`}
-                onClick={() => {
-                  if (placementMode && selectedProperty) {
-                    handlePropertyPlacement(x, y)
-                  } else if (isKingdomTile && isReady) {
-                    handleTileClick(x, y, tile)
-                  } else if (selectedTile && (selectedTile.quantity || 0) > 0) {
-                    onTilePlace(x, y, selectedTile)
-                  }
-                }}
-                style={{ minWidth: 0, minHeight: 0, borderRadius: 0, margin: 0, padding: 0 }}
-              >
-                <Image
-                  src={tile.image}
-                  alt={tile.name}
-                  fill
-                  className="object-cover"
-                  draggable={false}
-                  unoptimized
-                  onError={(e) => { e.currentTarget.src = '/images/placeholders/item-placeholder.svg' }}
-                />
-                
-                {/* Placement mode indicator for vacant tiles */}
-                {placementMode && tile.type === 'vacant' && (
-                  <div className="absolute inset-0 bg-amber-500/20 flex items-center justify-center">
-                    <div className="bg-amber-600 text-white px-3 py-1 rounded-lg text-sm font-bold shadow-lg">
-                      Place {selectedProperty?.name}
-                    </div>
-                  </div>
-                )}
-                
-                {/* Timer overlay for kingdom tiles - Only show on hover */}
-                {isKingdomTile && timer && (
-                  <div className="group-hover:opacity-100 opacity-0 transition-opacity duration-200 absolute bottom-1 left-1 right-1">
-                    <div className={cn(
-                      "text-xs px-2 py-1 rounded text-center font-mono",
-                      isReady 
-                        ? "bg-green-500 text-white" 
-                        : "bg-black/80 text-white",
-                      // Mobile-specific improvements
-                      "sm:text-xs md:text-sm",
-                      "min-h-[24px] flex items-center justify-center"
-                    )}>
-                      {isReady ? (
-                        <div className="flex items-center justify-center gap-1">
-                          <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
-                          <span className="whitespace-nowrap">Ready!</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center gap-1">
-                          <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-                          <span className="whitespace-nowrap">{formatTimeRemaining(timer.endTime)}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </button>
-            )
-          })
-        )}
-      </div>
-    )
-  }
+  // Kingdom tile definitions
+  const KINGDOM_TILES = [
+    {
+      id: 'castle',
+      name: 'Castle',
+      timerMinutes: 60,
+      normalGoldRange: [50, 100],
+      luckyChance: 0.1,
+      luckyGoldAmount: 200,
+      possibleItems: ['/images/items/crown.png', '/images/items/sword.png'],
+      itemType: 'treasure',
+      clickMessage: 'Your castle provides steady income!'
+    },
+    // Add more tile definitions as needed
+  ];
 
   return (
-    <>
-      <div className="relative w-full flex items-center justify-center">
-        {/* Placement mode indicator */}
-        {placementMode && selectedProperty && (
-          <div className="absolute top-4 left-4 z-20 bg-amber-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
-            <span className="text-sm font-bold">Placing: {selectedProperty.name}</span>
-            <span className="text-xs">Click vacant tile or press ESC to cancel</span>
-          </div>
-        )}
-        
-        {/* Floating + button in top right corner of grid */}
-        <button
-          className={cn(
-            "absolute top-4 right-4 z-20 w-14 h-14 sm:w-12 sm:h-12 bg-amber-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl sm:text-3xl font-bold hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 touch-manipulation min-h-[44px] min-w-[44px]",
-            "transition-all duration-200 hover:scale-105 active:scale-95"
-          )}
-          aria-label="Open properties panel"
-          onClick={() => setPropertiesOpen(true)}
-        >
-          +
-        </button>
-        {/* Floating expand button below the + button */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              className={cn(
-                "absolute top-24 sm:top-20 right-4 z-20 w-14 h-14 sm:w-12 sm:h-12 bg-amber-600 text-white rounded-full shadow-lg flex items-center justify-center text-base sm:text-sm font-bold hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation min-h-[44px] min-w-[44px]",
-                "transition-all duration-200 hover:scale-105 active:scale-95"
+    <div className="w-full max-w-6xl mx-auto p-4" aria-label="kingdom-grid-with-timers-container">
+      {/* Header with expansion info */}
+      <Card className="mb-6 bg-black border-amber-800">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-amber-500 text-2xl font-bold">Kingdom Grid with Timers</CardTitle>
+              <CardDescription className="text-gray-300">
+                Build your kingdom and collect rewards from ready properties
+              </CardDescription>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="text-center">
+                <div className="text-sm text-gray-400">Level Required</div>
+                <div className="text-lg font-bold text-amber-500">{nextExpansionLevel}</div>
+              </div>
+              <div className="text-center">
+                <div className="text-sm text-gray-400">Your Level</div>
+                <div className={`text-lg font-bold ${playerLevel >= nextExpansionLevel ? 'text-green-500' : 'text-red-500'}`}>
+                  {playerLevel}
+                </div>
+              </div>
+              {canExpand && onGridExpand && (
+                <Button
+                  onClick={expandKingdomGrid}
+                  className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900"
+                  aria-label="Expand kingdom grid"
+                >
+                  🚀 Expand Kingdom Grid
+                </Button>
               )}
-              onClick={expandKingdomGrid}
-              disabled={!canExpand}
-              aria-label="Expand kingdom grid"
-            >
-              🏗️
-            </button>
-          </TooltipTrigger>
-          <TooltipContent 
-            side="left" 
-            className="bg-gray-900 text-white border-amber-800/30 max-w-xs break-words"
-          >
-            {canExpand 
-              ? `Expand kingdom (Level ${playerLevel} required: ${nextExpansionLevel})`
-              : `Requires Level ${nextExpansionLevel} to expand (Current: ${playerLevel})`
-            }
-          </TooltipContent>
-        </Tooltip>
-        
-        {renderGridWithBorder()}
-      </div>
-      
-      {/* Side panel for properties */}
-      {propertiesOpen && (
-        <div className="fixed inset-y-0 right-0 w-full max-w-md bg-gray-900 z-50 shadow-lg border-l border-amber-800/40 flex flex-col" role="dialog" aria-modal="true" aria-label="Properties side panel">
-          <div className="flex justify-between items-center p-4 border-b border-amber-800/20">
-            <h3 className="text-2xl font-bold text-amber-400">Properties</h3>
-            <button onClick={() => setPropertiesOpen(false)} className="text-amber-400 hover:text-amber-200 text-2xl bg-black/40 rounded-full w-10 h-10 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-amber-500" aria-label="Close properties panel">×</button>
+            </div>
           </div>
-          <div className="px-4 pt-2 pb-0">
-            <div className="text-lg font-bold text-amber-300 mb-2 flex items-center justify-between">
-              <span><a href="/quests" className="text-blue-800 hover:text-blue-700 underline cursor-pointer">Streak</a> tokens: <span className="text-amber-400">{buildTokens}</span></span>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center p-3 bg-gray-800 rounded-lg">
+              <div className="text-sm text-gray-400">Build Tokens</div>
+              <div className="text-xl font-bold text-amber-500">{buildTokens}</div>
+            </div>
+            <div className="text-center p-3 bg-gray-800 rounded-lg">
+              <div className="text-sm text-gray-400">Expansions</div>
+              <div className="text-xl font-bold text-blue-500">{kingdomExpansions}</div>
+            </div>
+            <div className="text-center p-3 bg-gray-800 rounded-lg">
+              <div className="text-sm text-gray-400">Active Timers</div>
+              <div className="text-xl font-bold text-green-500">{tileTimers.filter(t => !t.isReady).length}</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Grid Display with Timers */}
+      <div className="mb-6">
+        <div className="grid gap-1" style={{ 
+          gridTemplateColumns: `repeat(${grid[0]?.length || 0}, minmax(0, 1fr))` 
+        }}>
+          {grid.map((row, y) =>
+            row.map((tile, x) => {
+              const timer = tileTimers.find(t => t.x === x && t.y === y);
+              const isReady = timer?.isReady || false;
+              
+              return (
+                <div
+                  key={`${x}-${y}`}
+                  className={`relative w-16 h-16 border border-gray-700 bg-gray-800 flex items-center justify-center cursor-pointer hover:border-amber-500 transition-colors ${
+                    isReady ? 'ring-2 ring-green-500' : ''
+                  }`}
+                  onClick={() => handleTileClick(x, y, tile)}
+                  aria-label={`Grid position ${x}, ${y}${tile && tile.type !== 'empty' ? ` - ${tile.type} tile` : ' - empty'}${isReady ? ' - Ready for collection' : ''}`}
+                  role="button"
+                  tabIndex={0}
+                >
+                  {tile && tile.type !== 'empty' ? (
+                    <img
+                      src={tile.image || `/images/kingdom-tiles/${tile.type}.png`}
+                      alt={tile.type}
+                      className="w-12 h-12 object-contain"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 bg-gray-700 rounded opacity-50" />
+                  )}
+                  
+                  {/* Timer overlay */}
+                  {timer && (
+                    <div className="absolute -top-2 -right-2 bg-black/80 text-white text-xs px-2 py-1 rounded-full">
+                      {formatTimeRemaining(timer.endTime)}
+                    </div>
+                  )}
+                  
+                  {/* Ready indicator */}
+                  {isReady && (
+                    <div className="absolute -top-1 -left-1 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                      ✓
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+
+      {/* Properties Panel */}
+      {propertiesOpen && (
+        <Card className="bg-black border-amber-800">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-amber-500">Properties</CardTitle>
               <Button
-                onClick={() => {
-                  if (spendGold(1000, 'build-token-purchase')) {
-                    const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
-                    stats.buildTokens = (stats.buildTokens || 0) + 1;
-                    localStorage.setItem('character-stats', JSON.stringify(stats));
-                    setBuildTokens(stats.buildTokens);
-                  }
-                }}
-                className="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 text-sm"
-                disabled={(() => {
-                  const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
-                  return (stats.gold || 0) < 1000;
-                })()}
+                onClick={() => setPropertiesOpen(false)}
+                variant="outline"
+                size="sm"
+                aria-label="Close properties panel"
               >
-                Buy (1000g)
+                ✕
               </Button>
             </div>
-            {/* Tabs for Place and Buy */}
-            <div className="flex gap-2 mb-4">
-              <button
-                className={`flex-1 py-2 rounded-t bg-gray-800 text-amber-300 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500 ${propertyTab === 'place' ? 'bg-amber-800 text-white' : ''}`}
-                aria-label="Place properties tab"
-                onClick={() => setPropertyTab('place')}
-              >
-                Place
-              </button>
-              <button
-                className={`flex-1 py-2 rounded-t bg-gray-800 text-amber-300 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500 ${propertyTab === 'buy' ? 'bg-amber-800 text-white' : ''}`}
-                aria-label="Buy properties tab"
-                onClick={() => setPropertyTab('buy')}
-              >
-                Buy
-              </button>
-            </div>
-          </div>
-          <div className="flex-1 overflow-y-auto p-4">
-            <div className="grid grid-cols-2 gap-6">
-              {propertyInventory.map(tile => {
-                const canPlace = canPlaceProperty(tile)
-                const { logs, planks } = getMaterialCounts()
-                
-                return (
-                  <button
-                    key={tile.id}
-                    className={`relative flex flex-col items-center border border-amber-800/30 bg-black/60 rounded-xl p-3 shadow-lg transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-500 ${
-                      canPlace 
-                        ? 'hover:border-amber-500/50 hover:shadow-amber-500/20 cursor-pointer' 
-                        : 'opacity-50 cursor-not-allowed'
-                    }`}
-                    onClick={() => canPlace && handlePropertySelect(tile)}
-                    disabled={!canPlace}
-                    aria-label={`Select ${tile.name} for placement`}
-                  >
-                    <div className="relative w-full aspect-square mb-3">
-                      <Image
-                        src={tile.image.startsWith('/') ? tile.image : `/images/kingdom-tiles/${tile.image}`}
-                        alt={tile.name}
-                        fill
-                        className="object-contain rounded-xl"
-                        draggable={false}
-                        unoptimized
-                      />
-                      {/* Level requirement badge */}
-                      {tile.levelRequired > 1 && (
-                        <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
-                          Lv.{tile.levelRequired}
-                        </div>
-                      )}
-                      {/* Cost badge */}
-                      <div className={`absolute top-2 left-2 text-white text-xs px-2 py-1 rounded-full ${
-                        tile.costType === 'buildToken' ? 'bg-amber-600' : 'bg-green-600'
-                      }`}>
-                        {tile.costType === 'buildToken' 
-                          ? `${tile.cost} token${tile.cost !== 1 ? 's' : ''}`
-                          : 'Materials'
-                        }
-                      </div>
-                    </div>
-                    <div className="text-base font-bold text-amber-300 text-center truncate w-full mb-1">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="truncate">{tile.name}</span>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <div className="text-center">
-                            <div className="font-bold">{tile.name}</div>
-                            {tile.costType === 'buildToken' ? (
-                              <div className="text-sm text-gray-300">
-                                Cost: {tile.cost} build token{tile.cost !== 1 ? 's' : ''}
-                              </div>
-                            ) : (
-                              <div className="text-sm text-gray-300">
-                                <div>Cost: Materials</div>
-                                {tile.materialCost?.logs && (
-                                  <div className="text-green-300">🪵 {logs}/{tile.materialCost.logs}</div>
-                                )}
-                                {tile.materialCost?.planks && (
-                                  <div className="text-green-300">🪵 {planks}/{tile.materialCost.planks}</div>
-                                )}
-                              </div>
-                            )}
-                            {tile.levelRequired > 1 && (
-                              <div className="text-sm text-blue-300">
-                                Requires Level {tile.levelRequired}
-                              </div>
-                            )}
-                            {!canPlace && (
-                              <div className="text-sm text-red-300 mt-1">
-                                {tile.costType === 'buildToken' 
-                                  ? (buildTokens < tile.cost ? 'Not enough tokens' : `Need Level ${tile.levelRequired}`)
-                                  : (logs < (tile.materialCost?.logs || 0) || planks < (tile.materialCost?.planks || 0) 
-                                      ? 'Not enough materials' 
-                                      : `Need Level ${tile.levelRequired}`)
-                                }
-                              </div>
-                            )}
-                          </div>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                    <div className="text-sm text-amber-400 text-center">
-                      {canPlace ? 'Click to place' : 'Requirements not met'}
-                    </div>
-                    {/* Material costs display */}
-                    {tile.costType === 'material' && tile.materialCost && (
-                      <div className="text-xs text-gray-400 text-center mt-1">
-                        <div className="flex items-center justify-center gap-2">
-                          {tile.materialCost.logs && (
-                            <span className={`${logs >= tile.materialCost.logs ? 'text-green-400' : 'text-red-400'}`}>
-                              🪵 {logs}/{tile.materialCost.logs}
-                            </span>
-                          )}
-                          {tile.materialCost.planks && (
-                            <span className={`${planks >= tile.materialCost.planks ? 'text-green-400' : 'text-red-400'}`}>
-                              🪵 {planks}/{tile.materialCost.planks}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </button>
-                )
-              })}
-            </div>
+          </CardHeader>
+          <CardContent>
+            <Tabs value={propertyTab} onValueChange={(value) => setPropertyTab(value as 'place' | 'buy')}>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="place" aria-label="Place tiles tab">Place</TabsTrigger>
+                <TabsTrigger value="buy" aria-label="Buy tiles tab">Buy</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="place" className="mt-4">
+                <ScrollArea className="h-64">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {/* Property inventory would go here */}
+                  </div>
+                </ScrollArea>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Properties Toggle Button */}
+      <div className="text-center">
+        <Button
+          onClick={() => setPropertiesOpen(!propertiesOpen)}
+          variant="outline"
+          className="bg-amber-800 text-white hover:bg-amber-700"
+          aria-label="Toggle properties panel"
+        >
+          {propertiesOpen ? 'Hide Properties' : 'Show Properties'}
+        </Button>
+      </div>
+
+      {/* Loading State */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 p-6 rounded-lg text-center">
+            <div className="text-white text-lg mb-2">Processing...</div>
+            <div className="text-gray-400 text-sm">Please wait while we sync with the database</div>
           </div>
         </div>
       )}
-      
-      {showModal && modalData && (
-        <KingdomTileModal
-          isOpen={showModal}
-          onClose={() => setShowModal(false)}
-          reward={modalData}
-        />
-      )}
-    </>
-  )
+    </div>
+  );
 } 

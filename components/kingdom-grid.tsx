@@ -1,33 +1,25 @@
 "use client"
 
-import React from "react";
-import Image from "next/image";
-import { Tile, TileType } from '@/types/tiles';
-import { cn } from '@/lib/utils';
-import { useEffect, useCallback, useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect, useCallback } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useToast } from '@/components/ui/use-toast'
+import { useUser } from '@clerk/nextjs'
+import { useSupabase } from '@/lib/hooks/useSupabase'
+import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 import { getCharacterStats } from '@/lib/character-stats-manager'
-import { toast } from '@/components/ui/use-toast'
-import { spendGold } from '@/lib/gold-manager'
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { calculateLevelFromExperience } from '@/types/character';
-
-const KINGDOM_GRID_COLS = 8;
-const KINGDOM_GRID_ROWS = 16; // Increased from 8 to 16 to make it vertical
-
-const tileImageFiles = [
-  'Archery.png', 'Blacksmith.png', 'Castle.png', 'Fisherman.png', 'Foodcourt.png', 'Fountain.png', 'Grocery.png', 'House.png', 'Inn.png', 'Jousting.png', 'Mansion.png', 'Mayor.png', 'Pond.png', 'Sawmill.png', 'Temple.png', 'Vegetables.png', 'Watchtower.png', 'Well.png', 'Windmill.png', 'Wizard.png',
-];
-const tileNames: Record<string, string> = {
-  Archery: 'Archery', Blacksmith: 'Blacksmith', Castle: 'Castle', Fisherman: 'Fisherman', Foodcourt: 'Foodcourt', Fountain: 'Fountain', Grocery: 'Grocery', House: 'House', Inn: 'Inn', Jousting: 'Jousting', Mansion: 'Mansion', Mayor: 'Mayor', Pond: 'Pond', Sawmill: 'Sawmill', Temple: 'Temple', Vegetables: 'Vegetables', Watchtower: 'Watchtower', Well: 'Well', Windmill: 'Windmill', Wizard: 'Wizard',
-};
+import { calculateLevelFromExperience } from '@/types/character'
+import { Tile, TileType } from '@/types/tiles'
 
 interface KingdomGridProps {
-  grid: Tile[][];
-  onTilePlace: (x: number, y: number, tile: Tile) => void;
-  selectedTile: Tile | null;
-  setSelectedTile: (tile: Tile | null) => void;
-  onGridExpand?: (newGrid: Tile[][]) => void; // Add callback for grid expansion
+  grid: Tile[][]
+  onTilePlace: (x: number, y: number, tile: Tile) => void
+  selectedTile: Tile | null
+  setSelectedTile: (tile: Tile | null) => void
+  onGridExpand?: () => void
 }
 
 export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, onGridExpand }: KingdomGridProps) {
@@ -40,6 +32,10 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
     quantity: 0
   };
 
+  const { toast } = useToast();
+  const { user } = useUser();
+  const { supabase, isLoading: supabaseLoading } = useSupabase();
+  
   const [propertiesOpen, setPropertiesOpen] = useState(false);
   const [propertyTab, setPropertyTab] = useState<'place' | 'buy'>('place');
   const [buildTokens, setBuildTokens] = useState(0);
@@ -50,10 +46,26 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
     return 0;
   });
   const [playerLevel, setPlayerLevel] = useState<number>(1);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Dynamically generate property inventory
   const [propertyInventory, setPropertyInventory] = useState<Tile[]>(() => {
-    return tileImageFiles.map((file) => {
+    const tileImageFiles = [
+      'Archery.png', 'Blacksmith.png', 'Castle.png', 'Fisherman.png', 'Foodcourt.png', 
+      'Fountain.png', 'Grocery.png', 'House.png', 'Inn.png', 'Jousting.png', 
+      'Mansion.png', 'Mayor.png', 'Pond.png', 'Sawmill.png', 'Temple.png', 
+      'Vegetables.png', 'Watchtower.png', 'Well.png', 'Windmill.png', 'Wizard.png'
+    ];
+    
+    const tileNames: Record<string, string> = {
+      Archery: 'Archery', Blacksmith: 'Blacksmith', Castle: 'Castle', Fisherman: 'Fisherman', 
+      Foodcourt: 'Foodcourt', Fountain: 'Fountain', Grocery: 'Grocery', House: 'House', 
+      Inn: 'Inn', Jousting: 'Jousting', Mansion: 'Mansion', Mayor: 'Mayor', 
+      Pond: 'Pond', Sawmill: 'Sawmill', Temple: 'Temple', Vegetables: 'Vegetables', 
+      Watchtower: 'Watchtower', Well: 'Well', Windmill: 'Windmill', Wizard: 'Wizard'
+    };
+    
+    return tileImageFiles.map((file: string) => {
       const name = file.replace('.png', '');
       return {
         id: name.toLowerCase(),
@@ -129,6 +141,28 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
     console.log('[Kingdom Grid] Force refresh - Level:', currentLevel, 'Expansions:', kingdomExpansions);
   }, [kingdomExpansions]);
 
+  // 🎯 REAL-TIME SUPABASE SUBSCRIPTIONS for kingdom grid updates
+  useSupabaseRealtimeSync({
+    table: 'kingdom_grid',
+    userId: user?.id,
+    onChange: () => {
+      console.log('[Kingdom Grid] Real-time update received from kingdom_grid table');
+      // Trigger grid refresh
+      window.dispatchEvent(new Event('kingdom-grid-update'));
+    }
+  });
+
+  // 🎯 REAL-TIME SUPABASE SUBSCRIPTIONS for property timers
+  useSupabaseRealtimeSync({
+    table: 'property_timers',
+    userId: user?.id,
+    onChange: () => {
+      console.log('[Kingdom Grid] Real-time update received from property_timers table');
+      // Trigger timer refresh
+      window.dispatchEvent(new Event('property-timers-update'));
+    }
+  });
+
   // Handler for buying a property tile
   const handleBuyProperty = (tile: Tile) => {
     if (buildTokens < (tile.cost || 1)) return;
@@ -149,344 +183,225 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
   const canExpand = playerLevel >= nextExpansionLevel;
 
   // Manual refresh function for debugging
-  const refreshStats = () => {
+  const handleManualRefresh = () => {
     const stats = getCharacterStats();
     const currentLevel = calculateLevelFromExperience(stats.experience || 0);
     setPlayerLevel(currentLevel);
     console.log('[Kingdom Grid] Manual refresh - Level:', currentLevel, 'Can expand:', currentLevel >= nextExpansionLevel);
   };
 
-  // Expand kingdom grid function
-  const expandKingdomGrid = () => {
-    console.log('[Kingdom Grid] Expand button clicked');
-    console.log('[Kingdom Grid] Current level:', playerLevel, 'Required level:', nextExpansionLevel, 'Can expand:', canExpand);
+  // Handle tile placement with database sync
+  const handleTilePlacement = useCallback(async (x: number, y: number, tile: Tile) => {
+    if (!user?.id) return;
     
-    if (!canExpand) {
-      toast({
-        title: 'Expansion Locked',
-        description: `Reach level ${nextExpansionLevel} to expand your kingdom! (Current level: ${playerLevel})`,
-        variant: 'destructive',
+    setIsLoading(true);
+    try {
+      // Call the original onTilePlace function
+      onTilePlace(x, y, tile);
+      
+      // Save to database
+      const response = await fetch('/api/kingdom-grid', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ grid })
       });
-      return;
-    }
-
-    const currentRows = grid.length;
-    const currentCols = grid[0]?.length || 6;
-    const newRows = currentRows + 3;
-    
-    // Create new grid with 3 additional rows
-    const newGrid: Tile[][] = [];
-    
-    // Add existing rows
-    for (let y = 0; y < currentRows; y++) {
-      const currentRow = grid[y];
-      if (currentRow && Array.isArray(currentRow)) {
-        newGrid[y] = [...currentRow];
+      
+      if (!response.ok) {
+        console.warn('[Kingdom Grid] Failed to save grid to database');
+      } else {
+        console.log('[Kingdom Grid] Grid saved to database successfully');
       }
+    } catch (error) {
+      console.error('[Kingdom Grid] Error saving grid:', error);
+    } finally {
+      setIsLoading(false);
     }
-    
-    // Add 3 new rows with grass tiles
-    for (let y = currentRows; y < newRows; y++) {
-      newGrid[y] = new Array(currentCols);
-      for (let x = 0; x < currentCols; x++) {
-        newGrid[y]![x] = {
-          id: `vacant-${x}-${y}`,
-          name: 'Vacant',
-          description: 'A vacant plot of land',
-          type: 'vacant',
-          image: '/images/kingdom-tiles/Vacant.png',
-          cost: 0,
-          quantity: 0,
-          x,
-          y,
-          connections: [],
-          rotation: 0,
-          revealed: true,
-          isVisited: false,
-          ariaLabel: 'Vacant tile'
-        };
-      }
-    }
-    
-    // Update expansion count
-    setKingdomExpansions((prev: number) => {
-      const newVal = prev + 1;
-      localStorage.setItem('kingdom-grid-expansions', String(newVal));
-      return newVal;
-    });
-
-    // Call the callback to update the parent component's grid
-    if (onGridExpand) {
-      onGridExpand(newGrid);
-    }
-
-    toast({
-      title: "Kingdom Expanded",
-      description: "Your kingdom has been expanded with 3 new rows of vacant land!",
-    });
-  };
-
-  // Keyboard shortcut for opening properties
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'p' || e.key === 'P') {
-        setPropertiesOpen((open) => !open);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    
-    // 🎯 LISTEN FOR BUILD TOKEN UPDATES from quest completion
-    const handleBuildTokensGained = (event: CustomEvent) => {
-      console.log('[Kingdom Grid] Build tokens gained from quest:', event.detail);
-      // Refresh build tokens from localStorage
-      const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
-      setBuildTokens(stats.buildTokens || 0);
-    };
-    
-    const handleStatsUpdate = () => {
-      // Refresh build tokens when character stats update
-      const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
-      setBuildTokens(stats.buildTokens || 0);
-    };
-    
-    window.addEventListener('kingdom:buildTokensGained', handleBuildTokensGained as EventListener);
-    window.addEventListener('character-stats-update', handleStatsUpdate);
-    
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('kingdom:buildTokensGained', handleBuildTokensGained as EventListener);
-      window.removeEventListener('character-stats-update', handleStatsUpdate);
-    };
-  }, []);
-
-  // --- GRID WITH BORDER LOGIC ---
-  const renderGridWithBorder = () => {
-    const rows = grid.length;
-    const cols = grid[0]?.length || 0;
-    return (
-      <div
-        className="grid gap-0 border-5 border-gray-700"
-        style={{
-          gridTemplateColumns: `repeat(${cols}, 1fr)`,
-          gridTemplateRows: `repeat(${rows}, 1fr)`,
-          width: '100%',
-          height: 'auto',
-          minHeight: '400px',
-          background: 'none',
-          border: '20px solid #374151', // dark grey border
-        }}
-        aria-label="thrivehaven-grid"
-      >
-        {Array.from({ length: rows }).map((_, y) =>
-          Array.from({ length: cols }).map((_, x) => {
-            const tile = grid[y]?.[x];
-            if (!tile) {
-              return <div key={`empty-${x}-${y}`} className="w-full h-full aspect-square bg-black/40" />;
-            }
-            return (
-              <button
-                key={`tile-${x}-${y}`}
-                className={cn(
-                  "relative w-full h-full aspect-square bg-black/60 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-amber-500",
-                  selectedTile && propertiesOpen && "ring-2 ring-amber-500"
-                )}
-                aria-label={tile.ariaLabel || tile.name || `Tile ${x},${y}`}
-                onClick={() => {
-                  if (selectedTile && (selectedTile.quantity || 0) > 0) {
-                    onTilePlace(x, y, selectedTile);
-                  }
-                }}
-                style={{ minWidth: 0, minHeight: 0, borderRadius: 0, margin: 0, padding: 0 }}
-              >
-                <Image
-                  src={tile.image}
-                  alt={tile.name}
-                  fill
-                  className="object-cover"
-                  draggable={false}
-                  unoptimized
-                  onError={(e) => { e.currentTarget.src = '/images/placeholders/item-placeholder.svg'; }}
-                />
-              </button>
-            );
-          })
-        )}
-      </div>
-    );
-  };
+  }, [user?.id, onTilePlace, grid]);
 
   return (
-    <div className="w-full flex flex-col items-center justify-center" style={{ padding: 0, margin: 0 }}>
-      <div className="relative w-full flex items-center justify-center">
-        {/* Floating + button in top right corner of grid */}
-        <button
-          className="absolute top-4 right-4 z-20 w-14 h-14 sm:w-12 sm:h-12 bg-amber-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl sm:text-3xl font-bold hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 touch-manipulation min-h-[44px]"
-          aria-label="Open properties panel"
-          onClick={() => setPropertiesOpen(true)}
-        >
-          +
-        </button>
-        {/* Floating expand button below the + button */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              className="absolute top-24 sm:top-20 right-4 z-20 w-14 h-14 sm:w-12 sm:h-12 bg-amber-600 text-white rounded-full shadow-lg flex items-center justify-center text-base sm:text-sm font-bold hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation min-h-[44px]"
-              onClick={expandKingdomGrid}
-              disabled={!canExpand}
-              aria-label="Expand kingdom grid"
-            >
-              🏗️
-            </button>
-          </TooltipTrigger>
-          <TooltipContent 
-            side="left" 
-            className="bg-gray-900 text-white border-amber-800/30 max-w-xs break-words"
-          >
-            {canExpand 
-              ? `Expand kingdom (Level ${playerLevel} required: ${nextExpansionLevel})`
-              : `Requires Level ${nextExpansionLevel} to expand (Current: ${playerLevel})`
-            }
-          </TooltipContent>
-        </Tooltip>
-        
-        {renderGridWithBorder()}
-      </div>
-      {/* Side panel for properties */}
-      {propertiesOpen && (
-        <div className="fixed inset-y-0 right-0 w-full max-w-md bg-gray-900 z-50 shadow-lg border-l border-amber-800/40 flex flex-col" role="dialog" aria-modal="true" aria-label="Properties side panel">
-          <div className="flex justify-between items-center p-4 border-b border-amber-800/20">
-            <h3 className="text-2xl font-bold text-amber-400">Properties</h3>
-            <button onClick={() => setPropertiesOpen(false)} className="text-amber-400 hover:text-amber-200 text-2xl bg-black/40 rounded-full w-10 h-10 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-amber-500" aria-label="Close properties panel">×</button>
-          </div>
-          <div className="px-4 pt-2 pb-0">
-            <div className="text-lg font-bold text-amber-300 mb-2 flex items-center justify-between">
-              <span><a href="/quests" className="text-blue-800 hover:text-blue-700 underline cursor-pointer">Streak</a> tokens: <span className="text-amber-400">{buildTokens}</span></span>
+    <div className="w-full max-w-6xl mx-auto p-4" aria-label="kingdom-grid-container">
+      {/* Header with expansion info */}
+      <Card className="mb-6 bg-black border-amber-800">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-amber-500 text-2xl font-bold">Kingdom Grid</CardTitle>
+              <CardDescription className="text-gray-300">
+                Build your kingdom by placing tiles and expanding your realm
+              </CardDescription>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="text-center">
+                <div className="text-sm text-gray-400">Level Required</div>
+                <div className="text-lg font-bold text-amber-500">{nextExpansionLevel}</div>
+              </div>
+              <div className="text-center">
+                <div className="text-sm text-gray-400">Your Level</div>
+                <div className={`text-lg font-bold ${playerLevel >= nextExpansionLevel ? 'text-green-500' : 'text-red-500'}`}>
+                  {playerLevel}
+                </div>
+              </div>
               <Button
-                onClick={() => {
-                  if (spendGold(1000, 'build-token-purchase')) {
-                    const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
-                    stats.buildTokens = (stats.buildTokens || 0) + 1;
-                    localStorage.setItem('character-stats', JSON.stringify(stats));
-                    setBuildTokens(stats.buildTokens);
-                  }
-                }}
-                className="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 text-sm"
-                disabled={(() => {
-                  const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
-                  return (stats.gold || 0) < 1000;
-                })()}
+                onClick={handleManualRefresh}
+                variant="outline"
+                size="sm"
+                aria-label="Refresh kingdom grid stats"
               >
-                Buy (1000g)
+                Refresh
               </Button>
             </div>
-            {/* Tabs for Place and Buy */}
-            <div className="flex gap-2 mb-4">
-              <button
-                className={`flex-1 py-2 rounded-t bg-gray-800 text-amber-300 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500 ${propertyTab === 'place' ? 'bg-amber-800 text-white' : ''}`}
-                aria-label="Place properties tab"
-                onClick={() => setPropertyTab('place')}
-              >
-                Place
-              </button>
-              <button
-                className={`flex-1 py-2 rounded-t bg-gray-800 text-amber-300 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500 ${propertyTab === 'buy' ? 'bg-amber-800 text-white' : ''}`}
-                aria-label="Buy properties tab"
-                onClick={() => setPropertyTab('buy')}
-              >
-                Buy
-              </button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center p-3 bg-gray-800 rounded-lg">
+              <div className="text-sm text-gray-400">Build Tokens</div>
+              <div className="text-xl font-bold text-amber-500">{buildTokens}</div>
+            </div>
+            <div className="text-center p-3 bg-gray-800 rounded-lg">
+              <div className="text-sm text-gray-400">Expansions</div>
+              <div className="text-xl font-bold text-blue-500">{kingdomExpansions}</div>
+            </div>
+            <div className="text-center p-3 bg-gray-800 rounded-lg">
+              <div className="text-sm text-gray-400">Grid Size</div>
+              <div className="text-xl font-bold text-green-500">{grid.length}x{grid[0]?.length || 0}</div>
             </div>
           </div>
-          <div className="flex-1 overflow-y-auto p-4">
-            <div className="grid grid-cols-2 gap-6">
-              {propertyInventory.map(tile => (
-                <div key={tile.id} className="relative flex flex-col items-center border border-amber-800/30 bg-black/60 rounded-xl p-3 shadow-lg">
-                  <div className="relative w-full aspect-square mb-3">
-                    <Image
-                      src={tile.image.startsWith('/') ? tile.image : `/images/kingdom-tiles/${tile.image}`}
-                      alt={tile.name}
-                      fill
-                      className="object-contain rounded-xl"
-                      draggable={false}
-                      unoptimized
-                    />
-                  </div>
-                  <div className="text-base font-bold text-amber-300 text-center truncate w-full mb-1">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="truncate">{tile.name}</span>
-                      </TooltipTrigger>
-                      <TooltipContent>{tile.name}</TooltipContent>
-                    </Tooltip>
-                  </div>
-                  <div className="text-sm text-amber-200 mb-1">Cost: <span className="font-bold">{tile.cost}</span> 🏗️</div>
-                  <div className="text-sm text-amber-200 mb-2">Owned: <span className="font-bold">{tile.quantity || 0}</span></div>
-                  {propertyTab === 'buy' ? (
-                    <button
-                      className="bg-amber-700 text-white px-3 py-2 rounded shadow hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm disabled:opacity-50 w-full"
-                      aria-label={`Buy ${tile.name}`}
-                      disabled={buildTokens < (tile.cost || 1)}
-                      onClick={() => handleBuyProperty(tile)}
-                    >
-                      Buy
-                    </button>
-                  ) : (
-                    <button
-                      className={`w-full px-3 py-2 rounded shadow focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm font-semibold ${selectedTile?.id === tile.id ? 'bg-amber-800 text-white' : 'bg-gray-800 text-amber-300 hover:bg-amber-700 hover:text-white'}`}
-                      aria-label={`Select ${tile.name} to place`}
-                      onClick={() => setSelectedTile(tile)}
-                    >
-                      {selectedTile?.id === tile.id ? 'Selected' : 'Place'}
-                    </button>
-                  )}
-                </div>
-              ))}
+          
+          {canExpand && onGridExpand && (
+            <div className="mt-4 text-center">
+              <Button
+                onClick={onGridExpand}
+                className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900"
+                aria-label="Expand kingdom grid"
+              >
+                🚀 Expand Kingdom Grid
+              </Button>
             </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Grid Display */}
+      <div className="mb-6">
+        <div className="grid gap-1" style={{ 
+          gridTemplateColumns: `repeat(${grid[0]?.length || 0}, minmax(0, 1fr))` 
+        }}>
+          {grid.map((row, y) =>
+            row.map((tile, x) => (
+              <div
+                key={`${x}-${y}`}
+                className="w-16 h-16 border border-gray-700 bg-gray-800 flex items-center justify-center cursor-pointer hover:border-amber-500 transition-colors"
+                onClick={() => selectedTile && handleTilePlacement(x, y, selectedTile)}
+                aria-label={`Grid position ${x}, ${y}${tile && tile.type !== 'empty' ? ` - ${tile.type} tile` : ' - empty'}`}
+                role="button"
+                tabIndex={0}
+              >
+                {tile && tile.type !== 'empty' ? (
+                  <img
+                    src={tile.image || `/images/kingdom-tiles/${tile.type}.png`}
+                    alt={tile.type}
+                    className="w-12 h-12 object-contain"
+                  />
+                ) : (
+                  <div className="w-8 h-8 bg-gray-700 rounded opacity-50" />
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Properties Panel */}
+      {propertiesOpen && (
+        <Card className="bg-black border-amber-800">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-amber-500">Properties</CardTitle>
+              <Button
+                onClick={() => setPropertiesOpen(false)}
+                variant="outline"
+                size="sm"
+                aria-label="Close properties panel"
+              >
+                ✕
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Tabs value={propertyTab} onValueChange={(value) => setPropertyTab(value as 'place' | 'buy')}>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="place" aria-label="Place tiles tab">Place</TabsTrigger>
+                <TabsTrigger value="buy" aria-label="Buy tiles tab">Buy</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="place" className="mt-4">
+                <ScrollArea className="h-64">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {propertyInventory.map(tile => (
+                      <div
+                        key={tile.id}
+                        className="p-3 border border-gray-700 rounded-lg text-center"
+                        aria-label={`${tile.name} property tile`}
+                      >
+                        <img
+                          src={tile.image}
+                          alt={tile.name}
+                          className="w-16 h-16 mx-auto mb-2 object-contain"
+                        />
+                        <div className="text-sm font-semibold text-white mb-1">{tile.name}</div>
+                        <div className="text-sm text-gray-400 mb-2">{tile.description}</div>
+                        <div className="text-sm text-amber-200 mb-2">Owned: <span className="font-bold">{tile.quantity || 0}</span></div>
+                        {propertyTab === 'buy' ? (
+                          <button
+                            className="bg-amber-700 text-white px-3 py-2 rounded shadow hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm disabled:opacity-50 w-full"
+                            aria-label={`Buy ${tile.name}`}
+                            disabled={buildTokens < (tile.cost || 1)}
+                            onClick={() => handleBuyProperty(tile)}
+                          >
+                            Buy
+                          </button>
+                        ) : (
+                          <button
+                            className={`w-full px-3 py-2 rounded shadow focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm font-semibold ${selectedTile?.id === tile.id ? 'bg-amber-800 text-white' : 'bg-gray-800 text-amber-300 hover:bg-amber-700 hover:text-white'}`}
+                            aria-label={`Select ${tile.name} to place`}
+                            onClick={() => setSelectedTile(tile)}
+                          >
+                            {selectedTile?.id === tile.id ? 'Selected' : 'Place'}
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Properties Toggle Button */}
+      <div className="text-center">
+        <Button
+          onClick={() => setPropertiesOpen(!propertiesOpen)}
+          variant="outline"
+          className="bg-amber-800 text-white hover:bg-amber-700"
+          aria-label="Toggle properties panel"
+        >
+          {propertiesOpen ? 'Hide Properties' : 'Show Properties'}
+        </Button>
+      </div>
+
+      {/* Loading State */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 p-6 rounded-lg text-center">
+            <div className="text-white text-lg mb-2">Saving Kingdom Grid...</div>
+            <div className="text-gray-400 text-sm">Please wait while we sync with the database</div>
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-interface PropertiesOverlayProps {
-  open: boolean;
-  onClose: () => void;
-  inventory: Tile[];
-  selectedTile: Tile | null;
-  setSelectedTile: (tile: Tile | null) => void;
-}
-
-export function PropertiesOverlay({ open, onClose, inventory, selectedTile, setSelectedTile }: PropertiesOverlayProps) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70" role="dialog" aria-modal="true" aria-label="Properties overlay">
-      <div className="bg-gray-900 rounded-lg p-6 max-w-lg w-full relative">
-        <button onClick={onClose} className="absolute top-2 right-2 text-amber-400 hover:text-amber-200 text-2xl" aria-label="Close properties overlay">×</button>
-        <h3 className="text-lg font-bold text-amber-500 mb-4">Properties</h3>
-        <div className="grid grid-cols-3 gap-4">
-          {inventory.map(tile => (
-            <button
-              key={tile.id}
-              className={cn(
-                "w-20 h-20 border border-amber-800/30 bg-black/60 flex items-center justify-center focus:outline-none",
-                selectedTile?.id === tile.id && "ring-2 ring-amber-500"
-              )}
-              aria-label={`Select ${tile.name}`}
-              onClick={() => setSelectedTile(tile)}
-            >
-              <Image
-                src={tile.image}
-                alt={tile.name}
-                fill
-                className="object-contain rounded"
-                draggable={false}
-                unoptimized
-              />
-            </button>
-          ))}
-        </div>
-      </div>
     </div>
   );
 } 

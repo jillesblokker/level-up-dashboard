@@ -71,7 +71,7 @@ function calculatePerkBonus(baseAmount: number, category: string, equippedPerks:
   return totalBonus;
 }
 
-export function gainExperience(amount: number, source: string, category: string = 'general') {
+export async function gainExperience(amount: number, source: string, category: string = 'general') {
   try {
     // Get current stats using the character stats manager
     const currentStats = getCharacterStats()
@@ -88,6 +88,9 @@ export function gainExperience(amount: number, source: string, category: string 
     // Update stats using the character stats manager (synchronous for immediate effect)
     // addToCharacterStatSync already recalculates the level, so we don't need to set it separately
     addToCharacterStatSync('experience', totalAmount);
+
+    // Log experience transaction to database for audit trail
+    await logExperienceTransaction(totalAmount, newExperience, 'gain', source, { category, perkBonus, baseAmount: amount });
 
     // Also save to database to keep mobile and desktop in sync
     const saveToDatabase = async () => {
@@ -122,53 +125,75 @@ export function gainExperience(amount: number, source: string, category: string 
     emitExperienceGained(totalAmount, source)
 
     // Create notification for experience gained
-    if (!source.startsWith('achievement-')) {
-      createExperienceGainedNotification(amount, source, perkBonus)
+    if (totalAmount > 0) {
+      createExperienceGainedNotification(totalAmount, source, 0)
     }
 
-    // Check for level up and title unlocks
-    if (newLevel > currentStats.level) {
-      createLevelUpNotification(newLevel);
+    // Check for level up
+    const oldLevel = currentStats.level
+    if (newLevel > oldLevel) {
+      // Level up notification
+      createExperienceGainedNotification(
+        newLevel - oldLevel, 
+        'level-up',
+        0
+      )
       
-      // Check for new title unlock
-      const oldTitle = getCurrentTitle(currentStats.level);
-      const newTitle = getCurrentTitle(newLevel);
-      
-      if (newTitle.id !== oldTitle.id) {
-        // New title unlocked!
-        notificationService.addNotification(
-          "New Title Unlocked! 👑",
-          `Congratulations! You are now a ${newTitle.name}! ${newTitle.description}`,
-          "achievement",
-          "high",
-          {
-            label: "View Character",
-            href: "/character",
-          }
-        );
-      }
-      
-      toast({
-        title: "Level Up!",
-        description: `You've reached level ${newLevel}!`,
+      // Dispatch level up event
+      const levelUpEvent = new CustomEvent('level-up', {
+        detail: { oldLevel, newLevel, totalExperience: newExperience }
       })
+      window.dispatchEvent(levelUpEvent)
     }
 
-    if (perkBonus > 0) {
-      toast({
-        title: "Experience Gained!",
-        description: `+${amount} XP from ${source}\n+${perkBonus} XP from perks\nTotal: +${totalAmount} XP`,
-      })
-    } else {
-      toast({
-        title: "Experience Gained!",
-        description: `+${amount} XP from ${source}`,
-      })
+    return { 
+      success: true, 
+      amount: totalAmount, 
+      newExperience, 
+      newLevel,
+      perkBonus,
+      leveledUp: newLevel > oldLevel
     }
-
-    return { ...currentStats, experience: newExperience, level: newLevel }
   } catch (error) {
-    console.error("Error managing experience:", error)
-    return null
+    console.error('[Experience Manager] Error gaining experience:', error)
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    }
+  }
+}
+
+// New function to log experience transactions to database
+async function logExperienceTransaction(
+  amount: number, 
+  totalAfter: number, 
+  transactionType: 'gain' | 'spend', 
+  source: string, 
+  metadata?: any
+) {
+  try {
+    const response = await fetch('/api/experience-transactions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        amount,
+        totalAfter,
+        transactionType,
+        source,
+        metadata
+      }),
+    });
+
+    if (!response.ok) {
+      console.warn('[Experience Manager] Failed to log transaction to database:', response.status);
+    } else {
+      console.log('[Experience Manager] Transaction logged successfully:', { amount, source, totalAfter });
+    }
+  } catch (error) {
+    console.warn('[Experience Manager] Error logging transaction:', error);
+    // Don't fail the main operation if logging fails
   }
 } 
