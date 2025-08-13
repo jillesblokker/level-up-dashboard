@@ -118,9 +118,33 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
         if (characterData) {
           console.log('[Mobile Nav] Character data extracted:', characterData);
           
+          // Also check localStorage to get the most up-to-date data
+          let localStats;
+          try {
+            localStats = getCharacterStats();
+            console.log('[Mobile Nav] LocalStorage stats:', localStats);
+          } catch (error) {
+            console.log('[Mobile Nav] No localStorage stats available');
+            localStats = { experience: 0, gold: 0, level: 1 };
+          }
+          
+          // Use the higher experience value between API and localStorage
+          const bestExperience = Math.max(characterData.experience || 0, localStats.experience || 0);
+          const bestGold = Math.max(characterData.gold || 0, localStats.gold || 0);
+          
+          console.log('[Mobile Nav] Experience comparison:', {
+            apiExperience: characterData.experience || 0,
+            localStorageExperience: localStats.experience || 0,
+            bestExperience: bestExperience,
+            apiLevel: characterData.level || 1,
+            calculatedLevel: calculateLevelFromExperience(bestExperience)
+          });
+          
+          console.log('[Mobile Nav] Using best values - Experience:', bestExperience, 'Gold:', bestGold);
+          
           const freshStats = {
-            gold: characterData.gold || 0,
-            experience: characterData.experience || 0,
+            gold: bestGold,
+            experience: bestExperience,
             level: characterData.level || 1,
             health: characterData.health || 100,
             max_health: characterData.max_health || 100,
@@ -129,12 +153,12 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
           
           localStorage.setItem('character-stats', JSON.stringify(freshStats));
           
-          const currentLevel = calculateLevelFromExperience(characterData.experience);
+          const currentLevel = calculateLevelFromExperience(bestExperience);
           const newStats = {
             level: currentLevel,
-            experience: characterData.experience,
+            experience: bestExperience,
             experienceToNextLevel: calculateExperienceForLevel(currentLevel),
-            gold: characterData.gold,
+            gold: bestGold,
             titles: { equipped: '', unlocked: 0, total: 0 },
             perks: { active: 0, total: 0 }
           }
