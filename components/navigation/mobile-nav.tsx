@@ -225,6 +225,11 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
           }, 2000)
           
           return true
+        } else {
+          console.warn('[Mobile Nav] No data in response')
+          setBackgroundRefreshState('error')
+          setTimeout(() => setBackgroundRefreshState('idle'), 3000)
+          return false
         }
       } else {
         console.warn('[Mobile Nav] Background refresh failed:', response.status)
@@ -234,6 +239,8 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
         setTimeout(() => {
           setBackgroundRefreshState('idle')
         }, 3000)
+        
+        return false
       }
     } catch (error) {
       console.error('[Mobile Nav] Background refresh error:', error)
@@ -243,9 +250,9 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
       setTimeout(() => {
         setBackgroundRefreshState('idle')
       }, 3000)
+      
+      return false
     }
-    
-    return false
   }
 
   useEffect(() => {
@@ -402,6 +409,59 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     }
   }, []) // Remove characterStats dependency to prevent infinite loops
   
+  // Cleanup effect to reset refresh states
+  useEffect(() => {
+    return () => {
+      // Reset all refresh states on cleanup
+      setIsRefreshing(false)
+      setBackgroundRefreshState('idle')
+      setPullToRefreshState('idle')
+      setPullDistance(0)
+      setPullStartY(null)
+    }
+  }, [])
+  
+  // Reset refresh states when authentication changes
+  useEffect(() => {
+    if (!user || !isLoaded) {
+      setIsRefreshing(false)
+      setBackgroundRefreshState('idle')
+      setPullToRefreshState('idle')
+    }
+  }, [user, isLoaded])
+
+  // Global error handler for refresh states
+  useEffect(() => {
+    const handleGlobalError = () => {
+      console.log('[Mobile Nav] Global error detected, resetting refresh states')
+      setIsRefreshing(false)
+      setBackgroundRefreshState('idle')
+      setPullToRefreshState('idle')
+    }
+
+    // Listen for global errors
+    window.addEventListener('error', handleGlobalError)
+    window.addEventListener('unhandledrejection', handleGlobalError)
+    
+    // Listen for page visibility changes to reset stuck states
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        console.log('[Mobile Nav] Page hidden, resetting refresh states')
+        setIsRefreshing(false)
+        setBackgroundRefreshState('idle')
+        setPullToRefreshState('idle')
+      }
+    }
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    
+    return () => {
+      window.removeEventListener('error', handleGlobalError)
+      window.removeEventListener('unhandledrejection', handleGlobalError)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [])
+
   const mainNavItems = [
     { href: "/kingdom", label: "Kingdom", icon: Crown, description: "Manage your realm" },
     { href: "/quests", label: "Tasks", icon: Compass, description: "Complete challenges" },
@@ -549,11 +609,33 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                           console.log('[Mobile Nav] Manual refresh clicked, starting smart background refresh...')
                           setIsRefreshing(true)
                           
-                          // Use smart background refresh
-                          await smartBackgroundRefresh(false)
+                          try {
+                            // Use smart background refresh with timeout protection
+                            const refreshPromise = smartBackgroundRefresh(false)
+                            const timeoutPromise = new Promise((_, reject) => 
+                              setTimeout(() => reject(new Error('Refresh timeout')), 10000)
+                            )
+                            
+                            // Race between refresh and timeout
+                            await Promise.race([refreshPromise, timeoutPromise])
+                            
+                            console.log('[Mobile Nav] Manual refresh completed successfully')
+                          } catch (error) {
+                            console.error('[Mobile Nav] Manual refresh failed:', error)
+                            // Ensure loading state is reset on error
+                            setIsRefreshing(false)
+                            return
+                          }
                           
                           // Show success feedback briefly
                           setTimeout(() => setIsRefreshing(false), 1000)
+                        }}
+                        onDoubleClick={() => {
+                          // Emergency reset on double-click if button gets stuck
+                          console.log('[Mobile Nav] Emergency reset triggered by double-click')
+                          setIsRefreshing(false)
+                          setBackgroundRefreshState('idle')
+                          setPullToRefreshState('idle')
                         }}
                         disabled={isRefreshing}
                         className={cn(
