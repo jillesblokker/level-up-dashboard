@@ -31,6 +31,7 @@ import { EconomyTransparency } from '@/components/economy-transparency';
 import { KingdomTileGrid } from '@/components/kingdom-tile-grid';
 import type { Tile, TileType, ConnectionDirection } from '@/types/tiles';
 import { gainGold } from '@/lib/gold-manager';
+import { gainExperience } from '@/lib/experience-manager';
 
 type KingdomInventoryItem = (DefaultInventoryItem | ManagerInventoryItem) & { 
   stats?: Record<string, number>, 
@@ -105,9 +106,8 @@ const getConsumableEffect = (item: KingdomInventoryItem) => {
       return `You used a Gold Potion and gained 50 gold!`;
     }
     if (key === 'experience potion' || key === 'exp potion') {
-      const stats = JSON.parse(localStorage.getItem('character-stats') || '{"experience":0}')
-      stats.experience = (stats.experience || 0) + 50
-      localStorage.setItem('character-stats', JSON.stringify(stats))
+      // Use the proper experience system instead of direct localStorage update
+      gainExperience(50, 'experience-potion');
       return `You used an Experience Potion and gained 50 XP!`;
     }
     // Other potions: use perk logic

@@ -89,6 +89,35 @@ export function gainExperience(amount: number, source: string, category: string 
     // addToCharacterStatSync already recalculates the level, so we don't need to set it separately
     addToCharacterStatSync('experience', totalAmount);
 
+    // Also save to database to keep mobile and desktop in sync
+    const saveToDatabase = async () => {
+      try {
+        const response = await fetch('/api/character-stats', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            experience: newExperience,
+            level: newLevel,
+            gold: currentStats.gold,
+            health: currentStats.health,
+            max_health: currentStats.max_health
+          })
+        });
+        
+        if (response.ok) {
+          console.log('[Experience Manager] Successfully saved updated stats to database');
+        } else {
+          console.error('[Experience Manager] Failed to save stats to database:', response.status);
+        }
+      } catch (error) {
+        console.error('[Experience Manager] Error saving to database:', error);
+      }
+    };
+    
+    // Save to database in the background
+    saveToDatabase();
+
     // Emit kingdom event for tracking weekly progress
     emitExperienceGained(totalAmount, source)
 
