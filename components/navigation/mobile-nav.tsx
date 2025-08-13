@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useState, useEffect, useCallback, useMemo, useRef } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { 
   Crown, 
   MapIcon,
@@ -73,10 +73,6 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     }
   })
 
-  // Refs for performance optimization
-  const refreshTimeoutRef = useRef<NodeJS.Timeout>()
-  const syncIntervalRef = useRef<NodeJS.Timeout>()
-
   // Memoized calculations
   const levelProgress = useMemo(() => 
     calculateLevelProgress(characterStats.experience), 
@@ -95,7 +91,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
 
   const isActive = useCallback((path: string) => pathname === path, [pathname])
 
-  // Simplified refresh function - no complex state management
+  // Simple refresh function
   const refreshCharacterStats = useCallback(async () => {
     if (!user || !isLoaded) return false
     
@@ -142,7 +138,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     }
   }, [user, isLoaded])
 
-  // Simplified load function
+  // Simple load function
   const loadCharacterStats = useCallback(() => {
     try {
       const stats = getCharacterStats()
@@ -161,7 +157,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     }
   }, [])
 
-  // Simplified click handlers
+  // Simple click handler
   const handleRefreshClick = useCallback(async () => {
     if (isRefreshing) return
     
@@ -172,17 +168,13 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     } catch (error) {
       console.error('[Mobile Nav] Refresh failed:', error)
     } finally {
-      // Use ref to avoid stale closure issues
-      if (refreshTimeoutRef.current) {
-        clearTimeout(refreshTimeoutRef.current)
-      }
-      refreshTimeoutRef.current = setTimeout(() => {
+      setTimeout(() => {
         setIsRefreshing(false)
       }, 1000)
     }
   }, [isRefreshing, refreshCharacterStats])
 
-  // Single optimized effect for data loading
+  // Simple effect for data loading
   useEffect(() => {
     if (user && isLoaded) {
       refreshCharacterStats().catch(() => {
@@ -190,22 +182,6 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
       })
     } else {
       loadCharacterStats()
-    }
-
-    // Minimal periodic sync - only if user is active
-    if (user && isLoaded) {
-      syncIntervalRef.current = setInterval(() => {
-        refreshCharacterStats().catch(() => {})
-      }, 120000) // 2 minutes - much less frequent
-    }
-
-    return () => {
-      if (syncIntervalRef.current) {
-        clearInterval(syncIntervalRef.current)
-      }
-      if (refreshTimeoutRef.current) {
-        clearTimeout(refreshTimeoutRef.current)
-      }
     }
   }, [user, isLoaded, refreshCharacterStats, loadCharacterStats])
 
@@ -226,7 +202,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
             side="right" 
             className="w-full bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl border-l border-amber-800/20 pt-safe-top pb-5"
           >
-            {/* Enhanced Header */}
+            {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-amber-800/20 bg-gradient-to-r from-amber-900/10 to-transparent">
               <Logo />
               <div className="flex items-center gap-2">
@@ -261,7 +237,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
               </div>
             </div>
 
-            {/* Enhanced Character Stats */}
+            {/* Character Stats */}
             <div className="p-5 border-b border-amber-800/20 bg-gradient-to-r from-amber-900/10 to-transparent">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -280,26 +256,24 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
               </div>
               <Progress value={levelProgress} className="h-3 bg-gray-700" />
               
-              {/* Data Freshness Indicator */}
-              <div className="mt-3 flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2">
-                  <div className={cn(
-                    "w-2 h-2 rounded-full transition-all duration-300",
-                    dataSource === 'supabase' ? "bg-green-500" : 
-                    dataSource === 'localStorage' ? "bg-yellow-500" : 
-                    "bg-gray-500"
-                  )} />
-                  <span className={cn(
-                    "text-xs transition-colors duration-300",
-                    dataSource === 'supabase' ? "text-green-400" : 
-                    dataSource === 'localStorage' ? "text-yellow-400" : 
-                    "text-gray-400"
-                  )}>
-                    {dataSource === 'supabase' ? 'Live Data' : 
-                     dataSource === 'localStorage' ? 'Cached Data' : 
-                     'Unknown Source'}
-                  </span>
-                </div>
+              {/* Data Source Indicator */}
+              <div className="mt-3 flex items-center gap-2 text-xs">
+                <div className={cn(
+                  "w-2 h-2 rounded-full",
+                  dataSource === 'supabase' ? "bg-green-500" : 
+                  dataSource === 'localStorage' ? "bg-yellow-500" : 
+                  "bg-gray-500"
+                )} />
+                <span className={cn(
+                  "text-xs",
+                  dataSource === 'supabase' ? "text-green-400" : 
+                  dataSource === 'localStorage' ? "text-yellow-400" : 
+                  "text-gray-400"
+                )}>
+                  {dataSource === 'supabase' ? 'Live Data' : 
+                   dataSource === 'localStorage' ? 'Cached Data' : 
+                   'Unknown Source'}
+                </span>
               </div>
             </div>
 
@@ -339,7 +313,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
               </div>
             </nav>
 
-            {/* Enhanced Quick Stats */}
+            {/* Quick Stats */}
             <div className="p-5 border-t border-amber-800/20 bg-gradient-to-r from-gray-800/50 to-transparent">
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-800/50 border border-gray-700/50">
@@ -359,11 +333,10 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
               </div>
             </div>
 
-            {/* Enhanced Account Section */}
+            {/* Account Section */}
             <div className="p-5 border-t border-amber-800/20">
               <button
                 onClick={() => {
-                  console.log('Account settings clicked - navigating to /account')
                   setOpen(false)
                   router.push('/account')
                 }}
