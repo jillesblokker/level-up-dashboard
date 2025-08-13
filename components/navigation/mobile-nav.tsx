@@ -118,13 +118,35 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
         return
       }
       
-      // Trigger smart background refresh with visual feedback
-      console.log('[Mobile Nav] Pull-to-refresh triggered, starting smart refresh...')
-      smartBackgroundRefresh(true)
+      // Trigger simple refresh with visual feedback
+      console.log('[Mobile Nav] Pull-to-refresh triggered, starting refresh...')
       
-      // Reset pull state immediately for smooth UX
+      // Show immediate visual feedback
+      setPullToRefreshState('refreshing')
+      
+      try {
+        // Use the simple, reliable refresh function
+        const success = await refreshCharacterStats()
+        
+        if (success) {
+          setPullToRefreshState('success')
+          console.log('[Mobile Nav] Pull-to-refresh completed successfully')
+        } else {
+          setPullToRefreshState('error')
+          console.log('[Mobile Nav] Pull-to-refresh completed but no data received')
+        }
+      } catch (error) {
+        console.error('[Mobile Nav] Pull-to-refresh failed:', error)
+        setPullToRefreshState('error')
+      }
+      
+      // Reset pull state and hide feedback after delay
       setPullStartY(null)
       setPullDistance(0)
+      
+      setTimeout(() => {
+        setPullToRefreshState('idle')
+      }, 1500)
     } else {
       // Reset pull state if not enough distance
       setPullStartY(null)
@@ -133,7 +155,91 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     }
   }
 
-  // Smart background refresh function - non-blocking with optimistic updates
+  // Debug effect to log state changes
+  useEffect(() => {
+    console.log('[Mobile Nav] State changed:', {
+      isRefreshing,
+      backgroundRefreshState,
+      pullToRefreshState,
+      user: !!user,
+      isLoaded,
+      dataSource,
+      lastDataUpdate: lastDataUpdate?.toISOString()
+    })
+  }, [isRefreshing, backgroundRefreshState, pullToRefreshState, user, isLoaded, dataSource, lastDataUpdate])
+
+  // Simple, reliable refresh function
+  const refreshCharacterStats = async () => {
+    try {
+      // Check authentication
+      if (!user || !isLoaded) {
+        console.log('[Mobile Nav] User not authenticated, skipping refresh')
+        return false
+      }
+
+      console.log('[Mobile Nav] Starting character stats refresh...')
+      
+      // Fetch fresh data from API
+      const response = await fetch('/api/character-stats', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        if (result.data) {
+          console.log('[Mobile Nav] Refresh successful:', result.data)
+          
+          // Update localStorage with fresh data
+          const freshStats = {
+            gold: result.data.gold || 0,
+            experience: result.data.experience || 0,
+            level: result.data.level || 1,
+            health: result.data.health || 100,
+            max_health: result.data.max_health || 100,
+            buildTokens: result.data.build_tokens || 0
+          }
+          
+          localStorage.setItem('character-stats', JSON.stringify(freshStats))
+          
+          // Update component state
+          const currentLevel = calculateLevelFromExperience(result.data.experience)
+          const newStats = {
+            level: currentLevel,
+            experience: result.data.experience,
+            experienceToNextLevel: calculateExperienceForLevel(currentLevel),
+            gold: result.data.gold,
+            titles: { equipped: '', unlocked: 0, total: 0 },
+            perks: { active: 0, total: 0 }
+          }
+          
+          setCharacterStats(newStats)
+          setLastDataUpdate(new Date())
+          setDataSource('supabase')
+          
+          // Dispatch update events
+          window.dispatchEvent(new Event('character-stats-update'))
+          window.dispatchEvent(new Event('level-update'))
+          
+          return true
+        } else {
+          console.warn('[Mobile Nav] No data in response')
+          return false
+        }
+      } else {
+        console.warn('[Mobile Nav] Refresh failed:', response.status)
+        return false
+      }
+    } catch (error) {
+      console.error('[Mobile Nav] Refresh error:', error)
+      return false
+    }
+  }
+
+  // Smart background refresh for pull-to-refresh (non-blocking)
   const smartBackgroundRefresh = async (showVisualFeedback = false) => {
     try {
       // Check authentication
@@ -381,8 +487,10 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     const syncInterval = setInterval(() => {
       console.log('[Mobile Nav] Periodic sync - checking for stat updates...')
       if (user && isLoaded) {
-        // Use smart background refresh for periodic sync
-        smartBackgroundRefresh(false)
+        // Use simple refresh for periodic sync
+        refreshCharacterStats().catch(error => {
+          console.error('[Mobile Nav] Periodic sync failed:', error)
+        })
       } else {
         console.log('[Mobile Nav] User not authenticated, skipping periodic sync')
       }
@@ -606,29 +714,24 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                             return
                           }
                           
-                          console.log('[Mobile Nav] Manual refresh clicked, starting smart background refresh...')
+                          console.log('[Mobile Nav] Manual refresh clicked, starting refresh...')
                           setIsRefreshing(true)
                           
                           try {
-                            // Use smart background refresh with timeout protection
-                            const refreshPromise = smartBackgroundRefresh(false)
-                            const timeoutPromise = new Promise((_, reject) => 
-                              setTimeout(() => reject(new Error('Refresh timeout')), 10000)
-                            )
+                            // Use the simple, reliable refresh function
+                            const success = await refreshCharacterStats()
                             
-                            // Race between refresh and timeout
-                            await Promise.race([refreshPromise, timeoutPromise])
-                            
-                            console.log('[Mobile Nav] Manual refresh completed successfully')
+                            if (success) {
+                              console.log('[Mobile Nav] Manual refresh completed successfully')
+                            } else {
+                              console.log('[Mobile Nav] Manual refresh completed but no data received')
+                            }
                           } catch (error) {
                             console.error('[Mobile Nav] Manual refresh failed:', error)
-                            // Ensure loading state is reset on error
+                          } finally {
+                            // Always reset the loading state
                             setIsRefreshing(false)
-                            return
                           }
-                          
-                          // Show success feedback briefly
-                          setTimeout(() => setIsRefreshing(false), 1000)
                         }}
                         onDoubleClick={() => {
                           // Emergency reset on double-click if button gets stuck
