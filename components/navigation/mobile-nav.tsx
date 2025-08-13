@@ -40,7 +40,7 @@ import { cn } from "@/lib/utils"
 import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character"
 import { Logo } from "@/components/logo";
 import { useUser } from "@clerk/nextjs";
-import { getCharacterStats } from "@/lib/character-stats-manager"
+import { getCharacterStats, fetchFreshCharacterStats } from "@/lib/character-stats-manager"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
 import { MobileErrorFallback } from "@/components/MobileErrorFallback"
 
@@ -91,95 +91,6 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
 
   const isActive = useCallback((path: string) => pathname === path, [pathname])
 
-  // Simple refresh function
-  const refreshCharacterStats = useCallback(async () => {
-    if (!user || !isLoaded) {
-      console.log('[Mobile Nav] User not loaded or authenticated, skipping refresh');
-      return false;
-    }
-    
-    try {
-      console.log('[Mobile Nav] Attempting to refresh character stats...');
-      const response = await fetch('/api/character-stats', {
-        method: 'GET',
-        headers: { 
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log('[Mobile Nav] API response received:', result);
-        
-        // Handle the nested data structure from the API
-        const characterData = result.data?.data || result.data;
-        
-        if (characterData) {
-          console.log('[Mobile Nav] Character data extracted:', characterData);
-          
-          // Also check localStorage to get the most up-to-date data
-          let localStats;
-          try {
-            localStats = getCharacterStats();
-            console.log('[Mobile Nav] LocalStorage stats:', localStats);
-          } catch (error) {
-            console.log('[Mobile Nav] No localStorage stats available');
-            localStats = { experience: 0, gold: 0, level: 1 };
-          }
-          
-          // Use the higher experience value between API and localStorage
-          const bestExperience = Math.max(characterData.experience || 0, localStats.experience || 0);
-          const bestGold = Math.max(characterData.gold || 0, localStats.gold || 0);
-          
-          console.log('[Mobile Nav] Experience comparison:', {
-            apiExperience: characterData.experience || 0,
-            localStorageExperience: localStats.experience || 0,
-            bestExperience: bestExperience,
-            apiLevel: characterData.level || 1,
-            calculatedLevel: calculateLevelFromExperience(bestExperience)
-          });
-          
-          console.log('[Mobile Nav] Using best values - Experience:', bestExperience, 'Gold:', bestGold);
-          
-          const freshStats = {
-            gold: bestGold,
-            experience: bestExperience,
-            level: characterData.level || 1,
-            health: characterData.health || 100,
-            max_health: characterData.max_health || 100,
-            buildTokens: characterData.build_tokens || 0
-          }
-          
-          localStorage.setItem('character-stats', JSON.stringify(freshStats));
-          
-          const currentLevel = calculateLevelFromExperience(bestExperience);
-          const newStats = {
-            level: currentLevel,
-            experience: bestExperience,
-            experienceToNextLevel: calculateExperienceForLevel(currentLevel),
-            gold: bestGold,
-            titles: { equipped: '', unlocked: 0, total: 0 },
-            perks: { active: 0, total: 0 }
-          }
-          
-          setCharacterStats(newStats);
-          setDataSource('supabase');
-          console.log('[Mobile Nav] Successfully refreshed stats from API:', newStats);
-          return true;
-        } else {
-          console.error('[Mobile Nav] No character data found in response');
-        }
-      } else {
-        console.error('[Mobile Nav] API response not ok:', response.status, response.statusText);
-      }
-      return false;
-    } catch (error) {
-      console.error('[Mobile Nav] Refresh error:', error);
-      return false;
-    }
-  }, [user, isLoaded])
-
   // Simple load function
   const loadCharacterStats = useCallback(() => {
     try {
@@ -221,8 +132,23 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     setIsRefreshing(true);
     
     try {
-      const success = await refreshCharacterStats();
-      if (!success) {
+      // Use the new real-time data fetching system
+      const freshStats = await fetchFreshCharacterStats();
+      if (freshStats) {
+        const currentLevel = calculateLevelFromExperience(freshStats.experience);
+        const newStats = {
+          level: currentLevel,
+          experience: freshStats.experience,
+          experienceToNextLevel: calculateExperienceForLevel(currentLevel),
+          gold: freshStats.gold,
+          titles: { equipped: '', unlocked: 0, total: 0 },
+          perks: { active: 0, total: 0 }
+        };
+        
+        setCharacterStats(newStats);
+        setDataSource('supabase');
+        console.log('[Mobile Nav] Successfully refreshed stats from API:', newStats);
+      } else {
         console.log('[Mobile Nav] API refresh failed, falling back to localStorage');
         loadCharacterStats();
       }
@@ -235,23 +161,43 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
         setIsRefreshing(false);
       }, 1000);
     }
-  }, [isRefreshing, refreshCharacterStats, loadCharacterStats])
+  }, [isRefreshing, loadCharacterStats])
 
   // Simple effect for data loading
   useEffect(() => {
     console.log('[Mobile Nav] useEffect triggered - user:', !!user, 'isLoaded:', isLoaded);
     
-    if (user && isLoaded) {
-      console.log('[Mobile Nav] User authenticated, attempting API refresh...');
-      refreshCharacterStats().catch((error) => {
-        console.error('[Mobile Nav] API refresh failed, falling back to localStorage:', error);
-        loadCharacterStats();
-      });
-    } else if (isLoaded) {
-      console.log('[Mobile Nav] User not authenticated, loading from localStorage...');
-      loadCharacterStats();
-    }
-  }, [user, isLoaded, refreshCharacterStats, loadCharacterStats])
+    if (!user || !isLoaded) return;
+    
+    // Load initial data from localStorage for immediate display
+    loadCharacterStats();
+    
+    // Then fetch fresh data from API
+    const fetchInitialData = async () => {
+      try {
+        const freshStats = await fetchFreshCharacterStats();
+        if (freshStats) {
+          const currentLevel = calculateLevelFromExperience(freshStats.experience);
+          const newStats = {
+            level: currentLevel,
+            experience: freshStats.experience,
+            experienceToNextLevel: calculateExperienceForLevel(currentLevel),
+            gold: freshStats.gold,
+            titles: { equipped: '', unlocked: 0, total: 0 },
+            perks: { active: 0, total: 0 }
+          };
+          
+          setCharacterStats(newStats);
+          setDataSource('supabase');
+          console.log('[Mobile Nav] Initial fresh stats loaded from API:', newStats);
+        }
+      } catch (error) {
+        console.error('[Mobile Nav] Error fetching initial fresh stats:', error);
+      }
+    };
+    
+    fetchInitialData();
+  }, [user, isLoaded, loadCharacterStats])
 
   // Don't render anything until Clerk is loaded to prevent crashes
   if (!isLoaded) {

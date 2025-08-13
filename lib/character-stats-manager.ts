@@ -150,7 +150,8 @@ export async function addToCharacterStat(stat: keyof CharacterStats, amount: num
 }
 
 /**
- * Gets character stats synchronously (for immediate use)
+ * Gets character stats from localStorage
+ * @returns CharacterStats object
  */
 export function getCharacterStats(): CharacterStats {
   // Check if we're on the client side
@@ -181,7 +182,7 @@ export function getCharacterStats(): CharacterStats {
       };
     }
   } catch (error) {
-    console.warn('[Character Stats Manager] Error getting stats:', error);
+    console.warn('[Character Stats Manager] Error getting stats from localStorage:', error);
   }
 
   return {
@@ -193,6 +194,51 @@ export function getCharacterStats(): CharacterStats {
     build_tokens: 0,
     kingdom_expansions: 0
   };
+}
+
+/**
+ * Fetches fresh character stats from the API and updates localStorage
+ * This is the primary data source for real-time updates
+ */
+export async function fetchFreshCharacterStats(): Promise<CharacterStats | null> {
+  try {
+    const response = await fetch('/api/character-stats', {
+      method: 'GET',
+      credentials: 'include',
+    });
+    
+    if (response.ok) {
+      const result = await response.json();
+      const characterData = result.data?.data || result.data;
+      
+      if (characterData) {
+        // Update localStorage with fresh data
+        const freshStats = {
+          gold: characterData.gold || 0,
+          experience: characterData.experience || 0,
+          level: characterData.level || 1,
+          health: characterData.health || 100,
+          max_health: characterData.max_health || 100,
+          build_tokens: characterData.build_tokens || 0,
+          kingdom_expansions: parseInt(localStorage.getItem('kingdom-grid-expansions') || '0', 10)
+        };
+        
+        localStorage.setItem('character-stats', JSON.stringify(freshStats));
+        
+        // Dispatch update event to notify all components
+        window.dispatchEvent(new Event('character-stats-update'));
+        
+        console.log('[Character Stats Manager] Fresh stats fetched from API:', freshStats);
+        return freshStats;
+      }
+    }
+    
+    console.warn('[Character Stats Manager] API fetch failed or no data returned');
+    return null;
+  } catch (error) {
+    console.error('[Character Stats Manager] Error fetching fresh stats:', error);
+    return null;
+  }
 }
 
 /**

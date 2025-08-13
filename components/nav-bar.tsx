@@ -9,8 +9,8 @@ import { Logo } from "@/components/logo"
 import { Progress } from "@/components/ui/progress"
 import { NotificationCenter } from "@/components/notification-center"
 import { UserNav } from "@/components/user-nav"
-import { calculateLevelFromExperience, calculateExperienceForLevel, calculateLevelProgress } from "@/types/character"
-import { getCharacterStats } from "@/lib/character-stats-manager"
+import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character"
+import { getCharacterStats, fetchFreshCharacterStats } from "@/lib/character-stats-manager"
 
 interface CustomSession {
   user?: {
@@ -69,13 +69,42 @@ export function NavBar({ session }: NavBarProps) {
         console.error("Error loading character stats:", error)
       }
     }
+    
+    // Load initial stats from localStorage
     loadCharacterStats()
-
+    
+    // Fetch fresh data from API
+    const fetchFreshData = async () => {
+      try {
+        const freshStats = await fetchFreshCharacterStats()
+        if (freshStats) {
+          const currentLevel = calculateLevelFromExperience(freshStats.experience)
+          setCharacterStats({
+            level: currentLevel,
+            experience: freshStats.experience,
+            experienceToNextLevel: calculateExperienceForLevel(currentLevel),
+            gold: freshStats.gold,
+            titles: { equipped: '', unlocked: 0, total: 0 },
+            perks: { active: 0, total: 0 }
+          })
+        }
+      } catch (error) {
+        console.error("Error fetching fresh character stats:", error)
+      }
+    }
+    
+    // Fetch fresh data immediately
+    fetchFreshData()
+    
+    // Set up periodic refresh every 30 seconds
+    const refreshInterval = setInterval(fetchFreshData, 30000)
+    
     // Listen for character stats updates
     const handleStatsUpdate = () => loadCharacterStats()
     window.addEventListener("character-stats-update", handleStatsUpdate)
     
     return () => {
+      clearInterval(refreshInterval)
       window.removeEventListener("character-stats-update", handleStatsUpdate)
     }
   }, [])
