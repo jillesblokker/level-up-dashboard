@@ -164,9 +164,14 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
       user: !!user,
       isLoaded,
       dataSource,
-      lastDataUpdate: lastDataUpdate?.toISOString()
+      lastDataUpdate: lastDataUpdate?.toISOString(),
+      characterStats: {
+        level: characterStats.level,
+        experience: characterStats.experience,
+        gold: characterStats.gold
+      }
     })
-  }, [isRefreshing, backgroundRefreshState, pullToRefreshState, user, isLoaded, dataSource, lastDataUpdate])
+  }, [isRefreshing, backgroundRefreshState, pullToRefreshState, user, isLoaded, dataSource, lastDataUpdate, characterStats.level, characterStats.experience, characterStats.gold])
 
   // Simple, reliable refresh function
   const refreshCharacterStats = async () => {
@@ -474,7 +479,19 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
 
     // Load stats immediately (try Supabase first, fallback to localStorage)
     if (user && isLoaded) {
-      fetchFreshStatsFromSupabase()
+      console.log('[Mobile Nav] User authenticated, loading fresh stats from API...')
+      // Use the reliable refresh function to get fresh data
+      refreshCharacterStats().then(success => {
+        if (success) {
+          console.log('[Mobile Nav] Initial API load successful')
+        } else {
+          console.log('[Mobile Nav] Initial API load failed, falling back to localStorage')
+          loadCharacterStats()
+        }
+      }).catch(error => {
+        console.error('[Mobile Nav] Initial API load error:', error)
+        loadCharacterStats()
+      })
     } else {
       console.log('[Mobile Nav] User not authenticated, loading from localStorage only')
       loadCharacterStats()
@@ -515,8 +532,25 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
       window.removeEventListener("character-stats-update", handleStatsUpdate)
       window.removeEventListener("level-update", handleLevelUpdate)
     }
-  }, []) // Remove characterStats dependency to prevent infinite loops
+  }, [user, isLoaded]) // Add dependencies so it re-runs when auth changes
   
+  // Force refresh on mount to ensure fresh data
+  useEffect(() => {
+    if (user && isLoaded && isInitialized) {
+      console.log('[Mobile Nav] Component mounted with user, forcing refresh...')
+      // Force a refresh to get the latest data
+      refreshCharacterStats().then(success => {
+        if (success) {
+          console.log('[Mobile Nav] Force refresh successful')
+        } else {
+          console.log('[Mobile Nav] Force refresh failed, using cached data')
+        }
+      }).catch(error => {
+        console.error('[Mobile Nav] Force refresh error:', error)
+      })
+    }
+  }, [user, isLoaded, isInitialized])
+
   // Cleanup effect to reset refresh states
   useEffect(() => {
     return () => {
