@@ -2,7 +2,7 @@
 
 import { ThemeProvider } from "next-themes"
 import React, { useEffect, useState, createContext, useContext } from 'react'
-import { ClerkProvider, useAuth as useClerkAuth } from '@clerk/nextjs';
+import { useAuth as useClerkAuth } from '@clerk/nextjs';
 import { TooltipProvider } from "@/components/ui/tooltip"
 
 interface AuthContextType {
@@ -50,34 +50,18 @@ export function useAuthContext() {
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider
-      appearance={{
-        elements: {
-          rootBox: "mx-auto",
-          card: "bg-black/80 backdrop-blur-sm border-amber-900/50 shadow-2xl",
-          headerTitle: "text-amber-500",
-          headerSubtitle: "text-amber-200/80",
-          socialButtonsBlockButton: "bg-amber-900/20 hover:bg-amber-900/30 text-amber-200 border-amber-900/50",
-          formButtonPrimary: "bg-amber-900/20 hover:bg-amber-900/30 text-amber-200 border-amber-900/50",
-          footerActionLink: "text-amber-500 hover:text-amber-400",
-          formFieldInput: "bg-black/50 border-amber-900/50 text-amber-200",
-          formFieldLabel: "text-amber-200/80",
-        },
-      }}
-    >
-      <AuthProvider>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <TooltipProvider>
-            {children}
-          </TooltipProvider>
-        </ThemeProvider>
-      </AuthProvider>
-    </ClerkProvider>
+    <AuthProvider>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <TooltipProvider>
+          {children}
+        </TooltipProvider>
+      </ThemeProvider>
+    </AuthProvider>
   )
 }
 

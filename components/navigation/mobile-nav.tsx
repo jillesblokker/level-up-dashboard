@@ -93,17 +93,23 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
 
   // Simple refresh function
   const refreshCharacterStats = useCallback(async () => {
-    if (!user || !isLoaded) return false
+    if (!user || !isLoaded) {
+      console.log('[Mobile Nav] User not loaded or authenticated, skipping refresh');
+      return false;
+    }
     
     try {
+      console.log('[Mobile Nav] Attempting to refresh character stats...');
       const response = await fetch('/api/character-stats', {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json'
+        },
         credentials: 'include'
-      })
+      });
 
       if (response.ok) {
-        const result = await response.json()
+        const result = await response.json();
         if (result.data) {
           const freshStats = {
             gold: result.data.gold || 0,
@@ -114,9 +120,9 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
             buildTokens: result.data.build_tokens || 0
           }
           
-          localStorage.setItem('character-stats', JSON.stringify(freshStats))
+          localStorage.setItem('character-stats', JSON.stringify(freshStats));
           
-          const currentLevel = calculateLevelFromExperience(result.data.experience)
+          const currentLevel = calculateLevelFromExperience(result.data.experience);
           const newStats = {
             level: currentLevel,
             experience: result.data.experience,
@@ -126,23 +132,27 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
             perks: { active: 0, total: 0 }
           }
           
-          setCharacterStats(newStats)
-          setDataSource('supabase')
-          return true
+          setCharacterStats(newStats);
+          setDataSource('supabase');
+          console.log('[Mobile Nav] Successfully refreshed stats from API:', newStats);
+          return true;
         }
+      } else {
+        console.error('[Mobile Nav] API response not ok:', response.status, response.statusText);
       }
-      return false
+      return false;
     } catch (error) {
-      console.error('[Mobile Nav] Refresh error:', error)
-      return false
+      console.error('[Mobile Nav] Refresh error:', error);
+      return false;
     }
   }, [user, isLoaded])
 
   // Simple load function
   const loadCharacterStats = useCallback(() => {
     try {
-      const stats = getCharacterStats()
-      const currentLevel = calculateLevelFromExperience(stats.experience)
+      console.log('[Mobile Nav] Loading character stats from localStorage...');
+      const stats = getCharacterStats();
+      const currentLevel = calculateLevelFromExperience(stats.experience);
       const newStats = {
         level: currentLevel,
         experience: stats.experience,
@@ -151,39 +161,80 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
         titles: { equipped: '', unlocked: 0, total: 0 },
         perks: { active: 0, total: 0 }
       }
-      setCharacterStats(newStats)
+      setCharacterStats(newStats);
+      setDataSource('localStorage');
+      console.log('[Mobile Nav] Loaded stats from localStorage:', newStats);
     } catch (error) {
-      console.error("Error loading character stats:", error)
+      console.error("Error loading character stats:", error);
+      // Set default stats if loading fails
+      const defaultStats = {
+        level: 1,
+        experience: 0,
+        experienceToNextLevel: 100,
+        gold: 0,
+        titles: { equipped: '', unlocked: 0, total: 0 },
+        perks: { active: 0, total: 0 }
+      };
+      setCharacterStats(defaultStats);
+      setDataSource('unknown');
     }
   }, [])
 
   // Simple click handler
   const handleRefreshClick = useCallback(async () => {
-    if (isRefreshing) return
+    if (isRefreshing) return;
     
-    setIsRefreshing(true)
+    console.log('[Mobile Nav] Refresh button clicked');
+    setIsRefreshing(true);
     
     try {
-      await refreshCharacterStats()
+      const success = await refreshCharacterStats();
+      if (!success) {
+        console.log('[Mobile Nav] API refresh failed, falling back to localStorage');
+        loadCharacterStats();
+      }
     } catch (error) {
-      console.error('[Mobile Nav] Refresh failed:', error)
+      console.error('[Mobile Nav] Refresh failed:', error);
+      // Fallback to localStorage on error
+      loadCharacterStats();
     } finally {
       setTimeout(() => {
-        setIsRefreshing(false)
-      }, 1000)
+        setIsRefreshing(false);
+      }, 1000);
     }
-  }, [isRefreshing, refreshCharacterStats])
+  }, [isRefreshing, refreshCharacterStats, loadCharacterStats])
 
   // Simple effect for data loading
   useEffect(() => {
+    console.log('[Mobile Nav] useEffect triggered - user:', !!user, 'isLoaded:', isLoaded);
+    
     if (user && isLoaded) {
-      refreshCharacterStats().catch(() => {
-        loadCharacterStats()
-      })
-    } else {
-      loadCharacterStats()
+      console.log('[Mobile Nav] User authenticated, attempting API refresh...');
+      refreshCharacterStats().catch((error) => {
+        console.error('[Mobile Nav] API refresh failed, falling back to localStorage:', error);
+        loadCharacterStats();
+      });
+    } else if (isLoaded) {
+      console.log('[Mobile Nav] User not authenticated, loading from localStorage...');
+      loadCharacterStats();
     }
   }, [user, isLoaded, refreshCharacterStats, loadCharacterStats])
+
+  // Don't render anything until Clerk is loaded to prevent crashes
+  if (!isLoaded) {
+    return (
+      <div className="lg:hidden">
+        <Button
+          variant="ghost"
+          className="relative h-14 w-14 rounded-lg border border-amber-800/20 bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-sm transition-all duration-300 touch-manipulation min-h-[44px]"
+          aria-label="Loading navigation menu"
+          disabled
+        >
+          <div className="h-6 w-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="lg:hidden">
