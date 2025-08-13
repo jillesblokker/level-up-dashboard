@@ -537,8 +537,9 @@ export async function GET(request: Request) {
       // For periods without data, carry forward the previous level
       let lastLevel = 1;
       const finalData = days.map(day => {
-        if (levelData[day] > 0) {
-          lastLevel = levelData[day];
+        const currentLevel = levelData[day];
+        if (currentLevel !== undefined && currentLevel > 0) {
+          lastLevel = currentLevel;
         }
         return { day, value: lastLevel };
       });
@@ -546,10 +547,10 @@ export async function GET(request: Request) {
       // TEMPORARILY ADD TEST DATA FOR DEMONSTRATION
       if (userId === 'test-user-id') {
         if (period === 'week') {
-          if (finalData.length > 0) finalData[0].value = 1;  // Day 1: Level 1
-          if (finalData.length > 2) finalData[2].value = 2;  // Day 3: Level 2
-          if (finalData.length > 4) finalData[4].value = 3;  // Day 5: Level 3
-          if (finalData.length > 6) finalData[6].value = 4;  // Day 7: Level 4
+          if (finalData.length > 0) finalData[0]!.value = 1;  // Day 1: Level 1
+          if (finalData.length > 2) finalData[2]!.value = 2;  // Day 3: Level 2
+          if (finalData.length > 4) finalData[4]!.value = 3;  // Day 5: Level 3
+          if (finalData.length > 6) finalData[6]!.value = 4;  // Day 7: Level 4
         }
       }
       
