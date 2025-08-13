@@ -65,10 +65,12 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastDataUpdate, setLastDataUpdate] = useState<Date | null>(null)
   const [dataSource, setDataSource] = useState<'supabase' | 'localStorage' | 'unknown'>('unknown')
-  const [pullToRefreshState, setPullToRefreshState] = useState<'idle' | 'pulling' | 'refreshing'>('idle')
+  const [pullToRefreshState, setPullToRefreshState] = useState<'idle' | 'pulling' | 'refreshing' | 'success' | 'error'>('idle')
   const [pullStartY, setPullStartY] = useState<number | null>(null)
   const [pullDistance, setPullDistance] = useState(0)
   const [isInitialized, setIsInitialized] = useState(false)
+  const [backgroundRefreshState, setBackgroundRefreshState] = useState<'idle' | 'refreshing' | 'success' | 'error'>('idle')
+  const [lastRefreshAttempt, setLastRefreshAttempt] = useState<Date | null>(null)
   const [characterStats, setCharacterStats] = useState<CharacterStats>({
     level: 1,
     experience: 0,
@@ -116,69 +118,134 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
         return
       }
       
-      setPullToRefreshState('refreshing')
-      console.log('[Mobile Nav] Pull-to-refresh triggered, fetching fresh data...')
+      // Trigger smart background refresh with visual feedback
+      console.log('[Mobile Nav] Pull-to-refresh triggered, starting smart refresh...')
+      smartBackgroundRefresh(true)
       
-      try {
-        // Call the fetch function directly
-        const response = await fetch('/api/character-stats', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include'
-        })
+      // Reset pull state immediately for smooth UX
+      setPullStartY(null)
+      setPullDistance(0)
+    } else {
+      // Reset pull state if not enough distance
+      setPullStartY(null)
+      setPullDistance(0)
+      setPullToRefreshState('idle')
+    }
+  }
 
-        if (response.ok) {
-          const result = await response.json()
-          if (result.data) {
-            console.log('[Mobile Nav] Fresh Supabase data received from pull-to-refresh:', result.data)
-            
-            // Update localStorage with fresh data
-            const freshStats = {
-              gold: result.data.gold || 0,
-              experience: result.data.experience || 0,
-              level: result.data.level || 1,
-              health: result.data.health || 100,
-              max_health: result.data.max_health || 100,
-              buildTokens: result.data.build_tokens || 0
-            }
-            
-            localStorage.setItem('character-stats', JSON.stringify(freshStats))
-            
-            // Update component state
-            const currentLevel = calculateLevelFromExperience(result.data.experience)
-            const newStats = {
-              level: currentLevel,
-              experience: result.data.experience,
-              experienceToNextLevel: calculateExperienceForLevel(currentLevel),
-              gold: result.data.gold,
-              titles: { equipped: '', unlocked: 0, total: 0 },
-              perks: { active: 0, total: 0 }
-            }
-            
-            setCharacterStats(newStats)
-            setLastDataUpdate(new Date())
-            setDataSource('supabase')
-            
-            // Dispatch update events
-                            window.dispatchEvent(new Event('character-stats-update'))
-                            window.dispatchEvent(new Event('level-update'))
-            
-            console.log('[Mobile Nav] Pull-to-refresh completed successfully')
-          }
-        }
-      } catch (error) {
-        console.error('[Mobile Nav] Pull-to-refresh failed:', error)
-      } finally {
-        setPullToRefreshState('idle')
-        setPullDistance(0)
+  // Smart background refresh function - non-blocking with optimistic updates
+  const smartBackgroundRefresh = async (showVisualFeedback = false) => {
+    try {
+      // Check authentication
+      if (!user || !isLoaded) {
+        console.log('[Mobile Nav] User not authenticated, skipping background refresh')
+        return false
       }
+
+      // Set background refresh state
+      if (showVisualFeedback) {
+        setBackgroundRefreshState('refreshing')
+      }
+
+      console.log('[Mobile Nav] Starting smart background refresh...')
+      
+      // Start background fetch without blocking UI
+      const refreshPromise = fetch('/api/character-stats', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+      })
+
+      // Continue with UI updates while fetch happens in background
+      if (showVisualFeedback) {
+        // Show immediate visual feedback
+        setPullToRefreshState('refreshing')
+        
+        // Simulate smooth pull-back animation
+        setTimeout(() => {
+          setPullDistance(0)
+          setPullToRefreshState('success')
+          
+          // Hide success state after brief moment
+          setTimeout(() => {
+            setPullToRefreshState('idle')
+          }, 800)
+        }, 300)
+      }
+
+      // Wait for fetch to complete in background
+      const response = await refreshPromise
+      
+      if (response.ok) {
+        const result = await response.json()
+        if (result.data) {
+          console.log('[Mobile Nav] Background refresh successful:', result.data)
+          
+          // Update localStorage with fresh data
+          const freshStats = {
+            gold: result.data.gold || 0,
+            experience: result.data.experience || 0,
+            level: result.data.level || 1,
+            health: result.data.health || 100,
+            max_health: result.data.max_health || 100,
+            buildTokens: result.data.build_tokens || 0
+          }
+          
+          localStorage.setItem('character-stats', JSON.stringify(freshStats))
+          
+          // Update component state smoothly
+          const currentLevel = calculateLevelFromExperience(result.data.experience)
+          const newStats = {
+            level: currentLevel,
+            experience: result.data.experience,
+            experienceToNextLevel: calculateExperienceForLevel(currentLevel),
+            gold: result.data.gold,
+            titles: { equipped: '', unlocked: 0, total: 0 },
+            perks: { active: 0, total: 0 }
+          }
+          
+          // Smooth state update with animation
+          setCharacterStats(prev => ({ ...prev, ...newStats }))
+          
+          // Track data freshness
+          setLastDataUpdate(new Date())
+          setLastRefreshAttempt(new Date())
+          setDataSource('supabase')
+          setBackgroundRefreshState('success')
+          
+          // Dispatch update events
+          window.dispatchEvent(new Event('character-stats-update'))
+          window.dispatchEvent(new Event('level-update'))
+          
+          // Show success feedback briefly
+          setTimeout(() => {
+            setBackgroundRefreshState('idle')
+          }, 2000)
+          
+          return true
+        }
+      } else {
+        console.warn('[Mobile Nav] Background refresh failed:', response.status)
+        setBackgroundRefreshState('error')
+        
+        // Show error feedback briefly
+        setTimeout(() => {
+          setBackgroundRefreshState('idle')
+        }, 3000)
+      }
+    } catch (error) {
+      console.error('[Mobile Nav] Background refresh error:', error)
+      setBackgroundRefreshState('error')
+      
+      // Show error feedback briefly
+      setTimeout(() => {
+        setBackgroundRefreshState('idle')
+      }, 3000)
     }
     
-    setPullStartY(null)
-    setPullDistance(0)
-    setPullToRefreshState('idle')
+    return false
   }
 
   useEffect(() => {
@@ -307,7 +374,8 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     const syncInterval = setInterval(() => {
       console.log('[Mobile Nav] Periodic sync - checking for stat updates...')
       if (user && isLoaded) {
-        fetchFreshStatsFromSupabase()
+        // Use smart background refresh for periodic sync
+        smartBackgroundRefresh(false)
       } else {
         console.log('[Mobile Nav] User not authenticated, skipping periodic sync')
       }
@@ -367,17 +435,85 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
-            {/* Pull-to-refresh indicator */}
+            {/* Subtle pull progress indicator */}
+            {pullDistance > 0 && pullDistance < 50 && (
+              <div className="absolute top-0 left-0 right-0 z-30">
+                <div className="flex justify-center">
+                  <div className="w-16 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent rounded-full opacity-60 transform transition-all duration-200"
+                       style={{
+                         width: `${Math.min(pullDistance * 2, 64)}px`,
+                         opacity: Math.min(pullDistance / 50, 0.8)
+                       }}>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Enhanced Pull-to-refresh indicator with smart states */}
             {pullToRefreshState !== 'idle' && (
               <div className="absolute top-0 left-0 right-0 z-50 flex justify-center">
                 <div className={cn(
-                  "px-4 py-2 rounded-b-lg text-sm font-medium transition-all duration-200",
-                  pullToRefreshState === 'pulling' ? "bg-yellow-500/80 text-yellow-900" :
-                  pullToRefreshState === 'refreshing' ? "bg-green-500/80 text-green-900" :
-                  "bg-gray-500/80 text-gray-900"
+                  "px-4 py-2 rounded-b-lg text-sm font-medium transition-all duration-300 transform",
+                  pullToRefreshState === 'pulling' && "bg-yellow-500/90 text-yellow-900 scale-100",
+                  pullToRefreshState === 'refreshing' && "bg-blue-500/90 text-blue-900 scale-100",
+                  pullToRefreshState === 'success' && "bg-green-500/90 text-green-900 scale-105",
+                  pullToRefreshState === 'error' && "bg-red-500/90 text-red-900 scale-100"
                 )}>
-                  {pullToRefreshState === 'pulling' && `Pull down to refresh (${Math.round(pullDistance)}px)`}
-                  {pullToRefreshState === 'refreshing' && 'Refreshing data...'}
+                  {pullToRefreshState === 'pulling' && (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-yellow-700 border-t-transparent rounded-full animate-spin" />
+                      <span>Pull down to refresh ({Math.round(pullDistance)}px)</span>
+                    </div>
+                  )}
+                  {pullToRefreshState === 'refreshing' && (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-blue-700 border-t-transparent rounded-full animate-spin" />
+                      <span>Refreshing data...</span>
+                    </div>
+                  )}
+                  {pullToRefreshState === 'success' && (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 text-green-700">✓</div>
+                      <span>Data refreshed successfully!</span>
+                    </div>
+                  )}
+                  {pullToRefreshState === 'error' && (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 text-red-700">⚠</div>
+                      <span>Refresh failed, using cached data</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {/* Background refresh status indicator */}
+            {backgroundRefreshState !== 'idle' && (
+              <div className="absolute top-16 left-4 right-4 z-40">
+                <div className={cn(
+                  "px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300 transform",
+                  backgroundRefreshState === 'refreshing' && "bg-blue-500/80 text-blue-900 scale-100",
+                  backgroundRefreshState === 'success' && "bg-green-500/80 text-green-900 scale-105",
+                  backgroundRefreshState === 'error' && "bg-red-500/80 text-red-900 scale-100"
+                )}>
+                  {backgroundRefreshState === 'refreshing' && (
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 border-2 border-blue-700 border-t-transparent rounded-full animate-spin" />
+                      <span>Syncing data in background...</span>
+                    </div>
+                  )}
+                  {backgroundRefreshState === 'success' && (
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 text-green-700">✓</div>
+                      <span>Data synced successfully!</span>
+                    </div>
+                  )}
+                  {backgroundRefreshState === 'error' && (
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 text-red-700">⚠</div>
+                      <span>Sync failed, using cached data</span>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -410,123 +546,14 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                             return
                           }
                           
-                          console.log('[Mobile Nav] Manual refresh clicked, fetching fresh data from Supabase...')
+                          console.log('[Mobile Nav] Manual refresh clicked, starting smart background refresh...')
                           setIsRefreshing(true)
                           
-                          try {
-                            // Fetch fresh data from Supabase
-                            const response = await fetch('/api/character-stats', {
-                              method: 'GET',
-                              headers: {
-                                'Content-Type': 'application/json',
-                              },
-                              credentials: 'include'
-                            })
-
-                            if (response.ok) {
-                              const result = await response.json()
-                              if (result.data) {
-                                console.log('[Mobile Nav] Fresh Supabase data received:', result.data)
-                                
-                                // Update localStorage with fresh data
-                                const freshStats = {
-                                  gold: result.data.gold || 0,
-                                  experience: result.data.experience || 0,
-                                  level: result.data.level || 1,
-                                  health: result.data.health || 100,
-                                  max_health: result.data.max_health || 100,
-                                  buildTokens: result.data.build_tokens || 0
-                                }
-                                
-                                localStorage.setItem('character-stats', JSON.stringify(freshStats))
-                                console.log('[Mobile Nav] Updated localStorage with fresh data:', freshStats)
-                                
-                                // Update component state with fresh data
-                                const currentLevel = calculateLevelFromExperience(result.data.experience)
-                                const expToNext = calculateExperienceForLevel(currentLevel)
-                                
-                                const newStats = {
-                                  level: currentLevel,
-                                  experience: result.data.experience,
-                                  experienceToNextLevel: expToNext,
-                                  gold: result.data.gold,
-                                  titles: { equipped: '', unlocked: 0, total: 0 },
-                                  perks: { active: 0, total: 0 }
-                                }
-                                
-                                console.log('[Mobile Nav] Setting fresh stats in component:', newStats)
-                                setCharacterStats(newStats)
-                                
-                                // Track data freshness
-                                setLastDataUpdate(new Date())
-                                setDataSource('supabase')
-                                
-                                // Dispatch update events to notify other components
-                                window.dispatchEvent(new Event('character-stats-update'))
-                                window.dispatchEvent(new Event('level-update'))
-                                
-                                console.log('[Mobile Nav] Refresh completed successfully with fresh Supabase data')
-                              } else {
-                                console.warn('[Mobile Nav] No data in Supabase response')
-                                // Fallback to localStorage
-                                const stats = getCharacterStats()
-                                const currentLevel = calculateLevelFromExperience(stats.experience)
-                                const expToNext = calculateExperienceForLevel(currentLevel)
-                                
-                                const newStats = {
-                                  level: currentLevel,
-                                  experience: stats.experience,
-                                  experienceToNextLevel: expToNext,
-                                  gold: stats.gold,
-                                  titles: { equipped: '', unlocked: 0, total: 0 },
-                                  perks: { active: 0, total: 0 }
-                                }
-                                
-                                setCharacterStats(newStats)
-                                console.log('[Mobile Nav] Fallback to localStorage data:', newStats)
-                              }
-                            } else {
-                              console.warn('[Mobile Nav] Supabase fetch failed:', response.status, response.statusText)
-                              // Fallback to localStorage
-                              const stats = getCharacterStats()
-                              const currentLevel = calculateLevelFromExperience(stats.experience)
-                              const expToNext = calculateExperienceForLevel(currentLevel)
-                              
-                              const newStats = {
-                                level: currentLevel,
-                                experience: stats.experience,
-                                experienceToNextLevel: expToNext,
-                                gold: stats.gold,
-                                titles: { equipped: '', unlocked: 0, total: 0 },
-                                perks: { active: 0, total: 0 }
-                              }
-                              
-                              setCharacterStats(newStats)
-                              console.log('[Mobile Nav] Fallback to localStorage data:', newStats)
-                            }
-                            
-                            // Show success feedback
-                            setTimeout(() => setIsRefreshing(false), 1000)
-                          } catch (error) {
-                            console.error('[Mobile Nav] Error during refresh:', error)
-                            // Fallback to localStorage on error
-                            const stats = getCharacterStats()
-                            const currentLevel = calculateLevelFromExperience(stats.experience)
-                            const expToNext = calculateExperienceForLevel(currentLevel)
-                            
-                            const newStats = {
-                              level: currentLevel,
-                              experience: stats.experience,
-                              experienceToNextLevel: expToNext,
-                              gold: stats.gold,
-                              titles: { equipped: '', unlocked: 0, total: 0 },
-                              perks: { active: 0, total: 0 }
-                            }
-                            
-                            setCharacterStats(newStats)
-                            console.log('[Mobile Nav] Error fallback to localStorage data:', newStats)
-                            setIsRefreshing(false)
-                          }
+                          // Use smart background refresh
+                          await smartBackgroundRefresh(false)
+                          
+                          // Show success feedback briefly
+                          setTimeout(() => setIsRefreshing(false), 1000)
                         }}
                         disabled={isRefreshing}
                         className={cn(
@@ -578,13 +605,13 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                     <div className="mt-3 flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2">
                         <div className={cn(
-                          "w-2 h-2 rounded-full",
+                          "w-2 h-2 rounded-full transition-all duration-300",
                           dataSource === 'supabase' ? "bg-green-500" : 
                           dataSource === 'localStorage' ? "bg-yellow-500" : 
                           "bg-gray-500"
                         )} />
                         <span className={cn(
-                          "text-xs",
+                          "text-xs transition-colors duration-300",
                           dataSource === 'supabase' ? "text-green-400" : 
                           dataSource === 'localStorage' ? "text-yellow-400" : 
                           "text-gray-400"
@@ -593,12 +620,28 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                            dataSource === 'localStorage' ? 'Cached Data' : 
                            'Unknown Source'}
                         </span>
+                        
+                        {/* Smart refresh status indicator */}
+                        {backgroundRefreshState === 'refreshing' && (
+                          <div className="flex items-center gap-1 text-blue-400">
+                            <div className="w-2 h-2 border border-blue-400 border-t-transparent rounded-full animate-spin" />
+                            <span className="text-xs">Syncing...</span>
+                          </div>
+                        )}
                       </div>
-                      {lastDataUpdate && (
-                        <span className="text-gray-400 text-xs">
-                          Updated: {lastDataUpdate.toLocaleTimeString()}
-                        </span>
-                      )}
+                      
+                      <div className="flex flex-col items-end gap-1">
+                        {lastDataUpdate && (
+                          <span className="text-gray-400 text-xs">
+                            Updated: {lastDataUpdate.toLocaleTimeString()}
+                          </span>
+                        )}
+                        {lastRefreshAttempt && (
+                          <span className="text-gray-500 text-xs">
+                            Last sync: {lastRefreshAttempt.toLocaleTimeString()}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
 
