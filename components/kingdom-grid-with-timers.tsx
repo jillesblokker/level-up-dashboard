@@ -379,17 +379,8 @@ export function KingdomGridWithTimers({
 
   // Check if player can place a property
   const canPlaceProperty = (property: typeof propertyInventory[0]) => {
-    const { logs, planks } = getMaterialCounts()
-    
-    if (property.costType === 'buildToken') {
-      return buildTokens >= property.cost && playerLevel >= property.levelRequired
-    } else if (property.costType === 'material') {
-      if (!property.materialCost) return false
-      
-      const hasLogs = logs >= (property.materialCost.logs || 0)
-      const hasPlanks = planks >= (property.materialCost.planks || 0)
-      
-      return hasLogs && hasPlanks && playerLevel >= property.levelRequired
+    if (property.costType === 'gold') {
+      return (property.quantity || 0) > 0 && playerLevel >= property.levelRequired
     }
     
     return false
@@ -398,20 +389,10 @@ export function KingdomGridWithTimers({
   // Handle property selection for placement
   const handlePropertySelect = (property: typeof propertyInventory[0]) => {
     if (!canPlaceProperty(property)) {
-      const { logs, planks } = getMaterialCounts()
-      
       let errorMessage = ''
-      if (property.costType === 'buildToken') {
-        errorMessage = `You need ${property.cost} build token${property.cost !== 1 ? 's' : ''} and level ${property.levelRequired} to place ${property.name}.`
-      } else if (property.costType === 'material') {
-        const missingLogs = Math.max(0, (property.materialCost?.logs || 0) - logs)
-        const missingPlanks = Math.max(0, (property.materialCost?.planks || 0) - planks)
-        
-        if (missingLogs > 0 || missingPlanks > 0) {
-          const missingItems = []
-          if (missingLogs > 0) missingItems.push(`${missingLogs} logs`)
-          if (missingPlanks > 0) missingItems.push(`${missingPlanks} planks`)
-          errorMessage = `You need ${missingItems.join(' and ')} to place ${property.name}.`
+      if (property.costType === 'gold') {
+        if ((property.quantity || 0) <= 0) {
+          errorMessage = `You don't own any ${property.name}. Buy one first!`
         } else {
           errorMessage = `You need level ${property.levelRequired} to place ${property.name}.`
         }
