@@ -2291,11 +2291,16 @@ export default function RealmPage() {
                         variant={gameMode === 'move' ? 'default' : 'outline'}
                         size="sm"
                         onClick={() => setGameMode('move')}
-                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                        className={cn(
+                          "flex items-center gap-2 min-w-[44px] min-h-[44px]",
+                          gameMode === 'move' 
+                            ? "bg-blue-500 text-white hover:bg-blue-600" 
+                            : "bg-gray-800 text-white hover:bg-gray-700 border-gray-600"
+                        )}
                         aria-label="movement-mode-button"
                       >
                         <Move className="w-4 h-4" />
-                        <span className="hidden md:inline text-black">Move</span>
+                        <span className="hidden md:inline">Move</span>
                       </Button>
                       <Button
                         variant={gameMode === 'build' ? 'default' : 'outline'}
