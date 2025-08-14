@@ -330,24 +330,28 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const [inventoryLoading, setInventoryLoading] = useState(true);
   const [coverImageLoading, setCoverImageLoading] = useState(true);
 
+  // Debug: Log kingdom tiles configuration
+  useEffect(() => {
+    console.log('[Kingdom] KINGDOM_TILES configuration:', KINGDOM_TILES);
+    console.log('[Kingdom] Kingdom tile inventory:', kingdomTileInventory);
+  }, [kingdomTileInventory]);
+
   // Initialize timers for default kingdom tiles
   useEffect(() => {
-    // Clear any old cached data that might have wrong image references
-    const oldTimers = localStorage.getItem('kingdom-tile-timers');
-    if (oldTimers) {
-      try {
-        const parsed = JSON.parse(oldTimers);
-        // Check if any timers reference old kingdom tiles
-        const hasOldReferences = parsed.some((timer: any) => 
-          timer.tileId && !['well', 'blacksmith', 'sawmill', 'fisherman', 'grocery', 'foodcourt', 'vegetables', 'wizard', 'temple', 'castle', 'mansion', 'fountain', 'mayor', 'inn', 'jousting', 'archery', 'watchtower', 'pond', 'windmill', 'house'].includes(timer.tileId)
-        );
-        if (hasOldReferences) {
-          localStorage.removeItem('kingdom-tile-timers');
-        }
-      } catch (e) {
-        localStorage.removeItem('kingdom-tile-timers');
+    // Force clear ALL cached kingdom data to ensure fresh start
+    localStorage.removeItem('kingdom-tile-timers');
+    localStorage.removeItem('kingdom-grid');
+    localStorage.removeItem('kingdom-grid-expansions');
+    
+    // Clear any other potential cached data
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.includes('kingdom') || key.includes('tile'))) {
+        keysToRemove.push(key);
       }
     }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
     
     const defaultTimers = [
       { x: 1, y: 1, tileId: 'well', endTime: Date.now() + (30 * 60 * 1000), isReady: false },
@@ -372,11 +376,8 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       { x: 5, y: 4, tileId: 'watchtower', endTime: Date.now() + (360 * 60 * 1000), isReady: false },
     ];
     
-    // Save default timers to localStorage if they don't exist
-    const existingTimers = localStorage.getItem('kingdom-tile-timers');
-    if (!existingTimers) {
-      localStorage.setItem('kingdom-tile-timers', JSON.stringify(defaultTimers));
-    }
+    // Always save fresh timers
+    localStorage.setItem('kingdom-tile-timers', JSON.stringify(defaultTimers));
     
     // Force refresh the kingdom grid to ensure all new tiles are displayed
     setKingdomGrid(createEmptyKingdomGrid());
@@ -459,8 +460,15 @@ export function KingdomClient({ userId }: { userId: string | null }) {
 
   // Handle selling items
   const handleSellItem = async (item: KingdomInventoryItem) => {
+    console.log('[Sell] Sell button clicked for item:', item);
+    
     if (!userId) {
       console.log('[Sell] No userId available');
+      toast({
+        title: "Error",
+        description: "You must be logged in to sell items",
+        variant: "destructive",
+      });
       return;
     }
     
