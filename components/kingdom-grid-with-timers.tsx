@@ -497,35 +497,12 @@ export function KingdomGridWithTimers({
       onGridUpdate(updatedGrid)
     }
 
-    // Consume resources based on cost type
-    if (selectedProperty.costType === 'buildToken') {
-      // Deduct build tokens
-      const stats = JSON.parse(localStorage.getItem('character-stats') || '{}')
-      stats.buildTokens = Math.max(0, (stats.buildTokens || 0) - selectedProperty.cost)
-      localStorage.setItem('character-stats', JSON.stringify(stats))
-      setBuildTokens(stats.buildTokens)
-    } else if (selectedProperty.costType === 'material') {
-      // Consume materials
-      try {
-        const kingdomInventory = JSON.parse(localStorage.getItem('kingdom-inventory') || '[]')
-        if (selectedProperty.materialCost) {
-          if (selectedProperty.materialCost.logs) {
-            const logsIndex = kingdomInventory.findIndex((item: any) => item.id === 'material-logs')
-            if (logsIndex !== -1) {
-              kingdomInventory[logsIndex].quantity = Math.max(0, kingdomInventory[logsIndex].quantity - selectedProperty.materialCost.logs)
-            }
-          }
-          if (selectedProperty.materialCost.planks) {
-            const planksIndex = kingdomInventory.findIndex((item: any) => item.id === 'material-planks')
-            if (planksIndex !== -1) {
-              kingdomInventory[planksIndex].quantity = Math.max(0, kingdomInventory[planksIndex].quantity - selectedProperty.materialCost.planks)
-            }
-          }
-          localStorage.setItem('kingdom-inventory', JSON.stringify(kingdomInventory))
-        }
-      } catch (error) {
-        console.error('[Property Placement] Error consuming materials:', error)
-      }
+    // Decrease property quantity for gold-based properties
+    if (selectedProperty.costType === 'gold') {
+      const updatedInventory = propertyInventory.map(p => 
+        p.id === selectedProperty.id ? { ...p, quantity: Math.max(0, (p.quantity || 0) - 1) } : p
+      )
+      setPropertyInventory(updatedInventory)
     }
 
     // Reset placement mode
