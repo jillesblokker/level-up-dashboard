@@ -29,7 +29,7 @@ interface KingdomGridWithTimersProps {
   onTilePlace: (x: number, y: number, tile: Tile) => void
   selectedTile: Tile | null
   setSelectedTile: (tile: Tile | null) => void
-  onGridExpand?: (newGrid: Tile[][]) => void
+  onGridExpand?: () => void
   onGridUpdate?: (newGrid: Tile[][]) => void
   onGoldEarned?: (amount: number) => void
   onItemFound?: (item: { image: string; name: string; type: string }) => void
@@ -220,10 +220,7 @@ export function KingdomGridWithTimers({
       return newVal;
     });
 
-    // Call the callbacks to update the parent component's grid
-    if (onGridExpand) {
-      onGridExpand(newGrid);
-    }
+    // Call the callback to update the parent component's grid
     if (onGridUpdate) {
       onGridUpdate(newGrid);
     }
@@ -234,7 +231,7 @@ export function KingdomGridWithTimers({
     });
   };
 
-  // RESTORE WORKING PROPERTY INTERACTION SYSTEM
+  // Update tile click handler to support property placement
   const handleTileClick = async (x: number, y: number, tile: Tile) => {
     // If in placement mode, handle property placement
     if (selectedTile) {
@@ -242,87 +239,48 @@ export function KingdomGridWithTimers({
       return;
     }
 
-    // Check if this is a kingdom property tile that can earn rewards
-    if (tile.type === 'empty' || tile.type === 'vacant') {
-      return; // Can't interact with empty tiles
-    }
+    // Otherwise, handle normal tile interaction
+    const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase());
+    if (!kingdomTile) return;
 
-    // Check if tile is ready for collection
+    // Check if tile is ready
     const timer = tileTimers.find(t => t.x === x && t.y === y);
-    if (!timer || !timer.isReady) {
-      toast({
-        title: "Property Not Ready",
-        description: "This property is still producing. Wait for the timer to finish.",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (!timer || !timer.isReady) return;
 
-    // Generate rewards based on tile type
-    const rewards = generatePropertyRewards(tile.type);
-    
-    // Update timer in database to reset it
+         // Generate rewards
+     const wasLucky = isLuckyTile(kingdomTile.luckyChance);
+     const goldEarned = wasLucky ? kingdomTile.luckyGoldAmount : getRandomGold(kingdomTile.normalGoldRange[0] || 50, kingdomTile.normalGoldRange[1] || 100);
+    const itemFound = kingdomTile.possibleItems.length > 0 ? getRandomItem(kingdomTile.possibleItems) : null;
+
+    // Update timer in database
     await updateTimerInDatabase(x, y, false);
 
-    // Show reward modal
+    // Show modal with rewards
     setModalData({
-      tileName: tile.name,
-      goldEarned: rewards.gold,
-      itemFound: rewards.item,
-      isLucky: rewards.isLucky,
-      message: rewards.message
+      tileName: kingdomTile.name,
+      goldEarned,
+      itemFound: itemFound ? {
+        image: itemFound,
+        name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
+        type: kingdomTile.itemType
+      } : undefined,
+      isLucky: wasLucky,
+      message: kingdomTile.clickMessage
     });
     setShowModal(true);
 
     // Trigger callbacks
-    if (onGoldEarned) onGoldEarned(rewards.gold);
-    if (onItemFound && rewards.item) {
-      onItemFound(rewards.item);
+    if (onGoldEarned) onGoldEarned(goldEarned);
+    if (onItemFound && itemFound) {
+      onItemFound({
+        image: itemFound,
+        name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
+        type: kingdomTile.itemType
+      });
     }
 
     // Gain gold
-    await gainGold(rewards.gold, `kingdom-${tile.type.toLowerCase()}`);
-
-    // Show success toast
-    toast({
-      title: "Property Collected!",
-      description: `You earned ${rewards.gold} gold from ${tile.name}!`,
-    });
-  };
-
-  // Generate rewards for different property types
-  const generatePropertyRewards = (tileType: string) => {
-    const baseRewards: Record<string, { gold: number; message: string; itemChance: number }> = {
-      'house': { gold: 50, message: 'Your house provides steady income!', itemChance: 0.1 },
-      'castle': { gold: 200, message: 'Your castle generates significant wealth!', itemChance: 0.3 },
-      'blacksmith': { gold: 75, message: 'The blacksmith forges valuable items!', itemChance: 0.2 },
-      'inn': { gold: 60, message: 'Travelers bring gold to your inn!', itemChance: 0.15 },
-      'temple': { gold: 80, message: 'Worshippers donate to your temple!', itemChance: 0.25 },
-      'default': { gold: 40, message: 'Your property generates income!', itemChance: 0.05 }
-    };
-
-    const reward = baseRewards[tileType.toLowerCase()] || baseRewards['default'];
-    if (!reward) return { gold: 0, item: undefined, isLucky: false, message: 'No reward available' };
-    
-    const isLucky = Math.random() < 0.1; // 10% chance for lucky bonus
-    const goldEarned = isLucky ? reward.gold * 2 : reward.gold;
-    
-    // Check if item is found
-    let item = undefined;
-    if (Math.random() < reward.itemChance) {
-      item = {
-        image: `/images/items/${tileType.toLowerCase()}-item.png`,
-        name: `${tileType} Item`,
-        type: 'treasure'
-      };
-    }
-
-    return {
-      gold: goldEarned,
-      item,
-      isLucky,
-      message: reward.message
-    };
+    await gainGold(goldEarned, `kingdom-${tile.type.toLowerCase()}`);
   };
 
   // Handle property placement with database sync
@@ -334,8 +292,8 @@ export function KingdomGridWithTimers({
       // Call the original onTilePlace function
       onTilePlace(x, y, selectedTile);
       
-      // Create timer in database
-      const timerEndTime = Date.now() + 60 * 60 * 1000; // Default 1 hour timer
+             // Create timer in database
+       const timerEndTime = Date.now() + 60 * 60 * 1000; // Default 1 hour timer
       
       const response = await fetch('/api/property-timers', {
         method: 'POST',
@@ -410,6 +368,27 @@ export function KingdomGridWithTimers({
       return `${minutes}:${seconds.toString().padStart(2, '0')}`;
     }
   };
+
+  // Helper functions for rewards
+  const isLuckyTile = (chance: number) => Math.random() < chance;
+  const getRandomGold = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+  const getRandomItem = (items: string[]) => items[Math.floor(Math.random() * items.length)];
+
+  // Kingdom tile definitions
+  const KINGDOM_TILES = [
+    {
+      id: 'castle',
+      name: 'Castle',
+      timerMinutes: 60,
+      normalGoldRange: [50, 100],
+      luckyChance: 0.1,
+      luckyGoldAmount: 200,
+      possibleItems: ['/images/items/crown.png', '/images/items/sword.png'],
+      itemType: 'treasure',
+      clickMessage: 'Your castle provides steady income!'
+    },
+    // Add more tile definitions as needed
+  ];
 
   return (
     <div className="w-full max-w-6xl mx-auto p-4" aria-label="kingdom-grid-with-timers-container">

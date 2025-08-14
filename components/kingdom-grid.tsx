@@ -13,7 +13,6 @@ import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 import { getCharacterStats } from '@/lib/character-stats-manager'
 import { calculateLevelFromExperience } from '@/types/character'
 import { Tile, TileType } from '@/types/tiles'
-import { spendGold } from '@/lib/gold-manager'
 
 interface KingdomGridProps {
   grid: Tile[][]
@@ -24,6 +23,15 @@ interface KingdomGridProps {
 }
 
 export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, onGridExpand }: KingdomGridProps) {
+  const wallImage = '/images/kingdom-tiles/Wall.png';
+  const wallTile = {
+    id: 'wall',
+    name: 'Wall',
+    image: wallImage,
+    cost: 0,
+    quantity: 0
+  };
+
   const { toast } = useToast();
   const { user } = useUser();
   const { supabase, isLoading: supabaseLoading } = useSupabase();
@@ -40,7 +48,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
   const [playerLevel, setPlayerLevel] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(false);
 
-  // RESTORE WORKING PROPERTY INVENTORY
+  // Dynamically generate property inventory
   const [propertyInventory, setPropertyInventory] = useState<Tile[]>(() => {
     const tileImageFiles = [
       'Archery.png', 'Blacksmith.png', 'Castle.png', 'Fisherman.png', 'Foodcourt.png', 
@@ -63,7 +71,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
         id: name.toLowerCase(),
         type: name.toLowerCase() as TileType,
         name: tileNames[name] || name,
-        description: `A ${name.toLowerCase()} building for your kingdom`,
+        description: '',
         connections: [],
         rotation: 0,
         revealed: true,
@@ -155,46 +163,19 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
     }
   });
 
-  // RESTORE WORKING BUY PROPERTY FUNCTION
-  const handleBuyProperty = async (tile: Tile) => {
-    if (buildTokens < (tile.cost || 1)) {
-      toast({
-        title: "Insufficient Build Tokens",
-        description: `You need ${tile.cost} build tokens for ${tile.name}. You have ${buildTokens} tokens.`,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      // Spend build tokens
-      const cost = tile.cost || 0;
-      const success = await spendGold(cost * 1000, 'build-token-purchase');
-      if (success) {
-        // Update build tokens in localStorage
+  // Handler for buying a property tile
+  const handleBuyProperty = (tile: Tile) => {
+    if (buildTokens < (tile.cost || 1)) return;
+    setBuildTokens((prev: number) => {
+      const newTokens = prev - (tile.cost || 1);
+      if (typeof window !== 'undefined') {
         const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
-        stats.buildTokens = (stats.buildTokens || 0) + 1;
+        stats.buildTokens = newTokens;
         localStorage.setItem('character-stats', JSON.stringify(stats));
-        setBuildTokens(stats.buildTokens);
-        
-        // Update property inventory
-        setPropertyInventory((prev) => prev.map(t => 
-          t.id === tile.id ? { ...t, quantity: (t.quantity || 0) + 1 } : t
-        ));
-        
-        toast({
-          title: "Property Purchased!",
-          description: `You now own ${tile.name}!`,
-        });
       }
-    } catch (error) {
-      console.error('[Kingdom Grid] Error buying property:', error);
-      toast({
-        title: "Purchase Failed",
-        description: "There was an error purchasing the property.",
-        variant: "destructive",
-      });
-    }
+      return newTokens;
+    });
+    setPropertyInventory((prev) => prev.map(t => t.id === tile.id ? { ...t, quantity: (t.quantity || 0) + 1 } : t));
   };
 
   // Expansion gating logic (same as realm map)
@@ -332,7 +313,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
         </div>
       </div>
 
-      {/* RESTORE WORKING PROPERTIES PANEL */}
+      {/* Properties Panel */}
       {propertiesOpen && (
         <Card className="bg-black border-amber-800">
           <CardHeader>
@@ -372,45 +353,24 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
                         <div className="text-sm font-semibold text-white mb-1">{tile.name}</div>
                         <div className="text-sm text-gray-400 mb-2">{tile.description}</div>
                         <div className="text-sm text-amber-200 mb-2">Owned: <span className="font-bold">{tile.quantity || 0}</span></div>
-                        <button
-                          className={`w-full px-3 py-2 rounded shadow focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm font-semibold ${selectedTile?.id === tile.id ? 'bg-amber-800 text-white' : 'bg-gray-800 text-amber-300 hover:bg-amber-700 hover:text-white'}`}
-                          aria-label={`Select ${tile.name} to place`}
-                          onClick={() => setSelectedTile(tile)}
-                          disabled={!tile.quantity || tile.quantity <= 0}
-                        >
-                          {selectedTile?.id === tile.id ? 'Selected' : 'Place'}
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </TabsContent>
-
-              <TabsContent value="buy" className="mt-4">
-                <ScrollArea className="h-64">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {propertyInventory.map(tile => (
-                      <div
-                        key={tile.id}
-                        className="p-3 border border-gray-700 rounded-lg text-center"
-                        aria-label={`${tile.name} property tile`}
-                      >
-                        <img
-                          src={tile.image}
-                          alt={tile.name}
-                          className="w-16 h-16 mx-auto mb-2 object-contain"
-                        />
-                        <div className="text-sm font-semibold text-white mb-1">{tile.name}</div>
-                        <div className="text-sm text-gray-400 mb-2">{tile.description}</div>
-                                                 <div className="text-sm text-amber-200 mb-2">Cost: <span className="font-bold">{tile.cost || 0}</span> 🏗️</div>
-                        <button
-                          className="bg-amber-700 text-white px-3 py-2 rounded shadow hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm disabled:opacity-50 w-full"
-                          aria-label={`Buy ${tile.name}`}
-                          disabled={buildTokens < (tile.cost || 0)}
-                          onClick={() => handleBuyProperty(tile)}
-                        >
-                          Buy
-                        </button>
+                        {propertyTab === 'buy' ? (
+                          <button
+                            className="bg-amber-700 text-white px-3 py-2 rounded shadow hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm disabled:opacity-50 w-full"
+                            aria-label={`Buy ${tile.name}`}
+                            disabled={buildTokens < (tile.cost || 1)}
+                            onClick={() => handleBuyProperty(tile)}
+                          >
+                            Buy
+                          </button>
+                        ) : (
+                          <button
+                            className={`w-full px-3 py-2 rounded shadow focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm font-semibold ${selectedTile?.id === tile.id ? 'bg-amber-800 text-white' : 'bg-gray-800 text-amber-300 hover:bg-amber-700 hover:text-white'}`}
+                            aria-label={`Select ${tile.name} to place`}
+                            onClick={() => setSelectedTile(tile)}
+                          >
+                            {selectedTile?.id === tile.id ? 'Selected' : 'Place'}
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
