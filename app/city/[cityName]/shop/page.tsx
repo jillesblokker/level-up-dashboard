@@ -204,22 +204,27 @@ export default function ShopPage() {
                 <Button
                   className="w-full min-h-[44px]"
                   aria-label={`Purchase ${item.name}`}
-                  onClick={() => {
-                    // Use the unified gold spending system
-                    if (spendGold(item.price, `purchase-${item.name}`)) {
-                      // Add to kingdom inventory
-                      if (user?.id) {
-                        addToKingdomInventory(user.id, {
-                          id: item.id,
-                          name: item.name,
-                          description: item.description,
-                          type: 'item',
-                          quantity: 1,
-                          image: item.image,
-                          emoji: item.emoji
-                        })
+                  onClick={async () => {
+                    try {
+                      // Use the unified gold spending system
+                      const success = await spendGold(item.price, `purchase-${item.name}`);
+                      if (success) {
+                        // Add to kingdom inventory
+                        if (user?.id) {
+                          addToKingdomInventory(user.id, {
+                            id: item.id,
+                            name: item.name,
+                            description: item.description,
+                            type: 'item',
+                            quantity: 1,
+                            image: item.image,
+                            emoji: item.emoji
+                          })
+                        }
+                        window.dispatchEvent(new Event('character-inventory-update'))
                       }
-                      window.dispatchEvent(new Event('character-inventory-update'))
+                    } catch (error) {
+                      console.error('Error purchasing item:', error);
                     }
                   }}
                 >

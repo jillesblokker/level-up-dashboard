@@ -264,16 +264,15 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
 
 
     // Use the unified gold spending system
-    if (spendGold(totalCost, `purchase-${quantity}-${tile.name || tile.type}-tiles`)) {
-      try {
+    try {
+      const success = await spendGold(totalCost, `purchase-${quantity}-${tile.name || tile.type}-tiles`);
+      if (success) {
         // Get user ID from Clerk
         if (!user?.id) {
           console.error('[Tile Inventory] No user ID found');
           toast.error('User not authenticated');
           return;
         }
-
-
 
         // Use the tile inventory manager to add tiles
         const result = await addTileToInventory(user.id, {
@@ -284,8 +283,6 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
           cost: tile.cost,
           connections: tile.connections || [],
         });
-
-
 
         // Update parent component's state immediately
         const newTiles = tiles.map(item => 
@@ -300,10 +297,10 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         
         // Show success message
         toast.success(`Purchased ${quantity} ${tile.name || tile.type} tile(s)`)
-      } catch (error) {
-        console.error('[Tile Inventory] Error updating tile inventory:', error);
-        toast.error('Failed to update tile inventory');
       }
+    } catch (error) {
+      console.error('[Tile Inventory] Error updating tile inventory:', error);
+      toast.error('Failed to update tile inventory');
     }
   }
 
