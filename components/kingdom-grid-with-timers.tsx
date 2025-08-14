@@ -181,82 +181,82 @@ export function KingdomGridWithTimers({
       id: 'archery',
       name: 'Archery',
       image: '/images/kingdom-tiles/Archery.png',
-      cost: 1,
+      cost: 150,
       levelRequired: 1,
-      costType: 'material', // Use materials instead of build tokens
-      materialCost: { logs: 2 } // 2 wooden logs
+      costType: 'gold',
+      quantity: 0
     },
     {
       id: 'blacksmith',
       name: 'Blacksmith',
       image: '/images/kingdom-tiles/Blacksmith.png',
-      cost: 1,
+      cost: 200,
       levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 3, planks: 1 } // 3 logs + 1 plank
+      costType: 'gold',
+      quantity: 0
     },
     {
       id: 'fisherman',
       name: 'Fisherman',
       image: '/images/kingdom-tiles/Fisherman.png',
-      cost: 1,
+      cost: 120,
       levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 2 } // 2 logs
+      costType: 'gold',
+      quantity: 0
     },
     {
       id: 'foodcourt',
       name: 'Food Court',
       image: '/images/kingdom-tiles/Foodcourt.png',
-      cost: 1,
+      cost: 250,
       levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 4, planks: 2 } // 4 logs + 2 planks
+      costType: 'gold',
+      quantity: 0
     },
     {
       id: 'fountain',
       name: 'Fountain',
       image: '/images/kingdom-tiles/Fountain.png',
-      cost: 1,
+      cost: 180,
       levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 2, planks: 1 } // 2 logs + 1 plank
+      costType: 'gold',
+      quantity: 0
     },
     {
       id: 'grocery',
       name: 'Grocery',
       image: '/images/kingdom-tiles/Grocery.png',
-      cost: 1,
+      cost: 160,
       levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 3 } // 3 logs
+      costType: 'gold',
+      quantity: 0
     },
     {
       id: 'house',
       name: 'House',
       image: '/images/kingdom-tiles/House.png',
-      cost: 1,
+      cost: 100,
       levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 5, planks: 3 } // 5 logs + 3 planks
+      costType: 'gold',
+      quantity: 0
     },
     {
       id: 'inn',
       name: 'Inn',
       image: '/images/kingdom-tiles/Inn.png',
-      cost: 1,
+      cost: 220,
       levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 4, planks: 2 } // 4 logs + 2 planks
+      costType: 'gold',
+      quantity: 0
     },
     {
       id: 'jousting',
       name: 'Jousting',
       image: '/images/kingdom-tiles/Jousting.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 3, planks: 1 } // 3 logs + 1 plank
+      cost: 300,
+      levelRequired: 2,
+      costType: 'gold',
+      quantity: 0
     },
     {
       id: 'mansion',
