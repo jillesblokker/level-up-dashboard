@@ -29,7 +29,7 @@ interface KingdomGridWithTimersProps {
   onTilePlace: (x: number, y: number, tile: Tile) => void
   selectedTile: Tile | null
   setSelectedTile: (tile: Tile | null) => void
-  onGridExpand?: () => void
+  onGridExpand?: (newGrid: Tile[][]) => void
   onGridUpdate?: (newGrid: Tile[][]) => void
   onGoldEarned?: (amount: number) => void
   onItemFound?: (item: { image: string; name: string; type: string }) => void
@@ -220,7 +220,10 @@ export function KingdomGridWithTimers({
       return newVal;
     });
 
-    // Call the callback to update the parent component's grid
+    // Call the callbacks to update the parent component's grid
+    if (onGridExpand) {
+      onGridExpand(newGrid);
+    }
     if (onGridUpdate) {
       onGridUpdate(newGrid);
     }

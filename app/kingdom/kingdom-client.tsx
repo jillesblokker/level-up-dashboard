@@ -750,10 +750,8 @@ export function KingdomClient({ userId }: { userId: string | null }) {
                   onTilePlace={handlePlaceKingdomTile}
                   selectedTile={selectedKingdomTile}
                   setSelectedTile={setSelectedKingdomTile}
-                  onGridExpand={() => {
-                    // Handle grid expansion logic here if needed
-                    console.log('Grid expansion requested');
-                  }}
+                  onGridExpand={(newGrid: Tile[][]) => setKingdomGrid(newGrid)}
+                  onGridUpdate={(newGrid: Tile[][]) => setKingdomGrid(newGrid)}
                   onGoldEarned={handleKingdomTileGoldEarned}
                   onItemFound={handleKingdomTileItemFound}
                 />
