@@ -176,7 +176,7 @@ export function KingdomGridWithTimers({
   };
 
   // Kingdom tile inventory for properties panel
-  const propertyInventory = [
+  const [propertyInventory, setPropertyInventory] = useState([
     {
       id: 'archery',
       name: 'Archery',
@@ -346,9 +346,10 @@ export function KingdomGridWithTimers({
       cost: 2,
       levelRequired: 6,
       costType: 'buildToken',
-      materialCost: null
+      materialCost: null,
+      quantity: 0
     }
-  ];
+  ]);
 
   // Property placement state
   const [selectedProperty, setSelectedProperty] = useState<typeof propertyInventory[0] | null>(null)
@@ -425,6 +426,43 @@ export function KingdomGridWithTimers({
       description: `Click on a vacant tile to place ${property.name}. Press ESC to cancel.`,
     });
   }
+
+  // Handle buying properties with gold
+  const handleBuyProperty = async (property: typeof propertyInventory[0]) => {
+    if (property.costType !== 'gold') {
+      toast({
+        title: 'Cannot Buy',
+        description: 'This property cannot be purchased with gold.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      const success = await spendGold(property.cost, `purchase-${property.name.toLowerCase()}`);
+      if (success) {
+        // Update property quantity
+        const updatedInventory = propertyInventory.map(p => 
+          p.id === property.id ? { ...p, quantity: (p.quantity || 0) + 1 } : p
+        );
+        
+        // Update the property inventory state
+        setPropertyInventory(updatedInventory);
+        
+        toast({
+          title: 'Property Purchased!',
+          description: `You now own ${property.name}!`,
+        });
+      }
+    } catch (error) {
+      console.error('Error buying property:', error);
+      toast({
+        title: 'Purchase Failed',
+        description: 'There was an error purchasing the property.',
+        variant: 'destructive',
+      });
+    }
+  };
 
   // Handle property placement on grid
   const handlePropertyPlacement = (x: number, y: number) => {
