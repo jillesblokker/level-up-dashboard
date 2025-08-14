@@ -3,18 +3,18 @@ import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification'
 
 export async function DELETE(request: NextRequest) {
   try {
-    const { userId, itemId } = await request.json()
+    const { itemId } = await request.json()
     
-    if (!userId || !itemId) {
+    if (!itemId) {
       return NextResponse.json(
-        { error: 'Missing userId or itemId' },
+        { error: 'Missing itemId' },
         { status: 400 }
       )
     }
 
     const { success, data, error } = await authenticatedSupabaseQuery(
-      userId,
-      async (supabase) => {
+      request,
+      async (supabase, userId) => {
         // Remove the item from the user's inventory
         const { error: deleteError } = await supabase
           .from('inventory_items')

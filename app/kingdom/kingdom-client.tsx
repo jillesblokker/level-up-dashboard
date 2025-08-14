@@ -368,7 +368,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       const response = await fetch('/api/inventory/remove-item', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, itemId: item.id })
+        body: JSON.stringify({ itemId: item.id })
       });
       
       console.log('[Sell] Remove item response:', response.status, response.statusText);
