@@ -21,6 +21,14 @@ import {
   addToInventory,
   type InventoryItem 
 } from "@/lib/inventory-manager"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager';
 import type { InventoryItem as DefaultInventoryItem } from "@/app/lib/default-inventory"
 import type { InventoryItem as ManagerInventoryItem } from "@/lib/inventory-manager"
@@ -329,6 +337,8 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const [kingdomContent, setKingdomContent] = useState<JSX.Element | null>(null);
   const [inventoryLoading, setInventoryLoading] = useState(true);
   const [coverImageLoading, setCoverImageLoading] = useState(true);
+  const [sellingModalOpen, setSellingModalOpen] = useState(false);
+  const [soldItem, setSoldItem] = useState<{ name: string; gold: number } | null>(null);
 
   // Debug: Log kingdom tiles configuration
   useEffect(() => {
@@ -494,16 +504,15 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       // Give gold for the sale
       gainGold(sellPrice, `sell-${item.name.toLowerCase()}`);
       
+      // Show selling confirmation modal
+      setSoldItem({ name: item.name, gold: sellPrice });
+      setSellingModalOpen(true);
+      
       // Refresh inventory from Supabase
       const equipped = await getEquippedItems(userId);
       const stored = await getStoredItems(userId);
       setEquippedItems(equipped);
       setStoredItems(stored);
-      
-      toast({
-        title: "Item Sold!",
-        description: `You sold ${item.name} for ${sellPrice} gold!`,
-      });
     } catch (error) {
       console.error('Failed to sell item:', error);
       toast({
@@ -1106,6 +1115,38 @@ export function KingdomClient({ userId }: { userId: string | null }) {
        </div>
       {/* Bottom spacing */}
       <div className="h-8 md:h-12"></div>
+      
+      {/* Selling Confirmation Modal */}
+      <Dialog open={sellingModalOpen} onOpenChange={setSellingModalOpen}>
+        <DialogContent className="bg-gray-900 border-amber-800/20" role="dialog" aria-label="selling-confirmation-modal">
+          <DialogDescription id="selling-confirmation-modal-desc">Item sold confirmation</DialogDescription>
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-cardo text-amber-500">
+              Item Sold Successfully!
+            </DialogTitle>
+            <DialogDescription className="text-gray-300">
+              You have successfully sold an item and gained gold.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="text-center mb-6">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-amber-900/30 flex items-center justify-center">
+              <span className="text-3xl">💰</span>
+            </div>
+            <h3 className="text-xl font-cardo text-white mb-2">{soldItem?.name}</h3>
+            <p className="text-amber-400 text-2xl font-bold">+{soldItem?.gold} Gold</p>
+          </div>
+
+          <DialogFooter>
+            <Button
+              onClick={() => setSellingModalOpen(false)}
+              className="bg-amber-600 hover:bg-amber-700"
+            >
+              Continue
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 } 

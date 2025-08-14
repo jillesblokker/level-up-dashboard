@@ -81,7 +81,7 @@ function createFishItems() {
     rarity: '${fish.rarity}',
     stats: ${JSON.stringify(fish.stats)},
     emoji: '🐟',
-    image: '/images/items/food/${fish.name}.png',
+    image: '/images/items/food/fish-${fish.name.replace('fish', '')}.png',
     cost: ${fish.cost},
     isDefault: false,
     isEquippable: false,
@@ -130,7 +130,7 @@ function updateItemsMetadata() {
       stats: fish.stats,
       cost: fish.cost,
       isDefault: false,
-      image: `/images/items/food/${fish.name}.png`,
+      image: `/images/items/food/fish-${fish.name.replace('fish', '')}.png`,
       description: fish.description
     };
   });
@@ -151,11 +151,11 @@ function updateKingdomTiles() {
   const fishermanUpdate = content.replace(
     /possibleItems: \[\s*'\/images\/items\/food\/goldenfish\.png',\s*'\/images\/items\/food\/goldenfish\.png',\s*\/\/ More common\s*'\/images\/items\/food\/goldenfish\.png',\s*\/\/ More common\s*'\/images\/items\/food\/goldenfish\.png',\s*\/\/ More common\s*'\/images\/items\/food\/goldenfish\.png'\s*\/\/ More common\s*\],/,
     `possibleItems: [
-      '/images/items/food/goldenfish.png',
-      '/images/items/food/silverfish.png',
-      '/images/items/food/bronzefish.png',
-      '/images/items/food/rainbowfish.png',
-      '/images/items/food/crystalfish.png'
+      '/images/items/food/fish-golden.png',
+      '/images/items/food/fish-silver.png',
+      '/images/items/food/fish-bronze.png',
+      '/images/items/food/fish-rainbow.png',
+      '/images/items/food/fish-crystal.png'
     ],`
   );
   
@@ -163,9 +163,9 @@ function updateKingdomTiles() {
   const updatedContent = fishermanUpdate.replace(
     /possibleItems: \['\/images\/items\/food\/goldenfish\.png'\],/g,
     `possibleItems: [
-      '/images/items/food/goldenfish.png',
-      '/images/items/food/silverfish.png',
-      '/images/items/food/bronzefish.png'
+      '/images/items/food/fish-golden.png',
+      '/images/items/food/fish-silver.png',
+      '/images/items/food/fish-bronze.png'
     ],`
   );
   
@@ -177,7 +177,7 @@ function updateKingdomTiles() {
 function createFishImages() {
   console.log('\n🖼️ Creating fish image placeholders...');
   
-  const sourceImage = 'public/images/items/food/goldenfish.png';
+  const sourceImage = 'public/images/items/food/fish-golden.png';
   const targetDir = 'public/images/items/food/';
   
   // Create copies for each fish type
