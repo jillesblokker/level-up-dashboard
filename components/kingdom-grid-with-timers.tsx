@@ -307,47 +307,55 @@ export function KingdomGridWithTimers({
       id: 'vegetables',
       name: 'Vegetables',
       image: '/images/kingdom-tiles/Vegetables.png',
-      cost: 1,
+      cost: 60,
       levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 1 } // 1 log
+      costType: 'gold',
+      quantity: 0
     },
     {
       id: 'watchtower',
       name: 'Watchtower',
       image: '/images/kingdom-tiles/Watchtower.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 4, planks: 2 } // 4 logs + 2 planks
+      cost: 350,
+      levelRequired: 2,
+      costType: 'gold',
+      quantity: 0
     },
     {
       id: 'well',
       name: 'Well',
       image: '/images/kingdom-tiles/Well.png',
-      cost: 1,
+      cost: 90,
       levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 2, planks: 1 } // 2 logs + 1 plank
+      costType: 'gold',
+      quantity: 0
     },
     {
       id: 'windmill',
       name: 'Windmill',
       image: '/images/kingdom-tiles/Windmill.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 3, planks: 2 } // 3 logs + 2 planks
+      cost: 320,
+      levelRequired: 2,
+      costType: 'gold',
+      quantity: 0
     },
     {
       id: 'wizard',
       name: 'Wizard',
       image: '/images/kingdom-tiles/Wizard.png',
-      cost: 2,
+      cost: 1000,
       levelRequired: 6,
-      costType: 'buildToken',
-      materialCost: null,
+      costType: 'gold',
       quantity: 0
+    },
+    {
+      id: 'castle',
+      name: 'Castle',
+      image: '/images/kingdom-tiles/Castle.png',
+      cost: 0,
+      levelRequired: 1,
+      costType: 'gold',
+      quantity: 1 // Start with 1 castle
     }
   ]);
 
