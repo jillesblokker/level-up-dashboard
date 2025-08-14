@@ -32,6 +32,7 @@ import { EconomyTransparency } from '@/components/economy-transparency';
 import { KingdomTileGrid } from '@/components/kingdom-tile-grid';
 import type { Tile, TileType, ConnectionDirection } from '@/types/tiles';
 import { gainGold } from '@/lib/gold-manager';
+import { KINGDOM_TILES } from '@/lib/kingdom-tiles';
 
 type KingdomInventoryItem = (DefaultInventoryItem | ManagerInventoryItem) & { 
   stats?: Record<string, number>, 
@@ -212,14 +213,15 @@ function createEmptyKingdomGrid(): Tile[][] {
   const KINGDOM_GRID_ROWS = 12; // Doubled from 6 to 12 rows
   const KINGDOM_GRID_COLS = 6;
   const VACANT_TILE_IMAGE = '/images/kingdom-tiles/Vacant.png';
-  return Array.from({ length: KINGDOM_GRID_ROWS }, (_, y) =>
+  
+  const grid = Array.from({ length: KINGDOM_GRID_ROWS }, (_, y) =>
     Array.from({ length: KINGDOM_GRID_COLS }, (_, x) => ({
       id: `vacant-${x}-${y}`,
       type: 'empty' as TileType,
       name: 'Vacant',
       description: 'An empty plot of land.',
       connections: [] as ConnectionDirection[],
-      rotation: 0,
+      rotation: 0 as 0 | 90 | 180 | 270,
       revealed: true,
       isVisited: false,
       x,
@@ -228,6 +230,38 @@ function createEmptyKingdomGrid(): Tile[][] {
       image: VACANT_TILE_IMAGE,
     }))
   );
+  
+  // Add some default kingdom tiles to make the grid interesting
+  const defaultKingdomTiles = [
+    { x: 1, y: 1, type: 'well' as TileType },
+    { x: 2, y: 1, type: 'blacksmith' as TileType },
+    { x: 3, y: 1, type: 'fisherman' as TileType },
+    { x: 1, y: 2, type: 'grocery' as TileType },
+    { x: 2, y: 2, type: 'castle' as TileType },
+    { x: 3, y: 2, type: 'temple' as TileType },
+  ];
+  
+  defaultKingdomTiles.forEach(({ x, y, type }) => {
+    const kingdomTile = KINGDOM_TILES.find(kt => kt.id === type);
+    if (kingdomTile && grid[y] && grid[y][x]) {
+      grid[y][x] = {
+        id: `${type}-${x}-${y}`,
+        type: type,
+        name: kingdomTile.name,
+        description: kingdomTile.clickMessage,
+        connections: [],
+        rotation: 0 as 0 | 90 | 180 | 270,
+        revealed: true,
+        isVisited: false,
+        x,
+        y,
+        ariaLabel: `${kingdomTile.name} at ${x},${y}`,
+        image: kingdomTile.image,
+      };
+    }
+  });
+  
+  return grid;
 }
 
 // Helper to get the kingdom tile inventory with build tokens
@@ -236,19 +270,23 @@ function getKingdomTileInventoryWithBuildTokens(): Tile[] {
     'Archery.png', 'Blacksmith.png', 'Castle.png', 'Fisherman.png', 'Foodcourt.png', 'Fountain.png', 'Grocery.png', 'House.png', 'Inn.png', 'Jousting.png', 'Mansion.png', 'Mayor.png', 'Pond.png', 'Sawmill.png', 'Temple.png', 'Vegetables.png', 'Watchtower.png', 'Well.png', 'Windmill.png', 'Wizard.png'
   ];
   return KINGDOM_TILE_IMAGES.map((filename, idx) => {
+    const tileName = filename.replace('.png', '');
     const isCastle = filename === 'Castle.png';
+    // Find the corresponding kingdom tile configuration
+    const kingdomTileConfig = KINGDOM_TILES.find(kt => kt.name.toLowerCase() === tileName.toLowerCase());
+    
     return {
       id: `kingdom-tile-${idx}`,
-      type: 'special' as TileType,
-      name: filename.replace('.png', ''),
-      description: `A special kingdom tile: ${filename.replace('.png', '')}`,
+      type: kingdomTileConfig ? (kingdomTileConfig.id as TileType) : 'special',
+      name: tileName,
+      description: kingdomTileConfig ? kingdomTileConfig.clickMessage : `A special kingdom tile: ${tileName}`,
       connections: [] as ConnectionDirection[],
       rotation: 0,
       revealed: true,
       isVisited: false,
       x: 0,
       y: 0,
-      ariaLabel: `Kingdom tile: ${filename.replace('.png', '')}`,
+      ariaLabel: `Kingdom tile: ${tileName}`,
       image: `/images/kingdom-tiles/${filename}`,
       cost: isCastle ? 0 : Math.floor(Math.random() * 3) + 1, // 1-3 build tokens
       quantity: isCastle ? 1 : 0, // Only Castle starts with 1, rest start with 0
@@ -277,6 +315,24 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const [kingdomContent, setKingdomContent] = useState<JSX.Element | null>(null);
   const [inventoryLoading, setInventoryLoading] = useState(true);
   const [coverImageLoading, setCoverImageLoading] = useState(true);
+
+  // Initialize timers for default kingdom tiles
+  useEffect(() => {
+    const defaultTimers = [
+      { x: 1, y: 1, tileId: 'well', endTime: Date.now() + (30 * 60 * 1000), isReady: false },
+      { x: 2, y: 1, tileId: 'blacksmith', endTime: Date.now() + (120 * 60 * 1000), isReady: false },
+      { x: 3, y: 1, tileId: 'fisherman', endTime: Date.now() + (60 * 60 * 1000), isReady: false },
+      { x: 1, y: 2, tileId: 'grocery', endTime: Date.now() + (45 * 60 * 1000), isReady: false },
+      { x: 2, y: 2, tileId: 'castle', endTime: Date.now() + (720 * 60 * 1000), isReady: false },
+      { x: 3, y: 2, tileId: 'temple', endTime: Date.now() + (240 * 60 * 1000), isReady: false },
+    ];
+    
+    // Save default timers to localStorage if they don't exist
+    const existingTimers = localStorage.getItem('kingdom-tile-timers');
+    if (!existingTimers) {
+      localStorage.setItem('kingdom-tile-timers', JSON.stringify(defaultTimers));
+    }
+  }, []);
 
   // Helper to determine if an item is consumable
   const isConsumable = (item: KingdomInventoryItem) => {

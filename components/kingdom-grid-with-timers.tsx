@@ -765,7 +765,11 @@ export function KingdomGridWithTimers({
           Array.from({ length: cols }).map((_, x) => {
             const tile = grid[y]?.[x]
             const timer = tileTimers.find(t => t.x === x && t.y === y)
-            const kingdomTile = tile ? KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase()) : null
+            const kingdomTile = tile ? KINGDOM_TILES.find(kt => 
+              kt.id === tile.type.toLowerCase() || 
+              kt.name.toLowerCase() === tile.name.toLowerCase() ||
+              kt.image === tile.image
+            ) : null
             
             if (!tile) {
               return <div key={`empty-${x}-${y}`} className="w-full h-full aspect-square bg-black/40" />
@@ -802,7 +806,7 @@ export function KingdomGridWithTimers({
                 style={{ minWidth: 0, minHeight: 0, borderRadius: 0, margin: 0, padding: 0 }}
               >
                 <Image
-                  src={tile.image}
+                  src={isKingdomTile && kingdomTile ? kingdomTile.image : tile.image}
                   alt={tile.name}
                   fill
                   className="object-cover"

@@ -9,6 +9,7 @@ export interface KingdomTile {
   possibleItems: string[]
   itemType: 'weapon' | 'armor' | 'scroll' | 'potion' | 'food' | 'material' | 'artifact' | 'none'
   rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
+  image: string
 }
 
 export const KINGDOM_TILES: KingdomTile[] = [
@@ -23,7 +24,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
     clickMessage: "With a big throw your bucket lands with a splash in the water. You start pulling it up and there are gold coins shining on the bottom of the bucket!",
     possibleItems: [],
     itemType: 'none',
-    rarity: 'common'
+    rarity: 'common',
+    image: '/images/kingdom-tiles/Well.png'
   },
   {
     id: 'blacksmith',
@@ -42,7 +44,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/armor/armor-blanko.png'
     ],
     itemType: 'weapon',
-    rarity: 'uncommon'
+    rarity: 'uncommon',
+    image: '/images/kingdom-tiles/Blacksmith.png'
   },
   {
     id: 'sawmill',
@@ -57,7 +60,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/materials/planks.png'
     ],
     itemType: 'material',
-    rarity: 'common'
+    rarity: 'common',
+    image: '/images/kingdom-tiles/Sawmill.png'
   },
   {
     id: 'fisherman',
@@ -75,7 +79,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/food/fish-rainbow.png'
     ],
     itemType: 'food',
-    rarity: 'common'
+    rarity: 'common',
+    image: '/images/kingdom-tiles/Fisherman.png'
   },
   {
     id: 'grocery',
@@ -91,7 +96,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/food/fish-silver.png'
     ],
     itemType: 'food',
-    rarity: 'common'
+    rarity: 'common',
+    image: '/images/kingdom-tiles/Grocery.png'
   },
   {
     id: 'foodcourt',
@@ -107,7 +113,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/food/fish-silver.png'
     ],
     itemType: 'food',
-    rarity: 'uncommon'
+    rarity: 'uncommon',
+    image: '/images/kingdom-tiles/Foodcourt.png'
   },
   {
     id: 'vegetables',
@@ -123,7 +130,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/food/fish-silver.png'
     ],
     itemType: 'food',
-    rarity: 'common'
+    rarity: 'common',
+    image: '/images/kingdom-tiles/Vegetables.png'
   },
 
   // Knowledge & Magic Tiles
@@ -141,7 +149,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/scroll/scroll-memento.png'
     ],
     itemType: 'scroll',
-    rarity: 'rare'
+    rarity: 'rare',
+    image: '/images/kingdom-tiles/Wizard.png'
   },
   {
     id: 'temple',
@@ -157,7 +166,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/potion/potion-exp.png'
     ],
     itemType: 'potion',
-    rarity: 'uncommon'
+    rarity: 'uncommon',
+    image: '/images/kingdom-tiles/Temple.png'
   },
   {
     id: 'castle',
@@ -173,7 +183,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/artifact/scepter/artifact-staffy.png'
     ],
     itemType: 'artifact',
-    rarity: 'legendary'
+    rarity: 'legendary',
+    image: '/images/kingdom-tiles/Castle.png'
   },
   {
     id: 'mansion',
@@ -189,7 +200,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/artifact/scepter/artifact-staffy.png'
     ],
     itemType: 'artifact',
-    rarity: 'epic'
+    rarity: 'epic',
+    image: '/images/kingdom-tiles/Mansion.png'
   },
   {
     id: 'fountain',
@@ -205,7 +217,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/potion/potion-exp.png'
     ],
     itemType: 'potion',
-    rarity: 'uncommon'
+    rarity: 'uncommon',
+    image: '/images/kingdom-tiles/Fountain.png'
   },
   {
     id: 'mayor',
@@ -221,7 +234,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/artifact/scepter/artifact-staffy.png'
     ],
     itemType: 'artifact',
-    rarity: 'rare'
+    rarity: 'rare',
+    image: '/images/kingdom-tiles/Mayor.png'
   },
   {
     id: 'inn',
@@ -237,7 +251,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/artifact/scepter/artifact-staffy.png'
     ],
     itemType: 'artifact',
-    rarity: 'common'
+    rarity: 'common',
+    image: '/images/kingdom-tiles/Inn.png'
   },
 
   // Entertainment & Social Tiles
@@ -258,7 +273,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/armor/armor-blanko.png'
     ],
     itemType: 'weapon',
-    rarity: 'rare'
+    rarity: 'rare',
+    image: '/images/kingdom-tiles/Jousting.png'
   },
   {
     id: 'archery',
@@ -274,7 +290,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/sword/sword-irony.png'
     ],
     itemType: 'weapon',
-    rarity: 'uncommon'
+    rarity: 'uncommon',
+    image: '/images/kingdom-tiles/Archery.png'
   },
   {
     id: 'watchtower',
@@ -290,7 +307,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/artifact/scepter/artifact-staffy.png'
     ],
     itemType: 'artifact',
-    rarity: 'rare'
+    rarity: 'rare',
+    image: '/images/kingdom-tiles/Watchtower.png'
   },
   {
     id: 'pond',
@@ -306,7 +324,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/food/fish-silver.png'
     ],
     itemType: 'food',
-    rarity: 'common'
+    rarity: 'common',
+    image: '/images/kingdom-tiles/Pond.png'
   },
   {
     id: 'windmill',
@@ -322,7 +341,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/food/fish-silver.png'
     ],
     itemType: 'food',
-    rarity: 'uncommon'
+    rarity: 'uncommon',
+    image: '/images/kingdom-tiles/Windmill.png'
   }
 ]
 
