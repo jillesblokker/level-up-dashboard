@@ -346,51 +346,56 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     console.log('[Kingdom] Kingdom tile inventory:', kingdomTileInventory);
   }, [kingdomTileInventory]);
 
-  // Initialize timers for default kingdom tiles
+  // Initialize timers for default kingdom tiles (only if they don't exist)
   useEffect(() => {
-    // Force clear ALL cached kingdom data to ensure fresh start
-    localStorage.removeItem('kingdom-tile-timers');
-    localStorage.removeItem('kingdom-grid');
-    localStorage.removeItem('kingdom-grid-expansions');
+    // Check if timers already exist
+    const existingTimers = localStorage.getItem('kingdom-tile-timers');
     
-    // Clear any other potential cached data
-    const keysToRemove = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && (key.includes('kingdom') || key.includes('tile'))) {
-        keysToRemove.push(key);
-      }
+    if (!existingTimers) {
+      console.log('[Kingdom] No existing timers found, initializing default timers');
+      
+      const defaultTimers = [
+        { x: 1, y: 1, tileId: 'well', endTime: Date.now() + (10 * 60 * 1000), isReady: false }, // 10 min
+        { x: 2, y: 1, tileId: 'blacksmith', endTime: Date.now() + (30 * 60 * 1000), isReady: false }, // 30 min
+        { x: 3, y: 1, tileId: 'fisherman', endTime: Date.now() + (15 * 60 * 1000), isReady: false }, // 15 min
+        { x: 4, y: 1, tileId: 'sawmill', endTime: Date.now() + (45 * 60 * 1000), isReady: false }, // 45 min
+        { x: 5, y: 1, tileId: 'windmill', endTime: Date.now() + (20 * 60 * 1000), isReady: false }, // 20 min
+        { x: 1, y: 2, tileId: 'grocery', endTime: Date.now() + (5 * 60 * 1000), isReady: false }, // 5 min
+        { x: 2, y: 2, tileId: 'castle', endTime: Date.now() + (480 * 60 * 1000), isReady: false }, // 8 hours (legendary)
+        { x: 3, y: 2, tileId: 'temple', endTime: Date.now() + (60 * 60 * 1000), isReady: false }, // 1 hour
+        { x: 4, y: 2, tileId: 'fountain', endTime: Date.now() + (25 * 60 * 1000), isReady: false }, // 25 min
+        { x: 5, y: 2, tileId: 'pond', endTime: Date.now() + (12 * 60 * 1000), isReady: false }, // 12 min
+        { x: 1, y: 3, tileId: 'foodcourt', endTime: Date.now() + (8 * 60 * 1000), isReady: false }, // 8 min
+        { x: 2, y: 3, tileId: 'vegetables', endTime: Date.now() + (35 * 60 * 1000), isReady: false }, // 35 min
+        { x: 3, y: 3, tileId: 'wizard', endTime: Date.now() + (90 * 60 * 1000), isReady: false }, // 1.5 hours
+        { x: 4, y: 3, tileId: 'mayor', endTime: Date.now() + (75 * 60 * 1000), isReady: false }, // 1.25 hours
+        { x: 5, y: 3, tileId: 'inn', endTime: Date.now() + (18 * 60 * 1000), isReady: false }, // 18 min
+        { x: 1, y: 4, tileId: 'house', endTime: Date.now() + (22 * 60 * 1000), isReady: false }, // 22 min
+        { x: 2, y: 4, tileId: 'mansion', endTime: Date.now() + (120 * 60 * 1000), isReady: false }, // 2 hours
+        { x: 3, y: 4, tileId: 'jousting', endTime: Date.now() + (150 * 60 * 1000), isReady: false }, // 2.5 hours
+        { x: 4, y: 4, tileId: 'archery', endTime: Date.now() + (28 * 60 * 1000), isReady: false }, // 28 min
+        { x: 5, y: 4, tileId: 'watchtower', endTime: Date.now() + (65 * 60 * 1000), isReady: false }, // 1.1 hours
+      ];
+      
+      // Save default timers
+      localStorage.setItem('kingdom-tile-timers', JSON.stringify(defaultTimers));
+    } else {
+      console.log('[Kingdom] Existing timers found, preserving them');
     }
-    keysToRemove.forEach(key => localStorage.removeItem(key));
     
-    const defaultTimers = [
-      { x: 1, y: 1, tileId: 'well', endTime: Date.now() + (10 * 60 * 1000), isReady: false }, // 10 min
-      { x: 2, y: 1, tileId: 'blacksmith', endTime: Date.now() + (30 * 60 * 1000), isReady: false }, // 30 min
-      { x: 3, y: 1, tileId: 'fisherman', endTime: Date.now() + (15 * 60 * 1000), isReady: false }, // 15 min
-      { x: 4, y: 1, tileId: 'sawmill', endTime: Date.now() + (45 * 60 * 1000), isReady: false }, // 45 min
-      { x: 5, y: 1, tileId: 'windmill', endTime: Date.now() + (20 * 60 * 1000), isReady: false }, // 20 min
-      { x: 1, y: 2, tileId: 'grocery', endTime: Date.now() + (5 * 60 * 1000), isReady: false }, // 5 min
-      { x: 2, y: 2, tileId: 'castle', endTime: Date.now() + (480 * 60 * 1000), isReady: false }, // 8 hours (legendary)
-      { x: 3, y: 2, tileId: 'temple', endTime: Date.now() + (60 * 60 * 1000), isReady: false }, // 1 hour
-      { x: 4, y: 2, tileId: 'fountain', endTime: Date.now() + (25 * 60 * 1000), isReady: false }, // 25 min
-      { x: 5, y: 2, tileId: 'pond', endTime: Date.now() + (12 * 60 * 1000), isReady: false }, // 12 min
-      { x: 1, y: 3, tileId: 'foodcourt', endTime: Date.now() + (8 * 60 * 1000), isReady: false }, // 8 min
-      { x: 2, y: 3, tileId: 'vegetables', endTime: Date.now() + (35 * 60 * 1000), isReady: false }, // 35 min
-      { x: 3, y: 3, tileId: 'wizard', endTime: Date.now() + (90 * 60 * 1000), isReady: false }, // 1.5 hours
-      { x: 4, y: 3, tileId: 'mayor', endTime: Date.now() + (75 * 60 * 1000), isReady: false }, // 1.25 hours
-      { x: 5, y: 3, tileId: 'inn', endTime: Date.now() + (18 * 60 * 1000), isReady: false }, // 18 min
-      { x: 1, y: 4, tileId: 'house', endTime: Date.now() + (22 * 60 * 1000), isReady: false }, // 22 min
-      { x: 2, y: 4, tileId: 'mansion', endTime: Date.now() + (120 * 60 * 1000), isReady: false }, // 2 hours
-      { x: 3, y: 4, tileId: 'jousting', endTime: Date.now() + (150 * 60 * 1000), isReady: false }, // 2.5 hours
-      { x: 4, y: 4, tileId: 'archery', endTime: Date.now() + (28 * 60 * 1000), isReady: false }, // 28 min
-      { x: 5, y: 4, tileId: 'watchtower', endTime: Date.now() + (65 * 60 * 1000), isReady: false }, // 1.1 hours
-    ];
-    
-    // Always save fresh timers
-    localStorage.setItem('kingdom-tile-timers', JSON.stringify(defaultTimers));
-    
-    // Force refresh the kingdom grid to ensure all new tiles are displayed
-    setKingdomGrid(createEmptyKingdomGrid());
+    // Load kingdom grid (preserve existing if available)
+    const existingGrid = localStorage.getItem('kingdom-grid');
+    if (existingGrid) {
+      try {
+        const parsedGrid = JSON.parse(existingGrid);
+        setKingdomGrid(parsedGrid);
+      } catch (error) {
+        console.warn('[Kingdom] Failed to parse existing grid, creating new one');
+        setKingdomGrid(createEmptyKingdomGrid());
+      }
+    } else {
+      setKingdomGrid(createEmptyKingdomGrid());
+    }
   }, []);
 
   // Helper to determine if an item is consumable
@@ -749,13 +754,23 @@ export function KingdomClient({ userId }: { userId: string | null }) {
         });
         
         // Normalize items to always have a 'stats' property and description
-        const normalizeItems = (items: any[]) => items.map(item => ({
-          ...item,
-          stats: (item as any).stats || {},
-          description: (item as any).description || '',
-        }) as KingdomInventoryItem);
+        const normalizeItems = (items: any[]) => {
+          if (!Array.isArray(items)) {
+            console.warn('[Kingdom] Items is not an array:', items);
+            return [];
+          }
+          return items.map(item => ({
+            ...item,
+            stats: (item as any).stats || {},
+            description: (item as any).description || '',
+          }) as KingdomInventoryItem);
+        };
         
-        let equippedItemsToShow = normalizeItems(equipped.filter(isEquippable));
+        // Ensure equipped and stored are arrays
+        const equippedArray = Array.isArray(equipped) ? equipped : [];
+        const storedArray = Array.isArray(stored) ? stored : [];
+        
+        let equippedItemsToShow = normalizeItems(equippedArray.filter(isEquippable));
         
         // 🎯 SHOW DEFAULT ITEMS if no items are equipped
         if (equippedItemsToShow.length === 0) {
@@ -771,7 +786,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
         }
         
         setEquippedItems(equippedItemsToShow);
-        setStoredItems(normalizeItems(stored));
+        setStoredItems(normalizeItems(storedArray));
         
         // 🎯 CALCULATE STATS from equipped items (including defaults)
         const calculatedStats = equippedItemsToShow.reduce(

@@ -621,7 +621,7 @@
       "stats": {},
       "cost": 10,
       "isDefault": false,
-      "image": "/images/items/materials/logs.png",
+      "image": "/images/items/materials/material-logs.png",
       "description": "Basic building material for construction"
     },
     "material-planks": {

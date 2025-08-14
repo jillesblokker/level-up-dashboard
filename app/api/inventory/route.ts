@@ -55,13 +55,13 @@ export async function GET(request: Request) {
     }));
     
     return NextResponse.json(mappedData);
-    });
-    
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 401 });
-    }
-    
-    return NextResponse.json(result.data);
+  });
+  
+  if (!result.success) {
+    return NextResponse.json({ error: result.error }, { status: 401 });
+  }
+  
+  return NextResponse.json(result.data);
   } catch (error) {
     console.error('[Inventory API] Error:', error);
     return NextResponse.json(
