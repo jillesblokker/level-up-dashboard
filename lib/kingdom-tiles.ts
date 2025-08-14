@@ -17,7 +17,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'well',
     name: 'Well',
-    timerMinutes: 30,
+    timerMinutes: 10,
     normalGoldRange: [5, 15],
     luckyGoldAmount: 50,
     luckyChance: 0.15,
@@ -30,7 +30,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'blacksmith',
     name: 'Blacksmith',
-    timerMinutes: 120,
+    timerMinutes: 30,
     normalGoldRange: [10, 25],
     luckyGoldAmount: 75,
     luckyChance: 0.10,
@@ -66,7 +66,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'fisherman',
     name: 'Fisherman',
-    timerMinutes: 60,
+    timerMinutes: 15,
     normalGoldRange: [5, 20],
     luckyGoldAmount: 60,
     luckyChance: 0.18,
@@ -85,7 +85,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'grocery',
     name: 'Grocery',
-    timerMinutes: 45,
+    timerMinutes: 5,
     normalGoldRange: [3, 15],
     luckyGoldAmount: 45,
     luckyChance: 0.20,
