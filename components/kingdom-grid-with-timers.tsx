@@ -262,46 +262,46 @@ export function KingdomGridWithTimers({
       id: 'mansion',
       name: 'Mansion',
       image: '/images/kingdom-tiles/Mansion.png',
-      cost: 2,
+      cost: 500,
       levelRequired: 3,
-      costType: 'buildToken', // Advanced properties use build tokens
-      materialCost: null
+      costType: 'gold',
+      quantity: 0
     },
     {
       id: 'mayor',
       name: 'Mayor',
       image: '/images/kingdom-tiles/Mayor.png',
-      cost: 2,
+      cost: 800,
       levelRequired: 5,
-      costType: 'buildToken',
-      materialCost: null
+      costType: 'gold',
+      quantity: 0
     },
     {
       id: 'pond',
       name: 'Pond',
       image: '/images/kingdom-tiles/Pond.png',
-      cost: 1,
+      cost: 80,
       levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 2 } // 2 logs
+      costType: 'gold',
+      quantity: 0
     },
     {
       id: 'sawmill',
       name: 'Sawmill',
       image: '/images/kingdom-tiles/Sawmill.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'material',
-      materialCost: { logs: 3, planks: 1 } // 3 logs + 1 plank
+      cost: 280,
+      levelRequired: 2,
+      costType: 'gold',
+      quantity: 0
     },
     {
       id: 'temple',
       name: 'Temple',
       image: '/images/kingdom-tiles/Temple.png',
-      cost: 2,
+      cost: 600,
       levelRequired: 4,
-      costType: 'buildToken',
-      materialCost: null
+      costType: 'gold',
+      quantity: 0
     },
     {
       id: 'vegetables',
