@@ -120,17 +120,17 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
 
   useEffect(() => {
     if (!userId || !supabase || isSupabaseLoading || !token) {
-      console.log('[Milestones] Skipping fetch - missing dependencies:', { userId: !!userId, supabase: !!supabase, isSupabaseLoading, token: !!token });
+      // Removed debugging log
       return;
     }
     const fetchMilestones = async () => {
       try {
         if (!token) {
-          console.log('[Milestones] Skipping fetch - no token available');
+          // Removed debugging log
           return;
         }
         setIsLoading(true);
-        console.log('[Milestones] Fetching milestones with token:', token ? 'present' : 'missing');
+        // Removed debugging log
         const response = await fetch('/api/milestones', {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -560,7 +560,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       15000, // 15 seconds
       true,
       (data) => {
-        console.log('[Milestones] Polling success:', data);
+        // Removed debugging log
       },
       (error) => {
         console.error('[Milestones] Polling error:', error);

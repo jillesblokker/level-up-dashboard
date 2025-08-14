@@ -40,7 +40,7 @@ async function getClerkToken(): Promise<string | null> {
     }
 
     const token = await session.getToken();
-    console.log('[Character Data] Got Clerk token:', token ? 'present' : 'null');
+    // Removed debugging log
     return token;
   } catch (error) {
     console.error('[Character Data] Error getting Clerk token:', error);

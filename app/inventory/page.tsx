@@ -69,7 +69,7 @@ export default function InventoryPage() {
     table: 'inventory_items',
     userId: user?.id,
     onChange: () => {
-      console.log('[Inventory] Real-time update received from inventory_items table');
+      // Removed debugging log
       loadItems();
     }
   });
@@ -79,7 +79,7 @@ export default function InventoryPage() {
     table: 'character_stats',
     userId: user?.id,
     onChange: () => {
-      console.log('[Inventory] Real-time update received from character_stats table');
+      // Removed debugging log
       // Refresh inventory when character stats change (e.g., equipped items)
       loadItems();
     }
@@ -88,7 +88,7 @@ export default function InventoryPage() {
   // Keep legacy event listeners for backward compatibility
   useEffect(() => {
     const handleInventoryUpdate = () => {
-      console.log('[Inventory] Legacy inventory update event received');
+      // Removed debugging log
       loadItems();
     };
 

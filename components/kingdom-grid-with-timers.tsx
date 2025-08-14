@@ -107,8 +107,7 @@ export function KingdomGridWithTimers({
 
   // Expand kingdom grid function
   const expandKingdomGrid = () => {
-    console.log('[Kingdom Grid] Expand button clicked')
-    console.log('[Kingdom Grid] Current level:', playerLevel, 'Required level:', nextExpansionLevel, 'Can expand:', canExpand)
+    // Removed debugging logs
     
     if (!canExpand) {
       toast({
@@ -443,15 +442,15 @@ export function KingdomGridWithTimers({
 
   // Handle property placement on grid
   const handlePropertyPlacement = (x: number, y: number) => {
-    console.log('[Property Placement] Starting placement:', { x, y, selectedProperty, placementMode })
+    // Removed debugging log
     
     if (!selectedProperty || !placementMode) {
-      console.log('[Property Placement] Missing property or not in placement mode:', { selectedProperty, placementMode })
+      // Removed debugging log
       return
     }
 
     const targetTile = grid[y]?.[x]
-    console.log('[Property Placement] Target tile:', targetTile)
+    // Removed debugging log
     
     if (!targetTile || (targetTile.type !== 'vacant' && targetTile.type !== 'empty')) {
       toast({
@@ -485,15 +484,15 @@ export function KingdomGridWithTimers({
     const updatedGrid = grid.map(row => row.slice())
     if (updatedGrid[y]) {
       updatedGrid[y][x] = newTile
-      console.log('[Property Placement] Updated grid at position:', { x, y, newTile })
+      // Removed debugging log
     }
 
     // Update the parent component's grid using the callback
     if (onGridUpdate) {
-      console.log('[Property Placement] Calling onGridUpdate with updated grid')
+      // Removed debugging log
       onGridUpdate(updatedGrid)
     } else {
-      console.log('[Property Placement] onGridUpdate callback not provided')
+      // Removed debugging log
     }
 
     // Decrease property quantity for gold-based properties
@@ -611,7 +610,7 @@ export function KingdomGridWithTimers({
 
   // Update tile click handler to support property placement
   const handleTileClick = (x: number, y: number, tile: Tile) => {
-    console.log('[Tile Click] Handling click for tile:', { x, y, tile, placementMode, selectedProperty })
+    // Removed debugging log
     
     // If in placement mode, handle property placement
     if (placementMode && selectedProperty) {
@@ -790,16 +789,16 @@ export function KingdomGridWithTimers({
                 )}
                 aria-label={tile.ariaLabel || tile.name || `Tile ${x},${y}`}
                 onClick={() => {
-                  console.log('[Tile Click] Clicked tile:', { x, y, tile, placementMode, selectedProperty, isKingdomTile, isReady })
+                  // Removed debugging log
                   
                   if (placementMode && selectedProperty) {
-                    console.log('[Tile Click] Calling handlePropertyPlacement')
+                    // Removed debugging log
                     handlePropertyPlacement(x, y)
                   } else if (isKingdomTile && isReady) {
-                    console.log('[Tile Click] Calling handleTileClick')
+                    // Removed debugging log
                     handleTileClick(x, y, tile)
                   } else if (selectedTile && (selectedTile.quantity || 0) > 0) {
-                    console.log('[Tile Click] Calling onTilePlace')
+                    // Removed debugging log
                     onTilePlace(x, y, selectedTile)
                   }
                 }}

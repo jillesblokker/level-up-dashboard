@@ -35,7 +35,7 @@ export default function ProfilePage() {
   useEffect(() => {
     // Log user and isLoaded for debugging
     // eslint-disable-next-line no-console
-    console.log("[ProfilePage] Clerk user:", user, "isLoaded:", isLoaded);
+    // Removed debugging log
   }, [user, isLoaded]);
 
   const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {

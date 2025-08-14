@@ -90,7 +90,7 @@ async function getClerkToken(): Promise<string | null> {
     }
 
     const token = await session.getToken();
-    console.log('[Grid Persistence] Got Clerk token:', token ? 'present' : 'null');
+    // Removed debugging log
     return token;
   } catch (error) {
     console.error('[Grid Persistence] Error getting Clerk token:', error);
@@ -111,7 +111,7 @@ export async function loadGridFromSupabase(userId: string): Promise<Tile[][] | n
       return null;
     }
 
-    console.log('[Grid Persistence] Attempting to load grid from API for user:', userId);
+    // Removed debugging log
     const response = await fetch('/api/realm', {
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -125,11 +125,11 @@ export async function loadGridFromSupabase(userId: string): Promise<Tile[][] | n
 
     const data = await response.json();
     if (!data || !data.grid) {
-      console.log('[Grid Persistence] No grid found in API response for user.');
+      // Removed debugging log
       return null;
     }
 
-    console.log('[Grid Persistence] Successfully loaded grid from API.');
+          // Removed debugging log
     return data.grid.map((row: number[], y: number) =>
       row.map((numeric: number, x: number) => createTileFromNumeric(numeric, x, y))
     );
@@ -152,7 +152,7 @@ export async function saveGridToSupabase(userId: string, grid: Tile[][]): Promis
       return;
     }
 
-    console.log('[Grid Persistence] Attempting to save grid to API for user:', userId);
+    // Removed debugging log
     const numericGrid = grid.map(row =>
       row.map(tile => tileTypeToNumeric[tile.type])
     );
@@ -173,7 +173,7 @@ export async function saveGridToSupabase(userId: string, grid: Tile[][]): Promis
       throw new Error('Failed to save grid to API');
     }
 
-    console.log('[Grid Persistence] Successfully saved grid to API.');
+          // Removed debugging log
   } catch (error) {
     console.error('[Grid Persistence] Error saving grid:', error);
     throw error;

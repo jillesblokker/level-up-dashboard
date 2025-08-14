@@ -109,7 +109,7 @@ export async function gainExperience(amount: number, source: string, category: s
         });
         
         if (response.ok) {
-          console.log('[Experience Manager] Successfully saved updated stats to database');
+          // Removed debugging log
         } else {
           console.error('[Experience Manager] Failed to save stats to database:', response.status);
         }
@@ -190,7 +190,7 @@ async function logExperienceTransaction(
     if (!response.ok) {
       console.warn('[Experience Manager] Failed to log transaction to database:', response.status);
     } else {
-      console.log('[Experience Manager] Transaction logged successfully:', { amount, source, totalAfter });
+      // Removed debugging log
     }
   } catch (error) {
     console.warn('[Experience Manager] Error logging transaction:', error);

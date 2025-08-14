@@ -375,7 +375,7 @@ export default function StoredDataPage() {
               headers['Authorization'] = `Bearer ${token}`;
             }
           } catch (tokenError) {
-            console.log('[Stored Data] Could not get token for API test:', tokenError);
+            // Removed debugging log
           }
         }
 

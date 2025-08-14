@@ -268,12 +268,12 @@ export default function QuestsPage() {
   useEffect(() => {
     let cancelled = false;
     async function getClerkToken() {
-      console.log('[Token Debug] isClerkLoaded:', isClerkLoaded, 'isUserLoaded:', isUserLoaded, 'user:', !!user);
+      // Removed debugging log
       if (!isClerkLoaded || !isUserLoaded || !user) {
-        console.log('[Token Debug] Skipping token fetch - not ready');
+        // Removed debugging log
         return;
       }
-      console.log('[Token Debug] Fetching token...');
+      // Removed debugging log
       let t = await getToken({ template: 'supabase' });
       let attempts = 0;
       while (!t && attempts < 2) {
@@ -281,7 +281,7 @@ export default function QuestsPage() {
         t = await getToken({ template: 'supabase' });
         attempts++;
       }
-      console.log('[Token Debug] Token result:', !!t);
+      // Removed debugging log
       if (!cancelled) setToken(t || null);
     }
     getClerkToken();
@@ -290,12 +290,12 @@ export default function QuestsPage() {
 
   // Fetch quests when token is present and user is authenticated
   useEffect(() => {
-    console.log('[Auth Debug] Token:', !!token, 'User:', !!user, 'isClerkLoaded:', isClerkLoaded, 'isUserLoaded:', isUserLoaded);
+    // Removed debugging log
     if (!token || !user) {
-      console.log('[Auth Debug] Skipping API call - not authenticated');
+      // Removed debugging log
       return;
     }
-    console.log('[Auth Debug] Making API call - user is authenticated');
+    // Removed debugging log
     setLoading(true);
     async function fetchQuests() {
       try {
@@ -308,7 +308,7 @@ export default function QuestsPage() {
         });
         if (!res.ok) throw new Error('Failed to fetch quests');
         const data = await res.json();
-        console.log('[Quests Debug] fetched quests:', data);
+        // Removed debugging log
         setQuests(data || []);
       } catch (err: any) {
         setError('[Quests Debug] Error fetching quests: ' + (err.message || 'Failed to fetch quests'));
@@ -450,7 +450,7 @@ export default function QuestsPage() {
   const updateChallengeStreak = async (newStreak: number, newWeekStreaks: number) => {
     if (!token || !userId || !challengeCategory) return;
     try {
-      console.log('[Streak Update] Updating streak to:', newStreak, 'for category:', challengeCategory);
+      // Removed debugging log
       await fetch('/api/streaks-direct', {
         method: 'POST',
         headers: {
@@ -465,13 +465,13 @@ export default function QuestsPage() {
       });
       
       // ⭐ IMMEDIATELY REFETCH the updated streak to refresh UI
-      console.log('[Streak Update] Refetching streak data...');
+      // Removed debugging log
       const res = await fetch(`/api/streaks-direct?category=${encodeURIComponent(challengeCategory)}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const updatedData = await res.json();
-        console.log('[Streak Update] Refetched data:', updatedData);
+        // Removed debugging log
         setChallengeStreakData(updatedData);
       }
     } catch (error) {
@@ -527,7 +527,7 @@ export default function QuestsPage() {
         buildTokensEarned += 1; // Extra token for streak milestone
       }
       
-      console.log('[Build Tokens] Awarding', buildTokensEarned, 'build tokens for quest completion + streak', newStreak);
+      // Removed debugging log
       
       // Update build tokens in localStorage (same pattern as kingdom grid)
       const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
@@ -579,7 +579,7 @@ export default function QuestsPage() {
     // console.log('[Streak Debug] Already updated today?', alreadyUpdatedToday);
 
     if (allChallengesCompleted && !alreadyUpdatedToday && challengeCategory) {
-      console.log('[Streak Debug] 🎉 ALL CHALLENGES COMPLETED! Updating streak...');
+      // Removed debugging log
       const newStreak = challengeStreakData?.streak_days ?? 0;
       const newWeekStreaks = challengeStreakData?.week_streaks ?? 0;
       updateChallengeStreak(newStreak + 1, newWeekStreaks + 1);
@@ -595,7 +595,7 @@ export default function QuestsPage() {
         buildTokensEarned += 1; // Extra token for streak milestone
       }
       
-      console.log('[Build Tokens] Awarding', buildTokensEarned, 'build tokens for challenge completion + streak', newStreak + 1);
+      // Removed debugging log
       
       // Update build tokens in localStorage (same pattern as kingdom grid)
       const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');

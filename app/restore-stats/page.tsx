@@ -86,7 +86,7 @@ export default function RestoreStatsPage() {
     setRestoreResult(null);
 
     try {
-      console.log('[Restore Stats] Starting restore with data:', localStats);
+      // Removed debugging log
       
       const response = await fetch('/api/restore-stats', {
         method: 'POST',
@@ -96,10 +96,10 @@ export default function RestoreStatsPage() {
         body: JSON.stringify(localStats),
       });
 
-      console.log('[Restore Stats] Response status:', response.status);
+      // Removed debugging logs
       
       const result = await response.json();
-      console.log('[Restore Stats] Response data:', result);
+      // Removed debugging log
 
       if (response.ok) {
         setRestoreResult({
@@ -133,7 +133,7 @@ export default function RestoreStatsPage() {
     try {
       const response = await fetch('/api/debug-stats');
       const result = await response.json();
-      console.log('[Debug Stats] Test connection result:', result);
+      // Removed debugging log
       
       setRestoreResult({
         success: true,

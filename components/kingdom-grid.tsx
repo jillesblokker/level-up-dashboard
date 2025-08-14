@@ -100,15 +100,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
         setPlayerLevel(currentLevel);
         
         // Debug logging
-        console.log('[Kingdom Grid] === DEBUG INFO ===');
-        console.log('[Kingdom Grid] Raw stats:', stats);
-        console.log('[Kingdom Grid] Raw statsData:', statsData);
-        console.log('[Kingdom Grid] Experience:', stats.experience || statsData.experience || 0);
-        console.log('[Kingdom Grid] Calculated level from experience:', currentLevel);
-        console.log('[Kingdom Grid] Current kingdom expansions:', kingdomExpansions);
-        console.log('[Kingdom Grid] Next expansion level:', 5 + kingdomExpansions * 5);
-        console.log('[Kingdom Grid] Can expand:', currentLevel >= (5 + kingdomExpansions * 5));
-        console.log('[Kingdom Grid] ===================');
+        // Removed debugging logs
       } catch (error) {
         console.error('[Kingdom Grid] Error loading stats:', error);
         setPlayerLevel(1);
@@ -126,8 +118,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
       const stats = getCharacterStats();
       const currentLevel = calculateLevelFromExperience(stats.experience || 0);
       setPlayerLevel(currentLevel);
-      console.log('[Kingdom Grid] Updated player level:', currentLevel);
-      console.log('[Kingdom Grid] Can expand after update:', currentLevel >= (5 + kingdomExpansions * 5));
+      // Removed debugging logs
     };
     
     window.addEventListener('character-stats-update', handleStatsUpdate);
@@ -138,7 +129,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
   useEffect(() => {
     const stats = getCharacterStats();
     const currentLevel = calculateLevelFromExperience(stats.experience || 0);
-    console.log('[Kingdom Grid] Force refresh - Level:', currentLevel, 'Expansions:', kingdomExpansions);
+    // Removed debugging log
   }, [kingdomExpansions]);
 
   // 🎯 REAL-TIME SUPABASE SUBSCRIPTIONS for kingdom grid updates
@@ -146,7 +137,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
     table: 'kingdom_grid',
     userId: user?.id,
     onChange: () => {
-      console.log('[Kingdom Grid] Real-time update received from kingdom_grid table');
+      // Removed debugging log
       // Trigger grid refresh
       window.dispatchEvent(new Event('kingdom-grid-update'));
     }
@@ -157,7 +148,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
     table: 'property_timers',
     userId: user?.id,
     onChange: () => {
-      console.log('[Kingdom Grid] Real-time update received from property_timers table');
+      // Removed debugging log
       // Trigger timer refresh
       window.dispatchEvent(new Event('property-timers-update'));
     }
@@ -187,7 +178,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
     const stats = getCharacterStats();
     const currentLevel = calculateLevelFromExperience(stats.experience || 0);
     setPlayerLevel(currentLevel);
-    console.log('[Kingdom Grid] Manual refresh - Level:', currentLevel, 'Can expand:', currentLevel >= nextExpansionLevel);
+    // Removed debugging log
   };
 
   // Handle tile placement with database sync
@@ -210,7 +201,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
       if (!response.ok) {
         console.warn('[Kingdom Grid] Failed to save grid to database');
       } else {
-        console.log('[Kingdom Grid] Grid saved to database successfully');
+        // Removed debugging log
       }
     } catch (error) {
       console.error('[Kingdom Grid] Error saving grid:', error);

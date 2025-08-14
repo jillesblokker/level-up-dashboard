@@ -25,7 +25,7 @@ async function getClerkToken(): Promise<string | null> {
     }
 
     const token = await session.getToken();
-    console.log('[Game Data Sync] Got Clerk token:', token ? 'present' : 'null');
+    // Removed debugging log
     return token;
   } catch (error) {
     console.error('[Game Data Sync] Error getting Clerk token:', error);
@@ -86,7 +86,7 @@ export async function syncGameData(
       throw new Error('Failed to sync game data');
     }
 
-    console.log('[Game Data Sync] Successfully synced game data');
+    // Removed debugging log
   } catch (error) {
     console.error('[Game Data Sync] Error syncing game data:', error);
     throw error;

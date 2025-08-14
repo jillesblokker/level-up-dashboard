@@ -13,7 +13,8 @@ export async function gainGold(amount: number, source: string, metadata?: any) {
     addToCharacterStatSync('gold', amount);
 
     // Log transaction to database for audit trail
-    await logGoldTransaction(amount, currentStats.gold + amount, 'gain', source, metadata);
+    const newBalance = currentStats.gold + amount;
+    await logGoldTransaction(amount, newBalance, 'gain', source, metadata);
 
     // Emit kingdom event for tracking weekly progress
     emitGoldGained(amount, source);
@@ -61,7 +62,8 @@ export async function spendGold(amount: number, source: string, metadata?: any) 
     addToCharacterStatSync('gold', -amount);
 
     // Log transaction to database for audit trail
-    await logGoldTransaction(-amount, currentStats.gold - amount, 'spend', source, metadata);
+    const newBalance = currentStats.gold - amount;
+    await logGoldTransaction(-amount, newBalance, 'spend', source, metadata);
 
     // Emit kingdom event for tracking weekly progress (negative amount)
     emitGoldGained(-amount, source);
@@ -122,7 +124,7 @@ async function logGoldTransaction(
     if (!response.ok) {
       console.warn('[Gold Manager] Failed to log transaction to database:', response.status);
     } else {
-      console.log('[Gold Manager] Transaction logged successfully:', { amount, source, balanceAfter });
+      // Removed debugging log
     }
   } catch (error) {
     console.warn('[Gold Manager] Error logging transaction:', error);

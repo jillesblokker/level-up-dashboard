@@ -950,7 +950,7 @@ export default function RealmPage() {
 
     // Place tile: update grid and send only the changed tile to backend
     const handlePlaceTile = async (x: number, y: number) => {
-        console.log('[Realm] handlePlaceTile called with:', { x, y, gameMode, selectedTile });
+        // Removed debugging log
         
         // Check for monster battle first (regardless of game mode)
         const clickedTile = grid[y]?.[x];
@@ -967,7 +967,7 @@ export default function RealmPage() {
         }
         
         if (gameMode !== 'build' || !selectedTile) {
-            console.log('[Realm] Cannot place tile:', { gameMode, selectedTile });
+            // Removed debugging log
             return;
         }
         
@@ -977,13 +977,7 @@ export default function RealmPage() {
         const hasTileInSelected = selectedTile && (selectedTile.quantity ?? 0) > 0;
         
         if (!hasTileInInventory && !hasTileInSelected) {
-            console.log('[Realm] No inventory for tile:', { 
-                tileType: selectedTile.type, 
-                inventory: tileToPlace, 
-                selectedTileQuantity: selectedTile?.quantity,
-                hasTileInInventory,
-                hasTileInSelected
-            });
+            // Removed debugging log
             toast({
                 title: "Cannot Place Tile",
                 description: "You don't have any of this tile type in your inventory",
@@ -995,20 +989,14 @@ export default function RealmPage() {
         // Use the selectedTile if it has quantity, otherwise fall back to inventory
         const tileToUse = hasTileInSelected ? selectedTile : tileToPlace;
 
-        console.log('[Realm] Placing tile:', { 
-            x, 
-            y, 
-            tileType: selectedTile.type, 
-            tileToUse, 
-            currentGrid: grid[y]?.[x] 
-        });
+        // Removed debugging log
 
         // Optimistically update the UI first for better user experience
         setGrid(prevGrid => {
             const newGrid = prevGrid.map(row => row.slice());
             if (newGrid[y]?.[x]) {
                 newGrid[y][x] = { ...tileToUse, x, y, owned: 1 };
-                console.log('[Realm] Grid updated optimistically:', { x, y, newTile: newGrid[y][x] });
+                // Removed debugging log
             }
             return newGrid;
         });
@@ -1057,7 +1045,7 @@ export default function RealmPage() {
                 return;
             }
             
-            console.log('[Realm] Saving tile:', { x, y, tile_type: tileTypeNum, tile_type_name: selectedTile.type });
+            // Removed debugging log
             
             // Enhanced fetch with retry logic and timeout
             const saveTileWithRetry = async (attempt: number = 1): Promise<Response> => {
@@ -1087,7 +1075,7 @@ export default function RealmPage() {
                     if (attempt < maxAttempts) {
                         // Exponential backoff: 1s, 2s, 4s
                         const delay = Math.pow(2, attempt - 1) * 1000;
-                        console.log(`[Realm] Retrying tile save in ${delay}ms (attempt ${attempt + 1}/${maxAttempts})`);
+                        // Removed debugging log
                         await new Promise(resolve => setTimeout(resolve, delay));
                         return saveTileWithRetry(attempt + 1);
                     }
@@ -1130,20 +1118,20 @@ export default function RealmPage() {
                 return;
             }
             
-            console.log('[Realm] Tile saved successfully');
+            // Removed debugging log
             
             // Check for monster spawns after successful tile placement
-            console.log('[Realm] Checking monster spawn for tile type:', selectedTile.type);
+            // Removed debugging log
             // Create updated grid with the new tile for spawn check
             const updatedGrid = grid.map(row => row.slice());
             if (updatedGrid[y] && updatedGrid[y][x]) {
                 updatedGrid[y][x] = { ...tileToUse, x, y, owned: 1 };
             }
             const spawnResult = checkMonsterSpawn(updatedGrid, selectedTile.type);
-            console.log('[Realm] Monster spawn result:', spawnResult);
+            // Removed debugging log
             
             if (spawnResult.shouldSpawn && spawnResult.position && spawnResult.monsterType) {
-                console.log('[Realm] Spawning monster:', spawnResult.monsterType, 'at position:', spawnResult.position);
+                // Removed debugging log
                 // Spawn the monster
                 const success = spawnMonsterOnTile(grid, spawnResult.position.x, spawnResult.position.y, spawnResult.monsterType as any);
                 if (success) {
@@ -1157,7 +1145,7 @@ export default function RealmPage() {
                         if (row && tile && monsterType) {
                             tile.hasMonster = monsterType as MonsterType;
                             tile.monsterAchievementId = getMonsterAchievementId(monsterType as MonsterType);
-                            console.log('[Realm] Monster added to grid:', monsterType, 'at', pos);
+                            // Removed debugging log
                         }
                         return newGrid;
                     });
@@ -1172,7 +1160,7 @@ export default function RealmPage() {
             
             // Check for creature discoveries
             const iceCount = countTiles(grid, 'ice');
-            console.log('[Realm] Ice tiles count:', iceCount);
+            // Removed debugging log
             
             if (iceCount >= 5 && !useCreatureStore.getState().isCreatureDiscovered('014')) {
                 // Discover Blizzey when 5 ice tiles are placed
@@ -1247,7 +1235,7 @@ export default function RealmPage() {
                 // Set up a retry mechanism when network is restored
                 const checkNetworkAndRetry = () => {
                     if (navigator.onLine) {
-                        console.log('[Realm] Network restored, retrying pending tile placements');
+                        // Removed debugging log
                         // Retry pending placements
                         const pendingTiles = JSON.parse(localStorage.getItem('pendingTilePlacements') || '[]');
                         if (pendingTiles.length > 0) {
@@ -1263,7 +1251,7 @@ export default function RealmPage() {
                                         })
                                     });
                                     if (res.ok) {
-                                        console.log('[Realm] Pending tile placement synced successfully');
+                                        // Removed debugging log
                                         // Remove from pending list
                                         const updatedPending = pendingTiles.filter((t: any) => 
                                             !(t.x === pendingTile.x && t.y === pendingTile.y && t.tile_type === pendingTile.tile_type)
@@ -1312,24 +1300,18 @@ export default function RealmPage() {
     };
 
     const handleTileSelection = (tile: TileInventoryItem | null) => {
-        console.log('[Realm] handleTileSelection called with:', { tile, inventory: tile ? inventory[tile.type] : null });
+        // Removed debugging log
         
         // Check if tile can be selected - either from main inventory (owned) or from tile itself (quantity)
         const hasMainInventory = tile?.type && inventory[tile.type] && (inventory[tile.type].owned ?? 0) > 0;
         const hasTileQuantity = tile && (tile.quantity ?? 0) > 0;
         
         if (hasMainInventory || hasTileQuantity) {
-            console.log('[Realm] Setting selectedTile to:', tile);
+            // Removed debugging log
             setSelectedTile(tile);
             setShowInventory(false);
         } else {
-            console.log('[Realm] Cannot select tile:', { 
-                tileType: tile?.type, 
-                hasMainInventory,
-                hasTileQuantity,
-                mainInventoryOwned: tile?.type ? inventory[tile.type]?.owned : null,
-                tileQuantity: tile?.quantity
-            });
+            // Removed debugging log
             setSelectedTile(null);
         }
     };
@@ -1960,7 +1942,7 @@ export default function RealmPage() {
       if (isHorsePresent && horsePos) {
         const tile = grid[horsePos.y]?.[horsePos.x];
         if (!tile || tile.type !== 'grass') {
-          console.log('[Realm] Horse on invalid tile, finding new grass position');
+          // Removed debugging log
           // Find a valid grass tile
           for (let y = 0; y < grid.length; y++) {
             const row = grid[y];
@@ -1970,7 +1952,7 @@ export default function RealmPage() {
               if (checkTile && checkTile.type === 'grass' && !checkTile.hasMonster) {
                 setHorsePos({ x, y });
                 localStorage.setItem('horsePos', JSON.stringify({ x, y }));
-                console.log('[Realm] Horse moved to valid position:', { x, y });
+                // Removed debugging log
                 break;
               }
             }
@@ -2009,7 +1991,7 @@ export default function RealmPage() {
         const handleOnline = () => {
             setIsOnline(true);
             setNetworkStatus('online');
-            console.log('[Realm] Network connection restored');
+            // Removed debugging log
             
             // Sync any pending tile placements
             syncPendingTilePlacements();
@@ -2018,7 +2000,7 @@ export default function RealmPage() {
         const handleOffline = () => {
             setIsOnline(false);
             setNetworkStatus('offline');
-            console.log('[Realm] Network connection lost');
+            // Removed debugging log
         };
 
         const handleNetworkChange = () => {
@@ -2056,7 +2038,7 @@ export default function RealmPage() {
             const pendingTiles = JSON.parse(localStorage.getItem('pendingTilePlacements') || '[]');
             if (pendingTiles.length === 0) return;
 
-            console.log(`[Realm] Syncing ${pendingTiles.length} pending tile placements`);
+            // Removed debugging log
             setPendingSyncCount(pendingTiles.length);
 
             const successfulSyncs: any[] = [];
@@ -2076,7 +2058,7 @@ export default function RealmPage() {
 
                     if (res.ok) {
                         successfulSyncs.push(pendingTile);
-                        console.log(`[Realm] Successfully synced tile at ${pendingTile.x},${pendingTile.y}`);
+                        // Removed debugging log
                     } else {
                         // Increment retry count for failed syncs
                         const updatedTile = { ...pendingTile, retryCount: (pendingTile.retryCount || 0) + 1 };
@@ -2085,10 +2067,10 @@ export default function RealmPage() {
                         if (updatedTile.retryCount < 5) {
                             failedSyncs.push(updatedTile);
                         } else {
-                            console.warn(`[Realm] Tile at ${pendingTile.x},${pendingTile.y} exceeded retry limit, removing from pending list`);
+                            // Removed debugging log
                         }
                         
-                        console.error(`[Realm] Failed to sync tile at ${pendingTile.x},${pendingTile.y}`);
+                        // Removed debugging log
                     }
                 } catch (error) {
                     // Increment retry count for network errors
@@ -2098,10 +2080,10 @@ export default function RealmPage() {
                     if (updatedTile.retryCount < 5) {
                         failedSyncs.push(updatedTile);
                     } else {
-                        console.warn(`[Realm] Tile at ${pendingTile.x},${pendingTile.y} exceeded retry limit, removing from pending list`);
+                        // Removed debugging log
                     }
                     
-                    console.error(`[Realm] Error syncing tile at ${pendingTile.x},${pendingTile.y}:`, error);
+                    // Removed debugging log
                 }
             }
 
@@ -2246,7 +2228,7 @@ export default function RealmPage() {
 
     // Debug selectedTile changes
     useEffect(() => {
-        console.log('[Realm] selectedTile changed:', selectedTile);
+        // Removed debugging log
     }, [selectedTile]);
 
     if (isLoading) {
@@ -2446,8 +2428,7 @@ export default function RealmPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      console.log('[Realm] Network status:', { isOnline, networkStatus, pendingSyncCount });
-                      console.log('[Realm] Pending tiles:', JSON.parse(localStorage.getItem('pendingTilePlacements') || '[]'));
+                      // Removed debugging logs
                     }}
                     className="h-6 px-2 text-xs bg-gray-700 border-gray-500 text-gray-300 hover:bg-gray-600"
                   >

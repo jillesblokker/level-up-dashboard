@@ -21,7 +21,7 @@ export function attemptDataRecovery(): GameData | null {
     const backupData = localStorage.getItem('game-data-backup');
     if (backupData) {
       const parsed = JSON.parse(backupData);
-      console.log('[Data Recovery] Found backup data:', parsed);
+      // Removed debugging log
       return parsed;
     }
     
@@ -62,7 +62,7 @@ export function attemptDataRecovery(): GameData | null {
     
     // If we found any data, return it
     if (Object.keys(recoveredData).length > 0) {
-      console.log('[Data Recovery] Recovered data:', recoveredData);
+      // Removed debugging log
       return recoveredData;
     }
     
@@ -118,7 +118,7 @@ export function createDataBackup(): void {
     
     // Save backup
     localStorage.setItem('game-data-backup', JSON.stringify(backupData));
-    console.log('[Data Recovery] Backup created:', backupData);
+    // Removed debugging log
     
   } catch (error) {
     console.error('[Data Recovery] Error creating backup:', error);
@@ -165,7 +165,7 @@ export function restoreDataFromBackup(): boolean {
       localStorage.setItem('milestone-progress', JSON.stringify(recoveredData.milestoneProgress));
     }
     
-    console.log('[Data Recovery] Data restored successfully');
+    // Removed debugging log
     return true;
     
   } catch (error) {

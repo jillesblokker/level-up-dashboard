@@ -94,7 +94,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
   // Simple load function
   const loadCharacterStats = useCallback(() => {
     try {
-      console.log('[Mobile Nav] Loading character stats from localStorage...');
+      // Removed debugging log
       const stats = getCharacterStats();
       const currentLevel = calculateLevelFromExperience(stats.experience);
       const newStats = {
@@ -107,7 +107,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
       }
       setCharacterStats(newStats);
       setDataSource('localStorage');
-      console.log('[Mobile Nav] Loaded stats from localStorage:', newStats);
+      // Removed debugging log
     } catch (error) {
       console.error("Error loading character stats:", error);
       // Set default stats if loading fails
@@ -128,7 +128,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
   const handleRefreshClick = useCallback(async () => {
     if (isRefreshing) return;
     
-    console.log('[Mobile Nav] Refresh button clicked');
+    // Removed debugging log
     setIsRefreshing(true);
     
     try {
@@ -147,9 +147,9 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
         
         setCharacterStats(newStats);
         setDataSource('supabase');
-        console.log('[Mobile Nav] Successfully refreshed stats from API:', newStats);
+        // Removed debugging log
       } else {
-        console.log('[Mobile Nav] API refresh failed, falling back to localStorage');
+        // Removed debugging log
         loadCharacterStats();
       }
     } catch (error) {
@@ -165,7 +165,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
 
   // Simple effect for data loading
   useEffect(() => {
-    console.log('[Mobile Nav] useEffect triggered - user:', !!user, 'isLoaded:', isLoaded);
+    // Removed debugging log
     
     if (!user || !isLoaded) return;
     
@@ -189,7 +189,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
           
           setCharacterStats(newStats);
           setDataSource('supabase');
-          console.log('[Mobile Nav] Initial fresh stats loaded from API:', newStats);
+          // Removed debugging log
         }
       } catch (error) {
         console.error('[Mobile Nav] Error fetching initial fresh stats:', error);
@@ -219,7 +219,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     <div className="lg:hidden">
       <ErrorBoundary fallback={MobileErrorFallback}>
         <Sheet open={open} onOpenChange={(newOpen) => {
-          console.log('[Mobile Nav] Sheet open state changing from', open, 'to', newOpen);
+          // Removed debugging log
           setOpen(newOpen);
         }}>
           <SheetTrigger asChild>
@@ -228,7 +228,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
               className="relative h-14 w-14 rounded-lg border border-amber-800/20 bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-sm hover:border-amber-500/40 active:bg-amber-500/10 transition-all duration-300 touch-manipulation min-h-[44px]"
               aria-label="Open navigation menu"
               onClick={() => {
-                console.log('[Mobile Nav] Menu button clicked, current open state:', open);
+                // Removed debugging log
               }}
             >
               <Menu className="h-6 w-6 text-amber-500" />
@@ -318,7 +318,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
               <div className="space-y-2 px-4">
                 {mainNavItems.map((item) => {
                   const Icon = item.icon
-                  console.log('[Mobile Nav] Rendering navigation item:', item.href, item.label);
+                  // Removed debugging log
                   return (
                     <Link
                       key={item.href}
@@ -331,7 +331,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                         isActive(item.href) && "from-amber-700/30 to-amber-600/30 border-amber-500/50 shadow-lg shadow-amber-500/20"
                       )}
                       onClick={() => {
-                        console.log('[Mobile Nav] Navigation item clicked:', item.href);
+                        // Removed debugging log
                         setOpen(false);
                       }}
                       aria-label={`Navigate to ${item.label}`}

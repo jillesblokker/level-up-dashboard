@@ -68,7 +68,7 @@ class PollingService {
   stopAll() {
     this.intervals.forEach((interval, key) => {
       clearInterval(interval);
-      console.log(`[PollingService] Stopped polling for ${key}`);
+      // Removed debugging log
     });
     this.intervals.clear();
   }

@@ -51,13 +51,13 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
   // Fetch comeback challenges
   useEffect(() => {
     if (!token || !category) {
-      console.log('[StreakRecovery] Skipping fetch - no token or category available');
+      // Removed debugging log
       return;
     }
     
     async function fetchComebackChallenges() {
       try {
-        console.log('[StreakRecovery] Fetching comeback challenges with token:', token ? 'present' : 'missing');
+        // Removed debugging log
         const res = await fetch(`/api/comeback-challenges?category=${encodeURIComponent(category)}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -85,7 +85,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
 
   const handleUseSafetyNet = async () => {
     if (!token) {
-      console.log('[StreakRecovery] Cannot use safety net - no token available');
+      // Removed debugging log
       return;
     }
     
@@ -131,7 +131,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
 
   const handleReconstructStreak = async () => {
     if (!token) {
-      console.log('[StreakRecovery] Cannot reconstruct streak - no token available');
+      // Removed debugging log
       return;
     }
     
@@ -196,7 +196,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
 
   const handleComebackChallenge = async (challengeName: string) => {
     if (!token) {
-      console.log('[StreakRecovery] Cannot complete comeback challenge - no token available');
+      // Removed debugging log
       return;
     }
     

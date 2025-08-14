@@ -22,15 +22,14 @@ export function useSupabase() {
 
         const init = async () => {
             try {
-                console.log('[useSupabase] Calling getToken...');
+                // Removed debugging log
                 const token = await getToken({ template: 'supabase' });
-                console.log('[Clerk Supabase JWT]', token);
-                console.log('[useSupabase] getToken result:', token);
+                // Removed debugging log
+                // Removed debugging log
                 
                 const url = process.env['NEXT_PUBLIC_SUPABASE_URL'];
                 const anon = process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'];
-                console.log('[useSupabase] Env URL:', url);
-                console.log('[useSupabase] Env ANON:', anon ? 'set' : 'not set');
+                // Removed debugging logs
                 
                 if (!url || !anon) {
                     console.error('[useSupabase] Supabase env vars missing!');
@@ -41,7 +40,7 @@ export function useSupabase() {
                 // Only create a new client if we don't have one or if the token changed
                 if (!supabaseInstance || currentToken !== token) {
                     if (supabaseInstance) {
-                        console.log('[useSupabase] Recreating client due to token change');
+                        // Removed debugging log
                     }
                     
                     supabaseInstance = createClient(
@@ -56,7 +55,7 @@ export function useSupabase() {
                         }
                     );
                     currentToken = token;
-                    console.log('[useSupabase] Supabase client created!');
+                    // Removed debugging log
                 }
                 
                 setSupabase(supabaseInstance);

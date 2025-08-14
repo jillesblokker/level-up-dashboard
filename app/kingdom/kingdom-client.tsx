@@ -152,76 +152,13 @@ function getItemDisplayName(item: KingdomInventoryItem): string {
 
 // Helper to get fallback image path (copy logic from getItemImagePath in city location page)
 function getItemImagePath(item: KingdomInventoryItem): string {
-  console.log(`[getItemImagePath] Getting image path for item:`, {
-    name: item.name,
-    type: item.type,
-    category: item.category,
-    image: item.image,
-    id: item.id
-  });
-  
+  // Check if item has a specific image path
   if (item.image) {
-    console.log(`[getItemImagePath] Using item.image: ${item.image}`);
     return item.image;
   }
-  
-  // Handle specific item names from database
-  if (item.name === "Iron Sword") return "/images/items/sword/sword-irony.png";
-  if (item.name === "Steel Sword") return "/images/items/sword/sword-sunblade.png";
-  if (item.name === "Health Potion") return "/images/items/potion/potion-health.png";
-  if (item.name === "Mana Potion") return "/images/items/potion/potion-exp.png";
-  if (item.name === "Gold Potion") return "/images/items/potion/potion-gold.png";
-  if (item.name === "Leather Armor") return "/images/items/armor/armor-normalo.png";
-  if (item.name === "Chain Mail") return "/images/items/armor/armor-darko.png";
-  if (item.name === "Plate Armor") return "/images/items/armor/armor-blanko.png";
-  if (item.name === "Wooden Shield") return "/images/items/shield/shield-defecto.png";
-  if (item.name === "Iron Shield") return "/images/items/shield/shield-blockado.png";
-  if (item.name === "Steel Shield") return "/images/items/shield/shield-reflecto.png";
-  if (item.name === "Sally Swift Horse") return "/images/items/horse/horse-stelony.png";
-  if (item.name === "Buster Endurance Horse") return "/images/items/horse/horse-perony.png";
-  if (item.name === "Shadow War Horse") return "/images/items/horse/horse-felony.png";
-  if (item.name === "Crown") return "/images/items/artifact/crown/artifact-crowny.png";
-  if (item.name === "Ring") return "/images/items/artifact/ring/artifact-ringo.png";
-  if (item.name === "Scepter") return "/images/items/artifact/scepter/artifact-staffy.png";
-  if (item.name === "Ancient Artifact") return "/images/items/artifact/crown/artifact-crowny.png";
-  if (item.name === "Scroll of Memory") return "/images/items/scroll/scroll-memento.png";
-  if (item.name === "Scroll of Perkament") return "/images/items/scroll/scroll-perkamento.png";
-  if (item.name === "Scroll of Scrolly") return "/images/items/scroll/scroll-scrolly.png";
-  if (item.name === "Tome of Knowledge") return "/images/items/scroll/scroll-perkamento.png";
-  if (item.name === "Magic Scroll") return "/images/items/scroll/scroll-scrolly.png";
-  
-  // Handle generic types with better fallbacks
-  if (item.type === "scroll") return "/images/items/scroll/scroll-scrolly.png";
-  if (item.type === "artifact") return "/images/items/artifact/crown/artifact-crowny.png";
-  if (item.type === "equipment") return "/images/items/sword/sword-irony.png";
-  if (item.type === "weapon") return "/images/items/sword/sword-irony.png";
-  if (item.type === "armor") return "/images/items/armor/armor-normalo.png";
-  if (item.type === "shield") return "/images/items/shield/shield-defecto.png";
-  if (item.type === "mount") return "/images/items/horse/horse-stelony.png";
-  if (item.type === "creature") return "/images/items/horse/horse-stelony.png";
-  
-  // Handle category-based mapping
-  if (item.category === "sword") return "/images/items/sword/sword-irony.png";
-  if (item.category === "armor") return "/images/items/armor/armor-normalo.png";
-  if (item.category === "shield") return "/images/items/shield/shield-defecto.png";
-  if (item.category === "potion") return "/images/items/potion/potion-health.png";
-  if (item.category === "scroll") return "/images/items/scroll/scroll-scrolly.png";
-  if (item.category === "artifact") return "/images/items/artifact/crown/artifact-crowny.png";
-  if (item.category === "horse") return "/images/items/horse/horse-stelony.png";
-  
-  // Handle partial name matching
-  const lowerName = item.name.toLowerCase();
-  if (lowerName.includes("sword")) return "/images/items/sword/sword-irony.png";
-  if (lowerName.includes("armor")) return "/images/items/armor/armor-normalo.png";
-  if (lowerName.includes("shield")) return "/images/items/shield/shield-defecto.png";
-  if (lowerName.includes("potion")) return "/images/items/potion/potion-health.png";
-  if (lowerName.includes("scroll")) return "/images/items/scroll/scroll-scrolly.png";
-  if (lowerName.includes("artifact")) return "/images/items/artifact/crown/artifact-crowny.png";
-  if (lowerName.includes("horse")) return "/images/items/horse/horse-stelony.png";
-  
-  console.log(`[getItemImagePath] No specific path found for ${item.name}, using fallback`);
-  // Fallback
-  return "/images/placeholders/item-placeholder.svg";
+
+  // Fallback to default path construction
+  return `/images/items/${item.name}`;
 }
 
 // Helper to determine if an item is equippable
@@ -358,8 +295,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
 
   // Debug: Log kingdom tiles configuration
   useEffect(() => {
-    console.log('[Kingdom] KINGDOM_TILES configuration:', KINGDOM_TILES);
-    console.log('[Kingdom] Kingdom tile inventory:', kingdomTileInventory);
+    // Removed debugging logs
   }, [kingdomTileInventory]);
 
   // Initialize timers for default kingdom tiles (only if they don't exist)
@@ -368,7 +304,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     const existingTimers = localStorage.getItem('kingdom-tile-timers');
     
     if (!existingTimers) {
-      console.log('[Kingdom] No existing timers found, initializing default timers');
+      // Removed debugging log
       
       const defaultTimers = [
         { x: 1, y: 1, tileId: 'well', endTime: Date.now() + (10 * 60 * 1000), isReady: false }, // 10 min
@@ -396,7 +332,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       // Save default timers
       localStorage.setItem('kingdom-tile-timers', JSON.stringify(defaultTimers));
     } else {
-      console.log('[Kingdom] Existing timers found, preserving them');
+      // Removed debugging log
     }
     
     // Load kingdom grid (preserve existing if available)
@@ -491,10 +427,10 @@ export function KingdomClient({ userId }: { userId: string | null }) {
 
   // Handle selling items
   const handleSellItem = async (item: KingdomInventoryItem) => {
-    console.log('[Sell] Sell button clicked for item:', item);
+    // Removed debugging log
     
     if (!userId) {
-      console.log('[Sell] No userId available');
+      // Removed debugging log
       toast({
         title: "Error",
         description: "You must be logged in to sell items",
@@ -504,7 +440,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     }
     
     const sellPrice = getItemSellPrice(item);
-    console.log('[Sell] Attempting to sell item:', { item, sellPrice, userId });
+    // Removed debugging log
     
     try {
       // Remove item from Supabase inventory
@@ -514,7 +450,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
         body: JSON.stringify({ itemId: item.id })
       });
       
-      console.log('[Sell] Remove item response:', response.status, response.statusText);
+      // Removed debugging log
       
       if (!response.ok) {
         const errorText = await response.text();
@@ -573,11 +509,6 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   // Restore renderItemCard for inventory display
   const renderItemCard = (item: KingdomInventoryItem, isEquipped: boolean = false) => {
     const imagePath = getItemImagePath(item);
-    console.log(`[Kingdom] Rendering item card for ${item.name}:`, {
-      item,
-      imagePath,
-      isEquipped
-    });
     
     return (
       <Card 
@@ -593,11 +524,9 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             className="object-cover w-full h-full"
             aria-label={`${item.name}-image`}
             onError={(e: React.SyntheticEvent<HTMLImageElement>) => { 
-              console.error(`Failed to load image for ${item.name}:`, imagePath);
               (e.target as HTMLImageElement).src = "/images/placeholders/item-placeholder.svg"; 
             }}
             onLoad={() => {
-              console.log(`Successfully loaded image for ${item.name}:`, imagePath);
             }}
           />
           {/* Equipped label in top right corner */}
@@ -698,8 +627,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
                   size="sm"
                   variant="outline"
                   onClick={() => {
-                    console.log('[Sell] Button clicked for item:', item);
-                    console.log('[Sell] Item structure:', JSON.stringify(item, null, 2));
+                    // Removed debugging logs
                     handleSellItem(item);
                   }}
                   className="bg-orange-600 hover:bg-orange-700 text-white border-orange-500"
@@ -759,19 +687,12 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     setInventoryLoading(true);
     const loadInventory = async () => {
       try {
-        console.log('[Kingdom] Loading inventory for user:', userId);
+        // Removed debugging log
         const equipped = await getEquippedItems(userId);
         const stored = await getStoredItems(userId);
         const stats = await getTotalStats(userId);
         
-        console.log('[Kingdom] Loaded items from database:', {
-          equipped: equipped,
-          stored: stored,
-          equippedType: typeof equipped,
-          storedType: typeof stored,
-          equippedIsArray: Array.isArray(equipped),
-          storedIsArray: Array.isArray(stored)
-        });
+        // Removed debugging log
         
         // Normalize items to always have a 'stats' property and description
         const normalizeItems = (items: any[]) => {
@@ -822,7 +743,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
         );
         
         setTotalStats(calculatedStats);
-        console.log('[Kingdom] Successfully loaded inventory with stats:', calculatedStats);
+        // Removed debugging log
       } catch (error) {
         console.error('[Kingdom] Error loading inventory:', error);
         // Show default items on error too
@@ -868,13 +789,13 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     
     // 🎯 LISTEN FOR QUEST COMPLETION GOLD/XP UPDATES
     const handleGoldUpdate = (event: CustomEvent) => {
-      console.log('[Kingdom] Gold gained from quest:', event.detail);
+      // Removed debugging log
       // Force refresh kingdom stats when gold is gained
       loadInventory();
     };
     
     const handleXPUpdate = (event: CustomEvent) => {
-      console.log('[Kingdom] XP gained from quest:', event.detail);
+      // Removed debugging log
       // Force refresh kingdom stats when XP is gained  
       loadInventory();
     };

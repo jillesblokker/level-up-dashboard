@@ -32,7 +32,7 @@ export default function SignInPage() {
   // If Clerk is loaded and user is signed in, redirect
   useEffect(() => {
     if (isLoaded && isSignedIn && !isGuest) {
-      console.log("[SignInPage] Clerk user is signed in, redirecting to:", redirectedFrom);
+      // Removed debugging log
       window.location.href = redirectedFrom;
     }
   }, [isLoaded, isSignedIn, isGuest, redirectedFrom]);

@@ -43,22 +43,18 @@ function getDateRange(period: string): string[] {
 
 export async function GET(request: Request) {
   try {
-    console.log('[Kingdom Stats] API called at', new Date().toISOString());
+    // Removed debugging log
     
-    // TEMPORARILY DISABLE AUTHENTICATION FOR TESTING
-    // const userId = await getUserIdFromRequest(request);
-    // if (!userId) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    // }
-    
-    // Use a test user ID for now
-    const userId = 'test-user-id';
+    const userId = await getUserIdFromRequest(request);
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     
     const { searchParams } = new URL(request.url);
     const tab = searchParams.get('tab') || 'challenges';
     const period = searchParams.get('period') || 'week';
     
-    console.log('[Kingdom Stats] Request:', { userId: userId.slice(0, 10), tab, period });
+    // Removed debugging log
 
     const days = getDateRange(period);
 
@@ -113,7 +109,7 @@ export async function GET(request: Request) {
       }
       
       const data = days.map(day => ({ day, value: counts[day] || (userId === "test-user-id" ? Math.floor(Math.random() * 3) : 0) }));
-      console.log('[Kingdom Stats] Quests data:', data);
+      // Removed debugging log
       return NextResponse.json({ data });
     }
 
@@ -153,7 +149,7 @@ export async function GET(request: Request) {
       }
       
       const data = days.map(day => ({ day, value: counts[day] || (userId === "test-user-id" ? Math.floor(Math.random() * 3) : 0) }));
-      console.log('[Kingdom Stats] Challenges data:', data);
+      // Removed debugging log
       return NextResponse.json({ data });
     }
 
@@ -192,8 +188,8 @@ export async function GET(request: Request) {
         });
       }
       
-      const data = days.map(day => ({ day, value: counts[day] || (userId === "test-user-id" ? Math.floor(Math.random() * 3) : 0) }));
-      console.log('[Kingdom Stats] Milestones data:', data);
+      const data = days.map(day => ({ day, value: counts[day] || 0 }));
+      // Removed debugging log
       return NextResponse.json({ data });
     }
 
@@ -294,7 +290,7 @@ export async function GET(request: Request) {
       }
       
       const data = days.map(day => ({ day, value: sums[day] || 0 }));
-      console.log('[Kingdom Stats] Gold data:', data);
+      // Removed debugging log
       return NextResponse.json({ data });
     }
 
@@ -395,7 +391,7 @@ export async function GET(request: Request) {
       }
       
       const data = days.map(day => ({ day, value: sums[day] || 0 }));
-      console.log('[Kingdom Stats] Experience data:', data);
+      // Removed debugging log
       return NextResponse.json({ data });
     }
 
@@ -545,7 +541,7 @@ export async function GET(request: Request) {
         return { day, value: lastLevel };
       });
       
-      console.log('[Kingdom Stats] Level data:', finalData);
+      // Removed debugging log
       return NextResponse.json({ data: finalData });
     }
 
