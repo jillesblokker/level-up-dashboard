@@ -101,6 +101,21 @@ const initialInventory: Record<TileType, Tile> = {
     treasure: { ...defaultTile('treasure'), cost: 0, owned: 0 },
         monster: { ...defaultTile('monster'), cost: 0, owned: 0 },
     vacant: { ...defaultTile('empty'), cost: 0, owned: 0 }, // Use empty tile as fallback for vacant
+    // Property tiles
+    archery: { ...defaultTile('archery'), cost: 150, owned: 0 },
+    blacksmith: { ...defaultTile('blacksmith'), cost: 200, owned: 0 },
+    sawmill: { ...defaultTile('sawmill'), cost: 120, owned: 0 },
+    fisherman: { ...defaultTile('fisherman'), cost: 120, owned: 0 },
+    grocery: { ...defaultTile('grocery'), cost: 160, owned: 0 },
+    foodcourt: { ...defaultTile('foodcourt'), cost: 250, owned: 0 },
+    well: { ...defaultTile('well'), cost: 100, owned: 0 },
+    windmill: { ...defaultTile('windmill'), cost: 180, owned: 0 },
+    fountain: { ...defaultTile('fountain'), cost: 180, owned: 0 },
+    house: { ...defaultTile('house'), cost: 100, owned: 0 },
+    inn: { ...defaultTile('inn'), cost: 220, owned: 0 },
+    jousting: { ...defaultTile('jousting'), cost: 300, owned: 0 },
+    mansion: { ...defaultTile('mansion'), cost: 500, owned: 0 },
+    mayor: { ...defaultTile('mayor'), cost: 800, owned: 0 },
 };
 
 const createBaseGrid = (): Tile[][] => {

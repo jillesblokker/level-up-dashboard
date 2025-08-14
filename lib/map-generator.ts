@@ -174,7 +174,22 @@ export class MapGenerator {
       swamp: 'Swamp Tile',
       treasure: 'Treasure Tile',
       monster: 'Monster Tile',
-      vacant: 'Vacant Tile'
+      vacant: 'Vacant Tile',
+      // Property tiles
+      archery: 'Archery Range',
+      blacksmith: 'Blacksmith Forge',
+      sawmill: 'Sawmill',
+      fisherman: 'Fishing Dock',
+      grocery: 'Grocery Store',
+      foodcourt: 'Food Court',
+      well: 'Water Well',
+      windmill: 'Windmill',
+      fountain: 'Fountain',
+      house: 'House',
+      inn: 'Inn',
+      jousting: 'Jousting Arena',
+      mansion: 'Mansion',
+      mayor: 'Mayor\'s Office'
     };
 
     const tileDescriptions = {
@@ -203,7 +218,22 @@ export class MapGenerator {
       swamp: 'A murky swamp',
       treasure: 'A treasure location',
       monster: 'A monster lair',
-      vacant: 'A vacant plot of land'
+      vacant: 'A vacant plot of land',
+      // Property tile descriptions
+      archery: 'A training ground for archers',
+      blacksmith: 'A forge where weapons and armor are crafted',
+      sawmill: 'A mill for processing wood into planks',
+      fisherman: 'A dock where fish are caught and sold',
+      grocery: 'A store selling fresh produce and food',
+      foodcourt: 'A collection of food vendors and restaurants',
+      well: 'A source of fresh water for the community',
+      windmill: 'A mill powered by wind for grinding grain',
+      fountain: 'A decorative water feature',
+      house: 'A comfortable home for residents',
+      inn: 'A place for travelers to rest and eat',
+      jousting: 'An arena for knightly tournaments',
+      mansion: 'A luxurious residence for the wealthy',
+      mayor: 'The administrative center of the town'
     };
 
     const tileImages = {
@@ -232,7 +262,22 @@ export class MapGenerator {
       swamp: '/images/tiles/swamp-tile.png',
       treasure: '/images/tiles/treasure-tile.png',
       monster: '/images/tiles/monster-tile.png',
-      vacant: '/images/kingdom-tiles/Vacant.png'
+      vacant: '/images/kingdom-tiles/Vacant.png',
+      // Property tile images
+      archery: '/images/kingdom-tiles/Archery.png',
+      blacksmith: '/images/kingdom-tiles/Blacksmith.png',
+      sawmill: '/images/kingdom-tiles/Sawmill.png',
+      fisherman: '/images/kingdom-tiles/Fisherman.png',
+      grocery: '/images/kingdom-tiles/Grocery.png',
+      foodcourt: '/images/kingdom-tiles/Foodcourt.png',
+      well: '/images/kingdom-tiles/Well.png',
+      windmill: '/images/kingdom-tiles/Windmill.png',
+      fountain: '/images/kingdom-tiles/Fountain.png',
+      house: '/images/kingdom-tiles/House.png',
+      inn: '/images/kingdom-tiles/Inn.png',
+      jousting: '/images/kingdom-tiles/Jousting.png',
+      mansion: '/images/kingdom-tiles/Mansion.png',
+      mayor: '/images/kingdom-tiles/Mayor.png'
     };
 
     return {

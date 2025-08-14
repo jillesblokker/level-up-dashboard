@@ -611,6 +611,8 @@ export function KingdomGridWithTimers({
 
   // Update tile click handler to support property placement
   const handleTileClick = (x: number, y: number, tile: Tile) => {
+    console.log('[Tile Click] Handling click for tile:', { x, y, tile, placementMode, selectedProperty })
+    
     // If in placement mode, handle property placement
     if (placementMode && selectedProperty) {
       handlePropertyPlacement(x, y)
@@ -618,11 +620,11 @@ export function KingdomGridWithTimers({
     }
 
     // Handle property tiles (archery, blacksmith, etc.)
-    if (tile.id && (tile.id.includes('archery') || tile.id.includes('blacksmith') || tile.id.includes('sawmill') || 
-        tile.id.includes('fisherman') || tile.id.includes('grocery') || tile.id.includes('foodcourt') ||
-        tile.id.includes('well') || tile.id.includes('windmill') || tile.id.includes('castle') ||
-        tile.id.includes('fountain') || tile.id.includes('house') || tile.id.includes('inn') ||
-        tile.id.includes('jousting') || tile.id.includes('mansion') || tile.id.includes('mayor'))) {
+    if (tile.type && (tile.type === 'archery' || tile.type === 'blacksmith' || tile.type === 'sawmill' || 
+        tile.type === 'fisherman' || tile.type === 'grocery' || tile.type === 'foodcourt' ||
+        tile.type === 'well' || tile.type === 'windmill' || tile.type === 'castle' ||
+        tile.type === 'fountain' || tile.type === 'house' || tile.type === 'inn' ||
+        tile.type === 'jousting' || tile.type === 'mansion' || tile.type === 'mayor')) {
       
       // Check if tile is ready
       const timer = tileTimers.find(t => t.x === x && t.y === y)
@@ -636,7 +638,7 @@ export function KingdomGridWithTimers({
       }
 
       // Find the kingdom tile definition
-      const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.id.toLowerCase())
+      const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase())
       if (!kingdomTile) return
 
       // Generate rewards

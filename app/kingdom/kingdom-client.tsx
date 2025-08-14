@@ -331,23 +331,37 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       });
     }
     
-    // Add rarity bonus based on item name/type
-    if (item.name.toLowerCase().includes('golden') || item.name.toLowerCase().includes('rainbow')) {
-      bonus += 15; // Golden/rainbow items are rarer
-    } else if (item.name.toLowerCase().includes('silver')) {
-      bonus += 10; // Silver items are uncommon
-    } else if (item.name.toLowerCase().includes('iron') || item.name.toLowerCase().includes('steel')) {
-      bonus += 8; // Iron/steel items are better quality
+    // Add rarity bonus based on item name/type - more comprehensive
+    const itemName = item.name.toLowerCase();
+    if (itemName.includes('golden') || itemName.includes('rainbow') || itemName.includes('legendary')) {
+      bonus += 25; // Legendary items
+    } else if (itemName.includes('epic') || itemName.includes('dragon')) {
+      bonus += 20; // Epic items
+    } else if (itemName.includes('rare') || itemName.includes('silver')) {
+      bonus += 15; // Rare items
+    } else if (itemName.includes('iron') || itemName.includes('steel') || itemName.includes('magic')) {
+      bonus += 12; // Uncommon items
+    } else if (itemName.includes('gold') || itemName.includes('crystal')) {
+      bonus += 8; // Special items
     }
+    
+    // Add bonus for specific item types
+    if (item.type === 'artifact') bonus += 30;
+    if (item.type === 'weapon' && itemName.includes('sword')) bonus += 10;
+    if (item.type === 'armor' && itemName.includes('plate')) bonus += 15;
     
     return Math.max(5, basePrice + bonus); // Minimum 5 gold
   };
 
   // Handle selling items
   const handleSellItem = async (item: KingdomInventoryItem) => {
-    if (!userId) return;
+    if (!userId) {
+      console.log('[Sell] No userId available');
+      return;
+    }
     
     const sellPrice = getItemSellPrice(item);
+    console.log('[Sell] Attempting to sell item:', { item, sellPrice, userId });
     
     try {
       // Remove item from Supabase inventory
@@ -357,8 +371,12 @@ export function KingdomClient({ userId }: { userId: string | null }) {
         body: JSON.stringify({ userId, itemId: item.id })
       });
       
+      console.log('[Sell] Remove item response:', response.status, response.statusText);
+      
       if (!response.ok) {
-        throw new Error('Failed to remove item from inventory');
+        const errorText = await response.text();
+        console.error('[Sell] Response error:', errorText);
+        throw new Error(`Failed to remove item from inventory: ${response.status} ${response.statusText}`);
       }
       
       // Give gold for the sale
@@ -378,7 +396,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       console.error('Failed to sell item:', error);
       toast({
         title: "Error",
-        description: "Failed to sell item.",
+        description: `Failed to sell item: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
     }

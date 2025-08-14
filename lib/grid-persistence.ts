@@ -30,6 +30,21 @@ const tileTypeToNumeric: Record<TileType, number> = {
   swamp: 22,
   monster: 23,
   vacant: 24,
+  // Property tiles
+  archery: 25,
+  blacksmith: 26,
+  sawmill: 27,
+  fisherman: 28,
+  grocery: 29,
+  foodcourt: 30,
+  well: 31,
+  windmill: 32,
+  fountain: 33,
+  house: 34,
+  inn: 35,
+  jousting: 36,
+  mansion: 37,
+  mayor: 38,
 };
 
 // Convert numeric value back to tile type

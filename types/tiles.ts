@@ -28,7 +28,21 @@ export type TileType =
   | 'swamp'
   | 'treasure'
   | 'monster'
-  | 'vacant';
+  | 'vacant'
+  | 'archery'
+  | 'blacksmith'
+  | 'sawmill'
+  | 'fisherman'
+  | 'grocery'
+  | 'foodcourt'
+  | 'well'
+  | 'windmill'
+  | 'fountain'
+  | 'house'
+  | 'inn'
+  | 'jousting'
+  | 'mansion'
+  | 'mayor';
 
 export type ConnectionDirection = 'north' | 'east' | 'south' | 'west';
 

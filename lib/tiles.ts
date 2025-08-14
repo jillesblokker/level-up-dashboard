@@ -27,6 +27,21 @@ export function getTileName(type: TileType): string {
     sheep: 'Sheep',
     horse: 'Horse',
     vacant: 'Vacant',
+    // Property tiles
+    archery: 'Archery',
+    blacksmith: 'Blacksmith',
+    sawmill: 'Sawmill',
+    fisherman: 'Fisherman',
+    grocery: 'Grocery',
+    foodcourt: 'Food Court',
+    well: 'Well',
+    windmill: 'Windmill',
+    fountain: 'Fountain',
+    house: 'House',
+    inn: 'Inn',
+    jousting: 'Jousting',
+    mansion: 'Mansion',
+    mayor: 'Mayor',
   };
   return tileNames[type] || 'Unknown';
 }
@@ -58,6 +73,21 @@ export function getDefaultConnections(type: TileType): string[] {
     sheep: ['grass'],
     horse: ['grass'],
     vacant: [],
+    // Property tiles
+    archery: ['grass'],
+    blacksmith: ['grass'],
+    sawmill: ['grass'],
+    fisherman: ['water', 'grass'],
+    grocery: ['grass'],
+    foodcourt: ['grass'],
+    well: ['grass'],
+    windmill: ['grass'],
+    fountain: ['grass'],
+    house: ['grass'],
+    inn: ['grass'],
+    jousting: ['grass'],
+    mansion: ['grass'],
+    mayor: ['grass'],
   };
   return defaultConnections[type] || [];
 } 
