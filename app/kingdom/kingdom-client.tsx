@@ -236,9 +236,23 @@ function createEmptyKingdomGrid(): Tile[][] {
     { x: 1, y: 1, type: 'well' as TileType },
     { x: 2, y: 1, type: 'blacksmith' as TileType },
     { x: 3, y: 1, type: 'fisherman' as TileType },
+    { x: 4, y: 1, type: 'sawmill' as TileType },
+    { x: 5, y: 1, type: 'windmill' as TileType },
     { x: 1, y: 2, type: 'grocery' as TileType },
     { x: 2, y: 2, type: 'castle' as TileType },
     { x: 3, y: 2, type: 'temple' as TileType },
+    { x: 4, y: 2, type: 'fountain' as TileType },
+    { x: 5, y: 2, type: 'pond' as TileType },
+    { x: 1, y: 3, type: 'foodcourt' as TileType },
+    { x: 2, y: 3, type: 'vegetables' as TileType },
+    { x: 3, y: 3, type: 'wizard' as TileType },
+    { x: 4, y: 3, type: 'mayor' as TileType },
+    { x: 5, y: 3, type: 'inn' as TileType },
+    { x: 1, y: 4, type: 'house' as TileType },
+    { x: 2, y: 4, type: 'mansion' as TileType },
+    { x: 3, y: 4, type: 'jousting' as TileType },
+    { x: 4, y: 4, type: 'archery' as TileType },
+    { x: 5, y: 4, type: 'watchtower' as TileType },
   ];
   
   defaultKingdomTiles.forEach(({ x, y, type }) => {
@@ -318,13 +332,44 @@ export function KingdomClient({ userId }: { userId: string | null }) {
 
   // Initialize timers for default kingdom tiles
   useEffect(() => {
+    // Clear any old cached data that might have wrong image references
+    const oldTimers = localStorage.getItem('kingdom-tile-timers');
+    if (oldTimers) {
+      try {
+        const parsed = JSON.parse(oldTimers);
+        // Check if any timers reference old kingdom tiles
+        const hasOldReferences = parsed.some((timer: any) => 
+          timer.tileId && !['well', 'blacksmith', 'sawmill', 'fisherman', 'grocery', 'foodcourt', 'vegetables', 'wizard', 'temple', 'castle', 'mansion', 'fountain', 'mayor', 'inn', 'jousting', 'archery', 'watchtower', 'pond', 'windmill', 'house'].includes(timer.tileId)
+        );
+        if (hasOldReferences) {
+          localStorage.removeItem('kingdom-tile-timers');
+        }
+      } catch (e) {
+        localStorage.removeItem('kingdom-tile-timers');
+      }
+    }
+    
     const defaultTimers = [
       { x: 1, y: 1, tileId: 'well', endTime: Date.now() + (30 * 60 * 1000), isReady: false },
       { x: 2, y: 1, tileId: 'blacksmith', endTime: Date.now() + (120 * 60 * 1000), isReady: false },
       { x: 3, y: 1, tileId: 'fisherman', endTime: Date.now() + (60 * 60 * 1000), isReady: false },
+      { x: 4, y: 1, tileId: 'sawmill', endTime: Date.now() + (240 * 60 * 1000), isReady: false },
+      { x: 5, y: 1, tileId: 'windmill', endTime: Date.now() + (240 * 60 * 1000), isReady: false },
       { x: 1, y: 2, tileId: 'grocery', endTime: Date.now() + (45 * 60 * 1000), isReady: false },
       { x: 2, y: 2, tileId: 'castle', endTime: Date.now() + (720 * 60 * 1000), isReady: false },
       { x: 3, y: 2, tileId: 'temple', endTime: Date.now() + (240 * 60 * 1000), isReady: false },
+      { x: 4, y: 2, tileId: 'fountain', endTime: Date.now() + (180 * 60 * 1000), isReady: false },
+      { x: 5, y: 2, tileId: 'pond', endTime: Date.now() + (60 * 60 * 1000), isReady: false },
+      { x: 1, y: 3, tileId: 'foodcourt', endTime: Date.now() + (90 * 60 * 1000), isReady: false },
+      { x: 2, y: 3, tileId: 'vegetables', endTime: Date.now() + (120 * 60 * 1000), isReady: false },
+      { x: 3, y: 3, tileId: 'wizard', endTime: Date.now() + (360 * 60 * 1000), isReady: false },
+      { x: 4, y: 3, tileId: 'mayor', endTime: Date.now() + (360 * 60 * 1000), isReady: false },
+      { x: 5, y: 3, tileId: 'inn', endTime: Date.now() + (120 * 60 * 1000), isReady: false },
+      { x: 1, y: 4, tileId: 'house', endTime: Date.now() + (180 * 60 * 1000), isReady: false },
+      { x: 2, y: 4, tileId: 'mansion', endTime: Date.now() + (480 * 60 * 1000), isReady: false },
+      { x: 3, y: 4, tileId: 'jousting', endTime: Date.now() + (480 * 60 * 1000), isReady: false },
+      { x: 4, y: 4, tileId: 'archery', endTime: Date.now() + (180 * 60 * 1000), isReady: false },
+      { x: 5, y: 4, tileId: 'watchtower', endTime: Date.now() + (360 * 60 * 1000), isReady: false },
     ];
     
     // Save default timers to localStorage if they don't exist
@@ -332,6 +377,9 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     if (!existingTimers) {
       localStorage.setItem('kingdom-tile-timers', JSON.stringify(defaultTimers));
     }
+    
+    // Force refresh the kingdom grid to ensure all new tiles are displayed
+    setKingdomGrid(createEmptyKingdomGrid());
   }, []);
 
   // Helper to determine if an item is consumable
