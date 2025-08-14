@@ -134,6 +134,22 @@ const getConsumableEffect = (item: KingdomInventoryItem) => {
   return `You used ${item.name}!`
 }
 
+// Helper to get display name (remove category prefix like "fish-", "horse-", etc.)
+function getItemDisplayName(item: KingdomInventoryItem): string {
+  if (!item.name) return 'Unknown Item';
+  
+  // Split by hyphen and take the part after the first hyphen
+  const parts = item.name.split('-');
+  if (parts.length > 1) {
+    // Capitalize the first letter of the remaining part
+    const displayName = parts.slice(1).join('-');
+    return displayName.charAt(0).toUpperCase() + displayName.slice(1);
+  }
+  
+  // If no hyphen, return the original name
+  return item.name;
+}
+
 // Helper to get fallback image path (copy logic from getItemImagePath in city location page)
 function getItemImagePath(item: KingdomInventoryItem): string {
   console.log(`[getItemImagePath] Getting image path for item:`, {
@@ -598,7 +614,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <CardTitle className="text-amber-500 text-lg font-semibold mb-1">
-                {item.name}
+                {getItemDisplayName(item)}
               </CardTitle>
               {item.type && (
                 <Badge className="text-xs bg-gray-700 text-gray-300 mb-2">
