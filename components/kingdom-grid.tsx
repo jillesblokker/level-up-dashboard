@@ -168,7 +168,8 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
 
     try {
       // Spend build tokens
-      const success = await spendGold(tile.cost * 1000, 'build-token-purchase');
+      const cost = tile.cost || 0;
+      const success = await spendGold(cost * 1000, 'build-token-purchase');
       if (success) {
         // Update build tokens in localStorage
         const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
