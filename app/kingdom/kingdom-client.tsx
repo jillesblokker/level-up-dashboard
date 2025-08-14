@@ -10,6 +10,7 @@ import { defaultInventoryItems } from "@/app/lib/default-inventory"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogAction } from "@/components/ui/alert-dialog"
+import { useToast } from "@/components/ui/use-toast"
 import { 
   getKingdomInventory, 
   getEquippedItems, 
@@ -256,6 +257,7 @@ function getKingdomTileInventoryWithBuildTokens(): Tile[] {
 }
 
 export function KingdomClient({ userId }: { userId: string | null }) {
+  const { toast } = useToast();
   const [coverImage, setCoverImage] = useState<string | undefined>(undefined);
   const [equippedItems, setEquippedItems] = useState<KingdomInventoryItem[]>([]);
   const [storedItems, setStoredItems] = useState<KingdomInventoryItem[]>([]);
@@ -294,6 +296,80 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   // Handler for unequipping items
   const handleUnequip = (item: KingdomInventoryItem) => {
     if (userId) unequipItem(userId, item.id);
+  };
+
+  // Get sell price for an item
+  const getItemSellPrice = (item: KingdomInventoryItem): number => {
+    // Base prices for different item types
+    const basePrices: Record<string, number> = {
+      'weapon': 50,
+      'armor': 40,
+      'shield': 35,
+      'helmet': 25,
+      'boots': 20,
+      'gloves': 15,
+      'ring': 30,
+      'necklace': 35,
+      'artifact': 100,
+      'scroll': 25,
+      'potion': 15,
+      'item': 10
+    };
+    
+    // Get base price for item type, default to 10
+    const basePrice = basePrices[item.type] || 10;
+    
+    // Add bonus for items with stats
+    let bonus = 0;
+    if (item.stats) {
+      Object.values(item.stats).forEach(stat => {
+        if (typeof stat === 'number') {
+          bonus += stat * 5; // +5 gold per stat point
+        }
+      });
+    }
+    
+    // Add bonus for items with stats
+    if (item.stats) {
+      Object.values(item.stats).forEach(stat => {
+        if (typeof stat === 'number') {
+          bonus += stat * 5; // +5 gold per stat point
+        }
+      });
+    }
+    
+    return Math.max(5, basePrice + bonus); // Minimum 5 gold
+  };
+
+  // Handle selling items
+  const handleSellItem = async (item: KingdomInventoryItem) => {
+    if (!userId) return;
+    
+    const sellPrice = getItemSellPrice(item);
+    
+    try {
+      // Remove item from inventory (you'll need to implement this)
+      // For now, just give gold
+      gainGold(sellPrice, `sell-${item.name.toLowerCase()}`);
+      
+      // Refresh inventory
+      const equipped = await getEquippedItems(userId);
+      const stored = await getStoredItems(userId);
+      setEquippedItems(equipped);
+      setStoredItems(stored);
+      
+      toast({
+        title: "Item Sold!",
+        description: `You sold ${item.name} for ${sellPrice} gold!`,
+      });
+    } catch (error) {
+      console.error('Failed to sell item:', error);
+      toast({
+        title: "Error",
+        description: "Failed to sell item.",
+        variant: "destructive",
+      });
+    }
   };
 
   // Restore handlePlaceKingdomTile for KingdomGrid
@@ -411,37 +487,52 @@ export function KingdomClient({ userId }: { userId: string | null }) {
               )}
             </div>
             
-            <Button
-              size="sm"
-              onClick={() => isEquipped ? handleUnequip(item) : handleEquip(item)}
-              className={`${
-                isEquipped
-                  ? 'bg-red-600 hover:bg-red-700'
-                  : isEquippable(item)
-                    ? 'bg-green-600 hover:bg-green-700'
-                    : isConsumable(item)
-                      ? 'bg-amber-600 hover:bg-amber-700'
-                      : 'bg-blue-600 hover:bg-blue-700'
-              }`}
-              aria-label={
-                isEquipped
-                  ? `Unequip ${item.name}`
-                  : isConsumable(item)
-                    ? `Use ${item.name}`
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={() => isEquipped ? handleUnequip(item) : handleEquip(item)}
+                className={`${
+                  isEquipped
+                    ? 'bg-red-600 hover:bg-red-700'
                     : isEquippable(item)
-                      ? `Equip ${item.name}`
-                      : undefined
-              }
-              disabled={!isEquippable(item) && !isConsumable(item)}
-            >
-              {isEquipped
-                ? "Unequip"
-                : isConsumable(item)
-                  ? "Use"
-                  : isEquippable(item)
-                    ? "Equip"
-                    : null}
-            </Button>
+                      ? 'bg-green-600 hover:bg-green-700'
+                      : isConsumable(item)
+                        ? 'bg-amber-600 hover:bg-amber-700'
+                        : 'bg-blue-600 hover:bg-blue-700'
+                }`}
+                aria-label={
+                  isEquipped
+                    ? `Unequip ${item.name}`
+                    : isConsumable(item)
+                      ? `Use ${item.name}`
+                      : isEquippable(item)
+                        ? `Equip ${item.name}`
+                        : undefined
+                }
+                disabled={!isEquippable(item) && !isConsumable(item)}
+              >
+                {isEquipped
+                  ? "Unequip"
+                  : isConsumable(item)
+                    ? "Use"
+                    : isEquippable(item)
+                      ? "Equip"
+                      : null}
+              </Button>
+              
+              {/* Sell button for stored items */}
+              {!isEquipped && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleSellItem(item)}
+                  className="bg-orange-600 hover:bg-orange-700 text-white border-orange-500"
+                  aria-label={`Sell ${item.name} for ${getItemSellPrice(item)} gold`}
+                >
+                  Sell {getItemSellPrice(item)}g
+                </Button>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>

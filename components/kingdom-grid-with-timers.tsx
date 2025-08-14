@@ -504,8 +504,10 @@ export function KingdomGridWithTimers({
       setPropertyInventory(updatedInventory)
     }
 
-    // Start timer for the new property
-    const timerDuration = 5 * 60 * 1000 // 5 minutes in milliseconds
+    // Start timer for the new property based on reward value
+    const kingdomTile = KINGDOM_TILES.find(kt => kt.id === selectedProperty.id.toLowerCase())
+    const timerDuration = kingdomTile ? kingdomTile.timerMinutes * 60 * 1000 : 5 * 60 * 1000 // Use property-specific timer or default to 5 minutes
+    
     const newTimer: TileTimer = {
       x,
       y,
