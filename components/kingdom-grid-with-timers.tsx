@@ -443,9 +443,16 @@ export function KingdomGridWithTimers({
 
   // Handle property placement on grid
   const handlePropertyPlacement = (x: number, y: number) => {
-    if (!selectedProperty || !placementMode) return
+    console.log('[Property Placement] Starting placement:', { x, y, selectedProperty, placementMode })
+    
+    if (!selectedProperty || !placementMode) {
+      console.log('[Property Placement] Missing property or not in placement mode:', { selectedProperty, placementMode })
+      return
+    }
 
     const targetTile = grid[y]?.[x]
+    console.log('[Property Placement] Target tile:', targetTile)
+    
     if (!targetTile || targetTile.type !== 'vacant') {
       toast({
         title: 'Invalid Placement',
@@ -493,6 +500,18 @@ export function KingdomGridWithTimers({
       setPropertyInventory(updatedInventory)
     }
 
+    // Start timer for the new property
+    const timerDuration = 5 * 60 * 1000 // 5 minutes in milliseconds
+    const newTimer: TileTimer = {
+      x,
+      y,
+      tileId: newTile.id,
+      endTime: Date.now() + timerDuration,
+      isReady: false
+    }
+
+    setTileTimers(prev => [...prev, newTimer])
+
     // Reset placement mode
     setSelectedProperty(null)
     setPlacementMode(false)
@@ -501,9 +520,6 @@ export function KingdomGridWithTimers({
       title: 'Property Placed!',
       description: `${selectedProperty.name} has been successfully placed on your kingdom!`,
     });
-
-    // Note: The grid will be updated by the parent component
-    // The property should now appear on the kingdom map as a functional building
   }
 
   // Handle ESC key to cancel placement
@@ -698,11 +714,16 @@ export function KingdomGridWithTimers({
                 )}
                 aria-label={tile.ariaLabel || tile.name || `Tile ${x},${y}`}
                 onClick={() => {
+                  console.log('[Tile Click] Clicked tile:', { x, y, tile, placementMode, selectedProperty, isKingdomTile, isReady })
+                  
                   if (placementMode && selectedProperty) {
+                    console.log('[Tile Click] Calling handlePropertyPlacement')
                     handlePropertyPlacement(x, y)
                   } else if (isKingdomTile && isReady) {
+                    console.log('[Tile Click] Calling handleTileClick')
                     handleTileClick(x, y, tile)
                   } else if (selectedTile && (selectedTile.quantity || 0) > 0) {
+                    console.log('[Tile Click] Calling onTilePlace')
                     onTilePlace(x, y, selectedTile)
                   }
                 }}
@@ -957,6 +978,10 @@ export function KingdomGridWithTimers({
                       <div className="absolute top-2 left-2 bg-amber-600 text-white text-xs px-2 py-1 rounded-full">
                         {tile.cost}g
                       </div>
+                      {/* Quantity badge */}
+                      <div className="absolute bottom-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full">
+                        Owned: {tile.quantity || 0}
+                      </div>
                     </div>
                     <div className="text-base font-bold text-amber-300 text-center truncate w-full mb-1">
                       <Tooltip>
@@ -968,6 +993,9 @@ export function KingdomGridWithTimers({
                             <div className="font-bold">{tile.name}</div>
                             <div className="text-sm text-gray-300">
                               Cost: {tile.cost} gold
+                            </div>
+                            <div className="text-sm text-green-300">
+                              Owned: {tile.quantity || 0}
                             </div>
                             {tile.levelRequired > 1 && (
                               <div className="text-sm text-blue-300">
