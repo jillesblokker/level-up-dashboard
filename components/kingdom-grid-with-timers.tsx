@@ -617,7 +617,71 @@ export function KingdomGridWithTimers({
       return
     }
 
-    // Otherwise, handle normal tile interaction
+    // Handle property tiles (archery, blacksmith, etc.)
+    if (tile.id && (tile.id.includes('archery') || tile.id.includes('blacksmith') || tile.id.includes('sawmill') || 
+        tile.id.includes('fisherman') || tile.id.includes('grocery') || tile.id.includes('foodcourt') ||
+        tile.id.includes('well') || tile.id.includes('windmill') || tile.id.includes('castle') ||
+        tile.id.includes('fountain') || tile.id.includes('house') || tile.id.includes('inn') ||
+        tile.id.includes('jousting') || tile.id.includes('mansion') || tile.id.includes('mayor'))) {
+      
+      // Check if tile is ready
+      const timer = tileTimers.find(t => t.x === x && t.y === y)
+      if (!timer || !timer.isReady) {
+        toast({
+          title: 'Property Not Ready',
+          description: 'This property is still producing. Wait for the timer to finish.',
+          variant: 'destructive',
+        });
+        return
+      }
+
+      // Find the kingdom tile definition
+      const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.id.toLowerCase())
+      if (!kingdomTile) return
+
+      // Generate rewards
+      const wasLucky = isLuckyTile(kingdomTile.luckyChance)
+      const goldEarned = wasLucky ? kingdomTile.luckyGoldAmount : getRandomGold(...kingdomTile.normalGoldRange)
+      const itemFound = kingdomTile.possibleItems.length > 0 ? getRandomItem(kingdomTile.possibleItems) : null
+
+      // Update timer to restart production
+      const newEndTime = Date.now() + (kingdomTile.timerMinutes * 60 * 1000)
+      setTileTimers(prev => 
+        prev.map(t => 
+          t.x === x && t.y === y 
+            ? { ...t, endTime: newEndTime, isReady: false }
+            : t
+        )
+      )
+
+      // Show modal with rewards
+      setModalData({
+        tileName: kingdomTile.name,
+        goldEarned,
+        itemFound: itemFound ? {
+          image: itemFound,
+          name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
+          type: kingdomTile.itemType
+        } : undefined,
+        isLucky: wasLucky,
+        message: kingdomTile.clickMessage
+      })
+      setShowModal(true)
+
+      // Trigger callbacks
+      if (onGoldEarned) onGoldEarned(goldEarned)
+      if (onItemFound && itemFound) {
+        onItemFound({
+          image: itemFound,
+          name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
+          type: kingdomTile.itemType
+        })
+      }
+      
+      return
+    }
+
+    // Handle other tile types (if any)
     const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase())
     if (!kingdomTile) return
 

@@ -313,6 +313,8 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       'artifact': 100,
       'scroll': 25,
       'potion': 15,
+      'food': 8,
+      'material': 5,
       'item': 10
     };
     
@@ -329,13 +331,13 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       });
     }
     
-    // Add bonus for items with stats
-    if (item.stats) {
-      Object.values(item.stats).forEach(stat => {
-        if (typeof stat === 'number') {
-          bonus += stat * 5; // +5 gold per stat point
-        }
-      });
+    // Add rarity bonus based on item name/type
+    if (item.name.toLowerCase().includes('golden') || item.name.toLowerCase().includes('rainbow')) {
+      bonus += 15; // Golden/rainbow items are rarer
+    } else if (item.name.toLowerCase().includes('silver')) {
+      bonus += 10; // Silver items are uncommon
+    } else if (item.name.toLowerCase().includes('iron') || item.name.toLowerCase().includes('steel')) {
+      bonus += 8; // Iron/steel items are better quality
     }
     
     return Math.max(5, basePrice + bonus); // Minimum 5 gold
@@ -348,11 +350,21 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     const sellPrice = getItemSellPrice(item);
     
     try {
-      // Remove item from inventory (you'll need to implement this)
-      // For now, just give gold
+      // Remove item from Supabase inventory
+      const response = await fetch('/api/inventory/remove-item', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, itemId: item.id })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to remove item from inventory');
+      }
+      
+      // Give gold for the sale
       gainGold(sellPrice, `sell-${item.name.toLowerCase()}`);
       
-      // Refresh inventory
+      // Refresh inventory from Supabase
       const equipped = await getEquippedItems(userId);
       const stored = await getStoredItems(userId);
       setEquippedItems(equipped);
