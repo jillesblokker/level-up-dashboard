@@ -749,8 +749,12 @@ export function KingdomClient({ userId }: { userId: string | null }) {
         const stats = await getTotalStats(userId);
         
         console.log('[Kingdom] Loaded items from database:', {
-          equipped: equipped.map(item => ({ name: item.name, type: item.type, category: item.category })),
-          stored: stored.map(item => ({ name: item.name, type: item.type, category: item.category }))
+          equipped: equipped,
+          stored: stored,
+          equippedType: typeof equipped,
+          storedType: typeof stored,
+          equippedIsArray: Array.isArray(equipped),
+          storedIsArray: Array.isArray(stored)
         });
         
         // Normalize items to always have a 'stats' property and description

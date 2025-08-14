@@ -47,6 +47,10 @@ export async function GET(request: Request) {
       throw error;
     }
     
+    console.log('[Inventory API] Raw data from query:', data);
+    console.log('[Inventory API] Data type:', typeof data);
+    console.log('[Inventory API] Is array:', Array.isArray(data));
+    
     const mappedData = (data || []).map((row: any) => ({
       ...row,
       id: row.item_id,
@@ -54,6 +58,7 @@ export async function GET(request: Request) {
       stats: row.stats || {},
     }));
     
+    console.log('[Inventory API] Mapped data:', mappedData);
     return mappedData;
   });
   
