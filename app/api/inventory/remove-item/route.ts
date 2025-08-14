@@ -17,7 +17,7 @@ export async function DELETE(request: NextRequest) {
       async (supabase) => {
         // Remove the item from the user's inventory
         const { error: deleteError } = await supabase
-          .from('user_inventory')
+          .from('inventory_items')
           .delete()
           .eq('user_id', userId)
           .eq('item_id', itemId)

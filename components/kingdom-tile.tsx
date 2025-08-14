@@ -50,25 +50,6 @@ function getItemNameFromImage(imagePath: string, itemType: string): string {
       return 'Wood Logs'
     case 'planks':
       return 'Wood Planks'
-      return 'Mana Potion'
-    case 'goldenfish':
-      return 'Golden Fish'
-    case 'sword-twig':
-      return 'Twig Sword'
-    case 'sword-sunblade':
-      return 'Sunblade'
-    case 'sword-irony':
-      return 'Iron Sword'
-    case 'armor-normalo':
-      return 'Normal Armor'
-    case 'armor-darko':
-      return 'Dark Armor'
-    case 'armor-blanko':
-      return 'Blank Armor'
-    case 'logs':
-      return 'Wood Logs'
-    case 'planks':
-      return 'Wood Planks'
     default:
       // Fallback: convert filename to readable name
       return fileName.split('-').map(word => 
