@@ -56,8 +56,8 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.12,
     clickMessage: "The sawmill's blades whir as you collect freshly cut timber. The wood is perfect for crafting and building.",
     possibleItems: [
-      '/images/items/materials/logs.png',
-      '/images/items/materials/planks.png'
+      '/images/items/materials/material-logs.png',
+              '/images/items/materials/material-planks.png'
     ],
     itemType: 'material',
     rarity: 'common',

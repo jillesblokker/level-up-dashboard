@@ -86,7 +86,7 @@ export const defaultInventoryItems: InventoryItem[] = [
     emoji: '🪵',
     quantity: 5,
     isDefault: true,
-    image: '/images/items/materials/logs.png',
+          image: '/images/items/materials/material-logs.png',
     rarity: 'common',
     cost: 10,
     isEquippable: false,
