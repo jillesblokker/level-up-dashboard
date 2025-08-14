@@ -453,7 +453,7 @@ export function KingdomGridWithTimers({
     const targetTile = grid[y]?.[x]
     console.log('[Property Placement] Target tile:', targetTile)
     
-    if (!targetTile || targetTile.type !== 'vacant') {
+    if (!targetTile || (targetTile.type !== 'vacant' && targetTile.type !== 'empty')) {
       toast({
         title: 'Invalid Placement',
         description: 'You can only place properties on vacant tiles.',
@@ -485,11 +485,15 @@ export function KingdomGridWithTimers({
     const updatedGrid = grid.map(row => row.slice())
     if (updatedGrid[y]) {
       updatedGrid[y][x] = newTile
+      console.log('[Property Placement] Updated grid at position:', { x, y, newTile })
     }
 
     // Update the parent component's grid using the callback
     if (onGridUpdate) {
+      console.log('[Property Placement] Calling onGridUpdate with updated grid')
       onGridUpdate(updatedGrid)
+    } else {
+      console.log('[Property Placement] onGridUpdate callback not provided')
     }
 
     // Decrease property quantity for gold-based properties
