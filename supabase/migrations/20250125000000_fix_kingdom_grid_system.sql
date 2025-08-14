@@ -67,6 +67,18 @@ ALTER TABLE public.property_timers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.gold_transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.experience_transactions ENABLE ROW LEVEL SECURITY;
 
+-- Create the get_current_user_id function if it doesn't exist
+CREATE OR REPLACE FUNCTION public.get_current_user_id()
+RETURNS TEXT AS $$
+BEGIN
+    -- Extract user_id from JWT claims
+    RETURN current_setting('request.jwt.claims', true)::json->>'sub';
+EXCEPTION
+    WHEN OTHERS THEN
+        RETURN NULL;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- Create RLS policies
 CREATE POLICY "Users can manage their own kingdom grid"
     ON public.kingdom_grid FOR ALL
