@@ -589,37 +589,39 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             </div>
             
             <div className="flex gap-2">
-              <Button
-                size="sm"
-                onClick={() => isEquipped ? handleUnequip(item) : handleEquip(item)}
-                className={`${
-                  isEquipped
-                    ? 'bg-red-600 hover:bg-red-700'
-                    : isEquippable(item)
-                      ? 'bg-green-600 hover:bg-green-700'
-                      : isConsumable(item)
-                        ? 'bg-amber-600 hover:bg-amber-700'
-                        : 'bg-blue-600 hover:bg-blue-700'
-                }`}
-                aria-label={
-                  isEquipped
-                    ? `Unequip ${item.name}`
-                    : isConsumable(item)
-                      ? `Use ${item.name}`
+              {/* Only render the action button if it has valid content */}
+              {(isEquipped || isEquippable(item) || isConsumable(item)) && (
+                <Button
+                  size="sm"
+                  onClick={() => isEquipped ? handleUnequip(item) : handleEquip(item)}
+                  className={`${
+                    isEquipped
+                      ? 'bg-red-600 hover:bg-red-700'
                       : isEquippable(item)
-                        ? `Equip ${item.name}`
-                        : undefined
-                }
-                disabled={!isEquippable(item) && !isConsumable(item)}
-              >
-                {isEquipped
-                  ? "Unequip"
-                  : isConsumable(item)
-                    ? "Use"
-                    : isEquippable(item)
-                      ? "Equip"
-                      : null}
-              </Button>
+                        ? 'bg-green-600 hover:bg-blue-700'
+                        : isConsumable(item)
+                          ? 'bg-amber-600 hover:bg-amber-700'
+                          : 'bg-blue-600 hover:bg-blue-700'
+                  }`}
+                  aria-label={
+                    isEquipped
+                      ? `Unequip ${item.name}`
+                      : isConsumable(item)
+                        ? `Use ${item.name}`
+                        : isEquippable(item)
+                          ? `Equip ${item.name}`
+                          : undefined
+                  }
+                >
+                  {isEquipped
+                    ? "Unequip"
+                    : isConsumable(item)
+                      ? "Use"
+                      : isEquippable(item)
+                        ? "Equip"
+                        : null}
+                </Button>
+              )}
               
               {/* Sell button for stored items */}
               {!isEquipped && (
