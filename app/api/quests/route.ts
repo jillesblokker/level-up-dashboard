@@ -142,12 +142,13 @@ export async function POST(request: Request) {
     const { title, category } = result.data;
     // Create the quest completion
     const { data: questCompletion, error } = await supabase
-      .from('checked_quests')
+      .from('quest_completion')
       .insert([
         {
           user_id: userId,
           quest_id: title,
-          checked_at: null
+          completed: false,
+          completed_at: null
         }
       ])
       .single();
@@ -158,7 +159,7 @@ export async function POST(request: Request) {
       title: (questCompletion as any)['quest_id'],
       category: 'general',
       completed: false,
-      date: (questCompletion as any)['checked_at']
+      date: (questCompletion as any)['completed_at']
     };
     return NextResponse.json(response);
   } catch (error) {
@@ -253,14 +254,14 @@ export async function PUT(request: Request) {
           type: 'exp',
           amount: defaultRewards.experience,
           relatedId: String(questCompletion['id']),
-          context: { source: 'checked_quests', questTitle: String(questCompletion['quest_id']) }
+          context: { source: 'quest_completion', questTitle: String(questCompletion['quest_id']) }
         });
         await grantReward({
           userId,
           type: 'gold',
           amount: defaultRewards.gold,
           relatedId: String(questCompletion['id']),
-          context: { source: 'checked_quests', questTitle: String(questCompletion['quest_id']) }
+          context: { source: 'quest_completion', questTitle: String(questCompletion['quest_id']) }
         });
       }
     }
