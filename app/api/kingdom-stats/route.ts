@@ -59,12 +59,12 @@ export async function GET(request: Request) {
     const days = getDateRange(period);
 
     if (tab === 'quests') {
-      // Aggregate quest completions from quest_completion table
+      // Aggregate quest completions from checked_quests table
       const { data: completions, error } = await supabaseServer
-        .from('quest_completion')
-        .select('id, completed, completed_at')
+        .from('checked_quests')
+        .select('id, quest_id, checked_at')
         .eq('user_id', userId)
-        .eq('completed', true);
+        .not('checked_at', 'is', null);
         
       if (error) {
         console.error('[Kingdom Stats] Supabase error (quests):', error);
@@ -76,8 +76,8 @@ export async function GET(request: Request) {
       if (period === 'year') {
         days.forEach(month => { counts[month] = 0; });
         completions?.forEach((c: any) => {
-          if (c.completed_at) {
-            const month = c.completed_at.slice(0, 7);
+          if (c.checked_at) {
+            const month = c.checked_at.slice(0, 7);
             if (counts[month] !== undefined) counts[month]++;
           }
         });
@@ -86,8 +86,8 @@ export async function GET(request: Request) {
       } else {
         days.forEach(day => { counts[day] = 0; });
         completions?.forEach((c: any) => {
-          if (c.completed_at) {
-            const day = c.completed_at.slice(0, 10);
+          if (c.checked_at) {
+            const day = c.checked_at.slice(0, 10);
             if (counts[day] !== undefined) counts[day]++;
           }
         });
