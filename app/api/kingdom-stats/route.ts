@@ -62,7 +62,7 @@ export async function GET(request: Request) {
       // Aggregate quest completions from quest_completion table
       const { data: completions, error } = await supabaseServer
         .from('quest_completion')
-        .select('id, completed, completed_at')
+        .select('id, quest_id, completed_at, xp_earned, gold_earned')
         .eq('user_id', userId)
         .eq('completed', true);
         
@@ -280,14 +280,7 @@ export async function GET(request: Request) {
         }
       });
       
-      // TEMPORARILY ADD TEST DATA FOR DEMONSTRATION
-      if (userId === 'test-user-id') {
-        if (period === 'week') {
-          sums['2025-08-01'] = 150;
-          sums['2025-08-03'] = 75;
-          sums['2025-08-05'] = 200;
-        }
-      }
+      // Removed test data
       
       const data = days.map(day => ({ day, value: sums[day] || 0 }));
       console.log('[Kingdom Stats] Gold data:', { userId, period, data, questRes: questRes.data?.length, challengeRes: challengeRes.data?.length, milestoneRes: milestoneRes.data?.length });
@@ -381,14 +374,7 @@ export async function GET(request: Request) {
         }
       });
       
-      // TEMPORARILY ADD TEST DATA FOR DEMONSTRATION
-      if (userId === 'test-user-id') {
-        if (period === 'week') {
-          sums['2025-08-01'] = 300;
-          sums['2025-08-03'] = 150;
-          sums['2025-08-05'] = 450;
-        }
-      }
+      // Removed test data
       
       const data = days.map(day => ({ day, value: sums[day] || 0 }));
       console.log('[Kingdom Stats] Experience data:', { userId, period, data, questRes: questRes.data?.length, challengeRes: challengeRes.data?.length, milestoneRes: milestoneRes.data?.length });
