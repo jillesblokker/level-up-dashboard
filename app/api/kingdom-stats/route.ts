@@ -189,7 +189,7 @@ export async function GET(request: Request) {
       }
       
       const data = days.map(day => ({ day, value: counts[day] || 0 }));
-      // Removed debugging log
+      console.log('[Kingdom Stats] Quests data:', { userId, period, data, completions: completions?.length, rawCompletions: completions });
       return NextResponse.json({ data });
     }
 
@@ -290,7 +290,7 @@ export async function GET(request: Request) {
       }
       
       const data = days.map(day => ({ day, value: sums[day] || 0 }));
-      // Removed debugging log
+      console.log('[Kingdom Stats] Gold data:', { userId, period, data, questRes: questRes.data?.length, challengeRes: challengeRes.data?.length, milestoneRes: milestoneRes.data?.length });
       return NextResponse.json({ data });
     }
 
@@ -391,7 +391,7 @@ export async function GET(request: Request) {
       }
       
       const data = days.map(day => ({ day, value: sums[day] || 0 }));
-      // Removed debugging log
+      console.log('[Kingdom Stats] Experience data:', { userId, period, data, questRes: questRes.data?.length, challengeRes: challengeRes.data?.length, milestoneRes: milestoneRes.data?.length });
       return NextResponse.json({ data });
     }
 
