@@ -10,8 +10,8 @@ export async function POST(req: NextRequest) {
     }
     // Reset all quests for the user
     const { error: questError } = await supabaseServer
-      .from('checked_quests')
-      .delete()
+      .from('quest_completion')
+      .update({ completed: false })
       .eq('user_id', userId);
     // Reset all challenges for the user
     const { error: challengeError } = await supabaseServer
