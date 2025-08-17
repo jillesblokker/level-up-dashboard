@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ChevronDown } from "lucide-react"
@@ -433,7 +433,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
   const { getToken } = useAuth();
 
   // Fetch and aggregate data for the selected tab and period
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!uid) return;
     setIsLoading(true);
     try {
@@ -461,7 +461,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [uid, activeTab, timePeriod, getToken]);
 
   // Initial data fetch
   useEffect(() => {
@@ -598,7 +598,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
   const { getToken } = useAuth();
 
   // Fetch and aggregate data for the selected tab and period
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!uid) return;
     setIsLoading(true);
     try {
@@ -626,7 +626,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [uid, activeTab, timePeriod, getToken]);
 
   // Initial data fetch
   useEffect(() => {
