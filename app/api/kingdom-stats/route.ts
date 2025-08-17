@@ -93,23 +93,19 @@ export async function GET(request: Request) {
         });
       }
       
-      // TEMPORARILY ADD TEST DATA FOR DEMONSTRATION
-      if (userId === 'test-user-id') {
-        if (period === 'week') {
-          counts['2025-08-01'] = 2;
-          counts['2025-08-03'] = 1;
-          counts['2025-08-05'] = 3;
-        } else if (period === 'month') {
-          counts['2025-08-01'] = 2;
-          counts['2025-08-03'] = 1;
-          counts['2025-08-05'] = 3;
-          counts['2025-08-10'] = 1;
-          counts['2025-08-15'] = 2;
-        }
-      }
+      // Add debugging to see what's happening
+      console.log('[Kingdom Stats] Debug info:', {
+        userId,
+        period,
+        days,
+        completionsCount: completions?.length,
+        sampleCompletion: completions?.[0],
+        counts,
+        today: new Date().toISOString().slice(0, 10)
+      });
       
-      const data = days.map(day => ({ day, value: counts[day] || (userId === "test-user-id" ? Math.floor(Math.random() * 3) : 0) }));
-      // Removed debugging log
+      const data = days.map(day => ({ day, value: counts[day] || 0 }));
+      console.log('[Kingdom Stats] Quests data:', { userId, period, data, completions: completions?.length, rawCompletions: completions });
       return NextResponse.json({ data });
     }
 
