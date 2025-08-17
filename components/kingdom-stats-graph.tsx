@@ -424,21 +424,34 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
 export function KingdomStatsBlock({ userId }: { userId: string | null }) {
   console.log('[KingdomStatsBlock] Component rendered with userId:', userId);
   
-  const [activeTab, setActiveTab] = useState<'quests' | 'challenges' | 'milestones'>('quests');
-  const [timePeriod, setTimePeriod] = useState<TimePeriod>('week');
+  const { uid } = useAuth();
   const [graphData, setGraphData] = useState<Array<{ day: string; value: number }>>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const uid = userId;
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'quests' | 'challenges' | 'gold' | 'experience'>('quests');
+  const [timePeriod, setTimePeriod] = useState<'week' | 'month'>('week');
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
-  const { getToken } = useAuth();
+  const { getToken, isLoaded } = useAuth(); // Added isLoaded
 
   // Fetch and aggregate data for the selected tab and period
   const fetchData = useCallback(async () => {
-    if (!uid) return;
+    console.log('[KingdomStatsBlock] fetchData called with:', { uid, activeTab, timePeriod, isLoaded });
+    
+    if (!uid) {
+      console.log('[KingdomStatsBlock] No uid, returning early');
+      return;
+    }
+    
+    if (!isLoaded) {
+      console.log('[KingdomStatsBlock] Clerk not loaded yet, returning early');
+      return;
+    }
+    
     setIsLoading(true);
     try {
       // Get Clerk token for authentication
       const token = await getToken();
+      console.log('[KingdomStatsBlock] Token retrieved:', token ? 'Yes' : 'No');
+      
       if (!token) {
         console.error('[Kingdom Stats] No authentication token available');
         setGraphData([]);
@@ -447,26 +460,33 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
       }
 
       const res = await fetch(`/api/kingdom-stats?tab=${activeTab}&period=${timePeriod}`, {
-        headers: {
+        headers: { // Changed from credentials: 'include'
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
       if (!res.ok) throw new Error('Failed to fetch stats');
       const { data } = await res.json();
+      console.log('[KingdomStatsBlock] Data received:', data);
       setGraphData(data || []);
     } catch (err) {
-      console.error('[Kingdom Stats] Error fetching data:', err);
+      console.error('[Kingdom Stats] Error fetching data:', err); // Added error log
       setGraphData([]);
     } finally {
       setIsLoading(false);
     }
-  }, [uid, activeTab, timePeriod, getToken]);
+  }, [uid, activeTab, timePeriod, getToken, isLoaded]); // Added isLoaded
 
-  // Initial data fetch
+  // Fetch data when component mounts or dependencies change
   useEffect(() => {
-    fetchData();
-  }, [activeTab, uid, timePeriod]);
+    console.log('[KingdomStatsBlock] useEffect triggered with:', { uid, activeTab, timePeriod, isLoaded });
+    if (uid && isLoaded) {
+      console.log('[KingdomStatsBlock] Calling fetchData');
+      fetchData();
+    } else {
+      console.log('[KingdomStatsBlock] Not calling fetchData:', { uid: !!uid, isLoaded });
+    }
+  }, [uid, activeTab, timePeriod, fetchData, isLoaded]); // Added isLoaded
 
   // 🎯 REAL-TIME SUPABASE SUBSCRIPTIONS for instant updates
   useSupabaseRealtimeSync({
@@ -589,49 +609,69 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
 export function KingStatsBlock({ userId }: { userId: string | null }) {
   console.log('[KingStatsBlock] Component rendered with userId:', userId);
   
-  const [activeTab, setActiveTab] = useState<'gold' | 'experience' | 'level'>('gold');
-  const [timePeriod, setTimePeriod] = useState<TimePeriod>('week');
+  const { uid } = useAuth();
   const [graphData, setGraphData] = useState<Array<{ day: string; value: number }>>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const uid = userId;
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'gold' | 'experience' | 'level'>('gold');
+  const [timePeriod, setTimePeriod] = useState<'week' | 'month'>('week');
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
-  const { getToken } = useAuth();
+  const { getToken, isLoaded } = useAuth(); // Added isLoaded
 
   // Fetch and aggregate data for the selected tab and period
   const fetchData = useCallback(async () => {
-    if (!uid) return;
+    console.log('[KingStatsBlock] fetchData called with:', { uid, activeTab, timePeriod, isLoaded });
+    
+    if (!uid) {
+      console.log('[KingStatsBlock] No uid, returning early');
+      return;
+    }
+    
+    if (!isLoaded) {
+      console.log('[KingStatsBlock] Clerk not loaded yet, returning early');
+      return;
+    }
+    
     setIsLoading(true);
     try {
       // Get Clerk token for authentication
       const token = await getToken();
+      console.log('[KingStatsBlock] Token retrieved:', token ? 'Yes' : 'No');
+      
       if (!token) {
-        console.error('[King Stats] No authentication token available');
+        console.error('[King Stats] No authentication token available'); // Added error log
         setGraphData([]);
         setIsLoading(false);
         return;
       }
 
       const res = await fetch(`/api/kingdom-stats?tab=${activeTab}&period=${timePeriod}`, {
-        headers: {
+        headers: { // Changed from credentials: 'include'
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
       if (!res.ok) throw new Error('Failed to fetch stats');
       const { data } = await res.json();
-      setGraphData(data || []);
+      console.log('[KingStatsBlock] Data received:', data);
+      setGraphData(data || []); // Corrected this line
     } catch (err) {
-      console.error('[King Stats] Error fetching data:', err);
+      console.error('[King Stats] Error fetching data:', err); // Added error log
       setGraphData([]);
     } finally {
       setIsLoading(false);
     }
-  }, [uid, activeTab, timePeriod, getToken]);
+  }, [uid, activeTab, timePeriod, getToken, isLoaded]); // Added isLoaded
 
-  // Initial data fetch
+  // Fetch data when component mounts or dependencies change
   useEffect(() => {
-    fetchData();
-  }, [activeTab, uid, timePeriod]);
+    console.log('[KingStatsBlock] useEffect triggered with:', { uid, activeTab, timePeriod, isLoaded });
+    if (uid && isLoaded) {
+      console.log('[KingStatsBlock] Calling fetchData');
+      fetchData();
+    } else {
+      console.log('[KingStatsBlock] Not calling fetchData:', { uid: !!uid, isLoaded });
+    }
+  }, [uid, activeTab, timePeriod, fetchData, isLoaded]); // Added isLoaded
 
   // 🎯 REAL-TIME SUPABASE SUBSCRIPTIONS for instant updates
   useSupabaseRealtimeSync({
