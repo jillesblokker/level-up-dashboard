@@ -428,19 +428,33 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
   const [isLoading, setIsLoading] = useState(true);
   const uid = userId;
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
+  const { getToken } = useAuth();
 
   // Fetch and aggregate data for the selected tab and period
   const fetchData = async () => {
     if (!uid) return;
     setIsLoading(true);
     try {
+      // Get Clerk token for authentication
+      const token = await getToken();
+      if (!token) {
+        console.error('[Kingdom Stats] No authentication token available');
+        setGraphData([]);
+        setIsLoading(false);
+        return;
+      }
+
       const res = await fetch(`/api/kingdom-stats?tab=${activeTab}&period=${timePeriod}`, {
-        credentials: 'include'
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
       if (!res.ok) throw new Error('Failed to fetch stats');
       const { data } = await res.json();
       setGraphData(data || []);
     } catch (err) {
+      console.error('[Kingdom Stats] Error fetching data:', err);
       setGraphData([]);
     } finally {
       setIsLoading(false);
@@ -577,19 +591,33 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
   const [isLoading, setIsLoading] = useState(true);
   const uid = userId;
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
+  const { getToken } = useAuth();
 
   // Fetch and aggregate data for the selected tab and period
   const fetchData = async () => {
     if (!uid) return;
     setIsLoading(true);
     try {
+      // Get Clerk token for authentication
+      const token = await getToken();
+      if (!token) {
+        console.error('[King Stats] No authentication token available');
+        setGraphData([]);
+        setIsLoading(false);
+        return;
+      }
+
       const res = await fetch(`/api/kingdom-stats?tab=${activeTab}&period=${timePeriod}`, {
-        credentials: 'include'
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
       if (!res.ok) throw new Error('Failed to fetch stats');
       const { data } = await res.json();
       setGraphData(data || []);
     } catch (err) {
+      console.error('[King Stats] Error fetching data:', err);
       setGraphData([]);
     } finally {
       setIsLoading(false);
