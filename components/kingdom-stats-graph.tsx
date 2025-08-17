@@ -529,7 +529,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
   }, []);
 
   // Show chart if there is at least one non-zero value in the data
-  const hasData = graphData.some(d => d.value > 0);
+  const hasData = graphData.length > 0;
 
   return (
     <Card className="bg-black border-amber-800">
@@ -710,7 +710,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
   }, []);
 
   // Show chart if there is at least one non-zero value in the data
-  const hasData = graphData.some(d => d.value > 0);
+  const hasData = graphData.length > 0;
 
   return (
     <Card className="bg-black border-amber-800">
