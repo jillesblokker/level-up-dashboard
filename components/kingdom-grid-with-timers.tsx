@@ -364,14 +364,14 @@ export function KingdomGridWithTimers({
 
 
 
-  // Check if player can place a property
-  const canPlaceProperty = (property: typeof propertyInventory[0]) => {
+    // Check if player can place a property
+    const canPlaceProperty = (property: typeof propertyInventory[0]) => {
     if (property.costType === 'gold') {
       return (property.quantity || 0) > 0 && playerLevel >= property.levelRequired
     }
     
     return false
-  }
+    }
 
   // Handle property selection for placement
   const handlePropertySelect = (property: typeof propertyInventory[0]) => {
@@ -917,10 +917,10 @@ export function KingdomGridWithTimers({
                   try {
                     const success = await spendGold(1000, 'build-token-purchase');
                     if (success) {
-                      const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
-                      stats.buildTokens = (stats.buildTokens || 0) + 1;
-                      localStorage.setItem('character-stats', JSON.stringify(stats));
-                      setBuildTokens(stats.buildTokens);
+                    const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
+                    stats.buildTokens = (stats.buildTokens || 0) + 1;
+                    localStorage.setItem('character-stats', JSON.stringify(stats));
+                    setBuildTokens(stats.buildTokens);
                     }
                   } catch (error) {
                     console.error('Error purchasing build token:', error);
@@ -956,70 +956,70 @@ export function KingdomGridWithTimers({
           <div className="flex-1 overflow-y-auto p-4">
             {propertyTab === 'place' ? (
               // Place tab - show properties you own
-              <div className="grid grid-cols-2 gap-6">
-                {propertyInventory.map(tile => {
-                  const canPlace = canPlaceProperty(tile)
-                  
-                  return (
-                    <button
-                      key={tile.id}
-                      className={`relative flex flex-col items-center border border-amber-800/30 bg-black/60 rounded-xl p-3 shadow-lg transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-500 ${
-                        canPlace 
-                          ? 'hover:border-amber-500/50 hover:shadow-amber-500/20 cursor-pointer' 
-                          : 'opacity-50 cursor-not-allowed'
-                      }`}
-                      onClick={() => canPlace && handlePropertySelect(tile)}
-                      disabled={!canPlace}
-                      aria-label={`Select ${tile.name} for placement`}
-                    >
-                      <div className="relative w-full aspect-square mb-3">
-                        <Image
-                          src={tile.image.startsWith('/') ? tile.image : `/images/kingdom-tiles/${tile.image}`}
-                          alt={tile.name}
-                          fill
-                          className="object-contain rounded-xl"
-                          draggable={false}
-                          unoptimized
-                        />
-                        {/* Level requirement badge */}
-                        {tile.levelRequired > 1 && (
-                          <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
-                            Lv.{tile.levelRequired}
-                          </div>
-                        )}
+            <div className="grid grid-cols-2 gap-6">
+              {propertyInventory.map(tile => {
+                const canPlace = canPlaceProperty(tile)
+                
+                return (
+                  <button
+                    key={tile.id}
+                    className={`relative flex flex-col items-center border border-amber-800/30 bg-black/60 rounded-xl p-3 shadow-lg transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-500 ${
+                      canPlace 
+                        ? 'hover:border-amber-500/50 hover:shadow-amber-500/20 cursor-pointer' 
+                        : 'opacity-50 cursor-not-allowed'
+                    }`}
+                    onClick={() => canPlace && handlePropertySelect(tile)}
+                    disabled={!canPlace}
+                    aria-label={`Select ${tile.name} for placement`}
+                  >
+                    <div className="relative w-full aspect-square mb-3">
+                      <Image
+                        src={tile.image.startsWith('/') ? tile.image : `/images/kingdom-tiles/${tile.image}`}
+                        alt={tile.name}
+                        fill
+                        className="object-contain rounded-xl"
+                        draggable={false}
+                        unoptimized
+                      />
+                      {/* Level requirement badge */}
+                      {tile.levelRequired > 1 && (
+                        <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                          Lv.{tile.levelRequired}
+                        </div>
+                      )}
                         {/* Quantity badge */}
                         <div className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full">
                           {tile.quantity || 0}
-                        </div>
                       </div>
-                      <div className="text-base font-bold text-amber-300 text-center truncate w-full mb-1">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="truncate">{tile.name}</span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <div className="text-center">
-                              <div className="font-bold">{tile.name}</div>
+                    </div>
+                    <div className="text-base font-bold text-amber-300 text-center truncate w-full mb-1">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="truncate">{tile.name}</span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <div className="text-center">
+                            <div className="font-bold">{tile.name}</div>
                               <div className="text-sm text-gray-300">
                                 Owned: {tile.quantity || 0}
                               </div>
-                              {tile.levelRequired > 1 && (
-                                <div className="text-sm text-blue-300">
-                                  Requires Level {tile.levelRequired}
-                                </div>
-                              )}
-                              {!canPlace && (
-                                <div className="text-sm text-red-300 mt-1">
+                            {tile.levelRequired > 1 && (
+                              <div className="text-sm text-blue-300">
+                                Requires Level {tile.levelRequired}
+                              </div>
+                            )}
+                            {!canPlace && (
+                              <div className="text-sm text-red-300 mt-1">
                                   {tile.quantity <= 0 ? 'Buy this property first!' : `Need Level ${tile.levelRequired}`}
-                                </div>
-                              )}
-                            </div>
-                          </TooltipContent>
-                        </Tooltip>
-                      </div>
-                      <div className="text-sm text-amber-400 text-center">
-                        {canPlace ? 'Click to place' : 'Requirements not met'}
-                      </div>
+                              </div>
+                            )}
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                    <div className="text-sm text-amber-400 text-center">
+                      {canPlace ? 'Click to place' : 'Requirements not met'}
+                    </div>
                     </button>
                   )
                 })}
@@ -1052,7 +1052,7 @@ export function KingdomGridWithTimers({
                       {/* Cost badge */}
                       <div className="absolute top-2 left-2 bg-amber-600 text-white text-xs px-2 py-1 rounded-full">
                         {tile.cost}g
-                      </div>
+                        </div>
                       {/* Quantity badge */}
                       <div className="absolute bottom-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full">
                         Owned: {tile.quantity || 0}
@@ -1075,8 +1075,8 @@ export function KingdomGridWithTimers({
                             {tile.levelRequired > 1 && (
                               <div className="text-sm text-blue-300">
                                 Requires Level {tile.levelRequired}
-                              </div>
-                            )}
+                      </div>
+                    )}
                           </div>
                         </TooltipContent>
                       </Tooltip>
@@ -1086,7 +1086,7 @@ export function KingdomGridWithTimers({
                     </div>
                   </button>
                 ))}
-              </div>
+            </div>
             )}
           </div>
         </div>

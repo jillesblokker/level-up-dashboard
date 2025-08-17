@@ -35,7 +35,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
   const { toast } = useToast();
   const { user } = useUser();
   const { supabase, isLoading: supabaseLoading } = useSupabase();
-  
+
   const [propertiesOpen, setPropertiesOpen] = useState(false);
   const [propertyTab, setPropertyTab] = useState<'place' | 'buy'>('place');
   const [buildTokens, setBuildTokens] = useState(0);
@@ -191,9 +191,19 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
       onTilePlace(x, y, tile);
       
       // Save to database
+      // Include Clerk token for server verification (more reliable than cookies in some environments)
+      let authHeader: Record<string, string> = { 'Content-Type': 'application/json' };
+      try {
+        const clerk = (window as any).__clerk;
+        const token = await clerk?.session?.getToken();
+        if (token) {
+          authHeader = { ...authHeader, Authorization: `Bearer ${token}` };
+        }
+      } catch (_) { /* ignore token fetch failure; server may still accept cookies */ }
+
       const response = await fetch('/api/kingdom-grid', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeader,
         credentials: 'include',
         body: JSON.stringify({ grid })
       });
@@ -210,7 +220,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
     }
   }, [user?.id, onTilePlace, grid]);
 
-  return (
+    return (
     <div className="w-full max-w-6xl mx-auto p-4" aria-label="kingdom-grid-container">
       {/* Header with expansion info */}
       <Card className="mb-6 bg-black border-amber-800">
@@ -253,11 +263,11 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
             <div className="text-center p-3 bg-gray-800 rounded-lg">
               <div className="text-sm text-gray-400">Expansions</div>
               <div className="text-xl font-bold text-blue-500">{kingdomExpansions}</div>
-            </div>
+      </div>
             <div className="text-center p-3 bg-gray-800 rounded-lg">
               <div className="text-sm text-gray-400">Grid Size</div>
               <div className="text-xl font-bold text-green-500">{grid.length}x{grid[0]?.length || 0}</div>
-            </div>
+      </div>
           </div>
           
           {canExpand && onGridExpand && (
@@ -330,7 +340,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
               <TabsContent value="place" className="mt-4">
                 <ScrollArea className="h-64">
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {propertyInventory.map(tile => (
+              {propertyInventory.map(tile => (
                       <div
                         key={tile.id}
                         className="p-3 border border-gray-700 rounded-lg text-center"
@@ -338,33 +348,33 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
                       >
                         <img
                           src={tile.image}
-                          alt={tile.name}
+                      alt={tile.name}
                           className="w-16 h-16 mx-auto mb-2 object-contain"
                         />
                         <div className="text-sm font-semibold text-white mb-1">{tile.name}</div>
                         <div className="text-sm text-gray-400 mb-2">{tile.description}</div>
-                        <div className="text-sm text-amber-200 mb-2">Owned: <span className="font-bold">{tile.quantity || 0}</span></div>
-                        {propertyTab === 'buy' ? (
-                          <button
-                            className="bg-amber-700 text-white px-3 py-2 rounded shadow hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm disabled:opacity-50 w-full"
-                            aria-label={`Buy ${tile.name}`}
-                            disabled={buildTokens < (tile.cost || 1)}
-                            onClick={() => handleBuyProperty(tile)}
-                          >
-                            Buy
-                          </button>
-                        ) : (
-                          <button
-                            className={`w-full px-3 py-2 rounded shadow focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm font-semibold ${selectedTile?.id === tile.id ? 'bg-amber-800 text-white' : 'bg-gray-800 text-amber-300 hover:bg-amber-700 hover:text-white'}`}
-                            aria-label={`Select ${tile.name} to place`}
-                            onClick={() => setSelectedTile(tile)}
-                          >
-                            {selectedTile?.id === tile.id ? 'Selected' : 'Place'}
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                  <div className="text-sm text-amber-200 mb-2">Owned: <span className="font-bold">{tile.quantity || 0}</span></div>
+                  {propertyTab === 'buy' ? (
+                    <button
+                      className="bg-amber-700 text-white px-3 py-2 rounded shadow hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm disabled:opacity-50 w-full"
+                      aria-label={`Buy ${tile.name}`}
+                      disabled={buildTokens < (tile.cost || 1)}
+                      onClick={() => handleBuyProperty(tile)}
+                    >
+                      Buy
+                    </button>
+                  ) : (
+                    <button
+                      className={`w-full px-3 py-2 rounded shadow focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm font-semibold ${selectedTile?.id === tile.id ? 'bg-amber-800 text-white' : 'bg-gray-800 text-amber-300 hover:bg-amber-700 hover:text-white'}`}
+                      aria-label={`Select ${tile.name} to place`}
+                      onClick={() => setSelectedTile(tile)}
+                    >
+                      {selectedTile?.id === tile.id ? 'Selected' : 'Place'}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
                 </ScrollArea>
               </TabsContent>
             </Tabs>

@@ -293,16 +293,16 @@ export async function PATCH(request: Request) {
     }
     const { data: questCompletions, error } = await supabase
       .from('quest_completion')
-      .select('*')
+      .select('quest_id, completed, completed_at')
       .eq('user_id', userId)
-      .order('date', { ascending: false });
+      .order('completed_at', { ascending: false });
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
     // Convert to CSV
     let csv = 'date,title,completed\n';
     (questCompletions as any[]).forEach((completion: any) => {
-      csv += `${completion['date']},${completion['quest_name']},${completion['completed']}\n`;
+      csv += `${completion['completed_at'] || ''},${completion['quest_id'] || ''},${completion['completed'] ?? ''}\n`;
     });
     return new NextResponse(csv, {
       headers: {
