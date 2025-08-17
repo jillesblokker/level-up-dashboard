@@ -83,8 +83,38 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     };
   }, [lastProcessedLevel]);
 
+  // Initialize lastProcessedLevel from storage to avoid showing the modal repeatedly across navigations
+  useEffect(() => {
+    try {
+      const stored = typeof window !== 'undefined' ? localStorage.getItem('title-evolution-last-processed') : null;
+      const stats = getCharacterStats();
+      const currentLevel = calculateLevelFromExperience(stats.experience || 0);
+      const initialLevel = stored ? parseInt(stored, 10) : currentLevel;
+      if (!Number.isNaN(initialLevel)) {
+        setLastProcessedLevel(initialLevel);
+      }
+    } catch (error) {
+      // noop
+    }
+  }, []);
+
+  // Persist last processed level whenever it changes
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('title-evolution-last-processed', String(lastProcessedLevel));
+      }
+    } catch (error) {
+      // noop
+    }
+  }, [lastProcessedLevel]);
+
   const closeModal = () => {
     setShowModal(false);
+    // Persist the current evolution level as processed to prevent re-showing
+    if (evolution?.level) {
+      setLastProcessedLevel(prev => Math.max(prev, evolution.level));
+    }
     setEvolution(null);
   };
 
