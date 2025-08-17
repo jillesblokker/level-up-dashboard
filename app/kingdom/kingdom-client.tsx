@@ -11,6 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogAction } from "@/components/ui/alert-dialog"
 import { useToast } from "@/components/ui/use-toast"
+import { useUser } from '@clerk/nextjs'
 import { 
   getKingdomInventory, 
   getEquippedItems, 
@@ -270,6 +271,9 @@ function getKingdomTileInventoryWithBuildTokens(): Tile[] {
 }
 
 export function KingdomClient({ userId }: { userId: string | null }) {
+  // Add debugging to see what userId value we're getting
+  console.log('[Kingdom Client] userId received:', userId);
+  
   const { toast } = useToast();
   const [coverImage, setCoverImage] = useState<string | undefined>(undefined);
   const [equippedItems, setEquippedItems] = useState<KingdomInventoryItem[]>([]);
