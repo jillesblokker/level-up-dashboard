@@ -424,7 +424,7 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
 export function KingdomStatsBlock({ userId }: { userId: string | null }) {
   console.log('[KingdomStatsBlock] Component rendered with userId:', userId);
   
-  const { uid } = useAuth();
+  const { userId: authUserId } = useAuth();
   const [graphData, setGraphData] = useState<Array<{ day: string; value: number }>>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'quests' | 'challenges' | 'gold' | 'experience'>('quests');
@@ -434,10 +434,10 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
 
   // Fetch and aggregate data for the selected tab and period
   const fetchData = useCallback(async () => {
-    console.log('[KingdomStatsBlock] fetchData called with:', { uid, activeTab, timePeriod, isLoaded });
+    console.log('[KingdomStatsBlock] fetchData called with:', { authUserId, activeTab, timePeriod, isLoaded });
     
-    if (!uid) {
-      console.log('[KingdomStatsBlock] No uid, returning early');
+    if (!authUserId) {
+      console.log('[KingdomStatsBlock] No authUserId, returning early');
       return;
     }
     
@@ -475,35 +475,35 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
     } finally {
       setIsLoading(false);
     }
-  }, [uid, activeTab, timePeriod, getToken, isLoaded]); // Added isLoaded
+  }, [authUserId, activeTab, timePeriod, getToken, isLoaded]); // Added isLoaded
 
   // Fetch data when component mounts or dependencies change
   useEffect(() => {
-    console.log('[KingdomStatsBlock] useEffect triggered with:', { uid, activeTab, timePeriod, isLoaded });
-    if (uid && isLoaded) {
+    console.log('[KingdomStatsBlock] useEffect triggered with:', { authUserId, activeTab, timePeriod, isLoaded });
+    if (authUserId && isLoaded) {
       console.log('[KingdomStatsBlock] Calling fetchData');
       fetchData();
     } else {
-      console.log('[KingdomStatsBlock] Not calling fetchData:', { uid: !!uid, isLoaded });
+      console.log('[KingdomStatsBlock] Not calling fetchData:', { authUserId: !!authUserId, isLoaded });
     }
-  }, [uid, activeTab, timePeriod, fetchData, isLoaded]); // Added isLoaded
+  }, [authUserId, activeTab, timePeriod, fetchData, isLoaded]); // Added isLoaded
 
   // 🎯 REAL-TIME SUPABASE SUBSCRIPTIONS for instant updates
   useSupabaseRealtimeSync({
     table: 'quest_completion',
-    userId: uid,
+    userId: authUserId,
     onChange: fetchData
   });
 
   useSupabaseRealtimeSync({
     table: 'challenge_completion',
-    userId: uid,
+    userId: authUserId,
     onChange: fetchData
   });
 
   useSupabaseRealtimeSync({
     table: 'milestone_completion',
-    userId: uid,
+    userId: authUserId,
     onChange: fetchData
   });
 
@@ -542,8 +542,6 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
                 {(() => {
                   if (timePeriod === 'week') return 'Week';
                   if (timePeriod === 'month') return 'Month';
-                  if (timePeriod === 'year') return 'Year';
-                  if (timePeriod === 'all') return 'All';
                   return '';
                 })()}
                 <ChevronDown className="ml-2 w-4 h-4" />
@@ -552,8 +550,6 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setTimePeriod('week')}>Week</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTimePeriod('month')}>Month</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTimePeriod('year')}>Year</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTimePeriod('all')}>All</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -609,7 +605,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
 export function KingStatsBlock({ userId }: { userId: string | null }) {
   console.log('[KingStatsBlock] Component rendered with userId:', userId);
   
-  const { uid } = useAuth();
+  const { userId: authUserId } = useAuth();
   const [graphData, setGraphData] = useState<Array<{ day: string; value: number }>>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'gold' | 'experience' | 'level'>('gold');
@@ -619,10 +615,10 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
 
   // Fetch and aggregate data for the selected tab and period
   const fetchData = useCallback(async () => {
-    console.log('[KingStatsBlock] fetchData called with:', { uid, activeTab, timePeriod, isLoaded });
+    console.log('[KingStatsBlock] fetchData called with:', { authUserId, activeTab, timePeriod, isLoaded });
     
-    if (!uid) {
-      console.log('[KingStatsBlock] No uid, returning early');
+    if (!authUserId) {
+      console.log('[KingStatsBlock] No authUserId, returning early');
       return;
     }
     
@@ -660,35 +656,35 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
     } finally {
       setIsLoading(false);
     }
-  }, [uid, activeTab, timePeriod, getToken, isLoaded]); // Added isLoaded
+  }, [authUserId, activeTab, timePeriod, getToken, isLoaded]); // Added isLoaded
 
   // Fetch data when component mounts or dependencies change
   useEffect(() => {
-    console.log('[KingStatsBlock] useEffect triggered with:', { uid, activeTab, timePeriod, isLoaded });
-    if (uid && isLoaded) {
+    console.log('[KingStatsBlock] useEffect triggered with:', { authUserId, activeTab, timePeriod, isLoaded });
+    if (authUserId && isLoaded) {
       console.log('[KingStatsBlock] Calling fetchData');
       fetchData();
     } else {
-      console.log('[KingStatsBlock] Not calling fetchData:', { uid: !!uid, isLoaded });
+      console.log('[KingStatsBlock] Not calling fetchData:', { authUserId: !!authUserId, isLoaded });
     }
-  }, [uid, activeTab, timePeriod, fetchData, isLoaded]); // Added isLoaded
+  }, [authUserId, activeTab, timePeriod, fetchData, isLoaded]); // Added isLoaded
 
   // 🎯 REAL-TIME SUPABASE SUBSCRIPTIONS for instant updates
   useSupabaseRealtimeSync({
     table: 'quest_completion',
-    userId: uid,
+    userId: authUserId,
     onChange: fetchData
   });
 
   useSupabaseRealtimeSync({
     table: 'challenge_completion',
-    userId: uid,
+    userId: authUserId,
     onChange: fetchData
   });
 
   useSupabaseRealtimeSync({
     table: 'milestone_completion',
-    userId: uid,
+    userId: authUserId,
     onChange: fetchData
   });
 
@@ -727,8 +723,6 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
                 {(() => {
                   if (timePeriod === 'week') return 'Week';
                   if (timePeriod === 'month') return 'Month';
-                  if (timePeriod === 'year') return 'Year';
-                  if (timePeriod === 'all') return 'All';
                   return '';
                 })()}
                 <ChevronDown className="ml-2 w-4 h-4" />
@@ -737,8 +731,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setTimePeriod('week')}>Week</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTimePeriod('month')}>Month</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTimePeriod('year')}>Year</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTimePeriod('all')}>All</DropdownMenuItem>
+
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
