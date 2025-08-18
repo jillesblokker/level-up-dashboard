@@ -221,6 +221,114 @@ export function KingdomGridWithTimers({
       quantity: 0
     },
     {
+      id: 'winter-fountain',
+      name: 'Winter Fountain',
+      image: '/images/kingdom-tiles/WinterFountain.png',
+      cost: 200,
+      levelRequired: 2,
+      costType: 'gold',
+      quantity: 0
+    },
+    {
+      id: 'snowy-inn',
+      name: 'Snowy Inn',
+      image: '/images/kingdom-tiles/SnowyInn.png',
+      cost: 180,
+      levelRequired: 2,
+      costType: 'gold',
+      quantity: 0
+    },
+    {
+      id: 'ice-sculpture',
+      name: 'Ice Sculpture',
+      image: '/images/kingdom-tiles/IceSculpture.png',
+      cost: 150,
+      levelRequired: 1,
+      costType: 'gold',
+      quantity: 0
+    },
+    {
+      id: 'fireworks-stand',
+      name: 'Fireworks Stand',
+      image: '/images/kingdom-tiles/FireworksStand.png',
+      cost: 160,
+      levelRequired: 2,
+      costType: 'gold',
+      quantity: 0
+    },
+    {
+      id: 'pumpkin-patch',
+      name: 'Pumpkin Patch',
+      image: '/images/kingdom-tiles/PumpkinPatch.png',
+      cost: 120,
+      levelRequired: 1,
+      costType: 'gold',
+      quantity: 0
+    },
+    {
+      id: 'harvest-barn',
+      name: 'Harvest Barn',
+      image: '/images/kingdom-tiles/HarvestBarn.png',
+      cost: 220,
+      levelRequired: 2,
+      costType: 'gold',
+      quantity: 0
+    },
+    {
+      id: 'bakery',
+      name: 'Bakery',
+      image: '/images/kingdom-tiles/Bakery.png',
+      cost: 140,
+      levelRequired: 1,
+      costType: 'gold',
+      quantity: 0
+    },
+    {
+      id: 'brewery',
+      name: 'Brewery',
+      image: '/images/kingdom-tiles/Brewery.png',
+      cost: 180,
+      levelRequired: 2,
+      costType: 'gold',
+      quantity: 0
+    },
+    {
+      id: 'market-stalls',
+      name: 'Market Stalls',
+      image: '/images/kingdom-tiles/MarketStalls.png',
+      cost: 130,
+      levelRequired: 1,
+      costType: 'gold',
+      quantity: 0
+    },
+    {
+      id: 'library',
+      name: 'Library',
+      image: '/images/kingdom-tiles/Library.png',
+      cost: 260,
+      levelRequired: 3,
+      costType: 'gold',
+      quantity: 0
+    },
+    {
+      id: 'training-grounds',
+      name: 'Training Grounds',
+      image: '/images/kingdom-tiles/TrainingGrounds.png',
+      cost: 200,
+      levelRequired: 2,
+      costType: 'gold',
+      quantity: 0
+    },
+    {
+      id: 'stable',
+      name: 'Stable',
+      image: '/images/kingdom-tiles/Stable.png',
+      cost: 160,
+      levelRequired: 1,
+      costType: 'gold',
+      quantity: 0
+    },
+    {
       id: 'blacksmith',
       name: 'Blacksmith',
       image: '/images/kingdom-tiles/Blacksmith.png',

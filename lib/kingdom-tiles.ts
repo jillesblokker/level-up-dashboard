@@ -344,6 +344,179 @@ export const KINGDOM_TILES: KingdomTile[] = [
     rarity: 'uncommon',
     image: '/images/kingdom-tiles/Windmill.png'
   }
+  ,
+  // --- Seasonal & Utility Tiles (new) ---
+  {
+    id: 'winter-fountain',
+    name: 'Winter Fountain',
+    timerMinutes: 180,
+    normalGoldRange: [10, 30],
+    luckyGoldAmount: 120,
+    luckyChance: 0.18,
+    clickMessage: "Icicles glisten as the fountain flows with enchanted winter water. You scoop out a handful of coins sparkling like snow.",
+    possibleItems: [
+      '/images/items/potion/potion-health.png',
+      '/images/items/potion/potion-gold.png',
+      '/images/items/potion/potion-exp.png'
+    ],
+    itemType: 'potion',
+    rarity: 'rare',
+    image: '/images/kingdom-tiles/WinterFountain.png'
+  },
+  {
+    id: 'snowy-inn',
+    name: 'Snowy Inn',
+    timerMinutes: 120,
+    normalGoldRange: [6, 22],
+    luckyGoldAmount: 70,
+    luckyChance: 0.18,
+    clickMessage: "Warm lights and cinnamon scents spill from the inn. The keeper slips you a festive pouch jingling with coins.",
+    possibleItems: [],
+    itemType: 'none',
+    rarity: 'uncommon',
+    image: '/images/kingdom-tiles/SnowyInn.png'
+  },
+  {
+    id: 'ice-sculpture',
+    name: 'Ice Sculpture',
+    timerMinutes: 90,
+    normalGoldRange: [5, 15],
+    luckyGoldAmount: 60,
+    luckyChance: 0.16,
+    clickMessage: "An intricately carved sculpture hides a frosty cache—glimmering coins trapped within the ice.",
+    possibleItems: [],
+    itemType: 'none',
+    rarity: 'uncommon',
+    image: '/images/kingdom-tiles/IceSculpture.png'
+  },
+  {
+    id: 'fireworks-stand',
+    name: 'Fireworks Stand',
+    timerMinutes: 60,
+    normalGoldRange: [8, 20],
+    luckyGoldAmount: 100,
+    luckyChance: 0.20,
+    clickMessage: "Crackling fuses and bright sparks—after the show, you find a tidy stack of celebration coins.",
+    possibleItems: [],
+    itemType: 'none',
+    rarity: 'uncommon',
+    image: '/images/kingdom-tiles/FireworksStand.png'
+  },
+  {
+    id: 'pumpkin-patch',
+    name: 'Pumpkin Patch',
+    timerMinutes: 120,
+    normalGoldRange: [6, 18],
+    luckyGoldAmount: 65,
+    luckyChance: 0.15,
+    clickMessage: "You lift a plump pumpkin and discover coins tucked beneath the vines.",
+    possibleItems: [],
+    itemType: 'food',
+    rarity: 'common',
+    image: '/images/kingdom-tiles/PumpkinPatch.png'
+  },
+  {
+    id: 'harvest-barn',
+    name: 'Harvest Barn',
+    timerMinutes: 240,
+    normalGoldRange: [10, 25],
+    luckyGoldAmount: 90,
+    luckyChance: 0.14,
+    clickMessage: "Bales of hay and bustling workers—your share of the harvest includes a modest pouch of gold.",
+    possibleItems: [
+      '/images/items/materials/material-logs.png',
+      '/images/items/materials/material-planks.png'
+    ],
+    itemType: 'material',
+    rarity: 'uncommon',
+    image: '/images/kingdom-tiles/HarvestBarn.png'
+  },
+  {
+    id: 'bakery',
+    name: 'Bakery',
+    timerMinutes: 90,
+    normalGoldRange: [8, 20],
+    luckyGoldAmount: 70,
+    luckyChance: 0.16,
+    clickMessage: "Fresh bread and warm pastries—tips and change accumulate into a tidy little treasure.",
+    possibleItems: [],
+    itemType: 'food',
+    rarity: 'common',
+    image: '/images/kingdom-tiles/Bakery.png'
+  },
+  {
+    id: 'brewery',
+    name: 'Brewery',
+    timerMinutes: 150,
+    normalGoldRange: [10, 22],
+    luckyGoldAmount: 85,
+    luckyChance: 0.15,
+    clickMessage: "Foamy mugs and clinking tankards—profits from the evening's patrons fill your purse.",
+    possibleItems: [],
+    itemType: 'none',
+    rarity: 'uncommon',
+    image: '/images/kingdom-tiles/Brewery.png'
+  },
+  {
+    id: 'market-stalls',
+    name: 'Market Stalls',
+    timerMinutes: 45,
+    normalGoldRange: [5, 15],
+    luckyGoldAmount: 60,
+    luckyChance: 0.20,
+    clickMessage: "Merchants haggle and shoppers browse—your cut of the stall fees comes in shiny coins.",
+    possibleItems: [],
+    itemType: 'none',
+    rarity: 'uncommon',
+    image: '/images/kingdom-tiles/MarketStalls.png'
+  },
+  {
+    id: 'library',
+    name: 'Library',
+    timerMinutes: 240,
+    normalGoldRange: [12, 30],
+    luckyGoldAmount: 110,
+    luckyChance: 0.12,
+    clickMessage: "Quiet stacks, rare tomes—an appreciative patron donates handsomely to your efforts.",
+    possibleItems: [
+      '/images/items/scroll/scroll-scrolly.png',
+      '/images/items/scroll/scroll-perkamento.png',
+      '/images/items/scroll/scroll-memento.png'
+    ],
+    itemType: 'scroll',
+    rarity: 'rare',
+    image: '/images/kingdom-tiles/Library.png'
+  },
+  {
+    id: 'training-grounds',
+    name: 'Training Grounds',
+    timerMinutes: 180,
+    normalGoldRange: [10, 25],
+    luckyGoldAmount: 90,
+    luckyChance: 0.14,
+    clickMessage: "Sparring warriors and clashing steel—your prowess earns coin and respect.",
+    possibleItems: [
+      '/images/items/sword/sword-twig.png',
+      '/images/items/sword/sword-sunblade.png',
+      '/images/items/sword/sword-irony.png'
+    ],
+    itemType: 'weapon',
+    rarity: 'uncommon',
+    image: '/images/kingdom-tiles/TrainingGrounds.png'
+  },
+  {
+    id: 'stable',
+    name: 'Stable',
+    timerMinutes: 120,
+    normalGoldRange: [6, 18],
+    luckyGoldAmount: 70,
+    luckyChance: 0.16,
+    clickMessage: "Fresh hay and polished tack—your stable services bring in steady coin.",
+    possibleItems: [],
+    itemType: 'none',
+    rarity: 'common',
+    image: '/images/kingdom-tiles/Stable.png'
+  }
 ]
 
 export function getRandomItem(items: string[]): string | null {
