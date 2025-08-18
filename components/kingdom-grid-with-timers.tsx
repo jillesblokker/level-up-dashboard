@@ -80,6 +80,26 @@ export function KingdomGridWithTimers({
   const [kingdomExpansions, setKingdomExpansions] = useState(0)
   const [buildTokens, setBuildTokens] = useState(0)
   const [playerLevel, setPlayerLevel] = useState(1)
+  
+  // Small retry helper to mitigate early auth token races
+  const fetchAuthRetry = async (input: RequestInfo | URL, init?: RequestInit, attempts: number = 2): Promise<Response> => {
+    let lastError: any = null
+    for (let i = 0; i < attempts; i++) {
+      try {
+        const res = await fetchWithAuth(input, init)
+        if (res && res.ok) return res
+        if (res && (res.status === 401 || res.status === 403) && i < attempts - 1) {
+          await new Promise(r => setTimeout(r, 250))
+          continue
+        }
+        return res
+      } catch (e) {
+        lastError = e
+        if (i < attempts - 1) await new Promise(r => setTimeout(r, 250))
+      }
+    }
+    throw lastError || new Error('Request failed')
+  }
 
   // Load kingdom expansions from Supabase on mount
   useEffect(() => {
@@ -442,7 +462,7 @@ export function KingdomGridWithTimers({
 
         // Persist inventory increment
         try {
-          await fetchWithAuth('/api/tile-inventory', {
+          await fetchAuthRetry('/api/tile-inventory', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ tile: { id: property.id, type: property.id, name: property.name, quantity: 1, cost: property.cost } })
@@ -533,7 +553,7 @@ export function KingdomGridWithTimers({
       ;(async () => {
         try {
           const url = `/api/tile-inventory?tileId=${encodeURIComponent(selectedProperty.id)}&quantity=1`
-          await fetchWithAuth(url, { method: 'DELETE' })
+          await fetchAuthRetry(url, { method: 'DELETE' })
         } catch (e) {
           console.warn('[Kingdom] Failed to decrement inventory', e)
         }
@@ -557,7 +577,7 @@ export function KingdomGridWithTimers({
     ;(async () => {
       try {
         const endIso = new Date(newTimer.endTime).toISOString()
-        await fetchWithAuth('/api/property-timers', {
+        await fetchAuthRetry('/api/property-timers', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ tileId: newTile.id, x, y, tileType: newTile.type, endTime: endIso, isReady: false })
@@ -603,7 +623,7 @@ export function KingdomGridWithTimers({
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetchWithAuth('/api/property-timers', { method: 'GET' })
+        const res = await fetchAuthRetry('/api/property-timers', { method: 'GET' })
         if (res.ok) {
           const json = await res.json()
           const timers = (json?.data || []).map((t: any) => ({
@@ -730,7 +750,7 @@ export function KingdomGridWithTimers({
       ;(async () => {
         try {
           const endIso = new Date(newEndTime).toISOString()
-          await fetchWithAuth('/api/property-timers', {
+          await fetchAuthRetry('/api/property-timers', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ x, y, isReady: false, endTime: endIso })
@@ -794,7 +814,7 @@ export function KingdomGridWithTimers({
     ;(async () => {
       try {
         const endIso = new Date(newEndTime).toISOString()
-        await fetchWithAuth('/api/property-timers', {
+        await fetchAuthRetry('/api/property-timers', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ x, y, isReady: false, endTime: endIso })
