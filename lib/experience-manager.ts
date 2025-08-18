@@ -15,16 +15,32 @@ interface Perk {
   equipped: boolean;
 }
 
-// Get equipped perks from localStorage
-function getEquippedPerks(): Perk[] {
+// Get equipped perks (Supabase user preference first, fallback to localStorage)
+async function getEquippedPerks(): Promise<Perk[]> {
   try {
-    const savedPerks = localStorage.getItem("character-perks");
+    // Try server preference via API helper
+    const clerk = (typeof window !== 'undefined') ? (window as any).__clerk : undefined;
+    const uid = clerk?.user?.id;
+    if (uid) {
+      const res = await fetchWithAuth(`/api/user-preferences?preference_key=character-perks`, { method: 'GET' });
+      if (res.ok) {
+        const json = await res.json();
+        const value = json?.data?.preference_value || json?.data?.value;
+        if (value) {
+          const perks = JSON.parse(value);
+          return Array.isArray(perks) ? perks.filter((p: Perk) => p.equipped) : [];
+        }
+      }
+    }
+  } catch {}
+  // Fallback to local
+  try {
+    const savedPerks = localStorage.getItem('character-perks');
     if (!savedPerks) return [];
-    
     const perks = JSON.parse(savedPerks);
-    return perks.filter((p: Perk) => p.equipped);
+    return Array.isArray(perks) ? perks.filter((p: Perk) => p.equipped) : [];
   } catch (error) {
-    console.error("Error loading perks:", error);
+    console.error('Error loading perks:', error);
     return [];
   }
 }
@@ -78,7 +94,7 @@ export async function gainExperience(amount: number, source: string, category: s
     const currentStats = getCharacterStats()
 
     // Get equipped perks and calculate bonus
-    const equippedPerks = getEquippedPerks()
+    const equippedPerks = await getEquippedPerks()
     const perkBonus = calculatePerkBonus(amount, category, equippedPerks)
     const totalAmount = amount + perkBonus
 

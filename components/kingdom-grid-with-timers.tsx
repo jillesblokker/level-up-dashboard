@@ -12,6 +12,7 @@ import { KINGDOM_TILES, getRandomItem, getRandomGold, isLucky as isLuckyTile, ge
 import { KingdomTileModal } from './kingdom-tile-modal'
 import { useToast } from '@/components/ui/use-toast'
 import { getCharacterStats } from '@/lib/character-stats-manager'
+import { fetchWithAuth } from '@/lib/fetchWithAuth'
 import { spendGold } from '@/lib/gold-manager'
 
 // Helper function to calculate level from experience
@@ -439,6 +440,17 @@ export function KingdomGridWithTimers({
         // Update the property inventory state
         setPropertyInventory(updatedInventory);
 
+        // Persist inventory increment
+        try {
+          await fetchWithAuth('/api/tile-inventory', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tile: { id: property.id, type: property.id, name: property.name, quantity: 1, cost: property.cost } })
+          })
+        } catch (e) {
+          console.warn('[Kingdom] Failed to increment inventory', e)
+        }
+
         // Award 1 build token for major purchases (optional rule): disabled
         
         toast({
@@ -517,6 +529,15 @@ export function KingdomGridWithTimers({
         p.id === selectedProperty.id ? { ...p, quantity: Math.max(0, (p.quantity || 0) - 1) } : p
       )
       setPropertyInventory(updatedInventory)
+      // Persist inventory decrement
+      ;(async () => {
+        try {
+          const url = `/api/tile-inventory?tileId=${encodeURIComponent(selectedProperty.id)}&quantity=1`
+          await fetchWithAuth(url, { method: 'DELETE' })
+        } catch (e) {
+          console.warn('[Kingdom] Failed to decrement inventory', e)
+        }
+      })()
     }
 
     // Start timer for the new property based on reward value
@@ -532,6 +553,19 @@ export function KingdomGridWithTimers({
     }
 
     setTileTimers(prev => [...prev, newTimer])
+    // Persist timer to API
+    ;(async () => {
+      try {
+        const endIso = new Date(newTimer.endTime).toISOString()
+        await fetchWithAuth('/api/property-timers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tileId: newTile.id, x, y, tileType: newTile.type, endTime: endIso, isReady: false })
+        })
+      } catch (e) {
+        console.warn('[Kingdom] Failed to persist timer', e)
+      }
+    })()
 
     // Reset placement mode
     setSelectedProperty(null)
@@ -565,12 +599,30 @@ export function KingdomGridWithTimers({
     return undefined
   }, [placementMode])
 
-  // Load timers from localStorage on mount
+  // Load timers from API (fallback to localStorage) on mount
   useEffect(() => {
-    const savedTimers = localStorage.getItem('kingdom-tile-timers')
-    if (savedTimers) {
-      setTileTimers(JSON.parse(savedTimers))
-    }
+    (async () => {
+      try {
+        const res = await fetchWithAuth('/api/property-timers', { method: 'GET' })
+        if (res.ok) {
+          const json = await res.json()
+          const timers = (json?.data || []).map((t: any) => ({
+            x: t.x,
+            y: t.y,
+            tileId: t.tile_id,
+            endTime: typeof t.end_time === 'string' ? new Date(t.end_time).getTime() : t.end_time,
+            isReady: !!t.is_ready,
+          }))
+          setTileTimers(timers)
+          return
+        }
+      } catch {}
+      // Fallback to localStorage
+      try {
+        const savedTimers = localStorage.getItem('kingdom-tile-timers')
+        if (savedTimers) setTileTimers(JSON.parse(savedTimers))
+      } catch {}
+    })()
   }, [])
 
   // Save timers to localStorage whenever they change
@@ -620,7 +672,10 @@ export function KingdomGridWithTimers({
     })
 
     if (newTimers.length > 0) {
-      setTileTimers(prev => [...prev, ...newTimers])
+      setTileTimers(prev => {
+        const merged = [...prev, ...newTimers]
+        return merged
+      })
     }
   }, [grid])
 
@@ -671,6 +726,20 @@ export function KingdomGridWithTimers({
         )
       )
 
+      // Persist timer restart
+      ;(async () => {
+        try {
+          const endIso = new Date(newEndTime).toISOString()
+          await fetchWithAuth('/api/property-timers', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ x, y, isReady: false, endTime: endIso })
+          })
+        } catch (e) {
+          console.warn('[Kingdom] Failed to update timer', e)
+        }
+      })()
+
       // Show modal with rewards
       setModalData({
         tileName: kingdomTile.name,
@@ -720,6 +789,20 @@ export function KingdomGridWithTimers({
           : t
       )
     )
+
+    // Persist timer restart
+    ;(async () => {
+      try {
+        const endIso = new Date(newEndTime).toISOString()
+        await fetchWithAuth('/api/property-timers', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ x, y, isReady: false, endTime: endIso })
+        })
+      } catch (e) {
+        console.warn('[Kingdom] Failed to update timer', e)
+      }
+    })()
 
     // Show modal with rewards
     setModalData({
