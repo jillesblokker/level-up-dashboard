@@ -6,7 +6,7 @@ import { supabaseServer } from '../../../lib/supabase/server-client'
 async function checkRecoveryColumnsExist(): Promise<boolean> {
   // TEMPORARY: Disable recovery features to fix 500 errors
   // TODO: Re-enable after basic functionality is working
-  console.log('[Recovery Check] Recovery features temporarily disabled for stability');
+  // Recovery features temporarily disabled for stability
   return false;
 }
 
@@ -46,12 +46,12 @@ async function extractUserIdFromToken(req: NextRequest): Promise<string | null> 
   try {
     const authHeader = req.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.log('[Streaks Direct] No Authorization header found');
+      // No Authorization header
       return null;
     }
 
     const token = authHeader.substring(7);
-    console.log('[Streaks Direct] Token received, length:', token.length);
+    // Token received
 
     // For Clerk JWT tokens, we can extract the user ID from the token
     // This is a simplified approach - in production you should verify the JWT
@@ -61,11 +61,11 @@ async function extractUserIdFromToken(req: NextRequest): Promise<string | null> 
         // Decode base64url to base64, then decode
         const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
         const payload = JSON.parse(Buffer.from(base64, 'base64').toString());
-        console.log('[Streaks Direct] Token payload:', payload);
+        // Token payload decoded
         
         // The user ID is in the 'sub' field for Clerk tokens
         if (payload.sub) {
-          console.log('[Streaks Direct] UserId from token:', payload.sub);
+          // UserId from token
           return payload.sub;
         }
       } catch (decodeError) {
@@ -77,7 +77,7 @@ async function extractUserIdFromToken(req: NextRequest): Promise<string | null> 
     try {
       const { userId } = await getAuth(req);
       if (userId) {
-        console.log('[Streaks Direct] Got userId from Clerk:', userId);
+        // Got userId from Clerk
         return userId;
       }
     } catch (clerkError) {
@@ -93,10 +93,10 @@ async function extractUserIdFromToken(req: NextRequest): Promise<string | null> 
 
 export async function GET(req: NextRequest) {
   try {
-    console.log('[Streaks Direct GET] Starting request...');
+    // Start GET request
     
     const userId = await extractUserIdFromToken(req);
-    console.log('[Streaks Direct GET] User ID:', userId ? 'present' : 'missing');
+    // User ID present? (internal)
     
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { 
@@ -109,18 +109,18 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url)
     const category = searchParams.get('category') || 'test'
-    console.log('[Streaks Direct GET] Category:', category);
+    // Category param
 
     // Check if recovery columns exist
-    console.log('[Streaks Direct GET] Checking recovery columns...');
+    // Checking recovery columns
     const hasRecoveryColumns = await checkRecoveryColumnsExist();
-    console.log('[Streaks Direct GET] Recovery columns available:', hasRecoveryColumns);
+    // Recovery columns available flag
 
     // Query with appropriate columns
     const columnList = getColumnList(hasRecoveryColumns);
-    console.log('[Streaks Direct GET] Column list:', columnList);
+    // Selected column list
     
-    console.log('[Streaks Direct GET] Executing database query...');
+    // Executing database query
     const { data, error } = await supabaseServer
       .from('streaks')
       .select(columnList)
@@ -128,11 +128,7 @@ export async function GET(req: NextRequest) {
       .eq('category', category)
       .single();
 
-    console.log('[Streaks Direct GET] Query result:', { 
-      hasData: !!data, 
-      errorCode: error?.code, 
-      errorMessage: error?.message 
-    });
+    // Query result (omitted)
 
     if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
       console.error('[Streaks Direct GET] Database error:', error);

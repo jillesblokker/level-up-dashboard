@@ -428,7 +428,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
   const [graphData, setGraphData] = useState<Array<{ day: string; value: number }>>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'quests' | 'challenges' | 'gold' | 'experience'>('quests');
-  const [timePeriod, setTimePeriod] = useState<'week' | 'month'>('week');
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>('week');
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
   const { getToken, isLoaded } = useAuth(); // Added isLoaded
 
@@ -542,6 +542,8 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
                 {(() => {
                   if (timePeriod === 'week') return 'Week';
                   if (timePeriod === 'month') return 'Month';
+                  if (timePeriod === 'year') return 'Year';
+                  if (timePeriod === 'all') return 'All';
                   return '';
                 })()}
                 <ChevronDown className="ml-2 w-4 h-4" />
@@ -550,6 +552,8 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setTimePeriod('week')}>Week</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTimePeriod('month')}>Month</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTimePeriod('year')}>Year</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTimePeriod('all')}>All</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -609,7 +613,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
   const [graphData, setGraphData] = useState<Array<{ day: string; value: number }>>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'gold' | 'experience' | 'level'>('gold');
-  const [timePeriod, setTimePeriod] = useState<'week' | 'month'>('week');
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>('week');
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
   const { getToken, isLoaded } = useAuth(); // Added isLoaded
 
@@ -723,6 +727,8 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
                 {(() => {
                   if (timePeriod === 'week') return 'Week';
                   if (timePeriod === 'month') return 'Month';
+                  if (timePeriod === 'year') return 'Year';
+                  if (timePeriod === 'all') return 'All';
                   return '';
                 })()}
                 <ChevronDown className="ml-2 w-4 h-4" />
@@ -731,6 +737,8 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setTimePeriod('week')}>Week</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTimePeriod('month')}>Month</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTimePeriod('year')}>Year</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTimePeriod('all')}>All</DropdownMenuItem>
 
             </DropdownMenuContent>
           </DropdownMenu>

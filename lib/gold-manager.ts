@@ -2,6 +2,7 @@ import { toast } from "@/components/ui/use-toast";
 import { emitGoldGained } from "@/lib/kingdom-events";
 import { getCharacterStats, addToCharacterStatSync } from "@/lib/character-stats-manager";
 import { createGoldGainedNotification } from "@/lib/notifications";
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 // Enhanced gold manager with database transaction logging
 export async function gainGold(amount: number, source: string, metadata?: any) {
@@ -106,12 +107,11 @@ async function logGoldTransaction(
   metadata?: any
 ) {
   try {
-    const response = await fetch('/api/gold-transactions', {
+    const response = await fetchWithAuth('/api/gold-transactions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'include',
       body: JSON.stringify({
         amount,
         balanceAfter,

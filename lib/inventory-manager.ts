@@ -1,4 +1,5 @@
 import { authenticatedFetch } from './auth-helpers';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 export interface InventoryItem {
   name: string
@@ -22,9 +23,7 @@ export async function getInventory(userId: string): Promise<InventoryItem[]> {
   if (!userId) return [];
   
   try {
-    const response = await fetch('/api/inventory', {
-      credentials: 'include'
-    });
+    const response = await fetchWithAuth('/api/inventory');
     
     if (!response.ok) {
       throw new Error(`Failed to fetch inventory: ${response.status}`);

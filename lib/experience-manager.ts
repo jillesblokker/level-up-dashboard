@@ -5,6 +5,7 @@ import { emitExperienceGained } from "@/lib/kingdom-events"
 import { getCharacterStats, addToCharacterStatSync, updateCharacterStatSync } from "@/lib/character-stats-manager"
 import { getCurrentTitle } from "@/lib/title-manager"
 import { notificationService } from "@/lib/notification-service"
+import { fetchWithAuth } from '@/lib/fetchWithAuth'
 
 interface Perk {
   id: string;
@@ -95,10 +96,9 @@ export async function gainExperience(amount: number, source: string, category: s
     // Also save to database to keep mobile and desktop in sync
     const saveToDatabase = async () => {
       try {
-        const response = await fetch('/api/character-stats', {
+        const response = await fetchWithAuth('/api/character-stats', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
           body: JSON.stringify({
             experience: newExperience,
             level: newLevel,
@@ -172,12 +172,11 @@ async function logExperienceTransaction(
   metadata?: any
 ) {
   try {
-    const response = await fetch('/api/experience-transactions', {
+    const response = await fetchWithAuth('/api/experience-transactions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'include',
       body: JSON.stringify({
         amount,
         totalAfter,
