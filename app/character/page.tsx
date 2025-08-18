@@ -452,7 +452,7 @@ export default function CharacterPage() {
   };
 
   // Activate perk
-  const activatePerk = (perkId: string) => {
+  const activatePerk = async (perkId: string) => {
     const perk = perks.find(p => p.id === perkId);
     if (!perk) return;
 
@@ -521,7 +521,7 @@ export default function CharacterPage() {
   };
 
   // Deactivate perk
-  const deactivatePerk = (perkId: string) => {
+  const deactivatePerk = async (perkId: string) => {
     const updatedPerks = perks.map(p => 
       p.id === perkId 
         ? { ...p, active: false, expiresAt: undefined as string | undefined } as Perk
@@ -546,7 +546,7 @@ export default function CharacterPage() {
   };
 
   // Upgrade perk
-  const upgradePerk = (perkId: string) => {
+  const upgradePerk = async (perkId: string) => {
     const perk = perks.find(p => p.id === perkId);
     if (!perk) return;
 
