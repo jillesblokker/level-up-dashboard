@@ -58,7 +58,7 @@ export async function POST(request: Request) {
             preference_key,
             preference_value,
             updated_at: new Date().toISOString(),
-          })
+          }, { onConflict: 'user_id,preference_key' })
           .select()
           .single();
       };
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
             // @ts-ignore legacy column for backward compatibility
             value: preference_value,
             updated_at: new Date().toISOString(),
-          })
+          }, { onConflict: 'user_id,preference_key' })
           .select()
           .single();
       }
