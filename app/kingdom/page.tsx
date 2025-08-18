@@ -1,6 +1,5 @@
-import dynamic from "next/dynamic"
 import { Suspense } from "react"
-const KingdomClient = dynamic(() => import('./kingdom-client').then(m => m.KingdomClient), { ssr: false })
+import { KingdomClient } from "./kingdom-client"
 import { auth } from '@clerk/nextjs/server'
 
 export default async function KingdomPage() {

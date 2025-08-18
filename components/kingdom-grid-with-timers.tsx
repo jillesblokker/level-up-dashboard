@@ -1004,10 +1004,10 @@ export function KingdomGridWithTimers({
             const isKingdomTile = kingdomTile !== null
             const isReady = timer?.isReady || false
             const rarityClass = kingdomTile ? (
-              kingdomTile.rarity === 'legendary' ? 'ring-4 ring-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.6)]' :
-              kingdomTile.rarity === 'epic' ? 'ring-3 ring-purple-500 shadow-[0_0_16px_rgba(168,85,247,0.5)]' :
-              kingdomTile.rarity === 'rare' ? 'ring-2 ring-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.45)]' :
-              kingdomTile.rarity === 'uncommon' ? 'ring-2 ring-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' :
+              kingdomTile.rarity === 'legendary' ? 'ring-4 ring-amber-400' :
+              kingdomTile.rarity === 'epic' ? 'ring-3 ring-purple-500' :
+              kingdomTile.rarity === 'rare' ? 'ring-2 ring-blue-500' :
+              kingdomTile.rarity === 'uncommon' ? 'ring-2 ring-green-500' :
               'ring-1 ring-gray-600'
             ) : ''
 
@@ -1018,7 +1018,7 @@ export function KingdomGridWithTimers({
                   "group relative w-full h-full aspect-square bg-black/60 flex items-center justify-center focus:outline-none",
                   selectedTile && "ring-2 ring-amber-500",
                   isKingdomTile && rarityClass,
-                  isKingdomTile && isReady && "shadow-[0_0_18px_rgba(16,185,129,0.6)]",
+                  isKingdomTile && isReady && "ring-offset-2 ring-offset-emerald-400",
                   placementMode && tile.type === 'vacant' && "ring-2 ring-amber-500 cursor-pointer hover:ring-amber-400"
                 )}
                 aria-label={tile.ariaLabel || tile.name || `Tile ${x},${y}`}
