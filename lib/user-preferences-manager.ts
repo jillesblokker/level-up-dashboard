@@ -1,4 +1,4 @@
-import { authenticatedFetch } from './auth-helpers';
+import { fetchWithAuth } from './fetchWithAuth';
 
 export interface UserPreference {
   id: string;
@@ -11,16 +11,8 @@ export async function getUserPreferences(userId: string): Promise<UserPreference
   if (!userId) return [];
   
   try {
-    const response = await authenticatedFetch(`/api/user-preferences?all=true`, {}, 'User Preferences');
-    
-    if (!response) {
-      return [];
-    }
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch user preferences: ${response.status}`);
-    }
-    
+    const response = await fetchWithAuth(`/api/user-preferences?all=true`, {});
+    if (!response.ok) throw new Error(`Failed to fetch user preferences: ${response.status}`);
     return await response.json();
   } catch (error) {
     console.error('Error fetching user preferences:', error);
@@ -32,21 +24,13 @@ export async function getUserPreference(userId: string, preferenceKey: string): 
   if (!userId || !preferenceKey) return null;
   
   try {
-    const response = await authenticatedFetch(`/api/user-preferences?preference_key=${encodeURIComponent(preferenceKey)}`, {}, 'User Preference');
-    
-    if (!response) {
-      return null;
-    }
-    
+    const response = await fetchWithAuth(`/api/user-preferences?preference_key=${encodeURIComponent(preferenceKey)}`, {});
     if (!response.ok) {
-      if (response.status === 404) {
-        return null; // Preference doesn't exist
-      }
+      if (response.status === 404) return null;
       throw new Error(`Failed to fetch user preference: ${response.status}`);
     }
-    
     const data = await response.json();
-    return data?.value || null;
+    return data?.preference_value ?? data?.value ?? null;
   } catch (error) {
     console.error('Error fetching user preference:', error);
     return null;
@@ -57,29 +41,15 @@ export async function setUserPreference(userId: string, preferenceKey: string, v
   if (!userId || !preferenceKey) return false;
   
   try {
-    // Wait for token (retry up to 2 times if not ready yet)
-    let response = await authenticatedFetch('/api/user-preferences', {
+    const response = await fetchWithAuth('/api/user-preferences', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ preference_key: preferenceKey, preference_value: value }),
-    }, 'Set User Preference');
-    if (!response) {
-      await new Promise(res => setTimeout(res, 250));
-      response = await authenticatedFetch('/api/user-preferences', {
-        method: 'POST',
-        body: JSON.stringify({ preference_key: preferenceKey, preference_value: value }),
-      }, 'Set User Preference Retry');
-    }
-    
-    if (!response) {
-      return false;
-    }
-    
+    });
     if (!response.ok) {
       const errText = await response.text().catch(() => '');
       throw new Error(`Failed to set user preference: ${response.status}${errText ? ` - ${errText}` : ''}`);
     }
-    
-    console.log('Successfully set user preference:', preferenceKey);
     return true;
   } catch (error) {
     console.error('Error setting user preference:', error);
@@ -91,20 +61,12 @@ export async function deleteUserPreference(userId: string, preferenceKey: string
   if (!userId || !preferenceKey) return false;
   
   try {
-    const response = await authenticatedFetch('/api/user-preferences', {
+    const response = await fetchWithAuth('/api/user-preferences', {
       method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ preference_key: preferenceKey }),
-    }, 'Delete User Preference');
-    
-    if (!response) {
-      return false;
-    }
-    
-    if (!response.ok) {
-      throw new Error(`Failed to delete user preference: ${response.status}`);
-    }
-    
-    console.log('Successfully deleted user preference:', preferenceKey);
+    });
+    if (!response.ok) throw new Error(`Failed to delete user preference: ${response.status}`);
     return true;
   } catch (error) {
     console.error('Error deleting user preference:', error);
