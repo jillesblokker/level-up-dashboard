@@ -1,5 +1,3 @@
-import { auth } from '@clerk/nextjs';
-
 // Client-side safe helper to include Clerk Authorization header when available
 export async function fetchWithAuth(input: RequestInfo | URL, init: RequestInit = {}) {
   try {
