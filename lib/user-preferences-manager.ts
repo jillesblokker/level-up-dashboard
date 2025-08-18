@@ -60,13 +60,13 @@ export async function setUserPreference(userId: string, preferenceKey: string, v
     // Wait for token (retry up to 2 times if not ready yet)
     let response = await authenticatedFetch('/api/user-preferences', {
       method: 'POST',
-      body: JSON.stringify({ preference_key: preferenceKey, value }),
+      body: JSON.stringify({ preference_key: preferenceKey, preference_value: value }),
     }, 'Set User Preference');
     if (!response) {
       await new Promise(res => setTimeout(res, 250));
       response = await authenticatedFetch('/api/user-preferences', {
         method: 'POST',
-        body: JSON.stringify({ preference_key: preferenceKey, value }),
+        body: JSON.stringify({ preference_key: preferenceKey, preference_value: value }),
       }, 'Set User Preference Retry');
     }
     
