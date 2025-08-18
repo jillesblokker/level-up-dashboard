@@ -31,7 +31,7 @@ export function KingdomTileModal({ isOpen, onClose, reward }: KingdomTileModalPr
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md bg-gray-900 border-gray-700">
+      <DialogContent className="max-w-md bg-gray-900 border-gray-700" aria-describedby="kingdom-tile-modal-description">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-white">
             <Sparkles className="h-5 w-5 text-amber-500" />
@@ -43,7 +43,7 @@ export function KingdomTileModal({ isOpen, onClose, reward }: KingdomTileModalPr
           {/* Story Message */}
           <Card className="bg-gray-800 border-gray-700">
             <CardContent className="pt-6">
-              <p className="text-sm text-gray-200 leading-relaxed">
+              <p id="kingdom-tile-modal-description" className="text-sm text-gray-200 leading-relaxed">
                 {reward.message}
               </p>
             </CardContent>
