@@ -371,8 +371,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyGoldAmount: 70,
     luckyChance: 0.18,
     clickMessage: "Warm lights and cinnamon scents spill from the inn. The keeper slips you a festive pouch jingling with coins.",
-    possibleItems: [],
-    itemType: 'none',
+    possibleItems: [
+      '/images/items/food/fish-red.png',
+      '/images/items/food/fish-blue.png',
+      '/images/items/food/fish-silver.png'
+    ],
+    itemType: 'food',
     rarity: 'uncommon',
     image: '/images/kingdom-tiles/SnowyInn.png'
   },
@@ -384,8 +388,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyGoldAmount: 60,
     luckyChance: 0.16,
     clickMessage: "An intricately carved sculpture hides a frosty cache—glimmering coins trapped within the ice.",
-    possibleItems: [],
-    itemType: 'none',
+    possibleItems: [
+      '/images/items/potion/potion-health.png',
+      '/images/items/potion/potion-gold.png',
+      '/images/items/potion/potion-exp.png'
+    ],
+    itemType: 'potion',
     rarity: 'uncommon',
     image: '/images/kingdom-tiles/IceSculpture.png'
   },
@@ -397,8 +405,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyGoldAmount: 100,
     luckyChance: 0.20,
     clickMessage: "Crackling fuses and bright sparks—after the show, you find a tidy stack of celebration coins.",
-    possibleItems: [],
-    itemType: 'none',
+    possibleItems: [
+      '/images/items/scroll/scroll-scrolly.png',
+      '/images/items/scroll/scroll-perkamento.png',
+      '/images/items/scroll/scroll-memento.png'
+    ],
+    itemType: 'scroll',
     rarity: 'uncommon',
     image: '/images/kingdom-tiles/FireworksStand.png'
   },
@@ -410,7 +422,10 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyGoldAmount: 65,
     luckyChance: 0.15,
     clickMessage: "You lift a plump pumpkin and discover coins tucked beneath the vines.",
-    possibleItems: [],
+    possibleItems: [
+      '/images/items/food/fish-red.png',
+      '/images/items/food/fish-blue.png'
+    ],
     itemType: 'food',
     rarity: 'common',
     image: '/images/kingdom-tiles/PumpkinPatch.png'
@@ -439,7 +454,10 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyGoldAmount: 70,
     luckyChance: 0.16,
     clickMessage: "Fresh bread and warm pastries—tips and change accumulate into a tidy little treasure.",
-    possibleItems: [],
+    possibleItems: [
+      '/images/items/food/fish-silver.png',
+      '/images/items/food/fish-red.png'
+    ],
     itemType: 'food',
     rarity: 'common',
     image: '/images/kingdom-tiles/Bakery.png'
@@ -452,8 +470,11 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyGoldAmount: 85,
     luckyChance: 0.15,
     clickMessage: "Foamy mugs and clinking tankards—profits from the evening's patrons fill your purse.",
-    possibleItems: [],
-    itemType: 'none',
+    possibleItems: [
+      '/images/items/potion/potion-gold.png',
+      '/images/items/potion/potion-exp.png'
+    ],
+    itemType: 'potion',
     rarity: 'uncommon',
     image: '/images/kingdom-tiles/Brewery.png'
   },
@@ -465,8 +486,11 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyGoldAmount: 60,
     luckyChance: 0.20,
     clickMessage: "Merchants haggle and shoppers browse—your cut of the stall fees comes in shiny coins.",
-    possibleItems: [],
-    itemType: 'none',
+    possibleItems: [
+      '/images/items/materials/material-logs.png',
+      '/images/items/materials/material-planks.png'
+    ],
+    itemType: 'material',
     rarity: 'uncommon',
     image: '/images/kingdom-tiles/MarketStalls.png'
   },
@@ -512,8 +536,10 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyGoldAmount: 70,
     luckyChance: 0.16,
     clickMessage: "Fresh hay and polished tack—your stable services bring in steady coin.",
-    possibleItems: [],
-    itemType: 'none',
+    possibleItems: [
+      '/images/items/materials/material-logs.png'
+    ],
+    itemType: 'material',
     rarity: 'common',
     image: '/images/kingdom-tiles/Stable.png'
   }
