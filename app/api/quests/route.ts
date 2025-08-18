@@ -134,12 +134,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
     }
     const body = await request.json();
-    // Validate request body
-    const result = questCompletionSchema.safeParse(body);
-    if (!result.success) {
-      return NextResponse.json({ error: 'Invalid request body', details: result.error.issues }, { status: 400 });
-    }
-    const { title, category } = result.data;
+    const { title, category } = questCompletionSchema.parse(body);
     // Create the quest completion
     const { data: questCompletion, error } = await supabase
       .from('quest_completion')
@@ -182,12 +177,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
     }
     const body = await request.json();
-    // Validate request body
-    const result = questUpdateSchema.safeParse(body);
-    if (!result.success) {
-      return NextResponse.json({ error: 'Invalid request body', details: result.error.issues }, { status: 400 });
-    }
-    const { title: updateTitle, completed } = result.data;
+    const { title: updateTitle, completed } = questUpdateSchema.parse(body);
     // Find or create quest completion
     const { data: completions, error: findError } = await supabase
       .from('quest_completion')

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
 export async function GET(request: Request) {
@@ -42,7 +43,11 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { preference_key, preference_value } = body;
+    const BodySchema = z.object({
+      preference_key: z.string().min(1),
+      preference_value: z.union([z.string(), z.number(), z.boolean(), z.object({}).passthrough(), z.array(z.any())])
+    });
+    const { preference_key, preference_value } = BodySchema.parse(body);
     
     if (!preference_key || preference_value === undefined) {
       return NextResponse.json({ error: 'preference_key and preference_value are required' }, { status: 400 });

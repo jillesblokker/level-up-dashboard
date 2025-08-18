@@ -895,16 +895,23 @@ export function KingdomGridWithTimers({
 
             const isKingdomTile = kingdomTile !== null
             const isReady = timer?.isReady || false
+            const rarityClass = kingdomTile ? (
+              kingdomTile.rarity === 'legendary' ? 'ring-4 ring-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.6)]' :
+              kingdomTile.rarity === 'epic' ? 'ring-3 ring-purple-500 shadow-[0_0_16px_rgba(168,85,247,0.5)]' :
+              kingdomTile.rarity === 'rare' ? 'ring-2 ring-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.45)]' :
+              kingdomTile.rarity === 'uncommon' ? 'ring-2 ring-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' :
+              'ring-1 ring-gray-600'
+            ) : ''
 
             return (
               <button
                 key={`tile-${x}-${y}`}
                 className={cn(
-                  "group relative w-full h-full aspect-square bg-black/60 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-amber-500",
+                  "group relative w-full h-full aspect-square bg-black/60 flex items-center justify-center focus:outline-none",
                   selectedTile && "ring-2 ring-amber-500",
-                  isKingdomTile && isReady && "ring-2 ring-green-500 animate-pulse",
-                  // Add placement mode styling for vacant tiles
-                  placementMode && tile.type === 'vacant' && "ring-2 ring-amber-500 animate-pulse cursor-pointer hover:ring-amber-400"
+                  isKingdomTile && rarityClass,
+                  isKingdomTile && isReady && "shadow-[0_0_18px_rgba(16,185,129,0.6)]",
+                  placementMode && tile.type === 'vacant' && "ring-2 ring-amber-500 cursor-pointer hover:ring-amber-400"
                 )}
                 aria-label={tile.ariaLabel || tile.name || `Tile ${x},${y}`}
                 onClick={() => {
@@ -942,7 +949,7 @@ export function KingdomGridWithTimers({
                   </div>
                 )}
                 
-                {/* Timer overlay for kingdom tiles - Only show on hover */}
+                {/* Timer overlay for kingdom tiles - hover only to reduce clutter */}
                 {isKingdomTile && timer && (
                   <div className="group-hover:opacity-100 opacity-0 transition-opacity duration-200 absolute bottom-1 left-1 right-1">
                     <div className={cn(
