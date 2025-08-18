@@ -49,26 +49,43 @@ export async function POST(request: Request) {
     }
 
     const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
-      const { data, error } = await supabase
-        .from('user_preferences')
-        .upsert({
-          user_id: userId,
-          preference_key,
-          preference_value,
-          updated_at: new Date().toISOString(),
-        })
-        .select()
-        .single();
-        
-      if (error) {
-        throw error;
+      // Attempt write with modern column name (preference_value)
+      const attemptUpsert = async () => {
+        return await supabase
+          .from('user_preferences')
+          .upsert({
+            user_id: userId,
+            preference_key,
+            preference_value,
+            updated_at: new Date().toISOString(),
+          })
+          .select()
+          .single();
+      };
+
+      let upsertRes = await attemptUpsert();
+      if (upsertRes.error && upsertRes.error.code === '42703') {
+        // Column does not exist in this environment; retry with legacy 'value' column
+        upsertRes = await supabase
+          .from('user_preferences')
+          .upsert({
+            user_id: userId,
+            preference_key,
+            // @ts-ignore legacy column for backward compatibility
+            value: preference_value,
+            updated_at: new Date().toISOString(),
+          })
+          .select()
+          .single();
       }
-      
-      return data;
+
+      if (upsertRes.error) throw upsertRes.error;
+      return upsertRes.data;
     });
 
     if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 401 });
+      // Return 500 for database failures rather than Unauthorized
+      return NextResponse.json({ error: result.error }, { status: 500 });
     }
 
     return NextResponse.json(result.data);
