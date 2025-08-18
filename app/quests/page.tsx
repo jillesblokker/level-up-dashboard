@@ -352,7 +352,7 @@ export default function QuestsPage() {
         // Call backend to reset quests and challenges
         fetch('/api/quests/reset-daily', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : '' },
         })
           .then(async res => {
             if (!res.ok) {

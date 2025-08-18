@@ -52,7 +52,7 @@ export async function GET(request: Request) {
       console.log('quest_completion table error, continuing with empty completions');
     }
 
-    // Create a map of completed quests
+    // Create a map of quest completions (only treat as completed if completed === true)
     const completedQuests = new Map();
     if (questCompletions) {
       questCompletions.forEach((completion: any) => {
@@ -63,7 +63,7 @@ export async function GET(request: Request) {
     // Convert quests data to quest format
     const questsWithCompletions = (quests || []).map((quest: any) => {
       const completion = completedQuests.get(quest.id);
-      const isCompleted = !!completion;
+      const isCompleted = completion?.completed === true;
       
       return {
         id: quest.id,
@@ -127,6 +127,8 @@ export async function PUT(request: Request) {
           {
             user_id: userId,
             quest_id: quest.id,
+            completed: true,
+            completed_at: new Date().toISOString(),
             xp_earned: quest.xp_reward || 0,
             gold_earned: quest.gold_reward || 0,
           },
