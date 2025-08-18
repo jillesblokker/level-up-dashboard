@@ -1,6 +1,8 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useUser } from '@clerk/nextjs';
+import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager';
 import { getCharacterStats } from '@/lib/character-stats-manager';
 import { calculateLevelFromExperience } from '@/types/character';
 import { getCurrentTitle } from '@/lib/title-manager';
@@ -35,6 +37,8 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
   const [showModal, setShowModal] = useState(false);
   const [evolution, setEvolution] = useState<TitleEvolution | null>(null);
   const [lastProcessedLevel, setLastProcessedLevel] = useState<number>(0);
+  const { user } = useUser();
+  const userId = user?.id || null;
 
   useEffect(() => {
     console.log('State changed:', { showModal, evolution: evolution ? `${evolution.oldTitle} -> ${evolution.newTitle}` : 'null' });
@@ -83,37 +87,70 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     };
   }, [lastProcessedLevel]);
 
-  // Initialize lastProcessedLevel from storage to avoid showing the modal repeatedly across navigations
+  // Initialize lastProcessedLevel (prefer Supabase user preference; fallback to localStorage; else current level)
   useEffect(() => {
-    try {
-      const stored = typeof window !== 'undefined' ? localStorage.getItem('title-evolution-last-processed') : null;
-      const stats = getCharacterStats();
-      const currentLevel = calculateLevelFromExperience(stats.experience || 0);
-      const initialLevel = stored ? parseInt(stored, 10) : currentLevel;
-      if (!Number.isNaN(initialLevel)) {
-        setLastProcessedLevel(initialLevel);
-      }
-    } catch (error) {
-      // noop
-    }
-  }, []);
+    let cancelled = false;
+    async function init() {
+      try {
+        const stats = getCharacterStats();
+        const currentLevel = calculateLevelFromExperience(stats.experience || 0);
+        let initialLevel = currentLevel;
 
-  // Persist last processed level whenever it changes
-  useEffect(() => {
-    try {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('title-evolution-last-processed', String(lastProcessedLevel));
+        if (userId) {
+          const pref = await getUserPreference(userId, 'title-evolution-last-processed');
+          if (pref) {
+            const parsed = parseInt(pref, 10);
+            if (!Number.isNaN(parsed)) initialLevel = parsed;
+          }
+        } else if (typeof window !== 'undefined') {
+          const stored = localStorage.getItem('title-evolution-last-processed');
+          if (stored) {
+            const parsed = parseInt(stored, 10);
+            if (!Number.isNaN(parsed)) initialLevel = parsed;
+          }
+        }
+
+        if (!cancelled) setLastProcessedLevel(initialLevel);
+      } catch {
+        // ignore
       }
-    } catch (error) {
-      // noop
     }
-  }, [lastProcessedLevel]);
+    init();
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  // Persist last processed level whenever it changes (Supabase + localStorage for fallback)
+  useEffect(() => {
+    (async () => {
+      try {
+        if (userId && lastProcessedLevel > 0) {
+          await setUserPreference(userId, 'title-evolution-last-processed', String(lastProcessedLevel));
+        }
+      } catch {}
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('title-evolution-last-processed', String(lastProcessedLevel));
+        }
+      } catch {}
+    })();
+  }, [lastProcessedLevel, userId]);
 
   const closeModal = () => {
     setShowModal(false);
     // Persist the current evolution level as processed to prevent re-showing
     if (evolution?.level) {
-      setLastProcessedLevel(prev => Math.max(prev, evolution.level));
+      const newLevel = evolution.level;
+      setLastProcessedLevel(prev => Math.max(prev, newLevel));
+      // Save remotely as well
+      if (userId) {
+        setUserPreference(userId, 'title-evolution-last-processed', String(newLevel)).catch(() => {});
+      }
+      // Fallback local storage
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('title-evolution-last-processed', String(newLevel));
+        }
+      } catch {}
     }
     setEvolution(null);
   };
