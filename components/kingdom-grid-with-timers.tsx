@@ -80,6 +80,15 @@ export function KingdomGridWithTimers({
   const [kingdomExpansions, setKingdomExpansions] = useState(0)
   const [buildTokens, setBuildTokens] = useState(0)
   const [playerLevel, setPlayerLevel] = useState(1)
+  // Seasonal event flags
+  const [winterFestivalActive, setWinterFestivalActive] = useState(false)
+  // Tiles affected by winter event bonus
+  const WINTER_EVENT_TILE_IDS = new Set([
+    'winter-fountain',
+    'snowy-inn',
+    'ice-sculpture',
+    'fireworks-stand'
+  ])
   
   // Small retry helper to mitigate early auth token races
   const fetchAuthRetry = async (input: RequestInfo | URL, init?: RequestInit, attempts: number = 2): Promise<Response> => {
@@ -132,6 +141,23 @@ export function KingdomGridWithTimers({
     const stats = getCharacterStats()
     const currentLevel = calculateLevelFromExperience(stats.experience || 0)
     setPlayerLevel(currentLevel)
+  }, [])
+
+  // Load simple event flags from game settings (per-user)
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetchAuthRetry('/api/game-settings?key=winter_festival_active', { method: 'GET' })
+        if (res && res.ok) {
+          const json = await res.json()
+          const valueRaw = json?.data?.[0]?.setting_value
+          const normalized = String(valueRaw).toLowerCase().trim()
+          setWinterFestivalActive(normalized === 'true' || normalized === '1' || normalized === 'yes')
+        }
+      } catch {
+        // ignore; default remains false
+      }
+    })()
   }, [])
 
   // Calculate if kingdom can be expanded
@@ -841,7 +867,11 @@ export function KingdomGridWithTimers({
 
       // Generate rewards
       const wasLucky = isLuckyTile(kingdomTile.luckyChance)
-      const goldEarned = wasLucky ? kingdomTile.luckyGoldAmount : getRandomGold(...kingdomTile.normalGoldRange)
+      let goldEarned = wasLucky ? kingdomTile.luckyGoldAmount : getRandomGold(...kingdomTile.normalGoldRange)
+      // Apply winter event bonus where applicable
+      if (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id)) {
+        goldEarned = Math.floor(goldEarned * 1.2)
+      }
       const itemFound = kingdomTile.possibleItems.length > 0 ? getRandomItem(kingdomTile.possibleItems) : null
 
       // Update timer to restart production
@@ -905,7 +935,10 @@ export function KingdomGridWithTimers({
 
     // Generate rewards
     const wasLucky = isLuckyTile(kingdomTile.luckyChance)
-    const goldEarned = wasLucky ? kingdomTile.luckyGoldAmount : getRandomGold(...kingdomTile.normalGoldRange)
+    let goldEarned = wasLucky ? kingdomTile.luckyGoldAmount : getRandomGold(...kingdomTile.normalGoldRange)
+    if (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id)) {
+      goldEarned = Math.floor(goldEarned * 1.2)
+    }
     const itemFound = kingdomTile.possibleItems.length > 0 ? getRandomItem(kingdomTile.possibleItems) : null
 
     // Update timer
