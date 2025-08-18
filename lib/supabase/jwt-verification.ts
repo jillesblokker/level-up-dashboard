@@ -21,65 +21,30 @@ export interface AuthResult {
  */
 export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
   try {
-    console.log('[JWT Verification] Starting verification for:', request.url);
-    console.log('[JWT Verification] Request method:', request.method);
-    
-    // Try to get auth from cookies first (this is the most reliable method)
-    let nextReq: NextRequest;
-    
-    if (request.method === 'POST') {
-      // For POST requests, create a new request without the body to avoid conflicts
-      const url = new URL(request.url);
-      nextReq = new NextRequest(url, {
-        method: 'POST',
-        headers: request.headers,
-        // Don't include body for Clerk verification - we only need the headers
-      });
-    } else {
-      // For GET requests, we can use the original request
-      nextReq = request instanceof NextRequest 
-        ? request 
-        : new NextRequest(request.url, { 
-            headers: request.headers, 
-            method: request.method
-          });
-    }
-
-    console.log('[JWT Verification] Trying getAuth...');
-    const { userId } = await getAuth(nextReq);
-    console.log('[JWT Verification] Clerk userId from getAuth:', userId);
-    
-    if (userId) {
-      console.log('[JWT Verification] Success! UserId:', userId);
-      return { success: true, userId };
-    }
-    
-    // Fallback: Check Authorization header
+    // Prefer Authorization header for SPA-originated requests
     const authHeader = request.headers.get('authorization');
-    console.log('[JWT Verification] Authorization header:', authHeader ? 'present' : 'missing');
-    
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
-      console.log('[JWT Verification] Token found in Authorization header, length:', token.length);
-      
-      // Try to extract user ID from the token
       try {
         const parts = token.split('.');
         if (parts.length === 3 && parts[1]) {
           const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
-          console.log('[JWT Verification] Token payload:', payload);
-          
           if (payload.sub) {
-            console.log('[JWT Verification] UserId from token payload:', payload.sub);
             return { success: true, userId: payload.sub };
           }
         }
-      } catch (decodeError) {
-        console.error('[JWT Verification] Token decode failed:', decodeError);
-      }
+      } catch {}
     }
-    
-    console.error('[JWT Verification] No valid authentication found');
+
+    // Fallback to Clerk getAuth (cookie-based auth)
+    const nextReq = request instanceof NextRequest
+      ? request
+      : new NextRequest(request.url, { headers: request.headers, method: request.method });
+    const { userId } = await getAuth(nextReq);
+    if (userId) {
+      return { success: true, userId };
+    }
+
     return { success: false, error: 'No valid authentication found' };
   } catch (error) {
     console.error('[JWT Verification] Clerk verification failed:', error);
