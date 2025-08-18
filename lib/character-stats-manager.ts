@@ -19,7 +19,7 @@ export async function loadCharacterStats(): Promise<CharacterStats> {
       headers: {
         'Content-Type': 'application/json',
       },
-    }, 'Character Stats Load');
+    });
 
     if (response.ok) {
       const data = await response.json();
@@ -80,7 +80,7 @@ export async function saveCharacterStats(stats: Partial<CharacterStats>): Promis
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(stats),
-    }, 'Character Stats Save');
+    });
 
     if (response.ok) {
       supabaseSuccess = true;
@@ -207,7 +207,7 @@ export async function fetchFreshCharacterStats(): Promise<CharacterStats | null>
     const { fetchWithAuth } = await import('./fetchWithAuth');
     const response = await fetchWithAuth('/api/character-stats', {
       method: 'GET',
-    }, 'Character Stats Manager');
+    });
     
     if (response.ok) {
       const result = await response.json();
