@@ -80,18 +80,30 @@ export function KingdomGridWithTimers({
   const [buildTokens, setBuildTokens] = useState(0)
   const [playerLevel, setPlayerLevel] = useState(1)
 
-  // Load kingdom expansions from localStorage on mount
+  // Load kingdom expansions from Supabase on mount
   useEffect(() => {
-    const savedExpansions = localStorage.getItem('kingdom-grid-expansions')
-    if (savedExpansions) {
-      setKingdomExpansions(parseInt(savedExpansions, 10))
-    }
+    (async () => {
+      try {
+        const { loadCharacterStats } = await import('@/lib/character-stats-manager')
+        const stats = await loadCharacterStats()
+        setKingdomExpansions(stats.kingdom_expansions || 0)
+      } catch {
+        setKingdomExpansions(0)
+      }
+    })()
   }, [])
 
-  // Load build tokens from localStorage on mount
+  // Load build tokens from Supabase on mount
   useEffect(() => {
-    const stats = JSON.parse(localStorage.getItem('character-stats') || '{}')
-    setBuildTokens(stats.buildTokens || 0)
+    (async () => {
+      try {
+        const { loadCharacterStats } = await import('@/lib/character-stats-manager')
+        const stats = await loadCharacterStats()
+        setBuildTokens(stats.build_tokens || 0)
+      } catch {
+        setBuildTokens(0)
+      }
+    })()
   }, [])
 
   // Calculate player level and expansion requirements
@@ -159,7 +171,9 @@ export function KingdomGridWithTimers({
     // Update expansion count
     setKingdomExpansions((prev: number) => {
       const newVal = prev + 1;
-      localStorage.setItem('kingdom-grid-expansions', String(newVal));
+      import('@/lib/character-stats-manager').then(({ saveCharacterStats }) => {
+        saveCharacterStats({ kingdom_expansions: newVal });
+      });
       return newVal;
     });
 
@@ -424,6 +438,8 @@ export function KingdomGridWithTimers({
         
         // Update the property inventory state
         setPropertyInventory(updatedInventory);
+
+        // Award 1 build token for major purchases (optional rule): disabled
         
         toast({
           title: 'Property Purchased!',
@@ -917,10 +933,13 @@ export function KingdomGridWithTimers({
                   try {
                     const success = await spendGold(1000, 'build-token-purchase');
                     if (success) {
-                    const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
-                    stats.buildTokens = (stats.buildTokens || 0) + 1;
-                    localStorage.setItem('character-stats', JSON.stringify(stats));
-                    setBuildTokens(stats.buildTokens);
+                    setBuildTokens(prev => {
+                      const newVal = (prev || 0) + 1;
+                      import('@/lib/character-stats-manager').then(({ saveCharacterStats }) => {
+                        saveCharacterStats({ build_tokens: newVal });
+                      });
+                      return newVal;
+                    });
                     }
                   } catch (error) {
                     console.error('Error purchasing build token:', error);

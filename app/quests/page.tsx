@@ -529,11 +529,13 @@ export default function QuestsPage() {
       
       // Removed debugging log
       
-      // Update build tokens in localStorage (same pattern as kingdom grid)
-      const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
-      const currentBuildTokens = stats.buildTokens || 0;
-      stats.buildTokens = currentBuildTokens + buildTokensEarned;
-      localStorage.setItem('character-stats', JSON.stringify(stats));
+      // Update build tokens in Supabase
+      import('@/lib/character-stats-manager').then(({ loadCharacterStats, saveCharacterStats }) => {
+        loadCharacterStats().then(current => {
+          const currentBuildTokens = current.build_tokens || 0;
+          saveCharacterStats({ build_tokens: currentBuildTokens + buildTokensEarned });
+        });
+      });
       
       // Trigger kingdom update for build tokens
       window.dispatchEvent(new CustomEvent('kingdom:buildTokensGained', { detail: buildTokensEarned }));
@@ -597,11 +599,13 @@ export default function QuestsPage() {
       
       // Removed debugging log
       
-      // Update build tokens in localStorage (same pattern as kingdom grid)
-      const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
-      const currentBuildTokens = stats.buildTokens || 0;
-      stats.buildTokens = currentBuildTokens + buildTokensEarned;
-      localStorage.setItem('character-stats', JSON.stringify(stats));
+      // Update build tokens in Supabase
+      import('@/lib/character-stats-manager').then(({ loadCharacterStats, saveCharacterStats }) => {
+        loadCharacterStats().then(current => {
+          const currentBuildTokens = current.build_tokens || 0;
+          saveCharacterStats({ build_tokens: currentBuildTokens + buildTokensEarned });
+        });
+      });
       
       // Trigger kingdom update for build tokens
       window.dispatchEvent(new CustomEvent('kingdom:buildTokensGained', { detail: buildTokensEarned }));

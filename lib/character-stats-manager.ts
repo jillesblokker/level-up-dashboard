@@ -14,11 +14,12 @@ export interface CharacterStats {
 export async function loadCharacterStats(): Promise<CharacterStats> {
   try {
     // Try to load from Supabase first
-    const response = await fetch('/api/character-stats', {
+    const { fetchWithAuth } = await import('./fetchWithAuth');
+    const response = await fetchWithAuth('/api/character-stats', {
       headers: {
         'Content-Type': 'application/json',
       },
-    });
+    }, 'Character Stats Load');
 
     if (response.ok) {
       const data = await response.json();
@@ -72,13 +73,14 @@ export async function saveCharacterStats(stats: Partial<CharacterStats>): Promis
 
   // Save to Supabase
   try {
-    const response = await fetch('/api/character-stats', {
+    const { fetchWithAuth } = await import('./fetchWithAuth');
+    const response = await fetchWithAuth('/api/character-stats', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(stats),
-    });
+    }, 'Character Stats Save');
 
     if (response.ok) {
       supabaseSuccess = true;
@@ -202,10 +204,10 @@ export function getCharacterStats(): CharacterStats {
  */
 export async function fetchFreshCharacterStats(): Promise<CharacterStats | null> {
   try {
-    const response = await fetch('/api/character-stats', {
+    const { fetchWithAuth } = await import('./fetchWithAuth');
+    const response = await fetchWithAuth('/api/character-stats', {
       method: 'GET',
-      credentials: 'include',
-    });
+    }, 'Character Stats Manager');
     
     if (response.ok) {
       const result = await response.json();
@@ -220,7 +222,7 @@ export async function fetchFreshCharacterStats(): Promise<CharacterStats | null>
           health: characterData.health || 100,
           max_health: characterData.max_health || 100,
           build_tokens: characterData.build_tokens || 0,
-          kingdom_expansions: parseInt(localStorage.getItem('kingdom-grid-expansions') || '0', 10)
+          kingdom_expansions: characterData.kingdom_expansions || 0
         };
         
         localStorage.setItem('character-stats', JSON.stringify(freshStats));

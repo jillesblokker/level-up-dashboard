@@ -39,12 +39,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
   const [propertiesOpen, setPropertiesOpen] = useState(false);
   const [propertyTab, setPropertyTab] = useState<'place' | 'buy'>('place');
   const [buildTokens, setBuildTokens] = useState(0);
-  const [kingdomExpansions, setKingdomExpansions] = useState<number>(() => {
-    if (typeof window !== 'undefined') {
-      return parseInt(localStorage.getItem('kingdom-grid-expansions') || '0', 10);
-    }
-    return 0;
-  });
+  const [kingdomExpansions, setKingdomExpansions] = useState<number>(0);
   const [playerLevel, setPlayerLevel] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -86,17 +81,19 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
     });
   });
 
-  // Load build tokens and player level
+  // Load build tokens, kingdom expansions and player level
   useEffect(() => {
-    const loadStats = () => {
+    const loadStats = async () => {
       try {
-        const stats = getCharacterStats();
-        const statsData = JSON.parse(localStorage.getItem('character-stats') || '{}');
+        const { loadCharacterStats } = await import('@/lib/character-stats-manager');
+        const statsData = await loadCharacterStats();
         // Use the same level calculation as character page and navigation bar
-        const currentLevel = calculateLevelFromExperience(stats.experience || statsData.experience || 0);
-        const currentBuildTokens = statsData.buildTokens || 0;
+        const currentLevel = calculateLevelFromExperience(statsData.experience || 0);
+        const currentBuildTokens = statsData.build_tokens || 0;
+        const currentExpansions = statsData.kingdom_expansions || 0;
         
         setBuildTokens(currentBuildTokens);
+        setKingdomExpansions(currentExpansions);
         setPlayerLevel(currentLevel);
         
         // Debug logging
@@ -105,6 +102,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
         console.error('[Kingdom Grid] Error loading stats:', error);
         setPlayerLevel(1);
         setBuildTokens(0);
+        setKingdomExpansions(0);
       }
     };
     
@@ -159,11 +157,10 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
     if (buildTokens < (tile.cost || 1)) return;
     setBuildTokens((prev: number) => {
       const newTokens = prev - (tile.cost || 1);
-      if (typeof window !== 'undefined') {
-        const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
-        stats.buildTokens = newTokens;
-        localStorage.setItem('character-stats', JSON.stringify(stats));
-      }
+      // Persist to Supabase
+      import('@/lib/character-stats-manager').then(({ saveCharacterStats }) => {
+        saveCharacterStats({ build_tokens: newTokens });
+      });
       return newTokens;
     });
     setPropertyInventory((prev) => prev.map(t => t.id === tile.id ? { ...t, quantity: (t.quantity || 0) + 1 } : t));

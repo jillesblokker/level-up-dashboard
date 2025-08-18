@@ -268,7 +268,7 @@ export default function CharacterPage() {
     checkAndUnlockPerks(characterStats.level);
   }, [characterStats.level, checkAndUnlockPerks]);
 
-  // Load character stats and perks from localStorage
+  // Load character stats and perks (Supabase first, then localStorage)
   useEffect(() => {
     const loadCharacterStats = () => {
       try {
@@ -290,8 +290,21 @@ export default function CharacterPage() {
       }
     }
 
-    const loadPerks = () => {
+    const loadPerks = async () => {
       try {
+        // Try Supabase user preference
+        try {
+          const { getUserPreference } = await import('@/lib/user-preferences-manager')
+          const uid = (window as any).__clerk?.user?.id
+          if (uid) {
+            const pref = await getUserPreference(uid, 'character-perks')
+            if (pref) {
+              setPerks(JSON.parse(pref))
+              return
+            }
+          }
+        } catch {}
+        // Fallback localStorage
         const savedPerks = localStorage.getItem('character-perks')
         if (savedPerks) {
           const parsedPerks = JSON.parse(savedPerks)
@@ -485,16 +498,21 @@ export default function CharacterPage() {
     );
     
     setPerks(updatedPerks);
-    
+
     // Update character stats (deduct gold)
     const newStats = {
       ...characterStats,
       gold: characterStats.gold - perk.activationCost
     };
     setCharacterStats(newStats);
-    
-    // Save perks to localStorage for database
-    localStorage.setItem('character-perks', JSON.stringify(updatedPerks));
+
+    // Persist perks to Supabase; fallback local
+    try {
+      const { setUserPreference } = await import('@/lib/user-preferences-manager')
+      const uid = (window as any).__clerk?.user?.id
+      if (uid) await setUserPreference(uid, 'character-perks', JSON.stringify(updatedPerks))
+    } catch {}
+    localStorage.setItem('character-perks', JSON.stringify(updatedPerks))
     
     toast({
       title: "Perk Activated",
@@ -511,8 +529,11 @@ export default function CharacterPage() {
     );
     
     setPerks(updatedPerks);
-    
-    // Save perks to localStorage for database
+    try {
+      const { setUserPreference } = await import('@/lib/user-preferences-manager')
+      const uid = (window as any).__clerk?.user?.id
+      if (uid) await setUserPreference(uid, 'character-perks', JSON.stringify(updatedPerks))
+    } catch {}
     localStorage.setItem('character-perks', JSON.stringify(updatedPerks));
     
     const perk = perks.find(p => p.id === perkId);
@@ -563,15 +584,20 @@ export default function CharacterPage() {
     );
     
     setPerks(updatedPerks);
-    
+
     // Update character stats (deduct gold)
     const newStats = {
       ...characterStats,
       gold: characterStats.gold - perk.upgradeCost
     };
     setCharacterStats(newStats);
-    
-    // Save perks to localStorage for database
+
+    // Persist perks to Supabase; fallback local
+    try {
+      const { setUserPreference } = await import('@/lib/user-preferences-manager')
+      const uid = (window as any).__clerk?.user?.id
+      if (uid) await setUserPreference(uid, 'character-perks', JSON.stringify(updatedPerks))
+    } catch {}
     localStorage.setItem('character-perks', JSON.stringify(updatedPerks));
     
     toast({

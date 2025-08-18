@@ -28,22 +28,25 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { gold, experience, level, health, max_health } = body;
+    const { gold, experience, level, health, max_health, build_tokens, kingdom_expansions } = body;
 
     const { data, error } = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      // Build update payload dynamically to avoid overwriting with defaults
+      const updateData: any = {
+        user_id: userId,
+        updated_at: new Date().toISOString()
+      };
+      if (gold !== undefined) updateData.gold = gold;
+      if (experience !== undefined) updateData.experience = experience;
+      if (level !== undefined) updateData.level = level;
+      if (health !== undefined) updateData.health = health;
+      if (max_health !== undefined) updateData.max_health = max_health;
+      if (build_tokens !== undefined) updateData.build_tokens = build_tokens;
+      if (kingdom_expansions !== undefined) updateData.kingdom_expansions = kingdom_expansions;
+
       const { data, error } = await supabase
         .from('character_stats')
-        .upsert({
-          user_id: userId,
-          gold: gold || 0,
-          experience: experience || 0,
-          level: level || 1,
-          health: health || 100,
-          max_health: max_health || 100,
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'user_id' // Use the column name instead of constraint name
-        })
+        .upsert(updateData, { onConflict: 'user_id' })
         .select()
         .single();
       

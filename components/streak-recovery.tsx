@@ -38,14 +38,17 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [buildTokens, setBuildTokens] = useState(0);
 
-  // Load build tokens from localStorage
+  // Load build tokens from Supabase
   useEffect(() => {
-    try {
-      const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
-      setBuildTokens(stats.buildTokens || 0);
-    } catch {
-      setBuildTokens(0);
-    }
+    (async () => {
+      try {
+        const { loadCharacterStats } = await import('@/lib/character-stats-manager');
+        const stats = await loadCharacterStats();
+        setBuildTokens(stats.build_tokens || 0);
+      } catch {
+        setBuildTokens(0);
+      }
+    })();
   }, []);
 
   // Fetch comeback challenges
@@ -162,11 +165,14 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
       const data = await res.json();
       
       if (res.ok) {
-        // Deduct build tokens from localStorage
-        const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
-        stats.buildTokens = (stats.buildTokens || 0) - 5;
-        localStorage.setItem('character-stats', JSON.stringify(stats));
-        setBuildTokens(stats.buildTokens);
+        // Deduct build tokens and persist
+        setBuildTokens(prev => {
+          const newVal = Math.max(0, (prev || 0) - 5);
+          import('@/lib/character-stats-manager').then(({ saveCharacterStats }) => {
+            saveCharacterStats({ build_tokens: newVal });
+          });
+          return newVal;
+        });
         
         // Trigger character stats update
         window.dispatchEvent(new Event('character-stats-update'));
