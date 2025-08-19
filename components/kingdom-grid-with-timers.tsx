@@ -197,6 +197,46 @@ export function KingdomGridWithTimers({
       setHarvestFestivalActive(event.detail.active);
     };
 
+    // Immediately fetch current event flag values from database
+    const fetchCurrentEventFlags = async () => {
+      try {
+        console.log('[Kingdom] Fetching current event flag values from database');
+        
+        // Fetch winter festival status
+        const winterResponse = await fetchWithAuth('/api/game-settings?key=winter_festival_active');
+        if (winterResponse.ok) {
+          const winterData = await winterResponse.json();
+          const winterValue = winterData?.data?.[0]?.setting_value;
+          console.log('[Kingdom] Winter festival database value:', winterValue);
+          if (winterValue !== undefined) {
+            const normalized = String(winterValue).toLowerCase();
+            const isActive = normalized === 'true' || normalized === '1' || normalized === 'yes';
+            console.log('[Kingdom] Setting winter festival active to:', isActive);
+            setWinterFestivalActive(isActive);
+          }
+        }
+
+        // Fetch harvest festival status
+        const harvestResponse = await fetchWithAuth('/api/game-settings?key=harvest_festival_active');
+        if (harvestResponse.ok) {
+          const harvestData = await harvestResponse.json();
+          const harvestValue = harvestData?.data?.[0]?.setting_value;
+          console.log('[Kingdom] Harvest festival database value:', harvestValue);
+          if (harvestValue !== undefined) {
+            const normalized = String(harvestValue).toLowerCase();
+            const isActive = normalized === 'true' || normalized === '1' || normalized === 'yes';
+            console.log('[Kingdom] Setting harvest festival active to:', isActive);
+            setHarvestFestivalActive(isActive);
+          }
+        }
+      } catch (error) {
+        console.error('[Kingdom] Error fetching event flags:', error);
+      }
+    };
+
+    // Fetch current values and set up event listeners
+    fetchCurrentEventFlags();
+    
     console.log('[Kingdom] Setting up event listeners for festival toggles');
     window.addEventListener('winter-festival-toggled', handleWinterFestivalToggle as EventListener);
     window.addEventListener('harvest-festival-toggled', handleHarvestFestivalToggle as EventListener);
