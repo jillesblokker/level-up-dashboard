@@ -585,7 +585,7 @@ TECHNICAL DETAILS:
       if (winterResponse.ok) {
         const winterData = await winterResponse.json();
         console.log(`[Stored Data] Winter festival data:`, winterData);
-        const winterValue = winterData?.data?.[0]?.setting_value;
+        const winterValue = winterData?.data?.[0]?.setting_value || winterData?.data?.[0]?.settings_data?.value;
         console.log(`[Stored Data] Winter festival raw value: ${winterValue}`);
         // Handle both undefined and actual values
         const winterActive = winterValue !== undefined ? String(winterValue).toLowerCase() === 'true' : false;
@@ -599,7 +599,7 @@ TECHNICAL DETAILS:
       if (harvestResponse.ok) {
         const harvestData = await harvestResponse.json();
         console.log(`[Stored Data] Harvest festival data:`, harvestData);
-        const harvestValue = harvestData?.data?.[0]?.setting_value;
+        const harvestValue = harvestData?.data?.[0]?.setting_value || harvestData?.data?.[0]?.settings_data?.value;
         console.log(`[Stored Data] Harvest festival raw value: ${harvestValue}`);
         // Handle both undefined and actual values
         const harvestActive = harvestValue !== undefined ? String(harvestValue).toLowerCase() === 'true' : false;
@@ -625,7 +625,7 @@ TECHNICAL DETAILS:
       const winterResponse = await fetchWithAuth('/api/game-settings?key=winter_festival_active');
       if (winterResponse.ok) {
         const winterData = await winterResponse.json();
-        const winterValue = winterData?.data?.[0]?.setting_value;
+        const winterValue = winterData?.data?.[0]?.setting_value || winterData?.data?.[0]?.settings_data?.value;
         const winterActive = winterValue !== undefined ? String(winterValue).toLowerCase() === 'true' : false;
         setWinterFestivalActive(winterActive);
         console.log(`[Stored Data] Refreshed winter festival active: ${winterActive}`);
@@ -635,7 +635,7 @@ TECHNICAL DETAILS:
       const harvestResponse = await fetchWithAuth('/api/game-settings?key=harvest_festival_active');
       if (harvestResponse.ok) {
         const harvestData = await harvestResponse.json();
-        const harvestValue = harvestData?.data?.[0]?.setting_value;
+        const harvestValue = harvestData?.data?.[0]?.setting_value || harvestData?.data?.[0]?.settings_data?.value;
         const harvestActive = harvestValue !== undefined ? String(harvestValue).toLowerCase() === 'true' : false;
         setHarvestFestivalActive(harvestActive);
         console.log(`[Stored Data] Refreshed harvest festival active: ${harvestActive}`);

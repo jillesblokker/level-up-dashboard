@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
       if (data) {
         const transformedData = data.map(setting => ({
           ...setting,
-          setting_value: setting.setting_value?.value || setting.setting_value // Extract from JSONB or fallback
+          setting_value: setting.settings_data?.value || setting.settings_data // Extract from settings_data column
         }));
         console.log(`[Game Settings API] Transformed data:`, transformedData);
         return { data: transformedData, error };
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       const upsertData = {
         user_id: userId,
         setting_key,
-        setting_value: { value: setting_value }, // Wrap in JSON object for JSONB
+        settings_data: { value: setting_value }, // Use settings_data column name
         updated_at: new Date().toISOString()
       };
       
