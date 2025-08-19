@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
       if (data) {
         const transformedData = data.map(setting => ({
           ...setting,
-          setting_value: setting.settings_data?.value || setting.settings_data // Extract from settings_data column
+          setting_value: setting.setting_value?.value || setting.setting_value // Extract from setting_value column
         }));
         console.log(`[Game Settings API] Transformed data:`, transformedData);
         return { data: transformedData, error };
