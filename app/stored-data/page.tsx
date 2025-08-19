@@ -17,6 +17,7 @@ import { migrateLocalStorageToSupabase, checkMigrationStatus } from '@/lib/migra
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { RARE_TILES, unlockRareTile, clearRareTileUnlock } from '@/lib/rare-tiles-manager';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { 
   CheckCircle, 
   XCircle, 
@@ -533,9 +534,7 @@ TECHNICAL DETAILS:
       if (!token) return;
 
       // Load winter festival status
-      const winterResponse = await fetch('/api/game-settings?key=winter_festival_active', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const winterResponse = await fetchWithAuth('/api/game-settings?key=winter_festival_active');
       if (winterResponse.ok) {
         const winterData = await winterResponse.json();
         const winterValue = winterData?.data?.[0]?.setting_value;
@@ -543,9 +542,7 @@ TECHNICAL DETAILS:
       }
 
       // Load harvest festival status (for future use)
-      const harvestResponse = await fetch('/api/game-settings?key=harvest_festival_active', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const harvestResponse = await fetchWithAuth('/api/game-settings?key=harvest_festival_active');
       if (harvestResponse.ok) {
         const harvestData = await harvestResponse.json();
         const harvestValue = harvestData?.data?.[0]?.setting_value;
@@ -561,14 +558,11 @@ TECHNICAL DETAILS:
     const newValue = !currentValue;
     
     try {
-      const response = await fetch('/api/game-settings', {
+      const response = await fetchWithAuth('/api/game-settings', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
-          key,
-          value: newValue.toString(),
+          setting_key: key,
+          setting_value: newValue.toString(),
         }),
       });
 
