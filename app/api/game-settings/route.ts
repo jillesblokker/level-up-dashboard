@@ -93,6 +93,14 @@ export async function POST(request: NextRequest) {
       
       console.log(`[Game Settings API] Existing data before upsert:`, existingData, 'error:', existingError);
       
+      // Also check if there are any records at all for this user
+      const { data: allUserData, error: allUserError } = await supabase
+        .from('game_settings')
+        .select('*')
+        .eq('user_id', userId);
+      
+      console.log(`[Game Settings API] All user data before upsert:`, allUserData, 'error:', allUserError);
+      
       // Try the upsert operation
       const { data, error } = await supabase
         .from('game_settings')
