@@ -1,6 +1,7 @@
 export interface GameSetting {
   setting_key: string;
-  setting_value: any;
+  setting_value?: any;
+  settings_data?: { value: any } | any;
 }
 
 /**
