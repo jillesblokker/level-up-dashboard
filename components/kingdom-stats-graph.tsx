@@ -468,6 +468,8 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
       if (!res.ok) throw new Error('Failed to fetch stats');
       const { data } = await res.json();
       console.log('[KingdomStatsBlock] Data received:', data);
+      console.log('[KingdomStatsBlock] Data length:', data?.length);
+      console.log('[KingdomStatsBlock] Sample data:', data?.[0]);
       setGraphData(data || []);
     } catch (err) {
       console.error('[Kingdom Stats] Error fetching data:', err); // Added error log
@@ -529,7 +531,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
   }, []);
 
   // Show chart only if there is at least one non-zero value in the data
-  const hasData = graphData.some(d => d.value > 0);
+  const hasData = graphData.length > 0;
 
   return (
     <Card className="bg-black border-amber-800">
@@ -713,8 +715,8 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
     };
   }, []);
 
-  // Show chart only if there is at least one non-zero value in the data
-  const hasData = graphData.some(d => d.value > 0);
+  // Show chart if there is data (even if values are 0)
+  const hasData = graphData.length > 0;
 
   return (
     <Card className="bg-black border-amber-800">
