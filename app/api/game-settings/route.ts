@@ -6,19 +6,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const settingKey = searchParams.get('key');
 
-    console.log(`[Game Settings API] GET request for key: ${settingKey}`);
-
     const { data, error } = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
-      console.log(`[Game Settings API] User ID: ${userId}`);
-      
-      // First, let's check if the table exists and see its structure
-      const { data: tableInfo, error: tableError } = await supabase
-        .from('game_settings')
-        .select('*')
-        .limit(1);
-      
-      console.log(`[Game Settings API] Table info check - data:`, tableInfo, 'error:', tableError);
-      
       let query = supabase
         .from('game_settings')
         .select('*')
@@ -26,17 +14,12 @@ export async function GET(request: NextRequest) {
       
       if (settingKey) {
         query = query.eq('setting_key', settingKey);
-        console.log(`[Game Settings API] Filtering by setting_key: ${settingKey}`);
       }
       
       const { data, error } = await query;
       
-      console.log(`[Game Settings API] Query result - data:`, data, 'error:', error);
-      console.log(`[Game Settings API] Raw query result:`, JSON.stringify(data, null, 2));
-      
       // Return the data as-is since we're now storing values directly
       if (data) {
-        console.log(`[Game Settings API] Returning data as-is:`, data);
         return { data, error };
       }
       
@@ -48,7 +31,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
 
-    console.log(`[Game Settings API] Final response data:`, data);
     return NextResponse.json({ data });
   } catch (error) {
     console.error(`[Game Settings API] Unexpected error:`, error);
@@ -61,15 +43,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { setting_key, setting_value } = body;
 
-    console.log(`[Game Settings API] POST request - setting_key: ${setting_key}, setting_value: ${setting_value}`);
-
     if (!setting_key) {
       return NextResponse.json({ error: 'Setting key is required' }, { status: 400 });
     }
 
     const { data, error } = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
-      console.log(`[Game Settings API] Creating/updating setting for user ${userId}`);
-      
       // Store the value directly in the JSONB column
       const upsertData = {
         user_id: userId,
@@ -78,45 +56,11 @@ export async function POST(request: NextRequest) {
         updated_at: new Date().toISOString()
       };
       
-      console.log(`[Game Settings API] Upsert data:`, upsertData);
-      
-      // First, let's check what exists before the upsert
-      const { data: existingData, error: existingError } = await supabase
-        .from('game_settings')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('setting_key', setting_key);
-      
-      console.log(`[Game Settings API] Existing data before upsert:`, existingData, 'error:', existingError);
-      
-      // Also check if there are any records at all for this user
-      const { data: allUserData, error: allUserError } = await supabase
-        .from('game_settings')
-        .select('*')
-        .eq('user_id', userId);
-      
-      console.log(`[Game Settings API] All user data before upsert:`, allUserData, 'error:', allUserError);
-      
-      // Check table constraints (simplified approach)
-      console.log(`[Game Settings API] Attempting upsert with constraint: user_id,setting_key`);
-      
       // Try the upsert operation
-      console.log(`[Game Settings API] Attempting upsert with onConflict: user_id,setting_key`);
       const { data, error } = await supabase
         .from('game_settings')
         .upsert(upsertData, { onConflict: 'user_id,setting_key' })
         .select();
-      
-      console.log(`[Game Settings API] Upsert result - data:`, data, 'error:', error);
-      
-      // Now let's verify what was actually created/updated
-      const { data: verifyData, error: verifyError } = await supabase
-        .from('game_settings')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('setting_key', setting_key);
-      
-      console.log(`[Game Settings API] Verification after upsert:`, verifyData, 'error:', verifyError);
       
       return { data, error };
     });
@@ -126,9 +70,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
 
-          console.log(`[Game Settings API] Successfully created/updated setting:`, data);
-      console.log(`[Game Settings API] Final response data structure:`, JSON.stringify(data, null, 2));
-      return NextResponse.json({ data });
+    return NextResponse.json({ data });
   } catch (error) {
     console.error(`[Game Settings API] Unexpected error:`, error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

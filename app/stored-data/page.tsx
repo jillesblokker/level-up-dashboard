@@ -528,14 +528,11 @@ TECHNICAL DETAILS:
   // Initialize default event flags if they don't exist
   const initializeDefaultFlags = async () => {
     try {
-      console.log('[Stored Data] Initializing default event flags');
-      
       // Check if winter festival setting exists
       const winterResponse = await fetchWithAuth('/api/game-settings?key=winter_festival_active');
       if (winterResponse.ok) {
         const winterData = await winterResponse.json();
         if (!winterData?.data?.data?.[0]?.setting_value) {
-          console.log('[Stored Data] Creating default winter festival setting: false');
           await fetchWithAuth('/api/game-settings', {
             method: 'POST',
             body: JSON.stringify({
@@ -553,7 +550,6 @@ TECHNICAL DETAILS:
       if (harvestResponse.ok) {
         const harvestData = await harvestResponse.json();
         if (!harvestData?.data?.data?.[0]?.setting_value) {
-          console.log('[Stored Data] Creating default harvest festival setting: false');
           await fetchWithAuth('/api/game-settings', {
             method: 'POST',
             body: JSON.stringify({
@@ -581,31 +577,23 @@ TECHNICAL DETAILS:
       
       // Load winter festival status
       const winterResponse = await fetchWithAuth('/api/game-settings?key=winter_festival_active');
-      console.log(`[Stored Data] Winter festival response status: ${winterResponse.status}`);
-      if (winterResponse.ok) {
-        const winterData = await winterResponse.json();
-        console.log(`[Stored Data] Winter festival data:`, winterData);
-        const winterValue = winterData?.data?.data?.[0]?.setting_value;
-        console.log(`[Stored Data] Winter festival raw value: ${winterValue}`);
-        // Handle both undefined and actual values
-        const winterActive = winterValue !== undefined ? String(winterValue).toLowerCase() === 'true' : false;
-        setWinterFestivalActive(winterActive);
-        console.log(`[Stored Data] Setting winter festival active to: ${winterActive}`);
-      }
+              if (winterResponse.ok) {
+          const winterData = await winterResponse.json();
+          const winterValue = winterData?.data?.data?.[0]?.setting_value;
+          // Handle both undefined and actual values
+          const winterActive = winterValue !== undefined ? String(winterValue).toLowerCase() === 'true' : false;
+          setWinterFestivalActive(winterActive);
+        }
 
       // Load harvest festival status (for future use)
       const harvestResponse = await fetchWithAuth('/api/game-settings?key=harvest_festival_active');
-      console.log(`[Stored Data] Harvest festival response status: ${harvestResponse.status}`);
-      if (harvestResponse.ok) {
-        const harvestData = await harvestResponse.json();
-        console.log(`[Stored Data] Harvest festival data:`, harvestData);
-        const harvestValue = harvestData?.data?.data?.[0]?.setting_value;
-        console.log(`[Stored Data] Harvest festival raw value: ${harvestValue}`);
-        // Handle both undefined and actual values
-        const harvestActive = harvestValue !== undefined ? String(harvestValue).toLowerCase() === 'true' : false;
-        setHarvestFestivalActive(harvestActive);
-        console.log(`[Stored Data] Setting harvest festival active to: ${harvestActive}`);
-      }
+              if (harvestResponse.ok) {
+          const harvestData = await harvestResponse.json();
+          const harvestValue = harvestData?.data?.data?.[0]?.setting_value;
+          // Handle both undefined and actual values
+          const harvestActive = harvestValue !== undefined ? String(harvestValue).toLowerCase() === 'true' : false;
+          setHarvestFestivalActive(harvestActive);
+        }
     } catch (error) {
       console.error('[Stored Data] Error loading event flags:', error);
     }
@@ -619,20 +607,13 @@ TECHNICAL DETAILS:
   // Refresh event flags from database
   const refreshEventFlags = async () => {
     try {
-      console.log('[Stored Data] Refreshing event flags from database');
-      
       // Load winter festival status
       const winterResponse = await fetchWithAuth('/api/game-settings?key=winter_festival_active');
-      console.log(`[Stored Data] Winter refresh response status: ${winterResponse.status}`);
       if (winterResponse.ok) {
         const winterData = await winterResponse.json();
-        console.log(`[Stored Data] Winter refresh data:`, winterData);
-        console.log(`[Stored Data] Winter refresh raw data:`, JSON.stringify(winterData, null, 2));
         const winterValue = winterData?.data?.data?.[0]?.setting_value;
-        console.log(`[Stored Data] Winter refresh extracted value: ${winterValue}`);
         const winterActive = winterValue !== undefined ? String(winterValue).toLowerCase() === 'true' : false;
         setWinterFestivalActive(winterActive);
-        console.log(`[Stored Data] Refreshed winter festival active: ${winterActive}`);
       }
 
       // Load harvest festival status
@@ -664,26 +645,18 @@ TECHNICAL DETAILS:
         }),
       });
 
-      console.log(`[Stored Data] API response status: ${response.status}`);
-      
-              if (response.ok) {
-          const responseData = await response.json();
-          console.log(`[Stored Data] API response data:`, responseData);
-          console.log(`[Stored Data] Response data structure:`, JSON.stringify(responseData, null, 2));
-          
-          // Small delay to ensure database is updated
-          await new Promise(resolve => setTimeout(resolve, 500));
-          
-          // Refresh the event flags to get the latest values
-          await refreshEventFlags();
+      if (response.ok) {
+        // Small delay to ensure database is updated
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Refresh the event flags to get the latest values
+        await refreshEventFlags();
         
         if (key === 'winter_festival_active') {
           // Dispatch event to notify kingdom grid component
-          console.log(`[Stored Data] Dispatching winter-festival-toggled event with active: ${newValue}`);
           window.dispatchEvent(new CustomEvent('winter-festival-toggled', { detail: { active: newValue } }));
         } else if (key === 'harvest_festival_active') {
           // Dispatch event to notify kingdom grid component
-          console.log(`[Stored Data] Dispatching harvest-festival-toggled event with active: ${newValue}`);
           window.dispatchEvent(new CustomEvent('harvest-festival-toggled', { detail: { active: newValue } }));
         }
         
