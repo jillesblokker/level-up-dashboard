@@ -158,7 +158,7 @@ export function KingdomGridWithTimers({
         const res = await fetchAuthRetry('/api/game-settings?key=winter_festival_active', { method: 'GET' })
         if (res && res.ok) {
           const json = await res.json()
-          const valueRaw = json?.data?.[0]?.setting_value
+          const valueRaw = json?.data?.[0]?.setting_value || json?.data?.[0]?.settings_data?.value
           const normalized = String(valueRaw).toLowerCase().trim()
           setWinterFestivalActive(normalized === 'true' || normalized === '1' || normalized === 'yes')
         }
@@ -175,7 +175,7 @@ export function KingdomGridWithTimers({
         const res = await fetchAuthRetry('/api/game-settings?key=harvest_festival_active', { method: 'GET' })
         if (res && res.ok) {
           const json = await res.json()
-          const valueRaw = json?.data?.[0]?.setting_value
+          const valueRaw = json?.data?.[0]?.setting_value || json?.data?.[0]?.settings_data?.value
           const normalized = String(valueRaw).toLowerCase().trim()
           setHarvestFestivalActive(normalized === 'true' || normalized === '1' || normalized === 'yes')
         }
