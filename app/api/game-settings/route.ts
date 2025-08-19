@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       const upsertData = {
         user_id: userId,
         setting_key,
-        settings_data: { value: setting_value }, // Use settings_data column name
+        setting_value: { value: setting_value }, // Use setting_value column name (which exists)
         updated_at: new Date().toISOString()
       };
       
