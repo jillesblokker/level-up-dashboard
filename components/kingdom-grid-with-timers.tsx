@@ -872,6 +872,28 @@ export function KingdomGridWithTimers({
       if (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id)) {
         goldEarned = Math.floor(goldEarned * 1.2)
       }
+      // Grant experience proportional to gold; apply winter +10% EXP on winter tiles
+      const baseExperience = wasLucky ? Math.ceil(goldEarned * 0.5) : Math.ceil(goldEarned * 0.3)
+      const experienceAwarded = (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id))
+        ? Math.ceil(baseExperience * 1.1)
+        : baseExperience
+      ;(async () => {
+        try {
+          const { gainExperience } = await import('@/lib/experience-manager')
+          // Fire and forget
+          gainExperience(experienceAwarded, `tile-collect:${kingdomTile.id}`, 'general')
+        } catch {}
+      })()
+      // Basic telemetry: log collect
+      ;(async () => {
+        try {
+          await fetchAuthRetry('/api/kingdom-events/collect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tileId: kingdomTile.id, wasLucky, goldEarned, experienceAwarded })
+          })
+        } catch {}
+      })()
       const itemFound = kingdomTile.possibleItems.length > 0 ? getRandomItem(kingdomTile.possibleItems) : null
 
       // Update timer to restart production
@@ -939,6 +961,25 @@ export function KingdomGridWithTimers({
     if (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id)) {
       goldEarned = Math.floor(goldEarned * 1.2)
     }
+    const baseExperience = wasLucky ? Math.ceil(goldEarned * 0.5) : Math.ceil(goldEarned * 0.3)
+    const experienceAwarded = (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id))
+      ? Math.ceil(baseExperience * 1.1)
+      : baseExperience
+    ;(async () => {
+      try {
+        const { gainExperience } = await import('@/lib/experience-manager')
+        gainExperience(experienceAwarded, `tile-collect:${kingdomTile.id}`, 'general')
+      } catch {}
+    })()
+    ;(async () => {
+      try {
+        await fetchAuthRetry('/api/kingdom-events/collect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tileId: kingdomTile.id, wasLucky, goldEarned, experienceAwarded })
+        })
+      } catch {}
+    })()
     const itemFound = kingdomTile.possibleItems.length > 0 ? getRandomItem(kingdomTile.possibleItems) : null
 
     // Update timer
@@ -1036,13 +1077,7 @@ export function KingdomGridWithTimers({
 
             const isKingdomTile = kingdomTile !== null
             const isReady = timer?.isReady || false
-            const rarityClass = kingdomTile ? (
-              kingdomTile.rarity === 'legendary' ? 'ring-4 ring-amber-400' :
-              kingdomTile.rarity === 'epic' ? 'ring-3 ring-purple-500' :
-              kingdomTile.rarity === 'rare' ? 'ring-2 ring-blue-500' :
-              kingdomTile.rarity === 'uncommon' ? 'ring-2 ring-green-500' :
-              'ring-1 ring-gray-600'
-            ) : ''
+            const rarityClass = ''
 
             return (
               <button
@@ -1051,7 +1086,6 @@ export function KingdomGridWithTimers({
                   "group relative w-full h-full aspect-square bg-black/60 flex items-center justify-center focus:outline-none",
                   selectedTile && "ring-2 ring-amber-500",
                   isKingdomTile && rarityClass,
-                  isKingdomTile && isReady && "ring-offset-2 ring-offset-emerald-400",
                   placementMode && tile.type === 'vacant' && "ring-2 ring-amber-500 cursor-pointer hover:ring-amber-400"
                 )}
                 aria-label={tile.ariaLabel || tile.name || `Tile ${x},${y}`}
