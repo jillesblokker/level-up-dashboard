@@ -124,15 +124,15 @@ export async function GET(request: Request) {
         });
       } else if (period === 'all') {
         counts['all'] = completions?.length || 0;
-      } else {
-        days.forEach(day => { counts[day] = 0; });
-        completions?.forEach((c: any) => {
-          if (c.date) {
-            const day = c.completed_at.slice(0, 10);
-            if (counts[day] !== undefined) counts[day]++;
-          }
-        });
-      }
+              } else {
+          days.forEach(day => { counts[day] = 0; });
+          completions?.forEach((c: any) => {
+            if (c.completed_at) {
+              const day = c.completed_at.slice(0, 10);
+              if (counts[day] !== undefined) counts[day]++;
+            }
+          });
+        }
       
       const data = days.map(day => ({ day, value: counts[day] || 0 }));
       return NextResponse.json({ data });
