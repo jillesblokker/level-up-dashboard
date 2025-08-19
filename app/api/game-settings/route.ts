@@ -34,6 +34,16 @@ export async function GET(request: NextRequest) {
       console.log(`[Game Settings API] Query result - data:`, data, 'error:', error);
       console.log(`[Game Settings API] Raw query result:`, JSON.stringify(data, null, 2));
       
+      // Transform the data to extract values from JSONB
+      if (data) {
+        const transformedData = data.map(setting => ({
+          ...setting,
+          setting_value: setting.setting_value?.value || setting.setting_value // Extract from JSONB or fallback
+        }));
+        console.log(`[Game Settings API] Transformed data:`, transformedData);
+        return { data: transformedData, error };
+      }
+      
       return { data, error };
     });
 
@@ -64,10 +74,11 @@ export async function POST(request: NextRequest) {
     const { data, error } = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
       console.log(`[Game Settings API] Creating/updating setting for user ${userId}`);
       
+      // Store the value as a proper JSON object for JSONB column
       const upsertData = {
         user_id: userId,
         setting_key,
-        setting_value,
+        setting_value: { value: setting_value }, // Wrap in JSON object for JSONB
         updated_at: new Date().toISOString()
       };
       
