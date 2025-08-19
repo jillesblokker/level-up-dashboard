@@ -260,83 +260,76 @@ export function KingdomGridWithTimers({
     });
   };
 
-  // Kingdom tile inventory for properties panel
+  // Kingdom tile inventory for properties panel - organized by logical categories
   const [propertyInventory, setPropertyInventory] = useState([
+    // Basic Buildings (Level 1) - Affordable starter buildings
     {
-      id: 'archery',
-      name: 'Archery',
-      image: '/images/kingdom-tiles/Archery.png',
-      cost: 150,
+      id: 'house',
+      name: 'House',
+      image: '/images/kingdom-tiles/House.png',
+      cost: 100,
       levelRequired: 1,
       costType: 'gold',
       quantity: 0,
-      isSeasonal: false
+      isSeasonal: false,
+      category: 'basic'
     },
     {
-      id: 'winter-fountain',
-      name: 'Winter Fountain',
-      image: '/images/kingdom-tiles/WinterFountain.png',
-      cost: 200,
-      levelRequired: 2,
-      costType: 'gold',
-      quantity: 0,
-      isSeasonal: true,
-      eventType: 'winter'
-    },
-    {
-      id: 'snowy-inn',
-      name: 'Snowy Inn',
-      image: '/images/kingdom-tiles/SnowyInn.png',
-      cost: 180,
-      levelRequired: 2,
-      costType: 'gold',
-      quantity: 0,
-      isSeasonal: true,
-      eventType: 'winter'
-    },
-    {
-      id: 'ice-sculpture',
-      name: 'Ice Sculpture',
-      image: '/images/kingdom-tiles/IceSculpture.png',
-      cost: 150,
+      id: 'well',
+      name: 'Well',
+      image: '/images/kingdom-tiles/Well.png',
+      cost: 90,
       levelRequired: 1,
       costType: 'gold',
       quantity: 0,
-      isSeasonal: true,
-      eventType: 'winter'
+      isSeasonal: false,
+      category: 'basic'
     },
     {
-      id: 'fireworks-stand',
-      name: 'Fireworks Stand',
-      image: '/images/kingdom-tiles/FireworksStand.png',
+      id: 'pond',
+      name: 'Pond',
+      image: '/images/kingdom-tiles/Pond.png',
+      cost: 80,
+      levelRequired: 1,
+      costType: 'gold',
+      quantity: 0,
+      isSeasonal: false,
+      category: 'basic'
+    },
+    {
+      id: 'vegetables',
+      name: 'Vegetables',
+      image: '/images/kingdom-tiles/Vegetables.png',
+      cost: 60,
+      levelRequired: 1,
+      costType: 'gold',
+      quantity: 0,
+      isSeasonal: false,
+      category: 'basic'
+    },
+    
+    // Commerce & Services (Level 1-2) - Business and trade buildings
+    {
+      id: 'market-stalls',
+      name: 'Market Stalls',
+      image: '/images/kingdom-tiles/MarketStalls.png',
+      cost: 130,
+      levelRequired: 1,
+      costType: 'gold',
+      quantity: 0,
+      isSeasonal: false,
+      category: 'commerce'
+    },
+    {
+      id: 'grocery',
+      name: 'Grocery',
+      image: '/images/kingdom-tiles/Grocery.png',
       cost: 160,
-      levelRequired: 2,
-      costType: 'gold',
-      quantity: 0,
-      isSeasonal: true,
-      eventType: 'winter'
-    },
-    {
-      id: 'pumpkin-patch',
-      name: 'Pumpkin Patch',
-      image: '/images/kingdom-tiles/PumpkinPatch.png',
-      cost: 120,
       levelRequired: 1,
       costType: 'gold',
       quantity: 0,
-      isSeasonal: true,
-      eventType: 'harvest'
-    },
-    {
-      id: 'harvest-barn',
-      name: 'Harvest Barn',
-      image: '/images/kingdom-tiles/HarvestBarn.png',
-      cost: 220,
-      levelRequired: 2,
-      costType: 'gold',
-      quantity: 0,
-      isSeasonal: true,
-      eventType: 'harvest'
+      isSeasonal: false,
+      category: 'commerce'
     },
     {
       id: 'bakery',
@@ -347,7 +340,8 @@ export function KingdomGridWithTimers({
       costType: 'gold',
       quantity: 0,
       isSeasonal: true,
-      eventType: 'harvest'
+      eventType: 'harvest',
+      category: 'commerce'
     },
     {
       id: 'brewery',
@@ -358,157 +352,21 @@ export function KingdomGridWithTimers({
       costType: 'gold',
       quantity: 0,
       isSeasonal: true,
-      eventType: 'harvest'
+      eventType: 'harvest',
+      category: 'commerce'
     },
-    {
-      id: 'market-stalls',
-      name: 'Market Stalls',
-      image: '/images/kingdom-tiles/MarketStalls.png',
-      cost: 130,
-      levelRequired: 1,
-      costType: 'gold',
-      quantity: 0,
-      isSeasonal: false
-    },
-    {
-      id: 'library',
-      name: 'Library',
-      image: '/images/kingdom-tiles/Library.png',
-      cost: 260,
-      levelRequired: 3,
-      costType: 'gold',
-      quantity: 0,
-      isSeasonal: false
-    },
-    {
-      id: 'training-grounds',
-      name: 'Training Grounds',
-      image: '/images/kingdom-tiles/TrainingGrounds.png',
-      cost: 200,
-      levelRequired: 2,
-      costType: 'gold',
-      quantity: 0,
-      isSeasonal: false
-    },
-    {
-      id: 'stable',
-      name: 'Stable',
-      image: '/images/kingdom-tiles/Stable.png',
-      cost: 160,
-      levelRequired: 1,
-      costType: 'gold',
-      quantity: 0,
-      isSeasonal: false
-    },
+    
+    // Production & Crafting (Level 1-2) - Manufacturing and resource buildings
     {
       id: 'blacksmith',
       name: 'Blacksmith',
       image: '/images/kingdom-tiles/Blacksmith.png',
-      cost: 200,
+      cost: 150,
       levelRequired: 1,
       costType: 'gold',
       quantity: 0,
-      isSeasonal: false
-    },
-    {
-      id: 'fisherman',
-      name: 'Fisherman',
-      image: '/images/kingdom-tiles/Fisherman.png',
-      cost: 120,
-      levelRequired: 1,
-      costType: 'gold',
-      quantity: 0,
-      isSeasonal: false
-    },
-    {
-      id: 'foodcourt',
-      name: 'Food Court',
-      image: '/images/kingdom-tiles/Foodcourt.png',
-      cost: 250,
-      levelRequired: 1,
-      costType: 'gold',
-      quantity: 0,
-      isSeasonal: false
-    },
-    {
-      id: 'fountain',
-      name: 'Fountain',
-      image: '/images/kingdom-tiles/Fountain.png',
-      cost: 180,
-      levelRequired: 1,
-      costType: 'gold',
-      quantity: 0,
-      isSeasonal: false
-    },
-    {
-      id: 'grocery',
-      name: 'Grocery',
-      image: '/images/kingdom-tiles/Grocery.png',
-      cost: 160,
-      levelRequired: 1,
-      costType: 'gold',
-      quantity: 0,
-      isSeasonal: false
-    },
-    {
-      id: 'house',
-      name: 'House',
-      image: '/images/kingdom-tiles/House.png',
-      cost: 100,
-      levelRequired: 1,
-      costType: 'gold',
-      quantity: 0,
-      isSeasonal: false
-    },
-    {
-      id: 'inn',
-      name: 'Inn',
-      image: '/images/kingdom-tiles/Inn.png',
-      cost: 220,
-      levelRequired: 1,
-      costType: 'gold',
-      quantity: 0,
-      isSeasonal: false
-    },
-    {
-      id: 'jousting',
-      name: 'Jousting',
-      image: '/images/kingdom-tiles/Jousting.png',
-      cost: 300,
-      levelRequired: 2,
-      costType: 'gold',
-      quantity: 0,
-      isSeasonal: false
-    },
-    {
-      id: 'mansion',
-      name: 'Mansion',
-      image: '/images/kingdom-tiles/Mansion.png',
-      cost: 500,
-      levelRequired: 3,
-      costType: 'gold',
-      quantity: 0,
-      isSeasonal: false
-    },
-    {
-      id: 'mayor',
-      name: 'Mayor',
-      image: '/images/kingdom-tiles/Mayor.png',
-      cost: 800,
-      levelRequired: 5,
-      costType: 'gold',
-      quantity: 0,
-      isSeasonal: false
-    },
-    {
-      id: 'pond',
-      name: 'Pond',
-      image: '/images/kingdom-tiles/Pond.png',
-      cost: 80,
-      levelRequired: 1,
-      costType: 'gold',
-      quantity: 0,
-      isSeasonal: false
+      isSeasonal: false,
+      category: 'production'
     },
     {
       id: 'sawmill',
@@ -518,47 +376,8 @@ export function KingdomGridWithTimers({
       levelRequired: 2,
       costType: 'gold',
       quantity: 0,
-      isSeasonal: false
-    },
-    {
-      id: 'temple',
-      name: 'Temple',
-      image: '/images/kingdom-tiles/Temple.png',
-      cost: 600,
-      levelRequired: 4,
-      costType: 'gold',
-      quantity: 0,
-      isSeasonal: false
-    },
-    {
-      id: 'vegetables',
-      name: 'Vegetables',
-      image: '/images/kingdom-tiles/Vegetables.png',
-      cost: 60,
-      levelRequired: 1,
-      costType: 'gold',
-      quantity: 0,
-      isSeasonal: false
-    },
-    {
-      id: 'watchtower',
-      name: 'Watchtower',
-      image: '/images/kingdom-tiles/Watchtower.png',
-      cost: 350,
-      levelRequired: 2,
-      costType: 'gold',
-      quantity: 0,
-      isSeasonal: false
-    },
-    {
-      id: 'well',
-      name: 'Well',
-      image: '/images/kingdom-tiles/Well.png',
-      cost: 90,
-      levelRequired: 1,
-      costType: 'gold',
-      quantity: 0,
-      isSeasonal: false
+      isSeasonal: false,
+      category: 'production'
     },
     {
       id: 'windmill',
@@ -568,27 +387,257 @@ export function KingdomGridWithTimers({
       levelRequired: 2,
       costType: 'gold',
       quantity: 0,
-      isSeasonal: false
+      isSeasonal: false,
+      category: 'production'
+    },
+    
+    // Entertainment & Hospitality (Level 1-2) - Leisure and accommodation
+    {
+      id: 'inn',
+      name: 'Inn',
+      image: '/images/kingdom-tiles/Inn.png',
+      cost: 220,
+      levelRequired: 1,
+      costType: 'gold',
+      quantity: 0,
+      isSeasonal: false,
+      category: 'entertainment'
+    },
+    {
+      id: 'foodcourt',
+      name: 'Food Court',
+      image: '/images/kingdom-tiles/Foodcourt.png',
+      cost: 180,
+      levelRequired: 1,
+      costType: 'gold',
+      quantity: 0,
+      isSeasonal: false,
+      category: 'entertainment'
+    },
+    {
+      id: 'fountain',
+      name: 'Fountain',
+      image: '/images/kingdom-tiles/Fountain.png',
+      cost: 180,
+      levelRequired: 1,
+      costType: 'gold',
+      quantity: 0,
+      isSeasonal: false,
+      category: 'entertainment'
+    },
+    
+    // Combat & Training (Level 2) - Military and skill development
+    {
+      id: 'archery',
+      name: 'Archery',
+      image: '/images/kingdom-tiles/Archery.png',
+      cost: 150,
+      levelRequired: 1,
+      costType: 'gold',
+      quantity: 0,
+      isSeasonal: false,
+      category: 'combat'
+    },
+    {
+      id: 'training-grounds',
+      name: 'Training Grounds',
+      image: '/images/kingdom-tiles/TrainingGrounds.png',
+      cost: 200,
+      levelRequired: 2,
+      costType: 'gold',
+      quantity: 0,
+      isSeasonal: false,
+      category: 'combat'
+    },
+    {
+      id: 'jousting',
+      name: 'Jousting',
+      image: '/images/kingdom-tiles/Jousting.png',
+      cost: 250,
+      levelRequired: 2,
+      costType: 'gold',
+      quantity: 0,
+      isSeasonal: false,
+      category: 'combat'
+    },
+    
+    // Infrastructure & Defense (Level 2-3) - Security and essential services
+    {
+      id: 'watchtower',
+      name: 'Watchtower',
+      image: '/images/kingdom-tiles/Watchtower.png',
+      cost: 350,
+      levelRequired: 2,
+      costType: 'gold',
+      quantity: 0,
+      isSeasonal: false,
+      category: 'infrastructure'
+    },
+    {
+      id: 'stable',
+      name: 'Stable',
+      image: '/images/kingdom-tiles/Stable.png',
+      cost: 160,
+      levelRequired: 1,
+      costType: 'gold',
+      quantity: 0,
+      isSeasonal: false,
+      category: 'infrastructure'
+    },
+    {
+      id: 'library',
+      name: 'Library',
+      image: '/images/kingdom-tiles/Library.png',
+      cost: 260,
+      levelRequired: 3,
+      costType: 'gold',
+      quantity: 0,
+      isSeasonal: false,
+      category: 'infrastructure'
+    },
+    
+    // Seasonal & Event Buildings (Level 1-2) - Special event structures
+    {
+      id: 'winter-fountain',
+      name: 'Winter Fountain',
+      image: '/images/kingdom-tiles/WinterFountain.png',
+      cost: 200,
+      levelRequired: 2,
+      costType: 'gold',
+      quantity: 0,
+      isSeasonal: true,
+      eventType: 'winter',
+      category: 'seasonal'
+    },
+    {
+      id: 'snowy-inn',
+      name: 'Snowy Inn',
+      image: '/images/kingdom-tiles/SnowyInn.png',
+      cost: 180,
+      levelRequired: 2,
+      costType: 'gold',
+      quantity: 0,
+      isSeasonal: true,
+      eventType: 'winter',
+      category: 'seasonal'
+    },
+    {
+      id: 'ice-sculpture',
+      name: 'Ice Sculpture',
+      image: '/images/kingdom-tiles/IceSculpture.png',
+      cost: 150,
+      levelRequired: 1,
+      costType: 'gold',
+      quantity: 0,
+      isSeasonal: true,
+      eventType: 'winter',
+      category: 'seasonal'
+    },
+    {
+      id: 'fireworks-stand',
+      name: 'Fireworks Stand',
+      image: '/images/kingdom-tiles/FireworksStand.png',
+      cost: 160,
+      levelRequired: 2,
+      costType: 'gold',
+      quantity: 0,
+      isSeasonal: true,
+      eventType: 'winter',
+      category: 'seasonal'
+    },
+    {
+      id: 'pumpkin-patch',
+      name: 'Pumpkin Patch',
+      image: '/images/kingdom-tiles/PumpkinPatch.png',
+      cost: 120,
+      levelRequired: 1,
+      costType: 'gold',
+      quantity: 0,
+      isSeasonal: true,
+      eventType: 'harvest',
+      category: 'seasonal'
+    },
+    {
+      id: 'harvest-barn',
+      name: 'Harvest Barn',
+      image: '/images/kingdom-tiles/HarvestBarn.png',
+      cost: 220,
+      levelRequired: 2,
+      costType: 'gold',
+      quantity: 0,
+      isSeasonal: true,
+      eventType: 'harvest',
+      category: 'seasonal'
+    },
+    
+    // Premium & Luxury (Level 3-6) - High-end and prestigious buildings
+    {
+      id: 'mansion',
+      name: 'Mansion',
+      image: '/images/kingdom-tiles/Mansion.png',
+      cost: 500,
+      levelRequired: 3,
+      costType: 'gold',
+      quantity: 0,
+      isSeasonal: false,
+      category: 'premium'
+    },
+    {
+      id: 'temple',
+      name: 'Temple',
+      image: '/images/kingdom-tiles/Temple.png',
+      cost: 600,
+      levelRequired: 4,
+      costType: 'gold',
+      quantity: 0,
+      isSeasonal: false,
+      category: 'premium'
+    },
+    {
+      id: 'mayor',
+      name: 'Mayor',
+      image: '/images/kingdom-tiles/Mayor.png',
+      cost: 600,
+      levelRequired: 5,
+      costType: 'gold',
+      quantity: 0,
+      isSeasonal: false,
+      category: 'premium'
     },
     {
       id: 'wizard',
       name: 'Wizard',
       image: '/images/kingdom-tiles/Wizard.png',
-      cost: 1000,
+      cost: 800,
       levelRequired: 6,
       costType: 'gold',
       quantity: 0,
-      isSeasonal: false
+      isSeasonal: false,
+      category: 'premium'
     },
+    
+    // Special Buildings (Level 1) - Unique and starting buildings
     {
       id: 'castle',
       name: 'Castle',
       image: '/images/kingdom-tiles/Castle.png',
-      cost: 0,
+      cost: 400,
       levelRequired: 1,
       costType: 'gold',
       quantity: 1, // Start with 1 castle
-      isSeasonal: false
+      isSeasonal: false,
+      category: 'special'
+    },
+    {
+      id: 'fisherman',
+      name: 'Fisherman',
+      image: '/images/kingdom-tiles/Fisherman.png',
+      cost: 120,
+      levelRequired: 1,
+      costType: 'gold',
+      quantity: 0,
+      isSeasonal: false,
+      category: 'special'
     }
   ]);
 

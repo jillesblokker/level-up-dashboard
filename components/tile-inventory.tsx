@@ -36,23 +36,23 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
   const [buyQuantities, setBuyQuantities] = useState<{ [key: string]: number }>({})
   const [selectedCategory, setSelectedCategory] = useState<string>('foundation')
 
-  // Tile categories based on level requirements
+  // Tile categories with logical organization
   const tileCategories = [
     {
       id: 'foundation',
       name: 'Foundation Tiles',
       minLevel: 0,
       maxLevel: 20,
-      description: 'Basic terrain and natural elements',
-      tiles: ['grass', 'forest', 'mountain', 'water']
+      description: 'Basic terrain and natural features',
+      tiles: ['grass', 'water', 'forest', 'mountain', 'desert', 'ice']
     },
     {
       id: 'settlement',
       name: 'Settlement Tiles',
       minLevel: 20,
       maxLevel: 40,
-      description: 'Small communities and basic infrastructure',
-      tiles: ['town', 'city', 'desert', 'ice']
+      description: 'Human settlements and communities',
+      tiles: ['town', 'city']
     },
     {
       id: 'development',
@@ -69,14 +69,6 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
       maxLevel: 80,
       description: 'Complex structures and magical elements',
       tiles: ['volcano', 'lava', 'cave', 'snow']
-    },
-    {
-      id: 'legendary',
-      name: 'Legendary Tiles',
-      minLevel: 80,
-      maxLevel: 100,
-      description: 'Epic structures and unique features',
-      tiles: ['mystery', 'special', 'treasure', 'monster']
     },
     {
       id: 'rare',
@@ -145,35 +137,29 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
 
   // Create a comprehensive list of all possible tiles
   const allPossibleTiles: InventoryItem[] = [
-    // Foundation Tiles (Level 0-20)
+    // Foundation Tiles (Level 0-20) - Basic terrain, affordable for new players
     { id: 'grass', name: 'Grass', type: 'grass', quantity: 0, cost: 25, connections: [], description: 'Basic terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Grass tile', image: '/images/tiles/grass-tile.png' },
     { id: 'water', name: 'Water', type: 'water', quantity: 0, cost: 50, connections: [], description: 'Water body', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Water tile', image: '/images/tiles/water-tile.png' },
     { id: 'forest', name: 'Forest', type: 'forest', quantity: 0, cost: 75, connections: [], description: 'Dense woodland', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Forest tile', image: '/images/tiles/forest-tile.png' },
     { id: 'mountain', name: 'Mountain', type: 'mountain', quantity: 0, cost: 100, connections: [], description: 'Rocky terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Mountain tile', image: '/images/tiles/mountain-tile.png' },
+    { id: 'desert', name: 'Desert', type: 'desert', quantity: 0, cost: 125, connections: [], description: 'Arid terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Desert tile', image: '/images/tiles/desert-tile.png' },
+    { id: 'ice', name: 'Ice', type: 'ice', quantity: 0, cost: 150, connections: [], description: 'Frozen terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Ice tile', image: '/images/tiles/ice-tile.png' },
     
-    // Settlement Tiles (Level 20-40)
+    // Settlement Tiles (Level 20-40) - Human communities, mid-range pricing
     { id: 'town', name: 'Town', type: 'town', quantity: 0, cost: 200, connections: [], description: 'Small settlement', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Town tile', image: '/images/tiles/town-tile.png' },
-    { id: 'city', name: 'City', type: 'city', quantity: 0, cost: 500, connections: [], description: 'Large settlement', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'City tile', image: '/images/tiles/city-tile.png' },
-    { id: 'desert', name: 'Desert', type: 'desert', quantity: 0, cost: 150, connections: [], description: 'Arid terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Desert tile', image: '/images/tiles/desert-tile.png' },
-    { id: 'ice', name: 'Ice', type: 'ice', quantity: 0, cost: 300, connections: [], description: 'Frozen terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Ice tile', image: '/images/tiles/ice-tile.png' },
+    { id: 'city', name: 'City', type: 'city', quantity: 0, cost: 400, connections: [], description: 'Large settlement', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'City tile', image: '/images/tiles/city-tile.png' },
     
-    // Development Tiles (Level 40-60)
-    { id: 'castle', name: 'Castle', type: 'castle', quantity: 0, cost: 1000, connections: [], description: 'Fortified structure', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Castle tile', image: '/images/tiles/castle-tile.png' },
-    { id: 'dungeon', name: 'Dungeon', type: 'dungeon', quantity: 0, cost: 800, connections: [], description: 'Underground complex', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Dungeon tile', image: '/images/tiles/dungeon-tile.png' },
-    { id: 'portal-entrance', name: 'Portal Entrance', type: 'portal-entrance', quantity: 0, cost: 1500, connections: [], description: 'Portal entry point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal entrance tile', image: '/images/tiles/portal-entrance-tile.png' },
-    { id: 'portal-exit', name: 'Portal Exit', type: 'portal-exit', quantity: 0, cost: 1500, connections: [], description: 'Portal exit point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal exit tile', image: '/images/tiles/portal-exit-tile.png' },
+    // Development Tiles (Level 40-60) - Advanced infrastructure, higher but achievable pricing
+    { id: 'castle', name: 'Castle', type: 'castle', quantity: 0, cost: 800, connections: [], description: 'Fortified structure', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Castle tile', image: '/images/tiles/castle-tile.png' },
+    { id: 'dungeon', name: 'Dungeon', type: 'dungeon', quantity: 0, cost: 600, connections: [], description: 'Underground complex', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Dungeon tile', image: '/images/tiles/dungeon-tile.png' },
+    { id: 'portal-entrance', name: 'Portal Entrance', type: 'portal-entrance', quantity: 0, cost: 1000, connections: [], description: 'Portal entry point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal entrance tile', image: '/images/tiles/portal-entrance-tile.png' },
+    { id: 'portal-exit', name: 'Portal Exit', type: 'portal-exit', quantity: 0, cost: 1000, connections: [], description: 'Portal exit point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal exit tile', image: '/images/tiles/portal-exit-tile.png' },
     
-    // Advanced Tiles (Level 60-80)
-    { id: 'volcano', name: 'Volcano', type: 'volcano', quantity: 0, cost: 2000, connections: [], description: 'Active volcano', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Volcano tile', image: '/images/tiles/volcano-tile.png' },
-    { id: 'lava', name: 'Lava', type: 'lava', quantity: 0, cost: 2500, connections: [], description: 'Molten rock', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Lava tile', image: '/images/tiles/lava-tile.png' },
-    { id: 'cave', name: 'Cave', type: 'cave', quantity: 0, cost: 1200, connections: [], description: 'Natural cave', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Cave tile', image: '/images/tiles/cave-tile.png' },
-    { id: 'snow', name: 'Snow', type: 'snow', quantity: 0, cost: 400, connections: [], description: 'Snowy terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Snow tile', image: '/images/tiles/snow-tile.png' },
-    
-    // Legendary Tiles (Level 80-100)
-    { id: 'mystery', name: 'Mystery', type: 'mystery', quantity: 0, cost: 5000, connections: [], description: 'Mysterious location', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Mystery tile', image: '/images/tiles/mystery-tile.png' },
-    { id: 'special', name: 'Special', type: 'special', quantity: 0, cost: 3000, connections: [], description: 'Special location', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Special tile', image: '/images/tiles/special-tile.png' },
-    { id: 'treasure', name: 'Treasure', type: 'treasure', quantity: 0, cost: 4000, connections: [], description: 'Treasure location', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Treasure tile', image: '/images/tiles/treasure-tile.png' },
-    { id: 'monster', name: 'Monster', type: 'monster', quantity: 0, cost: 3500, connections: [], description: 'Monster lair', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Monster tile', image: '/images/tiles/monster-tile.png' },
+    // Advanced Tiles (Level 60-80) - Complex structures, premium pricing but not excessive
+    { id: 'volcano', name: 'Volcano', type: 'volcano', quantity: 0, cost: 1500, connections: [], description: 'Active volcano', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Volcano tile', image: '/images/tiles/volcano-tile.png' },
+    { id: 'lava', name: 'Lava', type: 'lava', quantity: 0, cost: 1800, connections: [], description: 'Molten rock', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Lava tile', image: '/images/tiles/lava-tile.png' },
+    { id: 'cave', name: 'Cave', type: 'cave', quantity: 0, cost: 800, connections: [], description: 'Natural cave', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Cave tile', image: '/images/tiles/cave-tile.png' },
+    { id: 'snow', name: 'Snow', type: 'snow', quantity: 0, cost: 300, connections: [], description: 'Snowy terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Snow tile', image: '/images/tiles/snow-tile.png' }
   ];
 
   // Filter tiles by category - show all tiles but mark locked ones
