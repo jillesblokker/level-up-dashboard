@@ -20,7 +20,9 @@ export async function loadGameSettings(): Promise<Record<string, any>> {
       if (data.data) {
         const settings: Record<string, any> = {};
         data.data.forEach((setting: GameSetting) => {
-          settings[setting.setting_key] = setting.setting_value;
+          // Handle both column names for compatibility
+          const value = setting.setting_value || setting.settings_data?.value || setting.settings_data;
+          settings[setting.setting_key] = value;
         });
         console.log('[Game Settings Manager] Loaded from Supabase:', settings);
         return settings;
