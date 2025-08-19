@@ -557,44 +557,39 @@ TECHNICAL DETAILS:
   };
 
   // Toggle event status
-  const toggleEvent = async (eventKey: string, currentValue: boolean) => {
-    if (!user?.id) return;
+  const toggleEvent = async (key: string, currentValue: boolean) => {
+    const newValue = !currentValue;
     
-    setIsUpdatingEvents(true);
     try {
-      const token = await getToken();
-      if (!token) return;
-
-      const newValue = !currentValue;
       const response = await fetch('/api/game-settings', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          setting_key: eventKey,
-          setting_value: newValue.toString()
-        })
+          key,
+          value: newValue.toString(),
+        }),
       });
 
       if (response.ok) {
-        // Update local state
-        if (eventKey === 'winter_festival_active') {
+        if (key === 'winter_festival_active') {
           setWinterFestivalActive(newValue);
-        } else if (eventKey === 'harvest_festival_active') {
+          // Dispatch event to notify kingdom grid component
+          window.dispatchEvent(new CustomEvent('winter-festival-toggled', { detail: { active: newValue } }));
+        } else if (key === 'harvest_festival_active') {
           setHarvestFestivalActive(newValue);
+          // Dispatch event to notify kingdom grid component
+          window.dispatchEvent(new CustomEvent('harvest-festival-toggled', { detail: { active: newValue } }));
         }
         
-        toast.success(`${eventKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} ${newValue ? 'activated' : 'deactivated'}!`);
+        toast.success(`${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} is now ${newValue ? 'ACTIVE' : 'INACTIVE'}`);
       } else {
         toast.error('Failed to update event status');
       }
     } catch (error) {
-      console.error('Error toggling event:', error);
-      toast.error('Error updating event status');
-    } finally {
-      setIsUpdatingEvents(false);
+      console.error('Error updating event:', error);
+      toast.error('An error occurred while updating the event');
     }
   };
 

@@ -185,6 +185,29 @@ export function KingdomGridWithTimers({
     })()
   }, [])
 
+  // Listen for event flag changes from stored data page
+  useEffect(() => {
+    const handleWinterFestivalToggle = (event: CustomEvent) => {
+      console.log('[Kingdom] Received winter festival toggle event:', event.detail);
+      setWinterFestivalActive(event.detail.active);
+    };
+
+    const handleHarvestFestivalToggle = (event: CustomEvent) => {
+      console.log('[Kingdom] Received harvest festival toggle event:', event.detail);
+      setHarvestFestivalActive(event.detail.active);
+    };
+
+    console.log('[Kingdom] Setting up event listeners for festival toggles');
+    window.addEventListener('winter-festival-toggled', handleWinterFestivalToggle as EventListener);
+    window.addEventListener('harvest-festival-toggled', handleHarvestFestivalToggle as EventListener);
+
+    return () => {
+      console.log('[Kingdom] Cleaning up event listeners');
+      window.removeEventListener('winter-festival-toggled', handleWinterFestivalToggle as EventListener);
+      window.removeEventListener('harvest-festival-toggled', handleHarvestFestivalToggle as EventListener);
+    };
+  }, []);
+
   // Calculate if kingdom can be expanded
   const nextExpansionLevel = 5 + kingdomExpansions * 5
   const canExpand = playerLevel >= nextExpansionLevel
@@ -647,19 +670,32 @@ export function KingdomGridWithTimers({
 
   // Filter properties based on event status
   const getAvailableProperties = () => {
-    return propertyInventory.filter(property => {
-      if (!property.isSeasonal) return true; // Always show non-seasonal properties
+    console.log('[Kingdom] Event flags - Winter:', winterFestivalActive, 'Harvest:', harvestFestivalActive);
+    
+    const available = propertyInventory.filter(property => {
+      if (!property.isSeasonal) {
+        console.log(`[Kingdom] ${property.name} - Non-seasonal, showing`);
+        return true; // Always show non-seasonal properties
+      }
       
       if (property.eventType === 'winter') {
-        return winterFestivalActive;
+        const shouldShow = winterFestivalActive;
+        console.log(`[Kingdom] ${property.name} - Winter seasonal, showing:`, shouldShow);
+        return shouldShow;
       }
       
       if (property.eventType === 'harvest') {
-        return harvestFestivalActive;
+        const shouldShow = harvestFestivalActive;
+        console.log(`[Kingdom] ${property.name} - Harvest seasonal, showing:`, shouldShow);
+        return shouldShow;
       }
       
+      console.log(`[Kingdom] ${property.name} - Unknown seasonal type, hiding`);
       return false; // Hide seasonal properties when their event is inactive
     });
+    
+    console.log('[Kingdom] Available properties:', available.map(p => p.name));
+    return available;
   };
 
 
