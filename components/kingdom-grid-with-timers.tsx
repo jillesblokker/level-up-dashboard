@@ -82,12 +82,20 @@ export function KingdomGridWithTimers({
   const [playerLevel, setPlayerLevel] = useState(1)
   // Seasonal event flags
   const [winterFestivalActive, setWinterFestivalActive] = useState(false)
+  const [harvestFestivalActive, setHarvestFestivalActive] = useState(false)
   // Tiles affected by winter event bonus
   const WINTER_EVENT_TILE_IDS = new Set([
     'winter-fountain',
     'snowy-inn',
     'ice-sculpture',
     'fireworks-stand'
+  ])
+  // Tiles affected by harvest event bonus
+  const HARVEST_EVENT_TILE_IDS = new Set([
+    'harvest-barn',
+    'pumpkin-patch',
+    'bakery',
+    'brewery'
   ])
   
   // Small retry helper to mitigate early auth token races
@@ -153,6 +161,23 @@ export function KingdomGridWithTimers({
           const valueRaw = json?.data?.[0]?.setting_value
           const normalized = String(valueRaw).toLowerCase().trim()
           setWinterFestivalActive(normalized === 'true' || normalized === '1' || normalized === 'yes')
+        }
+      } catch {
+        // ignore; default remains false
+      }
+    })()
+  }, [])
+
+  // Load simple event flags from game settings (per-user)
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetchAuthRetry('/api/game-settings?key=harvest_festival_active', { method: 'GET' })
+        if (res && res.ok) {
+          const json = await res.json()
+          const valueRaw = json?.data?.[0]?.setting_value
+          const normalized = String(valueRaw).toLowerCase().trim()
+          setHarvestFestivalActive(normalized === 'true' || normalized === '1' || normalized === 'yes')
         }
       } catch {
         // ignore; default remains false
@@ -244,7 +269,8 @@ export function KingdomGridWithTimers({
       cost: 150,
       levelRequired: 1,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'winter-fountain',
@@ -253,7 +279,9 @@ export function KingdomGridWithTimers({
       cost: 200,
       levelRequired: 2,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: true,
+      eventType: 'winter'
     },
     {
       id: 'snowy-inn',
@@ -262,7 +290,9 @@ export function KingdomGridWithTimers({
       cost: 180,
       levelRequired: 2,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: true,
+      eventType: 'winter'
     },
     {
       id: 'ice-sculpture',
@@ -271,7 +301,9 @@ export function KingdomGridWithTimers({
       cost: 150,
       levelRequired: 1,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: true,
+      eventType: 'winter'
     },
     {
       id: 'fireworks-stand',
@@ -280,7 +312,9 @@ export function KingdomGridWithTimers({
       cost: 160,
       levelRequired: 2,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: true,
+      eventType: 'winter'
     },
     {
       id: 'pumpkin-patch',
@@ -289,7 +323,9 @@ export function KingdomGridWithTimers({
       cost: 120,
       levelRequired: 1,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: true,
+      eventType: 'harvest'
     },
     {
       id: 'harvest-barn',
@@ -298,7 +334,9 @@ export function KingdomGridWithTimers({
       cost: 220,
       levelRequired: 2,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: true,
+      eventType: 'harvest'
     },
     {
       id: 'bakery',
@@ -307,7 +345,9 @@ export function KingdomGridWithTimers({
       cost: 140,
       levelRequired: 1,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: true,
+      eventType: 'harvest'
     },
     {
       id: 'brewery',
@@ -316,7 +356,9 @@ export function KingdomGridWithTimers({
       cost: 180,
       levelRequired: 2,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: true,
+      eventType: 'harvest'
     },
     {
       id: 'market-stalls',
@@ -325,7 +367,8 @@ export function KingdomGridWithTimers({
       cost: 130,
       levelRequired: 1,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'library',
@@ -334,7 +377,8 @@ export function KingdomGridWithTimers({
       cost: 260,
       levelRequired: 3,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'training-grounds',
@@ -343,7 +387,8 @@ export function KingdomGridWithTimers({
       cost: 200,
       levelRequired: 2,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'stable',
@@ -352,7 +397,8 @@ export function KingdomGridWithTimers({
       cost: 160,
       levelRequired: 1,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'blacksmith',
@@ -361,7 +407,8 @@ export function KingdomGridWithTimers({
       cost: 200,
       levelRequired: 1,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'fisherman',
@@ -370,7 +417,8 @@ export function KingdomGridWithTimers({
       cost: 120,
       levelRequired: 1,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'foodcourt',
@@ -379,7 +427,8 @@ export function KingdomGridWithTimers({
       cost: 250,
       levelRequired: 1,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'fountain',
@@ -388,7 +437,8 @@ export function KingdomGridWithTimers({
       cost: 180,
       levelRequired: 1,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'grocery',
@@ -397,7 +447,8 @@ export function KingdomGridWithTimers({
       cost: 160,
       levelRequired: 1,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'house',
@@ -406,7 +457,8 @@ export function KingdomGridWithTimers({
       cost: 100,
       levelRequired: 1,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'inn',
@@ -415,7 +467,8 @@ export function KingdomGridWithTimers({
       cost: 220,
       levelRequired: 1,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'jousting',
@@ -424,7 +477,8 @@ export function KingdomGridWithTimers({
       cost: 300,
       levelRequired: 2,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'mansion',
@@ -433,7 +487,8 @@ export function KingdomGridWithTimers({
       cost: 500,
       levelRequired: 3,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'mayor',
@@ -442,7 +497,8 @@ export function KingdomGridWithTimers({
       cost: 800,
       levelRequired: 5,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'pond',
@@ -451,7 +507,8 @@ export function KingdomGridWithTimers({
       cost: 80,
       levelRequired: 1,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'sawmill',
@@ -460,7 +517,8 @@ export function KingdomGridWithTimers({
       cost: 280,
       levelRequired: 2,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'temple',
@@ -469,7 +527,8 @@ export function KingdomGridWithTimers({
       cost: 600,
       levelRequired: 4,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'vegetables',
@@ -478,7 +537,8 @@ export function KingdomGridWithTimers({
       cost: 60,
       levelRequired: 1,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'watchtower',
@@ -487,7 +547,8 @@ export function KingdomGridWithTimers({
       cost: 350,
       levelRequired: 2,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'well',
@@ -496,7 +557,8 @@ export function KingdomGridWithTimers({
       cost: 90,
       levelRequired: 1,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'windmill',
@@ -505,7 +567,8 @@ export function KingdomGridWithTimers({
       cost: 320,
       levelRequired: 2,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'wizard',
@@ -514,7 +577,8 @@ export function KingdomGridWithTimers({
       cost: 1000,
       levelRequired: 6,
       costType: 'gold',
-      quantity: 0
+      quantity: 0,
+      isSeasonal: false
     },
     {
       id: 'castle',
@@ -523,7 +587,8 @@ export function KingdomGridWithTimers({
       cost: 0,
       levelRequired: 1,
       costType: 'gold',
-      quantity: 1 // Start with 1 castle
+      quantity: 1, // Start with 1 castle
+      isSeasonal: false
     }
   ]);
 
@@ -531,6 +596,22 @@ export function KingdomGridWithTimers({
   const [selectedProperty, setSelectedProperty] = useState<typeof propertyInventory[0] | null>(null)
   const [placementMode, setPlacementMode] = useState(false)
 
+  // Filter properties based on event status
+  const getAvailableProperties = () => {
+    return propertyInventory.filter(property => {
+      if (!property.isSeasonal) return true; // Always show non-seasonal properties
+      
+      if (property.eventType === 'winter') {
+        return winterFestivalActive;
+      }
+      
+      if (property.eventType === 'harvest') {
+        return harvestFestivalActive;
+      }
+      
+      return false; // Hide seasonal properties when their event is inactive
+    });
+  };
 
 
     // Check if player can place a property
@@ -872,11 +953,17 @@ export function KingdomGridWithTimers({
       if (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id)) {
         goldEarned = Math.floor(goldEarned * 1.2)
       }
+      // Apply harvest event bonus where applicable
+      if (harvestFestivalActive && HARVEST_EVENT_TILE_IDS.has(kingdomTile.id)) {
+        goldEarned = Math.floor(goldEarned * 1.2)
+      }
       // Grant experience proportional to gold; apply winter +10% EXP on winter tiles
       const baseExperience = wasLucky ? Math.ceil(goldEarned * 0.5) : Math.ceil(goldEarned * 0.3)
       const experienceAwarded = (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id))
         ? Math.ceil(baseExperience * 1.1)
-        : baseExperience
+        : (harvestFestivalActive && HARVEST_EVENT_TILE_IDS.has(kingdomTile.id))
+          ? Math.ceil(baseExperience * 1.1)
+          : baseExperience
       ;(async () => {
         try {
           const { gainExperience } = await import('@/lib/experience-manager')
@@ -1261,7 +1348,7 @@ export function KingdomGridWithTimers({
             {propertyTab === 'place' ? (
               // Place tab - show properties you own
             <div className="grid grid-cols-2 gap-6">
-              {propertyInventory.map(tile => {
+              {getAvailableProperties().map(tile => {
                 const canPlace = canPlaceProperty(tile)
                 
                 return (
@@ -1322,7 +1409,7 @@ export function KingdomGridWithTimers({
                       </Tooltip>
                     </div>
                     <div className="text-sm text-amber-400 text-center">
-                      {canPlace ? 'Click to place' : 'Requirements not met'}
+                      Click to place
                     </div>
                     </button>
                   )
@@ -1331,7 +1418,7 @@ export function KingdomGridWithTimers({
             ) : (
               // Buy tab - show properties for purchase
               <div className="grid grid-cols-2 gap-6">
-                {propertyInventory.map(tile => (
+                {getAvailableProperties().map(tile => (
                   <button
                     key={tile.id}
                     className="relative flex flex-col items-center border border-amber-800/30 bg-black/60 rounded-xl p-3 shadow-lg transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-500 hover:border-amber-500/50 hover:shadow-amber-500/20 cursor-pointer"
@@ -1379,8 +1466,8 @@ export function KingdomGridWithTimers({
                             {tile.levelRequired > 1 && (
                               <div className="text-sm text-blue-300">
                                 Requires Level {tile.levelRequired}
-                      </div>
-                    )}
+                              </div>
+                            )}
                           </div>
                         </TooltipContent>
                       </Tooltip>
@@ -1388,6 +1475,11 @@ export function KingdomGridWithTimers({
                     <div className="text-sm text-amber-400 text-center">
                       Click to buy
                     </div>
+                    {tile.isSeasonal && (
+                      <div className="text-xs text-blue-400 text-center mt-1">
+                        Seasonal Tile
+                      </div>
+                    )}
                   </button>
                 ))}
             </div>

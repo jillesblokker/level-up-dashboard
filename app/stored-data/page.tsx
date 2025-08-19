@@ -95,6 +95,11 @@ export default function StoredDataPage() {
   const { supabase } = useSupabase();
   const { triggerTestModal, triggerTestModal2, triggerTestModal3, triggerTestModal4, triggerTestModal5, triggerTestModal6, triggerTestModal7, triggerTestModal8, triggerTestModal9, triggerTestModal10 } = useTitleEvolution()
 
+  // Event toggle states
+  const [winterFestivalActive, setWinterFestivalActive] = useState(false);
+  const [harvestFestivalActive, setHarvestFestivalActive] = useState(false);
+  const [isUpdatingEvents, setIsUpdatingEvents] = useState(false);
+
   const handleUnlockRareTile = async (tileId: string) => {
     try {
       if (!user?.id || !supabase) {
@@ -206,6 +211,10 @@ export default function StoredDataPage() {
 
         // Check all Supabase connections
         await checkAllConnections();
+
+        // Load event flags
+        await loadEventFlags();
+
       } catch (error) {
         console.error('Error loading Supabase data:', error);
         toast.error('Failed to load data');
@@ -515,6 +524,80 @@ TECHNICAL DETAILS:
     return summary;
   };
 
+  // Load event flags from game settings
+  const loadEventFlags = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const token = await getToken();
+      if (!token) return;
+
+      // Load winter festival status
+      const winterResponse = await fetch('/api/game-settings?key=winter_festival_active', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (winterResponse.ok) {
+        const winterData = await winterResponse.json();
+        const winterValue = winterData?.data?.[0]?.setting_value;
+        setWinterFestivalActive(String(winterValue).toLowerCase() === 'true');
+      }
+
+      // Load harvest festival status (for future use)
+      const harvestResponse = await fetch('/api/game-settings?key=harvest_festival_active', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (harvestResponse.ok) {
+        const harvestData = await harvestResponse.json();
+        const harvestValue = harvestData?.data?.[0]?.setting_value;
+        setHarvestFestivalActive(String(harvestValue).toLowerCase() === 'true');
+      }
+    } catch (error) {
+      console.error('Error loading event flags:', error);
+    }
+  };
+
+  // Toggle event status
+  const toggleEvent = async (eventKey: string, currentValue: boolean) => {
+    if (!user?.id) return;
+    
+    setIsUpdatingEvents(true);
+    try {
+      const token = await getToken();
+      if (!token) return;
+
+      const newValue = !currentValue;
+      const response = await fetch('/api/game-settings', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          setting_key: eventKey,
+          setting_value: newValue.toString()
+        })
+      });
+
+      if (response.ok) {
+        // Update local state
+        if (eventKey === 'winter_festival_active') {
+          setWinterFestivalActive(newValue);
+        } else if (eventKey === 'harvest_festival_active') {
+          setHarvestFestivalActive(newValue);
+        }
+        
+        toast.success(`${eventKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} ${newValue ? 'activated' : 'deactivated'}!`);
+      } else {
+        toast.error('Failed to update event status');
+      }
+    } catch (error) {
+      console.error('Error toggling event:', error);
+      toast.error('Error updating event status');
+    } finally {
+      setIsUpdatingEvents(false);
+    }
+  };
+
   return (
     <main className="container mx-auto p-4 space-y-6" aria-label="build-status-dashboard">
       {/* Header */}
@@ -538,6 +621,82 @@ TECHNICAL DETAILS:
           </Button>
         </div>
       </div>
+
+      {/* Event Toggles */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Star className="w-5 h-5" />
+            Seasonal Events
+          </CardTitle>
+          <CardDescription>Toggle seasonal events on/off. When off, seasonal tiles only appear naturally.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                <div>
+                  <div className="font-medium">Winter Festival</div>
+                  <div className="text-sm text-muted-foreground">
+                    Activates +20% gold and +10% EXP bonuses on winter tiles (Winter Fountain, Snowy Inn, Ice Sculpture, Fireworks Stand)
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant={winterFestivalActive ? "default" : "secondary"}>
+                  {winterFestivalActive ? "ACTIVE" : "INACTIVE"}
+                </Badge>
+                <Button 
+                  onClick={() => toggleEvent('winter_festival_active', winterFestivalActive)}
+                  disabled={isUpdatingEvents}
+                  variant={winterFestivalActive ? "destructive" : "default"}
+                  size="sm"
+                >
+                  {winterFestivalActive ? "Deactivate" : "Activate"}
+                </Button>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                <div>
+                  <div className="font-medium">Harvest Festival</div>
+                  <div className="text-sm text-muted-foreground">
+                    Future event for harvest-themed tiles (Harvest Barn, Pumpkin Patch, Bakery, Brewery)
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant={harvestFestivalActive ? "default" : "secondary"}>
+                  {harvestFestivalActive ? "ACTIVE" : "INACTIVE"}
+                </Badge>
+                <Button 
+                  onClick={() => toggleEvent('harvest_festival_active', harvestFestivalActive)}
+                  disabled={isUpdatingEvents}
+                  variant={harvestFestivalActive ? "destructive" : "default"}
+                  size="sm"
+                >
+                  {harvestFestivalActive ? "Deactivate" : "Activate"}
+                </Button>
+              </div>
+            </div>
+            
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="text-sm text-blue-800">
+                <strong>How it works:</strong>
+                <ul className="mt-2 ml-4 space-y-1">
+                  <li>• <strong>When ACTIVE:</strong> Seasonal tiles are fully available for purchase and placement, with bonus rewards</li>
+                  <li>• <strong>When INACTIVE:</strong> Seasonal tiles only appear naturally through rare drops or special events</li>
+                  <li>• <strong>Winter tiles:</strong> Winter Fountain, Snowy Inn, Ice Sculpture, Fireworks Stand</li>
+                  <li>• <strong>Harvest tiles:</strong> Harvest Barn, Pumpkin Patch, Bakery, Brewery</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Overall Status */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
