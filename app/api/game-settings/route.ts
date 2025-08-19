@@ -11,6 +11,14 @@ export async function GET(request: NextRequest) {
     const { data, error } = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
       console.log(`[Game Settings API] User ID: ${userId}`);
       
+      // First, let's check if the table exists and see its structure
+      const { data: tableInfo, error: tableError } = await supabase
+        .from('game_settings')
+        .select('*')
+        .limit(1);
+      
+      console.log(`[Game Settings API] Table info check - data:`, tableInfo, 'error:', tableError);
+      
       let query = supabase
         .from('game_settings')
         .select('*')
@@ -22,34 +30,22 @@ export async function GET(request: NextRequest) {
       }
       
       const { data, error } = await query;
-      console.log(`[Game Settings API] Query result - data:`, data, 'error:', error);
       
-      if (data && data.length > 0) {
-        console.log(`[Game Settings API] Found ${data.length} settings:`);
-        data.forEach((setting, index) => {
-          console.log(`[Game Settings API] Setting ${index}:`, {
-            user_id: setting.user_id,
-            setting_key: setting.setting_key,
-            setting_value: setting.setting_value,
-            updated_at: setting.updated_at
-          });
-        });
-      } else {
-        console.log(`[Game Settings API] No settings found for user ${userId}`);
-      }
+      console.log(`[Game Settings API] Query result - data:`, data, 'error:', error);
+      console.log(`[Game Settings API] Raw query result:`, JSON.stringify(data, null, 2));
       
       return { data, error };
     });
 
     if (error) {
-      console.error('[Game Settings API] Error fetching settings:', error);
-      return NextResponse.json({ error: 'Failed to fetch game settings' }, { status: 500 });
+      console.error(`[Game Settings API] Database error:`, error);
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
 
-    console.log(`[Game Settings API] Returning data:`, data);
+    console.log(`[Game Settings API] Final response data:`, data);
     return NextResponse.json({ data });
   } catch (error) {
-    console.error('[Game Settings API] Unexpected error:', error);
+    console.error(`[Game Settings API] Unexpected error:`, error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -77,37 +73,43 @@ export async function POST(request: NextRequest) {
       
       console.log(`[Game Settings API] Upsert data:`, upsertData);
       
+      // First, let's check what exists before the upsert
+      const { data: existingData, error: existingError } = await supabase
+        .from('game_settings')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('setting_key', setting_key);
+      
+      console.log(`[Game Settings API] Existing data before upsert:`, existingData, 'error:', existingError);
+      
       const { data, error } = await supabase
         .from('game_settings')
-        .upsert(upsertData, {
-          onConflict: 'game_settings_user_id_setting_key_key'
-        })
-        .select()
-        .single();
+        .upsert(upsertData, { onConflict: 'user_id,setting_key' })
+        .select();
       
       console.log(`[Game Settings API] Upsert result - data:`, data, 'error:', error);
       
-      if (data) {
-        console.log(`[Game Settings API] Successfully created/updated setting:`, {
-          user_id: data.user_id,
-          setting_key: data.setting_key,
-          setting_value: data.setting_value,
-          updated_at: data.updated_at
-        });
-      }
+      // Now let's verify what was actually created/updated
+      const { data: verifyData, error: verifyError } = await supabase
+        .from('game_settings')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('setting_key', setting_key);
+      
+      console.log(`[Game Settings API] Verification after upsert:`, verifyData, 'error:', verifyError);
       
       return { data, error };
     });
 
     if (error) {
-      console.error('[Game Settings API] Error updating settings:', error);
-      return NextResponse.json({ error: 'Failed to update game settings' }, { status: 500 });
+      console.error(`[Game Settings API] Database error:`, error);
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
 
-    console.log(`[Game Settings API] Returning created/updated data:`, data);
+    console.log(`[Game Settings API] Successfully created/updated setting:`, data);
     return NextResponse.json({ data });
   } catch (error) {
-    console.error('[Game Settings API] Unexpected error:', error);
+    console.error(`[Game Settings API] Unexpected error:`, error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
