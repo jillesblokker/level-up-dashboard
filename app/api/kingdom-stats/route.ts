@@ -182,7 +182,7 @@ export async function GET(request: Request) {
       const [questRes, challengeRes, milestoneRes] = await Promise.all([
         supabaseServer
           .from('quest_completion')
-          .select('id, completed_at')
+          .select('quest_id, completed_at')
           .eq('user_id', userId)
           .eq('completed', true),
         supabaseServer
@@ -237,7 +237,7 @@ export async function GET(request: Request) {
 
       // Add quest gold - we need to get gold from the quests table
       if (questRes.data && questRes.data.length > 0) {
-        const questIds = questRes.data.map(c => c.id);
+        const questIds = questRes.data.map(c => c.quest_id);
         const { data: questRewards } = await supabaseServer
           .from('quests')
           .select('id, gold')
@@ -247,7 +247,7 @@ export async function GET(request: Request) {
           if (c.completed_at) {
             const dateKey = period === 'year' ? c.completed_at.slice(0, 7) : 
                            period === 'all' ? 'all' : c.completed_at.slice(0, 10);
-            const questReward = questRewards?.find(q => q.id === c.id);
+            const questReward = questRewards?.find(q => q.id === c.quest_id);
             if (sums[dateKey] !== undefined) sums[dateKey] += questReward?.gold || 0;
           }
         });
@@ -284,7 +284,7 @@ export async function GET(request: Request) {
       const [questRes, challengeRes, milestoneRes] = await Promise.all([
         supabaseServer
           .from('quest_completion')
-          .select('id, completed_at')
+          .select('quest_id, completed_at')
           .eq('user_id', userId)
           .eq('completed', true),
         supabaseServer
@@ -339,7 +339,7 @@ export async function GET(request: Request) {
 
       // Add quest XP - we need to get XP from the quests table
       if (questRes.data && questRes.data.length > 0) {
-        const questIds = questRes.data.map(c => c.id);
+        const questIds = questRes.data.map(c => c.quest_id);
         const { data: questRewards } = await supabaseServer
           .from('quests')
           .select('id, xp')
@@ -349,7 +349,7 @@ export async function GET(request: Request) {
           if (c.completed_at) {
             const dateKey = period === 'year' ? c.completed_at.slice(0, 7) : 
                            period === 'all' ? 'all' : c.completed_at.slice(0, 10);
-            const questReward = questRewards?.find(q => q.id === c.id);
+            const questReward = questRewards?.find(q => q.id === c.quest_id);
             if (sums[dateKey] !== undefined) sums[dateKey] += questReward?.xp || 0;
           }
         });
@@ -386,7 +386,7 @@ export async function GET(request: Request) {
       const [questRes, challengeRes, milestoneRes] = await Promise.all([
         supabaseServer
           .from('quest_completion')
-          .select('id, completed_at')
+          .select('quest_id, completed_at')
           .eq('user_id', userId)
           .eq('completed', true)
           .order('completed_at', { ascending: true }),
@@ -454,7 +454,7 @@ export async function GET(request: Request) {
       
       // Add quest XP to timeline
       if (questRes.data && questRes.data.length > 0) {
-        const questIds = questRes.data.map(c => c.id);
+        const questIds = questRes.data.map(c => c.quest_id);
         const { data: questRewards } = await supabaseServer
           .from('quests')
           .select('id, xp')
@@ -462,7 +462,7 @@ export async function GET(request: Request) {
         
         questRes.data.forEach((c: any) => {
           if (c.completed_at) {
-            const questReward = questRewards?.find(q => q.id === c.id);
+            const questReward = questRewards?.find(q => q.id === c.quest_id);
             experienceTimeline.push({
               date: c.completed_at.slice(0, 10),
               xp: questReward?.xp || 0
