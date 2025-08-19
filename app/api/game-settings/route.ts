@@ -93,6 +93,7 @@ export async function POST(request: NextRequest) {
       
       console.log(`[Game Settings API] Existing data before upsert:`, existingData, 'error:', existingError);
       
+      // Try the upsert operation
       const { data, error } = await supabase
         .from('game_settings')
         .upsert(upsertData, { onConflict: 'user_id,setting_key' })
