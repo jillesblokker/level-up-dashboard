@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { useAuth } from '@clerk/nextjs';
 
-// Singleton to prevent multiple client instances
-let supabaseInstance: SupabaseClient | null = null;
-let currentToken: string | null = null;
+// Global singleton to prevent multiple client instances
+let globalSupabaseInstance: SupabaseClient | null = null;
+let globalCurrentToken: string | null = null;
 
 // This hook provides a Supabase client instance that is safe to use on the client-side.
 // It is aware of the Clerk authentication token and ensures the client is ready.
@@ -22,14 +22,10 @@ export function useSupabase() {
 
         const init = async () => {
             try {
-                // Removed debugging log
                 const token = await getToken({ template: 'supabase' });
-                // Removed debugging log
-                // Removed debugging log
                 
                 const url = process.env['NEXT_PUBLIC_SUPABASE_URL'];
                 const anon = process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'];
-                // Removed debugging logs
                 
                 if (!url || !anon) {
                     console.error('[useSupabase] Supabase env vars missing!');
@@ -38,12 +34,13 @@ export function useSupabase() {
                 }
 
                 // Only create a new client if we don't have one or if the token changed
-                if (!supabaseInstance || currentToken !== token) {
-                    if (supabaseInstance) {
-                        // Removed debugging log
+                if (!globalSupabaseInstance || globalCurrentToken !== token) {
+                    if (globalSupabaseInstance) {
+                        // Clean up old instance if token changed
+                        globalSupabaseInstance.auth.signOut();
                     }
                     
-                    supabaseInstance = createClient(
+                    globalSupabaseInstance = createClient(
                         url,
                         anon,
                         {
@@ -54,11 +51,10 @@ export function useSupabase() {
                             },
                         }
                     );
-                    currentToken = token;
-                    // Removed debugging log
+                    globalCurrentToken = token;
                 }
                 
-                setSupabase(supabaseInstance);
+                setSupabase(globalSupabaseInstance);
                 setIsLoading(false);
             } catch (err) {
                 console.error('[useSupabase] Error initializing Supabase:', err);
