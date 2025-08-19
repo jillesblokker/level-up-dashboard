@@ -693,7 +693,7 @@ export default function QuestsPage() {
       );
       
       // Update in Supabase
-      console.log('Sending quest update:', { title: questObj.name, completed: newCompleted });
+      // Sending quest update
       const response = await fetch('/api/quests-complete', {
         method: 'PUT',
         headers: {
@@ -705,13 +705,10 @@ export default function QuestsPage() {
         })
       });
       
-      console.log('Response status:', response.status);
-      const responseText = await response.text();
-      console.log('Response body:', responseText);
+              // Response received
       
       if (!response.ok) {
-        const errorData = responseText ? JSON.parse(responseText) : { error: 'Unknown error' };
-        throw new Error(`Failed to update quest: ${errorData.error || 'Unknown error'}`);
+        throw new Error(`Failed to update quest: ${response.status}`);
       }
       
       // Show success toast
@@ -1272,18 +1269,18 @@ export default function QuestsPage() {
       <KeyboardShortcutsProvider 
         onNavigate={(route) => {
           // TODO: Implement navigation
-          console.log('Navigate to:', route)
+          // Navigate to route
         }}
         onAddQuest={() => setAddQuestModalOpen(true)}
         onAddChallenge={() => setAddChallengeModalOpen(true)}
         onAddMilestone={() => setAddMilestoneModalOpen(true)}
         onBuyTile={() => {
           // TODO: Navigate to kingdom and open tile purchase
-          console.log('Buy tile')
+          // Buy tile
         }}
         onShowHelp={() => {
           // TODO: Show help modal
-          console.log('Show help')
+          // Show help
         }}
       />
       
@@ -1863,7 +1860,7 @@ export default function QuestsPage() {
               onSubmit={e => {
                 e.preventDefault();
                 // TODO: Implement milestone creation
-                console.log('Add milestone:', newMilestone);
+                // Add milestone
                 setAddMilestoneModalOpen(false);
               }}
             >

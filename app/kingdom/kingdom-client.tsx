@@ -272,7 +272,7 @@ function getKingdomTileInventoryWithBuildTokens(): Tile[] {
 
 export function KingdomClient({ userId }: { userId: string | null }) {
   // Add debugging to see what userId value we're getting
-  console.log('[Kingdom Client] userId received:', userId);
+      // userId received
   
   const { toast } = useToast();
   const [coverImage, setCoverImage] = useState<string | undefined>(undefined);
@@ -721,7 +721,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
         
         // 🎯 SHOW DEFAULT ITEMS if no items are equipped
         if (equippedItemsToShow.length === 0) {
-          console.log('[Kingdom] No equipped items found, showing default items');
+          // No equipped items found, showing default items
           equippedItemsToShow = defaultInventoryItems.map(item => ({
             ...item,
             stats: item.stats || {},

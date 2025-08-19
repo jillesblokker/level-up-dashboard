@@ -22,7 +22,7 @@ export function useSupabaseSync() {
         setIsSyncing(true)
         try {
           // Sync is now handled by individual components using the new API endpoints
-          console.log('Data sync handled by individual components')
+          // Data sync handled by individual components
           setLastSync(new Date())
         } catch (error) {
           console.error('Sync failed:', error)
@@ -46,7 +46,7 @@ export function useSupabaseSync() {
   useEffect(() => {
     const handleOnline = () => {
       if (isSignedIn && user?.id) {
-        console.log('Online status restored - sync handled by components')
+        // Online status restored - sync handled by components
       }
     }
 

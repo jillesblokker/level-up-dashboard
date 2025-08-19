@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     }
 
     // Fetch quests from quests table
-    console.log('Fetching quests from quests table...');
+    // Fetching quests from quests table
     const { data: quests, error: questsError } = await supabase
       .from('quests')
       .select('*');
@@ -40,7 +40,7 @@ export async function GET(request: Request) {
     }
 
     // Get user's quest completions from quest_completion table
-    console.log('Fetching user quest completions...');
+    // Fetching user quest completions
     const { data: questCompletions, error: completionsError } = await supabase
       .from('quest_completion')
       .select('*')
@@ -49,7 +49,7 @@ export async function GET(request: Request) {
     if (completionsError) {
       console.error('Quest completions fetch error:', completionsError);
       // If the table doesn't exist, continue with empty completions
-      console.log('quest_completion table error, continuing with empty completions');
+      // quest_completion table error, continuing with empty completions
     }
 
     // Create a map of quest completions (only treat as completed if completed === true)
@@ -81,7 +81,7 @@ export async function GET(request: Request) {
       };
     });
 
-    console.log(`Returning ${questsWithCompletions.length} quests`);
+    // Returning quests
     return NextResponse.json(questsWithCompletions);
   } catch (error) {
     console.error('Error fetching quests:', error instanceof Error ? error.stack : error);
@@ -103,7 +103,7 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    console.log('Quest completion request:', body);
+    // Quest completion request
     
     const { title, completed } = body;
     
@@ -140,7 +140,7 @@ export async function PUT(request: Request) {
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
-      console.log('Quest completion upserted:', questCompletion);
+              // Quest completion upserted
     } else {
       // Mark quest as not completed (delete the completion record)
       const { error } = await supabase
@@ -154,7 +154,7 @@ export async function PUT(request: Request) {
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
-      console.log('Quest completion deleted');
+              // Quest completion deleted
     }
 
     return NextResponse.json({ 

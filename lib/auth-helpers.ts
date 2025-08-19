@@ -65,7 +65,7 @@ export async function getClerkToken(): Promise<string> {
       return '';
     }
 
-    console.log('[Clerk Token] Successfully retrieved token:', token.slice(0, 20) + '...');
+    // Successfully retrieved token
     return token;
   } catch (error) {
     console.error('[Clerk Token] Error getting Clerk token:', error);
@@ -93,7 +93,7 @@ export async function authenticatedFetch(
     return null;
   }
 
-  console.log(`[${contextName}] Making authenticated request to ${endpoint} with token: ${token.slice(0, 20)}...`);
+      // Making authenticated request
 
   // Make authenticated request
   const response = await fetch(endpoint, {
@@ -105,7 +105,7 @@ export async function authenticatedFetch(
     },
   });
 
-  console.log(`[${contextName}] Response status: ${response.status}`);
+      // Response received
 
   // Check for auth error and mark circuit breaker
   if (isAuthError(response)) {

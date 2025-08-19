@@ -24,7 +24,7 @@ export async function loadCharacterStats(): Promise<CharacterStats> {
     if (response.ok) {
       const data = await response.json();
       if (data.data) {
-        console.log('[Character Stats Manager] Loaded from Supabase:', data.data);
+        // Loaded from Supabase
         return data.data;
       }
     }
@@ -37,7 +37,7 @@ export async function loadCharacterStats(): Promise<CharacterStats> {
     const stored = localStorage.getItem('character-stats');
     if (stored) {
       const stats = JSON.parse(stored);
-      console.log('[Character Stats Manager] Loaded from localStorage:', stats);
+              // Loaded from localStorage
       return {
         gold: stats.gold || 0,
         experience: stats.experience || 0,
@@ -84,7 +84,7 @@ export async function saveCharacterStats(stats: Partial<CharacterStats>): Promis
 
     if (response.ok) {
       supabaseSuccess = true;
-      console.log('[Character Stats Manager] Saved to Supabase:', stats);
+              // Saved to Supabase
     } else {
       console.warn('[Character Stats Manager] Supabase save failed:', response.status);
     }
@@ -116,7 +116,7 @@ export async function saveCharacterStats(stats: Partial<CharacterStats>): Promis
     }
     
     localStorageSuccess = true;
-    console.log('[Character Stats Manager] Saved to localStorage:', localStorageStats);
+    // Saved to localStorage
     
     // Dispatch update event to notify all components
     window.dispatchEvent(new Event('character-stats-update'));
@@ -230,7 +230,7 @@ export async function fetchFreshCharacterStats(): Promise<CharacterStats | null>
         // Dispatch update event to notify all components
         window.dispatchEvent(new Event('character-stats-update'));
         
-        console.log('[Character Stats Manager] Fresh stats fetched from API:', freshStats);
+        // Fresh stats fetched from API
         return freshStats;
       }
     }
@@ -257,20 +257,13 @@ export function setCharacterStats(stats: Partial<CharacterStats>): void {
     const currentStats = getCharacterStats();
     const updatedStats = { ...currentStats, ...stats };
     
-    console.log('[Character Stats Manager] Setting stats:', {
-      currentStats,
-      newStats: stats,
-      updatedStats
-    });
+    // Setting stats
     
     // Always calculate level from experience to ensure consistency
     if (stats.experience !== undefined) {
       const { calculateLevelFromExperience } = require('@/types/character');
       updatedStats.level = calculateLevelFromExperience(stats.experience);
-      console.log('[Character Stats Manager] Level calculated from experience:', {
-        experience: stats.experience,
-        calculatedLevel: updatedStats.level
-      });
+      // Level calculated from experience
     }
     
     // Convert to localStorage format
@@ -290,7 +283,7 @@ export function setCharacterStats(stats: Partial<CharacterStats>): void {
       localStorage.setItem('kingdom-grid-expansions', String(stats.kingdom_expansions));
     }
     
-    console.log('[Character Stats Manager] Saved to localStorage:', localStorageStats);
+    // Saved to localStorage
     
     // Dispatch update event to notify all components
     window.dispatchEvent(new Event('character-stats-update'));
@@ -333,24 +326,13 @@ export function addToCharacterStatSync(stat: keyof CharacterStats, amount: numbe
   const currentValue = currentStats[stat] || 0;
   const newValue = currentValue + amount;
   
-  console.log('[Character Stats Manager] Adding to stat:', {
-    stat,
-    currentValue,
-    amount,
-    newValue,
-    currentLevel: currentStats.level
-  });
+  // Adding to stat
   
   // If we're updating experience, we need to recalculate level
   if (stat === 'experience') {
     const { calculateLevelFromExperience } = require('@/types/character');
     const newLevel = calculateLevelFromExperience(newValue);
-    console.log('[Character Stats Manager] Experience update:', {
-      oldExperience: currentValue,
-      newExperience: newValue,
-      oldLevel: currentStats.level,
-      newLevel
-    });
+    // Experience update
     setCharacterStats({ [stat]: newValue, level: newLevel });
   } else {
     setCharacterStats({ [stat]: newValue });

@@ -67,7 +67,7 @@ export async function GET(request: Request) {
     }
 
     // First, try to fetch from the challenges table (which seems to contain the quest data)
-    console.log('Fetching quests from challenges table...');
+    // Fetching quests from challenges table
     const { data: challenges, error: challengesError } = await supabase
       .from('challenges')
       .select('*');
@@ -78,7 +78,7 @@ export async function GET(request: Request) {
     }
 
     // Get user's quest completions from quest_completion table
-    console.log('Fetching user quest completions...');
+    // Fetching user quest completions
     const { data: questCompletions, error: completionsError } = await supabase
       .from('quest_completion')
       .select('*')

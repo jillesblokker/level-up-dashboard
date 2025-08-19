@@ -53,7 +53,7 @@ export default function Page() {
         const response = await fetch('/api/achievement-definitions');
         if (response.ok) {
           const data = await response.json();
-          console.log('Fetched achievement definitions:', data);
+          // Fetched achievement definitions
           setAchievementDefinitions(data);
         } else {
           console.error('Failed to fetch achievement definitions:', response.status);
@@ -235,7 +235,7 @@ export default function Page() {
           const data: DbAchievement[] = await response.json();
           const achievementMap = new Map(data.filter(Boolean).map(ach => [ach.achievementId, ach]));
 
-          console.log("Fetched achievements:", data);
+          // Fetched achievements
           console.log("Unlocked Achievement IDs:", Array.from(achievementMap.keys()));
 
           setUnlockedAchievements(achievementMap);
