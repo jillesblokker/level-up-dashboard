@@ -543,6 +543,8 @@ TECHNICAL DETAILS:
               setting_value: 'false',
             }),
           });
+          // Small delay to ensure database transaction completes
+          await new Promise(resolve => setTimeout(resolve, 100));
         }
       }
 
@@ -559,6 +561,8 @@ TECHNICAL DETAILS:
               setting_value: 'false',
             }),
           });
+          // Small delay to ensure database transaction completes
+          await new Promise(resolve => setTimeout(resolve, 100));
         }
       }
     } catch (error) {
@@ -572,6 +576,9 @@ TECHNICAL DETAILS:
       // First initialize default values if they don't exist
       await initializeDefaultFlags();
       
+      // Small delay to ensure database is ready
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
       // Load winter festival status
       const winterResponse = await fetchWithAuth('/api/game-settings?key=winter_festival_active');
       console.log(`[Stored Data] Winter festival response status: ${winterResponse.status}`);
@@ -580,7 +587,10 @@ TECHNICAL DETAILS:
         console.log(`[Stored Data] Winter festival data:`, winterData);
         const winterValue = winterData?.data?.[0]?.setting_value;
         console.log(`[Stored Data] Winter festival raw value: ${winterValue}`);
-        setWinterFestivalActive(String(winterValue).toLowerCase() === 'true');
+        // Handle both undefined and actual values
+        const winterActive = winterValue !== undefined ? String(winterValue).toLowerCase() === 'true' : false;
+        setWinterFestivalActive(winterActive);
+        console.log(`[Stored Data] Setting winter festival active to: ${winterActive}`);
       }
 
       // Load harvest festival status (for future use)
@@ -591,7 +601,10 @@ TECHNICAL DETAILS:
         console.log(`[Stored Data] Harvest festival data:`, harvestData);
         const harvestValue = harvestData?.data?.[0]?.setting_value;
         console.log(`[Stored Data] Harvest festival raw value: ${harvestValue}`);
-        setHarvestFestivalActive(String(harvestValue).toLowerCase() === 'true');
+        // Handle both undefined and actual values
+        const harvestActive = harvestValue !== undefined ? String(harvestValue).toLowerCase() === 'true' : false;
+        setHarvestFestivalActive(harvestActive);
+        console.log(`[Stored Data] Setting harvest festival active to: ${harvestActive}`);
       }
     } catch (error) {
       console.error('[Stored Data] Error loading event flags:', error);
@@ -602,6 +615,35 @@ TECHNICAL DETAILS:
   useEffect(() => {
     loadEventFlags();
   }, []);
+
+  // Refresh event flags from database
+  const refreshEventFlags = async () => {
+    try {
+      console.log('[Stored Data] Refreshing event flags from database');
+      
+      // Load winter festival status
+      const winterResponse = await fetchWithAuth('/api/game-settings?key=winter_festival_active');
+      if (winterResponse.ok) {
+        const winterData = await winterResponse.json();
+        const winterValue = winterData?.data?.[0]?.setting_value;
+        const winterActive = winterValue !== undefined ? String(winterValue).toLowerCase() === 'true' : false;
+        setWinterFestivalActive(winterActive);
+        console.log(`[Stored Data] Refreshed winter festival active: ${winterActive}`);
+      }
+
+      // Load harvest festival status
+      const harvestResponse = await fetchWithAuth('/api/game-settings?key=harvest_festival_active');
+      if (harvestResponse.ok) {
+        const harvestData = await harvestResponse.json();
+        const harvestValue = harvestData?.data?.[0]?.setting_value;
+        const harvestActive = harvestValue !== undefined ? String(harvestValue).toLowerCase() === 'true' : false;
+        setHarvestFestivalActive(harvestActive);
+        console.log(`[Stored Data] Refreshed harvest festival active: ${harvestActive}`);
+      }
+    } catch (error) {
+      console.error('[Stored Data] Error refreshing event flags:', error);
+    }
+  };
 
   // Toggle event status
   const toggleEvent = async (key: string, currentValue: boolean) => {
@@ -624,13 +666,17 @@ TECHNICAL DETAILS:
         const responseData = await response.json();
         console.log(`[Stored Data] API response data:`, responseData);
         
+        // Small delay to ensure database is updated
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Refresh the event flags to get the latest values
+        await refreshEventFlags();
+        
         if (key === 'winter_festival_active') {
-          setWinterFestivalActive(newValue);
           // Dispatch event to notify kingdom grid component
           console.log(`[Stored Data] Dispatching winter-festival-toggled event with active: ${newValue}`);
           window.dispatchEvent(new CustomEvent('winter-festival-toggled', { detail: { active: newValue } }));
         } else if (key === 'harvest_festival_active') {
-          setHarvestFestivalActive(newValue);
           // Dispatch event to notify kingdom grid component
           console.log(`[Stored Data] Dispatching harvest-festival-toggled event with active: ${newValue}`);
           window.dispatchEvent(new CustomEvent('harvest-festival-toggled', { detail: { active: newValue } }));
