@@ -525,14 +525,53 @@ TECHNICAL DETAILS:
     return summary;
   };
 
-  // Load event flags from game settings
-  const loadEventFlags = async () => {
-    if (!user?.id) return;
-    
+  // Initialize default event flags if they don't exist
+  const initializeDefaultFlags = async () => {
     try {
-      const token = await getToken();
-      if (!token) return;
+      console.log('[Stored Data] Initializing default event flags');
+      
+      // Check if winter festival setting exists
+      const winterResponse = await fetchWithAuth('/api/game-settings?key=winter_festival_active');
+      if (winterResponse.ok) {
+        const winterData = await winterResponse.json();
+        if (!winterData?.data?.[0]?.setting_value) {
+          console.log('[Stored Data] Creating default winter festival setting: false');
+          await fetchWithAuth('/api/game-settings', {
+            method: 'POST',
+            body: JSON.stringify({
+              setting_key: 'winter_festival_active',
+              setting_value: 'false',
+            }),
+          });
+        }
+      }
 
+      // Check if harvest festival setting exists
+      const harvestResponse = await fetchWithAuth('/api/game-settings?key=harvest_festival_active');
+      if (harvestResponse.ok) {
+        const harvestData = await harvestResponse.json();
+        if (!harvestData?.data?.[0]?.setting_value) {
+          console.log('[Stored Data] Creating default harvest festival setting: false');
+          await fetchWithAuth('/api/game-settings', {
+            method: 'POST',
+            body: JSON.stringify({
+              setting_key: 'harvest_festival_active',
+              setting_value: 'false',
+            }),
+          });
+        }
+      }
+    } catch (error) {
+      console.error('[Stored Data] Error initializing default flags:', error);
+    }
+  };
+
+  // Load event flags from database
+  const loadEventFlags = async () => {
+    try {
+      // First initialize default values if they don't exist
+      await initializeDefaultFlags();
+      
       // Load winter festival status
       const winterResponse = await fetchWithAuth('/api/game-settings?key=winter_festival_active');
       console.log(`[Stored Data] Winter festival response status: ${winterResponse.status}`);
@@ -555,9 +594,14 @@ TECHNICAL DETAILS:
         setHarvestFestivalActive(String(harvestValue).toLowerCase() === 'true');
       }
     } catch (error) {
-      console.error('Error loading event flags:', error);
+      console.error('[Stored Data] Error loading event flags:', error);
     }
   };
+
+  // Load event flags on component mount
+  useEffect(() => {
+    loadEventFlags();
+  }, []);
 
   // Toggle event status
   const toggleEvent = async (key: string, currentValue: boolean) => {
