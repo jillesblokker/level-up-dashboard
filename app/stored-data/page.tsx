@@ -623,9 +623,13 @@ TECHNICAL DETAILS:
       
       // Load winter festival status
       const winterResponse = await fetchWithAuth('/api/game-settings?key=winter_festival_active');
+      console.log(`[Stored Data] Winter refresh response status: ${winterResponse.status}`);
       if (winterResponse.ok) {
         const winterData = await winterResponse.json();
+        console.log(`[Stored Data] Winter refresh data:`, winterData);
+        console.log(`[Stored Data] Winter refresh raw data:`, JSON.stringify(winterData, null, 2));
         const winterValue = winterData?.data?.[0]?.setting_value || winterData?.data?.[0]?.settings_data?.value;
+        console.log(`[Stored Data] Winter refresh extracted value: ${winterValue}`);
         const winterActive = winterValue !== undefined ? String(winterValue).toLowerCase() === 'true' : false;
         setWinterFestivalActive(winterActive);
         console.log(`[Stored Data] Refreshed winter festival active: ${winterActive}`);
@@ -662,15 +666,16 @@ TECHNICAL DETAILS:
 
       console.log(`[Stored Data] API response status: ${response.status}`);
       
-      if (response.ok) {
-        const responseData = await response.json();
-        console.log(`[Stored Data] API response data:`, responseData);
-        
-        // Small delay to ensure database is updated
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        // Refresh the event flags to get the latest values
-        await refreshEventFlags();
+              if (response.ok) {
+          const responseData = await response.json();
+          console.log(`[Stored Data] API response data:`, responseData);
+          console.log(`[Stored Data] Response data structure:`, JSON.stringify(responseData, null, 2));
+          
+          // Small delay to ensure database is updated
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          // Refresh the event flags to get the latest values
+          await refreshEventFlags();
         
         if (key === 'winter_festival_active') {
           // Dispatch event to notify kingdom grid component

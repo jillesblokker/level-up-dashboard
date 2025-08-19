@@ -118,8 +118,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
 
-    console.log(`[Game Settings API] Successfully created/updated setting:`, data);
-    return NextResponse.json({ data });
+          console.log(`[Game Settings API] Successfully created/updated setting:`, data);
+      console.log(`[Game Settings API] Final response data structure:`, JSON.stringify(data, null, 2));
+      return NextResponse.json({ data });
   } catch (error) {
     console.error(`[Game Settings API] Unexpected error:`, error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
