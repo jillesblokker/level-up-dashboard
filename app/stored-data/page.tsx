@@ -535,17 +535,23 @@ TECHNICAL DETAILS:
 
       // Load winter festival status
       const winterResponse = await fetchWithAuth('/api/game-settings?key=winter_festival_active');
+      console.log(`[Stored Data] Winter festival response status: ${winterResponse.status}`);
       if (winterResponse.ok) {
         const winterData = await winterResponse.json();
+        console.log(`[Stored Data] Winter festival data:`, winterData);
         const winterValue = winterData?.data?.[0]?.setting_value;
+        console.log(`[Stored Data] Winter festival raw value: ${winterValue}`);
         setWinterFestivalActive(String(winterValue).toLowerCase() === 'true');
       }
 
       // Load harvest festival status (for future use)
       const harvestResponse = await fetchWithAuth('/api/game-settings?key=harvest_festival_active');
+      console.log(`[Stored Data] Harvest festival response status: ${harvestResponse.status}`);
       if (harvestResponse.ok) {
         const harvestData = await harvestResponse.json();
+        console.log(`[Stored Data] Harvest festival data:`, harvestData);
         const harvestValue = harvestData?.data?.[0]?.setting_value;
+        console.log(`[Stored Data] Harvest festival raw value: ${harvestValue}`);
         setHarvestFestivalActive(String(harvestValue).toLowerCase() === 'true');
       }
     } catch (error) {
@@ -557,6 +563,8 @@ TECHNICAL DETAILS:
   const toggleEvent = async (key: string, currentValue: boolean) => {
     const newValue = !currentValue;
     
+    console.log(`[Stored Data] Toggling ${key} from ${currentValue} to ${newValue}`);
+    
     try {
       const response = await fetchWithAuth('/api/game-settings', {
         method: 'POST',
@@ -566,23 +574,32 @@ TECHNICAL DETAILS:
         }),
       });
 
+      console.log(`[Stored Data] API response status: ${response.status}`);
+      
       if (response.ok) {
+        const responseData = await response.json();
+        console.log(`[Stored Data] API response data:`, responseData);
+        
         if (key === 'winter_festival_active') {
           setWinterFestivalActive(newValue);
           // Dispatch event to notify kingdom grid component
+          console.log(`[Stored Data] Dispatching winter-festival-toggled event with active: ${newValue}`);
           window.dispatchEvent(new CustomEvent('winter-festival-toggled', { detail: { active: newValue } }));
         } else if (key === 'harvest_festival_active') {
           setHarvestFestivalActive(newValue);
           // Dispatch event to notify kingdom grid component
+          console.log(`[Stored Data] Dispatching harvest-festival-toggled event with active: ${newValue}`);
           window.dispatchEvent(new CustomEvent('harvest-festival-toggled', { detail: { active: newValue } }));
         }
         
         toast.success(`${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} is now ${newValue ? 'ACTIVE' : 'INACTIVE'}`);
       } else {
+        const errorText = await response.text();
+        console.error(`[Stored Data] API error: ${response.status} - ${errorText}`);
         toast.error('Failed to update event status');
       }
     } catch (error) {
-      console.error('Error updating event:', error);
+      console.error('[Stored Data] Error updating event:', error);
       toast.error('An error occurred while updating the event');
     }
   };
