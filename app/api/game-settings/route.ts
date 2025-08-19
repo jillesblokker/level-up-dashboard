@@ -101,7 +101,11 @@ export async function POST(request: NextRequest) {
       
       console.log(`[Game Settings API] All user data before upsert:`, allUserData, 'error:', allUserError);
       
+      // Check table constraints (simplified approach)
+      console.log(`[Game Settings API] Attempting upsert with constraint: user_id,setting_key`);
+      
       // Try the upsert operation
+      console.log(`[Game Settings API] Attempting upsert with onConflict: user_id,setting_key`);
       const { data, error } = await supabase
         .from('game_settings')
         .upsert(upsertData, { onConflict: 'user_id,setting_key' })
