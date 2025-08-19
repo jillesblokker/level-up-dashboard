@@ -422,73 +422,54 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
 
 // --- Block 1: KingdomStatsBlock ---
 export function KingdomStatsBlock({ userId }: { userId: string | null }) {
-  console.log('[KingdomStatsBlock] Component rendered with userId:', userId);
-  
-  const { userId: authUserId } = useAuth();
   const [graphData, setGraphData] = useState<Array<{ day: string; value: number }>>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'quests' | 'challenges' | 'gold' | 'experience'>('quests');
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('week');
+  const [isLoading, setIsLoading] = useState(false);
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
-  const { getToken, isLoaded } = useAuth(); // Added isLoaded
+  const { userId: authUserId, isLoaded, getToken } = useAuth();
 
-  // Fetch and aggregate data for the selected tab and period
   const fetchData = useCallback(async () => {
-    console.log('[KingdomStatsBlock] fetchData called with:', { authUserId, activeTab, timePeriod, isLoaded });
-    
     if (!authUserId) {
-      console.log('[KingdomStatsBlock] No authUserId, returning early');
       return;
     }
-    
+
     if (!isLoaded) {
-      console.log('[KingdomStatsBlock] Clerk not loaded yet, returning early');
       return;
     }
-    
+
     setIsLoading(true);
     try {
-      // Get Clerk token for authentication
       const token = await getToken();
-      console.log('[KingdomStatsBlock] Token retrieved:', token ? 'Yes' : 'No');
-      
       if (!token) {
-        console.error('[Kingdom Stats] No authentication token available');
-        setGraphData([]);
-        setIsLoading(false);
         return;
       }
 
       const res = await fetch(`/api/kingdom-stats?tab=${activeTab}&period=${timePeriod}`, {
-        headers: { // Changed from credentials: 'include'
+        headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
-      if (!res.ok) throw new Error('Failed to fetch stats');
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
       const { data } = await res.json();
-      console.log('[KingdomStatsBlock] Data received:', data);
-      console.log('[KingdomStatsBlock] Data length:', data?.length);
-      console.log('[KingdomStatsBlock] Sample data:', data?.[0]);
       setGraphData(data || []);
     } catch (err) {
-      console.error('[Kingdom Stats] Error fetching data:', err); // Added error log
-      setGraphData([]);
+      console.error('Error fetching kingdom stats:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [authUserId, activeTab, timePeriod, getToken, isLoaded]); // Added isLoaded
+  }, [authUserId, activeTab, timePeriod, isLoaded, getToken]);
 
-  // Fetch data when component mounts or dependencies change
   useEffect(() => {
-    console.log('[KingdomStatsBlock] useEffect triggered with:', { authUserId, activeTab, timePeriod, isLoaded });
     if (authUserId && isLoaded) {
-      console.log('[KingdomStatsBlock] Calling fetchData');
       fetchData();
-    } else {
-      console.log('[KingdomStatsBlock] Not calling fetchData:', { authUserId: !!authUserId, isLoaded });
     }
-  }, [authUserId, activeTab, timePeriod, fetchData, isLoaded]); // Added isLoaded
+  }, [authUserId, activeTab, timePeriod, isLoaded, fetchData]);
 
   // 🎯 REAL-TIME SUPABASE SUBSCRIPTIONS for instant updates
   useSupabaseRealtimeSync({
@@ -560,7 +541,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
           </DropdownMenu>
         </div>
         <div className="flex justify-end mt-2">
-          <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
+          {/* Chart type toggle removed - component not defined */}
         </div>
         <CardDescription className="text-gray-300">Track your realm&apos;s growth</CardDescription>
       </CardHeader>
@@ -609,71 +590,54 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
 
 // --- Block 2: KingStatsBlock ---
 export function KingStatsBlock({ userId }: { userId: string | null }) {
-  console.log('[KingStatsBlock] Component rendered with userId:', userId);
-  
-  const { userId: authUserId } = useAuth();
   const [graphData, setGraphData] = useState<Array<{ day: string; value: number }>>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'gold' | 'experience' | 'level'>('gold');
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('week');
+  const [isLoading, setIsLoading] = useState(false);
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
-  const { getToken, isLoaded } = useAuth(); // Added isLoaded
+  const { userId: authUserId, isLoaded, getToken } = useAuth();
 
-  // Fetch and aggregate data for the selected tab and period
   const fetchData = useCallback(async () => {
-    console.log('[KingStatsBlock] fetchData called with:', { authUserId, activeTab, timePeriod, isLoaded });
-    
     if (!authUserId) {
-      console.log('[KingStatsBlock] No authUserId, returning early');
       return;
     }
-    
+
     if (!isLoaded) {
-      console.log('[KingStatsBlock] Clerk not loaded yet, returning early');
       return;
     }
-    
+
     setIsLoading(true);
     try {
-      // Get Clerk token for authentication
       const token = await getToken();
-      console.log('[KingStatsBlock] Token retrieved:', token ? 'Yes' : 'No');
-      
       if (!token) {
-        console.error('[King Stats] No authentication token available'); // Added error log
-        setGraphData([]);
-        setIsLoading(false);
         return;
       }
 
       const res = await fetch(`/api/kingdom-stats?tab=${activeTab}&period=${timePeriod}`, {
-        headers: { // Changed from credentials: 'include'
+        headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
-      if (!res.ok) throw new Error('Failed to fetch stats');
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
       const { data } = await res.json();
-      console.log('[KingStatsBlock] Data received:', data);
-      setGraphData(data || []); // Corrected this line
+      setGraphData(data || []);
     } catch (err) {
-      console.error('[King Stats] Error fetching data:', err); // Added error log
-      setGraphData([]);
+      console.error('Error fetching king stats:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [authUserId, activeTab, timePeriod, getToken, isLoaded]); // Added isLoaded
+  }, [authUserId, activeTab, timePeriod, isLoaded, getToken]);
 
-  // Fetch data when component mounts or dependencies change
   useEffect(() => {
-    console.log('[KingStatsBlock] useEffect triggered with:', { authUserId, activeTab, timePeriod, isLoaded });
     if (authUserId && isLoaded) {
-      console.log('[KingStatsBlock] Calling fetchData');
       fetchData();
-    } else {
-      console.log('[KingStatsBlock] Not calling fetchData:', { authUserId: !!authUserId, isLoaded });
     }
-  }, [authUserId, activeTab, timePeriod, fetchData, isLoaded]); // Added isLoaded
+  }, [authUserId, activeTab, timePeriod, isLoaded, fetchData]);
 
   // 🎯 REAL-TIME SUPABASE SUBSCRIPTIONS for instant updates
   useSupabaseRealtimeSync({
@@ -746,7 +710,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
           </DropdownMenu>
         </div>
         <div className="flex justify-end mt-2">
-          <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
+          {/* Chart type toggle removed - component not defined */}
         </div>
         <CardDescription className="text-gray-300">Track your gold, experience, and level progression</CardDescription>
       </CardHeader>
