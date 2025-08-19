@@ -206,7 +206,7 @@ export function KingdomGridWithTimers({
         const winterResponse = await fetchWithAuth('/api/game-settings?key=winter_festival_active');
         if (winterResponse.ok) {
           const winterData = await winterResponse.json();
-          const winterValue = winterData?.data?.[0]?.setting_value;
+          const winterValue = winterData?.data?.data?.[0]?.setting_value;
           console.log('[Kingdom] Winter festival database value:', winterValue);
           if (winterValue !== undefined) {
             const normalized = String(winterValue).toLowerCase();
@@ -220,7 +220,7 @@ export function KingdomGridWithTimers({
         const harvestResponse = await fetchWithAuth('/api/game-settings?key=harvest_festival_active');
         if (harvestResponse.ok) {
           const harvestData = await harvestResponse.json();
-          const harvestValue = harvestData?.data?.[0]?.setting_value;
+          const harvestValue = harvestData?.data?.data?.[0]?.setting_value;
           console.log('[Kingdom] Harvest festival database value:', harvestValue);
           if (harvestValue !== undefined) {
             const normalized = String(harvestValue).toLowerCase();
