@@ -386,22 +386,22 @@ export async function GET(request: Request) {
       const [questRes, challengeRes, milestoneRes] = await Promise.all([
         supabaseServer
           .from('quest_completion')
-          .select('xp_earned, completed_at')
+          .select('id, completed_at')
           .eq('user_id', userId)
           .eq('completed', true)
           .order('completed_at', { ascending: true }),
         supabaseServer
           .from('challenge_completion')
-          .select('challenge_id, date')
+          .select('challenge_id, completed_at')
           .eq('user_id', userId)
           .eq('completed', true)
-          .order('date', { ascending: true }),
+          .order('completed_at', { ascending: true }),
         supabaseServer
           .from('milestone_completion')
-          .select('milestone_id, date')
+          .select('milestone_id, completed_at')
           .eq('user_id', userId)
           .eq('completed', true)
-          .order('date', { ascending: true })
+          .order('completed_at', { ascending: true })
       ]);
 
       if (questRes.error || challengeRes.error || milestoneRes.error) {
@@ -453,21 +453,30 @@ export async function GET(request: Request) {
       const experienceTimeline: Array<{ date: string; xp: number }> = [];
       
       // Add quest XP to timeline
-      questRes.data?.forEach((c: any) => {
-        if (c.completed_at) {
-          experienceTimeline.push({
-            date: c.completed_at.slice(0, 10),
-            xp: c.xp_earned || 0
-          });
-        }
-      });
+      if (questRes.data && questRes.data.length > 0) {
+        const questIds = questRes.data.map(c => c.id);
+        const { data: questRewards } = await supabaseServer
+          .from('quests')
+          .select('id, xp')
+          .in('id', questIds);
+        
+        questRes.data.forEach((c: any) => {
+          if (c.completed_at) {
+            const questReward = questRewards?.find(q => q.id === c.id);
+            experienceTimeline.push({
+              date: c.completed_at.slice(0, 10),
+              xp: questReward?.xp || 0
+            });
+          }
+        });
+      }
 
       // Add challenge XP to timeline
       challengeRes.data?.forEach((c: any) => {
         const reward = challengeRewards.find(r => r.id === c.challenge_id);
-        if (c.date && reward) {
+        if (c.completed_at && reward) {
           experienceTimeline.push({
-            date: c.date.slice(0, 10),
+            date: c.completed_at.slice(0, 10),
             xp: reward.xp || 0
           });
         }
@@ -476,9 +485,9 @@ export async function GET(request: Request) {
       // Add milestone XP to timeline
       milestoneRes.data?.forEach((m: any) => {
         const reward = milestoneRewards.find(r => r.id === m.milestone_id);
-        if (m.date && reward) {
+        if (m.completed_at && reward) {
           experienceTimeline.push({
-            date: m.date.slice(0, 10),
+            date: m.completed_at.slice(0, 10),
             xp: reward.experience || 0
           });
         }
