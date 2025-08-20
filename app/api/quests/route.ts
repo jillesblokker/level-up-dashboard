@@ -33,6 +33,7 @@ const questUpdateSchema = z.object({
 async function getUserIdFromRequest(request: Request): Promise<string | null> {
   try {
     const { userId } = getAuth(request as NextRequest);
+    console.log('[Quests API] getUserIdFromRequest - Clerk userId:', userId);
     return userId || null;
   } catch (e) {
     console.error('[Clerk] JWT verification failed:', e);
@@ -79,17 +80,28 @@ export async function GET(request: Request) {
 
     // Get user's quest completions from quest_completion table
     // Fetching user quest completions
+    console.log('[Quests API] User ID:', userId);
     const { data: questCompletions, error: completionsError } = await supabase
       .from('quest_completion')
       .select('*')
       .eq('user_id', userId);
 
+    console.log('[Quests API] Quest completions query result:', { questCompletions, completionsError });
+    console.log('[Quests API] Quest completions count:', questCompletions?.length || 0);
+
     // Create a map of completed quests
     const completedQuests = new Map();
     if (!completionsError && questCompletions) {
       questCompletions.forEach((completion: any) => {
+        console.log('[Quests API] Processing completion:', completion);
         // Check if the quest is actually completed (has completed_at timestamp)
         const isCompleted = completion['completed'] === true && completion['completed_at'] !== null;
+        console.log('[Quests API] Quest completion status:', { 
+          questId: completion['quest_id'], 
+          completed: completion['completed'], 
+          completedAt: completion['completed_at'],
+          isCompleted 
+        });
         completedQuests.set(completion['quest_id'], {
           completed: isCompleted,
           completedAt: completion['completed_at']
@@ -97,11 +109,20 @@ export async function GET(request: Request) {
       });
     }
 
+    console.log('[Quests API] Completed quests map:', Array.from(completedQuests.entries()));
+
     // Convert challenges data to quest format
     const questsWithCompletions = (challenges || []).map((challenge: any) => {
       const completion = completedQuests.get(challenge.id);
       const isCompleted = completion ? completion.completed : false;
       const completionDate = completion ? completion.completedAt : null;
+      
+      console.log('[Quests API] Mapping challenge to quest:', { 
+        challengeId: challenge.id, 
+        hasCompletion: !!completion, 
+        isCompleted, 
+        completionDate 
+      });
       
       return {
         id: challenge.id,
@@ -119,6 +140,7 @@ export async function GET(request: Request) {
       };
     });
 
+    console.log('[Quests API] Final quests with completions:', questsWithCompletions.slice(0, 3));
     return NextResponse.json(questsWithCompletions);
   } catch (error) {
     console.error('Error fetching quests:', error instanceof Error ? error.stack : error);
