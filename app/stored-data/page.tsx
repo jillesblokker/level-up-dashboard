@@ -459,6 +459,13 @@ export default function StoredDataPage() {
           credentials: 'include'
         });
         const questData = questResponse.ok ? await questResponse.json() : [];
+        console.log('Quest API Response:', questData);
+        console.log('Quest Data Type:', typeof questData);
+        console.log('Quest Data Length:', Array.isArray(questData) ? questData.length : 'Not an array');
+        if (Array.isArray(questData) && questData.length > 0) {
+          console.log('First Quest Item:', questData[0]);
+          console.log('Quest Completed Property:', questData[0]?.completed);
+        }
         // Count quests that are marked as completed
         const supabaseQuestCount = questData.filter((q: any) => q.completed).length;
         
@@ -473,6 +480,7 @@ export default function StoredDataPage() {
         };
         comparisons.push(questComparison);
       } catch (error) {
+        console.error('Quest comparison error:', error);
         comparisons.push({
           table: 'Quest Completions',
           localStorageCount: 0,
@@ -609,6 +617,206 @@ export default function StoredDataPage() {
       } catch (error) {
         comparisons.push({
           table: 'Experience Transactions',
+          localStorageCount: 0,
+          supabaseCount: 0,
+          difference: 0,
+          status: 'error',
+          lastChecked: now
+        });
+      }
+
+      // 6. Compare Tile Placements (Kingdom & Realm)
+      try {
+        const localStorageTilePlacements = JSON.parse(localStorage.getItem('tile-placements') || '[]');
+        const localStorageTileCount = localStorageTilePlacements.length;
+        
+        // Try to fetch tile placements from API (if it exists)
+        let supabaseTileCount = 0;
+        try {
+          const tileResponse = await fetch('/api/tiles', {
+            credentials: 'include'
+          });
+          if (tileResponse.ok) {
+            const tileData = await tileResponse.json();
+            supabaseTileCount = Array.isArray(tileData) ? tileData.length : 0;
+          }
+        } catch (tileError) {
+          console.log('Tile API not available, skipping tile count');
+        }
+        
+        const tileComparison: DataComparison = {
+          table: 'Tile Placements',
+          localStorageCount: localStorageTileCount,
+          supabaseCount: supabaseTileCount,
+          difference: supabaseTileCount - localStorageTileCount,
+          status: supabaseTileCount === localStorageTileCount ? 'synced' :
+                  supabaseTileCount > localStorageTileCount ? 'supabase-ahead' : 'local-ahead',
+          lastChecked: now
+        };
+        comparisons.push(tileComparison);
+      } catch (error) {
+        comparisons.push({
+          table: 'Tile Placements',
+          localStorageCount: 0,
+          supabaseCount: 0,
+          difference: 0,
+          status: 'error',
+          lastChecked: now
+        });
+      }
+
+      // 7. Compare Kingdom Events
+      try {
+        const localStorageKingdomEvents = JSON.parse(localStorage.getItem('kingdom-events') || '[]');
+        const localStorageKingdomEventCount = localStorageKingdomEvents.length;
+        
+        // Try to fetch kingdom events from API
+        let supabaseKingdomEventCount = 0;
+        try {
+          const kingdomEventResponse = await fetch('/api/kingdom-events', {
+            credentials: 'include'
+          });
+          if (kingdomEventResponse.ok) {
+            const kingdomEventData = await kingdomEventResponse.json();
+            supabaseKingdomEventCount = Array.isArray(kingdomEventData) ? kingdomEventData.length : 0;
+          }
+        } catch (kingdomEventError) {
+          console.log('Kingdom Events API not available, skipping count');
+        }
+        
+        const kingdomEventComparison: DataComparison = {
+          table: 'Kingdom Events',
+          localStorageCount: localStorageKingdomEventCount,
+          supabaseCount: supabaseKingdomEventCount,
+          difference: supabaseKingdomEventCount - localStorageKingdomEventCount,
+          status: supabaseKingdomEventCount === localStorageKingdomEventCount ? 'synced' :
+                  supabaseKingdomEventCount > localStorageKingdomEventCount ? 'supabase-ahead' : 'local-ahead',
+          lastChecked: now
+        };
+        comparisons.push(kingdomEventComparison);
+      } catch (error) {
+        comparisons.push({
+          table: 'Kingdom Events',
+          localStorageCount: 0,
+          supabaseCount: 0,
+          difference: 0,
+          status: 'error',
+          lastChecked: now
+        });
+      }
+
+      // 8. Compare Character Stats
+      try {
+        const localStorageCharacterStats = JSON.parse(localStorage.getItem('character-stats') || '[]');
+        const localStorageCharacterStatCount = localStorageCharacterStats.length;
+        
+        // Try to fetch character stats from API
+        let supabaseCharacterStatCount = 0;
+        try {
+          const characterStatResponse = await fetch('/api/character-stats', {
+            credentials: 'include'
+          });
+          if (characterStatResponse.ok) {
+            const characterStatData = await characterStatResponse.json();
+            supabaseCharacterStatCount = Array.isArray(characterStatData) ? characterStatData.length : 0;
+          }
+        } catch (characterStatError) {
+          console.log('Character Stats API not available, skipping count');
+        }
+        
+        const characterStatComparison: DataComparison = {
+          table: 'Character Stats',
+          localStorageCount: localStorageCharacterStatCount,
+          supabaseCount: supabaseCharacterStatCount,
+          difference: supabaseCharacterStatCount - localStorageCharacterStatCount,
+          status: supabaseCharacterStatCount === localStorageCharacterStatCount ? 'synced' :
+                  supabaseCharacterStatCount > localStorageCharacterStatCount ? 'supabase-ahead' : 'local-ahead',
+          lastChecked: now
+        };
+        comparisons.push(characterStatComparison);
+      } catch (error) {
+        comparisons.push({
+          table: 'Character Stats',
+          localStorageCount: 0,
+          supabaseCount: 0,
+          difference: 0,
+          status: 'error',
+          lastChecked: now
+        });
+      }
+
+      // 9. Compare Achievements
+      try {
+        const localStorageAchievements = JSON.parse(localStorage.getItem('achievements') || '[]');
+        const localStorageAchievementCount = localStorageAchievements.filter((a: any) => a.unlocked).length;
+        
+        // Try to fetch achievements from API
+        let supabaseAchievementCount = 0;
+        try {
+          const achievementResponse = await fetch('/api/achievements', {
+            credentials: 'include'
+          });
+          if (achievementResponse.ok) {
+            const achievementData = await achievementResponse.json();
+            supabaseAchievementCount = Array.isArray(achievementData) ? achievementData.filter((a: any) => a.unlocked).length : 0;
+          }
+        } catch (achievementError) {
+          console.log('Achievements API not available, skipping count');
+        }
+        
+        const achievementComparison: DataComparison = {
+          table: 'Achievements',
+          localStorageCount: localStorageAchievementCount,
+          supabaseCount: supabaseAchievementCount,
+          difference: supabaseAchievementCount - localStorageAchievementCount,
+          status: supabaseAchievementCount === localStorageAchievementCount ? 'synced' :
+                  supabaseAchievementCount > localStorageAchievementCount ? 'supabase-ahead' : 'local-ahead',
+          lastChecked: now
+        };
+        comparisons.push(achievementComparison);
+      } catch (error) {
+        comparisons.push({
+          table: 'Achievements',
+          localStorageCount: 0,
+          supabaseCount: 0,
+          difference: 0,
+          status: 'error',
+          lastChecked: now
+        });
+      }
+
+      // 10. Compare Inventory Items
+      try {
+        const localStorageInventory = JSON.parse(localStorage.getItem('inventory') || '[]');
+        const localStorageInventoryCount = localStorageInventory.length;
+        
+        // Try to fetch inventory from API
+        let supabaseInventoryCount = 0;
+        try {
+          const inventoryResponse = await fetch('/api/inventory', {
+            credentials: 'include'
+          });
+          if (inventoryResponse.ok) {
+            const inventoryData = await inventoryResponse.json();
+            supabaseInventoryCount = Array.isArray(inventoryData) ? inventoryData.length : 0;
+          }
+        } catch (inventoryError) {
+          console.log('Inventory API not available, skipping count');
+        }
+        
+        const inventoryComparison: DataComparison = {
+          table: 'Inventory Items',
+          localStorageCount: localStorageInventoryCount,
+          supabaseCount: supabaseInventoryCount,
+          difference: supabaseInventoryCount - localStorageInventoryCount,
+          status: supabaseInventoryCount === localStorageInventoryCount ? 'synced' :
+                  supabaseInventoryCount > localStorageInventoryCount ? 'supabase-ahead' : 'local-ahead',
+          lastChecked: now
+        };
+        comparisons.push(inventoryComparison);
+      } catch (error) {
+        comparisons.push({
+          table: 'Inventory Items',
           localStorageCount: 0,
           supabaseCount: 0,
           difference: 0,
@@ -882,7 +1090,7 @@ TECHNICAL DETAILS:
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Build Status Dashboard</h1>
-          <p className="text-muted-foreground">Monitor your application&apos;s health and progress</p>
+                          <p className="text-muted-foreground">Monitor your application's health and progress</p>
         </div>
         <div className="flex items-center gap-2">
           <Badge 
