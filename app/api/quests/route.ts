@@ -231,6 +231,8 @@ export async function PUT(request: Request) {
           experience: 50,
           gold: 25
         };
+        
+        // Update character stats
         await supabase
           .from('character_stats')
           .update({
@@ -238,6 +240,26 @@ export async function PUT(request: Request) {
             gold: (character as any)['gold'] + defaultRewards.gold
           })
           .eq('user_id', userId);
+        
+        // CRITICAL FIX: Update quest_completion with XP and gold earned
+        try {
+          await supabase
+            .from('quest_completion')
+            .update({
+              xp_earned: defaultRewards.experience,
+              gold_earned: defaultRewards.gold
+            })
+            .eq('id', String(questCompletion['id']));
+        } catch (updateError) {
+          console.warn('[Quest API] Could not update quest_completion with XP/gold (columns may not exist):', updateError);
+          // Try to add the missing columns if they don't exist
+          try {
+            await supabase.rpc('add_quest_completion_columns');
+          } catch (rpcError) {
+            console.warn('[Quest API] Could not add missing columns:', rpcError);
+          }
+        }
+        
         // Log experience and gold rewards
         await grantReward({
           userId,

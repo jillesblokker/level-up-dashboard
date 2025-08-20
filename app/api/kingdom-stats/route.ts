@@ -67,6 +67,19 @@ export async function GET(request: Request) {
     
     console.log('[Kingdom Stats] Tab:', tab, 'Period:', period);
 
+    // TEST: Check table structure first
+    console.log('[Kingdom Stats] Testing table structure...');
+    const { data: testData, error: testError } = await supabaseServer
+      .from('quest_completion')
+      .select('*')
+      .limit(1);
+    
+    if (testError) {
+      console.error('[Kingdom Stats] Table structure test failed:', testError);
+    } else {
+      console.log('[Kingdom Stats] Table structure test successful. Available columns:', testData && testData.length > 0 ? Object.keys(testData[0]) : 'No data');
+    }
+
     const days = getDateRange(period);
 
     if (tab === 'quests') {
