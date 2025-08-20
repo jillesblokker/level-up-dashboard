@@ -698,6 +698,17 @@ export function KingdomClient({ userId }: { userId: string | null }) {
         const stored = await getStoredItems(userId);
         const stats = await getTotalStats(userId);
         
+        // Debug logging to see what we're getting
+        console.log('[Kingdom] Inventory data:', {
+          equipped: equipped,
+          equippedType: typeof equipped,
+          equippedIsArray: Array.isArray(equipped),
+          stored: stored,
+          storedType: typeof stored,
+          storedIsArray: Array.isArray(stored),
+          stats: stats
+        });
+        
         // Removed debugging log
         
         // Normalize items to always have a 'stats' property and description
@@ -713,11 +724,21 @@ export function KingdomClient({ userId }: { userId: string | null }) {
           }) as KingdomInventoryItem);
         };
         
-        // Ensure equipped and stored are arrays
+        // Ensure equipped and stored are arrays with defensive programming
         const equippedArray = Array.isArray(equipped) ? equipped : [];
         const storedArray = Array.isArray(stored) ? stored : [];
         
-        let equippedItemsToShow = normalizeItems(equippedArray.filter(isEquippable));
+        // Filter equipped items safely
+        const equippableItems = equippedArray.filter(item => {
+          try {
+            return isEquippable(item);
+          } catch (error) {
+            console.warn('[Kingdom] Error filtering item:', item, error);
+            return false;
+          }
+        });
+        
+        let equippedItemsToShow = normalizeItems(equippableItems);
         
         // 🎯 SHOW DEFAULT ITEMS if no items are equipped
         if (equippedItemsToShow.length === 0) {
@@ -738,12 +759,17 @@ export function KingdomClient({ userId }: { userId: string | null }) {
         // 🎯 CALCULATE STATS from equipped items (including defaults)
         const calculatedStats = equippedItemsToShow.reduce(
           (totals, item) => {
-            const itemStats = item.stats || {};
-            return {
-              movement: totals.movement + (itemStats.movement || 0),
-              attack: totals.attack + (itemStats.attack || 0),
-              defense: totals.defense + (itemStats.defense || 0),
-            };
+            try {
+              const itemStats = item?.stats || {};
+              return {
+                movement: totals.movement + (itemStats.movement || 0),
+                attack: totals.attack + (itemStats.attack || 0),
+                defense: totals.defense + (itemStats.defense || 0),
+              };
+            } catch (error) {
+              console.warn('[Kingdom] Error calculating stats for item:', item, error);
+              return totals; // Return unchanged totals on error
+            }
           },
           { movement: 0, attack: 0, defense: 0 }
         );
@@ -767,12 +793,17 @@ export function KingdomClient({ userId }: { userId: string | null }) {
         // Calculate stats from default items
         const defaultStats = defaultItems.reduce(
           (totals, item) => {
-            const itemStats = item.stats || {};
-            return {
-              movement: totals.movement + (itemStats.movement || 0),
-              attack: totals.attack + (itemStats.attack || 0),
-              defense: totals.defense + (itemStats.defense || 0),
-            };
+            try {
+              const itemStats = item?.stats || {};
+              return {
+                movement: totals.movement + (itemStats.movement || 0),
+                attack: totals.attack + (itemStats.attack || 0),
+                defense: totals.defense + (itemStats.defense || 0),
+              };
+            } catch (error) {
+              console.warn('[Kingdom] Error calculating default stats for item:', item, error);
+              return totals; // Return unchanged totals on error
+            }
           },
           { movement: 0, attack: 0, defense: 0 }
         );
