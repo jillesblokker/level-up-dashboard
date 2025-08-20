@@ -43,10 +43,13 @@ function getDateRange(period: string): string[] {
 
 export async function GET(request: Request) {
   try {
-    // Removed debugging log
+    console.log('[Kingdom Stats] API called');
     
     const userId = await getUserIdFromRequest(request);
+    console.log('[Kingdom Stats] User ID:', userId);
+    
     if (!userId) {
+      console.log('[Kingdom Stats] No user ID, returning 401');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
@@ -54,499 +57,78 @@ export async function GET(request: Request) {
     const tab = searchParams.get('tab') || 'challenges';
     const period = searchParams.get('period') || 'week';
     
-    // Removed debugging log
+    console.log('[Kingdom Stats] Tab:', tab, 'Period:', period);
 
-    const days = getDateRange(period);
-
+    // For now, just return a simple response to test if the API works at all
     if (tab === 'quests') {
-      // Aggregate quest completions from quest_completion table
-      // Using the correct column names based on actual table structure
-      const { data: completions, error } = await supabaseServer
-        .from('quest_completion')
-        .select('id, quest_id, completed_at, completed')
-        .eq('user_id', userId)
-        .eq('completed', true);
-        
-      if (error) {
-        console.error('[Kingdom Stats] Supabase error (quests):', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
-
-      // Aggregate by day/month
-      let counts: Record<string, number> = {};
-      if (period === 'year') {
-        days.forEach(month => { counts[month] = 0; });
-        completions?.forEach((c: any) => {
-          if (c.completed_at) {
-            const month = c.completed_at.slice(0, 7);
-            if (counts[month] !== undefined) counts[month]++;
-          }
-        });
-      } else if (period === 'all') {
-        counts['all'] = completions?.length || 0;
-      } else {
-        days.forEach(day => { counts[day] = 0; });
-        completions?.forEach((c: any) => {
-          if (c.completed_at) {
-            const day = c.completed_at.slice(0, 10);
-            if (counts[day] !== undefined) counts[day]++;
-          }
-        });
-      }
-      
-      const data = days.map(day => ({ day, value: counts[day] || 0 }));
-      return NextResponse.json({ data });
+      console.log('[Kingdom Stats] Returning quests data');
+      return NextResponse.json({ 
+        data: [
+          { day: '2024-01-01', value: 5 },
+          { day: '2024-01-02', value: 3 },
+          { day: '2024-01-03', value: 7 }
+        ] 
+      });
     }
 
     if (tab === 'challenges') {
-      // Aggregate challenge completions from challenge_completion table
-      // Using the correct column names based on actual table structure
-      const { data: completions, error } = await supabaseServer
-        .from('challenge_completion')
-        .select('id, completed, date')
-        .eq('user_id', userId)
-        .eq('completed', true);
-        
-      if (error) {
-        console.error('[Kingdom Stats] Supabase error (challenges):', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
-
-      // Aggregate by day/month
-      let counts: Record<string, number> = {};
-      if (period === 'year') {
-        days.forEach(month => { counts[month] = 0; });
-        completions?.forEach((c: any) => {
-          if (c.date) {
-            const month = c.date.slice(0, 7);
-            if (counts[month] !== undefined) counts[month]++;
-          }
-        });
-      } else if (period === 'all') {
-        counts['all'] = completions?.length || 0;
-      } else {
-        days.forEach(day => { counts[day] = 0; });
-        completions?.forEach((c: any) => {
-          if (c.date) {
-            const day = c.date.slice(0, 10);
-            if (counts[day] !== undefined) counts[day]++;
-          }
-        });
-      }
-      
-      const data = days.map(day => ({ day, value: counts[day] || 0 }));
-      return NextResponse.json({ data });
+      console.log('[Kingdom Stats] Returning challenges data');
+      return NextResponse.json({ 
+        data: [
+          { day: '2024-01-01', value: 2 },
+          { day: '2024-01-02', value: 4 },
+          { day: '2024-01-03', value: 1 }
+        ] 
+      });
     }
 
     if (tab === 'milestones') {
-      // Aggregate milestone completions from milestone_completion table
-      const { data: completions, error } = await supabaseServer
-        .from('milestone_completion')
-        .select('id, completed, date')
-        .eq('user_id', userId)
-        .eq('completed', true);
-        
-      if (error) {
-        console.error('[Kingdom Stats] Supabase error (milestones):', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
-
-      // Aggregate by day/month
-      let counts: Record<string, number> = {};
-      if (period === 'year') {
-        days.forEach(month => { counts[month] = 0; });
-        completions?.forEach((c: any) => {
-          if (c.date) {
-            const month = c.date.slice(0, 7);
-            if (counts[month] !== undefined) counts[month]++;
-          }
-        });
-      } else if (period === 'all') {
-        counts['all'] = 0;
-        completions?.forEach((c: any) => {
-          if (c.date) {
-            counts['all'] = (counts['all'] || 0) + 1;
-          }
-        });
-      } else {
-        days.forEach(day => { counts[day] = 0; });
-        completions?.forEach((c: any) => {
-          if (c.date) {
-            const day = c.date.slice(0, 10);
-            if (counts[day] !== undefined) counts[day]++;
-          }
-        });
-      }
-      
-      const data = days.map(day => ({ day, value: counts[day] || 0 }));
-      return NextResponse.json({ data });
+      console.log('[Kingdom Stats] Returning milestones data');
+      return NextResponse.json({ 
+        data: [
+          { day: '2024-01-01', value: 1 },
+          { day: '2024-01-02', value: 0 },
+          { day: '2024-01-03', value: 2 }
+        ] 
+      });
     }
 
     if (tab === 'gold') {
-      // Aggregate gold earned from quest_completion + challenge_completion + milestone_completion
-      const [questRes, challengeRes, milestoneRes] = await Promise.all([
-        supabaseServer
-          .from('quest_completion')
-          .select('quest_id, completed_at')
-          .eq('user_id', userId)
-          .eq('completed', true),
-        supabaseServer
-          .from('challenge_completion')
-          .select('challenge_id, completed_at')
-          .eq('user_id', userId)
-          .eq('completed', true),
-        supabaseServer
-          .from('milestone_completion')
-          .select('milestone_id, completed_at')
-          .eq('user_id', userId)
-          .eq('completed', true)
-      ]);
-
-      if (questRes.error || challengeRes.error || milestoneRes.error) {
-        console.error('[Kingdom Stats] Supabase error (gold):', { questRes, challengeRes, milestoneRes });
-        return NextResponse.json({ error: 'Failed to fetch gold data' }, { status: 500 });
-      }
-
-      // Get challenge and milestone gold rewards
-      const challengeIds = challengeRes.data?.map(c => c.challenge_id) || [];
-      const milestoneIds = milestoneRes.data?.map(m => m.milestone_id) || [];
-      
-      let challengeRewards: any[] = [];
-      let milestoneRewards: any[] = [];
-      
-      if (challengeIds.length > 0) {
-        const { data } = await supabaseServer
-          .from('challenges')
-          .select('id, gold')
-          .in('id', challengeIds);
-        challengeRewards = data || [];
-      }
-      
-      if (milestoneIds.length > 0) {
-        const { data } = await supabaseServer
-          .from('milestones')
-          .select('id, gold')
-          .in('id', milestoneIds);
-        milestoneRewards = data || [];
-      }
-
-      // Aggregate by day/month
-      let sums: Record<string, number> = {};
-      if (period === 'year') {
-        days.forEach(month => { sums[month] = 0; });
-      } else if (period === 'all') {
-        sums['all'] = 0;
-      } else {
-        days.forEach(day => { sums[day] = 0; });
-      }
-
-      // Add quest gold - we need to get gold from the quests table
-      if (questRes.data && questRes.data.length > 0) {
-        const questIds = questRes.data.map(c => c.quest_id);
-        const { data: questRewards } = await supabaseServer
-          .from('quests')
-          .select('id, gold')
-          .in('id', questIds);
-        
-        questRes.data.forEach((c: any) => {
-          if (c.completed_at) {
-            const dateKey = period === 'year' ? c.completed_at.slice(0, 7) : 
-                           period === 'all' ? 'all' : c.completed_at.slice(0, 10);
-            const questReward = questRewards?.find(q => q.id === c.quest_id);
-            if (sums[dateKey] !== undefined) sums[dateKey] += questReward?.gold || 0;
-          }
-        });
-      }
-
-      // Add challenge gold
-      challengeRes.data?.forEach((c: any) => {
-        const reward = challengeRewards.find(r => r.id === c.challenge_id);
-        if (c.date && reward) {
-          const dateKey = period === 'year' ? c.date.slice(0, 7) : 
-                         period === 'all' ? 'all' : c.date.slice(0, 10);
-          if (sums[dateKey] !== undefined) sums[dateKey] += reward.gold || 0;
-        }
+      console.log('[Kingdom Stats] Returning gold data');
+      return NextResponse.json({ 
+        data: [
+          { day: '2024-01-01', value: 150 },
+          { day: '2024-01-02', value: 200 },
+          { day: '2024-01-03', value: 100 }
+        ] 
       });
-
-      // Add milestone gold
-      milestoneRes.data?.forEach((m: any) => {
-        const reward = milestoneRewards.find(r => r.id === m.milestone_id);
-        if (m.date && reward) {
-          const dateKey = period === 'year' ? m.date.slice(0, 7) : 
-                         period === 'all' ? 'all' : m.date.slice(0, 7);
-          if (sums[dateKey] !== undefined) sums[dateKey] += reward.gold || 0;
-        }
-      });
-      
-      // Removed test data
-      
-      const data = days.map(day => ({ day, value: sums[day] || 0 }));
-      return NextResponse.json({ data });
     }
 
     if (tab === 'experience') {
-      // Similar aggregation for experience
-      const [questRes, challengeRes, milestoneRes] = await Promise.all([
-        supabaseServer
-          .from('quest_completion')
-          .select('quest_id, completed_at')
-          .eq('user_id', userId)
-          .eq('completed', true),
-        supabaseServer
-          .from('challenge_completion')
-          .select('challenge_id, completed_at')
-          .eq('user_id', userId)
-          .eq('completed', true),
-        supabaseServer
-          .from('milestone_completion')
-          .select('milestone_id, completed_at')
-          .eq('user_id', userId)
-          .eq('completed', true)
-      ]);
-
-      if (questRes.error || challengeRes.error || milestoneRes.error) {
-        console.error('[Kingdom Stats] Supabase error (experience):', { questRes, challengeRes, milestoneRes });
-        return NextResponse.json({ error: 'Failed to fetch experience data' }, { status: 500 });
-      }
-
-      // Get challenge and milestone XP rewards
-      const challengeIds = challengeRes.data?.map(c => c.challenge_id) || [];
-      const milestoneIds = milestoneRes.data?.map(m => m.milestone_id) || [];
-      
-      let challengeRewards: any[] = [];
-      let milestoneRewards: any[] = [];
-      
-      if (challengeIds.length > 0) {
-        const { data } = await supabaseServer
-          .from('challenges')
-          .select('id, xp')
-          .in('id', challengeIds);
-        challengeRewards = data || [];
-      }
-      
-      if (milestoneIds.length > 0) {
-        const { data } = await supabaseServer
-          .from('milestones')
-          .select('id, experience')
-          .in('id', milestoneIds);
-        milestoneRewards = data || [];
-      }
-
-      // Aggregate by day/month
-      let sums: Record<string, number> = {};
-      if (period === 'year') {
-        days.forEach(month => { sums[month] = 0; });
-      } else if (period === 'all') {
-        sums['all'] = 0;
-      } else {
-        days.forEach(day => { sums[day] = 0; });
-      }
-
-      // Add quest XP - we need to get XP from the quests table
-      if (questRes.data && questRes.data.length > 0) {
-        const questIds = questRes.data.map(c => c.quest_id);
-        const { data: questRewards } = await supabaseServer
-          .from('quests')
-          .select('id, xp')
-          .in('id', questIds);
-        
-        questRes.data.forEach((c: any) => {
-          if (c.completed_at) {
-            const dateKey = period === 'year' ? c.completed_at.slice(0, 7) : 
-                           period === 'all' ? 'all' : c.completed_at.slice(0, 10);
-            const questReward = questRewards?.find(q => q.id === c.quest_id);
-            if (sums[dateKey] !== undefined) sums[dateKey] += questReward?.xp || 0;
-          }
-        });
-      }
-
-      // Add challenge XP
-      challengeRes.data?.forEach((c: any) => {
-        const reward = challengeRewards.find(r => r.id === c.challenge_id);
-        if (c.date && reward) {
-          const dateKey = period === 'year' ? c.date.slice(0, 7) : 
-                         period === 'all' ? 'all' : c.date.slice(0, 10);
-          if (sums[dateKey] !== undefined) sums[dateKey] += reward.xp || 0;
-        }
+      console.log('[Kingdom Stats] Returning experience data');
+      return NextResponse.json({ 
+        data: [
+          { day: '2024-01-01', value: 50 },
+          { day: '2024-01-02', value: 75 },
+          { day: '2024-01-03', value: 25 }
+        ] 
       });
-
-      // Add milestone XP
-      milestoneRes.data?.forEach((m: any) => {
-        const reward = milestoneRewards.find(r => r.id === m.milestone_id);
-        if (m.date && reward) {
-          const dateKey = period === 'year' ? m.date.slice(0, 7) : 
-                         period === 'all' ? 'all' : m.date.slice(0, 10);
-          if (sums[dateKey] !== undefined) sums[dateKey] += reward.experience || 0;
-        }
-      });
-      
-      // Removed test data
-      
-      const data = days.map(day => ({ day, value: sums[day] || 0 }));
-      return NextResponse.json({ data });
     }
 
     if (tab === 'level') {
-      // Calculate level progression over time based on accumulated experience
-      const [questRes, challengeRes, milestoneRes] = await Promise.all([
-        supabaseServer
-          .from('quest_completion')
-          .select('quest_id, completed_at')
-          .eq('user_id', userId)
-          .eq('completed', true)
-          .order('completed_at', { ascending: true }),
-        supabaseServer
-          .from('challenge_completion')
-          .select('challenge_id, date')
-          .eq('user_id', userId)
-          .eq('completed', true)
-          .order('date', { ascending: true }),
-        supabaseServer
-          .from('milestone_completion')
-          .select('milestone_id, date')
-          .eq('user_id', userId)
-          .eq('completed', true)
-          .order('date', { ascending: true })
-      ]);
-
-      if (questRes.error || challengeRes.error || milestoneRes.error) {
-        console.error('[Kingdom Stats] Supabase error (level):', { questRes, challengeRes, milestoneRes });
-        return NextResponse.json({ error: 'Failed to fetch level data' }, { status: 500 });
-      }
-
-      // Get challenge and milestone XP rewards
-      const challengeIds = challengeRes.data?.map(c => c.challenge_id) || [];
-      const milestoneIds = milestoneRes.data?.map(m => m.milestone_id) || [];
-      
-      let challengeRewards: any[] = [];
-      let milestoneRewards: any[] = [];
-      
-      if (challengeIds.length > 0) {
-        const { data } = await supabaseServer
-          .from('challenges')
-          .select('id, xp')
-          .in('id', challengeIds);
-        challengeRewards = data || [];
-      }
-      
-      if (milestoneIds.length > 0) {
-        const { data } = await supabaseServer
-          .from('milestones')
-          .select('id, experience')
-          .in('id', milestoneIds);
-        milestoneRewards = data || [];
-      }
-
-      // Helper function to calculate level from experience
-      const calculateLevelFromExperience = (experience: number): number => {
-        if (experience < 100) return 1;
-        
-        let level = 1;
-        let totalExpNeeded = 0;
-        
-        while (true) {
-          const expForLevel = Math.round(100 * Math.pow(1.15, level - 1));
-          totalExpNeeded += expForLevel;
-          if (experience < totalExpNeeded) {
-            return level;
-          }
-          level++;
-        }
-      };
-
-      // Build timeline of experience gains and calculate levels
-      const experienceTimeline: Array<{ date: string; xp: number }> = [];
-      
-      // Add quest XP to timeline
-      if (questRes.data && questRes.data.length > 0) {
-        const questIds = questRes.data.map(c => c.quest_id);
-        const { data: questRewards } = await supabaseServer
-          .from('quests')
-          .select('id, xp')
-          .in('id', questIds);
-        
-        questRes.data.forEach((c: any) => {
-          if (c.completed_at) {
-            const questReward = questRewards?.find(q => q.id === c.quest_id);
-            experienceTimeline.push({
-              date: c.completed_at.slice(0, 10),
-              xp: questReward?.xp || 0
-            });
-          }
-        });
-      }
-
-      // Add challenge XP to timeline
-      challengeRes.data?.forEach((c: any) => {
-        const reward = challengeRewards.find(r => r.id === c.challenge_id);
-        if (c.date && reward) {
-          experienceTimeline.push({
-            date: c.date.slice(0, 10),
-            xp: reward.xp || 0
-          });
-        }
+      console.log('[Kingdom Stats] Returning level data');
+      return NextResponse.json({ 
+        data: [
+          { day: '2024-01-01', value: 5 },
+          { day: '2024-01-02', value: 6 },
+          { day: '2024-01-03', value: 7 }
+        ] 
       });
-
-      // Add milestone XP to timeline
-      milestoneRes.data?.forEach((m: any) => {
-        const reward = milestoneRewards.find(r => r.id === m.milestone_id);
-        if (m.date && reward) {
-          experienceTimeline.push({
-            date: m.date.slice(0, 10),
-            xp: reward.experience || 0
-          });
-        }
-      });
-
-      // Sort timeline by date
-      experienceTimeline.sort((a, b) => a.date.localeCompare(b.date));
-
-      // Calculate cumulative experience and levels for each day
-      let cumulativeExp = 0;
-      const levelProgression: Record<string, number> = {};
-      
-      experienceTimeline.forEach(({ date, xp }) => {
-        cumulativeExp += xp;
-        const level = calculateLevelFromExperience(cumulativeExp);
-        levelProgression[date] = level;
-      });
-
-      // Fill in the requested time period with level data
-      let levelData: Record<string, number> = {};
-      if (period === 'year') {
-        days.forEach(month => { levelData[month] = 0; });
-      } else if (period === 'all') {
-        levelData['all'] = 0;
-      } else {
-        days.forEach(day => { levelData[day] = 0; });
-      }
-
-      // Find the highest level achieved in each time period
-      Object.entries(levelProgression).forEach(([date, level]) => {
-        const dateKey = period === 'year' ? date.slice(0, 7) : 
-                       period === 'all' ? 'all' : date;
-        if (levelData[dateKey] !== undefined) {
-          levelData[dateKey] = Math.max(levelData[dateKey], level);
-        }
-      });
-
-      // For periods without data, carry forward the previous level
-      let lastLevel = 1;
-      const finalData = days.map(day => {
-        const currentLevel = levelData[day];
-        if (currentLevel !== undefined && currentLevel > 0) {
-          // Only update if the new level is higher (never go down)
-          lastLevel = Math.max(lastLevel, currentLevel);
-        }
-        return { day, value: lastLevel };
-      });
-      
-      // Removed debugging log
-      return NextResponse.json({ data: finalData });
     }
 
     // For other tabs, return empty data
-    const data = days.map(day => ({ day, value: 0 }));
+    console.log('[Kingdom Stats] Returning empty data for unknown tab');
+    const data = [{ day: '2024-01-01', value: 0 }];
     return NextResponse.json({ data });
 
   } catch (error) {
