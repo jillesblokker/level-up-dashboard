@@ -211,13 +211,13 @@ export function AccountMenu() {
             <Link 
               href="/admin/stored-data"
               className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
-              aria-label="Stored Data page"
+              aria-label="Admin page"
               onClick={() => setIsOpen(false)}
             >
               <Database className="h-5 w-5 text-amber-400" />
               <div className="flex-1 text-left">
-                <span className="text-base font-medium text-white">Stored Data</span>
-                <p className="text-xs text-gray-400">Manage local data</p>
+                <span className="text-base font-medium text-white">Admin</span>
+                <p className="text-xs text-gray-400">Manage data & settings</p>
               </div>
             </Link>
             

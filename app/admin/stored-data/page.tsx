@@ -449,117 +449,56 @@ export default function AdminPage() {
     const comparisons: DataComparison[] = [];
 
     try {
-      // 1. Compare Quest Completions
+      // 1. Compare Quest Completions - BYPASS BROKEN QUEST API
       try {
         const localStorageQuests = JSON.parse(localStorage.getItem('quests') || '[]');
         const localStorageQuestCount = localStorageQuests.filter((q: any) => q.completed).length;
         
-        // Use API endpoint instead of direct Supabase call
-        const questResponse = await fetch('/api/quests', {
+        // BYPASS: Use the working simple quest API directly instead of the broken main Quest API
+        console.log('[Admin] Bypassing broken Quest API, using simple API directly...');
+        
+        const simpleResponse = await fetch('/api/quests/simple', {
           credentials: 'include'
         });
-        const questData = questResponse.ok ? await questResponse.json() : [];
-        console.log('Quest API Response:', questData);
-        console.log('Quest Data Type:', typeof questData);
-        console.log('Quest Data Length:', Array.isArray(questData) ? questData.length : 'Not an array');
-        if (Array.isArray(questData) && questData.length > 0) {
-          console.log('First Quest Item:', questData[0]);
-          console.log('Quest Completed Property:', questData[0]?.completed);
+        
+        if (simpleResponse.ok) {
+          const simpleData = await simpleResponse.json();
+          console.log('[Admin] Simple quest API data:', simpleData);
           
-          // Debug: Check all quests for completion status
-          const completedQuests = questData.filter((q: any) => q.completed === true);
-          const incompleteQuests = questData.filter((q: any) => q.completed === false);
-          console.log('Completed Quests Count:', completedQuests.length);
-          console.log('Incomplete Quests Count:', incompleteQuests.length);
-          if (completedQuests.length > 0) {
-            console.log('Sample Completed Quest:', completedQuests[0]);
-          }
+          // Use the accurate counts from the working simple API
+          const supabaseQuestCount = simpleData.completedQuests || 0;
+          const actualCompletedCount = simpleData.completedQuests || 0;
+          const actualIncompleteCount = simpleData.incompleteQuests || 0;
           
-          // Debug: Check if all quests have the same completion status (indicates API issue)
-          const uniqueCompletionStatuses = [...new Set(questData.map((q: any) => q.completed))];
-          console.log('Unique completion statuses:', uniqueCompletionStatuses);
+          console.log('[Admin] Quest counts from working simple API:', { 
+            completed: actualCompletedCount, 
+            incomplete: actualIncompleteCount,
+            total: simpleData.challengesCount || 0
+          });
           
-          if (uniqueCompletionStatuses.length === 1) {
-            console.warn('WARNING: All quests have the same completion status. This suggests the Quest API is not working correctly.');
-          }
+          const questComparison: DataComparison = {
+            table: 'Quest Completions',
+            localStorageCount: localStorageQuestCount,
+            supabaseCount: supabaseQuestCount,
+            difference: supabaseQuestCount - localStorageQuestCount,
+            status: supabaseQuestCount === localStorageQuestCount ? 'synced' :
+                    supabaseQuestCount > localStorageQuestCount ? 'supabase-ahead' : 'local-ahead',
+            lastChecked: now
+          };
+          comparisons.push(questComparison);
+        } else {
+          console.error('[Admin] Simple quest API failed:', simpleResponse.status, simpleResponse.statusText);
+          comparisons.push({
+            table: 'Quest Completions',
+            localStorageCount: localStorageQuestCount,
+            supabaseCount: 0,
+            difference: 0,
+            status: 'error',
+            lastChecked: now
+          });
         }
-        
-        // Count quests that are marked as completed
-        let supabaseQuestCount = questData.filter((q: any) => q.completed === true).length;
-        
-        // Debug: Log the quest comparison details
-        console.log('Quest Comparison Debug:', {
-          localStorageQuestCount,
-          supabaseQuestCount,
-          questDataLength: questData.length,
-          sampleQuest: questData[0],
-          completedQuests: questData.filter((q: any) => q.completed === true).slice(0, 3),
-          allQuestCompletionStatuses: questData.map((q: any) => ({ id: q.id, name: q.name, completed: q.completed }))
-        });
-        
-        // FALLBACK: If all quests have the same completion status, check quest_completion table directly
-        if (Array.isArray(questData) && questData.length > 0) {
-          const uniqueCompletionStatuses = [...new Set(questData.map((q: any) => q.completed))];
-          if (uniqueCompletionStatuses.length === 1) {
-            console.log('Attempting fallback to check quest_completion table directly...');
-            try {
-              // Try the simple quest endpoint first
-              const simpleResponse = await fetch('/api/quests/simple', {
-                credentials: 'include'
-              });
-              if (simpleResponse.ok) {
-                const simpleData = await simpleResponse.json();
-                console.log('Simple quest API data:', simpleData);
-                
-                // Use the accurate counts from the simple API
-                const actualCompletedCount = simpleData.completedQuests || 0;
-                const actualIncompleteCount = simpleData.incompleteQuests || 0;
-                console.log('Actual quest counts from simple API:', { completed: actualCompletedCount, incomplete: actualIncompleteCount });
-                
-                // Log the discrepancy
-                console.warn('DISCREPANCY: Quest API shows', supabaseQuestCount, 'completed, but simple API shows', actualCompletedCount, 'completed');
-                
-                // Update the comparison data with the real counts
-                supabaseQuestCount = actualCompletedCount;
-              } else {
-                // Fallback to the test endpoint if simple API fails
-                const fallbackResponse = await fetch('/api/quests/test', {
-                  credentials: 'include'
-                });
-                if (fallbackResponse.ok) {
-                  const fallbackData = await fallbackResponse.json();
-                  console.log('Fallback quest completion data:', fallbackData);
-                  
-                  // Count actual completed quests from the test endpoint
-                  const actualCompletedCount = fallbackData.analysis?.filter((a: any) => a.is_completed).length || 0;
-                  console.log('Actual completed quests from fallback:', actualCompletedCount);
-                  
-                  // Update the supabaseQuestCount with the real data
-                  if (actualCompletedCount > 0) {
-                    console.log('Using fallback count instead of Quest API count');
-                    // Don't change supabaseQuestCount here, just log the discrepancy
-                    console.warn('DISCREPANCY: Quest API shows', supabaseQuestCount, 'completed, but fallback shows', actualCompletedCount, 'completed');
-                  }
-                }
-              }
-            } catch (fallbackError) {
-              console.error('Fallback check failed:', fallbackError);
-            }
-          }
-        }
-        
-        const questComparison: DataComparison = {
-          table: 'Quest Completions',
-          localStorageCount: localStorageQuestCount,
-          supabaseCount: supabaseQuestCount,
-          difference: supabaseQuestCount - localStorageQuestCount,
-          status: supabaseQuestCount === localStorageQuestCount ? 'synced' :
-                  supabaseQuestCount > localStorageQuestCount ? 'supabase-ahead' : 'local-ahead',
-          lastChecked: now
-        };
-        comparisons.push(questComparison);
       } catch (error) {
-        console.error('Quest comparison error:', error);
+        console.error('[Admin] Quest comparison error:', error);
         comparisons.push({
           table: 'Quest Completions',
           localStorageCount: 0,
@@ -570,7 +509,166 @@ export default function AdminPage() {
         });
       }
 
-      // 2. Compare Challenge Completions
+      // 2. Compare Gold Transactions - FIXED API CALL
+      try {
+        const localStorageGold = JSON.parse(localStorage.getItem('gold') || '[]');
+        const localStorageGoldCount = localStorageGold.length;
+        
+        // FIXED: Use correct gold API endpoint
+        const goldResponse = await fetch('/api/gold-transactions', {
+          credentials: 'include'
+        });
+        
+        if (goldResponse.ok) {
+          const goldData = await goldResponse.json();
+          console.log('[Admin] Gold API Response:', goldData);
+          
+          // Handle both array and object responses
+          const goldTransactions = Array.isArray(goldData) ? goldData : (goldData.data || []);
+          const supabaseGoldCount = goldTransactions.length;
+          
+          console.log('[Admin] Gold Transactions Count:', supabaseGoldCount);
+          
+          const goldComparison: DataComparison = {
+            table: 'Gold Transactions',
+            localStorageCount: localStorageGoldCount,
+            supabaseCount: supabaseGoldCount,
+            difference: supabaseGoldCount - localStorageGoldCount,
+            status: supabaseGoldCount === localStorageGoldCount ? 'synced' :
+                    supabaseGoldCount > localStorageGoldCount ? 'supabase-ahead' : 'local-ahead',
+            lastChecked: now
+          };
+          comparisons.push(goldComparison);
+        } else {
+          console.error('[Admin] Gold API failed:', goldResponse.status, goldResponse.statusText);
+          comparisons.push({
+            table: 'Gold Transactions',
+            localStorageCount: localStorageGoldCount,
+            supabaseCount: 0,
+            difference: 0,
+            status: 'error',
+            lastChecked: now
+          });
+        }
+      } catch (error) {
+        console.error('[Admin] Gold comparison error:', error);
+        comparisons.push({
+          table: 'Gold Transactions',
+          localStorageCount: 0,
+          supabaseCount: 0,
+          difference: 0,
+          status: 'error',
+          lastChecked: now
+        });
+      }
+
+      // 3. Compare Experience Transactions - FIXED API CALL
+      try {
+        const localStorageExp = JSON.parse(localStorage.getItem('experience') || '[]');
+        const localStorageExpCount = localStorageExp.length;
+        
+        // FIXED: Use correct experience API endpoint
+        const expResponse = await fetch('/api/experience-transactions', {
+          credentials: 'include'
+        });
+        
+        if (expResponse.ok) {
+          const expData = await expResponse.json();
+          console.log('[Admin] Experience API Response:', expData);
+          
+          // Handle both array and object responses
+          const expTransactions = Array.isArray(expData) ? expData : (expData.data || []);
+          const supabaseExpCount = expTransactions.length;
+          
+          console.log('[Admin] Experience Transactions Count:', supabaseExpCount);
+          
+          const expComparison: DataComparison = {
+            table: 'Experience Transactions',
+            localStorageCount: localStorageExpCount,
+            supabaseCount: supabaseExpCount,
+            difference: supabaseExpCount - localStorageExpCount,
+            status: supabaseExpCount === localStorageExpCount ? 'synced' :
+                    supabaseExpCount > localStorageExpCount ? 'supabase-ahead' : 'local-ahead',
+            lastChecked: now
+          };
+          comparisons.push(expComparison);
+        } else {
+          console.error('[Admin] Experience API failed:', expResponse.status, expResponse.statusText);
+          comparisons.push({
+            table: 'Experience Transactions',
+            localStorageCount: localStorageExpCount,
+            supabaseCount: 0,
+            difference: 0,
+            status: 'error',
+            lastChecked: now
+          });
+        }
+      } catch (error) {
+        console.error('[Admin] Experience comparison error:', error);
+        comparisons.push({
+          table: 'Experience Transactions',
+          localStorageCount: 0,
+          supabaseCount: 0,
+          difference: 0,
+          status: 'error',
+          lastChecked: now
+        });
+      }
+
+      // 4. Compare Inventory Items - FIXED API CALL
+      try {
+        const localStorageInventory = JSON.parse(localStorage.getItem('inventory') || '[]');
+        const localStorageInventoryCount = localStorageInventory.length;
+        
+        // FIXED: Use correct inventory API endpoint
+        const inventoryResponse = await fetch('/api/inventory', {
+          credentials: 'include'
+        });
+        
+        if (inventoryResponse.ok) {
+          const inventoryData = await inventoryResponse.json();
+          console.log('[Admin] Inventory API Response:', inventoryData);
+          
+          // Handle both array and object responses
+          const inventoryItems = Array.isArray(inventoryData) ? inventoryData : (inventoryData.data || []);
+          const supabaseInventoryCount = inventoryItems.length;
+          
+          console.log('[Admin] Inventory Items Count:', supabaseInventoryCount);
+          
+          const inventoryComparison: DataComparison = {
+            table: 'Inventory Items',
+            localStorageCount: localStorageInventoryCount,
+            supabaseCount: supabaseInventoryCount,
+            difference: supabaseInventoryCount - localStorageInventoryCount,
+            status: supabaseInventoryCount === localStorageInventoryCount ? 'synced' :
+                    supabaseInventoryCount > localStorageInventoryCount ? 'supabase-ahead' : 'local-ahead',
+            lastChecked: now
+          };
+          comparisons.push(inventoryComparison);
+        } else {
+          console.error('[Admin] Inventory API failed:', inventoryResponse.status, inventoryResponse.statusText);
+          comparisons.push({
+            table: 'Inventory Items',
+            localStorageCount: localStorageInventoryCount,
+            supabaseCount: 0,
+            difference: 0,
+            status: 'error',
+            lastChecked: now
+          });
+        }
+      } catch (error) {
+        console.error('[Admin] Inventory comparison error:', error);
+        comparisons.push({
+          table: 'Inventory Items',
+          localStorageCount: 0,
+          supabaseCount: 0,
+          difference: 0,
+          status: 'error',
+          lastChecked: now
+        });
+      }
+
+      // 5. Compare Challenge Completions
       try {
         const localStorageChallenges = JSON.parse(localStorage.getItem('challenges') || '[]');
         const localStorageChallengeCount = localStorageChallenges.filter((c: any) => c.completed).length;
@@ -604,7 +702,7 @@ export default function AdminPage() {
         });
       }
 
-      // 3. Compare Milestone Completions
+      // 6. Compare Milestone Completions
       try {
         const localStorageMilestones = JSON.parse(localStorage.getItem('milestones') || '[]');
         const localStorageMilestoneCount = localStorageMilestones.filter((m: any) => m.completed).length;
@@ -630,116 +728,6 @@ export default function AdminPage() {
       } catch (error) {
         comparisons.push({
           table: 'Milestone Completions',
-          localStorageCount: 0,
-          supabaseCount: 0,
-          difference: 0,
-          status: 'error',
-          lastChecked: now
-        });
-      }
-
-      // 4. Compare Gold Transactions
-      try {
-        const localStorageGoldTransactions = JSON.parse(localStorage.getItem('gold-transactions') || '[]');
-        const localStorageGoldCount = localStorageGoldTransactions.length;
-        
-        // Use API endpoint instead of direct Supabase call
-        const goldResponse = await fetch('/api/gold-transactions', {
-          credentials: 'include'
-        });
-        const goldResult = goldResponse.ok ? await goldResponse.json() : { success: false, data: [] };
-        console.log('Gold API Response:', goldResult);
-        const supabaseGoldCount = goldResult.success ? goldResult.data.length : 0;
-        console.log('Gold Transactions Count:', supabaseGoldCount);
-        
-        const goldComparison: DataComparison = {
-          table: 'Gold Transactions',
-          localStorageCount: localStorageGoldCount,
-          supabaseCount: supabaseGoldCount,
-          difference: supabaseGoldCount - localStorageGoldCount,
-          status: supabaseGoldCount === localStorageGoldCount ? 'synced' :
-                  supabaseGoldCount > localStorageGoldCount ? 'supabase-ahead' : 'local-ahead',
-          lastChecked: now
-        };
-        comparisons.push(goldComparison);
-      } catch (error) {
-        comparisons.push({
-          table: 'Gold Transactions',
-          localStorageCount: 0,
-          supabaseCount: 0,
-          difference: 0,
-          status: 'error',
-          lastChecked: now
-        });
-      }
-
-      // 5. Compare Experience Transactions
-      try {
-        const localStorageExpTransactions = JSON.parse(localStorage.getItem('experience-transactions') || '[]');
-        const localStorageExpCount = localStorageExpTransactions.length;
-        
-        // Use API endpoint instead of direct Supabase call
-        const expResponse = await fetch('/api/experience-transactions', {
-          credentials: 'include'
-        });
-        const expResult = expResponse.ok ? await expResponse.json() : { success: false, data: [] };
-        console.log('Experience API Response:', expResult);
-        const supabaseExpCount = expResult.success ? expResult.data.length : 0;
-        console.log('Experience Transactions Count:', supabaseExpCount);
-        
-        const expComparison: DataComparison = {
-          table: 'Experience Transactions',
-          localStorageCount: localStorageExpCount,
-          supabaseCount: supabaseExpCount,
-          difference: supabaseExpCount - localStorageExpCount,
-          status: supabaseExpCount === localStorageExpCount ? 'synced' :
-                  supabaseExpCount > localStorageExpCount ? 'supabase-ahead' : 'local-ahead',
-          lastChecked: now
-        };
-        comparisons.push(expComparison);
-      } catch (error) {
-        comparisons.push({
-          table: 'Experience Transactions',
-          localStorageCount: 0,
-          supabaseCount: 0,
-          difference: 0,
-          status: 'error',
-          lastChecked: now
-        });
-      }
-
-      // 6. Compare Tile Placements (Kingdom & Realm)
-      try {
-        const localStorageTilePlacements = JSON.parse(localStorage.getItem('tile-placements') || '[]');
-        const localStorageTileCount = localStorageTilePlacements.length;
-        
-        // Try to fetch tile placements from API (if it exists)
-        let supabaseTileCount = 0;
-        try {
-          const tileResponse = await fetch('/api/tiles', {
-            credentials: 'include'
-          });
-          if (tileResponse.ok) {
-            const tileData = await tileResponse.json();
-            supabaseTileCount = Array.isArray(tileData) ? tileData.length : 0;
-          }
-        } catch (tileError) {
-          console.log('Tile API not available, skipping tile count');
-        }
-        
-        const tileComparison: DataComparison = {
-          table: 'Tile Placements',
-          localStorageCount: localStorageTileCount,
-          supabaseCount: supabaseTileCount,
-          difference: supabaseTileCount - localStorageTileCount,
-          status: supabaseTileCount === localStorageTileCount ? 'synced' :
-                  supabaseTileCount > localStorageTileCount ? 'supabase-ahead' : 'local-ahead',
-          lastChecked: now
-        };
-        comparisons.push(tileComparison);
-      } catch (error) {
-        comparisons.push({
-          table: 'Tile Placements',
           localStorageCount: 0,
           supabaseCount: 0,
           difference: 0,
@@ -866,48 +854,6 @@ export default function AdminPage() {
       } catch (error) {
         comparisons.push({
           table: 'Achievements',
-          localStorageCount: 0,
-          supabaseCount: 0,
-          difference: 0,
-          status: 'error',
-          lastChecked: now
-        });
-      }
-
-      // 10. Compare Inventory Items
-      try {
-        const localStorageInventory = JSON.parse(localStorage.getItem('inventory') || '[]');
-        const localStorageInventoryCount = localStorageInventory.length;
-        
-        // Try to fetch inventory from API
-        let supabaseInventoryCount = 0;
-        try {
-          const inventoryResponse = await fetch('/api/inventory', {
-            credentials: 'include'
-          });
-          if (inventoryResponse.ok) {
-                    const inventoryResult = await inventoryResponse.json();
-        console.log('Inventory API Response:', inventoryResult);
-        supabaseInventoryCount = inventoryResult.success ? inventoryResult.data.length : 0;
-        console.log('Inventory Items Count:', supabaseInventoryCount);
-          }
-        } catch (inventoryError) {
-          console.log('Inventory API not available, skipping count');
-        }
-        
-        const inventoryComparison: DataComparison = {
-          table: 'Inventory Items',
-          localStorageCount: localStorageInventoryCount,
-          supabaseCount: supabaseInventoryCount,
-          difference: supabaseInventoryCount - localStorageInventoryCount,
-          status: supabaseInventoryCount === localStorageInventoryCount ? 'synced' :
-                  supabaseInventoryCount > localStorageInventoryCount ? 'supabase-ahead' : 'local-ahead',
-          lastChecked: now
-        };
-        comparisons.push(inventoryComparison);
-      } catch (error) {
-        comparisons.push({
-          table: 'Inventory Items',
           localStorageCount: 0,
           supabaseCount: 0,
           difference: 0,
@@ -1382,33 +1328,33 @@ TECHNICAL DETAILS:
                 >
                   Test Matching
                 </Button>
-                <Button 
-                  onClick={async () => {
-                    try {
-                      console.log('=== TESTING NEW SIMPLE QUEST API ===');
-                      const response = await fetch('/api/quests/simple', {
-                        credentials: 'include'
-                      });
-                      if (response.ok) {
-                        const data = await response.json();
-                        console.log('✅ Simple Quest API Response:', data);
-                        console.log('✅ Completed Quests:', data.completedQuests);
-                        console.log('✅ Incomplete Quests:', data.incompleteQuests);
-                        console.log('✅ Total Completions:', data.completionsCount);
-                        console.log('✅ Total Challenges:', data.challengesCount);
-                      } else {
-                        console.error('❌ Simple Quest API failed:', response.status, response.statusText);
-                      }
-                    } catch (error) {
-                      console.error('❌ Simple Quest API error:', error);
-                    }
-                  }}
-                  variant="outline"
-                  size="sm"
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                >
-                  Test Simple Quest API
-                </Button>
+                        <Button 
+          onClick={async () => {
+            try {
+              console.log('=== TESTING WORKING SIMPLE QUEST API ===');
+              const response = await fetch('/api/quests/simple', {
+                credentials: 'include'
+              });
+              if (response.ok) {
+                const data = await response.json();
+                console.log('✅ Simple Quest API Response:', data);
+                console.log('✅ Completed Quests:', data.completedQuests);
+                console.log('✅ Incomplete Quests:', data.incompleteQuests);
+                console.log('✅ Total Completions:', data.completionsCount);
+                console.log('✅ Total Challenges:', data.challengesCount);
+              } else {
+                console.error('❌ Simple Quest API failed:', response.status, response.statusText);
+              }
+            } catch (error) {
+              console.error('❌ Simple Quest API error:', error);
+            }
+          }}
+          variant="outline"
+          size="sm"
+          className="bg-green-600 hover:bg-green-700 text-white"
+        >
+          Test Working Simple Quest API
+        </Button>
               </div>
             </div>
             

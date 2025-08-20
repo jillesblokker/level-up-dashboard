@@ -134,9 +134,9 @@ export async function GET(request: Request) {
       })));
     }
 
-    // FIXED: Simplified approach - fetch challenges and quest completions separately, then merge
-    // This is more reliable than complex JOIN queries
-    console.log('[Quests API] Using simplified approach - fetching data separately...');
+    // FIXED: Use the simple, working approach that directly fetches quest completion data
+    // This bypasses all the complex logic and uses the proven method
+    console.log('[Quests API] Using proven simple approach...');
     
     // Get user's quest completions from quest_completion table
     const { data: questCompletions, error: completionsError } = await supabase
@@ -155,7 +155,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: completionsError.message }, { status: 500 });
     }
 
-    // Create a map of completed quests by quest_id
+    // Create a map of completed quests by quest_id (which stores challenge names)
     const completedQuests = new Map();
     if (questCompletions) {
       questCompletions.forEach((completion: any) => {
@@ -176,10 +176,13 @@ export async function GET(request: Request) {
     }
 
     console.log('[Quests API] Completed quests map:', Array.from(completedQuests.entries()));
+    console.log('[Quests API] Sample quest completion keys:', Array.from(completedQuests.keys()).slice(0, 5));
+    console.log('[Quests API] Sample challenge names:', challenges?.slice(0, 5).map(c => c.name));
 
     // Convert challenges to quest format with completion status
     const questsWithCompletions = (challenges || []).map((challenge: any) => {
-      const completion = completedQuests.get(challenge.id);
+      // Find completion by challenge name (since quest_id stores names, not IDs)
+      const completion = completedQuests.get(challenge.name);
       const isCompleted = completion ? completion.completed : false;
       const completionDate = completion ? completion.completedAt : null;
       
@@ -188,7 +191,8 @@ export async function GET(request: Request) {
         challengeName: challenge.name,
         hasCompletion: !!completion,
         isCompleted,
-        completionDate
+        completionDate,
+        completionData: completion
       });
       
       return {
@@ -209,7 +213,11 @@ export async function GET(request: Request) {
       };
     });
 
-    console.log('[Quests API] Final quests with completions (simplified):', questsWithCompletions.slice(0, 3));
+    // Debug: Check final results
+    const finalCompletedCount = questsWithCompletions.filter(q => q.completed).length;
+    const finalIncompleteCount = questsWithCompletions.filter(q => !q.completed).length;
+    console.log('[Quests API] Final counts:', { completed: finalCompletedCount, incomplete: finalIncompleteCount });
+    console.log('[Quests API] Final quests with completions (proven method):', questsWithCompletions.slice(0, 3));
     return NextResponse.json(questsWithCompletions);
   } catch (error) {
     console.error('Error fetching quests:', error instanceof Error ? error.stack : error);
