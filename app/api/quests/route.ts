@@ -104,6 +104,8 @@ export async function GET(request: Request) {
           completedAt: completion['completed_at'],
           isCompleted 
         });
+        
+        // Store by quest_id (could be either title or actual ID)
         completedQuests.set(completion['quest_id'], {
           completed: isCompleted,
           completedAt: completion['completed_at']
@@ -115,12 +117,26 @@ export async function GET(request: Request) {
 
     // Convert challenges data to quest format
     const questsWithCompletions = (challenges || []).map((challenge: any) => {
-      const completion = completedQuests.get(challenge.id);
+      // Try to find completion by quest ID first, then by title as fallback
+      let completion = completedQuests.get(challenge.id);
+      if (!completion) {
+        // Fallback: try to find by title (for backward compatibility with existing data)
+        completion = completedQuests.get(challenge.name);
+        if (completion) {
+          console.log('[Quests API] Found completion by title fallback:', { 
+            challengeId: challenge.id, 
+            challengeName: challenge.name, 
+            completion 
+          });
+        }
+      }
+      
       const isCompleted = completion ? completion.completed : false;
       const completionDate = completion ? completion.completedAt : null;
       
       console.log('[Quests API] Mapping challenge to quest:', { 
         challengeId: challenge.id, 
+        challengeName: challenge.name,
         hasCompletion: !!completion, 
         isCompleted, 
         completionDate 
