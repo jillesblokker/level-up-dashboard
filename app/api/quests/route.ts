@@ -55,8 +55,32 @@ export async function GET(request: Request) {
         supabaseClientInitialized: !!supabase,
       });
     }
+    
     // Secure Clerk JWT verification
     const userId = await getUserIdFromRequest(request);
+    
+    // Diagnostic endpoint to check quest_completion table directly
+    if (searchParams.get('debug') === '1') {
+      try {
+        const { data: debugCompletions, error: debugError } = await supabase
+          .from('quest_completion')
+          .select('*')
+          .eq('user_id', userId);
+        
+        return NextResponse.json({
+          debug: true,
+          userId,
+          completions: debugCompletions || [],
+          error: debugError,
+          count: debugCompletions?.length || 0
+        });
+      } catch (debugErr) {
+        return NextResponse.json({
+          debug: true,
+          error: String(debugErr)
+        });
+      }
+    }
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized (Clerk JWT invalid or missing)' }, { status: 401 });
     }
