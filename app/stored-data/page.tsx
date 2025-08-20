@@ -803,8 +803,8 @@ export default function StoredDataPage() {
             credentials: 'include'
           });
           if (inventoryResponse.ok) {
-            const inventoryData = await inventoryResponse.json();
-            supabaseInventoryCount = Array.isArray(inventoryData) ? inventoryData.length : 0;
+            const inventoryResult = await inventoryResponse.json();
+            supabaseInventoryCount = inventoryResult.success ? inventoryResult.data.length : 0;
           }
         } catch (inventoryError) {
           console.log('Inventory API not available, skipping count');

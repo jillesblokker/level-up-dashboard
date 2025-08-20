@@ -64,7 +64,10 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: result.error }, { status: 401 });
   }
   
-  return NextResponse.json(result.data);
+  return NextResponse.json({ 
+    success: true, 
+    data: result.data 
+  });
   } catch (error) {
     console.error('[Inventory API] Error:', error);
     return NextResponse.json(
