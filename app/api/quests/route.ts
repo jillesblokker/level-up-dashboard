@@ -79,6 +79,15 @@ export async function GET(request: Request) {
       console.error('Challenges fetch error:', challengesError);
       return NextResponse.json({ error: challengesError.message }, { status: 500 });
     }
+    
+    console.log('[Quests API] Challenges fetched:', challenges?.length || 0);
+    if (challenges && challenges.length > 0) {
+      console.log('[Quests API] First few challenges:', challenges.slice(0, 3).map(c => ({
+        id: c.id,
+        name: c.name,
+        category: c.category
+      })));
+    }
 
     // Get user's quest completions from quest_completion table
     // Fetching user quest completions
@@ -90,6 +99,20 @@ export async function GET(request: Request) {
 
     console.log('[Quests API] Quest completions query result:', { questCompletions, completionsError });
     console.log('[Quests API] Quest completions count:', questCompletions?.length || 0);
+    
+    // Debug: Log all quest completions to see their structure
+    if (questCompletions && questCompletions.length > 0) {
+      console.log('[Quests API] All quest completions:', questCompletions);
+      questCompletions.forEach((completion, index) => {
+        console.log(`[Quests API] Completion ${index + 1}:`, {
+          id: completion.id,
+          quest_id: completion.quest_id,
+          completed: completion.completed,
+          completed_at: completion.completed_at,
+          user_id: completion.user_id
+        });
+      });
+    }
 
     // Create a map of completed quests
     const completedQuests = new Map();
