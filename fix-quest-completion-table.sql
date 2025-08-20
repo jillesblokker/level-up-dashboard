@@ -3,7 +3,17 @@
 -- Run this in your Supabase SQL Editor
 -- ==========================================
 
--- 1. Add missing columns to quest_completion table
+-- 1. First, let's see what columns actually exist in the table
+SELECT 
+    column_name,
+    data_type,
+    is_nullable,
+    column_default
+FROM information_schema.columns 
+WHERE table_name = 'quest_completion' 
+ORDER BY ordinal_position;
+
+-- 2. Add missing columns to quest_completion table
 DO $$ 
 BEGIN
     -- Add xp_earned column if it doesn't exist
@@ -29,7 +39,7 @@ BEGIN
     END IF;
 END $$;
 
--- 2. Update existing completed quests with default rewards
+-- 3. Update existing completed quests with default rewards
 UPDATE public.quest_completion 
 SET 
     xp_earned = 50,
@@ -38,7 +48,7 @@ WHERE completed = true
     AND (xp_earned IS NULL OR xp_earned = 0)
     AND (gold_earned IS NULL OR gold_earned = 0);
 
--- 3. Verify the table structure
+-- 4. Verify the updated table structure
 SELECT 
     column_name,
     data_type,
@@ -48,7 +58,7 @@ FROM information_schema.columns
 WHERE table_name = 'quest_completion' 
 ORDER BY ordinal_position;
 
--- 4. Check if there are any completed quests with rewards
+-- 5. Check if there are any completed quests with rewards (only using columns that exist)
 SELECT 
     id,
     user_id,
@@ -56,9 +66,19 @@ SELECT
     completed,
     completed_at,
     xp_earned,
-    gold_earned,
-    created_at
+    gold_earned
 FROM public.quest_completion 
 WHERE completed = true 
 ORDER BY completed_at DESC 
 LIMIT 10;
+
+-- 6. Show a summary of rewards by user
+SELECT 
+    user_id,
+    COUNT(*) as completed_quests,
+    SUM(xp_earned) as total_xp_earned,
+    SUM(gold_earned) as total_gold_earned
+FROM public.quest_completion 
+WHERE completed = true 
+GROUP BY user_id
+ORDER BY total_xp_earned DESC;
