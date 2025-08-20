@@ -183,7 +183,7 @@ export default function AdminPage() {
       setIsLoading(true);
       
       // 1. Sync Quest Completions
-      const questResponse = await fetch('/api/quests-simple');
+      const questResponse = await fetch('/api/quests/simple');
       if (questResponse.ok) {
         const questData = await questResponse.json();
         const completedQuests = questData.completedQuests || [];
@@ -202,6 +202,8 @@ export default function AdminPage() {
         // Store in localStorage
         localStorage.setItem('goldTransactions', JSON.stringify(goldTransactions));
         console.log('[Admin] Synced', goldTransactions.length, 'gold transactions to localStorage');
+      } else {
+        console.error('[Admin] Gold API failed:', goldResponse.status);
       }
       
       // 3. Sync Experience Transactions
@@ -221,6 +223,8 @@ export default function AdminPage() {
         
         localStorage.setItem('experienceTransactions', JSON.stringify(expDataToStore));
         console.log('[Admin] Synced', expTransactions.length, 'experience transactions to localStorage');
+      } else {
+        console.error('[Admin] Experience API failed:', expResponse.status);
       }
       
       // 4. Sync Inventory Items
@@ -232,6 +236,8 @@ export default function AdminPage() {
         // Store in localStorage
         localStorage.setItem('inventory', JSON.stringify(inventoryItems));
         console.log('[Admin] Synced', inventoryItems.length, 'inventory items to localStorage');
+      } else {
+        console.error('[Admin] Inventory API failed:', inventoryResponse.status);
       }
       
       toast.success('Data synced to localStorage successfully!', {
@@ -242,10 +248,13 @@ export default function AdminPage() {
         }
       });
       
-      // Refresh the data comparison
+      // Force refresh the data comparison immediately
+      await compareDataSources();
+      
+      // Also refresh the page data
       setTimeout(() => {
-        compareDataSources();
-      }, 1000);
+        window.location.reload();
+      }, 2000);
       
     } catch (error) {
       console.error('[Admin] Error syncing data:', error);
