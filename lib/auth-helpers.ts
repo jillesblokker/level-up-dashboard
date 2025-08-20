@@ -35,42 +35,61 @@ export async function getClerkToken(): Promise<string> {
     return '';
   }
 
-  try {
-    // Use the proper Clerk instance from window
-    const clerkInstance = (window as any).Clerk;
-    
-    if (!clerkInstance) {
-      console.warn('[Clerk Token] Clerk instance not found on window');
-      return '';
-    }
+  // Wait for Clerk to be available with retry logic
+  let attempts = 0;
+  const maxAttempts = 10;
+  
+  while (attempts < maxAttempts) {
+    try {
+      // Use the correct Clerk instance from window.__clerk (not window.Clerk)
+      const clerkInstance = (window as any).__clerk;
+      
+      if (!clerkInstance) {
+        console.log(`[Clerk Token] Clerk instance not found on window.__clerk, attempt ${attempts + 1}/${maxAttempts}`);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+        continue;
+      }
 
-    // Check if user is signed in
-    if (!clerkInstance.user) {
-      console.warn('[Clerk Token] No user signed in');
-      return '';
-    }
+      // Check if user is signed in
+      if (!clerkInstance.user) {
+        console.log(`[Clerk Token] No user signed in, attempt ${attempts + 1}/${maxAttempts}`);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+        continue;
+      }
 
-    // Get the current session
-    const session = clerkInstance.session;
-    if (!session) {
-      console.warn('[Clerk Token] No active session');
-      return '';
-    }
+      // Get the current session
+      const session = clerkInstance.session;
+      if (!session) {
+        console.log(`[Clerk Token] No active session, attempt ${attempts + 1}/${maxAttempts}`);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+        continue;
+      }
 
-    // Get token WITHOUT template (for API routes, not Supabase RLS)
-    const token = await session.getToken();
-    
-    if (!token) {
-      console.warn('[Clerk Token] Failed to get token from session');
-      return '';
-    }
+      // Get token WITHOUT template (for API routes, not Supabase RLS)
+      const token = await session.getToken();
+      
+      if (!token) {
+        console.log(`[Clerk Token] Failed to get token from session, attempt ${attempts + 1}/${maxAttempts}`);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+        continue;
+      }
 
-    // Successfully retrieved token
-    return token;
-  } catch (error) {
-    console.error('[Clerk Token] Error getting Clerk token:', error);
-    return '';
+      // Successfully retrieved token
+      console.log('[Clerk Token] Successfully retrieved token');
+      return token;
+    } catch (error) {
+      console.error(`[Clerk Token] Error getting Clerk token (attempt ${attempts + 1}):`, error);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      attempts++;
+    }
   }
+  
+  console.error('[Clerk Token] Failed to get Clerk token after all attempts');
+  return '';
 }
 
 // Shared fetch wrapper with authentication and circuit breaker
