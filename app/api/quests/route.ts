@@ -185,18 +185,24 @@ export async function GET(request: Request) {
 
     // Convert challenges data to quest format
     const questsWithCompletions = (challenges || []).map((challenge: any) => {
-      // Try to find completion by quest ID first, then by title as fallback
-      let completion = completedQuests.get(challenge.id);
+      // FIXED: Check for completion by title FIRST since quest_id likely stores titles
+      let completion = completedQuests.get(challenge.name);
       if (!completion) {
-        // Fallback: try to find by title (for backward compatibility with existing data)
-        completion = completedQuests.get(challenge.name);
+        // Fallback: try to find by challenge ID (for newer data)
+        completion = completedQuests.get(challenge.id);
         if (completion) {
-          console.log('[Quests API] Found completion by title fallback:', { 
+          console.log('[Quests API] Found completion by ID fallback:', { 
             challengeId: challenge.id, 
             challengeName: challenge.name, 
             completion 
           });
         }
+      } else {
+        console.log('[Quests API] Found completion by title (primary):', { 
+          challengeId: challenge.id, 
+          challengeName: challenge.name, 
+          completion 
+        });
       }
       
       const isCompleted = completion ? completion.completed : false;
