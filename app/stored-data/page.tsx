@@ -1090,7 +1090,7 @@ TECHNICAL DETAILS:
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Build Status Dashboard</h1>
-                          <p className="text-muted-foreground">Monitor your application's health and progress</p>
+                          <p className="text-muted-foreground">Monitor your application health and progress</p>
         </div>
         <div className="flex items-center gap-2">
           <Badge 
