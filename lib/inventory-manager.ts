@@ -237,7 +237,20 @@ export async function getEquippedItems(userId: string): Promise<InventoryItem[]>
       throw new Error(`Failed to fetch equipped items: ${response.status}`);
     }
     
-    return await response.json();
+    const data = await response.json();
+    
+    // Handle API response format: {success: true, data: Array}
+    if (data && typeof data === 'object' && 'data' in data && Array.isArray(data.data)) {
+      return data.data;
+    }
+    
+    // Handle direct array response
+    if (Array.isArray(data)) {
+      return data;
+    }
+    
+    console.warn('[Inventory Manager] getEquippedItems: Unexpected response format:', data);
+    return [];
   } catch (error) {
     console.error('Error fetching equipped items:', error);
     return [];
@@ -259,7 +272,20 @@ export async function getStoredItems(userId: string): Promise<InventoryItem[]> {
       throw new Error(`Failed to fetch stored items: ${response.status}`);
     }
     
-    return await response.json();
+    const data = await response.json();
+    
+    // Handle API response format: {success: true, data: Array}
+    if (data && typeof data === 'object' && 'data' in data && Array.isArray(data.data)) {
+      return data.data;
+    }
+    
+    // Handle direct array response
+    if (Array.isArray(data)) {
+      return data;
+    }
+    
+    console.warn('[Inventory Manager] getStoredItems: Unexpected response format:', data);
+    return [];
   } catch (error) {
     console.error('Error fetching stored items:', error);
     return [];
