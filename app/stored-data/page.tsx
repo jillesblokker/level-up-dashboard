@@ -459,6 +459,7 @@ export default function StoredDataPage() {
           credentials: 'include'
         });
         const questData = questResponse.ok ? await questResponse.json() : [];
+        // Count quests that are marked as completed
         const supabaseQuestCount = questData.filter((q: any) => q.completed).length;
         
         const questComparison: DataComparison = {
@@ -492,6 +493,7 @@ export default function StoredDataPage() {
           credentials: 'include'
         });
         const challengeData = challengeResponse.ok ? await challengeResponse.json() : [];
+        // Count challenges that are marked as completed
         const supabaseChallengeCount = challengeData.filter((c: any) => c.completed).length;
         
         const challengeComparison: DataComparison = {
@@ -525,6 +527,7 @@ export default function StoredDataPage() {
           credentials: 'include'
         });
         const milestoneData = milestoneResponse.ok ? await milestoneResponse.json() : [];
+        // Count milestones that are marked as completed
         const supabaseMilestoneCount = milestoneData.filter((m: any) => m.completed).length;
         
         const milestoneComparison: DataComparison = {
