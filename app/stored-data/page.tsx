@@ -708,7 +708,7 @@ export default function StoredDataPage() {
       // 8. Compare Character Stats
       try {
         const localStorageCharacterStats = JSON.parse(localStorage.getItem('character-stats') || '[]');
-        const localStorageCharacterStatCount = localStorageCharacterStats.length;
+        const localStorageCharacterStatCount = Array.isArray(localStorageCharacterStats) ? localStorageCharacterStats.length : 0;
         
         // Try to fetch character stats from API
         let supabaseCharacterStatCount = 0;
@@ -724,17 +724,23 @@ export default function StoredDataPage() {
           console.log('Character Stats API not available, skipping count');
         }
         
+        // Ensure we have valid numbers for comparison
+        const localCount = Number.isNaN(localStorageCharacterStatCount) ? 0 : localStorageCharacterStatCount;
+        const supabaseCount = Number.isNaN(supabaseCharacterStatCount) ? 0 : supabaseCharacterStatCount;
+        const difference = supabaseCount - localCount;
+        
         const characterStatComparison: DataComparison = {
           table: 'Character Stats',
-          localStorageCount: localStorageCharacterStatCount,
-          supabaseCount: supabaseCharacterStatCount,
-          difference: supabaseCharacterStatCount - localStorageCharacterStatCount,
-          status: supabaseCharacterStatCount === localStorageCharacterStatCount ? 'synced' :
-                  supabaseCharacterStatCount > localStorageCharacterStatCount ? 'supabase-ahead' : 'local-ahead',
+          localStorageCount: localCount,
+          supabaseCount: supabaseCount,
+          difference: difference,
+          status: supabaseCount === localCount ? 'synced' :
+                  supabaseCount > localCount ? 'supabase-ahead' : 'local-ahead',
           lastChecked: now
         };
         comparisons.push(characterStatComparison);
       } catch (error) {
+        console.error('Character Stats comparison error:', error);
         comparisons.push({
           table: 'Character Stats',
           localStorageCount: 0,

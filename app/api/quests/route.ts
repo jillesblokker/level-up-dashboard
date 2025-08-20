@@ -88,14 +88,20 @@ export async function GET(request: Request) {
     const completedQuests = new Map();
     if (!completionsError && questCompletions) {
       questCompletions.forEach((completion: any) => {
-        completedQuests.set(completion['quest_id'], completion['completed_at']);
+        // Check if the quest is actually completed (has completed_at timestamp)
+        const isCompleted = completion['completed'] === true && completion['completed_at'] !== null;
+        completedQuests.set(completion['quest_id'], {
+          completed: isCompleted,
+          completedAt: completion['completed_at']
+        });
       });
     }
 
     // Convert challenges data to quest format
     const questsWithCompletions = (challenges || []).map((challenge: any) => {
-      const isCompleted = completedQuests.has(challenge.id);
-      const completionDate = completedQuests.get(challenge.id);
+      const completion = completedQuests.get(challenge.id);
+      const isCompleted = completion ? completion.completed : false;
+      const completionDate = completion ? completion.completedAt : null;
       
       return {
         id: challenge.id,
