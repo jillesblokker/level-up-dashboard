@@ -1059,7 +1059,7 @@ TECHNICAL DETAILS:
             {dataComparison.length === 0 && !isComparingData && (
               <div className="text-center py-8 text-muted-foreground">
                 <Database className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>Click 'Compare Data Sources' to analyze data synchronization</p>
+                <p>Click Compare Data Sources to analyze data synchronization</p>
               </div>
             )}
             
