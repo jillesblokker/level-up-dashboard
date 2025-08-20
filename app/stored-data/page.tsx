@@ -917,16 +917,16 @@ TECHNICAL DETAILS:
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant={winterFestivalActive ? "default" : "secondary"}>
-                  {winterFestivalActive ? "ACTIVE" : "INACTIVE"}
-                </Badge>
+                                  <Badge variant={winterFestivalActive ? 'default' : 'secondary'}>
+                    {winterFestivalActive ? 'ACTIVE' : 'INACTIVE'}
+                  </Badge>
                 <Button 
                   onClick={() => toggleEvent('winter_festival_active', winterFestivalActive)}
                   disabled={isUpdatingEvents}
-                  variant={winterFestivalActive ? "destructive" : "default"}
-                  size="sm"
+                  variant={winterFestivalActive ? 'destructive' : 'default'}
+                  size='sm'
                 >
-                  {winterFestivalActive ? "Deactivate" : "Activate"}
+                  {winterFestivalActive ? 'Deactivate' : 'Activate'}
                 </Button>
               </div>
             </div>
@@ -942,16 +942,16 @@ TECHNICAL DETAILS:
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant={harvestFestivalActive ? "default" : "secondary"}>
-                  {harvestFestivalActive ? "ACTIVE" : "INACTIVE"}
+                <Badge variant={harvestFestivalActive ? 'default' : 'secondary'}>
+                  {harvestFestivalActive ? 'ACTIVE' : 'INACTIVE'}
                 </Badge>
                 <Button 
                   onClick={() => toggleEvent('harvest_festival_active', harvestFestivalActive)}
                   disabled={isUpdatingEvents}
-                  variant={harvestFestivalActive ? "destructive" : "default"}
-                  size="sm"
+                  variant={harvestFestivalActive ? 'destructive' : 'default'}
+                  size='sm'
                 >
-                  {harvestFestivalActive ? "Deactivate" : "Activate"}
+                  {harvestFestivalActive ? 'Deactivate' : 'Activate'}
                 </Button>
               </div>
             </div>
@@ -1057,7 +1057,7 @@ TECHNICAL DETAILS:
             {dataComparison.length === 0 && !isComparingData && (
               <div className="text-center py-8 text-muted-foreground">
                 <Database className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>Click "Compare Data Sources" to analyze data synchronization</p>
+                <p>Click &quot;Compare Data Sources&quot; to analyze data synchronization</p>
               </div>
             )}
             
