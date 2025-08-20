@@ -557,8 +557,8 @@ export default function StoredDataPage() {
         const goldResponse = await fetch('/api/gold-transactions', {
           credentials: 'include'
         });
-        const goldData = goldResponse.ok ? await goldResponse.json() : [];
-        const supabaseGoldCount = goldData.length;
+        const goldResult = goldResponse.ok ? await goldResponse.json() : { success: false, data: [] };
+        const supabaseGoldCount = goldResult.success ? goldResult.data.length : 0;
         
         const goldComparison: DataComparison = {
           table: 'Gold Transactions',
@@ -590,8 +590,8 @@ export default function StoredDataPage() {
         const expResponse = await fetch('/api/experience-transactions', {
           credentials: 'include'
         });
-        const expData = expResponse.ok ? await expResponse.json() : [];
-        const supabaseExpCount = expData.length;
+        const expResult = expResponse.ok ? await expResponse.json() : { success: false, data: [] };
+        const supabaseExpCount = expResult.success ? expResult.data.length : 0;
         
         const expComparison: DataComparison = {
           table: 'Experience Transactions',
@@ -1059,7 +1059,7 @@ TECHNICAL DETAILS:
             {dataComparison.length === 0 && !isComparingData && (
               <div className="text-center py-8 text-muted-foreground">
                 <Database className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>Click &quot;Compare Data Sources&quot; to analyze data synchronization</p>
+                <p>Click "Compare Data Sources" to analyze data synchronization</p>
               </div>
             )}
             
