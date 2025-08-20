@@ -41,11 +41,25 @@ export async function getClerkToken(): Promise<string> {
   
   while (attempts < maxAttempts) {
     try {
-      // Use the correct Clerk instance from window.__clerk (not window.Clerk)
-      const clerkInstance = (window as any).__clerk;
+      // Try multiple possible Clerk properties on window
+      const clerkInstance = (window as any).__clerk || (window as any).Clerk || (window as any).clerk;
       
       if (!clerkInstance) {
-        console.log(`[Clerk Token] Clerk instance not found on window.__clerk, attempt ${attempts + 1}/${maxAttempts}`);
+        console.log(`[Clerk Token] Clerk instance not found on window, attempt ${attempts + 1}/${maxAttempts}`);
+        console.log('[Clerk Token] Available window properties:', Object.keys(window).filter(key => key.toLowerCase().includes('clerk')));
+        
+        // Try alternative approach: check if we're in a Clerk context
+        if (attempts === 0) {
+          console.log('[Clerk Token] Trying to check if Clerk context is available...');
+          // This will help debug what's available
+          const availableProps = Object.keys(window).filter(key => 
+            key.toLowerCase().includes('clerk') || 
+            key.toLowerCase().includes('auth') ||
+            key.toLowerCase().includes('user')
+          );
+          console.log('[Clerk Token] Potentially relevant window properties:', availableProps);
+        }
+        
         await new Promise(resolve => setTimeout(resolve, 100));
         attempts++;
         continue;
