@@ -21,12 +21,14 @@ const supabase = supabaseServer;
 // Define schemas for request validation
 const questCompletionSchema = z.object({
   title: z.string().min(1),
-  category: z.string().min(1)
+  category: z.string().min(1),
+  questId: z.string().optional() // Optional for backward compatibility
 });
 
 const questUpdateSchema = z.object({
   title: z.string().min(1),
-  completed: z.boolean()
+  completed: z.boolean(),
+  questId: z.string().optional() // Optional for backward compatibility
 });
 
 // Helper to extract and verify Clerk JWT, returns userId or null
@@ -162,14 +164,35 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
     }
     const body = await request.json();
-    const { title, category } = questCompletionSchema.parse(body);
-    // Create the quest completion
+    const { title, category, questId } = questCompletionSchema.parse(body);
+    
+    let actualQuestId: string;
+    
+    if (questId) {
+      // If questId is provided directly, use it
+      actualQuestId = questId;
+    } else {
+      // Otherwise, find the quest ID from the challenges table using the title
+      const { data: questData, error: questError } = await supabase
+        .from('challenges')
+        .select('id')
+        .eq('name', title)
+        .single();
+      
+      if (questError || !questData) {
+        return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
+      }
+      
+      actualQuestId = questData.id;
+    }
+    
+    // Create the quest completion using the actual quest ID
     const { data: questCompletion, error } = await supabase
       .from('quest_completion')
       .insert([
         {
           user_id: userId,
-          quest_id: title,
+          quest_id: actualQuestId,
           completed: false,
           completed_at: null
         }
@@ -205,13 +228,34 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
     }
     const body = await request.json();
-    const { title: updateTitle, completed } = questUpdateSchema.parse(body);
+    const { title: updateTitle, completed, questId } = questUpdateSchema.parse(body);
+    
+    let actualQuestId: string;
+    
+    if (questId) {
+      // If questId is provided directly, use it
+      actualQuestId = questId;
+    } else {
+      // Otherwise, find the quest ID from the challenges table using the title
+      const { data: questData, error: questError } = await supabase
+        .from('challenges')
+        .select('id')
+        .eq('name', updateTitle)
+        .single();
+      
+      if (questError || !questData) {
+        return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
+      }
+      
+      actualQuestId = questData.id;
+    }
+    
     // Find or create quest completion
     const { data: completions, error: findError } = await supabase
       .from('quest_completion')
       .select('*')
       .eq('user_id', userId)
-      .eq('quest_id', updateTitle)
+      .eq('quest_id', actualQuestId)
       .limit(1);
     let questCompletion = completions?.[0];
     if (!questCompletion) {
@@ -221,7 +265,7 @@ export async function PUT(request: Request) {
         .insert([
           {
             user_id: userId,
-            quest_id: updateTitle,
+            quest_id: actualQuestId,
             completed: completed,
             completed_at: completed ? new Date().toISOString() : null
           }
