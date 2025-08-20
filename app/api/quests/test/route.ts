@@ -75,17 +75,22 @@ export async function GET(request: Request) {
       const matchingChallengeById = challenges?.find(c => c.id === completion.quest_id);
       const matchingChallengeByName = challenges?.find(c => c.name === completion.quest_id);
       
-      return {
-        completion_id: completion.id,
-        quest_id: completion.quest_id,
-        completed: completion.completed,
-        completed_at: completion.completed_at,
-        matches_by_id: !!matchingChallengeById,
-        matches_by_name: !!matchingChallengeByName,
-        challenge_id: matchingChallengeById?.id || 'NO MATCH',
-        challenge_name: matchingChallengeByName?.name || 'NO MATCH',
-        is_completed: completion.completed === true && completion.completed_at !== null
-      };
+              return {
+          completion_id: completion.id,
+          quest_id: completion.quest_id,
+          completed: completion.completed,
+          completed_at: completion.completed_at,
+          matches_by_id: !!matchingChallengeById,
+          matches_by_name: !!matchingChallengeByName,
+          challenge_id: matchingChallengeById?.id || 'NO MATCH',
+          challenge_name: matchingChallengeByName?.name || 'NO MATCH',
+          is_completed: completion.completed === true && completion.completed_at !== null,
+          // Check for XP and gold fields
+          xp_earned: completion.xp_earned,
+          gold_earned: completion.gold_earned,
+          has_xp: !!completion.xp_earned,
+          has_gold: !!completion.gold_earned
+        };
     }) || [];
 
     return NextResponse.json({

@@ -478,6 +478,15 @@ export default function StoredDataPage() {
         // Count quests that are marked as completed
         const supabaseQuestCount = questData.filter((q: any) => q.completed).length;
         
+        // Debug: Log the quest comparison details
+        console.log('Quest Comparison Debug:', {
+          localStorageQuestCount,
+          supabaseQuestCount,
+          questDataLength: questData.length,
+          sampleQuest: questData[0],
+          completedQuests: questData.filter((q: any) => q.completed).slice(0, 3)
+        });
+        
         const questComparison: DataComparison = {
           table: 'Quest Completions',
           localStorageCount: localStorageQuestCount,
