@@ -134,86 +134,61 @@ export async function GET(request: Request) {
       })));
     }
 
+    // FIXED: Simplified approach - fetch challenges and quest completions separately, then merge
+    // This is more reliable than complex JOIN queries
+    console.log('[Quests API] Using simplified approach - fetching data separately...');
+    
     // Get user's quest completions from quest_completion table
-    // Fetching user quest completions
-    console.log('[Quests API] User ID:', userId);
     const { data: questCompletions, error: completionsError } = await supabase
       .from('quest_completion')
       .select('*')
       .eq('user_id', userId);
 
-    console.log('[Quests API] Quest completions query result:', { questCompletions, completionsError });
-    console.log('[Quests API] Quest completions count:', questCompletions?.length || 0);
-    
-    // Debug: Log all quest completions to see their structure
-    if (questCompletions && questCompletions.length > 0) {
-      console.log('[Quests API] All quest completions:', questCompletions);
-      questCompletions.forEach((completion, index) => {
-        console.log(`[Quests API] Completion ${index + 1}:`, {
-          id: completion.id,
+    console.log('[Quests API] Quest completions fetched:', {
+      count: questCompletions?.length || 0,
+      error: completionsError,
+      sample: questCompletions?.[0]
+    });
+
+    if (completionsError) {
+      console.error('[Quests API] Quest completions fetch error:', completionsError);
+      return NextResponse.json({ error: completionsError.message }, { status: 500 });
+    }
+
+    // Create a map of completed quests by quest_id
+    const completedQuests = new Map();
+    if (questCompletions) {
+      questCompletions.forEach((completion: any) => {
+        const isCompleted = completion.completed === true && completion.completed_at !== null;
+        console.log('[Quests API] Processing completion:', {
           quest_id: completion.quest_id,
           completed: completion.completed,
           completed_at: completion.completed_at,
-          user_id: completion.user_id
+          isCompleted
         });
-      });
-    }
-
-    // Create a map of completed quests
-    const completedQuests = new Map();
-    if (!completionsError && questCompletions) {
-      questCompletions.forEach((completion: any) => {
-        console.log('[Quests API] Processing completion:', completion);
-        // Check if the quest is actually completed (has completed_at timestamp)
-        const isCompleted = completion['completed'] === true && completion['completed_at'] !== null;
-        console.log('[Quests API] Quest completion status:', { 
-          questId: completion['quest_id'], 
-          completed: completion['completed'], 
-          completedAt: completion['completed_at'],
-          isCompleted 
-        });
-        
-        // Store by quest_id (could be either title or actual ID)
-        completedQuests.set(completion['quest_id'], {
+        completedQuests.set(completion.quest_id, {
           completed: isCompleted,
-          completedAt: completion['completed_at']
+          completedAt: completion.completed_at,
+          xpEarned: completion.xp_earned,
+          goldEarned: completion.gold_earned
         });
       });
     }
 
     console.log('[Quests API] Completed quests map:', Array.from(completedQuests.entries()));
 
-    // Convert challenges data to quest format
+    // Convert challenges to quest format with completion status
     const questsWithCompletions = (challenges || []).map((challenge: any) => {
-      // FIXED: Check for completion by title FIRST since quest_id likely stores titles
-      let completion = completedQuests.get(challenge.name);
-      if (!completion) {
-        // Fallback: try to find by challenge ID (for newer data)
-        completion = completedQuests.get(challenge.id);
-        if (completion) {
-          console.log('[Quests API] Found completion by ID fallback:', { 
-            challengeId: challenge.id, 
-            challengeName: challenge.name, 
-            completion 
-          });
-        }
-      } else {
-        console.log('[Quests API] Found completion by title (primary):', { 
-          challengeId: challenge.id, 
-          challengeName: challenge.name, 
-          completion 
-        });
-      }
-      
+      const completion = completedQuests.get(challenge.id);
       const isCompleted = completion ? completion.completed : false;
       const completionDate = completion ? completion.completedAt : null;
       
-      console.log('[Quests API] Mapping challenge to quest:', { 
-        challengeId: challenge.id, 
+      console.log('[Quests API] Mapping challenge:', {
+        challengeId: challenge.id,
         challengeName: challenge.name,
-        hasCompletion: !!completion, 
-        isCompleted, 
-        completionDate 
+        hasCompletion: !!completion,
+        isCompleted,
+        completionDate
       });
       
       return {
@@ -228,11 +203,13 @@ export async function GET(request: Request) {
         completed: isCompleted,
         date: completionDate,
         isNew: !isCompleted,
-        completionId: isCompleted ? challenge.id : undefined
+        completionId: isCompleted ? challenge.id : undefined,
+        xpEarned: completion?.xpEarned || 0,
+        goldEarned: completion?.goldEarned || 0
       };
     });
 
-    console.log('[Quests API] Final quests with completions:', questsWithCompletions.slice(0, 3));
+    console.log('[Quests API] Final quests with completions (simplified):', questsWithCompletions.slice(0, 3));
     return NextResponse.json(questsWithCompletions);
   } catch (error) {
     console.error('Error fetching quests:', error instanceof Error ? error.stack : error);

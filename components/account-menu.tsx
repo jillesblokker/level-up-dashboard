@@ -209,7 +209,7 @@ export function AccountMenu() {
             </Link>
             
             <Link 
-              href="/stored-data"
+              href="/admin/stored-data"
               className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
               aria-label="Stored Data page"
               onClick={() => setIsOpen(false)}

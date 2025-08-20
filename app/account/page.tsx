@@ -32,7 +32,7 @@ export default function AccountPage() {
       color: "from-green-500 to-green-600"
     },
     { 
-      href: "/stored-data", 
+              href: "/admin/stored-data", 
       label: "Stored Data", 
       icon: Database, 
       description: "Manage your local data and preferences",

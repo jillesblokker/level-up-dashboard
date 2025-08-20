@@ -80,7 +80,7 @@ interface DataComparison {
   lastChecked: string;
 }
 
-export default function StoredDataPage() {
+export default function AdminPage() {
   const [supabaseData, setSupabaseData] = useState<SupabaseData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [characterStats, setCharacterStats] = useState<any>(null);
@@ -467,16 +467,25 @@ export default function StoredDataPage() {
           console.log('Quest Completed Property:', questData[0]?.completed);
           
           // Debug: Check all quests for completion status
-          const completedQuests = questData.filter((q: any) => q.completed);
-          const incompleteQuests = questData.filter((q: any) => !q.completed);
+          const completedQuests = questData.filter((q: any) => q.completed === true);
+          const incompleteQuests = questData.filter((q: any) => q.completed === false);
           console.log('Completed Quests Count:', completedQuests.length);
           console.log('Incomplete Quests Count:', incompleteQuests.length);
           if (completedQuests.length > 0) {
             console.log('Sample Completed Quest:', completedQuests[0]);
           }
+          
+          // Debug: Check if all quests have the same completion status (indicates API issue)
+          const uniqueCompletionStatuses = [...new Set(questData.map((q: any) => q.completed))];
+          console.log('Unique completion statuses:', uniqueCompletionStatuses);
+          
+          if (uniqueCompletionStatuses.length === 1) {
+            console.warn('WARNING: All quests have the same completion status. This suggests the Quest API is not working correctly.');
+          }
         }
+        
         // Count quests that are marked as completed
-        const supabaseQuestCount = questData.filter((q: any) => q.completed).length;
+        let supabaseQuestCount = questData.filter((q: any) => q.completed === true).length;
         
         // Debug: Log the quest comparison details
         console.log('Quest Comparison Debug:', {
@@ -484,8 +493,60 @@ export default function StoredDataPage() {
           supabaseQuestCount,
           questDataLength: questData.length,
           sampleQuest: questData[0],
-          completedQuests: questData.filter((q: any) => q.completed).slice(0, 3)
+          completedQuests: questData.filter((q: any) => q.completed === true).slice(0, 3),
+          allQuestCompletionStatuses: questData.map((q: any) => ({ id: q.id, name: q.name, completed: q.completed }))
         });
+        
+        // FALLBACK: If all quests have the same completion status, check quest_completion table directly
+        if (Array.isArray(questData) && questData.length > 0) {
+          const uniqueCompletionStatuses = [...new Set(questData.map((q: any) => q.completed))];
+          if (uniqueCompletionStatuses.length === 1) {
+            console.log('Attempting fallback to check quest_completion table directly...');
+            try {
+              // Try the simple quest endpoint first
+              const simpleResponse = await fetch('/api/quests/simple', {
+                credentials: 'include'
+              });
+              if (simpleResponse.ok) {
+                const simpleData = await simpleResponse.json();
+                console.log('Simple quest API data:', simpleData);
+                
+                // Use the accurate counts from the simple API
+                const actualCompletedCount = simpleData.completedQuests || 0;
+                const actualIncompleteCount = simpleData.incompleteQuests || 0;
+                console.log('Actual quest counts from simple API:', { completed: actualCompletedCount, incomplete: actualIncompleteCount });
+                
+                // Log the discrepancy
+                console.warn('DISCREPANCY: Quest API shows', supabaseQuestCount, 'completed, but simple API shows', actualCompletedCount, 'completed');
+                
+                // Update the comparison data with the real counts
+                supabaseQuestCount = actualCompletedCount;
+              } else {
+                // Fallback to the test endpoint if simple API fails
+                const fallbackResponse = await fetch('/api/quests/test', {
+                  credentials: 'include'
+                });
+                if (fallbackResponse.ok) {
+                  const fallbackData = await fallbackResponse.json();
+                  console.log('Fallback quest completion data:', fallbackData);
+                  
+                  // Count actual completed quests from the test endpoint
+                  const actualCompletedCount = fallbackData.analysis?.filter((a: any) => a.is_completed).length || 0;
+                  console.log('Actual completed quests from fallback:', actualCompletedCount);
+                  
+                  // Update the supabaseQuestCount with the real data
+                  if (actualCompletedCount > 0) {
+                    console.log('Using fallback count instead of Quest API count');
+                    // Don't change supabaseQuestCount here, just log the discrepancy
+                    console.warn('DISCREPANCY: Quest API shows', supabaseQuestCount, 'completed, but fallback shows', actualCompletedCount, 'completed');
+                  }
+                }
+              }
+            } catch (fallbackError) {
+              console.error('Fallback check failed:', fallbackError);
+            }
+          }
+        }
         
         const questComparison: DataComparison = {
           table: 'Quest Completions',
@@ -1071,7 +1132,7 @@ TECHNICAL DETAILS:
         }
       }
     } catch (error) {
-      console.error('[Stored Data] Error initializing default flags:', error);
+              console.error('[Admin] Error initializing default flags:', error);
     }
   };
 
@@ -1104,7 +1165,7 @@ TECHNICAL DETAILS:
           setHarvestFestivalActive(harvestActive);
         }
     } catch (error) {
-      console.error('[Stored Data] Error loading event flags:', error);
+              console.error('[Admin] Error loading event flags:', error);
     }
   };
 
@@ -1132,10 +1193,10 @@ TECHNICAL DETAILS:
         const harvestValue = harvestData?.data?.data?.[0]?.setting_value;
         const harvestActive = harvestValue !== undefined ? String(harvestValue).toLowerCase() === 'true' : false;
         setHarvestFestivalActive(harvestActive);
-        console.log(`[Stored Data] Refreshed harvest festival active: ${harvestActive}`);
+        console.log(`[Admin] Refreshed harvest festival active: ${harvestActive}`);
       }
     } catch (error) {
-      console.error('[Stored Data] Error refreshing event flags:', error);
+              console.error('[Admin] Error refreshing event flags:', error);
     }
   };
 
@@ -1143,7 +1204,7 @@ TECHNICAL DETAILS:
   const toggleEvent = async (key: string, currentValue: boolean) => {
     const newValue = !currentValue;
     
-    console.log(`[Stored Data] Toggling ${key} from ${currentValue} to ${newValue}`);
+            console.log(`[Admin] Toggling ${key} from ${currentValue} to ${newValue}`);
     
     try {
       const response = await fetchWithAuth('/api/game-settings', {
@@ -1172,11 +1233,11 @@ TECHNICAL DETAILS:
         toast.success(`${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} is now ${newValue ? 'ACTIVE' : 'INACTIVE'}`);
       } else {
         const errorText = await response.text();
-        console.error(`[Stored Data] API error: ${response.status} - ${errorText}`);
+        console.error(`[Admin] API error: ${response.status} - ${errorText}`);
         toast.error('Failed to update event status');
       }
     } catch (error) {
-      console.error('[Stored Data] Error updating event:', error);
+              console.error('[Admin] Error updating event:', error);
       toast.error('An error occurred while updating the event');
     }
   };
@@ -1320,6 +1381,33 @@ TECHNICAL DETAILS:
                   size="sm"
                 >
                   Test Matching
+                </Button>
+                <Button 
+                  onClick={async () => {
+                    try {
+                      console.log('=== TESTING NEW SIMPLE QUEST API ===');
+                      const response = await fetch('/api/quests/simple', {
+                        credentials: 'include'
+                      });
+                      if (response.ok) {
+                        const data = await response.json();
+                        console.log('✅ Simple Quest API Response:', data);
+                        console.log('✅ Completed Quests:', data.completedQuests);
+                        console.log('✅ Incomplete Quests:', data.incompleteQuests);
+                        console.log('✅ Total Completions:', data.completionsCount);
+                        console.log('✅ Total Challenges:', data.challengesCount);
+                      } else {
+                        console.error('❌ Simple Quest API failed:', response.status, response.statusText);
+                      }
+                    } catch (error) {
+                      console.error('❌ Simple Quest API error:', error);
+                    }
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  Test Simple Quest API
                 </Button>
               </div>
             </div>
