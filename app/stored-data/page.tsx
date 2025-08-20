@@ -465,6 +465,15 @@ export default function StoredDataPage() {
         if (Array.isArray(questData) && questData.length > 0) {
           console.log('First Quest Item:', questData[0]);
           console.log('Quest Completed Property:', questData[0]?.completed);
+          
+          // Debug: Check all quests for completion status
+          const completedQuests = questData.filter((q: any) => q.completed);
+          const incompleteQuests = questData.filter((q: any) => !q.completed);
+          console.log('Completed Quests Count:', completedQuests.length);
+          console.log('Incomplete Quests Count:', incompleteQuests.length);
+          if (completedQuests.length > 0) {
+            console.log('Sample Completed Quest:', completedQuests[0]);
+          }
         }
         // Count quests that are marked as completed
         const supabaseQuestCount = questData.filter((q: any) => q.completed).length;
@@ -569,7 +578,9 @@ export default function StoredDataPage() {
           credentials: 'include'
         });
         const goldResult = goldResponse.ok ? await goldResponse.json() : { success: false, data: [] };
+        console.log('Gold API Response:', goldResult);
         const supabaseGoldCount = goldResult.success ? goldResult.data.length : 0;
+        console.log('Gold Transactions Count:', supabaseGoldCount);
         
         const goldComparison: DataComparison = {
           table: 'Gold Transactions',
@@ -602,7 +613,9 @@ export default function StoredDataPage() {
           credentials: 'include'
         });
         const expResult = expResponse.ok ? await expResponse.json() : { success: false, data: [] };
+        console.log('Experience API Response:', expResult);
         const supabaseExpCount = expResult.success ? expResult.data.length : 0;
+        console.log('Experience Transactions Count:', supabaseExpCount);
         
         const expComparison: DataComparison = {
           table: 'Experience Transactions',
@@ -803,8 +816,10 @@ export default function StoredDataPage() {
             credentials: 'include'
           });
           if (inventoryResponse.ok) {
-            const inventoryResult = await inventoryResponse.json();
-            supabaseInventoryCount = inventoryResult.success ? inventoryResult.data.length : 0;
+                    const inventoryResult = await inventoryResponse.json();
+        console.log('Inventory API Response:', inventoryResult);
+        supabaseInventoryCount = inventoryResult.success ? inventoryResult.data.length : 0;
+        console.log('Inventory Items Count:', supabaseInventoryCount);
           }
         } catch (inventoryError) {
           console.log('Inventory API not available, skipping count');
