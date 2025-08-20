@@ -856,6 +856,41 @@ export default function StoredDataPage() {
     }
   };
 
+  // Debug function to check quest completions directly
+  const handleDebugQuestCompletions = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const response = await fetch('/api/quests?debug=1', {
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const debugData = await response.json();
+        console.log('Quest Debug Data:', debugData);
+        
+        // Show the results in a toast
+        if (debugData.debug) {
+          const message = `Quest Debug: ${debugData.count} completions found. User ID: ${debugData.userId}`;
+          toast.info(message);
+          
+          // Also log the completions if any exist
+          if (debugData.completions && debugData.completions.length > 0) {
+            console.log('Quest Completions Found:', debugData.completions);
+            toast.success(`Found ${debugData.completions.length} quest completions!`);
+          } else {
+            toast.warning('No quest completions found in database');
+          }
+        }
+      } else {
+        toast.error('Failed to fetch quest debug data');
+      }
+    } catch (error) {
+      console.error('Quest debug error:', error);
+      toast.error('Error debugging quest completions');
+    }
+  };
+
   const handleMigration = async () => {
     if (!user?.id) return;
     
@@ -1222,14 +1257,23 @@ TECHNICAL DETAILS:
               <p className="text-sm text-muted-foreground">
                 This helps identify why kingdom stats might be missing data points
               </p>
-              <Button 
-                onClick={compareDataSources} 
-                disabled={isComparingData}
-                variant="outline"
-                size="sm"
-              >
-                {isComparingData ? "Comparing..." : "Compare Data Sources"}
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={compareDataSources} 
+                  disabled={isComparingData}
+                  variant="outline"
+                  size="sm"
+                >
+                  {isComparingData ? "Comparing..." : "Compare Data Sources"}
+                </Button>
+                <Button 
+                  onClick={handleDebugQuestCompletions} 
+                  variant="outline"
+                  size="sm"
+                >
+                  Debug Quests
+                </Button>
+              </div>
             </div>
             
             {dataComparison.length > 0 && (
