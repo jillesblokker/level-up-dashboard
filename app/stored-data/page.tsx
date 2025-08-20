@@ -442,7 +442,7 @@ export default function StoredDataPage() {
 
   // New function to compare data between localStorage and Supabase
   const compareDataSources = async () => {
-    if (!user?.id || !supabase) return;
+    if (!user?.id) return;
     
     setIsComparingData(true);
     const now = new Date().toISOString();
@@ -454,20 +454,20 @@ export default function StoredDataPage() {
         const localStorageQuests = JSON.parse(localStorage.getItem('quests') || '[]');
         const localStorageQuestCount = localStorageQuests.filter((q: any) => q.completed).length;
         
-        const { count: supabaseQuestCount, error: questError } = await supabase
-          .from('quest_completion')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id)
-          .eq('completed', true);
+        // Use API endpoint instead of direct Supabase call
+        const questResponse = await fetch('/api/quests', {
+          credentials: 'include'
+        });
+        const questData = questResponse.ok ? await questResponse.json() : [];
+        const supabaseQuestCount = questData.filter((q: any) => q.completed).length;
         
         const questComparison: DataComparison = {
           table: 'Quest Completions',
           localStorageCount: localStorageQuestCount,
-          supabaseCount: supabaseQuestCount || 0,
-          difference: (supabaseQuestCount || 0) - localStorageQuestCount,
-          status: questError ? 'error' : 
-                  (supabaseQuestCount || 0) === localStorageQuestCount ? 'synced' :
-                  (supabaseQuestCount || 0) > localStorageQuestCount ? 'supabase-ahead' : 'local-ahead',
+          supabaseCount: supabaseQuestCount,
+          difference: supabaseQuestCount - localStorageQuestCount,
+          status: supabaseQuestCount === localStorageQuestCount ? 'synced' :
+                  supabaseQuestCount > localStorageQuestCount ? 'supabase-ahead' : 'local-ahead',
           lastChecked: now
         };
         comparisons.push(questComparison);
@@ -487,20 +487,20 @@ export default function StoredDataPage() {
         const localStorageChallenges = JSON.parse(localStorage.getItem('challenges') || '[]');
         const localStorageChallengeCount = localStorageChallenges.filter((c: any) => c.completed).length;
         
-        const { count: supabaseChallengeCount, error: challengeError } = await supabase
-          .from('challenge_completion')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id)
-          .eq('completed', true);
+        // Use API endpoint instead of direct Supabase call
+        const challengeResponse = await fetch('/api/challenges', {
+          credentials: 'include'
+        });
+        const challengeData = challengeResponse.ok ? await challengeResponse.json() : [];
+        const supabaseChallengeCount = challengeData.filter((c: any) => c.completed).length;
         
         const challengeComparison: DataComparison = {
           table: 'Challenge Completions',
           localStorageCount: localStorageChallengeCount,
-          supabaseCount: supabaseChallengeCount || 0,
-          difference: (supabaseChallengeCount || 0) - localStorageChallengeCount,
-          status: challengeError ? 'error' : 
-                  (supabaseChallengeCount || 0) === localStorageChallengeCount ? 'synced' :
-                  (supabaseChallengeCount || 0) > localStorageChallengeCount ? 'supabase-ahead' : 'local-ahead',
+          supabaseCount: supabaseChallengeCount,
+          difference: supabaseChallengeCount - localStorageChallengeCount,
+          status: supabaseChallengeCount === localStorageChallengeCount ? 'synced' :
+                  supabaseChallengeCount > localStorageChallengeCount ? 'supabase-ahead' : 'local-ahead',
           lastChecked: now
         };
         comparisons.push(challengeComparison);
@@ -520,20 +520,20 @@ export default function StoredDataPage() {
         const localStorageMilestones = JSON.parse(localStorage.getItem('milestones') || '[]');
         const localStorageMilestoneCount = localStorageMilestones.filter((m: any) => m.completed).length;
         
-        const { count: supabaseMilestoneCount, error: milestoneError } = await supabase
-          .from('milestone_completion')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id)
-          .eq('completed', true);
+        // Use API endpoint instead of direct Supabase call
+        const milestoneResponse = await fetch('/api/milestones', {
+          credentials: 'include'
+        });
+        const milestoneData = milestoneResponse.ok ? await milestoneResponse.json() : [];
+        const supabaseMilestoneCount = milestoneData.filter((m: any) => m.completed).length;
         
         const milestoneComparison: DataComparison = {
           table: 'Milestone Completions',
           localStorageCount: localStorageMilestoneCount,
-          supabaseCount: supabaseMilestoneCount || 0,
-          difference: (supabaseMilestoneCount || 0) - localStorageMilestoneCount,
-          status: milestoneError ? 'error' : 
-                  (supabaseMilestoneCount || 0) === localStorageMilestoneCount ? 'synced' :
-                  (supabaseMilestoneCount || 0) > localStorageMilestoneCount ? 'supabase-ahead' : 'local-ahead',
+          supabaseCount: supabaseMilestoneCount,
+          difference: supabaseMilestoneCount - localStorageMilestoneCount,
+          status: supabaseMilestoneCount === localStorageMilestoneCount ? 'synced' :
+                  supabaseMilestoneCount > localStorageMilestoneCount ? 'supabase-ahead' : 'local-ahead',
           lastChecked: now
         };
         comparisons.push(milestoneComparison);
@@ -553,19 +553,20 @@ export default function StoredDataPage() {
         const localStorageGoldTransactions = JSON.parse(localStorage.getItem('gold-transactions') || '[]');
         const localStorageGoldCount = localStorageGoldTransactions.length;
         
-        const { count: supabaseGoldCount, error: goldError } = await supabase
-          .from('gold_transactions')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id);
+        // Use API endpoint instead of direct Supabase call
+        const goldResponse = await fetch('/api/gold-transactions', {
+          credentials: 'include'
+        });
+        const goldData = goldResponse.ok ? await goldResponse.json() : [];
+        const supabaseGoldCount = goldData.length;
         
         const goldComparison: DataComparison = {
           table: 'Gold Transactions',
           localStorageCount: localStorageGoldCount,
-          supabaseCount: supabaseGoldCount || 0,
-          difference: (supabaseGoldCount || 0) - localStorageGoldCount,
-          status: goldError ? 'error' : 
-                  (supabaseGoldCount || 0) === localStorageGoldCount ? 'synced' :
-                  (supabaseGoldCount || 0) > localStorageGoldCount ? 'supabase-ahead' : 'local-ahead',
+          supabaseCount: supabaseGoldCount,
+          difference: supabaseGoldCount - localStorageGoldCount,
+          status: supabaseGoldCount === localStorageGoldCount ? 'synced' :
+                  supabaseGoldCount > localStorageGoldCount ? 'supabase-ahead' : 'local-ahead',
           lastChecked: now
         };
         comparisons.push(goldComparison);
@@ -585,19 +586,20 @@ export default function StoredDataPage() {
         const localStorageExpTransactions = JSON.parse(localStorage.getItem('experience-transactions') || '[]');
         const localStorageExpCount = localStorageExpTransactions.length;
         
-        const { count: supabaseExpCount, error: expError } = await supabase
-          .from('experience_transactions')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id);
+        // Use API endpoint instead of direct Supabase call
+        const expResponse = await fetch('/api/experience-transactions', {
+          credentials: 'include'
+        });
+        const expData = expResponse.ok ? await expResponse.json() : [];
+        const supabaseExpCount = expData.length;
         
         const expComparison: DataComparison = {
           table: 'Experience Transactions',
           localStorageCount: localStorageExpCount,
-          supabaseCount: supabaseExpCount || 0,
-          difference: (supabaseExpCount || 0) - localStorageExpCount,
-          status: expError ? 'error' : 
-                  (supabaseExpCount || 0) === localStorageExpCount ? 'synced' :
-                  (supabaseExpCount || 0) > localStorageExpCount ? 'supabase-ahead' : 'local-ahead',
+          supabaseCount: supabaseExpCount,
+          difference: supabaseExpCount - localStorageExpCount,
+          status: supabaseExpCount === localStorageExpCount ? 'synced' :
+                  supabaseExpCount > localStorageExpCount ? 'supabase-ahead' : 'local-ahead',
           lastChecked: now
         };
         comparisons.push(expComparison);
