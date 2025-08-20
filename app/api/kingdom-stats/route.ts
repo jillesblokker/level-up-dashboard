@@ -103,7 +103,7 @@ export async function GET(request: Request) {
       // Using the correct column names based on actual table structure
       const { data: completions, error } = await supabaseServer
         .from('challenge_completion')
-        .select('id, completed, completed_at')
+        .select('id, completed, date')
         .eq('user_id', userId)
         .eq('completed', true);
         
@@ -117,22 +117,22 @@ export async function GET(request: Request) {
       if (period === 'year') {
         days.forEach(month => { counts[month] = 0; });
         completions?.forEach((c: any) => {
-          if (c.completed_at) {
-            const month = c.completed_at.slice(0, 7);
+          if (c.date) {
+            const month = c.date.slice(0, 7);
             if (counts[month] !== undefined) counts[month]++;
           }
         });
       } else if (period === 'all') {
         counts['all'] = completions?.length || 0;
-              } else {
-          days.forEach(day => { counts[day] = 0; });
-          completions?.forEach((c: any) => {
-            if (c.completed_at) {
-              const day = c.completed_at.slice(0, 10);
-              if (counts[day] !== undefined) counts[day]++;
-            }
-          });
-        }
+      } else {
+        days.forEach(day => { counts[day] = 0; });
+        completions?.forEach((c: any) => {
+          if (c.date) {
+            const day = c.date.slice(0, 10);
+            if (counts[day] !== undefined) counts[day]++;
+          }
+        });
+      }
       
       const data = days.map(day => ({ day, value: counts[day] || 0 }));
       return NextResponse.json({ data });
@@ -142,7 +142,7 @@ export async function GET(request: Request) {
       // Aggregate milestone completions from milestone_completion table
       const { data: completions, error } = await supabaseServer
         .from('milestone_completion')
-        .select('id, completed, completed_at')
+        .select('id, completed, date')
         .eq('user_id', userId)
         .eq('completed', true);
         
@@ -156,18 +156,23 @@ export async function GET(request: Request) {
       if (period === 'year') {
         days.forEach(month => { counts[month] = 0; });
         completions?.forEach((c: any) => {
-          if (c.completed_at) {
-            const month = c.completed_at.slice(0, 7);
+          if (c.date) {
+            const month = c.date.slice(0, 7);
             if (counts[month] !== undefined) counts[month]++;
           }
         });
       } else if (period === 'all') {
-        counts['all'] = completions?.length || 0;
+        counts['all'] = 0;
+        completions?.forEach((c: any) => {
+          if (c.date) {
+            counts['all'] = (counts['all'] || 0) + 1;
+          }
+        });
       } else {
         days.forEach(day => { counts[day] = 0; });
         completions?.forEach((c: any) => {
-          if (c.completed_at) {
-            const day = c.completed_at.slice(0, 10);
+          if (c.date) {
+            const day = c.date.slice(0, 10);
             if (counts[day] !== undefined) counts[day]++;
           }
         });
@@ -256,9 +261,9 @@ export async function GET(request: Request) {
       // Add challenge gold
       challengeRes.data?.forEach((c: any) => {
         const reward = challengeRewards.find(r => r.id === c.challenge_id);
-        if (c.completed_at && reward) {
-          const dateKey = period === 'year' ? c.completed_at.slice(0, 7) : 
-                         period === 'all' ? 'all' : c.completed_at.slice(0, 10);
+        if (c.date && reward) {
+          const dateKey = period === 'year' ? c.date.slice(0, 7) : 
+                         period === 'all' ? 'all' : c.date.slice(0, 10);
           if (sums[dateKey] !== undefined) sums[dateKey] += reward.gold || 0;
         }
       });
@@ -266,9 +271,9 @@ export async function GET(request: Request) {
       // Add milestone gold
       milestoneRes.data?.forEach((m: any) => {
         const reward = milestoneRewards.find(r => r.id === m.milestone_id);
-        if (m.completed_at && reward) {
-          const dateKey = period === 'year' ? m.completed_at.slice(0, 7) : 
-                         period === 'all' ? 'all' : m.completed_at.slice(0, 7);
+        if (m.date && reward) {
+          const dateKey = period === 'year' ? m.date.slice(0, 7) : 
+                         period === 'all' ? 'all' : m.date.slice(0, 7);
           if (sums[dateKey] !== undefined) sums[dateKey] += reward.gold || 0;
         }
       });
@@ -358,9 +363,9 @@ export async function GET(request: Request) {
       // Add challenge XP
       challengeRes.data?.forEach((c: any) => {
         const reward = challengeRewards.find(r => r.id === c.challenge_id);
-        if (c.completed_at && reward) {
-          const dateKey = period === 'year' ? c.completed_at.slice(0, 7) : 
-                         period === 'all' ? 'all' : c.completed_at.slice(0, 10);
+        if (c.date && reward) {
+          const dateKey = period === 'year' ? c.date.slice(0, 7) : 
+                         period === 'all' ? 'all' : c.date.slice(0, 10);
           if (sums[dateKey] !== undefined) sums[dateKey] += reward.xp || 0;
         }
       });
@@ -368,9 +373,9 @@ export async function GET(request: Request) {
       // Add milestone XP
       milestoneRes.data?.forEach((m: any) => {
         const reward = milestoneRewards.find(r => r.id === m.milestone_id);
-        if (m.completed_at && reward) {
-          const dateKey = period === 'year' ? m.completed_at.slice(0, 7) : 
-                         period === 'all' ? 'all' : m.completed_at.slice(0, 10);
+        if (m.date && reward) {
+          const dateKey = period === 'year' ? m.date.slice(0, 7) : 
+                         period === 'all' ? 'all' : m.date.slice(0, 10);
           if (sums[dateKey] !== undefined) sums[dateKey] += reward.experience || 0;
         }
       });
@@ -392,16 +397,16 @@ export async function GET(request: Request) {
           .order('completed_at', { ascending: true }),
         supabaseServer
           .from('challenge_completion')
-          .select('challenge_id, completed_at')
+          .select('challenge_id, date')
           .eq('user_id', userId)
           .eq('completed', true)
-          .order('completed_at', { ascending: true }),
+          .order('date', { ascending: true }),
         supabaseServer
           .from('milestone_completion')
-          .select('milestone_id, completed_at')
+          .select('milestone_id, date')
           .eq('user_id', userId)
           .eq('completed', true)
-          .order('completed_at', { ascending: true })
+          .order('date', { ascending: true })
       ]);
 
       if (questRes.error || challengeRes.error || milestoneRes.error) {
@@ -474,9 +479,9 @@ export async function GET(request: Request) {
       // Add challenge XP to timeline
       challengeRes.data?.forEach((c: any) => {
         const reward = challengeRewards.find(r => r.id === c.challenge_id);
-        if (c.completed_at && reward) {
+        if (c.date && reward) {
           experienceTimeline.push({
-            date: c.completed_at.slice(0, 10),
+            date: c.date.slice(0, 10),
             xp: reward.xp || 0
           });
         }
@@ -485,9 +490,9 @@ export async function GET(request: Request) {
       // Add milestone XP to timeline
       milestoneRes.data?.forEach((m: any) => {
         const reward = milestoneRewards.find(r => r.id === m.milestone_id);
-        if (m.completed_at && reward) {
+        if (m.date && reward) {
           experienceTimeline.push({
-            date: m.completed_at.slice(0, 10),
+            date: m.date.slice(0, 10),
             xp: reward.experience || 0
           });
         }
