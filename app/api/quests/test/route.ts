@@ -19,7 +19,7 @@ export async function GET(request: Request) {
       'character_stats'
     ];
 
-    const tableInfo = {};
+    const tableInfo: Record<string, { exists: boolean; count: number; error: string | null }> = {};
     for (const tableName of tablesToCheck) {
       try {
         const { count, error } = await supabase
