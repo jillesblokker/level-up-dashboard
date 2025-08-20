@@ -11,18 +11,66 @@ export async function GET(request: Request) {
 
     const supabase = supabaseServer;
 
-    // 1. Get all quest completions
+    // 1. Check what tables exist and their row counts
+    const tablesToCheck = [
+      'challenges',
+      'quests', 
+      'quest_completion',
+      'character_stats'
+    ];
+
+    const tableInfo = {};
+    for (const tableName of tablesToCheck) {
+      try {
+        const { count, error } = await supabase
+          .from(tableName)
+          .select('*', { count: 'exact', head: true });
+        
+        tableInfo[tableName] = {
+          exists: true,
+          count: count || 0,
+          error: error?.message || null
+        };
+      } catch (err) {
+        tableInfo[tableName] = {
+          exists: false,
+          count: 0,
+          error: String(err)
+        };
+      }
+    }
+
+    // 2. Get all quest completions
     const { data: completions, error: completionsError } = await supabase
       .from('quest_completion')
       .select('*')
       .eq('user_id', userId);
 
-    // 2. Get all challenges
-    const { data: challenges, error: challengesError } = await supabase
+    // 3. Try to get challenges from different possible table names
+    let challenges = null;
+    let challengesTableName = null;
+    
+    // Try 'challenges' first
+    let { data: challengesData, error: challengesError } = await supabase
       .from('challenges')
       .select('id, name, title');
+    
+    if (challengesData && challengesData.length > 0) {
+      challenges = challengesData;
+      challengesTableName = 'challenges';
+    } else {
+      // Try 'quests' table
+      const { data: questsData, error: questsError } = await supabase
+        .from('quests')
+        .select('id, name, title');
+      
+      if (questsData && questsData.length > 0) {
+        challenges = questsData;
+        challengesTableName = 'quests';
+      }
+    }
 
-    // 3. Show detailed analysis
+    // 4. Show detailed analysis
     const analysis = completions?.map(completion => {
       const matchingChallengeById = challenges?.find(c => c.id === completion.quest_id);
       const matchingChallengeByName = challenges?.find(c => c.name === completion.quest_id);
@@ -42,6 +90,8 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       userId,
+      table_info: tableInfo,
+      challenges_table_name: challengesTableName,
       completions_count: completions?.length || 0,
       challenges_count: challenges?.length || 0,
       analysis,
