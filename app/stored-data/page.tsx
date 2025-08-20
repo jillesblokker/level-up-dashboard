@@ -70,6 +70,16 @@ interface BuildStatus {
   progress: number;
 }
 
+// New interface for data comparison
+interface DataComparison {
+  table: string;
+  localStorageCount: number;
+  supabaseCount: number;
+  difference: number;
+  status: 'synced' | 'local-ahead' | 'supabase-ahead' | 'error';
+  lastChecked: string;
+}
+
 export default function StoredDataPage() {
   const [supabaseData, setSupabaseData] = useState<SupabaseData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -91,6 +101,10 @@ export default function StoredDataPage() {
     progress: 0
   });
   
+  // New state for data comparison
+  const [dataComparison, setDataComparison] = useState<DataComparison[]>([]);
+  const [isComparingData, setIsComparingData] = useState(false);
+
   const { user } = useUser();
   const { getToken } = useAuth();
   const { supabase } = useSupabase();
@@ -215,6 +229,9 @@ export default function StoredDataPage() {
 
         // Load event flags
         await loadEventFlags();
+
+        // Run data comparison automatically
+        await compareDataSources();
 
       } catch (error) {
         console.error('Error loading Supabase data:', error);
@@ -421,6 +438,188 @@ export default function StoredDataPage() {
     }
 
     setConnectionStatuses(connections);
+  };
+
+  // New function to compare data between localStorage and Supabase
+  const compareDataSources = async () => {
+    if (!user?.id || !supabase) return;
+    
+    setIsComparingData(true);
+    const now = new Date().toISOString();
+    const comparisons: DataComparison[] = [];
+
+    try {
+      // 1. Compare Quest Completions
+      try {
+        const localStorageQuests = JSON.parse(localStorage.getItem('quests') || '[]');
+        const localStorageQuestCount = localStorageQuests.filter((q: any) => q.completed).length;
+        
+        const { count: supabaseQuestCount, error: questError } = await supabase
+          .from('quest_completion')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('completed', true);
+        
+        const questComparison: DataComparison = {
+          table: 'Quest Completions',
+          localStorageCount: localStorageQuestCount,
+          supabaseCount: supabaseQuestCount || 0,
+          difference: (supabaseQuestCount || 0) - localStorageQuestCount,
+          status: questError ? 'error' : 
+                  (supabaseQuestCount || 0) === localStorageQuestCount ? 'synced' :
+                  (supabaseQuestCount || 0) > localStorageQuestCount ? 'supabase-ahead' : 'local-ahead',
+          lastChecked: now
+        };
+        comparisons.push(questComparison);
+      } catch (error) {
+        comparisons.push({
+          table: 'Quest Completions',
+          localStorageCount: 0,
+          supabaseCount: 0,
+          difference: 0,
+          status: 'error',
+          lastChecked: now
+        });
+      }
+
+      // 2. Compare Challenge Completions
+      try {
+        const localStorageChallenges = JSON.parse(localStorage.getItem('challenges') || '[]');
+        const localStorageChallengeCount = localStorageChallenges.filter((c: any) => c.completed).length;
+        
+        const { count: supabaseChallengeCount, error: challengeError } = await supabase
+          .from('challenge_completion')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('completed', true);
+        
+        const challengeComparison: DataComparison = {
+          table: 'Challenge Completions',
+          localStorageCount: localStorageChallengeCount,
+          supabaseCount: supabaseChallengeCount || 0,
+          difference: (supabaseChallengeCount || 0) - localStorageChallengeCount,
+          status: challengeError ? 'error' : 
+                  (supabaseChallengeCount || 0) === localStorageChallengeCount ? 'synced' :
+                  (supabaseChallengeCount || 0) > localStorageChallengeCount ? 'supabase-ahead' : 'local-ahead',
+          lastChecked: now
+        };
+        comparisons.push(challengeComparison);
+      } catch (error) {
+        comparisons.push({
+          table: 'Challenge Completions',
+          localStorageCount: 0,
+          supabaseCount: 0,
+          difference: 0,
+          status: 'error',
+          lastChecked: now
+        });
+      }
+
+      // 3. Compare Milestone Completions
+      try {
+        const localStorageMilestones = JSON.parse(localStorage.getItem('milestones') || '[]');
+        const localStorageMilestoneCount = localStorageMilestones.filter((m: any) => m.completed).length;
+        
+        const { count: supabaseMilestoneCount, error: milestoneError } = await supabase
+          .from('milestone_completion')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('completed', true);
+        
+        const milestoneComparison: DataComparison = {
+          table: 'Milestone Completions',
+          localStorageCount: localStorageMilestoneCount,
+          supabaseCount: supabaseMilestoneCount || 0,
+          difference: (supabaseMilestoneCount || 0) - localStorageMilestoneCount,
+          status: milestoneError ? 'error' : 
+                  (supabaseMilestoneCount || 0) === localStorageMilestoneCount ? 'synced' :
+                  (supabaseMilestoneCount || 0) > localStorageMilestoneCount ? 'supabase-ahead' : 'local-ahead',
+          lastChecked: now
+        };
+        comparisons.push(milestoneComparison);
+      } catch (error) {
+        comparisons.push({
+          table: 'Milestone Completions',
+          localStorageCount: 0,
+          supabaseCount: 0,
+          difference: 0,
+          status: 'error',
+          lastChecked: now
+        });
+      }
+
+      // 4. Compare Gold Transactions
+      try {
+        const localStorageGoldTransactions = JSON.parse(localStorage.getItem('gold-transactions') || '[]');
+        const localStorageGoldCount = localStorageGoldTransactions.length;
+        
+        const { count: supabaseGoldCount, error: goldError } = await supabase
+          .from('gold_transactions')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+        
+        const goldComparison: DataComparison = {
+          table: 'Gold Transactions',
+          localStorageCount: localStorageGoldCount,
+          supabaseCount: supabaseGoldCount || 0,
+          difference: (supabaseGoldCount || 0) - localStorageGoldCount,
+          status: goldError ? 'error' : 
+                  (supabaseGoldCount || 0) === localStorageGoldCount ? 'synced' :
+                  (supabaseGoldCount || 0) > localStorageGoldCount ? 'supabase-ahead' : 'local-ahead',
+          lastChecked: now
+        };
+        comparisons.push(goldComparison);
+      } catch (error) {
+        comparisons.push({
+          table: 'Gold Transactions',
+          localStorageCount: 0,
+          supabaseCount: 0,
+          difference: 0,
+          status: 'error',
+          lastChecked: now
+        });
+      }
+
+      // 5. Compare Experience Transactions
+      try {
+        const localStorageExpTransactions = JSON.parse(localStorage.getItem('experience-transactions') || '[]');
+        const localStorageExpCount = localStorageExpTransactions.length;
+        
+        const { count: supabaseExpCount, error: expError } = await supabase
+          .from('experience_transactions')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+        
+        const expComparison: DataComparison = {
+          table: 'Experience Transactions',
+          localStorageCount: localStorageExpCount,
+          supabaseCount: supabaseExpCount || 0,
+          difference: (supabaseExpCount || 0) - localStorageExpCount,
+          status: expError ? 'error' : 
+                  (supabaseExpCount || 0) === localStorageExpCount ? 'synced' :
+                  (supabaseExpCount || 0) > localStorageExpCount ? 'supabase-ahead' : 'local-ahead',
+          lastChecked: now
+        };
+        comparisons.push(expComparison);
+      } catch (error) {
+        comparisons.push({
+          table: 'Experience Transactions',
+          localStorageCount: 0,
+          supabaseCount: 0,
+          difference: 0,
+          status: 'error',
+          lastChecked: now
+        });
+      }
+
+      setDataComparison(comparisons);
+      toast.success('Data comparison completed!');
+    } catch (error) {
+      console.error('Error comparing data:', error);
+      toast.error('Failed to compare data sources');
+    } finally {
+      setIsComparingData(false);
+    }
   };
 
   const handleMigration = async () => {
@@ -768,6 +967,106 @@ TECHNICAL DETAILS:
                 </ul>
               </div>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Data Comparison Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Database className="w-5 h-5" />
+            Data Source Comparison
+          </CardTitle>
+          <CardDescription>
+            Compare data counts between localStorage and Supabase to identify synchronization issues
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                This helps identify why kingdom stats might be missing data points
+              </p>
+              <Button 
+                onClick={compareDataSources} 
+                disabled={isComparingData}
+                variant="outline"
+                size="sm"
+              >
+                {isComparingData ? "Comparing..." : "Compare Data Sources"}
+              </Button>
+            </div>
+            
+            {dataComparison.length > 0 && (
+              <div className="space-y-3">
+                {dataComparison.map((comparison, index) => (
+                  <div key={index} className="p-4 border rounded-lg">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-medium">{comparison.table}</h4>
+                      <Badge 
+                        variant={
+                          comparison.status === 'synced' ? 'default' :
+                          comparison.status === 'local-ahead' ? 'secondary' :
+                          comparison.status === 'supabase-ahead' ? 'destructive' :
+                          'outline'
+                        }
+                        className={
+                          comparison.status === 'synced' ? 'bg-green-100 text-green-800 border-green-200' :
+                          comparison.status === 'local-ahead' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
+                          comparison.status === 'supabase-ahead' ? 'bg-red-100 text-red-800 border-red-200' :
+                          'bg-gray-100 text-gray-800 border-gray-200'
+                        }
+                      >
+                        {comparison.status === 'synced' ? '✅ Synced' :
+                         comparison.status === 'local-ahead' ? '⚠️ Local Ahead' :
+                         comparison.status === 'supabase-ahead' ? '❌ Supabase Ahead' :
+                         '❓ Error'}
+                      </Badge>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <div className="text-muted-foreground">localStorage</div>
+                        <div className="font-semibold text-lg">{comparison.localStorageCount}</div>
+                      </div>
+                      <div>
+                        <div className="text-muted-foreground">Supabase</div>
+                        <div className="font-semibold text-lg">{comparison.supabaseCount}</div>
+                      </div>
+                      <div>
+                        <div className="text-muted-foreground">Difference</div>
+                        <div className={`font-semibold text-lg ${
+                          comparison.difference === 0 ? 'text-green-600' :
+                          comparison.difference > 0 ? 'text-red-600' :
+                          'text-yellow-600'
+                        }`}>
+                          {comparison.difference > 0 ? '+' : ''}{comparison.difference}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-3 text-xs text-muted-foreground">
+                      Last checked: {new Date(comparison.lastChecked).toLocaleString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {dataComparison.length === 0 && !isComparingData && (
+              <div className="text-center py-8 text-muted-foreground">
+                <Database className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>Click "Compare Data Sources" to analyze data synchronization</p>
+              </div>
+            )}
+            
+            {isComparingData && (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
+                <p className="text-muted-foreground">Comparing data sources...</p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
