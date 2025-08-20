@@ -67,12 +67,33 @@ export async function GET(request: Request) {
           .select('*')
           .eq('user_id', userId);
         
+        // Also fetch challenges to compare
+        const { data: challenges, error: challengesError } = await supabase
+          .from('challenges')
+          .select('id, name, title');
+        
+        // Show detailed comparison
+        const detailedCompletions = debugCompletions?.map(completion => ({
+          completion_id: completion.id,
+          quest_id: completion.quest_id,
+          completed: completion.completed,
+          completed_at: completion.completed_at,
+          user_id: completion.user_id,
+          // Check if this quest_id matches any challenge
+          matches_challenge_id: challenges?.some(c => c.id === completion.quest_id),
+          matches_challenge_name: challenges?.some(c => c.name === completion.quest_id),
+          challenge_ids: challenges?.map(c => c.id).slice(0, 3), // First 3 challenge IDs
+          challenge_names: challenges?.map(c => c.name).slice(0, 3) // First 3 challenge names
+        })) || [];
+        
         return NextResponse.json({
           debug: true,
           userId,
-          completions: debugCompletions || [],
+          completions: detailedCompletions,
           error: debugError,
-          count: debugCompletions?.length || 0
+          count: debugCompletions?.length || 0,
+          challenges_count: challenges?.length || 0,
+          sample_challenges: challenges?.slice(0, 3) || []
         });
       } catch (debugErr) {
         return NextResponse.json({
