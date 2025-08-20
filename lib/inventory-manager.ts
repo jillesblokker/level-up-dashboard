@@ -268,19 +268,35 @@ export async function getStoredItems(userId: string): Promise<InventoryItem[]> {
 
 // Calculate total stats from equipped items
 export async function getTotalStats(userId: string): Promise<{ movement: number; attack: number; defense: number }> {
-  const equippedItems = await getEquippedItems(userId);
-  
-  return equippedItems.reduce(
-    (totals, item) => {
-      const stats = item.stats || {};
-      return {
-        movement: totals.movement + (stats.movement || 0),
-        attack: totals.attack + (stats.attack || 0),
-        defense: totals.defense + (stats.defense || 0),
-      };
-    },
-    { movement: 0, attack: 0, defense: 0 }
-  );
+  try {
+    const equippedItems = await getEquippedItems(userId);
+    
+    // Ensure equippedItems is an array
+    if (!Array.isArray(equippedItems)) {
+      console.warn('[Inventory Manager] getTotalStats: equippedItems is not an array:', equippedItems);
+      return { movement: 0, attack: 0, defense: 0 };
+    }
+    
+    return equippedItems.reduce(
+      (totals, item) => {
+        try {
+          const stats = item?.stats || {};
+          return {
+            movement: totals.movement + (stats.movement || 0),
+            attack: totals.attack + (stats.attack || 0),
+            defense: totals.defense + (stats.defense || 0),
+          };
+        } catch (error) {
+          console.warn('[Inventory Manager] getTotalStats: Error processing item:', item, error);
+          return totals; // Return unchanged totals on error
+        }
+      },
+      { movement: 0, attack: 0, defense: 0 }
+    );
+  } catch (error) {
+    console.error('[Inventory Manager] getTotalStats: Error:', error);
+    return { movement: 0, attack: 0, defense: 0 };
+  }
 }
 
 // Filter items by whether they can be equipped

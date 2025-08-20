@@ -51,6 +51,67 @@ export default function AdminPage() {
     }
   }
 
+  // 🎯 NEW: Sync data FROM Supabase TO localStorage
+  const syncDataToLocalStorage = async () => {
+    try {
+      setSyncLoading(true);
+      
+      // 1. Sync Quest Completions
+      const questResponse = await fetch('/api/quests-simple');
+      if (questResponse.ok) {
+        const questData = await questResponse.json();
+        const completedQuests = questData.completedQuests || [];
+        
+        // Store in localStorage
+        localStorage.setItem('questCompletions', JSON.stringify(completedQuests));
+        console.log('[Admin] Synced', completedQuests.length, 'quest completions to localStorage');
+      }
+      
+      // 2. Sync Gold Transactions
+      const goldResponse = await fetch('/api/gold-transactions');
+      if (goldResponse.ok) {
+        const goldData = await goldResponse.json();
+        const goldTransactions = goldData.data || [];
+        
+        // Store in localStorage
+        localStorage.setItem('goldTransactions', JSON.stringify(goldTransactions));
+        console.log('[Admin] Synced', goldTransactions.length, 'gold transactions to localStorage');
+      }
+      
+      // 3. Sync Experience Transactions
+      const expResponse = await fetch('/api/experience-transactions');
+      if (expResponse.ok) {
+        const expData = await expResponse.json();
+        const expTransactions = expData.data || [];
+        
+        // Store in localStorage
+        localStorage.setItem('experienceTransactions', JSON.stringify(expTransactions));
+        console.log('[Admin] Synced', expTransactions.length, 'experience transactions to localStorage');
+      }
+      
+      // 4. Sync Inventory Items
+      const inventoryResponse = await fetch('/api/inventory');
+      if (inventoryResponse.ok) {
+        const inventoryData = await inventoryResponse.json();
+        const inventoryItems = inventoryData || [];
+        
+        // Store in localStorage
+        localStorage.setItem('inventory', JSON.stringify(inventoryItems));
+        console.log('[Admin] Synced', inventoryItems.length, 'inventory items to localStorage');
+      }
+      
+      // Refresh the page to show updated counts
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+      
+    } catch (error) {
+      console.error('[Admin] Error syncing data:', error);
+    } finally {
+      setSyncLoading(false);
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-4xl font-bold mb-8">Game Admin Dashboard</h1>

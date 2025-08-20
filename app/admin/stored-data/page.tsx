@@ -177,6 +177,90 @@ export default function AdminPage() {
     }
   };
 
+  // 🎯 NEW: Sync data FROM Supabase TO localStorage
+  const syncDataToLocalStorage = async () => {
+    try {
+      setIsLoading(true);
+      
+      // 1. Sync Quest Completions
+      const questResponse = await fetch('/api/quests-simple');
+      if (questResponse.ok) {
+        const questData = await questResponse.json();
+        const completedQuests = questData.completedQuests || [];
+        
+        // Store in localStorage
+        localStorage.setItem('questCompletions', JSON.stringify(completedQuests));
+        console.log('[Admin] Synced', completedQuests.length, 'quest completions to localStorage');
+      }
+      
+      // 2. Sync Gold Transactions
+      const goldResponse = await fetch('/api/gold-transactions');
+      if (goldResponse.ok) {
+        const goldData = await goldResponse.json();
+        const goldTransactions = goldData.data || [];
+        
+        // Store in localStorage
+        localStorage.setItem('goldTransactions', JSON.stringify(goldTransactions));
+        console.log('[Admin] Synced', goldTransactions.length, 'gold transactions to localStorage');
+      }
+      
+      // 3. Sync Experience Transactions
+      const expResponse = await fetch('/api/experience-transactions');
+      if (expResponse.ok) {
+        const expData = await expResponse.json();
+        const expTransactions = expData.data || [];
+        
+        // Store in localStorage
+        const expDataToStore = expTransactions.map((tx: any) => ({
+          id: tx.id,
+          amount: tx.amount,
+          type: tx.type,
+          timestamp: tx.timestamp,
+          source: tx.source
+        }));
+        
+        localStorage.setItem('experienceTransactions', JSON.stringify(expDataToStore));
+        console.log('[Admin] Synced', expTransactions.length, 'experience transactions to localStorage');
+      }
+      
+      // 4. Sync Inventory Items
+      const inventoryResponse = await fetch('/api/inventory');
+      if (inventoryResponse.ok) {
+        const inventoryData = await inventoryResponse.json();
+        const inventoryItems = inventoryData || [];
+        
+        // Store in localStorage
+        localStorage.setItem('inventory', JSON.stringify(inventoryItems));
+        console.log('[Admin] Synced', inventoryItems.length, 'inventory items to localStorage');
+      }
+      
+      toast.success('Data synced to localStorage successfully!', {
+        style: {
+          backgroundColor: '#059669',
+          color: '#ffffff',
+          border: '1px solid #047857'
+        }
+      });
+      
+      // Refresh the data comparison
+      setTimeout(() => {
+        compareDataSources();
+      }, 1000);
+      
+    } catch (error) {
+      console.error('[Admin] Error syncing data:', error);
+      toast.error('Failed to sync data to localStorage', {
+        style: {
+          backgroundColor: '#dc2626',
+          color: '#ffffff',
+          border: '1px solid #b91c1c'
+        }
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     async function loadSupabaseData() {
       if (!user?.id || !supabase) return;
@@ -1313,6 +1397,15 @@ TECHNICAL DETAILS:
                   size="sm"
                 >
                   {isComparingData ? "Comparing..." : "Compare Data Sources"}
+                </Button>
+                <Button 
+                  onClick={syncDataToLocalStorage} 
+                  disabled={isLoading}
+                  variant="default"
+                  size="sm"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  {isLoading ? "Syncing..." : "🔄 Sync to localStorage"}
                 </Button>
                 <Button 
                   onClick={handleDebugQuestCompletions} 
