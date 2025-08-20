@@ -83,6 +83,8 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
+      console.log('[Kingdom Stats] Raw quest completions from DB:', completions);
+
       // Aggregate by day/month
       let counts: Record<string, number> = {};
       if (period === 'year') {
@@ -104,9 +106,12 @@ export async function GET(request: Request) {
           }
         });
       }
-      
+
+      console.log('[Kingdom Stats] Processed quest counts:', counts);
+      console.log('[Kingdom Stats] Date range for period:', period, ':', days);
+
       const data = days.map(day => ({ day, value: counts[day] || 0 }));
-      console.log('[Kingdom Stats] Returning quests data:', data);
+      console.log('[Kingdom Stats] Final quest data:', data);
       return NextResponse.json({ data });
     }
 
@@ -123,6 +128,8 @@ export async function GET(request: Request) {
         console.error('[Kingdom Stats] Supabase error (challenges):', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
+
+      console.log('[Kingdom Stats] Raw challenge completions from DB:', completions);
 
       // Aggregate by day/month
       let counts: Record<string, number> = {};
@@ -145,9 +152,12 @@ export async function GET(request: Request) {
           }
         });
       }
+
+      console.log('[Kingdom Stats] Processed challenge counts:', counts);
+      console.log('[Kingdom Stats] Date range for period:', period, ':', days);
       
       const data = days.map(day => ({ day, value: counts[day] || 0 }));
-      console.log('[Kingdom Stats] Returning challenges data:', data);
+      console.log('[Kingdom Stats] Final challenge data:', data);
       return NextResponse.json({ data });
     }
 
