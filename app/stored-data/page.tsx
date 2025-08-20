@@ -891,6 +891,38 @@ export default function StoredDataPage() {
     }
   };
 
+  // Test function to check quest matching logic
+  const handleTestQuestMatching = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const response = await fetch('/api/quests/test', {
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const testData = await response.json();
+        console.log('Quest Matching Test:', testData);
+        
+        // Show results in toast
+        const completedCount = testData.analysis?.filter((a: any) => a.is_completed).length || 0;
+        const totalCount = testData.completions_count || 0;
+        
+        toast.info(`Quest Test: ${completedCount}/${totalCount} completions are actually completed`);
+        
+        // Log detailed analysis
+        if (testData.analysis) {
+          console.log('Quest Matching Analysis:', testData.analysis);
+        }
+      } else {
+        toast.error('Failed to test quest matching');
+      }
+    } catch (error) {
+      console.error('Quest matching test error:', error);
+      toast.error('Error testing quest matching');
+    }
+  };
+
   const handleMigration = async () => {
     if (!user?.id) return;
     
@@ -1272,6 +1304,13 @@ TECHNICAL DETAILS:
                   size="sm"
                 >
                   Debug Quests
+                </Button>
+                <Button 
+                  onClick={handleTestQuestMatching} 
+                  variant="outline"
+                  size="sm"
+                >
+                  Test Matching
                 </Button>
               </div>
             </div>
