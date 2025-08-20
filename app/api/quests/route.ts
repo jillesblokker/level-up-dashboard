@@ -114,23 +114,23 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
     }
 
-    // FIXED: Fetch from quests table instead of challenges table
-    // Fetching quest definitions from quests table
-    const { data: quests, error: questsError } = await supabase
-      .from('quests')
+    // FIXED: Fetch from challenges table (which actually has quest definitions)
+    // Fetching quest definitions from challenges table
+    const { data: challenges, error: challengesError } = await supabase
+      .from('challenges')
       .select('*');
 
-    if (questsError) {
-      console.error('Quests fetch error:', questsError);
-      return NextResponse.json({ error: questsError.message }, { status: 500 });
+    if (challengesError) {
+      console.error('Challenges fetch error:', challengesError);
+      return NextResponse.json({ error: challengesError.message }, { status: 500 });
     }
     
-    console.log('[Quests API] Quests fetched:', quests?.length || 0);
-    if (quests && quests.length > 0) {
-      console.log('[Quests API] First few quests:', quests.slice(0, 3).map(q => ({
-        id: q.id,
-        name: q.name,
-        category: q.category
+    console.log('[Quests API] Challenges fetched:', challenges?.length || 0);
+    if (challenges && challenges.length > 0) {
+      console.log('[Quests API] First few challenges:', challenges.slice(0, 3).map(c => ({
+        id: c.id,
+        name: c.name,
+        category: c.category
       })));
     }
 
@@ -183,24 +183,24 @@ export async function GET(request: Request) {
 
     console.log('[Quests API] Completed quests map:', Array.from(completedQuests.entries()));
 
-    // Convert quests data to quest format
-    const questsWithCompletions = (quests || []).map((quest: any) => {
+    // Convert challenges data to quest format
+    const questsWithCompletions = (challenges || []).map((challenge: any) => {
       // FIXED: Check for completion by title FIRST since quest_id likely stores titles
-      let completion = completedQuests.get(quest.name);
+      let completion = completedQuests.get(challenge.name);
       if (!completion) {
-        // Fallback: try to find by quest ID (for newer data)
-        completion = completedQuests.get(quest.id);
+        // Fallback: try to find by challenge ID (for newer data)
+        completion = completedQuests.get(challenge.id);
         if (completion) {
           console.log('[Quests API] Found completion by ID fallback:', { 
-            questId: quest.id, 
-            questName: quest.name, 
+            challengeId: challenge.id, 
+            challengeName: challenge.name, 
             completion 
           });
         }
       } else {
         console.log('[Quests API] Found completion by title (primary):', { 
-          questId: quest.id, 
-          questName: quest.name, 
+          challengeId: challenge.id, 
+          challengeName: challenge.name, 
           completion 
         });
       }
@@ -208,27 +208,27 @@ export async function GET(request: Request) {
       const isCompleted = completion ? completion.completed : false;
       const completionDate = completion ? completion.completedAt : null;
       
-      console.log('[Quests API] Mapping quest:', { 
-        questId: quest.id, 
-        questName: quest.name,
+      console.log('[Quests API] Mapping challenge to quest:', { 
+        challengeId: challenge.id, 
+        challengeName: challenge.name,
         hasCompletion: !!completion, 
         isCompleted, 
         completionDate 
       });
       
       return {
-        id: quest.id,
-        name: quest.name,
-        title: quest.name,
-        description: quest.description,
-        category: quest.category,
-        difficulty: quest.difficulty,
-        xp: quest.xp,
-        gold: quest.gold,
+        id: challenge.id,
+        name: challenge.name,
+        title: challenge.name,
+        description: challenge.description,
+        category: challenge.category,
+        difficulty: challenge.difficulty,
+        xp: challenge.xp,
+        gold: challenge.gold,
         completed: isCompleted,
         date: completionDate,
         isNew: !isCompleted,
-        completionId: isCompleted ? quest.id : undefined
+        completionId: isCompleted ? challenge.id : undefined
       };
     });
 
