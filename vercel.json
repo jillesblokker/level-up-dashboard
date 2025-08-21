@@ -13,5 +13,6 @@
       "src": "package.json",
       "use": "@vercel/next"
     }
-  ]
+  ],
+  "comment": "Force rebuild - updated 2024-12-19"
 } 
