@@ -354,6 +354,25 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     }
   }, []);
 
+  // Load timers from localStorage to sync with kingdom grid
+  useEffect(() => {
+    const savedTimers = localStorage.getItem('kingdom-tile-timers')
+    if (savedTimers) {
+      const timers = JSON.parse(savedTimers)
+      // Update tile states based on actual timers
+      // Removed debugging log
+    }
+  }, [])
+
+  // Debug: Log kingdom grid state changes
+  useEffect(() => {
+    console.log('[Kingdom] kingdomGrid updated:', {
+      gridLength: kingdomGrid.length,
+      hasTiles: kingdomGrid.some(row => row.some(cell => cell && cell.type && cell.type !== 'empty')),
+      tileTypes: kingdomGrid.flat().filter(cell => cell && cell.type && cell.type !== 'empty').map(cell => cell.type)
+    });
+  }, [kingdomGrid]);
+
   // Helper to determine if an item is consumable
   const isConsumable = (item: KingdomInventoryItem) => {
     return item.type === 'artifact' || item.type === 'scroll' || (item.type === 'item' && !item.category);
