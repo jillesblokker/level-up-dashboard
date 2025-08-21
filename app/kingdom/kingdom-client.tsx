@@ -312,6 +312,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const [coverImageLoading, setCoverImageLoading] = useState(true);
   const [sellingModalOpen, setSellingModalOpen] = useState(false);
   const [soldItem, setSoldItem] = useState<{ name: string; gold: number } | null>(null);
+  const [challenges, setChallenges] = useState<any[]>([]);
 
   // Debug: Log kingdom tiles configuration
   useEffect(() => {
@@ -344,7 +345,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
         { x: 3, y: 3, tileId: 'wizard', endTime: Date.now() + (90 * 60 * 1000), isReady: false }, // 1.5 hours
         { x: 4, y: 3, tileId: 'mayor', endTime: Date.now() + (75 * 60 * 1000), isReady: false }, // 1.25 hours
         { x: 5, y: 3, tileId: 'inn', endTime: Date.now() + (18 * 60 * 1000), isReady: false }, // 18 min
-        { x: 1, y: 4, tileId: 'house', endTime: Date.now() + (22 * 60 * 1000), isReady: false }, // 22 min
+        { x: 1, y: 4, tileId: 'library', endTime: Date.now() + (22 * 60 * 1000), isReady: false }, // 22 min - FIXED: was 'house'
         { x: 2, y: 4, tileId: 'mansion', endTime: Date.now() + (120 * 60 * 1000), isReady: false }, // 2 hours
         { x: 3, y: 4, tileId: 'jousting', endTime: Date.now() + (150 * 60 * 1000), isReady: false }, // 2.5 hours
         { x: 4, y: 4, tileId: 'archery', endTime: Date.now() + (28 * 60 * 1000), isReady: false }, // 28 min
@@ -754,6 +755,39 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     loadKingdomGrid();
   }, [userId]);
 
+  // 🎯 LOAD CHALLENGES ON COMPONENT MOUNT
+  useEffect(() => {
+    if (!userId) return;
+    
+    const loadChallenges = async () => {
+      try {
+        const response = await fetch('/api/challenges');
+        if (response.ok) {
+          const data = await response.json();
+          const challengesData = data.challenges || [];
+          setChallenges(challengesData);
+          localStorage.setItem('challenges', JSON.stringify(challengesData));
+          console.log('[Kingdom] Initial challenges loaded:', challengesData.length);
+        }
+      } catch (error) {
+        console.warn('[Kingdom] Failed to load initial challenges:', error);
+        // Try localStorage fallback
+        try {
+          const savedChallenges = localStorage.getItem('challenges');
+          if (savedChallenges) {
+            const parsedChallenges = JSON.parse(savedChallenges);
+            setChallenges(parsedChallenges);
+            console.log('[Kingdom] Loaded challenges from localStorage:', parsedChallenges.length);
+          }
+        } catch (localError) {
+          console.warn('[Kingdom] Failed to load challenges from localStorage:', localError);
+        }
+      }
+    };
+
+    loadChallenges();
+  }, [userId]);
+
   useEffect(() => {
     if (!userId) return;
     setInventoryLoading(true);
@@ -764,6 +798,34 @@ export function KingdomClient({ userId }: { userId: string | null }) {
         const stored = await getStoredItems(userId);
         const stats = await getTotalStats(userId);
         
+        // 🎯 LOAD CHALLENGES DATA
+        let challenges = [];
+        try {
+          const challengesResponse = await fetch('/api/challenges');
+          if (challengesResponse.ok) {
+            const challengesData = await challengesResponse.json();
+            challenges = challengesData.challenges || [];
+            console.log('[Kingdom] Loaded challenges:', challenges.length);
+            
+            // 🎯 SAVE CHALLENGES TO LOCALSTORAGE FOR PERSISTENCE
+            localStorage.setItem('challenges', JSON.stringify(challenges));
+            setChallenges(challenges);
+          }
+        } catch (error) {
+          console.warn('[Kingdom] Failed to load challenges:', error);
+          // Try to load from localStorage as fallback
+          try {
+            const savedChallenges = localStorage.getItem('challenges');
+            if (savedChallenges) {
+              challenges = JSON.parse(savedChallenges);
+              setChallenges(challenges);
+              console.log('[Kingdom] Loaded challenges from localStorage:', challenges.length);
+            }
+          } catch (localError) {
+            console.warn('[Kingdom] Failed to load challenges from localStorage:', localError);
+          }
+        }
+        
         // Debug logging to see what we're getting
         console.log('[Kingdom] Inventory data:', {
           equipped: equipped,
@@ -772,10 +834,9 @@ export function KingdomClient({ userId }: { userId: string | null }) {
           stored: stored,
           storedType: typeof stored,
           storedIsArray: Array.isArray(stored),
-          stats: stats
+          stats: stats,
+          challenges: challenges.length
         });
-        
-        // Removed debugging log
         
         // Normalize items to always have a 'stats' property and description
         const normalizeItems = (items: any[]) => {
@@ -891,27 +952,33 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     window.addEventListener('character-inventory-update', handleInventoryUpdate);
     
     // 🎯 LISTEN FOR QUEST COMPLETION GOLD/XP UPDATES
-    const handleGoldUpdate = (event: CustomEvent) => {
-      // Removed debugging log
+    const handleGoldUpdate = (event: Event) => {
       // Force refresh kingdom stats when gold is gained
       loadInventory();
     };
     
-    const handleXPUpdate = (event: CustomEvent) => {
-      // Removed debugging log
-      // Force refresh kingdom stats when XP is gained  
+    const handleXPUpdate = (event: Event) => {
+      // Force refresh kingdom stats when XP is gained
       loadInventory();
     };
     
-    window.addEventListener('kingdom:goldGained', handleGoldUpdate as EventListener);
-    window.addEventListener('kingdom:experienceGained', handleXPUpdate as EventListener);
-    window.addEventListener('character-stats-update', handleInventoryUpdate);
+    // 🎯 LISTEN FOR CHALLENGE COMPLETION EVENTS
+    const handleChallengeUpdate = (event: Event) => {
+      console.log('[Kingdom] Challenge update event received:', event);
+      // Reload challenges when they're updated
+      loadInventory();
+    };
+    
+    window.addEventListener('character-inventory-update', handleInventoryUpdate);
+    window.addEventListener('gold-update', handleGoldUpdate);
+    window.addEventListener('xp-update', handleXPUpdate);
+    window.addEventListener('challenge-update', handleChallengeUpdate);
     
     return () => {
       window.removeEventListener('character-inventory-update', handleInventoryUpdate);
-      window.removeEventListener('kingdom:goldGained', handleGoldUpdate as EventListener);
-      window.removeEventListener('kingdom:experienceGained', handleXPUpdate as EventListener);
-      window.removeEventListener('character-stats-update', handleInventoryUpdate);
+      window.removeEventListener('gold-update', handleGoldUpdate);
+      window.removeEventListener('xp-update', handleXPUpdate);
+      window.removeEventListener('challenge-update', handleChallengeUpdate);
     };
   }, [userId]);
 
