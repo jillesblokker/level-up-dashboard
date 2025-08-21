@@ -269,6 +269,43 @@ export default function AdminPage() {
       setIsLoading(false);
     }
   };
+  
+  // 🎯 NEW: Auto-sync missing data to localStorage
+  const autoSyncMissingData = async () => {
+    try {
+      console.log('[Admin] Auto-syncing missing data...');
+      
+      // Auto-sync quest completions if missing
+      const localStorageQuests = JSON.parse(localStorage.getItem('questCompletions') || '[]');
+      if (localStorageQuests.length === 0) {
+        console.log('[Admin] Auto-syncing quest completions...');
+        const questResponse = await fetch('/api/quests/simple');
+        if (questResponse.ok) {
+          const questData = await questResponse.json();
+          const completedQuests = questData.completedQuests || [];
+          localStorage.setItem('questCompletions', JSON.stringify(completedQuests));
+          console.log('[Admin] Auto-synced', completedQuests.length, 'quest completions');
+        }
+      }
+      
+      // Auto-sync inventory if missing
+      const localStorageInventory = JSON.parse(localStorage.getItem('inventory') || '[]');
+      if (localStorageInventory.length === 0) {
+        console.log('[Admin] Auto-syncing inventory...');
+        const inventoryResponse = await fetch('/api/inventory');
+        if (inventoryResponse.ok) {
+          const inventoryData = await inventoryResponse.json();
+          const inventoryItems = inventoryData || [];
+          localStorage.setItem('inventory', JSON.stringify(inventoryItems));
+          console.log('[Admin] Auto-synced', inventoryItems.length, 'inventory items');
+        }
+      }
+      
+      console.log('[Admin] Auto-sync complete');
+    } catch (error) {
+      console.error('[Admin] Auto-sync error:', error);
+    }
+  };
 
   useEffect(() => {
     async function loadSupabaseData() {
@@ -325,6 +362,9 @@ export default function AdminPage() {
 
         // Run data comparison automatically
         await compareDataSources();
+        
+        // 🎯 NEW: Auto-sync missing data to localStorage
+        await autoSyncMissingData();
 
       } catch (error) {
         console.error('Error loading Supabase data:', error);
@@ -335,6 +375,13 @@ export default function AdminPage() {
     }
 
     loadSupabaseData();
+    
+    // 🎯 NEW: Set up periodic auto-sync every 5 minutes
+    const autoSyncInterval = setInterval(autoSyncMissingData, 5 * 60 * 1000);
+    
+    return () => {
+      clearInterval(autoSyncInterval);
+    };
   }, [user?.id, supabase]);
 
   // Calculate build status whenever connection statuses change
