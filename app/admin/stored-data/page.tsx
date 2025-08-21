@@ -282,9 +282,13 @@ export default function AdminPage() {
         const questResponse = await fetch('/api/quests/simple');
         if (questResponse.ok) {
           const questData = await questResponse.json();
+          console.log('[Admin] Quest API response:', questData);
           const completedQuests = questData.completedQuests || [];
+          console.log('[Admin] Extracted completedQuests:', completedQuests);
           localStorage.setItem('questCompletions', JSON.stringify(completedQuests));
           console.log('[Admin] Auto-synced', completedQuests.length, 'quest completions');
+        } else {
+          console.error('[Admin] Quest API failed:', questResponse.status);
         }
       }
       
@@ -295,13 +299,23 @@ export default function AdminPage() {
         const inventoryResponse = await fetch('/api/inventory');
         if (inventoryResponse.ok) {
           const inventoryData = await inventoryResponse.json();
+          console.log('[Admin] Inventory API response:', inventoryData);
           const inventoryItems = inventoryData || [];
+          console.log('[Admin] Extracted inventoryItems:', inventoryItems);
           localStorage.setItem('inventory', JSON.stringify(inventoryItems));
           console.log('[Admin] Auto-synced', inventoryItems.length, 'inventory items');
+        } else {
+          console.error('[Admin] Inventory API failed:', inventoryResponse.status);
         }
       }
       
       console.log('[Admin] Auto-sync complete');
+      
+      // Force refresh the data comparison to show updated status
+      setTimeout(async () => {
+        console.log('[Admin] Refreshing data comparison after auto-sync...');
+        await compareDataSources();
+      }, 1000);
     } catch (error) {
       console.error('[Admin] Auto-sync error:', error);
     }
