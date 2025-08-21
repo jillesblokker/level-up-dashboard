@@ -214,7 +214,7 @@ function createEmptyKingdomGrid(): Tile[][] {
     { x: 3, y: 3, type: 'wizard' as TileType },
     { x: 4, y: 3, type: 'mayor' as TileType },
     { x: 5, y: 3, type: 'inn' as TileType },
-    { x: 1, y: 4, type: 'house' as TileType },
+    { x: 1, y: 4, type: 'library' as TileType }, // Fixed: replaced 'house' with 'library'
     { x: 2, y: 4, type: 'mansion' as TileType },
     { x: 3, y: 4, type: 'jousting' as TileType },
     { x: 4, y: 4, type: 'archery' as TileType },
@@ -226,21 +226,25 @@ function createEmptyKingdomGrid(): Tile[][] {
   defaultKingdomTiles.forEach(({ x, y, type }) => {
     const kingdomTile = KINGDOM_TILES.find(kt => kt.id === type);
     if (kingdomTile && grid[y] && grid[y][x]) {
-      grid[y][x] = {
-        id: `${type}-${x}-${y}`,
-        type: type,
-        name: kingdomTile.name,
-        description: kingdomTile.clickMessage,
-        connections: [],
-        rotation: 0 as 0 | 90 | 180 | 270,
-        revealed: true,
-        isVisited: false,
-        x,
-        y,
-        ariaLabel: `${kingdomTile.name} at ${x},${y}`,
-        image: kingdomTile.image,
-      };
-      console.log(`[Kingdom] Added ${type} tile at position (${x}, ${y})`);
+      try {
+        grid[y][x] = {
+          id: `${type}-${x}-${y}`,
+          type: type,
+          name: kingdomTile.name || 'Unknown Tile',
+          description: kingdomTile.clickMessage || 'A mysterious tile in your kingdom.',
+          connections: [],
+          rotation: 0 as 0 | 90 | 180 | 270,
+          revealed: true,
+          isVisited: false,
+          x,
+          y,
+          ariaLabel: `${kingdomTile.name || 'Unknown Tile'} at ${x},${y}`,
+          image: kingdomTile.image || '/images/kingdom-tiles/default.png',
+        };
+        console.log(`[Kingdom] Added ${type} tile at position (${x}, ${y})`);
+      } catch (error) {
+        console.error(`[Kingdom] Error creating tile ${type} at position (${x}, ${y}):`, error);
+      }
     } else {
       console.warn(`[Kingdom] Failed to add ${type} tile at position (${x}, ${y}) - kingdomTile:`, kingdomTile, 'grid[y]:', grid[y], 'grid[y][x]:', grid[y]?.[x]);
     }
