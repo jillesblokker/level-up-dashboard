@@ -8,11 +8,5 @@
       "maxDuration": 30
     }
   },
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    }
-  ],
   "regions": ["iad1"]
 } 
