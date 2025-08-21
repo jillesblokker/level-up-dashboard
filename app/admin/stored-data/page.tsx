@@ -276,8 +276,17 @@ export default function AdminPage() {
       console.log('[Admin] Auto-syncing missing data...');
       
       // Auto-sync quest completions if missing
-      const localStorageQuests = JSON.parse(localStorage.getItem('questCompletions') || '[]');
-      if (localStorageQuests.length === 0) {
+      let localStorageQuests = [];
+      try {
+        const questData = localStorage.getItem('questCompletions');
+        if (questData) {
+          localStorageQuests = JSON.parse(questData);
+        }
+      } catch (error) {
+        console.log('[Admin] localStorage quest data corrupted, will re-sync');
+      }
+      
+      if (!localStorageQuests || localStorageQuests.length === 0) {
         console.log('[Admin] Auto-syncing quest completions...');
         const questResponse = await fetch('/api/quests/simple');
         if (questResponse.ok) {
@@ -293,8 +302,17 @@ export default function AdminPage() {
       }
       
       // Auto-sync inventory if missing
-      const localStorageInventory = JSON.parse(localStorage.getItem('inventory') || '[]');
-      if (localStorageInventory.length === 0) {
+      let localStorageInventory = [];
+      try {
+        const inventoryData = localStorage.getItem('inventory');
+        if (inventoryData) {
+          localStorageInventory = JSON.parse(inventoryData);
+        }
+      } catch (error) {
+        console.log('[Admin] localStorage inventory data corrupted, will re-sync');
+      }
+      
+      if (!localStorageInventory || localStorageInventory.length === 0) {
         console.log('[Admin] Auto-syncing inventory...');
         const inventoryResponse = await fetch('/api/inventory');
         if (inventoryResponse.ok) {
