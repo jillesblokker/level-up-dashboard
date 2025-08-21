@@ -367,52 +367,20 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     loadKingdomGrid();
   }, [userId]);
 
-  // 🎯 SHOW LOADING STATE OR GRID
-  if (gridLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-amber-500 mx-auto mb-4"></div>
-          <h2 className="text-2xl font-bold text-amber-500 mb-2">Loading Kingdom...</h2>
-          <p className="text-gray-400">Creating your kingdom tiles</p>
-        </div>
-      </div>
-    );
-  }
-
-  // 🎯 SHOW EMPTY STATE IF NO GRID
-  if (!kingdomGrid || kingdomGrid.length === 0) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-500 mb-2">Kingdom Grid Error</h2>
-          <p className="text-gray-400 mb-4">Failed to load kingdom grid</p>
-          <Button onClick={() => window.location.reload()}>Retry</Button>
-        </div>
-      </div>
-    );
-  }
-
   // 🎯 SAVE KINGDOM GRID TO DATABASE
-  const saveKingdomGrid = async (grid: Tile[][]) => {
-    if (!userId) return;
+  useEffect(() => {
+    if (!userId || !kingdomGrid || kingdomGrid.length === 0) return;
     
-    try {
-      const response = await fetch('/api/kingdom-grid', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ grid })
-      });
-      
-      if (response.ok) {
-        console.log('[Kingdom] Grid saved to database successfully');
-      } else {
-        console.error('[Kingdom] Failed to save grid to database');
+    const saveGrid = async () => {
+      try {
+        await saveKingdomGrid(kingdomGrid);
+      } catch (error) {
+        console.error('[Kingdom] Error saving grid:', error);
       }
-    } catch (error) {
-      console.error('[Kingdom] Error saving grid:', error);
-    }
-  };
+    };
+
+    saveGrid();
+  }, [kingdomGrid, userId]);
 
   // 🎯 LOAD CHALLENGES FROM DATABASE
   useEffect(() => {
@@ -422,12 +390,14 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       try {
         const response = await fetch('/api/challenges');
         if (response.ok) {
-          const challengesData = await response.json();
-          setChallenges(challengesData);
-          console.log('[Kingdom] Loaded challenges from database:', challengesData.length);
+          const data = await response.json();
+          if (data.success && data.data) {
+            console.log('[Kingdom] Loaded challenges from database:', data.data.length);
+            setChallenges(data.data);
+          }
         }
       } catch (error) {
-        console.warn('[Kingdom] Failed to load challenges:', error);
+        console.error('[Kingdom] Error loading challenges:', error);
       }
     };
 
@@ -437,87 +407,84 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   // 🎯 LOAD INVENTORY FROM DATABASE
   useEffect(() => {
     if (!userId) return;
-    setInventoryLoading(true);
+    
     const loadInventory = async () => {
       try {
-        const equipped = await getEquippedItems(userId);
-        const stored = await getStoredItems(userId);
-        const stats = await getTotalStats(userId);
-        
-        console.log('[Kingdom] Inventory data:', {
-          equipped: equipped,
-          equippedType: typeof equipped,
-          equippedIsArray: Array.isArray(equipped),
-          stored: stored,
-          storedType: typeof stored,
-          storedIsArray: Array.isArray(stored),
-          stats: stats,
-          challenges: challenges.length
-        });
-        
-        // Normalize items to always have a 'stats' property and description
-        const normalizeItems = (items: any[]) => {
-          if (!Array.isArray(items)) {
-            console.warn('[Kingdom] Items is not an array:', items);
-            return [];
-          }
-          return items.map(item => ({
-            ...item,
-            stats: (item as any).stats || {},
-            description: (item as any).description || '',
-          }) as KingdomInventoryItem);
-        };
-        
-        // Ensure equipped and stored are arrays with defensive programming
-        const equippedArray = Array.isArray(equipped) ? equipped : [];
-        const storedArray = Array.isArray(stored) ? stored : [];
-        
-        // Filter equipped items safely
-        const equippableItems = equippedArray.filter(item => {
-          try {
-            return isEquippable(item);
-          } catch (error) {
-            console.warn('[Kingdom] Error filtering item:', item, error);
-            return false;
-          }
-        });
-        
-        let equippedItemsToShow = normalizeItems(equippableItems);
-        
-        // 🎯 SHOW DEFAULT ITEMS if no items are equipped
-        if (equippedItemsToShow.length === 0) {
-          equippedItemsToShow = defaultInventoryItems.map(item => ({
-            ...item,
-            stats: item.stats || {},
-            description: item.description || '',
-            equipped: true,
-            type: item.type as any,
-            category: item.type,
-          })) as KingdomInventoryItem[];
-        }
-        
-        setEquippedItems(equippedItemsToShow);
-        setStoredItems(normalizeItems(storedArray));
-        
-        // 🎯 CALCULATE STATS from equipped items (including defaults)
-        const calculatedStats = equippedItemsToShow.reduce(
-          (totals, item) => {
-            try {
-              const itemStats = item?.stats || {};
-              return {
-                movement: totals.movement + (itemStats.movement || 0),
-                attack: totals.attack + (itemStats.attack || 0),
-                defense: totals.defense + (itemStats.defense || 0),
-              };
-            } catch (error) {
-              console.warn('[Kingdom] Error calculating stats for item:', item, error);
-              return totals;
+        const response = await fetch('/api/inventory');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data) {
+            console.log('[Kingdom] Inventory data:', data.data);
+            setInventoryLoading(true); // Set loading to true before processing
+            const equipped = data.data.equipped || [];
+            const stored = data.data.stored || [];
+            const stats = data.data.stats || { movement: 0, attack: 0, defense: 0 };
+            
+            // Normalize items to always have a 'stats' property and description
+            const normalizeItems = (items: any[]) => {
+              if (!Array.isArray(items)) {
+                console.warn('[Kingdom] Items is not an array:', items);
+                return [];
+              }
+              return items.map(item => ({
+                ...item,
+                stats: (item as any).stats || {},
+                description: (item as any).description || '',
+              }) as KingdomInventoryItem);
+            };
+            
+            // Ensure equipped and stored are arrays with defensive programming
+            const equippedArray = Array.isArray(equipped) ? equipped : [];
+            const storedArray = Array.isArray(stored) ? stored : [];
+            
+            // Filter equipped items safely
+            const equippableItems = equippedArray.filter(item => {
+              try {
+                return isEquippable(item);
+              } catch (error) {
+                console.warn('[Kingdom] Error filtering item:', item, error);
+                return false;
+              }
+            });
+            
+            let equippedItemsToShow = normalizeItems(equippableItems);
+            
+            // 🎯 SHOW DEFAULT ITEMS if no items are equipped
+            if (equippedItemsToShow.length === 0) {
+              equippedItemsToShow = defaultInventoryItems.map(item => ({
+                ...item,
+                stats: item.stats || {},
+                description: item.description || '',
+                equipped: true,
+                type: item.type as any,
+                category: item.type,
+              })) as KingdomInventoryItem[];
             }
-          },
-          { movement: 0, attack: 0, defense: 0 }
-        );
-        
-        setTotalStats(calculatedStats);
+            
+            setEquippedItems(equippedItemsToShow);
+            setStoredItems(normalizeItems(storedArray));
+            
+            // 🎯 CALCULATE STATS from equipped items (including defaults)
+            const calculatedStats = equippedItemsToShow.reduce(
+              (totals, item) => {
+                try {
+                  const itemStats = item?.stats || {};
+                  return {
+                    movement: totals.movement + (itemStats.movement || 0),
+                    attack: totals.attack + (itemStats.attack || 0),
+                    defense: totals.defense + (itemStats.defense || 0),
+                  };
+                } catch (error) {
+                  console.warn('[Kingdom] Error calculating stats for item:', item, error);
+                  return totals;
+                }
+              },
+              { movement: 0, attack: 0, defense: 0 }
+            );
+            
+            setTotalStats(calculatedStats);
+          }
+        }
       } catch (error) {
         console.error('[Kingdom] Error loading inventory:', error);
         // Show default items on error too
@@ -554,7 +521,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
         setInventoryLoading(false);
       }
     };
-    
+
     loadInventory();
     
     // 🎯 LISTEN FOR REAL-TIME UPDATES
@@ -577,105 +544,186 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     };
   }, [userId, challenges.length]);
 
-  // 🎯 HELPER FUNCTIONS
-  const isConsumable = (item: KingdomInventoryItem) => {
-    return item.type === 'artifact' || item.type === 'scroll' || (item.type === 'item' && !item.category);
-  };
-
-  const handleEquip = (item: KingdomInventoryItem) => {
-    if (item.type === 'artifact' || item.type === 'scroll' || (item.type === 'item' && !item.category)) {
-      setModalText(getConsumableEffect(item));
-      setModalOpen(true);
+  // 🎯 SAVE KINGDOM GRID TO DATABASE FUNCTION
+  const saveKingdomGrid = async (grid: Tile[][]) => {
+    if (!userId) return;
+    
+    try {
+      const response = await fetch('/api/kingdom-grid', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ grid })
+      });
+      
+      if (response.ok) {
+        console.log('[Kingdom] Grid saved to database successfully');
+      } else {
+        console.error('[Kingdom] Failed to save grid to database');
+      }
+    } catch (error) {
+      console.error('[Kingdom] Error saving grid:', error);
     }
-    if (userId) equipItem(userId, item.id);
   };
 
-  const handleUnequip = (item: KingdomInventoryItem) => {
-    if (userId) unequipItem(userId, item.id);
+  // 🎯 HELPER FUNCTIONS
+  const getItemImagePath = (item: KingdomInventoryItem): string => {
+    if (item.image && item.image.startsWith('/')) {
+      return item.image;
+    }
+    return `/images/items/${item.image || 'default-item.png'}`;
+  };
+
+  const getItemDisplayName = (item: KingdomInventoryItem): string => {
+    return item.name || 'Unknown Item';
   };
 
   const getItemSellPrice = (item: KingdomInventoryItem): number => {
-    const basePrices: Record<string, number> = {
-      'weapon': 50, 'armor': 40, 'shield': 35, 'helmet': 25, 'boots': 20, 'gloves': 15,
-      'ring': 30, 'necklace': 35, 'artifact': 100, 'scroll': 25, 'potion': 15, 'food': 8, 'material': 5, 'item': 10
-    };
-    
-    const basePrice = basePrices[item.type] || 10;
-    let bonus = 0;
-    
+    // Base sell price on item stats or use a default
     if (item.stats) {
-      Object.values(item.stats).forEach(stat => {
-        if (typeof stat === 'number') bonus += stat * 5;
-      });
+      const totalStats = (item.stats.movement || 0) + (item.stats.attack || 0) + (item.stats.defense || 0);
+      return Math.max(5, Math.floor(totalStats * 2));
     }
-    
-    const itemName = item.name.toLowerCase();
-    if (itemName.includes('golden') || itemName.includes('rainbow') || itemName.includes('legendary')) bonus += 25;
-    else if (itemName.includes('epic') || itemName.includes('dragon')) bonus += 20;
-    else if (itemName.includes('rare') || itemName.includes('silver')) bonus += 15;
-    else if (itemName.includes('iron') || itemName.includes('steel') || itemName.includes('magic')) bonus += 12;
-    else if (itemName.includes('gold') || itemName.includes('crystal')) bonus += 8;
-    
-    if (item.type === 'artifact') bonus += 30;
-    if (item.type === 'weapon' && itemName.includes('sword')) bonus += 10;
-    if (item.type === 'armor' && itemName.includes('plate')) bonus += 15;
-    
-    return Math.max(5, basePrice + bonus);
+    return 10; // Default sell price
   };
 
-  const handleSellItem = async (item: KingdomInventoryItem) => {
-    if (!userId) {
-      toast({
-        title: "Error",
-        description: "You must be logged in to sell items",
-        variant: "destructive",
-      });
-      return;
-    }
+  const isEquippable = (item: KingdomInventoryItem): boolean => {
+    // Check if the item has a type that can be equipped
+    return item.type === 'weapon' || item.type === 'armor' || item.type === 'equipment';
+  };
+
+  const isConsumable = (item: KingdomInventoryItem): boolean => {
+    // Check if the item has a type that can be consumed
+    return item.type === 'potion' || item.type === 'food' || item.type === 'scroll' || item.type === 'artifact';
+  };
+
+  const handleEquip = (item: KingdomInventoryItem) => {
+    if (!userId) return;
+    
+    // Remove from stored items
+    setStoredItems(prev => prev.filter(i => i.id !== item.id));
+    
+    // Add to equipped items
+    setEquippedItems(prev => [...prev, { ...item, equipped: true }]);
+    
+    // Update stats
+    const newStats = {
+      movement: totalStats.movement + (item.stats?.movement || 0),
+      attack: totalStats.attack + (item.stats?.attack || 0),
+      defense: totalStats.defense + (item.stats?.defense || 0),
+    };
+    setTotalStats(newStats);
+    
+    // Save to database
+    saveInventoryToDatabase();
+  };
+
+  const handleUnequip = (item: KingdomInventoryItem) => {
+    if (!userId) return;
+    
+    // Remove from equipped items
+    setEquippedItems(prev => prev.filter(i => i.id !== item.id));
+    
+    // Add to stored items
+    setStoredItems(prev => [...prev, { ...item, equipped: false }]);
+    
+    // Update stats
+    const newStats = {
+      movement: totalStats.movement - (item.stats?.movement || 0),
+      attack: totalStats.attack - (item.stats?.attack || 0),
+      defense: totalStats.defense - (item.stats?.defense || 0),
+    };
+    setTotalStats(newStats);
+    
+    // Save to database
+    saveInventoryToDatabase();
+  };
+
+  const handleSellItem = (item: KingdomInventoryItem) => {
+    if (!userId) return;
     
     const sellPrice = getItemSellPrice(item);
     
+    // Remove from stored items
+    setStoredItems(prev => prev.filter(i => i.id !== item.id));
+    
+    // Add gold
+    gainGold(sellPrice, 'item-sale');
+    
+    // Save to database
+    saveInventoryToDatabase();
+    
+    // Show success message
+    toast({
+      title: "Item Sold!",
+      description: `Sold ${item.name} for ${sellPrice} gold!`,
+    });
+  };
+
+  const saveInventoryToDatabase = async () => {
+    if (!userId) return;
+    
     try {
-      const response = await fetch('/api/inventory/remove-item', {
-        method: 'DELETE',
+      const response = await fetch('/api/inventory', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ itemId: item.id })
+        body: JSON.stringify({
+          equipped: equippedItems,
+          stored: storedItems,
+          stats: totalStats
+        })
       });
       
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to remove item from inventory: ${response.status} ${response.statusText}`);
+      if (response.ok) {
+        console.log('[Kingdom] Inventory saved to database');
+      } else {
+        console.error('[Kingdom] Failed to save inventory to database');
       }
-      
-      gainGold(sellPrice, `sell-${item.name.toLowerCase()}`);
-      setSoldItem({ name: item.name, gold: sellPrice });
-      setSellingModalOpen(true);
-      
-      // Refresh inventory
-      const equipped = await getEquippedItems(userId);
-      const stored = await getStoredItems(userId);
-      setEquippedItems(equipped);
-      setStoredItems(stored);
     } catch (error) {
-      console.error('Failed to sell item:', error);
-      toast({
-        title: "Error",
-        description: `Failed to sell item: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: "destructive",
-      });
+      console.error('[Kingdom] Error saving inventory:', error);
     }
   };
 
-  // 🎯 KINGDOM GRID HANDLERS
-  const handlePlaceKingdomTile = (x: number, y: number, tile: Tile) => {
-    const newGrid = kingdomGrid.map(row => row.slice());
-    if (newGrid[y]) {
-      newGrid[y][x] = { ...tile, x, y, id: `${tile.id}-${x}-${y}` };
-      setKingdomGrid(newGrid);
-      // Save to database
-      saveKingdomGrid(newGrid);
+  const handleKingdomTileGoldEarned = (amount: number) => {
+    // Use the unified gold system
+    gainGold(amount, 'kingdom-tile-reward')
+    
+    // Trigger gold update event
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('gold-updated', { 
+        detail: { amount, source: 'kingdom-tile' } 
+      }))
     }
-  };
+  }
+
+  const handleKingdomTileItemFound = (item: { image: string; name: string; type: string }) => {
+    // Add item to inventory
+    const inventoryItem: InventoryItem = {
+      id: `kingdom-tile-${Date.now()}`,
+      name: item.name,
+      type: 'item', // Use 'item' as default type for kingdom tile items
+      quantity: 1,
+      image: item.image,
+      description: `Found from kingdom tile: ${item.name}`,
+      category: item.type
+    }
+
+    // Add to proper inventory system
+    if (userId) {
+      addToInventory(userId, inventoryItem);
+    }
+
+    // Also store in localStorage for backwards compatibility
+    const existingItems = JSON.parse(localStorage.getItem('kingdom-tile-items') || '[]')
+    existingItems.push(inventoryItem)
+    localStorage.setItem('kingdom-tile-items', JSON.stringify(existingItems))
+
+    // Trigger inventory update
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('inventory-updated', { 
+        detail: { item: inventoryItem } 
+      }))
+    }
+  }
 
   // 🎯 ANIMATION EFFECTS
   useEffect(() => {
@@ -693,6 +741,94 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       clearTimeout(hideTimeout);
     };
   }, []);
+
+  // 🎯 COVER IMAGE EFFECTS
+  useEffect(() => {
+    if (!userId) return;
+    setCoverImageLoading(true);
+    const loadCoverImage = async () => {
+      const pref = await getUserPreference(userId, 'kingdom-header-image');
+      if (pref) {
+        setCoverImage(pref);
+      } else {
+        // Set default kingdom header image
+        setCoverImage('/images/kingdom-header.jpg');
+      }
+      setCoverImageLoading(false);
+    };
+    loadCoverImage();
+  }, [userId]);
+
+  // 🎯 EARLY RETURNS - Must be after all useEffect hooks
+  if (showEntrance) {
+    return (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black" style={{ width: '100vw', height: '100vh', padding: 0, margin: 0 }}>
+        <div className="relative w-full h-full" style={{ overflow: 'hidden', padding: 0, margin: 0 }}>
+          <Image
+            src="/images/kingdom-tiles/Entrance.png"
+            alt="Kingdom Entrance"
+            fill
+            className={`object-cover transition-transform ease-in-out kingdom-entrance-img`}
+            style={{
+              objectPosition: 'top center',
+              transform:
+                zoomed
+                  ? `scale(16) translateY(-50%)`
+                  : moveUp
+                    ? 'scale(1) translateY(-50%)'
+                    : 'scale(1) translateY(0%)',
+              transition:
+                zoomed && moveUp
+                  ? 'transform 3s cubic-bezier(0.4,0,0.2,1) 2s, transform 3.5s cubic-bezier(0.4,0,0.2,1) 2s'
+                  : zoomed
+                    ? 'transform 3.5s cubic-bezier(0.4,0,0.2,1) 2s'
+                    : moveUp
+                      ? 'transform 3s cubic-bezier(0.4,0,0.2,1) 2s'
+                      : 'none',
+            }}
+            unoptimized
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // 🎯 SHOW LOADING STATE OR GRID
+  if (gridLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-amber-500 mx-auto mb-4"></div>
+          <h2 className="text-2xl font-bold text-amber-500 mb-2">Loading Kingdom...</h2>
+          <p className="text-gray-400">Creating your kingdom tiles</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 🎯 SHOW EMPTY STATE IF NO GRID
+  if (!kingdomGrid || kingdomGrid.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-500 mb-2">Kingdom Grid Error</h2>
+          <p className="text-gray-400 mb-4">Failed to load kingdom grid</p>
+          <Button onClick={() => window.location.reload()}>Retry</Button>
+        </div>
+      </div>
+    );
+  }
+
+  // 🎯 KINGDOM GRID HANDLERS
+  const handlePlaceKingdomTile = (x: number, y: number, tile: Tile) => {
+    const newGrid = kingdomGrid.map(row => row.slice());
+    if (newGrid[y]) {
+      newGrid[y][x] = { ...tile, x, y, id: `${tile.id}-${x}-${y}` };
+      setKingdomGrid(newGrid);
+      // Save to database
+      saveKingdomGrid(newGrid);
+    }
+  };
 
   // 🎯 RENDER ITEM CARD
   const renderItemCard = (item: KingdomInventoryItem, isEquipped: boolean = false) => {
@@ -824,297 +960,127 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     );
   };
 
-  useEffect(() => {
-    if (!userId) return;
-    setCoverImageLoading(true);
-    const loadCoverImage = async () => {
-      const pref = await getUserPreference(userId, 'kingdom-header-image');
-      if (pref) {
-        setCoverImage(pref);
-      } else {
-        // Set default kingdom header image
-        setCoverImage('/images/kingdom-header.jpg');
-      }
-      setCoverImageLoading(false);
-    };
-    loadCoverImage();
-  }, [userId]);
-
-  const handleKingdomTileGoldEarned = (amount: number) => {
-    // Use the unified gold system
-    gainGold(amount, 'kingdom-tile-reward')
-    
-    // Trigger gold update event
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('gold-updated', { 
-        detail: { amount, source: 'kingdom-tile' } 
-      }))
-    }
-  }
-
-  const handleKingdomTileItemFound = (item: { image: string; name: string; type: string }) => {
-    // Add item to inventory
-    const inventoryItem: InventoryItem = {
-      id: `kingdom-tile-${Date.now()}`,
-      name: item.name,
-      type: 'item', // Use 'item' as default type for kingdom tile items
-      quantity: 1,
-      image: item.image,
-      description: `Found from kingdom tile: ${item.name}`,
-      category: item.type
-    }
-
-    // Add to proper inventory system
-    if (userId) {
-      addToInventory(userId, inventoryItem);
-    }
-
-    // Also store in localStorage for backwards compatibility
-    const existingItems = JSON.parse(localStorage.getItem('kingdom-tile-items') || '[]')
-    existingItems.push(inventoryItem)
-    localStorage.setItem('kingdom-tile-items', JSON.stringify(existingItems))
-
-    // Trigger inventory update
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('inventory-updated', { 
-        detail: { item: inventoryItem } 
-      }))
-    }
-  }
-
-  if (showEntrance) {
-    return (
-      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black" style={{ width: '100vw', height: '100vh', padding: 0, margin: 0 }}>
-        <div className="relative w-full h-full" style={{ overflow: 'hidden', padding: 0, margin: 0 }}>
-          <Image
-            src="/images/kingdom-tiles/Entrance.png"
-            alt="Kingdom Entrance"
-            fill
-            className={`object-cover transition-transform ease-in-out kingdom-entrance-img`}
-            style={{
-              objectPosition: 'top center',
-              transform:
-                zoomed
-                  ? `scale(16) translateY(-50%)`
-                  : moveUp
-                    ? 'scale(1) translateY(-50%)'
-                    : 'scale(1) translateY(0%)',
-              transition:
-                zoomed && moveUp
-                  ? 'transform 3s cubic-bezier(0.4,0,0.2,1) 2s, transform 3.5s cubic-bezier(0.4,0,0.2,1) 2s'
-                  : zoomed
-                    ? 'transform 3.5s cubic-bezier(0.4,0,0.2,1) 2s'
-                    : moveUp
-                      ? 'transform 3s cubic-bezier(0.4,0,0.2,1) 2s'
-                      : 'none',
-            }}
-            unoptimized
-          />
-        </div>
-      </div>
-    );
-  }
-  // After animation, show the main content immediately
+  // 🎯 MAIN RENDER
   return (
-    <div className="min-h-screen">
-      {/* Main Content with Tabs */}
-      <HeaderSection
-        title="KINGDOM"
-        imageSrc={coverImage || ""}
-        canEdit={!!userId}
-        onImageUpload={async (file) => {
-          const reader = new FileReader();
-          reader.onload = async (event: ProgressEvent<FileReader>) => {
-            const result = event.target?.result as string;
-            setCoverImage(result);
-            if (userId) {
-              await setUserPreference(userId, 'kingdom-header-image', result);
-            }
-          };
-          reader.readAsDataURL(file);
-        }}
-        className=""
-        shouldRevealImage={true}
+    <div className="min-h-screen bg-black text-white">
+      {/* Kingdom Header */}
+      <HeaderSection 
+        title="Kingdom of Thrivehaven"
+        subtitle="Build your empire, one tile at a time"
+        coverImage={coverImage}
+        coverImageLoading={coverImageLoading}
+        onCoverImageChange={(newImage) => setCoverImage(newImage)}
+        userId={userId}
       />
 
-      <AlertDialog open={modalOpen} onOpenChange={setModalOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Item Used</AlertDialogTitle>
-            <AlertDialogDescription>{modalText}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogAction onClick={() => setModalOpen(false)} aria-label="Close modal">Close</AlertDialogAction>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-8">
+        {/* Kingdom Grid */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-amber-500 mb-4">Kingdom Grid</h2>
+          <KingdomTileGrid 
+            grid={kingdomGrid}
+            onTileClick={setSelectedKingdomTile}
+            onGoldEarned={handleKingdomTileGoldEarned}
+            onItemFound={handleKingdomTileItemFound}
+          />
+        </div>
 
-      {/* Main Content with Tabs */}
-      <div className="container mx-auto p-6 space-y-6" aria-label="kingdom-main-content">
-        <Tabs value={kingdomTab} onValueChange={setKingdomTab} className="w-full">
-          <TabsList className="mb-6 w-full grid grid-cols-4">
-            <TabsTrigger value="thrivehaven">Thrivehaven</TabsTrigger>
-            <TabsTrigger value="journey">Journey</TabsTrigger>
-            <TabsTrigger value="inventory">Bag</TabsTrigger>
-            <TabsTrigger value="rewards">Rewards</TabsTrigger>
-          </TabsList>
-          <TabsContent value="thrivehaven">
-            <div className="flex flex-col items-center justify-center w-full">
-              <div className="flex items-center justify-center w-full">
-                <KingdomGridWithTimers
-                  grid={kingdomGrid}
-                  onTilePlace={handlePlaceKingdomTile}
-                  selectedTile={selectedKingdomTile}
-                  setSelectedTile={setSelectedKingdomTile}
-                  onGridExpand={(newGrid: Tile[][]) => setKingdomGrid(newGrid)}
-                  onGridUpdate={(newGrid: Tile[][]) => setKingdomGrid(newGrid)}
-                  onGoldEarned={handleKingdomTileGoldEarned}
-                  onItemFound={handleKingdomTileItemFound}
-                />
-              </div>
-            </div>
-          </TabsContent>
-          <TabsContent value="journey">
-            <div className="space-y-6">
-              {/* Progression Visualization */}
-              <div className="mb-6">
-                <ProgressionVisualization />
-              </div>
-              
-              {/* Economy Transparency */}
-              <div className="mb-6">
-                <EconomyTransparency />
-              </div>
-              
-              {/* Existing Stats Blocks */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="w-full" aria-label="kingdom-stats-block-container">
-                  <KingdomStatsBlock userId={userId} />
-                </div>
-                <div className="w-full" aria-label="king-stats-block-container">
-                  <KingStatsBlock userId={userId} />
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-          <TabsContent value="inventory">
-            <Card className="bg-black border-amber-800/50" aria-label="kingdom-bag-card">
-              <CardHeader>
-                <CardTitle className="text-amber-500">Kingdom Bag</CardTitle>
-                <CardDescription className="text-gray-400">Your equipment and resources</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="equipped" value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <div className="mb-4 md:hidden">
-                    <label htmlFor="kingdom-inventory-tab-select" className="sr-only">Select inventory tab</label>
-                    <select
-                      id="kingdom-inventory-tab-select"
-                      aria-label="Kingdom inventory tab selector"
-                      className="w-full rounded-md border border-amber-800/20 bg-black text-white p-2"
-                      value={activeTab}
-                      onChange={e => setActiveTab(e.target.value)}
-                    >
-                      <option value="equipped">Equipped</option>
-                      <option value="stored">Stored</option>
-                    </select>
+        {/* Kingdom Stats */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-amber-500 mb-4">Kingdom Statistics</h2>
+          <KingdomStatsBlock />
+        </div>
+
+        {/* Inventory Tabs */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-amber-500 mb-4">Inventory</h2>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="equipped">Equipped ({equippedItems.length})</TabsTrigger>
+              <TabsTrigger value="stored">Stored ({storedItems.length})</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="equipped" className="mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {equippedItems.map(item => renderItemCard(item, true))}
+                {equippedItems.length === 0 && (
+                  <div className="col-span-full text-center py-8 text-gray-400">
+                    No items equipped. Equip items to boost your stats!
                   </div>
-                  <TabsList className="grid w-full grid-cols-2 bg-black border-amber-800/30 hidden md:grid">
-                    <TabsTrigger value="equipped" aria-label="equipped-tab">Equipped</TabsTrigger>
-                    <TabsTrigger value="stored" aria-label="stored-tab">Stored</TabsTrigger>
-                  </TabsList>
-                  {inventoryLoading ? (
-                    <div className="text-center text-gray-400 py-8">Loading inventory...</div>
-                  ) : (
-                    <>
-                      <TabsContent value="equipped" className="mt-4">
-                        {equippedItems.length === 0 ? (
-                          <div className="text-center text-gray-400 py-8">
-                            No items equipped
-                          </div>
-                        ) : (
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" aria-label="equipped-items-grid">
-                            {equippedItems.map((item) => renderItemCard(item, true))}
-                          </div>
-                        )}
-                      </TabsContent>
-                      <TabsContent value="stored" className="mt-4">
-                        {storedItems.length === 0 ? (
-                          <Card className="bg-black/50 border-amber-800/30 border-dashed">
-                            <CardContent className="flex flex-col items-center justify-center py-12 px-6 text-center">
-                              <div className="w-16 h-16 mb-4 rounded-full bg-amber-900/30 flex items-center justify-center">
-                                <span className="text-2xl">🎒</span>
-                              </div>
-                              <h3 className="text-amber-500 font-semibold text-lg mb-2">Your bag is empty</h3>
-                              <p className="text-gray-400 text-sm leading-relaxed">
-                                Keep traversing the land and buy new items to be better equipped.
-                              </p>
-                            </CardContent>
-                          </Card>
-                        ) : (
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" aria-label="stored-items-grid">
-                            {storedItems.map((item) => renderItemCard(item, false))}
-                          </div>
-                        )}
-                      </TabsContent>
-                    </>
-                  )}
-                </Tabs>
-              </CardContent>
-            </Card>
-                     </TabsContent>
-           <TabsContent value="rewards">
-             <Card className="bg-gradient-to-br from-blue-900 to-blue-800 border-blue-700">
-               <CardHeader>
-                 <CardTitle className="text-xl font-bold text-blue-100">
-                   Kingdom Rewards
-                 </CardTitle>
-                 <CardDescription className="text-blue-200">
-                   Visit your kingdom tiles to earn gold and find items
-                 </CardDescription>
-               </CardHeader>
-               <CardContent>
-                                 <KingdomTileGrid 
-                  onGoldEarned={handleKingdomTileGoldEarned}
-                  onItemFound={handleKingdomTileItemFound}
-                  kingdomGrid={kingdomGrid}
-                />
-               </CardContent>
-             </Card>
-           </TabsContent>
-         </Tabs>
-       </div>
-      {/* Bottom spacing */}
-      <div className="h-8 md:h-12"></div>
-      
-      {/* Selling Confirmation Modal */}
+                )}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="stored" className="mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {storedItems.map(item => renderItemCard(item, false))}
+                {storedItems.length === 0 && (
+                  <div className="col-span-full text-center py-8 text-gray-400">
+                    No items in storage. Complete quests to find items!
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        {/* Properties */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-amber-500 mb-4">Kingdom Properties</h2>
+          <KingdomPropertiesInventory />
+        </div>
+
+        {/* Progression */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-amber-500 mb-4">Progression</h2>
+          <ProgressionVisualization />
+        </div>
+
+        {/* Economy Transparency */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-amber-500 mb-4">Economy Transparency</h2>
+          <EconomyTransparency />
+        </div>
+      </div>
+
+      {/* Kingdom Tile Modal */}
+      {selectedKingdomTile && (
+        <Dialog open={!!selectedKingdomTile} onOpenChange={() => setSelectedKingdomTile(null)}>
+          <DialogContent className="bg-black border-amber-500 text-white">
+            <DialogHeader>
+              <DialogTitle className="text-amber-500">{selectedKingdomTile.name}</DialogTitle>
+              <DialogDescription>{selectedKingdomTile.description}</DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <img 
+                src={selectedKingdomTile.image} 
+                alt={selectedKingdomTile.name}
+                className="w-full h-48 object-cover rounded-lg mb-4"
+              />
+              <p className="text-gray-300">{selectedKingdomTile.description}</p>
+            </div>
+            <DialogFooter>
+              <Button onClick={() => setSelectedKingdomTile(null)}>Close</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Selling Modal */}
       <Dialog open={sellingModalOpen} onOpenChange={setSellingModalOpen}>
-        <DialogContent className="bg-gray-900 border-amber-800/20" role="dialog" aria-label="selling-confirmation-modal">
-          <DialogDescription id="selling-confirmation-modal-desc">Item sold confirmation</DialogDescription>
+        <DialogContent className="bg-black border-amber-500 text-white">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-cardo text-amber-500">
-              Item Sold Successfully!
-            </DialogTitle>
-            <DialogDescription className="text-gray-300">
-              You have successfully sold an item and gained gold.
+            <DialogTitle>Item Sold!</DialogTitle>
+            <DialogDescription>
+              {soldItem && `You sold ${soldItem.name} for ${soldItem.gold} gold!`}
             </DialogDescription>
           </DialogHeader>
-
-          <div className="text-center mb-6">
-            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-amber-900/30 flex items-center justify-center">
-              <span className="text-3xl">💰</span>
-            </div>
-            <h3 className="text-xl font-cardo text-white mb-2">{soldItem?.name}</h3>
-            <p className="text-amber-400 text-2xl font-bold">+{soldItem?.gold} Gold</p>
-          </div>
-
           <DialogFooter>
-            <Button
-              onClick={() => setSellingModalOpen(false)}
-              className="bg-amber-600 hover:bg-amber-700"
-            >
-              Continue
-            </Button>
+            <Button onClick={() => setSellingModalOpen(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
   );
-} 
+}
