@@ -293,7 +293,15 @@ export default function AdminPage() {
         if (questResponse.ok) {
           const questData = await questResponse.json();
           console.log('[Admin] Quest API response:', questData);
-          const completedQuests = questData.completedQuests || [];
+          
+          // 🎯 FIX: The API returns completedQuests as a count, not an array
+          // We need to create an array with the count for comparison
+          const completedQuests = Array.from({ length: questData.completedQuests || 0 }, (_, i) => ({
+            id: `quest-${i + 1}`,
+            completed: true,
+            count: questData.completedQuests
+          }));
+          
           console.log('[Admin] Extracted completedQuests:', completedQuests);
           localStorage.setItem('questCompletions', JSON.stringify(completedQuests));
           console.log('[Admin] Auto-synced', completedQuests.length, 'quest completions');
@@ -347,14 +355,23 @@ export default function AdminPage() {
       setIsLoading(true);
       console.log('[Admin] Force syncing all data...');
       
-      // Force sync quest completions
-      const questResponse = await fetch('/api/quests/simple');
-      if (questResponse.ok) {
-        const questData = await questResponse.json();
-        const completedQuests = questData.completedQuests || [];
-        localStorage.setItem('questCompletions', JSON.stringify(completedQuests));
-        console.log('[Admin] Force synced', completedQuests.length, 'quest completions');
-      }
+              // Force sync quest completions
+        const questResponse = await fetch('/api/quests/simple');
+        if (questResponse.ok) {
+          const questData = await questResponse.json();
+          console.log('[Admin] Quest API response for force sync:', questData);
+          
+          // 🎯 FIX: The API returns completedQuests as a count, not an array
+          // We need to create an array with the count for comparison
+          const completedQuests = Array.from({ length: questData.completedQuests || 0 }, (_, i) => ({
+            id: `quest-${i + 1}`,
+            completed: true,
+            count: questData.completedQuests
+          }));
+          
+          localStorage.setItem('questCompletions', JSON.stringify(completedQuests));
+          console.log('[Admin] Force synced', completedQuests.length, 'quest completions');
+        }
       
       // Force sync inventory
       const inventoryResponse = await fetch('/api/inventory');
