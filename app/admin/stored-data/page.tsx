@@ -319,7 +319,8 @@ export default function AdminPage() {
         if (inventoryResponse.ok) {
           const inventoryData = await inventoryResponse.json();
           console.log('[Admin] Inventory API response:', inventoryData);
-          const inventoryItems = inventoryData || [];
+          // 🎯 FIX: Extract the data array, not the whole response
+          const inventoryItems = inventoryData.data || inventoryData || [];
           console.log('[Admin] Extracted inventoryItems:', inventoryItems);
           localStorage.setItem('inventory', JSON.stringify(inventoryItems));
           console.log('[Admin] Auto-synced', inventoryItems.length, 'inventory items');
@@ -359,7 +360,8 @@ export default function AdminPage() {
       const inventoryResponse = await fetch('/api/inventory');
       if (inventoryResponse.ok) {
         const inventoryData = await inventoryResponse.json();
-        const inventoryItems = inventoryData || [];
+        // 🎯 FIX: Extract the data array, not the whole response
+        const inventoryItems = inventoryData.data || inventoryData || [];
         localStorage.setItem('inventory', JSON.stringify(inventoryItems));
         console.log('[Admin] Force synced', inventoryItems.length, 'inventory items');
       }
@@ -1679,117 +1681,120 @@ TECHNICAL DETAILS:
                 This helps identify why kingdom stats might be missing data points
               </p>
               <div className="flex gap-2">
-                <Button 
-                  onClick={compareDataSources} 
-                  disabled={isComparingData}
-                  variant="outline"
-                  size="sm"
-                >
-                  {isComparingData ? "Comparing..." : "Compare Data Sources"}
-                </Button>
-                <Button 
-                  onClick={syncDataToLocalStorage} 
-                  disabled={isLoading}
-                  variant="default"
-                  size="sm"
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  {isLoading ? "Syncing..." : "🔄 Sync to localStorage"}
-                </Button>
-                <Button 
-                  onClick={handleDebugQuestCompletions} 
-                  variant="outline"
-                  size="sm"
-                >
-                  Debug Quests
-                </Button>
-                <Button 
-                  onClick={handleTestQuestMatching} 
-                  variant="outline"
-                  size="sm"
-                >
-                  Test Matching
-                </Button>
+                {/* 🧪 Testing Dropdown - All functions consolidated here */}
+                <div className="relative">
+                  <Button
+                    onClick={() => setShowTestingDropdown(!showTestingDropdown)}
+                    disabled={isLoading}
+                    variant="outline"
+                    size="sm"
+                    className="bg-purple-600 hover:bg-purple-700 text-white"
+                  >
+                    🧪 Testing Options ▼
+                  </Button>
+                  
+                  {showTestingDropdown && (
+                    <div className="absolute top-full left-0 mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-lg z-50 min-w-[250px]">
+                      <div className="p-2">
+                        <div className="text-sm text-gray-300 mb-2 font-semibold">Testing & Debug Options</div>
+                        
+                        <Button
+                          onClick={compareDataSources}
+                          disabled={isComparingData}
+                          className="w-full mb-2 bg-blue-600 hover:bg-blue-700 text-sm"
+                        >
+                          {isComparingData ? "Comparing..." : "📊 Compare Data Sources"}
+                        </Button>
+                        
+                        <Button
+                          onClick={syncDataToLocalStorage}
+                          disabled={isLoading}
+                          className="w-full mb-2 bg-blue-600 hover:bg-blue-700 text-sm"
+                        >
+                          {isLoading ? "Syncing..." : "🔄 Sync to localStorage"}
+                        </Button>
+                        
+                        <Button
+                          onClick={forceSyncAllData}
+                          disabled={isLoading}
+                          className="w-full mb-2 bg-green-600 hover:bg-green-700 text-sm"
+                        >
+                          🚀 Force Sync All Data
+                        </Button>
+                        
+                        <Button
+                          onClick={clearAllLocalStorage}
+                          disabled={isLoading}
+                          className="w-full mb-2 bg-red-600 hover:bg-red-700 text-sm"
+                        >
+                          🗑️ Clear All localStorage
+                        </Button>
+                        
+                        <Button
+                          onClick={debugLocalStorage}
+                          disabled={isLoading}
+                          className="w-full mb-2 bg-yellow-600 hover:bg-yellow-700 text-sm"
+                        >
+                          🔍 Debug localStorage
+                        </Button>
+                        
+                        <Button
+                          onClick={testIndividualAPIs}
+                          disabled={isLoading}
+                          className="w-full mb-2 bg-indigo-600 hover:bg-indigo-700 text-sm"
+                        >
+                          📡 Test Individual APIs
+                        </Button>
+                        
+                        <Button
+                          onClick={handleDebugQuestCompletions}
+                          variant="outline"
+                          size="sm"
+                          className="w-full mb-2 bg-orange-600 hover:bg-orange-700 text-sm"
+                        >
+                          🎯 Debug Quests
+                        </Button>
+                        
+                        <Button
+                          onClick={handleTestQuestMatching}
+                          variant="outline"
+                          size="sm"
+                          className="w-full mb-2 bg-orange-600 hover:bg-orange-700 text-sm"
+                        >
+                          🎯 Test Matching
+                        </Button>
+                        
                         <Button 
-          onClick={async () => {
-            try {
-              console.log('=== TESTING WORKING SIMPLE QUEST API ===');
-              const response = await fetch('/api/quests/simple', {
-                credentials: 'include'
-              });
-              if (response.ok) {
-                const data = await response.json();
-                console.log('✅ Simple Quest API Response:', data);
-                console.log('✅ Completed Quests:', data.completedQuests);
-                console.log('✅ Incomplete Quests:', data.incompleteQuests);
-                console.log('✅ Total Completions:', data.completionsCount);
-                console.log('✅ Total Challenges:', data.challengesCount);
-              } else {
-                console.error('❌ Simple Quest API failed:', response.status, response.statusText);
-              }
-            } catch (error) {
-              console.error('❌ Simple Quest API error:', error);
-            }
-          }}
-          variant="outline"
-          size="sm"
-          className="bg-green-600 hover:bg-green-700 text-white"
-        >
-          Test Working Simple Quest API
-        </Button>
-        
-        {/* 🧪 Testing Dropdown */}
-        <div className="relative">
-          <Button
-            onClick={() => setShowTestingDropdown(!showTestingDropdown)}
-            disabled={isLoading}
-            variant="outline"
-            size="sm"
-            className="bg-purple-600 hover:bg-purple-700 text-white"
-          >
-            🧪 Testing Options ▼
-          </Button>
-          
-          {showTestingDropdown && (
-            <div className="absolute top-full left-0 mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-lg z-50 min-w-[200px]">
-              <div className="p-2">
-                <div className="text-sm text-gray-300 mb-2 font-semibold">Testing & Debug Options</div>
-                
-                <Button
-                  onClick={forceSyncAllData}
-                  disabled={isLoading}
-                  className="w-full mb-2 bg-green-600 hover:bg-green-700 text-sm"
-                >
-                  🚀 Force Sync All Data
-                </Button>
-                
-                <Button
-                  onClick={clearAllLocalStorage}
-                  disabled={isLoading}
-                  className="w-full mb-2 bg-red-600 hover:bg-red-700 text-sm"
-                >
-                  🗑️ Clear All localStorage
-                </Button>
-                
-                <Button
-                  onClick={debugLocalStorage}
-                  disabled={isLoading}
-                  className="w-full mb-2 bg-yellow-600 hover:bg-yellow-700 text-sm"
-                >
-                  🔍 Debug localStorage
-                </Button>
-                
-                <Button
-                  onClick={testIndividualAPIs}
-                  disabled={isLoading}
-                  className="w-full mb-2 bg-indigo-600 hover:bg-indigo-700 text-sm"
-                >
-                  📡 Test Individual APIs
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
+                          onClick={async () => {
+                            try {
+                              console.log('=== TESTING WORKING SIMPLE QUEST API ===');
+                              const response = await fetch('/api/quests/simple', {
+                                credentials: 'include'
+                              });
+                              if (response.ok) {
+                                const data = await response.json();
+                                console.log('✅ Simple Quest API Response:', data);
+                                console.log('✅ Completed Quests:', data.completedQuests);
+                                console.log('✅ Incomplete Quests:', data.incompleteQuests);
+                                console.log('✅ Total Completions:', data.completionsCount);
+                                console.log('✅ Total Challenges:', data.challengesCount);
+                              } else {
+                                console.error('❌ Simple Quest API failed:', response.status, response.statusText);
+                              }
+                            } catch (error) {
+                              console.error('❌ Simple Quest API error:', error);
+                            }
+                          }}
+                          variant="outline"
+                          size="sm"
+                          className="w-full mb-2 bg-green-600 hover:bg-green-700 text-sm"
+                        >
+                          🧪 Test Simple Quest API
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             
