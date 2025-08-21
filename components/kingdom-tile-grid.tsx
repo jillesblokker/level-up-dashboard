@@ -24,15 +24,32 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
   // Extract placed tiles from kingdom grid and get their timers
   useEffect(() => {
     if (kingdomGrid && kingdomGrid.length > 0) {
+      // Find all non-empty tiles in the kingdom grid
       const placed = KINGDOM_TILES.filter(tile => {
         // Check if this tile type exists anywhere in the kingdom grid
         return kingdomGrid.some(row => 
           row.some(cell => 
-            cell && cell.type && cell.type.toLowerCase() === tile.id
+            cell && cell.type && cell.type !== 'empty' && cell.type.toLowerCase() === tile.id
           )
         )
-      })
-      setPlacedTiles(placed)
+      });
+      
+      // If no tiles are found in the grid, show default tiles
+      if (placed.length === 0) {
+        // Show default kingdom tiles that should always be available
+        const defaultTiles = KINGDOM_TILES.filter(tile => 
+          ['well', 'blacksmith', 'fisherman', 'sawmill', 'windmill', 'grocery', 'castle', 'temple', 'fountain', 'pond', 'foodcourt', 'vegetables', 'wizard', 'mayor', 'inn', 'house', 'mansion', 'jousting', 'archery', 'watchtower'].includes(tile.id)
+        );
+        setPlacedTiles(defaultTiles);
+      } else {
+        setPlacedTiles(placed);
+      }
+    } else {
+      // If no kingdom grid is provided, show default tiles
+      const defaultTiles = KINGDOM_TILES.filter(tile => 
+        ['well', 'blacksmith', 'fisherman', 'sawmill', 'windmill', 'grocery', 'castle', 'temple', 'fountain', 'pond', 'foodcourt', 'vegetables', 'wizard', 'mayor', 'inn', 'house', 'mansion', 'jousting', 'archery', 'watchtower'].includes(tile.id)
+      );
+      setPlacedTiles(defaultTiles);
     }
   }, [kingdomGrid])
 
@@ -86,9 +103,9 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 flex items-center justify-center">
               <Crown className="h-8 w-8 text-amber-600" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">No Kingdom Tiles Placed</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Kingdom Tiles Loading...</h3>
             <p className="text-gray-600 text-sm">
-              Place tiles on your kingdom grid to unlock rewards and start earning gold!
+              Setting up your kingdom tiles. Please wait a moment...
             </p>
           </div>
         </CardContent>
