@@ -337,6 +337,54 @@ export default function AdminPage() {
         }
       }
       
+      // Auto-sync gold transactions if missing or has 0 items
+      let localStorageGold = [];
+      try {
+        const goldData = localStorage.getItem('goldTransactions');
+        if (goldData) {
+          localStorageGold = JSON.parse(goldData);
+        }
+      } catch (error) {
+        console.log('[Admin] localStorage gold data corrupted, will re-sync');
+      }
+      
+      if (!localStorageGold || localStorageGold.length === 0) {
+        console.log('[Admin] Auto-syncing gold transactions...');
+        const goldResponse = await fetch('/api/gold-transactions');
+        if (goldResponse.ok) {
+          const goldData = await goldResponse.json();
+          const goldTransactions = goldData.data || [];
+          localStorage.setItem('goldTransactions', JSON.stringify(goldTransactions));
+          console.log('[Admin] Auto-synced', goldTransactions.length, 'gold transactions');
+        } else {
+          console.error('[Admin] Gold API failed:', goldResponse.status);
+        }
+      }
+      
+      // Auto-sync experience transactions if missing or has 0 items
+      let localStorageExp = [];
+      try {
+        const expData = localStorage.getItem('experienceTransactions');
+        if (expData) {
+          localStorageExp = JSON.parse(expData);
+        }
+      } catch (error) {
+        console.log('[Admin] localStorage experience data corrupted, will re-sync');
+      }
+      
+      if (!localStorageExp || localStorageExp.length === 0) {
+        console.log('[Admin] Auto-syncing experience transactions...');
+        const expResponse = await fetch('/api/experience-transactions');
+        if (expResponse.ok) {
+          const expData = await expResponse.json();
+          const expTransactions = expData.data || [];
+          localStorage.setItem('experienceTransactions', JSON.stringify(expTransactions));
+          console.log('[Admin] Auto-synced', expTransactions.length, 'experience transactions');
+        } else {
+          console.error('[Admin] Experience API failed:', expResponse.status);
+        }
+      }
+      
       console.log('[Admin] Auto-sync complete');
       
       // Force refresh the data comparison to show updated status
