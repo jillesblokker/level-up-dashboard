@@ -287,9 +287,6 @@ function getKingdomTileInventoryWithBuildTokens(): Tile[] {
 }
 
 export function KingdomClient({ userId }: { userId: string | null }) {
-  // Add debugging to see what userId value we're getting
-      // userId received
-  
   const { toast } = useToast();
   const [coverImage, setCoverImage] = useState<string | undefined>(undefined);
   const [equippedItems, setEquippedItems] = useState<KingdomInventoryItem[]>([]);
@@ -299,7 +296,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const [modalText, setModalText] = useState("")
   const [activeTab, setActiveTab] = useState("equipped")
   const [kingdomTab, setKingdomTab] = useState("thrivehaven");
-  const [kingdomGrid, setKingdomGrid] = useState<Tile[][]>(createEmptyKingdomGrid());
+  const [kingdomGrid, setKingdomGrid] = useState<Tile[][]>([]);
   const [selectedKingdomTile, setSelectedKingdomTile] = useState<Tile | null>(null);
   const kingdomTileInventory = getKingdomTileInventoryWithBuildTokens();
   const [propertiesOpen, setPropertiesOpen] = useState(false);
@@ -313,122 +310,238 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const [sellingModalOpen, setSellingModalOpen] = useState(false);
   const [soldItem, setSoldItem] = useState<{ name: string; gold: number } | null>(null);
   const [challenges, setChallenges] = useState<any[]>([]);
+  const [gridLoading, setGridLoading] = useState(true);
 
-  // Debug: Log kingdom tiles configuration
+  // 🎯 LOAD KINGDOM GRID FROM DATABASE
   useEffect(() => {
-    // Removed debugging logs
-  }, [kingdomTileInventory]);
-
-  // Initialize timers for default kingdom tiles (only if they don't exist)
-  useEffect(() => {
-    console.log('[Kingdom] Initializing kingdom grid and timers...');
+    if (!userId) return;
     
-    // Check if timers already exist
-    const existingTimers = localStorage.getItem('kingdom-tile-timers');
-    
-    if (!existingTimers) {
-      console.log('[Kingdom] Creating default timers...');
-      
-      const defaultTimers = [
-        { x: 1, y: 1, tileId: 'well', endTime: Date.now() + (10 * 60 * 1000), isReady: false }, // 10 min
-        { x: 2, y: 1, tileId: 'blacksmith', endTime: Date.now() + (30 * 60 * 1000), isReady: false }, // 30 min
-        { x: 3, y: 1, tileId: 'fisherman', endTime: Date.now() + (15 * 60 * 1000), isReady: false }, // 15 min
-        { x: 4, y: 1, tileId: 'sawmill', endTime: Date.now() + (45 * 60 * 1000), isReady: false }, // 45 min
-        { x: 5, y: 1, tileId: 'windmill', endTime: Date.now() + (20 * 60 * 1000), isReady: false }, // 20 min
-        { x: 1, y: 2, tileId: 'grocery', endTime: Date.now() + (5 * 60 * 1000), isReady: false }, // 5 min
-        { x: 2, y: 2, tileId: 'castle', endTime: Date.now() + (480 * 60 * 1000), isReady: false }, // 8 hours (legendary)
-        { x: 3, y: 2, tileId: 'temple', endTime: Date.now() + (60 * 60 * 1000), isReady: false }, // 1 hour
-        { x: 4, y: 2, tileId: 'fountain', endTime: Date.now() + (25 * 60 * 1000), isReady: false }, // 25 min
-        { x: 5, y: 2, tileId: 'pond', endTime: Date.now() + (12 * 60 * 1000), isReady: false }, // 12 min
-        { x: 1, y: 3, tileId: 'foodcourt', endTime: Date.now() + (8 * 60 * 1000), isReady: false }, // 8 min
-        { x: 2, y: 3, tileId: 'vegetables', endTime: Date.now() + (35 * 60 * 1000), isReady: false }, // 35 min
-        { x: 3, y: 3, tileId: 'wizard', endTime: Date.now() + (90 * 60 * 1000), isReady: false }, // 1.5 hours
-        { x: 4, y: 3, tileId: 'mayor', endTime: Date.now() + (75 * 60 * 1000), isReady: false }, // 1.25 hours
-        { x: 5, y: 3, tileId: 'inn', endTime: Date.now() + (18 * 60 * 1000), isReady: false }, // 18 min
-        { x: 1, y: 4, tileId: 'library', endTime: Date.now() + (22 * 60 * 1000), isReady: false }, // 22 min - FIXED: was 'house'
-        { x: 2, y: 4, tileId: 'mansion', endTime: Date.now() + (120 * 60 * 1000), isReady: false }, // 2 hours
-        { x: 3, y: 4, tileId: 'jousting', endTime: Date.now() + (150 * 60 * 1000), isReady: false }, // 2.5 hours
-        { x: 4, y: 4, tileId: 'archery', endTime: Date.now() + (28 * 60 * 1000), isReady: false }, // 28 min
-        { x: 5, y: 4, tileId: 'watchtower', endTime: Date.now() + (65 * 60 * 1000), isReady: false }, // 1.1 hours
-      ];
-      
-      // Save default timers
-      localStorage.setItem('kingdom-tile-timers', JSON.stringify(defaultTimers));
-      console.log('[Kingdom] Default timers created and saved');
-    } else {
-      console.log('[Kingdom] Using existing timers from localStorage');
-    }
-    
-    // Load kingdom grid (preserve existing if available)
-    const existingGrid = localStorage.getItem('kingdom-grid');
-    if (existingGrid) {
+    const loadKingdomGrid = async () => {
       try {
-        console.log('[Kingdom] Loading existing grid from localStorage...');
-        const parsedGrid = JSON.parse(existingGrid);
-        console.log('[Kingdom] Existing grid loaded:', {
-          gridLength: parsedGrid.length,
-          hasTiles: parsedGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty'))
-        });
-        setKingdomGrid(parsedGrid);
+        setGridLoading(true);
+        const response = await fetch('/api/kingdom-grid');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data && data.data.grid) {
+            console.log('[Kingdom] Loaded grid from database:', data.data.grid.length);
+            setKingdomGrid(data.data.grid);
+          } else {
+            // No grid exists, create default one
+            console.log('[Kingdom] No grid in database, creating default...');
+            const defaultGrid = createEmptyKingdomGrid();
+            setKingdomGrid(defaultGrid);
+            // Save to database
+            await saveKingdomGrid(defaultGrid);
+          }
+        } else {
+          console.warn('[Kingdom] Failed to load grid, creating default...');
+          const defaultGrid = createEmptyKingdomGrid();
+          setKingdomGrid(defaultGrid);
+          await saveKingdomGrid(defaultGrid);
+        }
       } catch (error) {
-        console.warn('[Kingdom] Failed to parse existing grid, creating new one:', error);
-        const newGrid = createEmptyKingdomGrid();
-        console.log('[Kingdom] Created new grid:', {
-          gridLength: newGrid.length,
-          hasTiles: newGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty'))
-        });
-        setKingdomGrid(newGrid);
+        console.error('[Kingdom] Error loading grid:', error);
+        // Fallback to default grid
+        const defaultGrid = createEmptyKingdomGrid();
+        setKingdomGrid(defaultGrid);
+      } finally {
+        setGridLoading(false);
       }
-    } else {
-      console.log('[Kingdom] No existing grid found, creating new one...');
-      const newGrid = createEmptyKingdomGrid();
-      console.log('[Kingdom] Created new grid:', {
-        gridLength: newGrid.length,
-        hasTiles: newGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty'))
+    };
+
+    loadKingdomGrid();
+  }, [userId]);
+
+  // 🎯 SAVE KINGDOM GRID TO DATABASE
+  const saveKingdomGrid = async (grid: Tile[][]) => {
+    if (!userId) return;
+    
+    try {
+      const response = await fetch('/api/kingdom-grid', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ grid })
       });
-      setKingdomGrid(newGrid);
+      
+      if (response.ok) {
+        console.log('[Kingdom] Grid saved to database successfully');
+      } else {
+        console.error('[Kingdom] Failed to save grid to database');
+      }
+    } catch (error) {
+      console.error('[Kingdom] Error saving grid:', error);
     }
-  }, []);
+  };
 
-  // Load timers from localStorage to sync with kingdom grid
+  // 🎯 LOAD CHALLENGES FROM DATABASE
   useEffect(() => {
-    const savedTimers = localStorage.getItem('kingdom-tile-timers')
-    if (savedTimers) {
-      const timers = JSON.parse(savedTimers)
-      // Update tile states based on actual timers
-      // Removed debugging log
-    }
-  }, [])
+    if (!userId) return;
+    
+    const loadChallenges = async () => {
+      try {
+        const response = await fetch('/api/challenges');
+        if (response.ok) {
+          const challengesData = await response.json();
+          setChallenges(challengesData);
+          console.log('[Kingdom] Loaded challenges from database:', challengesData.length);
+        }
+      } catch (error) {
+        console.warn('[Kingdom] Failed to load challenges:', error);
+      }
+    };
 
-  // Debug: Log kingdom grid state changes
+    loadChallenges();
+  }, [userId]);
+
+  // 🎯 LOAD INVENTORY FROM DATABASE
   useEffect(() => {
-    console.log('[Kingdom] kingdomGrid updated:', {
-      gridLength: kingdomGrid.length,
-      hasTiles: kingdomGrid.some(row => row.some(cell => cell && cell.type && cell.type !== 'empty')),
-      tileTypes: kingdomGrid.flat().filter(cell => cell && cell.type && cell.type !== 'empty').map(cell => cell.type)
-    });
-  }, [kingdomGrid]);
+    if (!userId) return;
+    setInventoryLoading(true);
+    const loadInventory = async () => {
+      try {
+        const equipped = await getEquippedItems(userId);
+        const stored = await getStoredItems(userId);
+        const stats = await getTotalStats(userId);
+        
+        console.log('[Kingdom] Inventory data:', {
+          equipped: equipped,
+          equippedType: typeof equipped,
+          equippedIsArray: Array.isArray(equipped),
+          stored: stored,
+          storedType: typeof stored,
+          storedIsArray: Array.isArray(stored),
+          stats: stats,
+          challenges: challenges.length
+        });
+        
+        // Normalize items to always have a 'stats' property and description
+        const normalizeItems = (items: any[]) => {
+          if (!Array.isArray(items)) {
+            console.warn('[Kingdom] Items is not an array:', items);
+            return [];
+          }
+          return items.map(item => ({
+            ...item,
+            stats: (item as any).stats || {},
+            description: (item as any).description || '',
+          }) as KingdomInventoryItem);
+        };
+        
+        // Ensure equipped and stored are arrays with defensive programming
+        const equippedArray = Array.isArray(equipped) ? equipped : [];
+        const storedArray = Array.isArray(stored) ? stored : [];
+        
+        // Filter equipped items safely
+        const equippableItems = equippedArray.filter(item => {
+          try {
+            return isEquippable(item);
+          } catch (error) {
+            console.warn('[Kingdom] Error filtering item:', item, error);
+            return false;
+          }
+        });
+        
+        let equippedItemsToShow = normalizeItems(equippableItems);
+        
+        // 🎯 SHOW DEFAULT ITEMS if no items are equipped
+        if (equippedItemsToShow.length === 0) {
+          equippedItemsToShow = defaultInventoryItems.map(item => ({
+            ...item,
+            stats: item.stats || {},
+            description: item.description || '',
+            equipped: true,
+            type: item.type as any,
+            category: item.type,
+          })) as KingdomInventoryItem[];
+        }
+        
+        setEquippedItems(equippedItemsToShow);
+        setStoredItems(normalizeItems(storedArray));
+        
+        // 🎯 CALCULATE STATS from equipped items (including defaults)
+        const calculatedStats = equippedItemsToShow.reduce(
+          (totals, item) => {
+            try {
+              const itemStats = item?.stats || {};
+              return {
+                movement: totals.movement + (itemStats.movement || 0),
+                attack: totals.attack + (itemStats.attack || 0),
+                defense: totals.defense + (itemStats.defense || 0),
+              };
+            } catch (error) {
+              console.warn('[Kingdom] Error calculating stats for item:', item, error);
+              return totals;
+            }
+          },
+          { movement: 0, attack: 0, defense: 0 }
+        );
+        
+        setTotalStats(calculatedStats);
+      } catch (error) {
+        console.error('[Kingdom] Error loading inventory:', error);
+        // Show default items on error too
+        const defaultItems = defaultInventoryItems.map(item => ({
+          ...item,
+          stats: item.stats || {},
+          description: item.description || '',
+          equipped: true,
+          type: item.type as any,
+          category: item.type,
+        })) as KingdomInventoryItem[];
+        setEquippedItems(defaultItems);
+        setStoredItems([]);
+        
+        // Calculate stats from default items
+        const defaultStats = defaultItems.reduce(
+          (totals, item) => {
+            try {
+              const itemStats = item?.stats || {};
+              return {
+                movement: totals.movement + (itemStats.movement || 0),
+                attack: totals.attack + (itemStats.attack || 0),
+                defense: totals.defense + (itemStats.defense || 0),
+              };
+            } catch (error) {
+              console.warn('[Kingdom] Error calculating default stats for item:', item, error);
+              return totals;
+            }
+          },
+          { movement: 0, attack: 0, defense: 0 }
+        );
+        setTotalStats(defaultStats);
+      } finally {
+        setInventoryLoading(false);
+      }
+    };
+    
+    loadInventory();
+    
+    // 🎯 LISTEN FOR REAL-TIME UPDATES
+    const handleInventoryUpdate = () => {
+      if (!document.querySelector('[data-inventory-loading="true"]')) {
+        loadInventory();
+      }
+    };
+    
+    const handleChallengeUpdate = () => {
+      loadInventory();
+    };
+    
+    window.addEventListener('character-inventory-update', handleInventoryUpdate);
+    window.addEventListener('challenge-update', handleChallengeUpdate);
+    
+    return () => {
+      window.removeEventListener('character-inventory-update', handleInventoryUpdate);
+      window.removeEventListener('challenge-update', handleChallengeUpdate);
+    };
+  }, [userId, challenges.length]);
 
-  // Save kingdomGrid to localStorage whenever it changes
-  useEffect(() => {
-    if (kingdomGrid && kingdomGrid.length > 0) {
-      console.log('[Kingdom] Saving kingdomGrid to localStorage:', {
-        gridLength: kingdomGrid.length,
-        hasTiles: kingdomGrid.some(row => row.some(cell => cell && cell.type && cell.type !== 'empty')),
-        tileCount: kingdomGrid.flat().filter(cell => cell && cell.type && cell.type !== 'empty').length
-      });
-      localStorage.setItem('kingdom-grid', JSON.stringify(kingdomGrid));
-    }
-  }, [kingdomGrid]);
-
-  // Helper to determine if an item is consumable
+  // 🎯 HELPER FUNCTIONS
   const isConsumable = (item: KingdomInventoryItem) => {
     return item.type === 'artifact' || item.type === 'scroll' || (item.type === 'item' && !item.category);
   };
 
-  // Handler for equipping items
   const handleEquip = (item: KingdomInventoryItem) => {
-    // For consumables, show modal
     if (item.type === 'artifact' || item.type === 'scroll' || (item.type === 'item' && !item.category)) {
       setModalText(getConsumableEffect(item));
       setModalOpen(true);
@@ -436,72 +549,41 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     if (userId) equipItem(userId, item.id);
   };
 
-  // Handler for unequipping items
   const handleUnequip = (item: KingdomInventoryItem) => {
     if (userId) unequipItem(userId, item.id);
   };
 
-  // Get sell price for an item
   const getItemSellPrice = (item: KingdomInventoryItem): number => {
-    // Base prices for different item types
     const basePrices: Record<string, number> = {
-      'weapon': 50,
-      'armor': 40,
-      'shield': 35,
-      'helmet': 25,
-      'boots': 20,
-      'gloves': 15,
-      'ring': 30,
-      'necklace': 35,
-      'artifact': 100,
-      'scroll': 25,
-      'potion': 15,
-      'food': 8,
-      'material': 5,
-      'item': 10
+      'weapon': 50, 'armor': 40, 'shield': 35, 'helmet': 25, 'boots': 20, 'gloves': 15,
+      'ring': 30, 'necklace': 35, 'artifact': 100, 'scroll': 25, 'potion': 15, 'food': 8, 'material': 5, 'item': 10
     };
     
-    // Get base price for item type, default to 10
     const basePrice = basePrices[item.type] || 10;
-    
-    // Add bonus for items with stats
     let bonus = 0;
+    
     if (item.stats) {
       Object.values(item.stats).forEach(stat => {
-        if (typeof stat === 'number') {
-          bonus += stat * 5; // +5 gold per stat point
-        }
+        if (typeof stat === 'number') bonus += stat * 5;
       });
     }
     
-    // Add rarity bonus based on item name/type - more comprehensive
     const itemName = item.name.toLowerCase();
-    if (itemName.includes('golden') || itemName.includes('rainbow') || itemName.includes('legendary')) {
-      bonus += 25; // Legendary items
-    } else if (itemName.includes('epic') || itemName.includes('dragon')) {
-      bonus += 20; // Epic items
-    } else if (itemName.includes('rare') || itemName.includes('silver')) {
-      bonus += 15; // Rare items
-    } else if (itemName.includes('iron') || itemName.includes('steel') || itemName.includes('magic')) {
-      bonus += 12; // Uncommon items
-    } else if (itemName.includes('gold') || itemName.includes('crystal')) {
-      bonus += 8; // Special items
-    }
+    if (itemName.includes('golden') || itemName.includes('rainbow') || itemName.includes('legendary')) bonus += 25;
+    else if (itemName.includes('epic') || itemName.includes('dragon')) bonus += 20;
+    else if (itemName.includes('rare') || itemName.includes('silver')) bonus += 15;
+    else if (itemName.includes('iron') || itemName.includes('steel') || itemName.includes('magic')) bonus += 12;
+    else if (itemName.includes('gold') || itemName.includes('crystal')) bonus += 8;
     
-    // Add bonus for specific item types
     if (item.type === 'artifact') bonus += 30;
     if (item.type === 'weapon' && itemName.includes('sword')) bonus += 10;
     if (item.type === 'armor' && itemName.includes('plate')) bonus += 15;
     
-    return Math.max(5, basePrice + bonus); // Minimum 5 gold
+    return Math.max(5, basePrice + bonus);
   };
 
-  // Handle selling items
   const handleSellItem = async (item: KingdomInventoryItem) => {
-    // Removed debugging log
-    
     if (!userId) {
-      // Removed debugging log
       toast({
         title: "Error",
         description: "You must be logged in to sell items",
@@ -511,32 +593,24 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     }
     
     const sellPrice = getItemSellPrice(item);
-    // Removed debugging log
     
     try {
-      // Remove item from Supabase inventory
       const response = await fetch('/api/inventory/remove-item', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ itemId: item.id })
       });
       
-      // Removed debugging log
-      
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('[Sell] Response error:', errorText);
         throw new Error(`Failed to remove item from inventory: ${response.status} ${response.statusText}`);
       }
       
-      // Give gold for the sale
       gainGold(sellPrice, `sell-${item.name.toLowerCase()}`);
-      
-      // Show selling confirmation modal
       setSoldItem({ name: item.name, gold: sellPrice });
       setSellingModalOpen(true);
       
-      // Refresh inventory from Supabase
+      // Refresh inventory
       const equipped = await getEquippedItems(userId);
       const stored = await getStoredItems(userId);
       setEquippedItems(equipped);
@@ -551,33 +625,35 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     }
   };
 
-  // Restore handlePlaceKingdomTile for KingdomGrid
-  function handlePlaceKingdomTile(x: number, y: number, tile: Tile) {
-    setKingdomGrid(prev => {
-      const newGrid = prev.map(row => row.slice());
-      if (newGrid[y]) {
-        newGrid[y][x] = { ...tile, x, y, id: `${tile.id}-${x}-${y}` };
-      }
-      return newGrid;
-    });
-    
-    // Save the updated grid
-    const updatedGrid = kingdomGrid.map(row => row.slice());
-    if (updatedGrid[y]) {
-      updatedGrid[y][x] = { ...tile, x, y, id: `${tile.id}-${x}-${y}` };
+  // 🎯 KINGDOM GRID HANDLERS
+  const handlePlaceKingdomTile = (x: number, y: number, tile: Tile) => {
+    const newGrid = kingdomGrid.map(row => row.slice());
+    if (newGrid[y]) {
+      newGrid[y][x] = { ...tile, x, y, id: `${tile.id}-${x}-${y}` };
+      setKingdomGrid(newGrid);
+      // Save to database
+      saveKingdomGrid(newGrid);
     }
-    
-    // Save to API
-    fetch('/api/kingdom-grid', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ grid: updatedGrid })
-    }).catch(error => {
-      console.error('Failed to save kingdom grid:', error);
-    });
-  }
+  };
 
-  // Restore renderItemCard for inventory display
+  // 🎯 ANIMATION EFFECTS
+  useEffect(() => {
+    setShowEntrance(true);
+    setZoomed(false);
+    setMoveUp(false);
+    
+    const zoomTimeout = setTimeout(() => setZoomed(true), 1500);
+    const moveUpTimeout = setTimeout(() => setMoveUp(true), 1500);
+    const hideTimeout = setTimeout(() => setShowEntrance(false), 5000);
+    
+    return () => {
+      clearTimeout(zoomTimeout);
+      clearTimeout(moveUpTimeout);
+      clearTimeout(hideTimeout);
+    };
+  }, []);
+
+  // 🎯 RENDER ITEM CARD
   const renderItemCard = (item: KingdomInventoryItem, isEquipped: boolean = false) => {
     const imagePath = getItemImagePath(item);
     
@@ -587,7 +663,6 @@ export function KingdomClient({ userId }: { userId: string | null }) {
         className={`bg-black border-2 border-amber-500/30 rounded-xl shadow-lg transition-all duration-300 hover:border-amber-400/50 hover:shadow-amber-500/20 hover:-translate-y-1 hover:scale-[1.02] ${isEquipped ? 'ring-2 ring-amber-500 shadow-amber-500/30' : ''}`}
         aria-label={`inventory-item-${item.id}`}
       >
-        {/* Full-width image container */}
         <div className="w-full h-80 relative overflow-hidden rounded-t-xl">
           <img
             src={imagePath}
@@ -597,10 +672,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             onError={(e: React.SyntheticEvent<HTMLImageElement>) => { 
               (e.target as HTMLImageElement).src = "/images/placeholders/item-placeholder.svg"; 
             }}
-            onLoad={() => {
-            }}
           />
-          {/* Equipped label in top right corner */}
           {isEquipped && (
             <div className="absolute top-2 right-2">
               <div className="bg-amber-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
@@ -660,7 +732,6 @@ export function KingdomClient({ userId }: { userId: string | null }) {
             </div>
             
             <div className="flex gap-2">
-              {/* Only render the action button if it has valid content */}
               {(isEquipped || isEquippable(item) || isConsumable(item)) && (
                 <Button
                   size="sm"
@@ -694,15 +765,11 @@ export function KingdomClient({ userId }: { userId: string | null }) {
                 </Button>
               )}
               
-              {/* Sell button for stored items */}
               {!isEquipped && (
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => {
-                    // Removed debugging logs
-                    handleSellItem(item);
-                  }}
+                  onClick={() => handleSellItem(item)}
                   className="bg-orange-600 hover:bg-orange-700 text-white border-orange-500"
                   aria-label={`Sell ${item.name} for ${getItemSellPrice(item)} gold`}
                 >
@@ -715,272 +782,6 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       </Card>
     );
   };
-
-  // All useEffect hooks at the top
-  useEffect(() => {
-    setShowEntrance(true);
-    setZoomed(false);
-    setMoveUp(false);
-    // Linger for 1.5s, then start zoom (3.5s duration) - 0.5s shorter
-    const zoomTimeout = setTimeout(() => setZoomed(true), 1500);
-    // Start move up at 1.5s (3s duration) - 0.5s shorter
-    const moveUpTimeout = setTimeout(() => setMoveUp(true), 1500);
-    // Hide overlay and show main content after animation completes (5s total)
-    const hideTimeout = setTimeout(() => setShowEntrance(false), 5000);
-    return () => {
-      clearTimeout(zoomTimeout);
-      clearTimeout(moveUpTimeout);
-      clearTimeout(hideTimeout);
-    };
-  }, []);
-
-  // Load kingdom grid on mount
-  useEffect(() => {
-    if (!userId) return;
-    
-    const loadKingdomGrid = async () => {
-      try {
-        const response = await fetch('/api/kingdom-grid');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.grid) {
-            setKingdomGrid(data.grid);
-          }
-        }
-      } catch (error) {
-        console.error('Failed to load kingdom grid:', error);
-      }
-    };
-
-    loadKingdomGrid();
-  }, [userId]);
-
-  // 🎯 LOAD CHALLENGES ON COMPONENT MOUNT
-  useEffect(() => {
-    if (!userId) return;
-    
-    const loadChallenges = async () => {
-      try {
-        const response = await fetch('/api/challenges');
-        if (response.ok) {
-          const data = await response.json();
-          const challengesData = data.challenges || [];
-          setChallenges(challengesData);
-          localStorage.setItem('challenges', JSON.stringify(challengesData));
-          console.log('[Kingdom] Initial challenges loaded:', challengesData.length);
-        }
-      } catch (error) {
-        console.warn('[Kingdom] Failed to load initial challenges:', error);
-        // Try localStorage fallback
-        try {
-          const savedChallenges = localStorage.getItem('challenges');
-          if (savedChallenges) {
-            const parsedChallenges = JSON.parse(savedChallenges);
-            setChallenges(parsedChallenges);
-            console.log('[Kingdom] Loaded challenges from localStorage:', parsedChallenges.length);
-          }
-        } catch (localError) {
-          console.warn('[Kingdom] Failed to load challenges from localStorage:', localError);
-        }
-      }
-    };
-
-    loadChallenges();
-  }, [userId]);
-
-  useEffect(() => {
-    if (!userId) return;
-    setInventoryLoading(true);
-    const loadInventory = async () => {
-      try {
-        // Removed debugging log
-        const equipped = await getEquippedItems(userId);
-        const stored = await getStoredItems(userId);
-        const stats = await getTotalStats(userId);
-        
-        // 🎯 LOAD CHALLENGES DATA
-        let challenges = [];
-        try {
-          const challengesResponse = await fetch('/api/challenges');
-          if (challengesResponse.ok) {
-            const challengesData = await challengesResponse.json();
-            challenges = challengesData.challenges || [];
-            console.log('[Kingdom] Loaded challenges:', challenges.length);
-            
-            // 🎯 SAVE CHALLENGES TO LOCALSTORAGE FOR PERSISTENCE
-            localStorage.setItem('challenges', JSON.stringify(challenges));
-            setChallenges(challenges);
-          }
-        } catch (error) {
-          console.warn('[Kingdom] Failed to load challenges:', error);
-          // Try to load from localStorage as fallback
-          try {
-            const savedChallenges = localStorage.getItem('challenges');
-            if (savedChallenges) {
-              challenges = JSON.parse(savedChallenges);
-              setChallenges(challenges);
-              console.log('[Kingdom] Loaded challenges from localStorage:', challenges.length);
-            }
-          } catch (localError) {
-            console.warn('[Kingdom] Failed to load challenges from localStorage:', localError);
-          }
-        }
-        
-        // Debug logging to see what we're getting
-        console.log('[Kingdom] Inventory data:', {
-          equipped: equipped,
-          equippedType: typeof equipped,
-          equippedIsArray: Array.isArray(equipped),
-          stored: stored,
-          storedType: typeof stored,
-          storedIsArray: Array.isArray(stored),
-          stats: stats,
-          challenges: challenges.length
-        });
-        
-        // Normalize items to always have a 'stats' property and description
-        const normalizeItems = (items: any[]) => {
-          if (!Array.isArray(items)) {
-            console.warn('[Kingdom] Items is not an array:', items);
-            return [];
-          }
-          return items.map(item => ({
-            ...item,
-            stats: (item as any).stats || {},
-            description: (item as any).description || '',
-          }) as KingdomInventoryItem);
-        };
-        
-        // Ensure equipped and stored are arrays with defensive programming
-        const equippedArray = Array.isArray(equipped) ? equipped : [];
-        const storedArray = Array.isArray(stored) ? stored : [];
-        
-        // Filter equipped items safely
-        const equippableItems = equippedArray.filter(item => {
-          try {
-            return isEquippable(item);
-          } catch (error) {
-            console.warn('[Kingdom] Error filtering item:', item, error);
-            return false;
-          }
-        });
-        
-        let equippedItemsToShow = normalizeItems(equippableItems);
-        
-        // 🎯 SHOW DEFAULT ITEMS if no items are equipped
-        if (equippedItemsToShow.length === 0) {
-          // No equipped items found, showing default items
-          equippedItemsToShow = defaultInventoryItems.map(item => ({
-            ...item,
-            stats: item.stats || {},
-            description: item.description || '',
-            equipped: true,
-            type: item.type as any, // Convert to compatible type
-            category: item.type,
-          })) as KingdomInventoryItem[];
-        }
-        
-        setEquippedItems(equippedItemsToShow);
-        setStoredItems(normalizeItems(storedArray));
-        
-        // 🎯 CALCULATE STATS from equipped items (including defaults)
-        const calculatedStats = equippedItemsToShow.reduce(
-          (totals, item) => {
-            try {
-              const itemStats = item?.stats || {};
-              return {
-                movement: totals.movement + (itemStats.movement || 0),
-                attack: totals.attack + (itemStats.attack || 0),
-                defense: totals.defense + (itemStats.defense || 0),
-              };
-            } catch (error) {
-              console.warn('[Kingdom] Error calculating stats for item:', item, error);
-              return totals; // Return unchanged totals on error
-            }
-          },
-          { movement: 0, attack: 0, defense: 0 }
-        );
-        
-        setTotalStats(calculatedStats);
-        // Removed debugging log
-      } catch (error) {
-        console.error('[Kingdom] Error loading inventory:', error);
-        // Show default items on error too
-        const defaultItems = defaultInventoryItems.map(item => ({
-          ...item,
-          stats: item.stats || {},
-          description: item.description || '',
-          equipped: true,
-          type: item.type as any,
-          category: item.type,
-        })) as KingdomInventoryItem[];
-        setEquippedItems(defaultItems);
-        setStoredItems([]);
-        
-        // Calculate stats from default items
-        const defaultStats = defaultItems.reduce(
-          (totals, item) => {
-            try {
-              const itemStats = item?.stats || {};
-              return {
-                movement: totals.movement + (itemStats.movement || 0),
-                attack: totals.attack + (itemStats.attack || 0),
-                defense: totals.defense + (itemStats.defense || 0),
-              };
-            } catch (error) {
-              console.warn('[Kingdom] Error calculating default stats for item:', item, error);
-              return totals; // Return unchanged totals on error
-            }
-          },
-          { movement: 0, attack: 0, defense: 0 }
-        );
-        setTotalStats(defaultStats);
-      } finally {
-        setInventoryLoading(false);
-      }
-    };
-    
-    loadInventory();
-    
-    const handleInventoryUpdate = () => {
-      // Only reload if not currently loading to prevent rapid fire requests
-      if (!document.querySelector('[data-inventory-loading="true"]')) {
-        loadInventory();
-      }
-    };
-    
-    window.addEventListener('character-inventory-update', handleInventoryUpdate);
-    
-    // 🎯 LISTEN FOR QUEST COMPLETION GOLD/XP UPDATES
-    const handleGoldUpdate = (event: Event) => {
-      // Force refresh kingdom stats when gold is gained
-      loadInventory();
-    };
-    
-    const handleXPUpdate = (event: Event) => {
-      // Force refresh kingdom stats when XP is gained
-      loadInventory();
-    };
-    
-    // 🎯 LISTEN FOR CHALLENGE COMPLETION EVENTS
-    const handleChallengeUpdate = (event: Event) => {
-      console.log('[Kingdom] Challenge update event received:', event);
-      // Reload challenges when they're updated
-      loadInventory();
-    };
-    
-    window.addEventListener('character-inventory-update', handleInventoryUpdate);
-    window.addEventListener('gold-update', handleGoldUpdate);
-    window.addEventListener('xp-update', handleXPUpdate);
-    window.addEventListener('challenge-update', handleChallengeUpdate);
-    
-    return () => {
-      window.removeEventListener('character-inventory-update', handleInventoryUpdate);
-      window.removeEventListener('gold-update', handleGoldUpdate);
-      window.removeEventListener('xp-update', handleXPUpdate);
-      window.removeEventListener('challenge-update', handleChallengeUpdate);
-    };
-  }, [userId]);
 
   useEffect(() => {
     if (!userId) return;
