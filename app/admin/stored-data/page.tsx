@@ -544,8 +544,8 @@ export default function AdminPage() {
     try {
       // 1. Compare Quest Completions - BYPASS BROKEN QUEST API
       try {
-        const localStorageQuests = JSON.parse(localStorage.getItem('quests') || '[]');
-        const localStorageQuestCount = localStorageQuests.filter((q: any) => q.completed).length;
+        const localStorageQuests = JSON.parse(localStorage.getItem('questCompletions') || '[]');
+        const localStorageQuestCount = localStorageQuests.length; // Direct count since we store completed quests
         
         // BYPASS: Use the working simple quest API directly instead of the broken main Quest API
         console.log('[Admin] Bypassing broken Quest API, using simple API directly...');
@@ -604,7 +604,7 @@ export default function AdminPage() {
 
       // 2. Compare Gold Transactions - FIXED API CALL
       try {
-        const localStorageGold = JSON.parse(localStorage.getItem('gold') || '[]');
+        const localStorageGold = JSON.parse(localStorage.getItem('goldTransactions') || '[]');
         const localStorageGoldCount = localStorageGold.length;
         
         // FIXED: Use correct gold API endpoint
@@ -657,7 +657,7 @@ export default function AdminPage() {
 
       // 3. Compare Experience Transactions - FIXED API CALL
       try {
-        const localStorageExp = JSON.parse(localStorage.getItem('experience') || '[]');
+        const localStorageExp = JSON.parse(localStorage.getItem('experienceTransactions') || '[]');
         const localStorageExpCount = localStorageExp.length;
         
         // FIXED: Use correct experience API endpoint
