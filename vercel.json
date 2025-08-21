@@ -3,6 +3,11 @@
   "installCommand": "pnpm install",
   "framework": "nextjs",
   "outputDirectory": ".next",
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
   "builds": [
     {
       "src": "package.json",

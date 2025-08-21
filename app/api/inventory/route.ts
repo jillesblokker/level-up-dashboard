@@ -4,72 +4,86 @@ import { supabaseServer } from '@/lib/supabase/server-client';
 
 export async function GET(request: Request) {
   try {
+    // Add timeout handling
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Request timeout')), 8000); // 8 second timeout
+    });
+
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type');
     const category = searchParams.get('category');
     const itemId = searchParams.get('itemId');
     const equipped = searchParams.get('equipped');
 
-    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+    const queryPromise = authenticatedSupabaseQuery(request, async (supabase, userId) => {
       let query = supabaseServer
         .from('inventory_items')
         .select('*')
         .eq('user_id', userId);
 
-    // Apply filters based on query parameters
-    if (type) {
-      query = query.eq('type', type);
-    }
-    if (category) {
-      query = query.eq('category', category);
-    }
-    if (itemId) {
-      query = query.eq('item_id', itemId);
-      const { data, error } = await query.single();
-      if (error && error.code !== 'PGRST116') {
+      // Apply filters based on query parameters
+      if (type) {
+        query = query.eq('type', type);
+      }
+      if (category) {
+        query = query.eq('category', category);
+      }
+      if (itemId) {
+        query = query.eq('item_id', itemId);
+        const { data, error } = await query.single();
+        if (error && error.code !== 'PGRST116') {
+          throw error;
+        }
+        return data ? {
+          ...data,
+          id: data.item_id,
+          equipped: data.equipped,
+          stats: data.stats || {},
+        } : null;
+      }
+      if (equipped === 'true') {
+        query = query.eq('equipped', true);
+      } else if (equipped === 'false') {
+        query = query.eq('equipped', false);
+      }
+
+      const { data, error } = await query;
+      if (error) {
         throw error;
       }
-      return data ? {
-        ...data,
-        id: data.item_id,
-        equipped: data.equipped,
-        stats: data.stats || {},
-      } : null;
-    }
-    if (equipped === 'true') {
-      query = query.eq('equipped', true);
-    } else if (equipped === 'false') {
-      query = query.eq('equipped', false);
-    }
+      
+      const mappedData = (data || []).map((row: any) => ({
+        ...row,
+        id: row.item_id,
+        equipped: row.equipped,
+        stats: row.stats || {},
+      }));
+      
+      return mappedData;
+    });
 
-    const { data, error } = await query;
-    if (error) {
-      throw error;
+    // Race between timeout and query
+    const result = await Promise.race([queryPromise, timeoutPromise]) as any;
+    
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 401 });
     }
     
-    // Removed debugging logs
-    
-    const mappedData = (data || []).map((row: any) => ({
-      ...row,
-      id: row.item_id,
-      equipped: row.equipped,
-      stats: row.stats || {},
-    }));
-    
-    // Removed debugging log
-    return mappedData;
-  });
-  
-  if (!result.success) {
-    return NextResponse.json({ error: result.error }, { status: 401 });
-  }
-  
-  return NextResponse.json({ 
-    success: true, 
-    data: result.data 
-  });
+    return NextResponse.json({ 
+      success: true, 
+      data: result.data 
+    });
   } catch (error) {
     console.error('[Inventory API] Error:', error);
+    
+    // Handle timeout specifically
+    if (error instanceof Error && error.message === 'Request timeout') {
+      return NextResponse.json(
+        { error: 'Request timeout - please try again' }, 
+        { status: 408 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Internal server error' }, 
       { status: 500 }

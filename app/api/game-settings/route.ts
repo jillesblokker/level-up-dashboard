@@ -3,10 +3,15 @@ import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
 export async function GET(request: NextRequest) {
   try {
+    // Add timeout handling
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Request timeout')), 8000); // 8 second timeout
+    });
+
     const { searchParams } = new URL(request.url);
     const settingKey = searchParams.get('key');
 
-    const { data, error } = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+    const queryPromise = authenticatedSupabaseQuery(request, async (supabase, userId) => {
       let query = supabase
         .from('game_settings')
         .select('*')
@@ -26,14 +31,26 @@ export async function GET(request: NextRequest) {
       return { data, error };
     });
 
-    if (error) {
-      console.error(`[Game Settings API] Database error:`, error);
+    // Race between timeout and query
+    const result = await Promise.race([queryPromise, timeoutPromise]) as any;
+
+    if (result.error) {
+      console.error(`[Game Settings API] Database error:`, result.error);
       return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
 
-    return NextResponse.json({ data });
+    return NextResponse.json({ data: result.data });
   } catch (error) {
     console.error(`[Game Settings API] Unexpected error:`, error);
+    
+    // Handle timeout specifically
+    if (error instanceof Error && error.message === 'Request timeout') {
+      return NextResponse.json(
+        { error: 'Request timeout - please try again' }, 
+        { status: 408 }
+      );
+    }
+    
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

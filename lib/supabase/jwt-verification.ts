@@ -36,11 +36,18 @@ export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
       } catch {}
     }
 
-    // Fallback to Clerk getAuth (cookie-based auth)
+    // Fallback to Clerk getAuth (cookie-based auth) with timeout
     const nextReq = request instanceof NextRequest
       ? request
       : new NextRequest(request.url, { headers: request.headers, method: request.method });
-    const { userId } = await getAuth(nextReq);
+    
+    // Add timeout to Clerk getAuth
+    const authPromise = getAuth(nextReq);
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Auth timeout')), 3000); // 3 second timeout for auth
+    });
+    
+    const { userId } = await Promise.race([authPromise, timeoutPromise]) as any;
     if (userId) {
       return { success: true, userId };
     }

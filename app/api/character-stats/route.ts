@@ -3,7 +3,12 @@ import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
 export async function GET(request: NextRequest) {
   try {
-    const { data, error } = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+    // Add timeout handling
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Request timeout')), 8000); // 8 second timeout
+    });
+
+    const queryPromise = authenticatedSupabaseQuery(request, async (supabase, userId) => {
       const { data, error } = await supabase
         .from('character_stats')
         .select('*')
@@ -13,14 +18,26 @@ export async function GET(request: NextRequest) {
       return { data, error };
     });
 
-    if (error) {
-      console.error('[Character Stats API] Error fetching stats:', error);
+    // Race between timeout and query
+    const result = await Promise.race([queryPromise, timeoutPromise]) as any;
+
+    if (result.error) {
+      console.error('[Character Stats API] Error fetching stats:', result.error);
       return NextResponse.json({ error: 'Failed to fetch character stats' }, { status: 500 });
     }
 
-    return NextResponse.json({ data });
+    return NextResponse.json({ data: result.data });
   } catch (error) {
     console.error('[Character Stats API] Unexpected error:', error);
+    
+    // Handle timeout specifically
+    if (error instanceof Error && error.message === 'Request timeout') {
+      return NextResponse.json(
+        { error: 'Request timeout - please try again' }, 
+        { status: 408 }
+      );
+    }
+    
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

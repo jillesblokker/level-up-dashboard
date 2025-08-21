@@ -5,8 +5,13 @@ import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
 export async function GET(request: Request) {
   try {
+    // Add timeout handling
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Request timeout')), 8000); // 8 second timeout
+    });
+
     // Use authenticated Supabase query with proper Clerk JWT verification
-    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+    const queryPromise = authenticatedSupabaseQuery(request, async (supabase, userId) => {
       // Fetch all challenges
       const { data: allChallenges, error: challengesError } = await supabase
         .from('challenges')
@@ -40,6 +45,9 @@ export async function GET(request: Request) {
       return challengesWithCompletion;
     });
 
+    // Race between timeout and query
+    const result = await Promise.race([queryPromise, timeoutPromise]) as any;
+
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 401 });
     }
@@ -47,6 +55,15 @@ export async function GET(request: Request) {
     return NextResponse.json(result.data);
   } catch (error) {
     console.error('[Challenges Error]', error);
+    
+    // Handle timeout specifically
+    if (error instanceof Error && error.message === 'Request timeout') {
+      return NextResponse.json(
+        { error: 'Request timeout - please try again' }, 
+        { status: 408 }
+      );
+    }
+    
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
