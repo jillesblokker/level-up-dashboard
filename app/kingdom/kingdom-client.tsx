@@ -172,6 +172,8 @@ function isEquippable(item: KingdomInventoryItem): boolean {
 
 // Helper to create an empty kingdom grid
 function createEmptyKingdomGrid(): Tile[][] {
+  console.log('[Kingdom] createEmptyKingdomGrid called');
+  
   const KINGDOM_GRID_ROWS = 12; // Doubled from 6 to 12 rows
   const KINGDOM_GRID_COLS = 6;
   const VACANT_TILE_IMAGE = '/images/kingdom-tiles/Vacant.png';
@@ -192,6 +194,8 @@ function createEmptyKingdomGrid(): Tile[][] {
       image: VACANT_TILE_IMAGE,
     }))
   );
+  
+  console.log('[Kingdom] Base grid created with dimensions:', { rows: KINGDOM_GRID_ROWS, cols: KINGDOM_GRID_COLS });
   
   // Add some default kingdom tiles to make the grid interesting
   const defaultKingdomTiles = [
@@ -217,6 +221,8 @@ function createEmptyKingdomGrid(): Tile[][] {
     { x: 5, y: 4, type: 'watchtower' as TileType },
   ];
   
+  console.log('[Kingdom] Adding default kingdom tiles:', defaultKingdomTiles.length);
+  
   defaultKingdomTiles.forEach(({ x, y, type }) => {
     const kingdomTile = KINGDOM_TILES.find(kt => kt.id === type);
     if (kingdomTile && grid[y] && grid[y][x]) {
@@ -234,8 +240,14 @@ function createEmptyKingdomGrid(): Tile[][] {
         ariaLabel: `${kingdomTile.name} at ${x},${y}`,
         image: kingdomTile.image,
       };
+      console.log(`[Kingdom] Added ${type} tile at position (${x}, ${y})`);
+    } else {
+      console.warn(`[Kingdom] Failed to add ${type} tile at position (${x}, ${y}) - kingdomTile:`, kingdomTile, 'grid[y]:', grid[y], 'grid[y][x]:', grid[y]?.[x]);
     }
   });
+  
+  const finalTileCount = grid.flat().filter(cell => cell && cell.type && cell.type !== 'empty').length;
+  console.log('[Kingdom] Final grid created with', finalTileCount, 'non-empty tiles');
   
   return grid;
 }
@@ -304,11 +316,13 @@ export function KingdomClient({ userId }: { userId: string | null }) {
 
   // Initialize timers for default kingdom tiles (only if they don't exist)
   useEffect(() => {
+    console.log('[Kingdom] Initializing kingdom grid and timers...');
+    
     // Check if timers already exist
     const existingTimers = localStorage.getItem('kingdom-tile-timers');
     
     if (!existingTimers) {
-      // Removed debugging log
+      console.log('[Kingdom] Creating default timers...');
       
       const defaultTimers = [
         { x: 1, y: 1, tileId: 'well', endTime: Date.now() + (10 * 60 * 1000), isReady: false }, // 10 min
@@ -335,22 +349,39 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       
       // Save default timers
       localStorage.setItem('kingdom-tile-timers', JSON.stringify(defaultTimers));
+      console.log('[Kingdom] Default timers created and saved');
     } else {
-      // Removed debugging log
+      console.log('[Kingdom] Using existing timers from localStorage');
     }
     
     // Load kingdom grid (preserve existing if available)
     const existingGrid = localStorage.getItem('kingdom-grid');
     if (existingGrid) {
       try {
+        console.log('[Kingdom] Loading existing grid from localStorage...');
         const parsedGrid = JSON.parse(existingGrid);
+        console.log('[Kingdom] Existing grid loaded:', {
+          gridLength: parsedGrid.length,
+          hasTiles: parsedGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty'))
+        });
         setKingdomGrid(parsedGrid);
       } catch (error) {
-        console.warn('[Kingdom] Failed to parse existing grid, creating new one');
-        setKingdomGrid(createEmptyKingdomGrid());
+        console.warn('[Kingdom] Failed to parse existing grid, creating new one:', error);
+        const newGrid = createEmptyKingdomGrid();
+        console.log('[Kingdom] Created new grid:', {
+          gridLength: newGrid.length,
+          hasTiles: newGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty'))
+        });
+        setKingdomGrid(newGrid);
       }
     } else {
-      setKingdomGrid(createEmptyKingdomGrid());
+      console.log('[Kingdom] No existing grid found, creating new one...');
+      const newGrid = createEmptyKingdomGrid();
+      console.log('[Kingdom] Created new grid:', {
+        gridLength: newGrid.length,
+        hasTiles: newGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty'))
+      });
+      setKingdomGrid(newGrid);
     }
   }, []);
 
