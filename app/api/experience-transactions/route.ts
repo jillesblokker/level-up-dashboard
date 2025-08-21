@@ -3,6 +3,11 @@ import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
 export async function POST(request: NextRequest) {
   try {
+    // Add timeout handling
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Request timeout')), 8000); // 8 second timeout
+    });
+
     const body = await request.json();
     const { amount, totalAfter, transactionType, source, metadata } = body;
 
@@ -12,7 +17,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+    const queryPromise = authenticatedSupabaseQuery(request, async (supabase, userId) => {
       const { data, error } = await supabase
         .from('experience_transactions')
         .insert({
@@ -35,6 +40,9 @@ export async function POST(request: NextRequest) {
       return data;
     });
 
+    // Race between timeout and query
+    const result = await Promise.race([queryPromise, timeoutPromise]) as any;
+
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 401 });
     }
@@ -46,6 +54,15 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('[Experience Transactions API] Error:', error);
+    
+    // Handle timeout specifically
+    if (error instanceof Error && error.message === 'Request timeout') {
+      return NextResponse.json(
+        { error: 'Request timeout - please try again' }, 
+        { status: 408 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Internal server error' }, 
       { status: 500 }
@@ -55,11 +72,16 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    // Add timeout handling
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Request timeout')), 8000); // 8 second timeout
+    });
+
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+    const queryPromise = authenticatedSupabaseQuery(request, async (supabase, userId) => {
       const { data, error } = await supabase
         .from('experience_transactions')
         .select('*')
@@ -75,6 +97,9 @@ export async function GET(request: NextRequest) {
       return data;
     });
 
+    // Race between timeout and query
+    const result = await Promise.race([queryPromise, timeoutPromise]) as any;
+
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 401 });
     }
@@ -86,6 +111,15 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('[Experience Transactions API] Error:', error);
+    
+    // Handle timeout specifically
+    if (error instanceof Error && error.message === 'Request timeout') {
+      return NextResponse.json(
+        { error: 'Request timeout - please try again' }, 
+        { status: 408 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Internal server error' }, 
       { status: 500 }
