@@ -1668,7 +1668,7 @@ TECHNICAL DETAILS:
                 <div className="w-3 h-3 rounded-full bg-blue-500"></div>
                 <div>
                   <div className="font-medium">Winter Festival</div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
                     Activates +20% gold and +10% EXP bonuses on winter tiles (Winter Fountain, Snowy Inn, Ice Sculpture, Fireworks Stand)
                   </div>
                 </div>
@@ -1693,7 +1693,7 @@ TECHNICAL DETAILS:
                 <div className="w-3 h-3 rounded-full bg-orange-500"></div>
                 <div>
                   <div className="font-medium">Harvest Festival</div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
                     Future event for harvest-themed tiles (Harvest Barn, Pumpkin Patch, Bakery, Brewery)
                   </div>
                 </div>
@@ -1866,9 +1866,9 @@ TECHNICAL DETAILS:
             {dataComparison.length > 0 && (
               <div className="space-y-3">
                 {dataComparison.map((comparison, index) => (
-                  <div key={index} className="p-4 border rounded-lg">
+                  <div key={index} className="p-4 border rounded-lg bg-gray-50 dark:bg-gray-800">
                     <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-medium">{comparison.table}</h4>
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100">{comparison.table}</h4>
                       <Badge 
                         variant={
                           comparison.status === 'synced' ? 'default' :
@@ -1892,15 +1892,15 @@ TECHNICAL DETAILS:
                     
                     <div className="grid grid-cols-3 gap-4 text-sm">
                       <div>
-                        <div className="text-muted-foreground">localStorage</div>
-                        <div className="font-semibold text-lg">{comparison.localStorageCount}</div>
+                        <div className="text-gray-600 dark:text-gray-400">localStorage</div>
+                        <div className="font-semibold text-lg text-gray-900 dark:text-gray-100">{comparison.localStorageCount}</div>
                       </div>
                       <div>
-                        <div className="text-muted-foreground">Supabase</div>
-                        <div className="font-semibold text-lg">{comparison.supabaseCount}</div>
+                        <div className="text-gray-600 dark:text-gray-400">Supabase</div>
+                        <div className="font-semibold text-lg text-gray-900 dark:text-gray-100">{comparison.supabaseCount}</div>
                       </div>
                       <div>
-                        <div className="text-muted-foreground">Difference</div>
+                        <div className="text-gray-600 dark:text-gray-400">Difference</div>
                         <div className={`font-semibold text-lg ${
                           comparison.difference === 0 ? 'text-green-600' :
                           comparison.difference > 0 ? 'text-red-600' :
@@ -1911,7 +1911,7 @@ TECHNICAL DETAILS:
                       </div>
                     </div>
                     
-                    <div className="mt-3 text-xs text-muted-foreground">
+                    <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
                       Last checked: {new Date(comparison.lastChecked).toLocaleString()}
                     </div>
                   </div>
@@ -1920,7 +1920,7 @@ TECHNICAL DETAILS:
             )}
             
             {dataComparison.length === 0 && !isComparingData && (
-              <div className="text-center py-8 text-muted-foreground">
+              <div className="text-center py-8 text-gray-600 dark:text-gray-400">
                 <Database className="w-12 h-12 mx-auto mb-3 opacity-50" />
                 <p>Click Compare Data Sources to analyze data synchronization</p>
               </div>
@@ -1929,7 +1929,7 @@ TECHNICAL DETAILS:
             {isComparingData && (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
-                <p className="text-muted-foreground">Comparing data sources...</p>
+                <p className="text-gray-600 dark:text-gray-400">Comparing data sources...</p>
               </div>
             )}
           </div>
@@ -1948,7 +1948,7 @@ TECHNICAL DETAILS:
           <CardContent>
             <div className="text-2xl font-bold">{buildStatus.coreSystems}</div>
             <Progress value={(buildStatus.coreSystems / 3) * 100} className="mt-2" />
-            <p className="text-xs text-muted-foreground mt-1">3 total systems</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">3 total systems</p>
           </CardContent>
         </Card>
 
@@ -1962,7 +1962,7 @@ TECHNICAL DETAILS:
           <CardContent>
             <div className="text-2xl font-bold">{buildStatus.gameplayFeatures}</div>
             <Progress value={(buildStatus.gameplayFeatures / 8) * 100} className="mt-2" />
-            <p className="text-xs text-muted-foreground mt-1">8 total features</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">8 total features</p>
           </CardContent>
         </Card>
 
@@ -1976,7 +1976,7 @@ TECHNICAL DETAILS:
           <CardContent>
             <div className="text-2xl font-bold">{buildStatus.socialFeatures}</div>
             <Progress value={(buildStatus.socialFeatures / 3) * 100} className="mt-2" />
-            <p className="text-xs text-muted-foreground mt-1">3 total features</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">3 total features</p>
           </CardContent>
         </Card>
 
@@ -1990,7 +1990,7 @@ TECHNICAL DETAILS:
           <CardContent>
             <div className="text-2xl font-bold">{buildStatus.adminFeatures}</div>
             <Progress value={(buildStatus.adminFeatures / 15) * 100} className="mt-2" />
-            <p className="text-xs text-muted-foreground mt-1">15 total features</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">15 total features</p>
           </CardContent>
         </Card>
       </div>
@@ -2020,7 +2020,7 @@ TECHNICAL DETAILS:
               </div>
             </div>
             <Progress value={buildStatus.progress} className="h-3" />
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
               <span>0%</span>
               <span>100%</span>
             </div>
@@ -2045,7 +2045,7 @@ TECHNICAL DETAILS:
           <CardTitle className="flex items-center gap-2 text-blue-800">
             📋 Generate Summary Report
           </CardTitle>
-          <CardDescription className="text-blue-600">
+          <CardDescription className="text-gray-600 dark:text-gray-400">
             Create a comprehensive report of all issues for easy sharing and debugging
           </CardDescription>
         </CardHeader>
@@ -2094,7 +2094,7 @@ TECHNICAL DETAILS:
                       {getStatusIcon(connection.status)}
                       <div>
                         <div className="font-medium">{connection.name}</div>
-                        <div className="text-sm text-muted-foreground">{connection.description}</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">{connection.description}</div>
                       </div>
                     </div>
                     <Badge variant="outline" className={getPriorityColor(connection.priority)}>
@@ -2126,7 +2126,7 @@ TECHNICAL DETAILS:
                       {getStatusIcon(connection.status)}
                       <div>
                         <div className="font-medium">{connection.name}</div>
-                        <div className="text-sm text-muted-foreground">{connection.description}</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">{connection.description}</div>
                       </div>
                     </div>
                     <Badge variant="outline" className={getPriorityColor(connection.priority)}>
@@ -2158,7 +2158,7 @@ TECHNICAL DETAILS:
                       {getStatusIcon(connection.status)}
                       <div>
                         <div className="font-medium">{connection.name}</div>
-                        <div className="text-sm text-muted-foreground">{connection.description}</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">{connection.description}</div>
                       </div>
                     </div>
                     <Badge variant="outline" className={getPriorityColor(connection.priority)}>
@@ -2191,7 +2191,7 @@ TECHNICAL DETAILS:
                         {getStatusIcon(connection.status)}
                         <div>
                           <div className="font-medium">{connection.name}</div>
-                          <div className="text-sm text-muted-foreground">{connection.description}</div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">{connection.description}</div>
                         </div>
                       </div>
                       <Badge variant="outline" className={getPriorityColor(connection.priority)}>
