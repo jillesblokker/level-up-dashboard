@@ -104,6 +104,7 @@ export default function AdminPage() {
   // New state for data comparison
   const [dataComparison, setDataComparison] = useState<DataComparison[]>([]);
   const [isComparingData, setIsComparingData] = useState(false);
+  const [showTestingDropdown, setShowTestingDropdown] = useState(false);
 
   const { user } = useUser();
   const { getToken } = useAuth();
@@ -336,6 +337,206 @@ export default function AdminPage() {
       }, 1000);
     } catch (error) {
       console.error('[Admin] Auto-sync error:', error);
+    }
+  };
+  
+  // 🧪 Testing Functions
+  const forceSyncAllData = async () => {
+    try {
+      setIsLoading(true);
+      console.log('[Admin] Force syncing all data...');
+      
+      // Force sync quest completions
+      const questResponse = await fetch('/api/quests/simple');
+      if (questResponse.ok) {
+        const questData = await questResponse.json();
+        const completedQuests = questData.completedQuests || [];
+        localStorage.setItem('questCompletions', JSON.stringify(completedQuests));
+        console.log('[Admin] Force synced', completedQuests.length, 'quest completions');
+      }
+      
+      // Force sync inventory
+      const inventoryResponse = await fetch('/api/inventory');
+      if (inventoryResponse.ok) {
+        const inventoryData = await inventoryResponse.json();
+        const inventoryItems = inventoryData || [];
+        localStorage.setItem('inventory', JSON.stringify(inventoryItems));
+        console.log('[Admin] Force synced', inventoryItems.length, 'inventory items');
+      }
+      
+      // Force sync gold transactions
+      const goldResponse = await fetch('/api/gold-transactions');
+      if (goldResponse.ok) {
+        const goldData = await goldResponse.json();
+        const goldTransactions = goldData.data || [];
+        localStorage.setItem('goldTransactions', JSON.stringify(goldTransactions));
+        console.log('[Admin] Force synced', goldTransactions.length, 'gold transactions');
+      }
+      
+      // Force sync experience transactions
+      const expResponse = await fetch('/api/experience-transactions');
+      if (expResponse.ok) {
+        const expData = await expResponse.json();
+        const expTransactions = expData.data || [];
+        localStorage.setItem('experienceTransactions', JSON.stringify(expTransactions));
+        console.log('[Admin] Force synced', expTransactions.length, 'experience transactions');
+      }
+      
+      toast.success('All data force synced successfully!', {
+        style: {
+          backgroundColor: '#059669',
+          color: '#ffffff',
+          border: '1px solid #047857'
+        }
+      });
+      
+      // Refresh data comparison
+      setTimeout(async () => {
+        await compareDataSources();
+      }, 1000);
+      
+    } catch (error) {
+      console.error('[Admin] Force sync error:', error);
+      toast.error('Force sync failed', {
+        style: {
+          backgroundColor: '#dc2626',
+          color: '#ffffff',
+          border: '1px solid #b91c1c'
+        }
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const clearAllLocalStorage = () => {
+    try {
+      localStorage.removeItem('questCompletions');
+      localStorage.removeItem('inventory');
+      localStorage.removeItem('goldTransactions');
+      localStorage.removeItem('experienceTransactions');
+      
+      toast.success('All localStorage data cleared!', {
+        style: {
+          backgroundColor: '#059669',
+          color: '#ffffff',
+          border: '1px solid #047857'
+        }
+      });
+      
+      // Refresh data comparison
+      setTimeout(async () => {
+        await compareDataSources();
+      }, 1000);
+      
+    } catch (error) {
+      console.error('[Admin] Clear localStorage error:', error);
+      toast.error('Failed to clear localStorage', {
+        style: {
+          backgroundColor: '#dc2626',
+          color: '#ffffff',
+          border: '1px solid #b91c1c'
+        }
+      });
+    }
+  };
+  
+  const debugLocalStorage = () => {
+    try {
+      console.log('=== localStorage DEBUG ===');
+      console.log('questCompletions:', localStorage.getItem('questCompletions'));
+      console.log('inventory:', localStorage.getItem('inventory'));
+      console.log('goldTransactions:', localStorage.getItem('goldTransactions'));
+      console.log('experienceTransactions:', localStorage.getItem('experienceTransactions'));
+      
+      // Try to parse each item
+      try {
+        const quests = JSON.parse(localStorage.getItem('questCompletions') || '[]');
+        console.log('Parsed quests:', quests, 'Type:', typeof quests, 'IsArray:', Array.isArray(quests));
+      } catch (e) {
+        console.log('Failed to parse quests:', e);
+      }
+      
+      try {
+        const inventory = JSON.parse(localStorage.getItem('inventory') || '[]');
+        console.log('Parsed inventory:', inventory, 'Type:', typeof inventory, 'IsArray:', Array.isArray(inventory));
+      } catch (e) {
+        console.log('Failed to parse inventory:', e);
+      }
+      
+      toast.success('localStorage debug info logged to console', {
+        style: {
+          backgroundColor: '#059669',
+          color: '#ffffff',
+          border: '1px solid #047857'
+        }
+      });
+      
+    } catch (error) {
+      console.error('[Admin] Debug localStorage error:', error);
+      toast.error('Debug failed', {
+        style: {
+          backgroundColor: '#dc2626',
+          color: '#ffffff',
+          border: '1px solid #b91c1c'
+        }
+      });
+    }
+  };
+  
+  const testIndividualAPIs = async () => {
+    try {
+      console.log('=== TESTING INDIVIDUAL APIs ===');
+      
+      // Test Quest API
+      const questResponse = await fetch('/api/quests/simple');
+      console.log('Quest API Status:', questResponse.status);
+      if (questResponse.ok) {
+        const questData = await questResponse.json();
+        console.log('Quest API Data:', questData);
+      }
+      
+      // Test Inventory API
+      const inventoryResponse = await fetch('/api/inventory');
+      console.log('Inventory API Status:', inventoryResponse.status);
+      if (inventoryResponse.ok) {
+        const inventoryData = await inventoryResponse.json();
+        console.log('Inventory API Data:', inventoryData);
+      }
+      
+      // Test Gold API
+      const goldResponse = await fetch('/api/gold-transactions');
+      console.log('Gold API Status:', goldResponse.status);
+      if (goldResponse.ok) {
+        const goldData = await goldResponse.json();
+        console.log('Gold API Data:', goldData);
+      }
+      
+      // Test Experience API
+      const expResponse = await fetch('/api/experience-transactions');
+      console.log('Experience API Status:', expResponse.status);
+      if (expResponse.ok) {
+        const expData = await expResponse.json();
+        console.log('Experience API Data:', expData);
+      }
+      
+      toast.success('All APIs tested - check console for results', {
+        style: {
+          backgroundColor: '#059669',
+          color: '#ffffff',
+          border: '1px solid #047857'
+        }
+      });
+      
+    } catch (error) {
+      console.error('[Admin] Test APIs error:', error);
+      toast.error('API testing failed', {
+        style: {
+          backgroundColor: '#dc2626',
+          color: '#ffffff',
+          border: '1px solid #b91c1c'
+        }
+      });
     }
   };
 
@@ -1536,6 +1737,59 @@ TECHNICAL DETAILS:
         >
           Test Working Simple Quest API
         </Button>
+        
+        {/* 🧪 Testing Dropdown */}
+        <div className="relative">
+          <Button
+            onClick={() => setShowTestingDropdown(!showTestingDropdown)}
+            disabled={isLoading}
+            variant="outline"
+            size="sm"
+            className="bg-purple-600 hover:bg-purple-700 text-white"
+          >
+            🧪 Testing Options ▼
+          </Button>
+          
+          {showTestingDropdown && (
+            <div className="absolute top-full left-0 mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-lg z-50 min-w-[200px]">
+              <div className="p-2">
+                <div className="text-sm text-gray-300 mb-2 font-semibold">Testing & Debug Options</div>
+                
+                <Button
+                  onClick={forceSyncAllData}
+                  disabled={isLoading}
+                  className="w-full mb-2 bg-green-600 hover:bg-green-700 text-sm"
+                >
+                  🚀 Force Sync All Data
+                </Button>
+                
+                <Button
+                  onClick={clearAllLocalStorage}
+                  disabled={isLoading}
+                  className="w-full mb-2 bg-red-600 hover:bg-red-700 text-sm"
+                >
+                  🗑️ Clear All localStorage
+                </Button>
+                
+                <Button
+                  onClick={debugLocalStorage}
+                  disabled={isLoading}
+                  className="w-full mb-2 bg-yellow-600 hover:bg-yellow-700 text-sm"
+                >
+                  🔍 Debug localStorage
+                </Button>
+                
+                <Button
+                  onClick={testIndividualAPIs}
+                  disabled={isLoading}
+                  className="w-full mb-2 bg-indigo-600 hover:bg-indigo-700 text-sm"
+                >
+                  📡 Test Individual APIs
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
               </div>
             </div>
             
