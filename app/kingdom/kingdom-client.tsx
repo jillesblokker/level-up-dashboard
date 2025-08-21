@@ -170,32 +170,39 @@ function isEquippable(item: KingdomInventoryItem): boolean {
   return false;
 }
 
-// Helper to create an empty kingdom grid
+// Create an empty kingdom grid with default tiles
 function createEmptyKingdomGrid(): Tile[][] {
   console.log('[Kingdom] createEmptyKingdomGrid called');
   
-  const KINGDOM_GRID_ROWS = 12; // Doubled from 6 to 12 rows
-  const KINGDOM_GRID_COLS = 6;
-  const VACANT_TILE_IMAGE = '/images/kingdom-tiles/Vacant.png';
+  // Create a 12x6 grid
+  const rows = 12;
+  const cols = 6;
+  const grid: Tile[][] = [];
   
-  const grid = Array.from({ length: KINGDOM_GRID_ROWS }, (_, y) =>
-    Array.from({ length: KINGDOM_GRID_COLS }, (_, x) => ({
-      id: `vacant-${x}-${y}`,
-      type: 'empty' as TileType,
-      name: 'Vacant',
-      description: 'An empty plot of land.',
-      connections: [] as ConnectionDirection[],
-      rotation: 0 as 0 | 90 | 180 | 270,
-      revealed: true,
-      isVisited: false,
-      x,
-      y,
-      ariaLabel: `Vacant tile at ${x},${y}`,
-      image: VACANT_TILE_IMAGE,
-    }))
-  );
+  console.log('[Kingdom] Creating base grid with dimensions:', { rows, cols });
   
-  console.log('[Kingdom] Base grid created with dimensions:', { rows: KINGDOM_GRID_ROWS, cols: KINGDOM_GRID_COLS });
+  // Initialize empty grid
+  for (let y = 0; y < rows; y++) {
+    grid[y] = [];
+    for (let x = 0; x < cols; x++) {
+      grid[y]![x] = {
+        id: `empty-${x}-${y}`,
+        type: 'empty',
+        name: 'Empty',
+        description: 'Empty space',
+        connections: [],
+        rotation: 0,
+        revealed: false,
+        isVisited: false,
+        x,
+        y,
+        ariaLabel: `Empty space at ${x},${y}`,
+        image: '/images/placeholders/empty-tile.svg',
+      };
+    }
+  }
+  
+  console.log('[Kingdom] Base grid created with dimensions:', { rows, cols });
   
   // Add some default kingdom tiles to make the grid interesting
   const defaultKingdomTiles = [
@@ -227,7 +234,7 @@ function createEmptyKingdomGrid(): Tile[][] {
     const kingdomTile = KINGDOM_TILES.find(kt => kt.id === type);
     if (kingdomTile && grid[y] && grid[y][x]) {
       try {
-        grid[y][x] = {
+        grid[y]![x]! = {
           id: `${type}-${x}-${y}`,
           type: type,
           name: kingdomTile.name || 'Unknown Tile',
@@ -322,28 +329,36 @@ export function KingdomClient({ userId }: { userId: string | null }) {
         const response = await fetch('/api/kingdom-grid');
         if (response.ok) {
           const data = await response.json();
-          if (data.success && data.data && data.data.grid) {
+          if (data.success && data.data && data.data.grid && data.data.grid.length > 0) {
+            // Database has a valid grid with tiles
             console.log('[Kingdom] Loaded grid from database:', data.data.grid.length);
             setKingdomGrid(data.data.grid);
           } else {
-            // No grid exists, create default one
-            console.log('[Kingdom] No grid in database, creating default...');
+            // Database is empty or has no tiles, create default grid
+            console.log('[Kingdom] Database grid is empty, creating default grid...');
             const defaultGrid = createEmptyKingdomGrid();
+            console.log('[Kingdom] Created default grid with tiles:', defaultGrid.flat().filter(cell => cell && cell.type && cell.type !== 'empty').length);
             setKingdomGrid(defaultGrid);
-            // Save to database
+            // Save default grid to database
             await saveKingdomGrid(defaultGrid);
           }
         } else {
-          console.warn('[Kingdom] Failed to load grid, creating default...');
+          // API failed, create default grid
+          console.warn('[Kingdom] Failed to load grid from API, creating default...');
           const defaultGrid = createEmptyKingdomGrid();
+          console.log('[Kingdom] Created default grid due to API failure:', defaultGrid.flat().filter(cell => cell && cell.type && cell.type !== 'empty').length);
           setKingdomGrid(defaultGrid);
+          // Try to save to database
           await saveKingdomGrid(defaultGrid);
         }
       } catch (error) {
         console.error('[Kingdom] Error loading grid:', error);
-        // Fallback to default grid
+        // Fallback to default grid on any error
         const defaultGrid = createEmptyKingdomGrid();
+        console.log('[Kingdom] Created default grid due to error:', defaultGrid.flat().filter(cell => cell && cell.type && cell.type !== 'empty').length);
         setKingdomGrid(defaultGrid);
+        // Try to save to database
+        await saveKingdomGrid(defaultGrid);
       } finally {
         setGridLoading(false);
       }
@@ -351,6 +366,32 @@ export function KingdomClient({ userId }: { userId: string | null }) {
 
     loadKingdomGrid();
   }, [userId]);
+
+  // 🎯 SHOW LOADING STATE OR GRID
+  if (gridLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-amber-500 mx-auto mb-4"></div>
+          <h2 className="text-2xl font-bold text-amber-500 mb-2">Loading Kingdom...</h2>
+          <p className="text-gray-400">Creating your kingdom tiles</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 🎯 SHOW EMPTY STATE IF NO GRID
+  if (!kingdomGrid || kingdomGrid.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-500 mb-2">Kingdom Grid Error</h2>
+          <p className="text-gray-400 mb-4">Failed to load kingdom grid</p>
+          <Button onClick={() => window.location.reload()}>Retry</Button>
+        </div>
+      </div>
+    );
+  }
 
   // 🎯 SAVE KINGDOM GRID TO DATABASE
   const saveKingdomGrid = async (grid: Tile[][]) => {
