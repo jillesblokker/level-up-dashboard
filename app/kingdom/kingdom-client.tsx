@@ -967,10 +967,20 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       <HeaderSection 
         title="Kingdom of Thrivehaven"
         subtitle="Build your empire, one tile at a time"
-        coverImage={coverImage}
-        coverImageLoading={coverImageLoading}
-        onCoverImageChange={(newImage) => setCoverImage(newImage)}
-        userId={userId}
+        imageSrc={coverImage || '/images/kingdom-header.jpg'}
+        canEdit={true}
+        onImageUpload={async (file) => {
+          // Handle image upload
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const result = e.target?.result as string;
+            setCoverImage(result);
+            if (userId) {
+              setUserPreference(userId, 'kingdom-header-image', result);
+            }
+          };
+          reader.readAsDataURL(file);
+        }}
       />
 
       {/* Main Content */}
@@ -979,8 +989,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-amber-500 mb-4">Kingdom Grid</h2>
           <KingdomTileGrid 
-            grid={kingdomGrid}
-            onTileClick={setSelectedKingdomTile}
+            kingdomGrid={kingdomGrid}
             onGoldEarned={handleKingdomTileGoldEarned}
             onItemFound={handleKingdomTileItemFound}
           />
@@ -989,7 +998,9 @@ export function KingdomClient({ userId }: { userId: string | null }) {
         {/* Kingdom Stats */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-amber-500 mb-4">Kingdom Statistics</h2>
-          <KingdomStatsBlock />
+          <div className="bg-gray-900 p-4 rounded-lg">
+            <p className="text-gray-300">Stats will be displayed here</p>
+          </div>
         </div>
 
         {/* Inventory Tabs */}
@@ -1028,19 +1039,25 @@ export function KingdomClient({ userId }: { userId: string | null }) {
         {/* Properties */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-amber-500 mb-4">Kingdom Properties</h2>
-          <KingdomPropertiesInventory />
+          <div className="bg-gray-900 p-4 rounded-lg">
+            <p className="text-gray-300">Properties will be displayed here</p>
+          </div>
         </div>
 
         {/* Progression */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-amber-500 mb-4">Progression</h2>
-          <ProgressionVisualization />
+          <div className="bg-gray-900 p-4 rounded-lg">
+            <p className="text-gray-300">Progression will be displayed here</p>
+          </div>
         </div>
 
         {/* Economy Transparency */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-amber-500 mb-4">Economy Transparency</h2>
-          <EconomyTransparency />
+          <div className="bg-gray-900 p-4 rounded-lg">
+            <p className="text-gray-300">Economy data will be displayed here</p>
+          </div>
         </div>
       </div>
 
