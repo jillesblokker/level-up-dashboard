@@ -81,13 +81,16 @@ export async function GET(request: Request) {
     }
 
     const days = getDateRange(period);
+    console.log('[Kingdom Stats] Date range generated:', days);
 
     if (tab === 'quests') {
-      console.log('[Kingdom Stats] Fetching quests data');
+      console.log('[Kingdom Stats] === QUESTS TAB DEBUG ===');
+      console.log('[Kingdom Stats] Fetching quests data for user:', userId);
+      
       // Aggregate quest completions from quest_completion table
       const { data: completions, error } = await supabaseServer
         .from('quest_completion')
-        .select('id, quest_id, completed_at, completed')
+        .select('id, quest_id, completed_at, completed, gold_earned, xp_earned')
         .eq('user_id', userId)
         .eq('completed', true);
         
@@ -97,6 +100,15 @@ export async function GET(request: Request) {
       }
 
       console.log('[Kingdom Stats] Raw quest completions from DB:', completions);
+      console.log('[Kingdom Stats] Total quest completions found:', completions?.length || 0);
+      
+      // Log sample data for debugging
+      if (completions && completions.length > 0) {
+        console.log('[Kingdom Stats] Sample quest completion:', completions[0]);
+        console.log('[Kingdom Stats] Sample completed_at format:', completions[0]?.completed_at);
+        console.log('[Kingdom Stats] Sample gold_earned:', completions[0]?.gold_earned);
+        console.log('[Kingdom Stats] Sample xp_earned:', completions[0]?.xp_earned);
+      }
 
       // Aggregate by day/month
       let counts: Record<string, number> = {};
@@ -112,16 +124,31 @@ export async function GET(request: Request) {
         counts['all'] = completions?.length || 0;
       } else {
         days.forEach(day => { counts[day] = 0; });
+        console.log('[Kingdom Stats] Initialized day counts:', counts);
+        
         completions?.forEach((c: any) => {
           if (c.completed_at) {
             const day = c.completed_at.slice(0, 10);
-            if (counts[day] !== undefined) counts[day]++;
+            console.log('[Kingdom Stats] Processing quest completion:', { 
+              completed_at: c.completed_at, 
+              extracted_day: day, 
+              day_exists: counts[day] !== undefined 
+            });
+            if (counts[day] !== undefined) {
+              counts[day]++;
+              console.log('[Kingdom Stats] Updated count for day', day, ':', counts[day]);
+            } else {
+              console.log('[Kingdom Stats] Day', day, 'not in expected range');
+            }
+          } else {
+            console.log('[Kingdom Stats] Quest completion missing completed_at:', c);
           }
         });
       }
 
-      console.log('[Kingdom Stats] Processed quest counts:', counts);
+      console.log('[Kingdom Stats] Final processed quest counts:', counts);
       console.log('[Kingdom Stats] Date range for period:', period, ':', days);
+      console.log('[Kingdom Stats] Days with data:', Object.entries(counts).filter(([day, count]) => count > 0));
 
       const data = days.map(day => ({ day, value: counts[day] || 0 }));
       console.log('[Kingdom Stats] Final quest data:', data);
@@ -129,11 +156,13 @@ export async function GET(request: Request) {
     }
 
     if (tab === 'challenges') {
-      console.log('[Kingdom Stats] Fetching challenges data');
+      console.log('[Kingdom Stats] === CHALLENGES TAB DEBUG ===');
+      console.log('[Kingdom Stats] Fetching challenges data for user:', userId);
+      
       // Aggregate challenge completions from challenge_completion table
       const { data: completions, error } = await supabaseServer
         .from('challenge_completion')
-        .select('id, completed, date')
+        .select('id, completed, date, challenge_id')
         .eq('user_id', userId)
         .eq('completed', true);
         
@@ -143,6 +172,13 @@ export async function GET(request: Request) {
       }
 
       console.log('[Kingdom Stats] Raw challenge completions from DB:', completions);
+      console.log('[Kingdom Stats] Total challenge completions found:', completions?.length || 0);
+      
+      // Log sample data for debugging
+      if (completions && completions.length > 0) {
+        console.log('[Kingdom Stats] Sample challenge completion:', completions[0]);
+        console.log('[Kingdom Stats] Sample date format:', completions[0]?.date);
+      }
 
       // Aggregate by day/month
       let counts: Record<string, number> = {};
@@ -158,16 +194,31 @@ export async function GET(request: Request) {
         counts['all'] = completions?.length || 0;
       } else {
         days.forEach(day => { counts[day] = 0; });
+        console.log('[Kingdom Stats] Initialized challenge day counts:', counts);
+        
         completions?.forEach((c: any) => {
           if (c.date) {
             const day = c.date.slice(0, 10);
-            if (counts[day] !== undefined) counts[day]++;
+            console.log('[Kingdom Stats] Processing challenge completion:', { 
+              date: c.date, 
+              extracted_day: day, 
+              day_exists: counts[day] !== undefined 
+            });
+            if (counts[day] !== undefined) {
+              counts[day]++;
+              console.log('[Kingdom Stats] Updated challenge count for day', day, ':', counts[day]);
+            } else {
+              console.log('[Kingdom Stats] Challenge day', day, 'not in expected range');
+            }
+          } else {
+            console.log('[Kingdom Stats] Challenge completion missing date:', c);
           }
         });
       }
 
-      console.log('[Kingdom Stats] Processed challenge counts:', counts);
+      console.log('[Kingdom Stats] Final processed challenge counts:', counts);
       console.log('[Kingdom Stats] Date range for period:', period, ':', days);
+      console.log('[Kingdom Stats] Challenge days with data:', Object.entries(counts).filter(([day, count]) => count > 0));
       
       const data = days.map(day => ({ day, value: counts[day] || 0 }));
       console.log('[Kingdom Stats] Final challenge data:', data);
@@ -175,17 +226,28 @@ export async function GET(request: Request) {
     }
 
     if (tab === 'milestones') {
-      console.log('[Kingdom Stats] Fetching milestones data');
+      console.log('[Kingdom Stats] === MILESTONES TAB DEBUG ===');
+      console.log('[Kingdom Stats] Fetching milestones data for user:', userId);
+      
       // Aggregate milestone completions from milestone_completion table
       const { data: completions, error } = await supabaseServer
         .from('milestone_completion')
-        .select('id, completed, date')
+        .select('id, completed, date, milestone_id')
         .eq('user_id', userId)
         .eq('completed', true);
         
       if (error) {
         console.error('[Kingdom Stats] Supabase error (milestones):', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      console.log('[Kingdom Stats] Raw milestone completions from DB:', completions);
+      console.log('[Kingdom Stats] Total milestone completions found:', completions?.length || 0);
+      
+      // Log sample data for debugging
+      if (completions && completions.length > 0) {
+        console.log('[Kingdom Stats] Sample milestone completion:', completions[0]);
+        console.log('[Kingdom Stats] Sample date format:', completions[0]?.date);
       }
 
       // Aggregate by day/month
@@ -207,13 +269,31 @@ export async function GET(request: Request) {
         });
       } else {
         days.forEach(day => { counts[day] = 0; });
+        console.log('[Kingdom Stats] Initialized milestone day counts:', counts);
+        
         completions?.forEach((c: any) => {
           if (c.date) {
             const day = c.date.slice(0, 10);
-            if (counts[day] !== undefined) counts[day]++;
+            console.log('[Kingdom Stats] Processing milestone completion:', { 
+              date: c.date, 
+              extracted_day: day, 
+              day_exists: counts[day] !== undefined 
+            });
+            if (counts[day] !== undefined) {
+              counts[day]++;
+              console.log('[Kingdom Stats] Updated milestone count for day', day, ':', counts[day]);
+            } else {
+              console.log('[Kingdom Stats] Milestone day', day, 'not in expected range');
+            }
+          } else {
+            console.log('[Kingdom Stats] Milestone completion missing date:', c);
           }
         });
       }
+      
+      console.log('[Kingdom Stats] Final processed milestone counts:', counts);
+      console.log('[Kingdom Stats] Date range for period:', period, ':', days);
+      console.log('[Kingdom Stats] Milestone days with data:', Object.entries(counts).filter(([day, count]) => count > 0));
       
       const data = days.map(day => ({ day, value: counts[day] || 0 }));
       console.log('[Kingdom Stats] Returning milestones data:', data);
@@ -221,7 +301,9 @@ export async function GET(request: Request) {
     }
 
     if (tab === 'gold') {
-      console.log('[Kingdom Stats] Fetching gold data');
+      console.log('[Kingdom Stats] === GOLD TAB DEBUG ===');
+      console.log('[Kingdom Stats] Fetching gold data for user:', userId);
+      
       // Aggregate gold earned from quest_completion + challenge_completion + milestone_completion
       const [questRes, challengeRes, milestoneRes] = await Promise.all([
         supabaseServer
@@ -244,6 +326,21 @@ export async function GET(request: Request) {
       if (questRes.error || challengeRes.error || milestoneRes.error) {
         console.error('[Kingdom Stats] Supabase error (gold):', { questRes, challengeRes, milestoneRes });
         return NextResponse.json({ error: 'Failed to fetch gold data' }, { status: 500 });
+      }
+
+      console.log('[Kingdom Stats] Quest gold data found:', questRes.data?.length || 0);
+      console.log('[Kingdom Stats] Challenge gold data found:', challengeRes.data?.length || 0);
+      console.log('[Kingdom Stats] Milestone gold data found:', milestoneRes.data?.length || 0);
+      
+      // Log sample data for debugging
+      if (questRes.data && questRes.data.length > 0) {
+        console.log('[Kingdom Stats] Sample quest gold:', questRes.data[0]);
+      }
+      if (challengeRes.data && challengeRes.data.length > 0) {
+        console.log('[Kingdom Stats] Sample challenge gold:', challengeRes.data[0]);
+      }
+      if (milestoneRes.data && milestoneRes.data.length > 0) {
+        console.log('[Kingdom Stats] Sample milestone gold:', milestoneRes.data[0]);
       }
 
       // Get challenge and milestone gold rewards
@@ -277,6 +374,7 @@ export async function GET(request: Request) {
         sums['all'] = 0;
       } else {
         days.forEach(day => { sums[day] = 0; });
+        console.log('[Kingdom Stats] Initialized gold day sums:', sums);
       }
 
       // Add quest gold - use gold_earned from quest_completion table
@@ -284,7 +382,10 @@ export async function GET(request: Request) {
         if (c.completed_at) {
           const dateKey = period === 'year' ? c.completed_at.slice(0, 7) : 
                          period === 'all' ? 'all' : c.completed_at.slice(0, 10);
-          if (sums[dateKey] !== undefined) sums[dateKey] += c.gold_earned || 0;
+          if (sums[dateKey] !== undefined) {
+            sums[dateKey] += c.gold_earned || 0;
+            console.log('[Kingdom Stats] Added quest gold for', dateKey, ':', c.gold_earned, 'Total:', sums[dateKey]);
+          }
         }
       });
 
@@ -294,7 +395,10 @@ export async function GET(request: Request) {
         if (c.date && reward) {
           const dateKey = period === 'year' ? c.date.slice(0, 7) : 
                          period === 'all' ? 'all' : c.date.slice(0, 10);
-          if (sums[dateKey] !== undefined) sums[dateKey] += reward.gold || 0;
+          if (sums[dateKey] !== undefined) {
+            sums[dateKey] += reward.gold || 0;
+            console.log('[Kingdom Stats] Added challenge gold for', dateKey, ':', reward.gold, 'Total:', sums[dateKey]);
+          }
         }
       });
 
@@ -304,9 +408,15 @@ export async function GET(request: Request) {
         if (m.date && reward) {
           const dateKey = period === 'year' ? m.date.slice(0, 7) : 
                          period === 'all' ? 'all' : m.date.slice(0, 10);
-          if (sums[dateKey] !== undefined) sums[dateKey] += reward.gold || 0;
+          if (sums[dateKey] !== undefined) {
+            sums[dateKey] += reward.gold || 0;
+            console.log('[Kingdom Stats] Added milestone gold for', dateKey, ':', reward.gold, 'Total:', sums[dateKey]);
+          }
         }
       });
+      
+      console.log('[Kingdom Stats] Final processed gold sums:', sums);
+      console.log('[Kingdom Stats] Gold days with data:', Object.entries(sums).filter(([day, sum]) => sum > 0));
       
       const data = days.map(day => ({ day, value: sums[day] || 0 }));
       console.log('[Kingdom Stats] Returning gold data:', data);
@@ -314,7 +424,9 @@ export async function GET(request: Request) {
     }
 
     if (tab === 'experience') {
-      console.log('[Kingdom Stats] Fetching experience data');
+      console.log('[Kingdom Stats] === EXPERIENCE TAB DEBUG ===');
+      console.log('[Kingdom Stats] Fetching experience data for user:', userId);
+      
       // Similar aggregation for experience
       const [questRes, challengeRes, milestoneRes] = await Promise.all([
         supabaseServer
@@ -337,6 +449,21 @@ export async function GET(request: Request) {
       if (questRes.error || challengeRes.error || milestoneRes.error) {
         console.error('[Kingdom Stats] Supabase error (experience):', { questRes, challengeRes, milestoneRes });
         return NextResponse.json({ error: 'Failed to fetch experience data' }, { status: 500 });
+      }
+
+      console.log('[Kingdom Stats] Quest XP data found:', questRes.data?.length || 0);
+      console.log('[Kingdom Stats] Challenge XP data found:', challengeRes.data?.length || 0);
+      console.log('[Kingdom Stats] Milestone XP data found:', milestoneRes.data?.length || 0);
+      
+      // Log sample data for debugging
+      if (questRes.data && questRes.data.length > 0) {
+        console.log('[Kingdom Stats] Sample quest XP:', questRes.data[0]);
+      }
+      if (challengeRes.data && challengeRes.data.length > 0) {
+        console.log('[Kingdom Stats] Sample challenge XP:', challengeRes.data[0]);
+      }
+      if (milestoneRes.data && milestoneRes.data.length > 0) {
+        console.log('[Kingdom Stats] Sample milestone XP:', milestoneRes.data[0]);
       }
 
       // Get challenge and milestone XP rewards
@@ -370,6 +497,7 @@ export async function GET(request: Request) {
         sums['all'] = 0;
       } else {
         days.forEach(day => { sums[day] = 0; });
+        console.log('[Kingdom Stats] Initialized XP day sums:', sums);
       }
 
       // Add quest XP - use xp_earned from quest_completion table
@@ -377,7 +505,10 @@ export async function GET(request: Request) {
         if (c.completed_at) {
           const dateKey = period === 'year' ? c.completed_at.slice(0, 7) : 
                          period === 'all' ? 'all' : c.completed_at.slice(0, 10);
-          if (sums[dateKey] !== undefined) sums[dateKey] += c.xp_earned || 0;
+          if (sums[dateKey] !== undefined) {
+            sums[dateKey] += c.xp_earned || 0;
+            console.log('[Kingdom Stats] Added quest XP for', dateKey, ':', c.xp_earned, 'Total:', sums[dateKey]);
+          }
         }
       });
 
@@ -387,7 +518,10 @@ export async function GET(request: Request) {
         if (c.date && reward) {
           const dateKey = period === 'year' ? c.date.slice(0, 7) : 
                          period === 'all' ? 'all' : c.date.slice(0, 10);
-          if (sums[dateKey] !== undefined) sums[dateKey] += reward.xp || 0;
+          if (sums[dateKey] !== undefined) {
+            sums[dateKey] += reward.xp || 0;
+            console.log('[Kingdom Stats] Added challenge XP for', dateKey, ':', reward.xp, 'Total:', sums[dateKey]);
+          }
         }
       });
 
@@ -397,9 +531,15 @@ export async function GET(request: Request) {
         if (m.date && reward) {
           const dateKey = period === 'year' ? m.date.slice(0, 7) : 
                          period === 'all' ? 'all' : m.date.slice(0, 10);
-          if (sums[dateKey] !== undefined) sums[dateKey] += reward.experience || 0;
+          if (sums[dateKey] !== undefined) {
+            sums[dateKey] += reward.experience || 0;
+            console.log('[Kingdom Stats] Added milestone XP for', dateKey, ':', reward.experience, 'Total:', sums[dateKey]);
+          }
         }
       });
+      
+      console.log('[Kingdom Stats] Final processed XP sums:', sums);
+      console.log('[Kingdom Stats] XP days with data:', Object.entries(sums).filter(([day, sum]) => sum > 0));
       
       const data = days.map(day => ({ day, value: sums[day] || 0 }));
       console.log('[Kingdom Stats] Returning experience data:', data);
@@ -407,7 +547,9 @@ export async function GET(request: Request) {
     }
 
     if (tab === 'level') {
-      console.log('[Kingdom Stats] Fetching level data');
+      console.log('[Kingdom Stats] === LEVEL TAB DEBUG ===');
+      console.log('[Kingdom Stats] Fetching level data for user:', userId);
+      
       // Calculate level progression over time based on accumulated experience
       const [questRes, challengeRes, milestoneRes] = await Promise.all([
         supabaseServer
@@ -433,6 +575,21 @@ export async function GET(request: Request) {
       if (questRes.error || challengeRes.error || milestoneRes.error) {
         console.error('[Kingdom Stats] Supabase error (level):', { questRes, challengeRes, milestoneRes });
         return NextResponse.json({ error: 'Failed to fetch level data' }, { status: 500 });
+      }
+
+      console.log('[Kingdom Stats] Quest XP data found for level calc:', questRes.data?.length || 0);
+      console.log('[Kingdom Stats] Challenge XP data found for level calc:', challengeRes.data?.length || 0);
+      console.log('[Kingdom Stats] Milestone XP data found for level calc:', milestoneRes.data?.length || 0);
+      
+      // Log sample data for debugging
+      if (questRes.data && questRes.data.length > 0) {
+        console.log('[Kingdom Stats] Sample quest XP for level:', questRes.data[0]);
+      }
+      if (challengeRes.data && challengeRes.data.length > 0) {
+        console.log('[Kingdom Stats] Sample challenge XP for level:', challengeRes.data[0]);
+      }
+      if (milestoneRes.data && milestoneRes.data.length > 0) {
+        console.log('[Kingdom Stats] Sample milestone XP for level:', milestoneRes.data[0]);
       }
 
       // Get challenge and milestone XP rewards
@@ -485,6 +642,7 @@ export async function GET(request: Request) {
             date: c.completed_at.slice(0, 10),
             xp: c.xp_earned || 0
           });
+          console.log('[Kingdom Stats] Added quest XP to timeline:', { date: c.completed_at.slice(0, 10), xp: c.xp_earned });
         }
       });
 
@@ -496,6 +654,7 @@ export async function GET(request: Request) {
             date: c.date.slice(0, 10),
             xp: reward.xp || 0
           });
+          console.log('[Kingdom Stats] Added challenge XP to timeline:', { date: c.date.slice(0, 10), xp: reward.xp });
         }
       });
 
@@ -507,11 +666,16 @@ export async function GET(request: Request) {
             date: m.date.slice(0, 10),
             xp: reward.experience || 0
           });
+          console.log('[Kingdom Stats] Added milestone XP to timeline:', { date: m.date.slice(0, 10), xp: reward.experience });
         }
       });
 
+      console.log('[Kingdom Stats] Total experience timeline entries:', experienceTimeline.length);
+      console.log('[Kingdom Stats] Experience timeline:', experienceTimeline);
+
       // Sort timeline by date
       experienceTimeline.sort((a, b) => a.date.localeCompare(b.date));
+      console.log('[Kingdom Stats] Sorted experience timeline:', experienceTimeline);
 
       // Calculate cumulative experience and levels for each day
       let cumulativeExp = 0;
@@ -521,7 +685,10 @@ export async function GET(request: Request) {
         cumulativeExp += xp;
         const level = calculateLevelFromExperience(cumulativeExp);
         levelProgression[date] = level;
+        console.log('[Kingdom Stats] Level progression for', date, ':', { xp, cumulativeExp, level });
       });
+
+      console.log('[Kingdom Stats] Final level progression:', levelProgression);
 
       // Fill in the requested time period with level data
       let levelData: Record<string, number> = {};
