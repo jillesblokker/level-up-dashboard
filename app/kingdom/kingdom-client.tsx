@@ -1190,10 +1190,10 @@ export function KingdomClient() {
               {/* Existing Stats Blocks */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="w-full" aria-label="kingdom-stats-block-container">
-                  <KingdomStatsBlock userId={user?.id} />
+                  <KingdomStatsBlock userId={user?.id || null} />
                 </div>
                 <div className="w-full" aria-label="king-stats-block-container">
-                  <KingStatsBlock userId={user?.id} />
+                  <KingStatsBlock userId={user?.id || null} />
                 </div>
               </div>
             </div>
