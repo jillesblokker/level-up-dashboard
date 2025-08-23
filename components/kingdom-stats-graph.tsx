@@ -446,8 +446,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
       
       if (activeTab === 'quests') {
         console.log('[Kingdom Stats Component] 📋 Aggregating quest data from localStorage...');
-        // Get quest completions from localStorage or existing state
-        const storedData = localStorage.getItem('quest-completions') || '[]';
+        const storedData = localStorage.getItem('questCompletions') || '[]';
         const questCompletions = JSON.parse(storedData);
         
         // Aggregate by date
@@ -469,7 +468,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
       else if (activeTab === 'challenges') {
         console.log('[Kingdom Stats Component] 🏆 Aggregating challenge data from localStorage...');
         // Get challenge completions from localStorage
-        const storedData = localStorage.getItem('challenge-completions') || '[]';
+        const storedData = localStorage.getItem('challenges') || '[]';
         const challengeCompletions = JSON.parse(storedData);
         
         // Aggregate by date
@@ -491,7 +490,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
       else if (activeTab === 'milestones') {
         console.log('[Kingdom Stats Component] 🎯 Aggregating milestone data from localStorage...');
         // Get milestone completions from localStorage
-        const storedData = localStorage.getItem('milestone-completions') || '[]';
+        const storedData = localStorage.getItem('milestone-progress') || '[]';
         const milestoneCompletions = JSON.parse(storedData);
         
         // Aggregate by date
@@ -513,7 +512,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
       else if (activeTab === 'gold') {
         console.log('[Kingdom Stats Component] 💰 Aggregating gold data from localStorage...');
         // Get gold earnings from quest completions
-        const storedData = localStorage.getItem('quest-completions') || '[]';
+        const storedData = localStorage.getItem('questCompletions') || '[]';
         const questCompletions = JSON.parse(storedData);
         
         // Aggregate gold by date
@@ -535,7 +534,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
       else if (activeTab === 'experience') {
         console.log('[Kingdom Stats Component] ⭐ Aggregating experience data from localStorage...');
         // Get XP earnings from quest completions
-        const storedData = localStorage.getItem('quest-completions') || '[]';
+        const storedData = localStorage.getItem('questCompletions') || '[]';
         const questCompletions = JSON.parse(storedData);
         
         // Aggregate XP by date
