@@ -1,5 +1,4 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
 
 const supabase = supabaseServer;
@@ -7,70 +6,64 @@ const supabase = supabaseServer;
 // Helper to extract and verify Clerk JWT, returns userId or null
 async function getUserIdFromRequest(request: Request): Promise<string | null> {
   try {
-    // Try using the auth() function from middleware context
-    const { userId } = await auth();
-    console.log('[Kingdom Stats] auth() result:', { userId });
-    
-    if (userId) {
-      return userId;
-    }
-    
-    // Fallback: try to extract token from Authorization header manually
+    // Extract token from Authorization header
     const authHeader = request.headers.get('authorization');
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.substring(7);
-      console.log('[Kingdom Stats] Found Bearer token, length:', token.length);
-      
-      // For now, let's try to decode the JWT to get basic info
-      try {
-        // Simple JWT decode (without verification for debugging)
-        const tokenParts = token.split('.');
-        if (tokenParts.length !== 3) {
-          console.log('[Kingdom Stats] Invalid JWT format');
-          return null;
-        }
-        
-        const base64Url = tokenParts[1];
-        if (!base64Url) {
-          console.log('[Kingdom Stats] Missing JWT payload');
-          return null;
-        }
-        
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        
-        const payload = JSON.parse(jsonPayload);
-        console.log('[Kingdom Stats] JWT payload:', payload);
-        
-        // Extract user ID from JWT payload
-        if (payload.sub) {
-          console.log('[Kingdom Stats] Found userId in JWT:', payload.sub);
-          return payload.sub;
-        }
-        
-        // Try alternative fields
-        if (payload.user_id) {
-          console.log('[Kingdom Stats] Found userId in JWT (user_id):', payload.user_id);
-          return payload.user_id;
-        }
-        
-        if (payload.userId) {
-          console.log('[Kingdom Stats] Found userId in JWT (userId):', payload.userId);
-          return payload.userId;
-        }
-        
-        console.log('[Kingdom Stats] No userId found in JWT payload');
-      } catch (jwtError) {
-        console.log('[Kingdom Stats] JWT decode error:', jwtError);
-      }
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('[Kingdom Stats] No Bearer token found');
+      return null;
     }
     
-    console.log('[Kingdom Stats] No valid authentication found');
-    return null;
+    const token = authHeader.substring(7);
+    console.log('[Kingdom Stats] Found Bearer token, length:', token.length);
+    
+    // For now, let's try to decode the JWT to get basic info
+    try {
+      // Simple JWT decode (without verification for debugging)
+      const tokenParts = token.split('.');
+      if (tokenParts.length !== 3) {
+        console.log('[Kingdom Stats] Invalid JWT format');
+        return null;
+      }
+      
+      const base64Url = tokenParts[1];
+      if (!base64Url) {
+        console.log('[Kingdom Stats] Missing JWT payload');
+        return null;
+      }
+      
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      
+      const payload = JSON.parse(jsonPayload);
+      console.log('[Kingdom Stats] JWT payload:', payload);
+      
+      // Extract user ID from JWT payload
+      if (payload.sub) {
+        console.log('[Kingdom Stats] Found userId in JWT:', payload.sub);
+        return payload.sub;
+      }
+      
+      // Try alternative fields
+      if (payload.user_id) {
+        console.log('[Kingdom Stats] Found userId in JWT (user_id):', payload.user_id);
+        return payload.user_id;
+      }
+      
+      if (payload.userId) {
+        console.log('[Kingdom Stats] Found userId in JWT (userId):', payload.userId);
+        return payload.userId;
+      }
+      
+      console.log('[Kingdom Stats] No userId found in JWT payload');
+      return null;
+    } catch (jwtError) {
+      console.log('[Kingdom Stats] JWT decode error:', jwtError);
+      return null;
+    }
   } catch (e) {
-    console.error('[Kingdom Stats] JWT verification failed:', e);
+    console.error('[Kingdom Stats] Authentication error:', e);
     return null;
   }
 }
