@@ -365,11 +365,30 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       try {
         console.log('[Kingdom] Loading existing grid from localStorage...');
         const parsedGrid = JSON.parse(existingGrid);
-        console.log('[Kingdom] Existing grid loaded:', {
-          gridLength: parsedGrid.length,
-          hasTiles: parsedGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty'))
-        });
-        setKingdomGrid(parsedGrid);
+        
+        // Check if the stored grid has the correct structure with vacant tiles
+        const hasCorrectVacantTiles = parsedGrid.some((row: any) => 
+          row.some((cell: any) => cell && cell.type === 'vacant')
+        );
+        
+        if (!hasCorrectVacantTiles) {
+          console.log('[Kingdom] Stored grid missing vacant tiles, clearing localStorage and creating new grid...');
+          localStorage.removeItem('kingdom-grid');
+          const newGrid = createEmptyKingdomGrid();
+          console.log('[Kingdom] Created new grid with correct vacant tiles:', {
+            gridLength: newGrid.length,
+            hasTiles: newGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty')),
+            vacantTileCount: newGrid.flat().filter((cell: any) => cell && cell.type === 'vacant').length
+          });
+          setKingdomGrid(newGrid);
+        } else {
+          console.log('[Kingdom] Existing grid loaded with correct vacant tiles:', {
+            gridLength: parsedGrid.length,
+            hasTiles: parsedGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty')),
+            vacantTileCount: parsedGrid.flat().filter((cell: any) => cell && cell.type === 'vacant').length
+          });
+          setKingdomGrid(parsedGrid);
+        }
       } catch (error) {
         console.warn('[Kingdom] Failed to parse existing grid, creating new one:', error);
         const newGrid = createEmptyKingdomGrid();
