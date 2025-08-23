@@ -453,11 +453,25 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
 
       const data = await res.json();
       console.log('[Kingdom Stats Component] ✅ API response:', data);
+      console.log('[Kingdom Stats Component] 📋 Response structure:', {
+        hasData: !!data.data,
+        dataType: typeof data.data,
+        isArray: Array.isArray(data.data),
+        dataLength: data.data?.length,
+        hasSuccess: !!data.success,
+        successValue: data.success,
+        keys: Object.keys(data)
+      });
       
-      if (data.success && data.data) {
+      // Check if we have data in the response
+      if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+        console.log('[Kingdom Stats Component] 📊 Setting graph data:', data.data);
+        setGraphData(data.data);
+      } else if (data.success && data.data && Array.isArray(data.data)) {
+        console.log('[Kingdom Stats Component] 📊 Setting graph data (success format):', data.data);
         setGraphData(data.data);
       } else {
-        console.log('[Kingdom Stats Component] ⚠️ API returned no data');
+        console.log('[Kingdom Stats Component] ⚠️ API returned no valid data structure:', data);
         setGraphData([]);
       }
     } catch (err) {
