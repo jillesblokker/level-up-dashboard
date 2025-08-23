@@ -6,14 +6,8 @@ import { supabaseServer } from '../../../lib/supabase/server-client';
 // Helper to extract and verify Clerk JWT, returns userId or null
 async function getUserIdFromRequest(request: Request): Promise<string | null> {
   try {
-    // Convert Request to NextRequest for Clerk getAuth
-    const nextRequest = new NextRequest(request.url, {
-      method: request.method,
-      headers: request.headers,
-      body: request.body,
-    });
-    
-    const { userId } = await getAuth(nextRequest);
+    // Use the same pattern as working APIs
+    const { userId } = getAuth(request as NextRequest);
     console.log('[Kingdom Stats] getAuth result:', { userId });
     return userId || null;
   } catch (e) {
