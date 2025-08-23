@@ -215,7 +215,7 @@ export async function GET(request: Request) {
       // Aggregate challenge completions from challenge_completion table
       const { data: completions, error } = await supabaseServer
         .from('challenge_completion')
-        .select('id, completed, date, challenge_id')
+        .select('id, challenge_id, date, completed, category')
         .eq('user_id', userId)
         .eq('completed', true);
         
