@@ -7,7 +7,7 @@ import { supabaseServer } from '../../../lib/supabase/server-client';
 async function getUserIdFromRequest(request: Request): Promise<string | null> {
   try {
     // Use the same pattern as working APIs
-    const { userId } = getAuth(request as NextRequest);
+    const { userId } = getAuth(request as any);
     console.log('[Kingdom Stats] getAuth result:', { userId });
     return userId || null;
   } catch (e) {
