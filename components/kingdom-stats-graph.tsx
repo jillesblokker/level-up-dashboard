@@ -430,21 +430,37 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
   const { userId: authUserId, isLoaded, getToken } = useAuth();
 
   const fetchData = useCallback(async () => {
+    console.log('[Kingdom Stats Component] fetchData called with:', {
+      authUserId: !!authUserId,
+      isLoaded,
+      activeTab,
+      timePeriod
+    });
+    
     if (!authUserId) {
+      console.log('[Kingdom Stats Component] ❌ No authUserId, returning early');
       return;
     }
 
     if (!isLoaded) {
+      console.log('[Kingdom Stats Component] ❌ Clerk not loaded, returning early');
       return;
     }
 
+    console.log('[Kingdom Stats Component] ✅ Proceeding with API call...');
     setIsLoading(true);
+    
     try {
+      console.log('[Kingdom Stats Component] Getting Clerk token...');
       const token = await getToken();
+      console.log('[Kingdom Stats Component] Token result:', !!token, 'length:', token?.length || 0);
+      
       if (!token) {
+        console.log('[Kingdom Stats Component] ❌ No token, returning early');
         return;
       }
 
+      console.log('[Kingdom Stats Component] 🚀 Making API call to /api/kingdom-stats...');
       const res = await fetch(`/api/kingdom-stats?tab=${activeTab}&period=${timePeriod}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -452,14 +468,17 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
         },
       });
 
+      console.log('[Kingdom Stats Component] API response status:', res.status);
+      
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
 
       const { data } = await res.json();
+      console.log('[Kingdom Stats Component] API response data:', data);
       setGraphData(data || []);
     } catch (err) {
-      console.error('Error fetching kingdom stats:', err);
+      console.error('[Kingdom Stats Component] Error fetching kingdom stats:', err);
     } finally {
       setIsLoading(false);
     }
