@@ -449,18 +449,33 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
         const storedData = localStorage.getItem('questCompletions') || '[]';
         const questCompletions = JSON.parse(storedData);
         
+        console.log('[Kingdom Stats Component] Raw quest completions:', questCompletions);
+        console.log('[Kingdom Stats Component] Quest completions length:', questCompletions.length);
+        
         // Aggregate by date
         const counts: Record<string, number> = {};
         const days = getDateRange(timePeriod);
         days.forEach(day => { counts[day] = 0; });
         
-        questCompletions.forEach((quest: any) => {
+        console.log('[Kingdom Stats Component] Date range for', timePeriod, ':', days);
+        
+        questCompletions.forEach((quest: any, index: number) => {
+          console.log(`[Kingdom Stats Component] Quest ${index}:`, quest);
           if (quest.completed_at) {
             const day = quest.completed_at.slice(0, 10);
-            if (counts[day] !== undefined) counts[day]++;
+            console.log(`[Kingdom Stats Component] Quest ${index} completed_at: ${quest.completed_at}, extracted day: ${day}`);
+            if (counts[day] !== undefined) {
+              counts[day]++;
+              console.log(`[Kingdom Stats Component] Incremented count for ${day}, new count: ${counts[day]}`);
+            } else {
+              console.log(`[Kingdom Stats Component] Day ${day} not in date range`);
+            }
+          } else {
+            console.log(`[Kingdom Stats Component] Quest ${index} has no completed_at field`);
           }
         });
         
+        console.log('[Kingdom Stats Component] Final counts:', counts);
         data = days.map(day => ({ day, value: counts[day] || 0 }));
         console.log('[Kingdom Stats Component] Quest data aggregated:', data);
       }
@@ -471,18 +486,33 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
         const storedData = localStorage.getItem('challenges') || '[]';
         const challengeCompletions = JSON.parse(storedData);
         
+        console.log('[Kingdom Stats Component] Raw challenge completions:', challengeCompletions);
+        console.log('[Kingdom Stats Component] Challenge completions length:', challengeCompletions.length);
+        
         // Aggregate by date
         const counts: Record<string, number> = {};
         const days = getDateRange(timePeriod);
         days.forEach(day => { counts[day] = 0; });
         
-        challengeCompletions.forEach((challenge: any) => {
+        console.log('[Kingdom Stats Component] Date range for', timePeriod, ':', days);
+        
+        challengeCompletions.forEach((challenge: any, index: number) => {
+          console.log(`[Kingdom Stats Component] Challenge ${index}:`, challenge);
           if (challenge.date) {
             const day = challenge.date.slice(0, 10);
-            if (counts[day] !== undefined) counts[day]++;
+            console.log(`[Kingdom Stats Component] Challenge ${index} date: ${challenge.date}, extracted day: ${day}`);
+            if (counts[day] !== undefined) {
+              counts[day]++;
+              console.log(`[Kingdom Stats Component] Incremented count for ${day}, new count: ${counts[day]}`);
+            } else {
+              console.log(`[Kingdom Stats Component] Day ${day} not in date range`);
+            }
+          } else {
+            console.log(`[Kingdom Stats Component] Challenge ${index} has no date field`);
           }
         });
         
+        console.log('[Kingdom Stats Component] Final counts:', counts);
         data = days.map(day => ({ day, value: counts[day] || 0 }));
         console.log('[Kingdom Stats Component] Challenge data aggregated:', data);
       }
@@ -493,18 +523,33 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
         const storedData = localStorage.getItem('milestone-progress') || '[]';
         const milestoneCompletions = JSON.parse(storedData);
         
+        console.log('[Kingdom Stats Component] Raw milestone completions:', milestoneCompletions);
+        console.log('[Kingdom Stats Component] Milestone completions length:', milestoneCompletions.length);
+        
         // Aggregate by date
         const counts: Record<string, number> = {};
         const days = getDateRange(timePeriod);
         days.forEach(day => { counts[day] = 0; });
         
-        milestoneCompletions.forEach((milestone: any) => {
+        console.log('[Kingdom Stats Component] Date range for', timePeriod, ':', days);
+        
+        milestoneCompletions.forEach((milestone: any, index: number) => {
+          console.log(`[Kingdom Stats Component] Milestone ${index}:`, milestone);
           if (milestone.date) {
             const day = milestone.date.slice(0, 10);
-            if (counts[day] !== undefined) counts[day]++;
+            console.log(`[Kingdom Stats Component] Milestone ${index} date: ${milestone.date}, extracted day: ${day}`);
+            if (counts[day] !== undefined) {
+              counts[day]++;
+              console.log(`[Kingdom Stats Component] Incremented count for ${day}, new count: ${counts[day]}`);
+            } else {
+              console.log(`[Kingdom Stats Component] Day ${day} not in date range`);
+            }
+          } else {
+            console.log(`[Kingdom Stats Component] Milestone ${index} has no date field`);
           }
         });
         
+        console.log('[Kingdom Stats Component] Final counts:', counts);
         data = days.map(day => ({ day, value: counts[day] || 0 }));
         console.log('[Kingdom Stats Component] Milestone data aggregated:', data);
       }
