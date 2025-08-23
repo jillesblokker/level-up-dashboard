@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Image from "next/image"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { HeaderSection } from "@/components/HeaderSection"
@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogAction } from "@/components/ui/alert-dialog"
 import { useToast } from "@/components/ui/use-toast"
 import { useUser } from '@clerk/nextjs'
+import { useAuth } from '@clerk/nextjs'
 import { 
   getKingdomInventory, 
   getEquippedItems, 
@@ -286,10 +287,9 @@ function getKingdomTileInventoryWithBuildTokens(): Tile[] {
   });
 }
 
-export function KingdomClient({ userId }: { userId: string | null }) {
-  // Add debugging to see what userId value we're getting
-      // userId received
-  
+export function KingdomClient() {
+  const { user } = useUser();
+  const { getToken } = useAuth();
   const { toast } = useToast();
   const [coverImage, setCoverImage] = useState<string | undefined>(undefined);
   const [equippedItems, setEquippedItems] = useState<KingdomInventoryItem[]>([]);
@@ -428,17 +428,49 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     });
   }, [kingdomGrid]);
 
-  // Save kingdomGrid to localStorage whenever it changes
+  // Save kingdom grid to Supabase
+  const saveKingdomGridToSupabase = useCallback(async (grid: Tile[][]) => {
+    try {
+      const token = await getToken();
+      if (!token) {
+        console.log('[Kingdom] No token available, falling back to localStorage');
+        localStorage.setItem('kingdom-grid', JSON.stringify(grid));
+        return;
+      }
+
+      const response = await fetch('/api/kingdom-grid', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ grid }),
+      });
+
+      if (response.ok) {
+        console.log('[Kingdom] ✅ Grid saved to Supabase successfully');
+      } else {
+        console.log('[Kingdom] ⚠️ Failed to save to Supabase, falling back to localStorage');
+        localStorage.setItem('kingdom-grid', JSON.stringify(grid));
+      }
+    } catch (error) {
+      console.error('[Kingdom] Error saving to Supabase:', error);
+      console.log('[Kingdom] Falling back to localStorage');
+      localStorage.setItem('kingdom-grid', JSON.stringify(grid));
+    }
+  }, [getToken]);
+
+  // Save kingdomGrid to Supabase whenever it changes
   useEffect(() => {
     if (kingdomGrid && kingdomGrid.length > 0) {
-      console.log('[Kingdom] Saving kingdomGrid to localStorage:', {
+      console.log('[Kingdom] Saving kingdomGrid to Supabase:', {
         gridLength: kingdomGrid.length,
         hasTiles: kingdomGrid.some(row => row.some(cell => cell && cell.type && cell.type !== 'empty')),
         tileCount: kingdomGrid.flat().filter(cell => cell && cell.type && cell.type !== 'empty').length
       });
-      localStorage.setItem('kingdom-grid', JSON.stringify(kingdomGrid));
+      saveKingdomGridToSupabase(kingdomGrid);
     }
-  }, [kingdomGrid]);
+  }, [kingdomGrid, saveKingdomGridToSupabase]);
 
   // Helper to determine if an item is consumable
   const isConsumable = (item: KingdomInventoryItem) => {
@@ -452,12 +484,12 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       setModalText(getConsumableEffect(item));
       setModalOpen(true);
     }
-    if (userId) equipItem(userId, item.id);
+    if (user?.id) equipItem(user.id, item.id);
   };
 
   // Handler for unequipping items
   const handleUnequip = (item: KingdomInventoryItem) => {
-    if (userId) unequipItem(userId, item.id);
+    if (user?.id) unequipItem(user.id, item.id);
   };
 
   // Get sell price for an item
@@ -519,7 +551,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const handleSellItem = async (item: KingdomInventoryItem) => {
     // Removed debugging log
     
-    if (!userId) {
+    if (!user?.id) {
       // Removed debugging log
       toast({
         title: "Error",
@@ -556,8 +588,8 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       setSellingModalOpen(true);
       
       // Refresh inventory from Supabase
-      const equipped = await getEquippedItems(userId);
-      const stored = await getStoredItems(userId);
+      const equipped = await getEquippedItems(user.id);
+      const stored = await getStoredItems(user.id);
       setEquippedItems(equipped);
       setStoredItems(stored);
     } catch (error) {
@@ -587,13 +619,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     }
     
     // Save to API
-    fetch('/api/kingdom-grid', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ grid: updatedGrid })
-    }).catch(error => {
-      console.error('Failed to save kingdom grid:', error);
-    });
+    saveKingdomGridToSupabase(updatedGrid);
   }
 
   // Restore renderItemCard for inventory display
@@ -755,7 +781,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
 
   // Load kingdom grid on mount
   useEffect(() => {
-    if (!userId) return;
+    if (!user?.id) return;
     
     const loadKingdomGrid = async () => {
       try {
@@ -772,11 +798,11 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     };
 
     loadKingdomGrid();
-  }, [userId]);
+  }, [user?.id]);
 
   // 🎯 LOAD CHALLENGES ON COMPONENT MOUNT
   useEffect(() => {
-    if (!userId) return;
+    if (!user?.id) return;
     
     const loadChallenges = async () => {
       try {
@@ -805,17 +831,17 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     };
 
     loadChallenges();
-  }, [userId]);
+  }, [user?.id]);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!user?.id) return;
     setInventoryLoading(true);
     const loadInventory = async () => {
       try {
         // Removed debugging log
-        const equipped = await getEquippedItems(userId);
-        const stored = await getStoredItems(userId);
-        const stats = await getTotalStats(userId);
+        const equipped = await getEquippedItems(user.id);
+        const stored = await getStoredItems(user.id);
+        const stats = await getTotalStats(user.id);
         
         // 🎯 LOAD CHALLENGES DATA
         let challenges = [];
@@ -999,13 +1025,13 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       window.removeEventListener('xp-update', handleXPUpdate);
       window.removeEventListener('challenge-update', handleChallengeUpdate);
     };
-  }, [userId]);
+  }, [user?.id]);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!user?.id) return;
     setCoverImageLoading(true);
     const loadCoverImage = async () => {
-      const pref = await getUserPreference(userId, 'kingdom-header-image');
+      const pref = await getUserPreference(user.id, 'kingdom-header-image');
       if (pref) {
         setCoverImage(pref);
       } else {
@@ -1015,7 +1041,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       setCoverImageLoading(false);
     };
     loadCoverImage();
-  }, [userId]);
+  }, [user?.id]);
 
   const handleKingdomTileGoldEarned = (amount: number) => {
     // Use the unified gold system
@@ -1042,8 +1068,8 @@ export function KingdomClient({ userId }: { userId: string | null }) {
     }
 
     // Add to proper inventory system
-    if (userId) {
-      addToInventory(userId, inventoryItem);
+    if (user?.id) {
+      addToInventory(user.id, inventoryItem);
     }
 
     // Also store in localStorage for backwards compatibility
@@ -1098,14 +1124,14 @@ export function KingdomClient({ userId }: { userId: string | null }) {
       <HeaderSection
         title="KINGDOM"
         imageSrc={coverImage || ""}
-        canEdit={!!userId}
+        canEdit={!!user?.id}
         onImageUpload={async (file) => {
           const reader = new FileReader();
           reader.onload = async (event: ProgressEvent<FileReader>) => {
             const result = event.target?.result as string;
             setCoverImage(result);
-            if (userId) {
-              await setUserPreference(userId, 'kingdom-header-image', result);
+            if (user?.id) {
+              await setUserPreference(user.id, 'kingdom-header-image', result);
             }
           };
           reader.readAsDataURL(file);
@@ -1164,10 +1190,10 @@ export function KingdomClient({ userId }: { userId: string | null }) {
               {/* Existing Stats Blocks */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="w-full" aria-label="kingdom-stats-block-container">
-                  <KingdomStatsBlock userId={userId} />
+                  <KingdomStatsBlock userId={user?.id} />
                 </div>
                 <div className="w-full" aria-label="king-stats-block-container">
-                  <KingStatsBlock userId={userId} />
+                  <KingStatsBlock userId={user?.id} />
                 </div>
               </div>
             </div>
