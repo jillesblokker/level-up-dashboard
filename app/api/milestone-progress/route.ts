@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
 
-// GET: Return character stats for the user
+// GET: Return milestone progress for the user
 export async function GET() {
   try {
     const { userId } = await auth();
@@ -11,7 +11,7 @@ export async function GET() {
     }
 
     const { data, error } = await supabaseServer
-      .from('character_stats')
+      .from('milestone_progress')
       .select('*')
       .eq('user_id', userId)
       .single();
@@ -21,16 +21,16 @@ export async function GET() {
     }
 
     if (!data) {
-      return NextResponse.json({ stats: null });
+      return NextResponse.json({ progress: null });
     }
 
-    return NextResponse.json({ stats: data.stats_data });
+    return NextResponse.json({ progress: data.progress_data });
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
-// POST: Save character stats for the user
+// POST: Save milestone progress for the user
 export async function POST(request: Request) {
   try {
     const { userId } = await auth();
@@ -38,17 +38,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { stats } = await request.json();
-    if (!stats || typeof stats !== 'object') {
-      return NextResponse.json({ error: 'Invalid stats data' }, { status: 400 });
+    const { progress } = await request.json();
+    if (!progress || typeof progress !== 'object') {
+      return NextResponse.json({ error: 'Invalid progress data' }, { status: 400 });
     }
 
-    // Upsert the stats data
+    // Upsert the progress data
     const { error } = await supabaseServer
-      .from('character_stats')
+      .from('milestone_progress')
       .upsert({
         user_id: userId,
-        stats_data: stats,
+        progress_data: progress,
         updated_at: new Date().toISOString()
       }, {
         onConflict: 'user_id'
@@ -62,4 +62,4 @@ export async function POST(request: Request) {
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-} 
+}
