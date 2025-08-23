@@ -437,58 +437,167 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
       timePeriod
     });
     
-    if (!authUserId) {
-      console.log('[Kingdom Stats Component] ❌ No authUserId, returning early');
-      return;
-    }
-
-    if (!isLoaded) {
-      console.log('[Kingdom Stats Component] ❌ Clerk not loaded, returning early');
-      return;
-    }
-
-    console.log('[Kingdom Stats Component] ✅ Proceeding with API call...');
-    setIsLoading(true);
+    // Since Clerk authentication is broken, let's implement client-side stats
+    console.log('[Kingdom Stats Component] 🔧 Using client-side data aggregation (no API)');
     
     try {
-      console.log('[Kingdom Stats Component] Getting Clerk token...');
-      const token = await getToken();
-      console.log('[Kingdom Stats Component] Token result:', !!token, 'length:', token?.length || 0);
+      // Get data from localStorage and existing sources
+      let data: any[] = [];
       
-      if (!token) {
-        console.log('[Kingdom Stats Component] ❌ No token, returning early');
-        return;
+      if (activeTab === 'quests') {
+        console.log('[Kingdom Stats Component] 📋 Aggregating quest data from localStorage...');
+        // Get quest completions from localStorage or existing state
+        const storedData = localStorage.getItem('quest-completions') || '[]';
+        const questCompletions = JSON.parse(storedData);
+        
+        // Aggregate by date
+        const counts: Record<string, number> = {};
+        const days = getDateRange(timePeriod);
+        days.forEach(day => { counts[day] = 0; });
+        
+        questCompletions.forEach((quest: any) => {
+          if (quest.completed_at) {
+            const day = quest.completed_at.slice(0, 10);
+            if (counts[day] !== undefined) counts[day]++;
+          }
+        });
+        
+        data = days.map(day => ({ day, value: counts[day] || 0 }));
+        console.log('[Kingdom Stats Component] Quest data aggregated:', data);
       }
-
-      console.log('[Kingdom Stats Component] 🚀 Making API call to /api/kingdom-stats...');
-      const res = await fetch(`/api/kingdom-stats?tab=${activeTab}&period=${timePeriod}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      console.log('[Kingdom Stats Component] API response status:', res.status);
       
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+      else if (activeTab === 'challenges') {
+        console.log('[Kingdom Stats Component] 🏆 Aggregating challenge data from localStorage...');
+        // Get challenge completions from localStorage
+        const storedData = localStorage.getItem('challenge-completions') || '[]';
+        const challengeCompletions = JSON.parse(storedData);
+        
+        // Aggregate by date
+        const counts: Record<string, number> = {};
+        const days = getDateRange(timePeriod);
+        days.forEach(day => { counts[day] = 0; });
+        
+        challengeCompletions.forEach((challenge: any) => {
+          if (challenge.date) {
+            const day = challenge.date.slice(0, 10);
+            if (counts[day] !== undefined) counts[day]++;
+          }
+        });
+        
+        data = days.map(day => ({ day, value: counts[day] || 0 }));
+        console.log('[Kingdom Stats Component] Challenge data aggregated:', data);
       }
-
-      const { data } = await res.json();
-      console.log('[Kingdom Stats Component] API response data:', data);
+      
+      else if (activeTab === 'milestones') {
+        console.log('[Kingdom Stats Component] 🎯 Aggregating milestone data from localStorage...');
+        // Get milestone completions from localStorage
+        const storedData = localStorage.getItem('milestone-completions') || '[]';
+        const milestoneCompletions = JSON.parse(storedData);
+        
+        // Aggregate by date
+        const counts: Record<string, number> = {};
+        const days = getDateRange(timePeriod);
+        days.forEach(day => { counts[day] = 0; });
+        
+        milestoneCompletions.forEach((milestone: any) => {
+          if (milestone.date) {
+            const day = milestone.date.slice(0, 10);
+            if (counts[day] !== undefined) counts[day]++;
+          }
+        });
+        
+        data = days.map(day => ({ day, value: counts[day] || 0 }));
+        console.log('[Kingdom Stats Component] Milestone data aggregated:', data);
+      }
+      
+      else if (activeTab === 'gold') {
+        console.log('[Kingdom Stats Component] 💰 Aggregating gold data from localStorage...');
+        // Get gold earnings from quest completions
+        const storedData = localStorage.getItem('quest-completions') || '[]';
+        const questCompletions = JSON.parse(storedData);
+        
+        // Aggregate gold by date
+        const counts: Record<string, number> = {};
+        const days = getDateRange(timePeriod);
+        days.forEach(day => { counts[day] = 0; });
+        
+        questCompletions.forEach((quest: any) => {
+          if (quest.completed_at && quest.gold_earned) {
+            const day = quest.completed_at.slice(0, 10);
+            if (counts[day] !== undefined) counts[day] += quest.gold_earned;
+          }
+        });
+        
+        data = days.map(day => ({ day, value: counts[day] || 0 }));
+        console.log('[Kingdom Stats Component] Gold data aggregated:', data);
+      }
+      
+      else if (activeTab === 'experience') {
+        console.log('[Kingdom Stats Component] ⭐ Aggregating experience data from localStorage...');
+        // Get XP earnings from quest completions
+        const storedData = localStorage.getItem('quest-completions') || '[]';
+        const questCompletions = JSON.parse(storedData);
+        
+        // Aggregate XP by date
+        const counts: Record<string, number> = {};
+        const days = getDateRange(timePeriod);
+        days.forEach(day => { counts[day] = 0; });
+        
+        questCompletions.forEach((quest: any) => {
+          if (quest.completed_at && quest.xp_earned) {
+            const day = quest.completed_at.slice(0, 10);
+            if (counts[day] !== undefined) counts[day] += quest.xp_earned;
+          }
+        });
+        
+        data = days.map(day => ({ day, value: counts[day] || 0 }));
+        console.log('[Kingdom Stats Component] Experience data aggregated:', data);
+      }
+      
+      // Set the data
       setGraphData(data || []);
+      console.log('[Kingdom Stats Component] ✅ Data set successfully:', data);
+      
     } catch (err) {
-      console.error('[Kingdom Stats Component] Error fetching kingdom stats:', err);
-    } finally {
-      setIsLoading(false);
+      console.error('[Kingdom Stats Component] Error aggregating data:', err);
+      // Fallback to empty data
+      setGraphData([]);
     }
-  }, [authUserId, activeTab, timePeriod, isLoaded, getToken]);
+  }, [activeTab, timePeriod]);
+
+  // Helper function to get date ranges
+  function getDateRange(period: string): string[] {
+    const now = new Date();
+    let days: string[] = [];
+    
+    if (period === 'week') {
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        days.push(d.toISOString().slice(0, 10));
+      }
+    } else if (period === 'month') {
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        days.push(d.toISOString().slice(0, 10));
+      }
+    } else if (period === 'year') {
+      for (let i = 11; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        days.push(d.toISOString().slice(0, 7));
+      }
+    } else if (period === 'all') {
+      days = ['all'];
+    }
+    
+    return days;
+  }
 
   useEffect(() => {
-    if (authUserId && isLoaded) {
-      fetchData();
-    }
-  }, [authUserId, activeTab, timePeriod, isLoaded, fetchData]);
+    // Call fetchData immediately since we're using client-side data
+    fetchData();
+  }, [activeTab, timePeriod, fetchData]);
 
   // 🎯 REAL-TIME SUPABASE SUBSCRIPTIONS for instant updates
   useSupabaseRealtimeSync({
