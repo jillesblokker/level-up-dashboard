@@ -1258,7 +1258,7 @@ export function KingdomGridWithTimers({
           Array.from({ length: cols }).map((_, x) => {
             const tile = grid[y]?.[x]
             const timer = tileTimers.find(t => t.x === x && t.y === y)
-            const kingdomTile = tile ? KINGDOM_TILES.find(kt => 
+            const kingdomTile = tile && tile.type !== 'vacant' ? KINGDOM_TILES.find(kt => 
               kt.id === tile.type.toLowerCase() || 
               kt.name.toLowerCase() === tile.name.toLowerCase() ||
               kt.image === tile.image

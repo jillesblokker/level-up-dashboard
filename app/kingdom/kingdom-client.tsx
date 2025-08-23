@@ -181,7 +181,7 @@ function createEmptyKingdomGrid(): Tile[][] {
   const grid = Array.from({ length: KINGDOM_GRID_ROWS }, (_, y) =>
     Array.from({ length: KINGDOM_GRID_COLS }, (_, x) => ({
       id: `vacant-${x}-${y}`,
-      type: 'empty' as TileType,
+      type: 'vacant' as TileType,
       name: 'Vacant',
       description: 'An empty plot of land.',
       connections: [] as ConnectionDirection[],
