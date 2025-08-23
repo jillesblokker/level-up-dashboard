@@ -1,20 +1,21 @@
-import { NextResponse } from 'next/server';
-import { NextRequest } from 'next/server';
-import { getAuth } from '@clerk/nextjs/server';
-import { supabaseServer } from '../../../lib/supabase/server-client';
+import { NextResponse, NextRequest } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
+import { supabaseServer } from '@/lib/supabase/server-client';
+
+const supabase = supabaseServer;
 
 // Helper to extract and verify Clerk JWT, returns userId or null
 async function getUserIdFromRequest(request: Request): Promise<string | null> {
   try {
-    // First try to get userId from Clerk getAuth
-    const { userId } = getAuth(request as any);
-    console.log('[Kingdom Stats] getAuth result:', { userId });
+    // Try using the auth() function from middleware context
+    const { userId } = await auth();
+    console.log('[Kingdom Stats] auth() result:', { userId });
     
     if (userId) {
       return userId;
     }
     
-    // If getAuth fails, try to extract token from Authorization header manually
+    // Fallback: try to extract token from Authorization header manually
     const authHeader = request.headers.get('authorization');
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
