@@ -423,7 +423,7 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
 // --- Block 1: KingdomStatsBlock ---
 export function KingdomStatsBlock({ userId }: { userId: string | null }) {
   const [graphData, setGraphData] = useState<Array<{ day: string; value: number }>>([]);
-  const [activeTab, setActiveTab] = useState<'quests' | 'challenges' | 'gold' | 'experience'>('quests');
+  const [activeTab, setActiveTab] = useState<'quests' | 'challenges' | 'milestones' | 'gold' | 'experience'>('quests');
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('week');
   const [isLoading, setIsLoading] = useState(false);
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
