@@ -1299,13 +1299,13 @@ export function KingdomGridWithTimers({
                 style={{ minWidth: 0, minHeight: 0, borderRadius: 0, margin: 0, padding: 0 }}
               >
                 <Image
-                  src={isKingdomTile && kingdomTile ? kingdomTile.image : tile.image}
+                  src={tile.type === 'vacant' ? '/images/kingdom-tiles/Vacant.png' : (isKingdomTile && kingdomTile ? kingdomTile.image : tile.image)}
                   alt={tile.name}
                   fill
                   className="object-cover"
                   draggable={false}
                   unoptimized
-                  onError={(e) => { e.currentTarget.src = '/images/placeholders/item-placeholder.svg' }}
+                  onError={(e) => { e.currentTarget.src = '/images/placeholders/empty-tile.svg' }}
                 />
                 
                 {/* Placement mode indicator for vacant tiles */}

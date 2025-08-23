@@ -299,7 +299,7 @@ export function KingdomClient({ userId }: { userId: string | null }) {
   const [modalText, setModalText] = useState("")
   const [activeTab, setActiveTab] = useState("equipped")
   const [kingdomTab, setKingdomTab] = useState("thrivehaven");
-  const [kingdomGrid, setKingdomGrid] = useState<Tile[][]>(createEmptyKingdomGrid());
+  const [kingdomGrid, setKingdomGrid] = useState<Tile[][]>(() => createEmptyKingdomGrid());
   const [selectedKingdomTile, setSelectedKingdomTile] = useState<Tile | null>(null);
   const kingdomTileInventory = getKingdomTileInventoryWithBuildTokens();
   const [propertiesOpen, setPropertiesOpen] = useState(false);
