@@ -9,22 +9,13 @@ const isPublicRoute = createRouteMatcher([
   '/api/webhooks(.*)',
 ]);
 
-const isApiRoute = createRouteMatcher([
-  '/api/(.*)',
-]);
-
 export default clerkMiddleware(async (auth, request) => {
   // If the route is public, let it pass through.
   if (isPublicRoute(request)) {
     return NextResponse.next();
   }
 
-  // API routes should handle their own authentication and return JSON responses
-  if (isApiRoute(request)) {
-    return NextResponse.next();
-  }
-
-  // For all other (protected) routes, check for authentication.
+  // For all other routes (including API routes), check for authentication.
   const { userId } = await auth();
   
   // If the user is not authenticated, redirect to the sign-in page.
@@ -33,7 +24,7 @@ export default clerkMiddleware(async (auth, request) => {
     return NextResponse.redirect(signInUrl);
   }
 
-  // If the user is authenticated, allow them to access the protected route.
+  // If the user is authenticated, allow them to access the route.
   return NextResponse.next();
 });
 

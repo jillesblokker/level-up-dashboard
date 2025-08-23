@@ -430,218 +430,48 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
   const { userId: authUserId, isLoaded, getToken } = useAuth();
 
   const fetchData = useCallback(async () => {
-    console.log('[Kingdom Stats Component] fetchData called with:', {
-      authUserId: !!authUserId,
-      isLoaded,
-      activeTab,
-      timePeriod
-    });
+    console.log('[Kingdom Stats Component] fetchData called with:', { authUserId, isLoaded, activeTab, timePeriod });
     
-    // Since Clerk authentication is broken, let's implement client-side stats
-    console.log('[Kingdom Stats Component] 🔧 Using client-side data aggregation (no API)');
-    
-    try {
-      // Get data from localStorage and existing sources
-      let data: any[] = [];
-      
-      if (activeTab === 'quests') {
-        console.log('[Kingdom Stats Component] 📋 Aggregating quest data from localStorage...');
-        const storedData = localStorage.getItem('questCompletions') || '[]';
-        const questCompletions = JSON.parse(storedData);
-        
-        console.log('[Kingdom Stats Component] Raw quest completions:', questCompletions);
-        console.log('[Kingdom Stats Component] Quest completions length:', questCompletions.length);
-        
-        // Aggregate by date
-        const counts: Record<string, number> = {};
-        const days = getDateRange(timePeriod);
-        days.forEach(day => { counts[day] = 0; });
-        
-        console.log('[Kingdom Stats Component] Date range for', timePeriod, ':', days);
-        
-        questCompletions.forEach((quest: any, index: number) => {
-          console.log(`[Kingdom Stats Component] Quest ${index}:`, quest);
-          if (quest.completed_at) {
-            const day = quest.completed_at.slice(0, 10);
-            console.log(`[Kingdom Stats Component] Quest ${index} completed_at: ${quest.completed_at}, extracted day: ${day}`);
-            if (counts[day] !== undefined) {
-              counts[day]++;
-              console.log(`[Kingdom Stats Component] Incremented count for ${day}, new count: ${counts[day]}`);
-            } else {
-              console.log(`[Kingdom Stats Component] Day ${day} not in date range`);
-            }
-          } else {
-            console.log(`[Kingdom Stats Component] Quest ${index} has no completed_at field`);
-          }
-        });
-        
-        console.log('[Kingdom Stats Component] Final counts:', counts);
-        data = days.map(day => ({ day, value: counts[day] || 0 }));
-        console.log('[Kingdom Stats Component] Quest data aggregated:', data);
-      }
-      
-      else if (activeTab === 'challenges') {
-        console.log('[Kingdom Stats Component] 🏆 Aggregating challenge data from localStorage...');
-        // Get challenge completions from localStorage
-        const storedData = localStorage.getItem('challenges') || '[]';
-        const challengeCompletions = JSON.parse(storedData);
-        
-        console.log('[Kingdom Stats Component] Raw challenge completions:', challengeCompletions);
-        console.log('[Kingdom Stats Component] Challenge completions length:', challengeCompletions.length);
-        
-        // Aggregate by date
-        const counts: Record<string, number> = {};
-        const days = getDateRange(timePeriod);
-        days.forEach(day => { counts[day] = 0; });
-        
-        console.log('[Kingdom Stats Component] Date range for', timePeriod, ':', days);
-        
-        challengeCompletions.forEach((challenge: any, index: number) => {
-          console.log(`[Kingdom Stats Component] Challenge ${index}:`, challenge);
-          if (challenge.date) {
-            const day = challenge.date.slice(0, 10);
-            console.log(`[Kingdom Stats Component] Challenge ${index} date: ${challenge.date}, extracted day: ${day}`);
-            if (counts[day] !== undefined) {
-              counts[day]++;
-              console.log(`[Kingdom Stats Component] Incremented count for ${day}, new count: ${counts[day]}`);
-            } else {
-              console.log(`[Kingdom Stats Component] Day ${day} not in date range`);
-            }
-          } else {
-            console.log(`[Kingdom Stats Component] Challenge ${index} has no date field`);
-          }
-        });
-        
-        console.log('[Kingdom Stats Component] Final counts:', counts);
-        data = days.map(day => ({ day, value: counts[day] || 0 }));
-        console.log('[Kingdom Stats Component] Challenge data aggregated:', data);
-      }
-      
-      else if (activeTab === 'milestones') {
-        console.log('[Kingdom Stats Component] 🎯 Aggregating milestone data from localStorage...');
-        // Get milestone completions from localStorage
-        const storedData = localStorage.getItem('milestone-progress') || '[]';
-        const milestoneCompletions = JSON.parse(storedData);
-        
-        console.log('[Kingdom Stats Component] Raw milestone completions:', milestoneCompletions);
-        console.log('[Kingdom Stats Component] Milestone completions length:', milestoneCompletions.length);
-        
-        // Aggregate by date
-        const counts: Record<string, number> = {};
-        const days = getDateRange(timePeriod);
-        days.forEach(day => { counts[day] = 0; });
-        
-        console.log('[Kingdom Stats Component] Date range for', timePeriod, ':', days);
-        
-        milestoneCompletions.forEach((milestone: any, index: number) => {
-          console.log(`[Kingdom Stats Component] Milestone ${index}:`, milestone);
-          if (milestone.date) {
-            const day = milestone.date.slice(0, 10);
-            console.log(`[Kingdom Stats Component] Milestone ${index} date: ${milestone.date}, extracted day: ${day}`);
-            if (counts[day] !== undefined) {
-              counts[day]++;
-              console.log(`[Kingdom Stats Component] Incremented count for ${day}, new count: ${counts[day]}`);
-            } else {
-              console.log(`[Kingdom Stats Component] Day ${day} not in date range`);
-            }
-          } else {
-            console.log(`[Kingdom Stats Component] Milestone ${index} has no date field`);
-          }
-        });
-        
-        console.log('[Kingdom Stats Component] Final counts:', counts);
-        data = days.map(day => ({ day, value: counts[day] || 0 }));
-        console.log('[Kingdom Stats Component] Milestone data aggregated:', data);
-      }
-      
-      else if (activeTab === 'gold') {
-        console.log('[Kingdom Stats Component] 💰 Aggregating gold data from localStorage...');
-        // Get gold earnings from quest completions
-        const storedData = localStorage.getItem('questCompletions') || '[]';
-        const questCompletions = JSON.parse(storedData);
-        
-        // Aggregate gold by date
-        const counts: Record<string, number> = {};
-        const days = getDateRange(timePeriod);
-        days.forEach(day => { counts[day] = 0; });
-        
-        questCompletions.forEach((quest: any) => {
-          if (quest.completed_at && quest.gold_earned) {
-            const day = quest.completed_at.slice(0, 10);
-            if (counts[day] !== undefined) counts[day] += quest.gold_earned;
-          }
-        });
-        
-        data = days.map(day => ({ day, value: counts[day] || 0 }));
-        console.log('[Kingdom Stats Component] Gold data aggregated:', data);
-      }
-      
-      else if (activeTab === 'experience') {
-        console.log('[Kingdom Stats Component] ⭐ Aggregating experience data from localStorage...');
-        // Get XP earnings from quest completions
-        const storedData = localStorage.getItem('questCompletions') || '[]';
-        const questCompletions = JSON.parse(storedData);
-        
-        // Aggregate XP by date
-        const counts: Record<string, number> = {};
-        const days = getDateRange(timePeriod);
-        days.forEach(day => { counts[day] = 0; });
-        
-        questCompletions.forEach((quest: any) => {
-          if (quest.completed_at && quest.xp_earned) {
-            const day = quest.completed_at.slice(0, 10);
-            if (counts[day] !== undefined) counts[day] += quest.xp_earned;
-          }
-        });
-        
-        data = days.map(day => ({ day, value: counts[day] || 0 }));
-        console.log('[Kingdom Stats Component] Experience data aggregated:', data);
-      }
-      
-      // Set the data
-      setGraphData(data || []);
-      console.log('[Kingdom Stats Component] ✅ Data set successfully:', data);
-      
-    } catch (err) {
-      console.error('[Kingdom Stats Component] Error aggregating data:', err);
-      // Fallback to empty data
-      setGraphData([]);
+    if (!authUserId || !isLoaded) {
+      console.log('[Kingdom Stats Component] Not ready to fetch data:', { authUserId, isLoaded });
+      return;
     }
-  }, [activeTab, timePeriod]);
 
-  // Helper function to get date ranges
-  function getDateRange(period: string): string[] {
-    const now = new Date();
-    let days: string[] = [];
-    
-    if (period === 'week') {
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        days.push(d.toISOString().slice(0, 10));
+    try {
+      setIsLoading(true);
+      console.log('[Kingdom Stats Component] 🚀 Fetching data from API...');
+      
+      const res = await fetch(`/api/kingdom-stats?tab=${activeTab}&period=${timePeriod}`, {
+        headers: {
+          'Authorization': `Bearer ${await getToken()}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error(`API error: ${res.status} ${res.statusText}`);
       }
-    } else if (period === 'month') {
-      for (let i = 29; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        days.push(d.toISOString().slice(0, 10));
+
+      const data = await res.json();
+      console.log('[Kingdom Stats Component] ✅ API response:', data);
+      
+      if (data.success && data.data) {
+        setGraphData(data.data);
+      } else {
+        console.log('[Kingdom Stats Component] ⚠️ API returned no data');
+        setGraphData([]);
       }
-    } else if (period === 'year') {
-      for (let i = 11; i >= 0; i--) {
-        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        days.push(d.toISOString().slice(0, 7));
-      }
-    } else if (period === 'all') {
-      days = ['all'];
+    } catch (err) {
+      console.error('[Kingdom Stats Component] Error fetching data:', err);
+      setGraphData([]);
+    } finally {
+      setIsLoading(false);
     }
-    
-    return days;
-  }
+  }, [authUserId, isLoaded, activeTab, timePeriod, getToken]);
 
   useEffect(() => {
-    // Call fetchData immediately since we're using client-side data
+    // Call fetchData when dependencies change
     fetchData();
-  }, [activeTab, timePeriod, fetchData]);
+  }, [fetchData]);
 
   // 🎯 REAL-TIME SUPABASE SUBSCRIPTIONS for instant updates
   useSupabaseRealtimeSync({
