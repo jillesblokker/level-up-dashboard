@@ -1,5 +1,4 @@
-// Character stats manager using localStorage only
-// Supabase integration will be added later when we have proper client-side auth setup
+import { saveToSupabaseClient, loadFromSupabaseClient } from './supabase-persistence-client';
 
 export interface CharacterStats {
   gold: number;
@@ -12,7 +11,7 @@ export interface CharacterStats {
 }
 
 /**
- * Loads character stats from localStorage
+ * Loads character stats from Supabase with localStorage fallback
  */
 export async function loadCharacterStats(): Promise<CharacterStats> {
   const defaultStats: CharacterStats = {
@@ -25,72 +24,18 @@ export async function loadCharacterStats(): Promise<CharacterStats> {
     kingdom_expansions: 0
   };
   
-  // Check if we're on the client side
-  if (typeof window === 'undefined') {
-    return defaultStats;
-  }
-
-  try {
-    const stored = localStorage.getItem('character-stats');
-    if (stored) {
-      const stats = JSON.parse(stored);
-      return {
-        gold: stats.gold || 0,
-        experience: stats.experience || 0,
-        level: stats.level || 1,
-        health: stats.health || 100,
-        max_health: stats.max_health || 100,
-        build_tokens: stats.buildTokens || 0,
-        kingdom_expansions: parseInt(localStorage.getItem('kingdom-grid-expansions') || '0', 10)
-      };
-    }
-  } catch (error) {
-    console.warn('[Character Stats Manager] Error getting stats from localStorage:', error);
-  }
-
-  return defaultStats;
+  return await loadFromSupabaseClient('/api/character-stats', 'character-stats', defaultStats);
 }
 
 /**
- * Saves character stats to localStorage
+ * Saves character stats to both Supabase and localStorage
  */
 export async function saveCharacterStats(stats: Partial<CharacterStats>): Promise<boolean> {
-  // Check if we're on the client side
-  if (typeof window === 'undefined') {
-    console.warn('[Character Stats Manager] Cannot save stats on server side');
-    return false;
-  }
-
-  try {
-    // Load existing stats and merge with new stats
-    const existingStats = await loadCharacterStats();
-    const mergedStats = { ...existingStats, ...stats };
-    
-    // Convert to localStorage format
-    const localStorageStats = {
-      gold: mergedStats.gold,
-      experience: mergedStats.experience,
-      level: mergedStats.level,
-      health: mergedStats.health,
-      max_health: mergedStats.max_health,
-      buildTokens: mergedStats.build_tokens
-    };
-    
-    localStorage.setItem('character-stats', JSON.stringify(localStorageStats));
-    
-    // Save kingdom expansions separately
-    if (stats.kingdom_expansions !== undefined) {
-      localStorage.setItem('kingdom-grid-expansions', String(stats.kingdom_expansions));
-    }
-    
-    // Dispatch update event to notify all components
-    window.dispatchEvent(new Event('character-stats-update'));
-    
-    return true;
-  } catch (error) {
-    console.error('[Character Stats Manager] Error saving stats:', error);
-    return false;
-  }
+  // Load existing stats and merge with new stats
+  const existingStats = await loadCharacterStats();
+  const mergedStats = { ...existingStats, ...stats };
+  
+  return await saveToSupabaseClient('/api/character-stats', { stats: mergedStats }, 'character-stats');
 }
 
 /**
