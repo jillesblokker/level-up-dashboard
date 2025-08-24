@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress"
 import { NotificationCenter } from "@/components/notification-center"
 import { UserNav } from "@/components/user-nav"
 import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character"
-import { getCharacterStats, fetchFreshCharacterStats } from "@/lib/character-stats-manager"
+import { getCharacterStats, loadCharacterStats } from "@/lib/character-stats-manager"
 
 interface CustomSession {
   user?: {
@@ -52,31 +52,22 @@ export function NavBar({ session }: NavBarProps) {
 
   useEffect(() => {
     // Load character stats
-    const loadCharacterStats = () => {
+    const loadStats = async () => {
       try {
-        // Get current stats
-        const stats = getCharacterStats()
-        const currentLevel = calculateLevelFromExperience(stats.experience)
+        // Get current stats from localStorage first (for immediate display)
+        const localStats = getCharacterStats()
+        const currentLevel = calculateLevelFromExperience(localStats.experience)
         setCharacterStats({
           level: currentLevel,
-          experience: stats.experience,
+          experience: localStats.experience,
           experienceToNextLevel: calculateExperienceForLevel(currentLevel),
-          gold: stats.gold,
+          gold: localStats.gold,
           titles: { equipped: '', unlocked: 0, total: 0 },
           perks: { active: 0, total: 0 }
         })
-      } catch (error) {
-        console.error("Error loading character stats:", error)
-      }
-    }
-    
-    // Load initial stats from localStorage
-    loadCharacterStats()
-    
-    // Fetch fresh data from API
-    const fetchFreshData = async () => {
-      try {
-        const freshStats = await fetchFreshCharacterStats()
+        
+        // Then fetch fresh data from Supabase
+        const freshStats = await loadCharacterStats()
         if (freshStats) {
           const currentLevel = calculateLevelFromExperience(freshStats.experience)
           setCharacterStats({
@@ -89,18 +80,18 @@ export function NavBar({ session }: NavBarProps) {
           })
         }
       } catch (error) {
-        console.error("Error fetching fresh character stats:", error)
+        console.error("Error loading character stats:", error)
       }
     }
     
-    // Fetch fresh data immediately
-    fetchFreshData()
+    // Load stats immediately
+    loadStats()
     
     // Set up periodic refresh every 30 seconds
-    const refreshInterval = setInterval(fetchFreshData, 30000)
+    const refreshInterval = setInterval(loadStats, 30000)
     
     // Listen for character stats updates
-    const handleStatsUpdate = () => loadCharacterStats()
+    const handleStatsUpdate = () => loadStats()
     window.addEventListener("character-stats-update", handleStatsUpdate)
     
     return () => {
