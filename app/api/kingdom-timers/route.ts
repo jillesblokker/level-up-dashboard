@@ -10,27 +10,51 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    console.log(`[Kingdom Timers API] Fetching timers for user: ${userId}`);
+
     const { data, error } = await supabaseServer
       .from('kingdom_timers')
       .select('*')
       .eq('user_id', userId)
       .single();
 
-    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+    if (error) {
       console.error('[Kingdom Timers API] Supabase error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      
+      // Check if it's a table doesn't exist error
+      if (error.code === '42P01') {
+        return NextResponse.json({ 
+          error: 'Table kingdom_timers does not exist. Please run the database migration first.',
+          details: error.message,
+          code: error.code
+        }, { status: 500 });
+      }
+      
+      // Check if it's a no rows returned error
+      if (error.code === 'PGRST116') {
+        return NextResponse.json({ timers: null });
+      }
+      
+      return NextResponse.json({ 
+        error: error.message,
+        code: error.code
+      }, { status: 500 });
     }
 
     if (!data) {
       return NextResponse.json({ timers: null });
     }
 
+    console.log(`[Kingdom Timers API] Successfully fetched timers for user: ${userId}`);
     return NextResponse.json({
       timers: data.timers_data || {}
     });
   } catch (error) {
-    console.error('[Kingdom Timers API] Error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('[Kingdom Timers API] Unexpected error:', error);
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 }
 
@@ -47,6 +71,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid timers data' }, { status: 400 });
     }
 
+    console.log(`[Kingdom Timers API] Saving timers for user: ${userId}`);
+
     const timersData = {
       user_id: userId,
       timers_data: timers,
@@ -61,13 +87,30 @@ export async function POST(request: Request) {
       });
 
     if (error) {
-      console.error('[Kingdom Timers API] Supabase error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error('[Kingdom Timers API] Supabase upsert error:', error);
+      
+      // Check if it's a table doesn't exist error
+      if (error.code === '42P01') {
+        return NextResponse.json({ 
+          error: 'Table kingdom_timers does not exist. Please run the database migration first.',
+          details: error.message,
+          code: error.code
+        }, { status: 500 });
+      }
+      
+      return NextResponse.json({ 
+        error: error.message,
+        code: error.code
+      }, { status: 500 });
     }
 
+    console.log(`[Kingdom Timers API] Successfully saved timers for user: ${userId}`);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('[Kingdom Timers API] Error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('[Kingdom Timers API] Unexpected error:', error);
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 }
