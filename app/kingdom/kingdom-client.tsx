@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Image from "next/image"
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { HeaderSection } from "@/components/HeaderSection"
@@ -11,8 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogAction } from "@/components/ui/alert-dialog"
 import { useToast } from "@/components/ui/use-toast"
-import { useUser } from '@clerk/nextjs'
-import { useAuth } from '@clerk/nextjs'
+import { useUser, useAuth } from '@clerk/nextjs'
 import { 
   getKingdomInventory, 
   getEquippedItems, 
@@ -43,6 +42,7 @@ import { KingdomTileGrid } from '@/components/kingdom-tile-grid';
 import type { Tile, TileType, ConnectionDirection } from '@/types/tiles';
 import { gainGold } from '@/lib/gold-manager';
 import { KINGDOM_TILES } from '@/lib/kingdom-tiles';
+import { saveKingdomGrid, saveKingdomTimers, saveKingdomItems, saveKingdomTileStates, loadKingdomGrid, loadKingdomTimers, loadKingdomItems, loadKingdomTileStates } from '@/lib/supabase-persistence-client'
 
 type KingdomInventoryItem = (DefaultInventoryItem | ManagerInventoryItem) & { 
   stats?: Record<string, number>, 
@@ -323,101 +323,167 @@ export function KingdomClient() {
   useEffect(() => {
     console.log('[Kingdom] Initializing kingdom grid and timers...');
     
-    // Check if timers already exist
-    const existingTimers = localStorage.getItem('kingdom-tile-timers');
-    
-    if (!existingTimers) {
-      console.log('[Kingdom] Creating default timers...');
-      
-      const defaultTimers = [
-        { x: 1, y: 1, tileId: 'well', endTime: Date.now() + (10 * 60 * 1000), isReady: false }, // 10 min
-        { x: 2, y: 1, tileId: 'blacksmith', endTime: Date.now() + (30 * 60 * 1000), isReady: false }, // 30 min
-        { x: 3, y: 1, tileId: 'fisherman', endTime: Date.now() + (15 * 60 * 1000), isReady: false }, // 15 min
-        { x: 4, y: 1, tileId: 'sawmill', endTime: Date.now() + (45 * 60 * 1000), isReady: false }, // 45 min
-        { x: 5, y: 1, tileId: 'windmill', endTime: Date.now() + (20 * 60 * 1000), isReady: false }, // 20 min
-        { x: 1, y: 2, tileId: 'grocery', endTime: Date.now() + (5 * 60 * 1000), isReady: false }, // 5 min
-        { x: 2, y: 2, tileId: 'castle', endTime: Date.now() + (480 * 60 * 1000), isReady: false }, // 8 hours (legendary)
-        { x: 3, y: 2, tileId: 'temple', endTime: Date.now() + (60 * 60 * 1000), isReady: false }, // 1 hour
-        { x: 4, y: 2, tileId: 'fountain', endTime: Date.now() + (25 * 60 * 1000), isReady: false }, // 25 min
-        { x: 5, y: 2, tileId: 'pond', endTime: Date.now() + (12 * 60 * 1000), isReady: false }, // 12 min
-        { x: 1, y: 3, tileId: 'foodcourt', endTime: Date.now() + (8 * 60 * 1000), isReady: false }, // 8 min
-        { x: 2, y: 3, tileId: 'vegetables', endTime: Date.now() + (35 * 60 * 1000), isReady: false }, // 35 min
-        { x: 3, y: 3, tileId: 'wizard', endTime: Date.now() + (90 * 60 * 1000), isReady: false }, // 1.5 hours
-        { x: 4, y: 3, tileId: 'mayor', endTime: Date.now() + (75 * 60 * 1000), isReady: false }, // 1.25 hours
-        { x: 5, y: 3, tileId: 'inn', endTime: Date.now() + (18 * 60 * 1000), isReady: false }, // 18 min
-        { x: 1, y: 4, tileId: 'library', endTime: Date.now() + (22 * 60 * 1000), isReady: false }, // 22 min - FIXED: was 'house'
-        { x: 2, y: 4, tileId: 'mansion', endTime: Date.now() + (120 * 60 * 1000), isReady: false }, // 2 hours
-        { x: 3, y: 4, tileId: 'jousting', endTime: Date.now() + (150 * 60 * 1000), isReady: false }, // 2.5 hours
-        { x: 4, y: 4, tileId: 'archery', endTime: Date.now() + (28 * 60 * 1000), isReady: false }, // 28 min
-        { x: 5, y: 4, tileId: 'watchtower', endTime: Date.now() + (65 * 60 * 1000), isReady: false }, // 1.1 hours
-      ];
-      
-      // Save default timers
-      localStorage.setItem('kingdom-tile-timers', JSON.stringify(defaultTimers));
-      console.log('[Kingdom] Default timers created and saved');
-    } else {
-      console.log('[Kingdom] Using existing timers from localStorage');
-    }
-    
-    // Load kingdom grid (preserve existing if available)
-    const existingGrid = localStorage.getItem('kingdom-grid');
-    if (existingGrid) {
+    const initializeKingdomData = async () => {
       try {
-        console.log('[Kingdom] Loading existing grid from localStorage...');
-        const parsedGrid = JSON.parse(existingGrid);
+        // Load timers from Supabase with localStorage fallback
+        const savedTimers = await loadKingdomTimers();
+        if (!savedTimers || Object.keys(savedTimers).length === 0) {
+          console.log('[Kingdom] Creating default timers...');
+          
+          const defaultTimers = {
+            '1,1': { x: 1, y: 1, tileId: 'well', endTime: Date.now() + (10 * 60 * 1000), isReady: false }, // 10 min
+            '2,1': { x: 2, y: 1, tileId: 'blacksmith', endTime: Date.now() + (30 * 60 * 1000), isReady: false }, // 30 min
+            '3,1': { x: 3, y: 1, tileId: 'fisherman', endTime: Date.now() + (15 * 60 * 1000), isReady: false }, // 15 min
+            '4,1': { x: 4, y: 1, tileId: 'sawmill', endTime: Date.now() + (45 * 60 * 1000), isReady: false }, // 45 min
+            '5,1': { x: 5, y: 1, tileId: 'windmill', endTime: Date.now() + (20 * 60 * 1000), isReady: false }, // 20 min
+            '1,2': { x: 1, y: 2, tileId: 'grocery', endTime: Date.now() + (5 * 60 * 1000), isReady: false }, // 5 min
+            '2,2': { x: 2, y: 2, tileId: 'castle', endTime: Date.now() + (480 * 60 * 1000), isReady: false }, // 8 hours (legendary)
+            '3,2': { x: 3, y: 2, tileId: 'temple', endTime: Date.now() + (60 * 60 * 1000), isReady: false }, // 1 hour
+            '4,2': { x: 4, y: 2, tileId: 'fountain', endTime: Date.now() + (25 * 60 * 1000), isReady: false }, // 25 min
+            '5,2': { x: 5, y: 2, tileId: 'pond', endTime: Date.now() + (12 * 60 * 1000), isReady: false }, // 12 min
+            '1,3': { x: 1, y: 3, tileId: 'foodcourt', endTime: Date.now() + (8 * 60 * 1000), isReady: false }, // 8 min
+            '2,3': { x: 2, y: 3, tileId: 'vegetables', endTime: Date.now() + (35 * 60 * 1000), isReady: false }, // 35 min
+            '3,3': { x: 3, y: 3, tileId: 'wizard', endTime: Date.now() + (90 * 60 * 1000), isReady: false }, // 1.5 hours
+            '4,3': { x: 4, y: 3, tileId: 'mayor', endTime: Date.now() + (75 * 60 * 1000), isReady: false }, // 1.25 hours
+            '5,3': { x: 5, y: 3, tileId: 'inn', endTime: Date.now() + (18 * 60 * 1000), isReady: false }, // 18 min
+            '1,4': { x: 1, y: 4, tileId: 'library', endTime: Date.now() + (22 * 60 * 1000), isReady: false }, // 22 min
+            '2,4': { x: 2, y: 4, tileId: 'mansion', endTime: Date.now() + (120 * 60 * 1000), isReady: false }, // 2 hours
+            '3,4': { x: 3, y: 4, tileId: 'jousting', endTime: Date.now() + (150 * 60 * 1000), isReady: false }, // 2.5 hours
+            '4,4': { x: 4, y: 4, tileId: 'archery', endTime: Date.now() + (28 * 60 * 1000), isReady: false }, // 28 min
+            '5,4': { x: 5, y: 4, tileId: 'watchtower', endTime: Date.now() + (65 * 60 * 1000), isReady: false }, // 1.1 hours
+          };
+          
+          // Save default timers to Supabase
+          await saveKingdomTimers(defaultTimers);
+          console.log('[Kingdom] Default timers created and saved to Supabase');
+        } else {
+          console.log('[Kingdom] Using existing timers from Supabase');
+        }
         
-        // Check if the stored grid has the correct structure with vacant tiles
-        const hasCorrectVacantTiles = parsedGrid.some((row: any) => 
-          row.some((cell: any) => cell && cell.type === 'vacant')
-        );
-        
-        if (!hasCorrectVacantTiles) {
-          console.log('[Kingdom] Stored grid missing vacant tiles, clearing localStorage and creating new grid...');
-          localStorage.removeItem('kingdom-grid');
+        // Load kingdom grid from Supabase with localStorage fallback
+        const savedGrid = await loadKingdomGrid();
+        if (savedGrid && savedGrid.length > 0) {
+          try {
+            console.log('[Kingdom] Loading existing grid from Supabase...');
+            
+            // Check if the stored grid has the correct structure with vacant tiles
+            const hasCorrectVacantTiles = savedGrid.some((row: any) => 
+              row.some((cell: any) => cell && cell.type === 'vacant')
+            );
+            
+            if (!hasCorrectVacantTiles) {
+              console.log('[Kingdom] Stored grid missing vacant tiles, creating new grid...');
+              const newGrid = createEmptyKingdomGrid();
+              console.log('[Kingdom] Created new grid with correct vacant tiles:', {
+                gridLength: newGrid.length,
+                hasTiles: newGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty')),
+                vacantTileCount: newGrid.flat().filter((cell: any) => cell && cell.type === 'vacant').length
+              });
+              setKingdomGrid(newGrid);
+              // Save the new grid to Supabase
+              await saveKingdomGrid(newGrid);
+            } else {
+              console.log('[Kingdom] Existing grid loaded with correct vacant tiles:', {
+                gridLength: savedGrid.length,
+                hasTiles: savedGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty')),
+                vacantTileCount: savedGrid.flat().filter((cell: any) => cell && cell.type === 'vacant').length
+              });
+              setKingdomGrid(savedGrid);
+            }
+          } catch (error) {
+            console.warn('[Kingdom] Failed to parse existing grid, creating new one:', error);
+            const newGrid = createEmptyKingdomGrid();
+            console.log('[Kingdom] Created new grid:', {
+              gridLength: newGrid.length,
+              hasTiles: newGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty'))
+            });
+            setKingdomGrid(newGrid);
+            // Save the new grid to Supabase
+            await saveKingdomGrid(newGrid);
+          }
+        } else {
+          console.log('[Kingdom] No existing grid found, creating new one...');
           const newGrid = createEmptyKingdomGrid();
-          console.log('[Kingdom] Created new grid with correct vacant tiles:', {
+          console.log('[Kingdom] Created new grid:', {
             gridLength: newGrid.length,
-            hasTiles: newGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty')),
-            vacantTileCount: newGrid.flat().filter((cell: any) => cell && cell.type === 'vacant').length
+            hasTiles: newGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty'))
           });
           setKingdomGrid(newGrid);
-        } else {
-          console.log('[Kingdom] Existing grid loaded with correct vacant tiles:', {
-            gridLength: parsedGrid.length,
-            hasTiles: parsedGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty')),
-            vacantTileCount: parsedGrid.flat().filter((cell: any) => cell && cell.type === 'vacant').length
-          });
-          setKingdomGrid(parsedGrid);
+          // Save the new grid to Supabase
+          await saveKingdomGrid(newGrid);
         }
       } catch (error) {
-        console.warn('[Kingdom] Failed to parse existing grid, creating new one:', error);
-        const newGrid = createEmptyKingdomGrid();
-        console.log('[Kingdom] Created new grid:', {
-          gridLength: newGrid.length,
-          hasTiles: newGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty'))
-        });
-        setKingdomGrid(newGrid);
+        console.error('[Kingdom] Error initializing kingdom data:', error);
+        // Fallback to localStorage if Supabase fails
+        const existingTimers = localStorage.getItem('kingdom-tile-timers');
+        if (!existingTimers) {
+          // Create default timers in localStorage as fallback
+          const defaultTimers = [
+            { x: 1, y: 1, tileId: 'well', endTime: Date.now() + (10 * 60 * 1000), isReady: false }, // 10 min
+            { x: 2, y: 1, tileId: 'blacksmith', endTime: Date.now() + (30 * 60 * 1000), isReady: false }, // 30 min
+            { x: 3, y: 1, tileId: 'fisherman', endTime: Date.now() + (15 * 60 * 1000), isReady: false }, // 15 min
+            { x: 4, y: 1, tileId: 'sawmill', endTime: Date.now() + (45 * 60 * 1000), isReady: false }, // 45 min
+            { x: 5, y: 1, tileId: 'windmill', endTime: Date.now() + (20 * 60 * 1000), isReady: false }, // 20 min
+            { x: 1, y: 2, tileId: 'grocery', endTime: Date.now() + (5 * 60 * 1000), isReady: false }, // 5 min
+            { x: 2, y: 2, tileId: 'castle', endTime: Date.now() + (480 * 60 * 1000), isReady: false }, // 8 hours (legendary)
+            { x: 3, y: 2, tileId: 'temple', endTime: Date.now() + (60 * 60 * 1000), isReady: false }, // 1 hour
+            { x: 4, y: 2, tileId: 'fountain', endTime: Date.now() + (25 * 60 * 1000), isReady: false }, // 25 min
+            { x: 5, y: 2, tileId: 'pond', endTime: Date.now() + (12 * 60 * 1000), isReady: false }, // 12 min
+            { x: 1, y: 3, tileId: 'foodcourt', endTime: Date.now() + (8 * 60 * 1000), isReady: false }, // 8 min
+            { x: 2, y: 3, tileId: 'vegetables', endTime: Date.now() + (35 * 60 * 1000), isReady: false }, // 35 min
+            { x: 3, y: 3, tileId: 'wizard', endTime: Date.now() + (90 * 60 * 1000), isReady: false }, // 1.5 hours
+            { x: 4, y: 3, tileId: 'mayor', endTime: Date.now() + (75 * 60 * 1000), isReady: false }, // 1.25 hours
+            { x: 5, y: 3, tileId: 'inn', endTime: Date.now() + (18 * 60 * 1000), isReady: false }, // 18 min
+            { x: 1, y: 4, tileId: 'library', endTime: Date.now() + (22 * 60 * 1000), isReady: false }, // 22 min - FIXED: was 'house'
+            { x: 2, y: 4, tileId: 'mansion', endTime: Date.now() + (120 * 60 * 1000), isReady: false }, // 2 hours
+            { x: 3, y: 4, tileId: 'jousting', endTime: Date.now() + (150 * 60 * 1000), isReady: false }, // 2.5 hours
+            { x: 4, y: 4, tileId: 'archery', endTime: Date.now() + (28 * 60 * 1000), isReady: false }, // 28 min
+            { x: 5, y: 4, tileId: 'watchtower', endTime: Date.now() + (65 * 60 * 1000), isReady: false }, // 1.1 hours
+          ];
+          localStorage.setItem('kingdom-tile-timers', JSON.stringify(defaultTimers));
+        }
+        
+        const existingGrid = localStorage.getItem('kingdom-grid');
+        if (existingGrid) {
+          try {
+            const parsedGrid = JSON.parse(existingGrid);
+            setKingdomGrid(parsedGrid);
+          } catch (error) {
+            const newGrid = createEmptyKingdomGrid();
+            setKingdomGrid(newGrid);
+          }
+        } else {
+          const newGrid = createEmptyKingdomGrid();
+          setKingdomGrid(newGrid);
+        }
       }
-    } else {
-      console.log('[Kingdom] No existing grid found, creating new one...');
-      const newGrid = createEmptyKingdomGrid();
-      console.log('[Kingdom] Created new grid:', {
-        gridLength: newGrid.length,
-        hasTiles: newGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty'))
-      });
-      setKingdomGrid(newGrid);
-    }
+    };
+    
+    initializeKingdomData();
   }, []);
 
-  // Load timers from localStorage to sync with kingdom grid
+  // Load timers from Supabase to sync with kingdom grid
   useEffect(() => {
-    const savedTimers = localStorage.getItem('kingdom-tile-timers')
-    if (savedTimers) {
-      const timers = JSON.parse(savedTimers)
-      // Update tile states based on actual timers
-      // Removed debugging log
-    }
-  }, [])
+    const loadTimers = async () => {
+      try {
+        const savedTimers = await loadKingdomTimers();
+        if (savedTimers) {
+          // Update tile states based on actual timers
+          // Removed debugging log
+        }
+      } catch (error) {
+        console.error('[Kingdom] Error loading timers:', error);
+        // Fallback to localStorage
+        const savedTimers = localStorage.getItem('kingdom-tile-timers');
+        if (savedTimers) {
+          const timers = JSON.parse(savedTimers);
+          // Update tile states based on actual timers
+        }
+      }
+    };
+    
+    loadTimers();
+  }, []);
 
   // Debug: Log kingdom grid state changes
   useEffect(() => {
