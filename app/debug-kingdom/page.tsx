@@ -85,29 +85,54 @@ export default function DebugKingdomPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {Object.entries(results).map(([endpoint, result]: [string, any]) => (
-          <div key={endpoint} className="border rounded-lg p-4 bg-white shadow">
-            <h3 className="text-lg font-semibold mb-2">{endpoint}</h3>
+          <div key={endpoint} className="border rounded-lg p-4 bg-gray-800 text-white shadow">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-lg font-semibold text-white">{endpoint}</h3>
+              <button
+                onClick={() => {
+                  const logText = JSON.stringify({
+                    endpoint,
+                    ...result
+                  }, null, 2);
+                  navigator.clipboard.writeText(logText);
+                  // Show a brief success message
+                  const button = event?.target as HTMLButtonElement;
+                  if (button) {
+                    const originalText = button.textContent;
+                    button.textContent = 'Copied!';
+                    button.className = 'bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-1 rounded';
+                    setTimeout(() => {
+                      button.textContent = originalText;
+                      button.className = 'bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded';
+                    }, 2000);
+                  }
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded"
+              >
+                Copy Log
+              </button>
+            </div>
             
             {result.error ? (
-              <div className="text-red-600">
+              <div className="text-red-400">
                 <strong>Error:</strong> {result.error}
               </div>
             ) : (
               <div>
-                <div className="mb-2">
+                <div className="mb-3 text-green-400">
                   <strong>Status:</strong> {result.status} {result.statusText}
                 </div>
                 
                 {result.data && (
-                  <div className="mb-2">
-                    <strong>Response:</strong>
-                    <pre className="bg-gray-100 p-2 rounded text-sm overflow-auto">
+                  <div className="mb-3">
+                    <strong className="text-yellow-400">Response:</strong>
+                    <pre className="bg-gray-900 p-3 rounded text-sm overflow-auto text-gray-200 border border-gray-600">
                       {JSON.stringify(result.data, null, 2)}
                     </pre>
                   </div>
                 )}
                 
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-300">
                   <strong>Timestamp:</strong> {result.timestamp}
                 </div>
               </div>
