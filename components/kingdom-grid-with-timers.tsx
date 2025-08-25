@@ -320,9 +320,9 @@ export function KingdomGridWithTimers({
       id: 'house',
       name: 'House',
       image: '/images/kingdom-tiles/House.png',
-      cost: 100,
+      cost: 1,
       levelRequired: 1,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'basic'
@@ -331,9 +331,9 @@ export function KingdomGridWithTimers({
       id: 'well',
       name: 'Well',
       image: '/images/kingdom-tiles/Well.png',
-      cost: 90,
+      cost: 1,
       levelRequired: 1,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'basic'
@@ -342,9 +342,9 @@ export function KingdomGridWithTimers({
       id: 'pond',
       name: 'Pond',
       image: '/images/kingdom-tiles/Pond.png',
-      cost: 80,
+      cost: 1,
       levelRequired: 1,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'basic'
@@ -353,9 +353,9 @@ export function KingdomGridWithTimers({
       id: 'vegetables',
       name: 'Vegetables',
       image: '/images/kingdom-tiles/Vegetables.png',
-      cost: 60,
+      cost: 1,
       levelRequired: 1,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'basic'
@@ -366,9 +366,9 @@ export function KingdomGridWithTimers({
       id: 'market-stalls',
       name: 'Market Stalls',
       image: '/images/kingdom-tiles/MarketStalls.png',
-      cost: 130,
+      cost: 1,
       levelRequired: 1,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'commerce'
@@ -377,9 +377,9 @@ export function KingdomGridWithTimers({
       id: 'grocery',
       name: 'Grocery',
       image: '/images/kingdom-tiles/Grocery.png',
-      cost: 160,
+      cost: 1,
       levelRequired: 1,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'commerce'
@@ -388,9 +388,9 @@ export function KingdomGridWithTimers({
       id: 'bakery',
       name: 'Bakery',
       image: '/images/kingdom-tiles/Bakery.png',
-      cost: 140,
+      cost: 1,
       levelRequired: 1,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: true,
       eventType: 'harvest',
@@ -400,9 +400,9 @@ export function KingdomGridWithTimers({
       id: 'brewery',
       name: 'Brewery',
       image: '/images/kingdom-tiles/Brewery.png',
-      cost: 180,
+      cost: 1,
       levelRequired: 2,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: true,
       eventType: 'harvest',
@@ -414,9 +414,9 @@ export function KingdomGridWithTimers({
       id: 'blacksmith',
       name: 'Blacksmith',
       image: '/images/kingdom-tiles/Blacksmith.png',
-      cost: 150,
+      cost: 1,
       levelRequired: 1,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'production'
@@ -425,9 +425,9 @@ export function KingdomGridWithTimers({
       id: 'sawmill',
       name: 'Sawmill',
       image: '/images/kingdom-tiles/Sawmill.png',
-      cost: 280,
+      cost: 1,
       levelRequired: 2,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'production'
@@ -436,9 +436,9 @@ export function KingdomGridWithTimers({
       id: 'windmill',
       name: 'Windmill',
       image: '/images/kingdom-tiles/Windmill.png',
-      cost: 320,
+      cost: 1,
       levelRequired: 2,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'production'
@@ -449,9 +449,9 @@ export function KingdomGridWithTimers({
       id: 'inn',
       name: 'Inn',
       image: '/images/kingdom-tiles/Inn.png',
-      cost: 220,
+      cost: 1,
       levelRequired: 1,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'entertainment'
@@ -460,9 +460,9 @@ export function KingdomGridWithTimers({
       id: 'foodcourt',
       name: 'Food Court',
       image: '/images/kingdom-tiles/Foodcourt.png',
-      cost: 180,
+      cost: 1,
       levelRequired: 1,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'entertainment'
@@ -471,9 +471,9 @@ export function KingdomGridWithTimers({
       id: 'fountain',
       name: 'Fountain',
       image: '/images/kingdom-tiles/Fountain.png',
-      cost: 180,
+      cost: 1,
       levelRequired: 1,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'entertainment'
@@ -484,9 +484,9 @@ export function KingdomGridWithTimers({
       id: 'archery',
       name: 'Archery',
       image: '/images/kingdom-tiles/Archery.png',
-      cost: 150,
+      cost: 1,
       levelRequired: 1,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'combat'
@@ -495,9 +495,9 @@ export function KingdomGridWithTimers({
       id: 'training-grounds',
       name: 'Training Grounds',
       image: '/images/kingdom-tiles/TrainingGrounds.png',
-      cost: 200,
+      cost: 1,
       levelRequired: 2,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'combat'
@@ -506,9 +506,9 @@ export function KingdomGridWithTimers({
       id: 'jousting',
       name: 'Jousting',
       image: '/images/kingdom-tiles/Jousting.png',
-      cost: 250,
+      cost: 1,
       levelRequired: 2,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'combat'
@@ -519,9 +519,9 @@ export function KingdomGridWithTimers({
       id: 'watchtower',
       name: 'Watchtower',
       image: '/images/kingdom-tiles/Watchtower.png',
-      cost: 350,
+      cost: 1,
       levelRequired: 2,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'infrastructure'
@@ -530,9 +530,9 @@ export function KingdomGridWithTimers({
       id: 'stable',
       name: 'Stable',
       image: '/images/kingdom-tiles/Stable.png',
-      cost: 160,
+      cost: 1,
       levelRequired: 1,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'infrastructure'
@@ -541,9 +541,9 @@ export function KingdomGridWithTimers({
       id: 'library',
       name: 'Library',
       image: '/images/kingdom-tiles/Library.png',
-      cost: 260,
+      cost: 1,
       levelRequired: 3,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'infrastructure'
@@ -554,9 +554,9 @@ export function KingdomGridWithTimers({
       id: 'winter-fountain',
       name: 'Winter Fountain',
       image: '/images/kingdom-tiles/WinterFountain.png',
-      cost: 200,
+      cost: 1,
       levelRequired: 2,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: true,
       eventType: 'winter',
@@ -566,9 +566,9 @@ export function KingdomGridWithTimers({
       id: 'snowy-inn',
       name: 'Snowy Inn',
       image: '/images/kingdom-tiles/SnowyInn.png',
-      cost: 180,
+      cost: 1,
       levelRequired: 2,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: true,
       eventType: 'winter',
@@ -578,9 +578,9 @@ export function KingdomGridWithTimers({
       id: 'ice-sculpture',
       name: 'Ice Sculpture',
       image: '/images/kingdom-tiles/IceSculpture.png',
-      cost: 150,
+      cost: 1,
       levelRequired: 1,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: true,
       eventType: 'winter',
@@ -590,9 +590,9 @@ export function KingdomGridWithTimers({
       id: 'fireworks-stand',
       name: 'Fireworks Stand',
       image: '/images/kingdom-tiles/FireworksStand.png',
-      cost: 160,
+      cost: 1,
       levelRequired: 2,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: true,
       eventType: 'winter',
@@ -602,9 +602,9 @@ export function KingdomGridWithTimers({
       id: 'pumpkin-patch',
       name: 'Pumpkin Patch',
       image: '/images/kingdom-tiles/PumpkinPatch.png',
-      cost: 120,
+      cost: 1,
       levelRequired: 1,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: true,
       eventType: 'harvest',
@@ -614,9 +614,9 @@ export function KingdomGridWithTimers({
       id: 'harvest-barn',
       name: 'Harvest Barn',
       image: '/images/kingdom-tiles/HarvestBarn.png',
-      cost: 220,
+      cost: 1,
       levelRequired: 2,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: true,
       eventType: 'harvest',
@@ -628,9 +628,9 @@ export function KingdomGridWithTimers({
       id: 'mansion',
       name: 'Mansion',
       image: '/images/kingdom-tiles/Mansion.png',
-      cost: 500,
+      cost: 1,
       levelRequired: 3,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'premium'
@@ -639,9 +639,9 @@ export function KingdomGridWithTimers({
       id: 'temple',
       name: 'Temple',
       image: '/images/kingdom-tiles/Temple.png',
-      cost: 600,
+      cost: 1,
       levelRequired: 4,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'premium'
@@ -650,9 +650,9 @@ export function KingdomGridWithTimers({
       id: 'mayor',
       name: 'Mayor',
       image: '/images/kingdom-tiles/Mayor.png',
-      cost: 600,
+      cost: 1,
       levelRequired: 5,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'premium'
@@ -661,9 +661,9 @@ export function KingdomGridWithTimers({
       id: 'wizard',
       name: 'Wizard',
       image: '/images/kingdom-tiles/Wizard.png',
-      cost: 800,
+      cost: 1,
       levelRequired: 6,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'premium'
@@ -674,9 +674,9 @@ export function KingdomGridWithTimers({
       id: 'castle',
       name: 'Castle',
       image: '/images/kingdom-tiles/Castle.png',
-      cost: 400,
+      cost: 0,
       levelRequired: 1,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 1, // Start with 1 castle
       isSeasonal: false,
       category: 'special'
@@ -685,9 +685,9 @@ export function KingdomGridWithTimers({
       id: 'fisherman',
       name: 'Fisherman',
       image: '/images/kingdom-tiles/Fisherman.png',
-      cost: 120,
+      cost: 1,
       levelRequired: 1,
-      costType: 'gold',
+      costType: 'build-token',
       quantity: 0,
       isSeasonal: false,
       category: 'special'
@@ -722,7 +722,7 @@ export function KingdomGridWithTimers({
 
     // Check if player can place a property
     const canPlaceProperty = (property: typeof propertyInventory[0]) => {
-    if (property.costType === 'gold') {
+    if (property.costType === 'build-token') {
       return (property.quantity || 0) > 0 && playerLevel >= property.levelRequired
     }
     
@@ -733,7 +733,7 @@ export function KingdomGridWithTimers({
   const handlePropertySelect = (property: typeof propertyInventory[0]) => {
     if (!canPlaceProperty(property)) {
       let errorMessage = ''
-      if (property.costType === 'gold') {
+      if (property.costType === 'build-token') {
         if ((property.quantity || 0) <= 0) {
           errorMessage = `You don't own any ${property.name}. Buy one first!`
         } else {
@@ -908,8 +908,8 @@ export function KingdomGridWithTimers({
       // Removed debugging log
     }
 
-    // Decrease property quantity for gold-based properties
-    if (selectedProperty.costType === 'gold') {
+    // Decrease property quantity for build-token-based properties
+    if (selectedProperty.costType === 'build-token') {
       const updatedInventory = propertyInventory.map(p => 
         p.id === selectedProperty.id ? { ...p, quantity: Math.max(0, (p.quantity || 0) - 1) } : p
       )
