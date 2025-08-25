@@ -322,7 +322,7 @@ export function KingdomClient() {
   const [showEntrance, setShowEntrance] = useState(true);
   const [zoomed, setZoomed] = useState(false);
   const [moveUp, setMoveUp] = useState(false);
-  const [kingdomReady, setKingdomReady] = useState(false);
+
   const [kingdomContent, setKingdomContent] = useState<JSX.Element | null>(null);
   const [inventoryLoading, setInventoryLoading] = useState(true);
   const [coverImageLoading, setCoverImageLoading] = useState(true);
@@ -337,12 +337,6 @@ export function KingdomClient() {
 
   // Initialize timers for default kingdom tiles (only if they don't exist)
   useEffect(() => {
-    // Prevent multiple initializations
-    if (kingdomReady) {
-      console.log('[Kingdom] Kingdom already initialized, skipping...');
-      return;
-    }
-    
     console.log('[Kingdom] Initializing kingdom grid and timers...');
     
     const initializeKingdomData = async () => {
@@ -388,22 +382,17 @@ export function KingdomClient() {
           try {
             console.log('[Kingdom] Loading existing grid from Supabase...');
             
-            // Create a merged grid that preserves user-placed tiles while maintaining default kingdom tiles
-            const mergedGrid = mergeGrids(createEmptyKingdomGrid(), savedGrid);
-            
-            console.log('[Kingdom] Merged grid created, preserving user tiles:', {
-              gridLength: mergedGrid.length,
-              hasTiles: mergedGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty')),
-              vacantTileCount: mergedGrid.flat().filter((cell: any) => cell && cell.type === 'vacant').length,
-              userTileCount: mergedGrid.flat().filter((cell: any) => cell && cell.type && cell.type !== 'vacant' && cell.type !== 'empty').length
+            // Use the existing grid directly instead of recreating and merging
+            console.log('[Kingdom] Using existing grid from Supabase:', {
+              gridLength: savedGrid.length,
+              hasTiles: savedGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty')),
+              vacantTileCount: savedGrid.flat().filter((cell: any) => cell && cell.type === 'vacant').length,
+              userTileCount: savedGrid.flat().filter((cell: any) => cell && cell.type && cell.type !== 'vacant' && cell.type !== 'empty').length
             });
             
-            setKingdomGrid(mergedGrid);
-            
-            // Save the merged grid to Supabase to preserve user changes
-            await saveKingdomGrid(mergedGrid);
+            setKingdomGrid(savedGrid);
           } catch (error) {
-            console.warn('[Kingdom] Failed to merge grids, creating new one:', error);
+            console.warn('[Kingdom] Failed to load existing grid, creating new one:', error);
             const newGrid = createEmptyKingdomGrid();
             console.log('[Kingdom] Created new grid:', {
               gridLength: newGrid.length,
@@ -470,12 +459,11 @@ export function KingdomClient() {
           }
         }
         
-        // Mark kingdom as ready to prevent re-initialization
-        setKingdomReady(true);
+
       };
       
       initializeKingdomData();
-    }, [kingdomReady]);
+    }, []); // Empty dependency array - only run once on mount
 
   // Load timers from Supabase to sync with kingdom grid
   useEffect(() => {
