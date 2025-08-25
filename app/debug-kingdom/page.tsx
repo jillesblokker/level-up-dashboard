@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 export default function DebugKingdomPage() {
-  const [results, setResults] = useState<any>({});
+  const [results, setResults] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(false);
 
   const testEndpoint = async (endpoint: string, method: 'GET' | 'POST' = 'GET') => {
@@ -24,7 +24,7 @@ export default function DebugKingdomPage() {
 
       const data = await response.json();
       
-      setResults(prev => ({
+      setResults((prev: Record<string, any>) => ({
         ...prev,
         [endpoint]: {
           status: response.status,
@@ -35,7 +35,7 @@ export default function DebugKingdomPage() {
         }
       }));
     } catch (error) {
-      setResults(prev => ({
+      setResults((prev: Record<string, any>) => ({
         ...prev,
         [endpoint]: {
           error: error instanceof Error ? error.message : 'Unknown error',
