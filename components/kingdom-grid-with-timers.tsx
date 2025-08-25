@@ -816,9 +816,8 @@ export function KingdomGridWithTimers({
     }
 
     try {
-      // Get current build tokens from character stats
-      const currentStats = getCharacterStats();
-      const currentBuildTokens = currentStats.build_tokens || 0;
+      // Use the component's buildTokens state for consistency
+      const currentBuildTokens = buildTokens;
       
       console.log('[Kingdom] Current build tokens:', currentBuildTokens, 'Required:', property.cost);
       
@@ -842,6 +841,9 @@ export function KingdomGridWithTimers({
       
       if (success) {
         console.log('[Kingdom] Build tokens spent successfully, updating inventory...');
+        
+        // Update build tokens state to reflect the spent tokens
+        setBuildTokens(prev => prev - property.cost);
         
         // Update property quantity
         const updatedInventory = propertyInventory.map(p => 
