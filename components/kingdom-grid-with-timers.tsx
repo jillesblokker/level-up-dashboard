@@ -11,7 +11,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { KINGDOM_TILES, getRandomItem, getRandomGold, isLucky as isLuckyTile, getRarityColor } from '@/lib/kingdom-tiles'
 import { KingdomTileModal } from './kingdom-tile-modal'
 import { useToast } from '@/components/ui/use-toast'
-import { getCharacterStats } from '@/lib/character-stats-manager'
+import { getCharacterStats, saveCharacterStats } from '@/lib/character-stats-manager'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
 import { spendGold } from '@/lib/gold-manager'
 
@@ -759,27 +759,48 @@ export function KingdomGridWithTimers({
     });
   }
 
-  // Handle buying properties with gold
+  // Handle buying properties with build tokens
   const handleBuyProperty = async (property: typeof propertyInventory[0]) => {
     console.log('[Kingdom] handleBuyProperty called for:', property.name, 'Cost:', property.cost, 'Cost type:', property.costType);
     
-    if (property.costType !== 'gold') {
-      console.log('[Kingdom] Property cost type is not gold:', property.costType);
+    // Properties should cost build tokens, not gold
+    if (property.costType !== 'build-token') {
+      console.log('[Kingdom] Property cost type is not build-token:', property.costType);
       toast({
         title: 'Cannot Buy',
-        description: 'This property cannot be purchased with gold.',
+        description: 'This property cannot be purchased with build tokens.',
         variant: 'destructive',
       });
       return;
     }
 
     try {
-      console.log('[Kingdom] Attempting to spend gold:', property.cost);
-      const success = await spendGold(property.cost, `purchase-${property.name.toLowerCase()}`);
-      console.log('[Kingdom] spendGold result:', success);
+      // Get current build tokens from character stats
+      const currentStats = getCharacterStats();
+      const currentBuildTokens = currentStats.build_tokens || 0;
+      
+      console.log('[Kingdom] Current build tokens:', currentBuildTokens, 'Required:', property.cost);
+      
+      if (currentBuildTokens < property.cost) {
+        toast({
+          title: 'Insufficient Build Tokens',
+          description: `You need ${property.cost} build token(s) for ${property.name}. You have ${currentBuildTokens}.`,
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      console.log('[Kingdom] Attempting to spend build token(s):', property.cost);
+      
+      // Spend build tokens by updating character stats
+      const success = await saveCharacterStats({ 
+        build_tokens: currentBuildTokens - property.cost 
+      });
+      
+      console.log('[Kingdom] Build tokens spent result:', success);
       
       if (success) {
-        console.log('[Kingdom] Gold spent successfully, updating inventory...');
+        console.log('[Kingdom] Build tokens spent successfully, updating inventory...');
         
         // Update property quantity
         const updatedInventory = propertyInventory.map(p => 
@@ -810,14 +831,17 @@ export function KingdomGridWithTimers({
           console.error('[Kingdom] Failed to increment inventory:', e)
         }
 
-        // Award 1 build token for major purchases (optional rule): disabled
-        
         toast({
           title: 'Property Purchased!',
           description: `You now own ${property.name}!`,
         });
       } else {
-        console.log('[Kingdom] spendGold failed - not enough gold or other error');
+        console.log('[Kingdom] Failed to spend build tokens');
+        toast({
+          title: 'Purchase Failed',
+          description: 'Failed to spend build tokens.',
+          variant: 'destructive',
+        });
       }
     } catch (error) {
       console.error('[Kingdom] Error buying property:', error);
