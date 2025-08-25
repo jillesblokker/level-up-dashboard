@@ -337,6 +337,12 @@ export function KingdomClient() {
 
   // Initialize timers for default kingdom tiles (only if they don't exist)
   useEffect(() => {
+    // Prevent multiple initializations
+    if (kingdomReady) {
+      console.log('[Kingdom] Kingdom already initialized, skipping...');
+      return;
+    }
+    
     console.log('[Kingdom] Initializing kingdom grid and timers...');
     
     const initializeKingdomData = async () => {
@@ -418,55 +424,58 @@ export function KingdomClient() {
           // Save the new grid to Supabase
           await saveKingdomGrid(newGrid);
         }
-      } catch (error) {
-        console.error('[Kingdom] Error initializing kingdom data:', error);
-        // Fallback to localStorage if Supabase fails
-        const existingTimers = localStorage.getItem('kingdom-tile-timers');
-        if (!existingTimers) {
-          // Create default timers in localStorage as fallback
-          const defaultTimers = [
-            { x: 1, y: 1, tileId: 'well', endTime: Date.now() + (10 * 60 * 1000), isReady: false }, // 10 min
-            { x: 2, y: 1, tileId: 'blacksmith', endTime: Date.now() + (30 * 60 * 1000), isReady: false }, // 30 min
-            { x: 3, y: 1, tileId: 'fisherman', endTime: Date.now() + (15 * 60 * 1000), isReady: false }, // 15 min
-            { x: 4, y: 1, tileId: 'sawmill', endTime: Date.now() + (45 * 60 * 1000), isReady: false }, // 45 min
-            { x: 5, y: 1, tileId: 'windmill', endTime: Date.now() + (20 * 60 * 1000), isReady: false }, // 20 min
-            { x: 1, y: 2, tileId: 'grocery', endTime: Date.now() + (5 * 60 * 1000), isReady: false }, // 5 min
-            { x: 2, y: 2, tileId: 'castle', endTime: Date.now() + (480 * 60 * 1000), isReady: false }, // 8 hours (legendary)
-            { x: 3, y: 2, tileId: 'temple', endTime: Date.now() + (60 * 60 * 1000), isReady: false }, // 1 hour
-            { x: 4, y: 2, tileId: 'fountain', endTime: Date.now() + (25 * 60 * 1000), isReady: false }, // 25 min
-            { x: 5, y: 2, tileId: 'pond', endTime: Date.now() + (12 * 60 * 1000), isReady: false }, // 12 min
-            { x: 1, y: 3, tileId: 'foodcourt', endTime: Date.now() + (8 * 60 * 1000), isReady: false }, // 8 min
-            { x: 2, y: 3, tileId: 'vegetables', endTime: Date.now() + (35 * 60 * 1000), isReady: false }, // 35 min
-            { x: 3, y: 3, tileId: 'wizard', endTime: Date.now() + (90 * 60 * 1000), isReady: false }, // 1.5 hours
-            { x: 4, y: 3, tileId: 'mayor', endTime: Date.now() + (75 * 60 * 1000), isReady: false }, // 1.25 hours
-            { x: 5, y: 3, tileId: 'inn', endTime: Date.now() + (18 * 60 * 1000), isReady: false }, // 18 min
-            { x: 1, y: 4, tileId: 'library', endTime: Date.now() + (22 * 60 * 1000), isReady: false }, // 22 min - FIXED: was 'house'
-            { x: 2, y: 4, tileId: 'mansion', endTime: Date.now() + (120 * 60 * 1000), isReady: false }, // 2 hours
-            { x: 3, y: 4, tileId: 'jousting', endTime: Date.now() + (150 * 60 * 1000), isReady: false }, // 2.5 hours
-            { x: 4, y: 4, tileId: 'archery', endTime: Date.now() + (28 * 60 * 1000), isReady: false }, // 28 min
-            { x: 5, y: 4, tileId: 'watchtower', endTime: Date.now() + (65 * 60 * 1000), isReady: false }, // 1.1 hours
-          ];
-          localStorage.setItem('kingdom-tile-timers', JSON.stringify(defaultTimers));
-        }
-        
-        const existingGrid = localStorage.getItem('kingdom-grid');
-        if (existingGrid) {
-          try {
-            const parsedGrid = JSON.parse(existingGrid);
-            setKingdomGrid(parsedGrid);
-          } catch (error) {
+              } catch (error) {
+          console.error('[Kingdom] Error initializing kingdom data:', error);
+          // Fallback to localStorage if Supabase fails
+          const existingTimers = localStorage.getItem('kingdom-tile-timers');
+          if (!existingTimers) {
+            // Create default timers in localStorage as fallback
+            const defaultTimers = [
+              { x: 1, y: 1, tileId: 'well', endTime: Date.now() + (10 * 60 * 1000), isReady: false }, // 10 min
+              { x: 2, y: 1, tileId: 'blacksmith', endTime: Date.now() + (30 * 60 * 1000), isReady: false }, // 30 min
+              { x: 3, y: 1, tileId: 'fisherman', endTime: Date.now() + (15 * 60 * 1000), isReady: false }, // 15 min
+              { x: 4, y: 1, tileId: 'sawmill', endTime: Date.now() + (45 * 60 * 1000), isReady: false }, // 45 min
+              { x: 5, y: 1, tileId: 'windmill', endTime: Date.now() + (20 * 60 * 1000), isReady: false }, // 20 min
+              { x: 1, y: 2, tileId: 'grocery', endTime: Date.now() + (5 * 60 * 1000), isReady: false }, // 5 min
+              { x: 2, y: 2, tileId: 'castle', endTime: Date.now() + (480 * 60 * 1000), isReady: false }, // 8 hours (legendary)
+              { x: 3, y: 2, tileId: 'temple', endTime: Date.now() + (60 * 60 * 1000), isReady: false }, // 1 hour
+              { x: 4, y: 2, tileId: 'fountain', endTime: Date.now() + (25 * 60 * 1000), isReady: false }, // 25 min
+              { x: 5, y: 2, tileId: 'pond', endTime: Date.now() + (12 * 60 * 1000), isReady: false }, // 12 min
+              { x: 1, y: 3, tileId: 'foodcourt', endTime: Date.now() + (8 * 60 * 1000), isReady: false }, // 8 min
+              { x: 2, y: 3, tileId: 'vegetables', endTime: Date.now() + (35 * 60 * 1000), isReady: false }, // 35 min
+              { x: 3, y: 3, tileId: 'wizard', endTime: Date.now() + (90 * 60 * 1000), isReady: false }, // 1.5 hours
+              { x: 4, y: 3, tileId: 'mayor', endTime: Date.now() + (75 * 60 * 1000), isReady: false }, // 1.25 hours
+              { x: 5, y: 3, tileId: 'inn', endTime: Date.now() + (18 * 60 * 1000), isReady: false }, // 18 min
+              { x: 1, y: 4, tileId: 'library', endTime: Date.now() + (22 * 60 * 1000), isReady: false }, // 22 min - FIXED: was 'house'
+              { x: 2, y: 4, tileId: 'mansion', endTime: Date.now() + (120 * 60 * 1000), isReady: false }, // 2 hours
+              { x: 3, y: 4, tileId: 'jousting', endTime: Date.now() + (150 * 60 * 1000), isReady: false }, // 2.5 hours
+              { x: 4, y: 4, tileId: 'archery', endTime: Date.now() + (28 * 60 * 1000), isReady: false }, // 28 min
+              { x: 5, y: 4, tileId: 'watchtower', endTime: Date.now() + (65 * 60 * 1000), isReady: false }, // 1.1 hours
+            ];
+            localStorage.setItem('kingdom-tile-timers', JSON.stringify(defaultTimers));
+          }
+          
+          const existingGrid = localStorage.getItem('kingdom-grid');
+          if (existingGrid) {
+            try {
+              const parsedGrid = JSON.parse(existingGrid);
+              setKingdomGrid(parsedGrid);
+            } catch (error) {
+              const newGrid = createEmptyKingdomGrid();
+              setKingdomGrid(newGrid);
+            }
+          } else {
             const newGrid = createEmptyKingdomGrid();
             setKingdomGrid(newGrid);
           }
-        } else {
-          const newGrid = createEmptyKingdomGrid();
-          setKingdomGrid(newGrid);
         }
-      }
-    };
-    
-    initializeKingdomData();
-  }, []);
+        
+        // Mark kingdom as ready to prevent re-initialization
+        setKingdomReady(true);
+      };
+      
+      initializeKingdomData();
+    }, [kingdomReady]);
 
   // Load timers from Supabase to sync with kingdom grid
   useEffect(() => {
