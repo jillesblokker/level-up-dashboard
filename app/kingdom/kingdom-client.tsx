@@ -84,6 +84,22 @@ function getRandomFromArray<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]!;
 }
 
+// Function to merge default grid with user-placed tiles
+function mergeGrids(defaultGrid: Tile[][], userGrid: Tile[][]): Tile[][] {
+  const mergedGrid = defaultGrid.map((row, y) =>
+    row.map((cell, x) => {
+      // If user has placed a tile at this position, use it
+      if (userGrid[y] && userGrid[y][x] && userGrid[y][x].type && userGrid[y][x].type !== 'vacant') {
+        return userGrid[y][x];
+      }
+      // Otherwise, use the default tile (kingdom tile or vacant)
+      return cell;
+    })
+  );
+  
+  return mergedGrid;
+}
+
 const getConsumableEffect = (item: KingdomInventoryItem) => {
   // Artifacts: 60, 80, or 100 gold
   if (item.type === 'artifact') {
@@ -366,32 +382,22 @@ export function KingdomClient() {
           try {
             console.log('[Kingdom] Loading existing grid from Supabase...');
             
-            // Check if the stored grid has the correct structure with vacant tiles
-            const hasCorrectVacantTiles = savedGrid.some((row: any) => 
-              row.some((cell: any) => cell && cell.type === 'vacant')
-            );
+            // Create a merged grid that preserves user-placed tiles while maintaining default kingdom tiles
+            const mergedGrid = mergeGrids(createEmptyKingdomGrid(), savedGrid);
             
-            if (!hasCorrectVacantTiles) {
-              console.log('[Kingdom] Stored grid missing vacant tiles, creating new grid...');
-              const newGrid = createEmptyKingdomGrid();
-              console.log('[Kingdom] Created new grid with correct vacant tiles:', {
-                gridLength: newGrid.length,
-                hasTiles: newGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty')),
-                vacantTileCount: newGrid.flat().filter((cell: any) => cell && cell.type === 'vacant').length
-              });
-              setKingdomGrid(newGrid);
-              // Save the new grid to Supabase
-              await saveKingdomGrid(newGrid);
-            } else {
-              console.log('[Kingdom] Existing grid loaded with correct vacant tiles:', {
-                gridLength: savedGrid.length,
-                hasTiles: savedGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty')),
-                vacantTileCount: savedGrid.flat().filter((cell: any) => cell && cell.type === 'vacant').length
-              });
-              setKingdomGrid(savedGrid);
-            }
+            console.log('[Kingdom] Merged grid created, preserving user tiles:', {
+              gridLength: mergedGrid.length,
+              hasTiles: mergedGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty')),
+              vacantTileCount: mergedGrid.flat().filter((cell: any) => cell && cell.type === 'vacant').length,
+              userTileCount: mergedGrid.flat().filter((cell: any) => cell && cell.type && cell.type !== 'vacant' && cell.type !== 'empty').length
+            });
+            
+            setKingdomGrid(mergedGrid);
+            
+            // Save the merged grid to Supabase to preserve user changes
+            await saveKingdomGrid(mergedGrid);
           } catch (error) {
-            console.warn('[Kingdom] Failed to parse existing grid, creating new one:', error);
+            console.warn('[Kingdom] Failed to merge grids, creating new one:', error);
             const newGrid = createEmptyKingdomGrid();
             console.log('[Kingdom] Created new grid:', {
               gridLength: newGrid.length,
