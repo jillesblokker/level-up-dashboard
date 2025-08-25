@@ -113,7 +113,7 @@ export default function DebugKingdomPage() {
 
       {Object.keys(results).length === 0 && (
         <div className="text-center text-gray-500 mt-8">
-          Click "Test All Endpoints" to start debugging
+          Click &quot;Test All Endpoints&quot; to start debugging
         </div>
       )}
     </div>
