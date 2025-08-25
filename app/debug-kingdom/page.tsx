@@ -9,13 +9,18 @@ export default function DebugKingdomPage() {
   const testEndpoint = async (endpoint: string, method: 'GET' | 'POST' = 'GET') => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/${endpoint}`, {
+      const fetchOptions: RequestInit = {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: method === 'POST' ? JSON.stringify({ test: true }) : undefined,
-      });
+      };
+      
+      if (method === 'POST') {
+        fetchOptions.body = JSON.stringify({ test: true });
+      }
+
+      const response = await fetch(`/api/${endpoint}`, fetchOptions);
 
       const data = await response.json();
       
