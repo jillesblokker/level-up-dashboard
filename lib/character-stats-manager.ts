@@ -163,7 +163,11 @@ export function setCharacterStats(stats: Partial<CharacterStats>): void {
     const currentStats = getCharacterStats();
     const updatedStats = { ...currentStats, ...stats };
     
-    // Setting stats
+    console.log('[Character Stats Manager] setCharacterStats:', { 
+      current: currentStats, 
+      updates: stats, 
+      result: updatedStats 
+    });
     
     // Always calculate level from experience to ensure consistency
     if (stats.experience !== undefined) {
@@ -189,7 +193,7 @@ export function setCharacterStats(stats: Partial<CharacterStats>): void {
       localStorage.setItem('kingdom-grid-expansions', String(stats.kingdom_expansions));
     }
     
-    // Saved to localStorage
+    console.log('[Character Stats Manager] Saved to localStorage:', localStorageStats);
     
     // Dispatch update event to notify all components
     window.dispatchEvent(new Event('character-stats-update'));
@@ -232,7 +236,7 @@ export function addToCharacterStatSync(stat: keyof CharacterStats, amount: numbe
   const currentValue = currentStats[stat] || 0;
   const newValue = currentValue + amount;
   
-  // Adding to stat
+  console.log('[Character Stats Manager] addToCharacterStatSync:', { stat, currentValue, amount, newValue });
   
   // If we're updating experience, we need to recalculate level
   if (stat === 'experience') {
@@ -243,4 +247,9 @@ export function addToCharacterStatSync(stat: keyof CharacterStats, amount: numbe
   } else {
     setCharacterStats({ [stat]: newValue });
   }
+  
+  // Also save to Supabase immediately to prevent data loss
+  saveCharacterStats({ [stat]: newValue }).catch(error => {
+    console.warn('[Character Stats Manager] Failed to save to Supabase, but continuing:', error);
+  });
 } 
