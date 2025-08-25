@@ -761,7 +761,10 @@ export function KingdomGridWithTimers({
 
   // Handle buying properties with gold
   const handleBuyProperty = async (property: typeof propertyInventory[0]) => {
+    console.log('[Kingdom] handleBuyProperty called for:', property.name, 'Cost:', property.cost, 'Cost type:', property.costType);
+    
     if (property.costType !== 'gold') {
+      console.log('[Kingdom] Property cost type is not gold:', property.costType);
       toast({
         title: 'Cannot Buy',
         description: 'This property cannot be purchased with gold.',
@@ -771,25 +774,40 @@ export function KingdomGridWithTimers({
     }
 
     try {
+      console.log('[Kingdom] Attempting to spend gold:', property.cost);
       const success = await spendGold(property.cost, `purchase-${property.name.toLowerCase()}`);
+      console.log('[Kingdom] spendGold result:', success);
+      
       if (success) {
+        console.log('[Kingdom] Gold spent successfully, updating inventory...');
+        
         // Update property quantity
         const updatedInventory = propertyInventory.map(p => 
           p.id === property.id ? { ...p, quantity: (p.quantity || 0) + 1 } : p
         );
+        
+        console.log('[Kingdom] Updated inventory:', updatedInventory.find(p => p.id === property.id));
         
         // Update the property inventory state
         setPropertyInventory(updatedInventory);
 
         // Persist inventory increment
         try {
-          await fetchAuthRetry('/api/tile-inventory', {
+          console.log('[Kingdom] Persisting to tile-inventory API...');
+          const response = await fetchAuthRetry('/api/tile-inventory', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ tile: { id: property.id, type: property.id, name: property.name, quantity: 1, cost: property.cost } })
-          })
+          });
+          
+          if (response.ok) {
+            const result = await response.json();
+            console.log('[Kingdom] Tile inventory API response:', result);
+          } else {
+            console.error('[Kingdom] Tile inventory API failed:', response.status, response.statusText);
+          }
         } catch (e) {
-          console.warn('[Kingdom] Failed to increment inventory', e)
+          console.error('[Kingdom] Failed to increment inventory:', e)
         }
 
         // Award 1 build token for major purchases (optional rule): disabled
@@ -798,9 +816,11 @@ export function KingdomGridWithTimers({
           title: 'Property Purchased!',
           description: `You now own ${property.name}!`,
         });
+      } else {
+        console.log('[Kingdom] spendGold failed - not enough gold or other error');
       }
     } catch (error) {
-      console.error('Error buying property:', error);
+      console.error('[Kingdom] Error buying property:', error);
       toast({
         title: 'Purchase Failed',
         description: 'There was an error purchasing the property.',
