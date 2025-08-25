@@ -317,11 +317,26 @@ export function KingdomGridWithTimers({
   useEffect(() => {
     const loadBuildTokens = async () => {
       try {
+        // First try to get from localStorage
         const stats = getCharacterStats();
         setBuildTokens(stats.build_tokens || 0);
+        
+        // Then try to fetch fresh data from API
+        const { fetchFreshCharacterStats } = await import('@/lib/character-stats-manager');
+        const freshStats = await fetchFreshCharacterStats();
+        if (freshStats) {
+          console.log('[Kingdom] Fresh stats loaded, build tokens:', freshStats.build_tokens);
+          setBuildTokens(freshStats.build_tokens || 0);
+        }
       } catch (error) {
         console.warn('[Kingdom] Failed to load build tokens:', error);
-        setBuildTokens(0);
+        // Fallback to localStorage
+        try {
+          const stats = getCharacterStats();
+          setBuildTokens(stats.build_tokens || 0);
+        } catch {
+          setBuildTokens(0);
+        }
       }
     };
 
