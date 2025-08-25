@@ -13,7 +13,7 @@ interface CharacterStats {
   level: number;
   health: number;
   max_health: number;
-  buildTokens?: number;
+  build_tokens?: number;
   kingdom_expansions?: number;
 }
 
@@ -64,7 +64,7 @@ export default function RestoreStatsPage() {
               level: stats.level || 1,
               health: stats.health || 100,
               max_health: stats.max_health || 100,
-              buildTokens: stats.buildTokens || 0,
+              build_tokens: stats.build_tokens || 0,
               kingdom_expansions: parseInt(localStorage.getItem('kingdom-grid-expansions') || '0', 10)
             });
           }
@@ -267,7 +267,7 @@ export default function RestoreStatsPage() {
                   </div>
                   <div className="flex justify-between">
                     <span>Build Tokens:</span>
-                    <span className="font-mono">{localStats.buildTokens || 0}</span>
+                    <span className="font-mono">{localStats.build_tokens || 0}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Kingdom Expansions:</span>

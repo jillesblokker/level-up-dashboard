@@ -122,7 +122,7 @@ export function collectLocalStorageData(): MigrationData {
           level: stats.level || 1,
           health: stats.health || 100,
           max_health: stats.max_health || 100,
-          build_tokens: stats.buildTokens || 0,
+          build_tokens: stats.build_tokens || 0,
           kingdom_expansions: parseInt(localStorage.getItem('kingdom-grid-expansions') || '0', 10)
         };
       } catch (e) {
