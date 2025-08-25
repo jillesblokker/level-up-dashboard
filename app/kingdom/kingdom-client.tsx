@@ -315,7 +315,7 @@ export function KingdomClient() {
   const [modalText, setModalText] = useState("")
   const [activeTab, setActiveTab] = useState("equipped")
   const [kingdomTab, setKingdomTab] = useState("thrivehaven");
-  const [kingdomGrid, setKingdomGrid] = useState<Tile[][]>(() => createEmptyKingdomGrid());
+  const [kingdomGrid, setKingdomGrid] = useState<Tile[][]>([]);
   const [selectedKingdomTile, setSelectedKingdomTile] = useState<Tile | null>(null);
   const kingdomTileInventory = getKingdomTileInventoryWithBuildTokens();
   const [propertiesOpen, setPropertiesOpen] = useState(false);
@@ -326,6 +326,7 @@ export function KingdomClient() {
   const [kingdomContent, setKingdomContent] = useState<JSX.Element | null>(null);
   const [inventoryLoading, setInventoryLoading] = useState(true);
   const [coverImageLoading, setCoverImageLoading] = useState(true);
+  const [gridLoading, setGridLoading] = useState(true);
   const [sellingModalOpen, setSellingModalOpen] = useState(false);
   const [soldItem, setSoldItem] = useState<{ name: string; gold: number } | null>(null);
   const [challenges, setChallenges] = useState<any[]>([]);
@@ -413,7 +414,11 @@ export function KingdomClient() {
           // Save the new grid to Supabase
           await saveKingdomGrid(newGrid);
         }
-              } catch (error) {
+        
+                // Mark initialization as complete
+        console.log('[Kingdom] Kingdom initialization complete');
+        setGridLoading(false);
+      } catch (error) {
           console.error('[Kingdom] Error initializing kingdom data:', error);
           // Fallback to localStorage if Supabase fails
           const existingTimers = localStorage.getItem('kingdom-tile-timers');
@@ -1230,18 +1235,22 @@ export function KingdomClient() {
           </TabsList>
           <TabsContent value="thrivehaven">
             <div className="flex flex-col items-center justify-center w-full">
-              <div className="flex items-center justify-center w-full">
-                <KingdomGridWithTimers
-                  grid={kingdomGrid}
-                  onTilePlace={handlePlaceKingdomTile}
-                  selectedTile={selectedKingdomTile}
-                  setSelectedTile={setSelectedKingdomTile}
-                  onGridExpand={(newGrid: Tile[][]) => setKingdomGrid(newGrid)}
-                  onGridUpdate={(newGrid: Tile[][]) => setKingdomGrid(newGrid)}
-                  onGoldEarned={handleKingdomTileGoldEarned}
-                  onItemFound={handleKingdomTileItemFound}
-                />
-              </div>
+              {gridLoading ? (
+                <div className="text-center text-gray-400 py-8">Loading kingdom grid...</div>
+              ) : (
+                <div className="flex items-center justify-center w-full">
+                  <KingdomGridWithTimers
+                    grid={kingdomGrid}
+                    onTilePlace={handlePlaceKingdomTile}
+                    selectedTile={selectedKingdomTile}
+                    setSelectedTile={setSelectedKingdomTile}
+                    onGridExpand={(newGrid: Tile[][]) => setKingdomGrid(newGrid)}
+                    onGridUpdate={(newGrid: Tile[][]) => setKingdomGrid(newGrid)}
+                    onGoldEarned={handleKingdomTileGoldEarned}
+                    onItemFound={handleKingdomTileItemFound}
+                  />
+                </div>
+              )}
             </div>
           </TabsContent>
           <TabsContent value="journey">
