@@ -313,6 +313,32 @@ export function KingdomGridWithTimers({
     });
   };
 
+  // Load build tokens from character stats
+  useEffect(() => {
+    const loadBuildTokens = async () => {
+      try {
+        const stats = getCharacterStats();
+        setBuildTokens(stats.build_tokens || 0);
+      } catch (error) {
+        console.warn('[Kingdom] Failed to load build tokens:', error);
+        setBuildTokens(0);
+      }
+    };
+
+    loadBuildTokens();
+
+    // Listen for character stats updates
+    const handleStatsUpdate = () => {
+      loadBuildTokens();
+    };
+
+    window.addEventListener('character-stats-update', handleStatsUpdate);
+    
+    return () => {
+      window.removeEventListener('character-stats-update', handleStatsUpdate);
+    };
+  }, []);
+
   // Kingdom tile inventory for properties panel - organized by logical categories
   const [propertyInventory, setPropertyInventory] = useState([
     // Basic Buildings (Level 1) - Affordable starter buildings
@@ -1449,7 +1475,7 @@ export function KingdomGridWithTimers({
           </div>
           <div className="px-4 pt-2 pb-0">
             <div className="text-lg font-bold text-amber-300 mb-2 flex items-center justify-between">
-              <span><a href="/quests" className="text-blue-800 hover:text-blue-700 underline cursor-pointer">Streak</a> tokens: <span className="text-amber-400">{buildTokens}</span></span>
+              <span><a href="/quests" className="text-blue-800 hover:text-blue-700 underline cursor-pointer">Build</a> tokens: <span className="text-amber-400">{buildTokens}</span></span>
               <Button
                 onClick={async () => {
                   try {
