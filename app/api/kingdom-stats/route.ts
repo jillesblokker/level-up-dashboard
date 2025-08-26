@@ -75,30 +75,30 @@ function getDateRange(period: string): string[] {
   
   if (period === 'week') {
     // Generate dates for the last 7 days (including today)
-    // Use UTC dates to avoid timezone issues
+    // Use local dates to match user's timezone
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
-      d.setUTCDate(d.getUTCDate() - i);
-      // Format as YYYY-MM-DD in UTC
-      const year = d.getUTCFullYear();
-      const month = String(d.getUTCMonth() + 1).padStart(2, '0');
-      const day = String(d.getUTCDate()).padStart(2, '0');
+      d.setDate(d.getDate() - i);
+      // Format as YYYY-MM-DD in local timezone
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
       days.push(`${year}-${month}-${day}`);
     }
   } else if (period === 'month') {
     // Generate dates for the last 30 days (including today)
     for (let i = 29; i >= 0; i--) {
       const d = new Date();
-      d.setUTCDate(d.getUTCDate() - i);
-      const year = d.getUTCFullYear();
-      const month = String(d.getUTCMonth() + 1).padStart(2, '0');
-      const day = String(d.getUTCDate()).padStart(2, '0');
+      d.setDate(d.getDate() - i);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
       days.push(`${year}-${month}-${day}`);
     }
   } else if (period === 'year') {
     // Generate months for the last 12 months
     for (let i = 11; i >= 0; i--) {
-      const d = new Date(now.getUTCFullYear(), now.getUTCMonth() - i, 1);
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       days.push(d.toISOString().slice(0, 7));
     }
   } else if (period === 'all') {
@@ -118,21 +118,21 @@ function getEarliestDateForPeriod(period: string): Date {
   if (period === 'week') {
     // For week view, get data from the beginning of the current week (Monday)
     const earliest = new Date(now);
-    const dayOfWeek = now.getUTCDay();
+    const dayOfWeek = now.getDay();
     const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Monday = 1, Sunday = 0
-    earliest.setUTCDate(earliest.getUTCDate() - daysToSubtract);
-    earliest.setUTCHours(0, 0, 0, 0);
+    earliest.setDate(earliest.getDate() - daysToSubtract);
+    earliest.setHours(0, 0, 0, 0);
     return earliest;
   } else if (period === 'month') {
     // For month view, get data from the beginning of the current month
-    const earliest = new Date(now.getUTCFullYear(), now.getUTCMonth(), 1);
+    const earliest = new Date(now.getFullYear(), now.getMonth(), 1);
     return earliest;
   } else if (period === 'year') {
-    const earliest = new Date(now.getUTCFullYear() - 1, now.getUTCMonth(), 1);
+    const earliest = new Date(now.getFullYear() - 1, now.getMonth(), 1);
     return earliest;
   } else {
     // For 'all' period, go back 5 years to get comprehensive data
-    const earliest = new Date(now.getUTCFullYear() - 5, 0, 1);
+    const earliest = new Date(now.getFullYear() - 5, 0, 1);
     return earliest;
   }
 }
@@ -147,10 +147,10 @@ async function generateAllPeriodDateRange(userId: string, tab: string): Promise<
     
     for (let i = 730; i >= 0; i--) {
       const d = new Date();
-      d.setUTCDate(d.getUTCDate() - i);
-      const year = d.getUTCFullYear();
-      const month = String(d.getUTCMonth() + 1).padStart(2, '0');
-      const day = String(d.getUTCDate()).padStart(2, '0');
+      d.setDate(d.getDate() - i);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
       fallbackDays.push(`${year}-${month}-${day}`);
     }
     
@@ -166,10 +166,10 @@ async function generateAllPeriodDateRange(userId: string, tab: string): Promise<
     const now = new Date();
     for (let i = 730; i >= 0; i--) {
       const d = new Date();
-      d.setUTCDate(d.getUTCDate() - i);
-      const year = d.getUTCFullYear();
-      const month = String(d.getUTCMonth() + 1).padStart(2, '0');
-      const day = String(d.getUTCDate()).padStart(2, '0');
+      d.setDate(d.getDate() - i);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
       fallbackDays.push(`${year}-${month}-${day}`);
     }
     return fallbackDays;
@@ -189,16 +189,16 @@ function normalizeDate(dateString: string): string {
       date = new Date(dateString);
     } else if (dateString.includes('-')) {
       // YYYY-MM-DD format
-      date = new Date(dateString + 'T00:00:00Z');
+      date = new Date(dateString + 'T00:00:00');
     } else {
       // Unknown format
       return dateString;
     }
     
-    // Return in YYYY-MM-DD format
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
+    // Return in YYYY-MM-DD format using local timezone
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   } catch (error) {
     console.error('[Kingdom Stats] Error normalizing date:', dateString, error);
