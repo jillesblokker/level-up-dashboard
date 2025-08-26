@@ -344,31 +344,53 @@ export async function GET(request: Request) {
         console.log('[Kingdom Stats] Week/Month view - Processing days:', days);
         console.log('[Kingdom Stats] Week/Month view - Raw completions:', completions?.slice(0, 3));
         
-        // First, get all completions up to each day
-        days.forEach(day => {
-          const dayCompletions = completions?.filter((c: any) => {
-            const completionDate = c.original_completion_date || c.completed_at;
-            if (!completionDate) {
-              console.log('[Kingdom Stats] Skipping completion with no date:', c);
-              return false;
-            }
-            const normalizedDate = normalizeDate(completionDate);
-            const isIncluded = normalizedDate <= day;
-            console.log('[Kingdom Stats] Date comparison:', {
-              day,
-              completionDate,
-              normalizedDate,
-              isIncluded,
-              originalDate: c.original_completion_date,
-              completedAt: c.completed_at
+        // For week/month view, we want to show cumulative progress over time
+        // This means each day should show the total completions up to that point
+        if (completions && completions.length > 0) {
+          // Sort completions by date to process them chronologically
+          const sortedCompletions = completions
+            .filter((c: any) => c.original_completion_date || c.completed_at)
+            .sort((a: any, b: any) => {
+              const dateA = new Date(a.original_completion_date || a.completed_at);
+              const dateB = new Date(b.original_completion_date || b.completed_at);
+              return dateA.getTime() - dateB.getTime();
             });
-            return isIncluded;
-          }) || [];
           
-          cumulativeCount = dayCompletions.length;
-          counts[day] = cumulativeCount;
-          console.log('[Kingdom Stats] Cumulative quest count for day', day, ':', cumulativeCount, 'completions found');
-        });
+          console.log('[Kingdom Stats] Sorted completions by date:', sortedCompletions.slice(0, 3));
+          
+          // Process each day to show cumulative progress
+          days.forEach(day => {
+            // Count all completions that happened on or before this day
+            const dayCompletions = sortedCompletions.filter((c: any) => {
+              const completionDate = c.original_completion_date || c.completed_at;
+              if (!completionDate) {
+                console.log('[Kingdom Stats] Skipping completion with no date:', c);
+                return false;
+              }
+              const normalizedDate = normalizeDate(completionDate);
+              const isIncluded = normalizedDate <= day;
+              console.log('[Kingdom Stats] Date comparison:', {
+                day,
+                completionDate,
+                normalizedDate,
+                isIncluded,
+                originalDate: c.original_completion_date,
+                completedAt: c.completed_at
+              });
+              return isIncluded;
+            });
+            
+            cumulativeCount = dayCompletions.length;
+            counts[day] = cumulativeCount;
+            console.log('[Kingdom Stats] Cumulative quest count for day', day, ':', cumulativeCount, 'completions found');
+          });
+        } else {
+          // No completions found, all days get 0
+          days.forEach(day => {
+            counts[day] = 0;
+            console.log('[Kingdom Stats] No completions found for day', day, ': 0');
+          });
+        }
       }
       
       console.log('[Kingdom Stats] Final processed quest counts:', counts);
