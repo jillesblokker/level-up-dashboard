@@ -255,12 +255,13 @@ export async function GET(request: Request) {
       console.log('[Kingdom Stats] Fetching quests from date:', earliestDate.toISOString());
       
       // Aggregate quest completions from quest_completion table
+      // Use original_completion_date for historical data, completed_at for recent data
       const { data: completions, error } = await supabaseServer
         .from('quest_completion')
-        .select('id, completed, completed_at, quest_id, gold_earned, xp_earned')
+        .select('id, completed, completed_at, quest_id, gold_earned, xp_earned, original_completion_date')
         .eq('user_id', userId)
         .eq('completed', true)
-        .gte('completed_at', earliestDate.toISOString());
+        .or(`completed_at.gte.${earliestDate.toISOString()},original_completion_date.gte.${earliestDate.toISOString()}`);
         
       if (error) {
         console.error('[Kingdom Stats] Supabase error (quests):', error);
@@ -285,8 +286,10 @@ export async function GET(request: Request) {
       if (period === 'year') {
         // For year view, aggregate by month
         completions?.forEach((c: any) => {
-          if (c.completed_at) {
-            const month = c.completed_at.slice(0, 7);
+          // Use original_completion_date if available, otherwise fall back to completed_at
+          const completionDate = c.original_completion_date || c.completed_at;
+          if (completionDate) {
+            const month = completionDate.slice(0, 7);
             if (counts[month] !== undefined) {
               counts[month]++;
               console.log('[Kingdom Stats] Added quest to month', month, ':', counts[month]);
@@ -298,13 +301,18 @@ export async function GET(request: Request) {
         if (completions && completions.length > 0) {
           // Sort completions by date to show progression
           const sortedCompletions = completions
-            .filter((c: any) => c.completed_at)
-            .sort((a: any, b: any) => new Date(a.completed_at).getTime() - new Date(b.completed_at).getTime());
+            .filter((c: any) => c.original_completion_date || c.completed_at)
+            .sort((a: any, b: any) => {
+              const dateA = new Date(a.original_completion_date || a.completed_at);
+              const dateB = new Date(b.original_completion_date || b.completed_at);
+              return dateA.getTime() - dateB.getTime();
+            });
           
           // Create a timeline showing when each completion happened by day
           const dailyData: Record<string, number> = {};
           sortedCompletions.forEach((c: any) => {
-            const date = new Date(c.completed_at);
+            const completionDate = c.original_completion_date || c.completed_at;
+            const date = new Date(completionDate);
             const dayKey = date.toISOString().slice(0, 10); // YYYY-MM-DD format
             
             if (!dailyData[dayKey]) {
@@ -336,9 +344,10 @@ export async function GET(request: Request) {
         // First, get all completions up to each day
         days.forEach(day => {
           const dayCompletions = completions?.filter((c: any) => {
-            if (!c.completed_at) return false;
-            const completionDate = normalizeDate(c.completed_at);
-            return completionDate <= day;
+            const completionDate = c.original_completion_date || c.completed_at;
+            if (!completionDate) return false;
+            const normalizedDate = normalizeDate(completionDate);
+            return normalizedDate <= day;
           }) || [];
           
           cumulativeCount = dayCompletions.length;
