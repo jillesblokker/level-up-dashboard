@@ -751,7 +751,7 @@ useSupabaseRealtimeSync({
 // --- Block 2: KingStatsBlock ---
 export function KingStatsBlock({ userId }: { userId: string | null }) {
   const [graphData, setGraphData] = useState<Array<{ day: string; value: number }>>([]);
-  const [activeTab, setActiveTab] = useState<'gold' | 'experience' | 'level'>('gold');
+  const [activeTab, setActiveTab] = useState<'gold' | 'gold-gained' | 'gold-spent' | 'experience' | 'level'>('gold');
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('week');
   const [isLoading, setIsLoading] = useState(false);
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
@@ -903,14 +903,18 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
               value={activeTab}
               onChange={e => setActiveTab(e.target.value as typeof activeTab)}
             >
-              <option value="gold">Gold</option>
+              <option value="gold">Gold (Net)</option>
+              <option value="gold-gained">Gold Gained</option>
+              <option value="gold-spent">Gold Spent</option>
               <option value="experience">Experience</option>
               <option value="level">Level</option>
             </select>
           </div>
           <Tabs value={activeTab} onValueChange={v => setActiveTab(v as typeof activeTab)} className="mb-4 hidden md:block">
             <TabsList aria-label="king-stats-tabs">
-              <TabsTrigger value="gold" aria-label="gold-tab">Gold</TabsTrigger>
+              <TabsTrigger value="gold" aria-label="gold-tab">Gold (Net)</TabsTrigger>
+              <TabsTrigger value="gold-gained" aria-label="gold-gained-tab">Gold Gained</TabsTrigger>
+              <TabsTrigger value="gold-spent" aria-label="gold-spent-tab">Gold Spent</TabsTrigger>
               <TabsTrigger value="experience" aria-label="experience-tab">Experience</TabsTrigger>
               <TabsTrigger value="level" aria-label="level-tab">Level</TabsTrigger>
             </TabsList>
@@ -918,7 +922,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
           {isLoading ? (
             <div className="h-64 flex items-center justify-center text-gray-400">Loading...</div>
           ) : !hasData ? (
-            activeTab === 'gold' ? <GoldEmptyState /> : 
+            activeTab === 'gold' || activeTab === 'gold-gained' || activeTab === 'gold-spent' ? <GoldEmptyState /> : 
             activeTab === 'experience' ? <ExperienceEmptyState /> : 
             <LevelEmptyState />
           ) : (

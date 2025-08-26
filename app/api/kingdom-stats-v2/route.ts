@@ -495,11 +495,19 @@ export async function GET(request: NextRequest) {
       console.log('[Kingdom Stats V2] Raw gold transactions from DB:', transactions);
       console.log('[Kingdom Stats V2] Total gold transactions found:', transactions?.length || 0);
       
+      // Split transactions into gained vs spent
+      const gainedTransactions = transactions?.filter(t => (t.amount || 0) > 0) || [];
+      const spentTransactions = transactions?.filter(t => (t.amount || 0) < 0) || [];
+      
+      console.log('[Kingdom Stats V2] Gold gained transactions:', gainedTransactions.length);
+      console.log('[Kingdom Stats V2] Gold spent transactions:', spentTransactions.length);
+      
       // Aggregate gold by day - show daily transactions (not cumulative)
       let counts: Record<string, number> = {};
       days.forEach(day => { counts[day] = 0; });
       
       if (period === 'year') {
+        // For year view, show net gold (gained - spent) by month
         transactions?.forEach((t: any) => {
           if (t.created_at) {
             const month = t.created_at.slice(0, 7);
@@ -544,9 +552,9 @@ export async function GET(request: NextRequest) {
           return response;
         }
       } else {
-        // For week/month view, show daily transactions
+        // For week/month view, show daily net gold (gained - spent)
         days.forEach(day => {
-          // Sum transactions that happened ON this specific day
+          // Sum all transactions (positive and negative) that happened ON this specific day
           const transactionsOnDay = transactions?.filter((t: any) => {
             if (!t.created_at) return false;
             const transactionDate = new Date(t.created_at);
@@ -554,13 +562,207 @@ export async function GET(request: NextRequest) {
             return transactionDay === day;
           }) || [];
           
-          const dailyAmount = transactionsOnDay.reduce((sum, t) => sum + (t.amount || 0), 0);
-          counts[day] = dailyAmount;
+          const dailyNetAmount = transactionsOnDay.reduce((sum, t) => sum + (t.amount || 0), 0);
+          counts[day] = dailyNetAmount;
         });
       }
 
       const data = days.map(day => ({ day, value: counts[day] || 0 }));
       console.log('[Kingdom Stats V2] Final gold data:', data);
+      
+      const response = NextResponse.json({ data });
+      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      response.headers.set('Pragma', 'no-cache');
+      response.headers.set('Expires', '0');
+      response.headers.set('X-Nuclear-Debug', uniqueId);
+      response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+      response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
+      
+      return response;
+    }
+
+    // Handle gold gained tab (new)
+    if (tab === 'gold-gained') {
+      console.log('[Kingdom Stats V2] Fetching gold gained data...');
+      
+      const { data: transactions, error } = await supabase
+        .from('gold_transactions')
+        .select('id, amount, created_at, transaction_type')
+        .eq('user_id', userId)
+        .gte('created_at', earliestDate.toISOString())
+        .gt('amount', 0); // Only positive amounts (gains)
+        
+      if (error) {
+        console.error('[Kingdom Stats V2] Supabase error (gold-gained):', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      console.log('[Kingdom Stats V2] Raw gold gained transactions from DB:', transactions);
+      console.log('[Kingdom Stats V2] Total gold gained transactions found:', transactions?.length || 0);
+      
+      // Aggregate gold gained by day
+      let counts: Record<string, number> = {};
+      days.forEach(day => { counts[day] = 0; });
+      
+      if (period === 'year') {
+        transactions?.forEach((t: any) => {
+          if (t.created_at) {
+            const month = t.created_at.slice(0, 7);
+            if (counts[month] !== undefined) {
+              counts[month] += t.amount || 0;
+            }
+          }
+        });
+      } else if (period === 'all') {
+        if (transactions && transactions.length > 0) {
+          const dailyData: Record<string, number> = {};
+          transactions.forEach((t: any) => {
+            if (t.created_at) {
+              const date = new Date(t.created_at);
+              const dayKey = date.toISOString().slice(0, 10);
+              
+              if (!dailyData[dayKey]) {
+                dailyData[dayKey] = 0;
+              }
+              dailyData[dayKey] += t.amount || 0;
+            }
+          });
+          
+          const sortedDays = Object.keys(dailyData).sort();
+          const timelineData: Array<{day: string, value: number}> = [];
+          
+          sortedDays.forEach(day => {
+            timelineData.push({
+              day: day,
+              value: dailyData[day] || 0
+            });
+          });
+          
+          console.log('[Kingdom Stats V2] All time daily data (gold-gained):', timelineData);
+          const response = NextResponse.json({ data: timelineData });
+          response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+          response.headers.set('Pragma', 'no-cache');
+          response.headers.set('Expires', '0');
+          response.headers.set('X-Nuclear-Debug', uniqueId);
+          response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+          response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
+          return response;
+        }
+      } else {
+        // For week/month view, show daily gold gained
+        days.forEach(day => {
+          const transactionsOnDay = transactions?.filter((t: any) => {
+            if (!t.created_at) return false;
+            const transactionDate = new Date(t.created_at);
+            const transactionDay = transactionDate.toISOString().slice(0, 10);
+            return transactionDay === day;
+          }) || [];
+          
+          const dailyGained = transactionsOnDay.reduce((sum, t) => sum + (t.amount || 0), 0);
+          counts[day] = dailyGained;
+        });
+      }
+
+      const data = days.map(day => ({ day, value: counts[day] || 0 }));
+      console.log('[Kingdom Stats V2] Final gold gained data:', data);
+      
+      const response = NextResponse.json({ data });
+      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      response.headers.set('Pragma', 'no-cache');
+      response.headers.set('Expires', '0');
+      response.headers.set('X-Nuclear-Debug', uniqueId);
+      response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+      response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
+      
+      return response;
+    }
+
+    // Handle gold spent tab (new)
+    if (tab === 'gold-spent') {
+      console.log('[Kingdom Stats V2] Fetching gold spent data...');
+      
+      const { data: transactions, error } = await supabase
+        .from('gold_transactions')
+        .select('id, amount, created_at, transaction_type')
+        .eq('user_id', userId)
+        .gte('created_at', earliestDate.toISOString())
+        .lt('amount', 0); // Only negative amounts (spending)
+        
+      if (error) {
+        console.error('[Kingdom Stats V2] Supabase error (gold-spent):', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      console.log('[Kingdom Stats V2] Raw gold spent transactions from DB:', transactions);
+      console.log('[Kingdom Stats V2] Total gold spent transactions found:', transactions?.length || 0);
+      
+      // Aggregate gold spent by day (convert negative to positive for display)
+      let counts: Record<string, number> = {};
+      days.forEach(day => { counts[day] = 0; });
+      
+      if (period === 'year') {
+        transactions?.forEach((t: any) => {
+          if (t.created_at) {
+            const month = t.created_at.slice(0, 7);
+            if (counts[month] !== undefined) {
+              // Convert negative to positive for display (spending is shown as positive bars)
+              counts[month] += Math.abs(t.amount || 0);
+            }
+          }
+        });
+      } else if (period === 'all') {
+        if (transactions && transactions.length > 0) {
+          const dailyData: Record<string, number> = {};
+          transactions.forEach((t: any) => {
+            if (t.created_at) {
+              const date = new Date(t.created_at);
+              const dayKey = date.toISOString().slice(0, 10);
+              
+              if (!dailyData[dayKey]) {
+                dailyData[dayKey] = 0;
+              }
+              // Convert negative to positive for display
+              dailyData[dayKey] += Math.abs(t.amount || 0);
+            }
+          });
+          
+          const sortedDays = Object.keys(dailyData).sort();
+          const timelineData: Array<{day: string, value: number}> = [];
+          
+          sortedDays.forEach(day => {
+            timelineData.push({
+              day: day,
+              value: dailyData[day] || 0
+            });
+          });
+          
+          console.log('[Kingdom Stats V2] All time daily data (gold-spent):', timelineData);
+          const response = NextResponse.json({ data: timelineData });
+          response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+          response.headers.set('Pragma', 'no-cache');
+          response.headers.set('Expires', '0');
+          response.headers.set('X-Nuclear-Debug', uniqueId);
+          response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+          response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
+          return response;
+        }
+      } else {
+        // For week/month view, show daily gold spent
+        days.forEach(day => {
+          const transactionsOnDay = transactions?.filter((t: any) => {
+            if (!t.created_at) return false;
+            const transactionDate = new Date(t.created_at);
+            const transactionDay = transactionDate.toISOString().slice(0, 10);
+            return transactionDay === day;
+          }) || [];
+          
+          const dailySpent = transactionsOnDay.reduce((sum, t) => sum + Math.abs(t.amount || 0), 0);
+          counts[day] = dailySpent;
+        });
+      }
+
+      const data = days.map(day => ({ day, value: counts[day] || 0 }));
+      console.log('[Kingdom Stats V2] Final gold spent data:', data);
       
       const response = NextResponse.json({ data });
       response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
