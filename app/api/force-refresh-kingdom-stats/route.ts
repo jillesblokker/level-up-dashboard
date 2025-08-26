@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { supabaseServer } from '@/lib/supabase/server-client';
 
 // Helper to extract and verify Clerk JWT, returns userId or null
 async function getUserIdFromRequest(request: Request): Promise<string | null> {
@@ -76,30 +75,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Create Supabase client
-    const cookieStore = await cookies();
-    const supabaseServer = createServerClient(
-      process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-      process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']!,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll();
-          },
-          setAll(cookiesToSet) {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              );
-            } catch {
-              // The `setAll` method was called from a Server Component.
-              // This can be ignored if you have middleware refreshing
-              // user sessions.
-            }
-          },
-        },
-      }
-    );
+    // Use the same Supabase server client that bypasses RLS policies
+    const supabase = supabaseServer;
 
     // Force refresh by fetching fresh data from all relevant tables
     const refreshResults: {
@@ -116,7 +93,7 @@ export async function POST(request: NextRequest) {
 
     try {
       // Force refresh quest completions
-      const { data: questData, error: questError } = await supabaseServer
+      const { data: questData, error: questError } = await supabase
         .from('quest_completion')
         .select('*')
         .eq('user_id', userId)
@@ -133,7 +110,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Force refresh challenge completions
-      const { data: challengeData, error: challengeError } = await supabaseServer
+      const { data: challengeData, error: challengeError } = await supabase
         .from('challenge_completion')
         .select('*')
         .eq('user_id', userId)
@@ -150,7 +127,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Force refresh milestone completions
-      const { data: milestoneData, error: milestoneError } = await supabaseServer
+      const { data: milestoneData, error: milestoneError } = await supabase
         .from('milestone_completion')
         .select('*')
         .eq('user_id', userId)
