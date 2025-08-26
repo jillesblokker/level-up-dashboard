@@ -212,9 +212,13 @@ export async function GET(request: Request) {
     console.log('🚨🚨🚨 NUCLEAR DEBUGGING START 🚨🚨🚨');
     console.log('🚨🚨🚨 NUCLEAR DEBUGGING - API CALLED 🚨🚨🚨');
     console.log('🚨🚨🚨 NUCLEAR DEBUGGING - TIMESTAMP:', new Date().toISOString());
-    console.log('🚨🚨🚨 NUCLEAR DEBUGGING - DEPLOYMENT ID: NUCLEAR-2025-08-26-19-15');
+    console.log('🚨🚨🚨 NUCLEAR DEBUGGING - DEPLOYMENT ID: NUCLEAR-2025-08-26-19-50');
     console.log('🚨🚨🚨 NUCLEAR DEBUGGING - IF YOU SEE THIS, NEW CODE IS DEPLOYED 🚨🚨🚨');
     console.log('🚨🚨🚨 NUCLEAR DEBUGGING END 🚨🚨🚨');
+    
+    // NUCLEAR CACHE BUSTING - Force fresh responses with unique timestamp
+    const uniqueId = `NUCLEAR-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    console.log('🚨🚨🚨 NUCLEAR UNIQUE ID:', uniqueId);
     
     const userId = await getUserIdFromRequest(request);
     console.log('[Kingdom Stats] User ID:', userId);
@@ -420,7 +424,8 @@ export async function GET(request: Request) {
       response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
       response.headers.set('Pragma', 'no-cache');
       response.headers.set('Expires', '0');
-      response.headers.set('X-Nuclear-Debug', 'NUCLEAR-2025-08-26-19-15');
+      response.headers.set('X-Nuclear-Debug', uniqueId);
+      response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
       
       return response;
     }
@@ -1236,7 +1241,8 @@ export async function GET(request: Request) {
       response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
       response.headers.set('Pragma', 'no-cache');
       response.headers.set('Expires', '0');
-      response.headers.set('X-Nuclear-Debug', 'NUCLEAR-2025-08-26-19-15');
+      response.headers.set('X-Nuclear-Debug', uniqueId);
+      response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
       
       return response;
     }
@@ -1250,7 +1256,8 @@ export async function GET(request: Request) {
     response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     response.headers.set('Pragma', 'no-cache');
     response.headers.set('Expires', '0');
-    response.headers.set('X-Nuclear-Debug', 'NUCLEAR-2025-08-26-19-15');
+    response.headers.set('X-Nuclear-Debug', uniqueId);
+    response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
     
     return response;
 
