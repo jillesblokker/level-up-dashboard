@@ -771,7 +771,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
 
       // Add cache-busting parameter to force fresh API call and see backend debugging
       const timestamp = Date.now();
-      const res = await fetch(`/api/kingdom-stats?tab=${activeTab}&period=${timePeriod}&_t=${timestamp}`, {
+      const res = await fetch(`/api/kingdom-stats-v2?tab=${activeTab}&period=${timePeriod}&_t=${timestamp}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
