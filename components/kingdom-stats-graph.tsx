@@ -402,6 +402,13 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
   // Chart rendering
   return (
     <div className="space-y-2">
+      {/* Debug info for week view */}
+      {timePeriod === 'week' && (
+        <div className="text-xs text-gray-400 mb-2">
+          Debug: Week data length: {graphData.length}, Data: {JSON.stringify(graphData.slice(0, 3))}...
+        </div>
+      )}
+      
       <div className="h-64 w-full" aria-label={ariaLabel} tabIndex={0} ref={chartRef}>
         <ResponsiveContainer width="100%" height="100%">
           {chartType === 'bar' ? (
@@ -585,9 +592,11 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
       // Check if we have data in the response
       if (data.data && Array.isArray(data.data) && data.data.length > 0) {
         console.log('[Kingdom Stats Component] 📊 Setting graph data:', data.data);
+        console.log('[Kingdom Stats Component] 🔍 Week view data sample:', data.data.slice(0, 3));
         setGraphData(data.data);
       } else if (data.success && data.data && Array.isArray(data.data)) {
         console.log('[Kingdom Stats Component] 📊 Setting graph data (success format):', data.data);
+        console.log('[Kingdom Stats Component] 🔍 Week view data sample:', data.data.slice(0, 3));
         setGraphData(data.data);
       } else {
         console.log('[Kingdom Stats Component] ⚠️ API returned no valid data structure:', data);
