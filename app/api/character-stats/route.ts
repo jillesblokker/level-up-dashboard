@@ -49,8 +49,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 400 });
     }
 
-    const { stats } = await request.json();
+    const body = await request.json();
+    console.log('[Character Stats API] Received request body:', body);
+    
+    const { stats } = body;
     if (!stats || typeof stats !== 'object') {
+      console.log('[Character Stats API] Invalid stats data:', stats);
       return NextResponse.json({ error: 'Invalid stats data' }, { status: 400 });
     }
 
@@ -67,12 +71,16 @@ export async function POST(request: Request) {
       updated_at: new Date().toISOString()
     };
 
+    console.log('[Character Stats API] Prepared stats data:', statsData);
+
     // Upsert the stats data
     const { error } = await supabaseServer
       .from('character_stats')
       .upsert(statsData, {
         onConflict: 'user_id'
       });
+
+    console.log('[Character Stats API] Supabase upsert result:', { error });
 
     if (error) {
       console.error('[Character Stats API] Supabase error:', error);
