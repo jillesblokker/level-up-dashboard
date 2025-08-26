@@ -290,23 +290,43 @@ export async function GET(request: Request) {
           }
         });
       } else if (period === 'all') {
-        // For all time, create a more meaningful distribution
+        // For all time, show progression over time with proper date distribution
         if (completions && completions.length > 0) {
-          // Group by month for better visualization
-          const monthlyData: Record<string, number> = {};
-          completions.forEach((c: any) => {
-            if (c.completed_at) {
-              const month = c.completed_at.slice(0, 7);
-              monthlyData[month] = (monthlyData[month] || 0) + 1;
+          // Sort completions by date to show progression
+          const sortedCompletions = completions
+            .filter((c: any) => c.completed_at)
+            .sort((a: any, b: any) => new Date(a.completed_at).getTime() - new Date(b.completed_at).getTime());
+          
+          // Create a timeline showing when each completion happened
+          const timelineData: Array<{day: string, value: number}> = [];
+          let cumulativeCount = 0;
+          
+          // Group by week for better visualization over time
+          const weeklyData: Record<string, number> = {};
+          sortedCompletions.forEach((c: any) => {
+            const date = new Date(c.completed_at);
+            const weekStart = new Date(date);
+            weekStart.setDate(date.getDate() - date.getDay()); // Start of week (Sunday)
+            const weekKey = weekStart.toISOString().slice(0, 10);
+            
+            if (!weeklyData[weekKey]) {
+              weeklyData[weekKey] = 0;
             }
+            weeklyData[weekKey]++;
           });
           
-          // Convert to array format for chart
-          const data = Object.entries(monthlyData).map(([month, count]) => ({
-            day: month,
-            value: count
-          }));
-          return NextResponse.json({ data });
+          // Convert to cumulative progression
+          const sortedWeeks = Object.keys(weeklyData).sort();
+          sortedWeeks.forEach(week => {
+            cumulativeCount += weeklyData[week] || 0;
+            timelineData.push({
+              day: week,
+              value: cumulativeCount
+            });
+          });
+          
+          console.log('[Kingdom Stats] All time timeline data:', timelineData);
+          return NextResponse.json({ data: timelineData });
         }
       } else {
         // For week/month view, aggregate by day and maintain cumulative view
@@ -383,23 +403,43 @@ export async function GET(request: Request) {
           }
         });
       } else if (period === 'all') {
-        // For all time, create a more meaningful distribution
+        // For all time, show progression over time with proper date distribution
         if (completions && completions.length > 0) {
-          // Group by month for better visualization
-          const monthlyData: Record<string, number> = {};
-          completions.forEach((c: any) => {
-            if (c.date) {
-              const month = c.date.slice(0, 7);
-              monthlyData[month] = (monthlyData[month] || 0) + 1;
+          // Sort completions by date to show progression
+          const sortedCompletions = completions
+            .filter((c: any) => c.date)
+            .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+          
+          // Create a timeline showing when each completion happened
+          const timelineData: Array<{day: string, value: number}> = [];
+          let cumulativeCount = 0;
+          
+          // Group by week for better visualization over time
+          const weeklyData: Record<string, number> = {};
+          sortedCompletions.forEach((c: any) => {
+            const date = new Date(c.date);
+            const weekStart = new Date(date);
+            weekStart.setDate(date.getDate() - date.getDay()); // Start of week (Sunday)
+            const weekKey = weekStart.toISOString().slice(0, 10);
+            
+            if (!weeklyData[weekKey]) {
+              weeklyData[weekKey] = 0;
             }
+            weeklyData[weekKey]++;
           });
           
-          // Convert to array format for chart
-          const data = Object.entries(monthlyData).map(([month, count]) => ({
-            day: month,
-            value: count
-          }));
-          return NextResponse.json({ data });
+          // Convert to cumulative progression
+          const sortedWeeks = Object.keys(weeklyData).sort();
+          sortedWeeks.forEach(week => {
+            cumulativeCount += weeklyData[week] || 0;
+            timelineData.push({
+              day: week,
+              value: cumulativeCount
+            });
+          });
+          
+          console.log('[Kingdom Stats] All time timeline data (challenges):', timelineData);
+          return NextResponse.json({ data: timelineData });
         }
       } else {
         // For week/month view, aggregate by day and maintain cumulative view
@@ -476,23 +516,43 @@ export async function GET(request: Request) {
           }
         });
       } else if (period === 'all') {
-        // For all time, create a more meaningful distribution
+        // For all time, show progression over time with proper date distribution
         if (completions && completions.length > 0) {
-          // Group by month for better visualization
-          const monthlyData: Record<string, number> = {};
-          completions.forEach((c: any) => {
-            if (c.date) {
-              const month = c.date.slice(0, 7);
-              monthlyData[month] = (monthlyData[month] || 0) + 1;
+          // Sort completions by date to show progression
+          const sortedCompletions = completions
+            .filter((c: any) => c.date)
+            .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+          
+          // Create a timeline showing when each completion happened
+          const timelineData: Array<{day: string, value: number}> = [];
+          let cumulativeCount = 0;
+          
+          // Group by week for better visualization over time
+          const weeklyData: Record<string, number> = {};
+          sortedCompletions.forEach((c: any) => {
+            const date = new Date(c.date);
+            const weekStart = new Date(date);
+            weekStart.setDate(date.getDate() - date.getDay()); // Start of week (Sunday)
+            const weekKey = weekStart.toISOString().slice(0, 10);
+            
+            if (!weeklyData[weekKey]) {
+              weeklyData[weekKey] = 0;
             }
+            weeklyData[weekKey]++;
           });
           
-          // Convert to array format for chart
-          const data = Object.entries(monthlyData).map(([month, count]) => ({
-            day: month,
-            value: count
-          }));
-          return NextResponse.json({ data });
+          // Convert to cumulative progression
+          const sortedWeeks = Object.keys(weeklyData).sort();
+          sortedWeeks.forEach(week => {
+            cumulativeCount += weeklyData[week] || 0;
+            timelineData.push({
+              day: week,
+              value: cumulativeCount
+            });
+          });
+          
+          console.log('[Kingdom Stats] All time timeline data (milestones):', timelineData);
+          return NextResponse.json({ data: timelineData });
         }
       } else {
         // For week/month view, aggregate by day and maintain cumulative view
