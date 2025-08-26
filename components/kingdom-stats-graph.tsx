@@ -568,12 +568,23 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
       console.log('[Kingdom Stats Component] 🚀 Fetching data from API...');
       
               // Add cache-busting parameter to force fresh API call and see backend debugging
-        const timestamp = Date.now();
-        const res = await fetch(`/api/kingdom-stats-v2?tab=${activeTab}&period=${timePeriod}&_t=${timestamp}`, {
-          headers: {
-            'Authorization': `Bearer ${await getToken()}`,
-          },
-        });
+      const timestamp = Date.now();
+      const apiUrl = `/api/kingdom-stats-v2?tab=${activeTab}&period=${timePeriod}&_t=${timestamp}`;
+      console.log('[Kingdom Stats Component] 🔗 API URL:', apiUrl);
+      console.log('[Kingdom Stats Component] 🔑 Auth token present:', !!getToken);
+      
+      const token = await getToken();
+      console.log('[Kingdom Stats Component] 🔑 Token retrieved, length:', token?.length || 0);
+      
+      const res = await fetch(apiUrl, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      console.log('[Kingdom Stats Component] 📡 Response status:', res.status);
+      console.log('[Kingdom Stats Component] 📡 Response headers:', Object.fromEntries(res.headers.entries()));
+      console.log('[Kingdom Stats Component] 📡 Response URL:', res.url);
 
       if (!res.ok) {
         throw new Error(`API error: ${res.status} ${res.statusText}`);
@@ -755,10 +766,12 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
 
   const fetchData = useCallback(async () => {
     if (!authUserId) {
+      console.log('[Gains Component] No authUserId');
       return;
     }
 
     if (!isLoaded) {
+      console.log('[Gains Component] Not loaded yet');
       return;
     }
 
@@ -766,26 +779,36 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
     try {
       const token = await getToken();
       if (!token) {
+        console.log('[Gains Component] No token available');
         return;
       }
 
       // Add cache-busting parameter to force fresh API call and see backend debugging
       const timestamp = Date.now();
-      const res = await fetch(`/api/kingdom-stats-v2?tab=${activeTab}&period=${timePeriod}&_t=${timestamp}`, {
+      const apiUrl = `/api/kingdom-stats-v2?tab=${activeTab}&period=${timePeriod}&_t=${timestamp}`;
+      console.log('[Gains Component] 🔗 API URL:', apiUrl);
+      console.log('[Gains Component] 🔑 Token length:', token.length);
+      
+      const res = await fetch(apiUrl, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
 
+      console.log('[Gains Component] 📡 Response status:', res.status);
+      console.log('[Gains Component] 📡 Response headers:', Object.fromEntries(res.headers.entries()));
+      console.log('[Gains Component] 📡 Response URL:', res.url);
+
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
 
       const { data } = await res.json();
+      console.log('[Gains Component] ✅ API response data:', data);
       setGraphData(data || []);
     } catch (err) {
-      console.error('Error fetching king stats:', err);
+      console.error('[Gains Component] Error fetching king stats:', err);
     } finally {
       setIsLoading(false);
     }
