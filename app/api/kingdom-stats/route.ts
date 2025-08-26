@@ -208,12 +208,13 @@ function normalizeDate(dateString: string): string {
 
 export async function GET(request: Request) {
   try {
-    console.log('[Kingdom Stats] 🚨🚨🚨 ULTRA FORCE DEBUGGING - API called');
-    console.log('[Kingdom Stats] 🚨🚨🚨 ULTRA FORCE DEBUGGING - This should definitely show up in logs');
-    console.log('[Kingdom Stats] 🚨🚨🚨 ULTRA FORCE DEBUGGING - Timestamp:', new Date().toISOString());
-    console.log('[Kingdom Stats] 🚨🚨🚨 ULTRA FORCE DEBUGGING - DEPLOYMENT VERIFICATION');
-    console.log('[Kingdom Stats] 🚨🚨🚨 ULTRA FORCE DEBUGGING - If you see this, new code is deployed');
-    console.log('[Kingdom Stats] 🚨🚨🚨 ULTRA FORCE DEBUGGING - DEPLOYMENT ID: ULTRA-FORCE-2025-08-26-19-00');
+    // NUCLEAR DEBUGGING - This will definitely show up
+    console.log('🚨🚨🚨 NUCLEAR DEBUGGING START 🚨🚨🚨');
+    console.log('🚨🚨🚨 NUCLEAR DEBUGGING - API CALLED 🚨🚨🚨');
+    console.log('🚨🚨🚨 NUCLEAR DEBUGGING - TIMESTAMP:', new Date().toISOString());
+    console.log('🚨🚨🚨 NUCLEAR DEBUGGING - DEPLOYMENT ID: NUCLEAR-2025-08-26-19-15');
+    console.log('🚨🚨🚨 NUCLEAR DEBUGGING - IF YOU SEE THIS, NEW CODE IS DEPLOYED 🚨🚨🚨');
+    console.log('🚨🚨🚨 NUCLEAR DEBUGGING END 🚨🚨🚨');
     
     const userId = await getUserIdFromRequest(request);
     console.log('[Kingdom Stats] User ID:', userId);
@@ -413,7 +414,15 @@ export async function GET(request: Request) {
       
       const data = days.map(day => ({ day, value: counts[day] || 0 }));
       console.log('[Kingdom Stats] Final quest data:', data);
-      return NextResponse.json({ data });
+      const response = NextResponse.json({ data });
+      
+      // NUCLEAR CACHE BUSTING - Force fresh responses
+      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      response.headers.set('Pragma', 'no-cache');
+      response.headers.set('Expires', '0');
+      response.headers.set('X-Nuclear-Debug', 'NUCLEAR-2025-08-26-19-15');
+      
+      return response;
     }
 
     if (tab === 'challenges') {
@@ -1221,13 +1230,29 @@ export async function GET(request: Request) {
       });
       
       console.log('[Kingdom Stats] Returning level data:', finalData);
-      return NextResponse.json({ data: finalData });
+      const response = NextResponse.json({ data: finalData });
+      
+      // NUCLEAR CACHE BUSTING - Force fresh responses
+      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      response.headers.set('Pragma', 'no-cache');
+      response.headers.set('Expires', '0');
+      response.headers.set('X-Nuclear-Debug', 'NUCLEAR-2025-08-26-19-15');
+      
+      return response;
     }
 
     // For other tabs, return empty data
     console.log('[Kingdom Stats] Returning empty data for unknown tab');
     const data = days.map(day => ({ day, value: 0 }));
-    return NextResponse.json({ data });
+    const response = NextResponse.json({ data });
+    
+    // NUCLEAR CACHE BUSTING - Force fresh responses
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+    response.headers.set('X-Nuclear-Debug', 'NUCLEAR-2025-08-26-19-15');
+    
+    return response;
 
   } catch (error) {
     console.error('[Kingdom Stats] API error:', error);
