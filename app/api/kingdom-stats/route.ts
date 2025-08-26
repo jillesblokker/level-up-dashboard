@@ -208,7 +208,9 @@ function normalizeDate(dateString: string): string {
 
 export async function GET(request: Request) {
   try {
-    console.log('[Kingdom Stats] API called');
+    console.log('[Kingdom Stats] 🚨 FORCE DEBUGGING - API called');
+    console.log('[Kingdom Stats] 🚨 FORCE DEBUGGING - This should definitely show up in logs');
+    console.log('[Kingdom Stats] 🚨 FORCE DEBUGGING - Timestamp:', new Date().toISOString());
     
     const userId = await getUserIdFromRequest(request);
     console.log('[Kingdom Stats] User ID:', userId);
