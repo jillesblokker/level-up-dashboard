@@ -593,6 +593,13 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
       if (data.data && Array.isArray(data.data) && data.data.length > 0) {
         console.log('[Kingdom Stats Component] 📊 Setting graph data:', data.data);
         console.log('[Kingdom Stats Component] 🔍 Week view data sample:', data.data.slice(0, 3));
+        console.log('[Kingdom Stats Component] 🔍 FULL Week view data:', data.data);
+        console.log('[Kingdom Stats Component] 🔍 Week view data details:', data.data.map((item: any) => ({
+          day: item.day,
+          value: item.value,
+          valueType: typeof item.value,
+          hasValue: item.value !== undefined && item.value !== null
+        })));
         setGraphData(data.data);
       } else if (data.success && data.data && Array.isArray(data.data)) {
         console.log('[Kingdom Stats Component] 📊 Setting graph data (success format):', data.data);
