@@ -402,7 +402,7 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
   // Chart rendering
   return (
     <div className="space-y-2">
-      <div className="h-64 w-full overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }} aria-label={ariaLabel} tabIndex={0} ref={chartRef}>
+      <div className="h-64 w-full" aria-label={ariaLabel} tabIndex={0} ref={chartRef}>
         <ResponsiveContainer width="100%" height="100%">
           {chartType === 'bar' ? (
             <RechartsBarChart data={graphData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }} barCategoryGap={"20%"}>

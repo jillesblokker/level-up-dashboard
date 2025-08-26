@@ -290,42 +290,39 @@ export async function GET(request: Request) {
           }
         });
       } else if (period === 'all') {
-        // For all time, show progression over time with proper date distribution
+        // For all time, show actual daily progression with cumulative data
         if (completions && completions.length > 0) {
           // Sort completions by date to show progression
           const sortedCompletions = completions
             .filter((c: any) => c.completed_at)
             .sort((a: any, b: any) => new Date(a.completed_at).getTime() - new Date(b.completed_at).getTime());
           
-          // Create a timeline showing when each completion happened
+          // Create a timeline showing when each completion happened by day
+          const dailyData: Record<string, number> = {};
+          sortedCompletions.forEach((c: any) => {
+            const date = new Date(c.completed_at);
+            const dayKey = date.toISOString().slice(0, 10); // YYYY-MM-DD format
+            
+            if (!dailyData[dayKey]) {
+              dailyData[dayKey] = 0;
+            }
+            dailyData[dayKey]++;
+          });
+          
+          // Convert to cumulative progression by day
+          const sortedDays = Object.keys(dailyData).sort();
           const timelineData: Array<{day: string, value: number}> = [];
           let cumulativeCount = 0;
           
-          // Group by week for better visualization over time
-          const weeklyData: Record<string, number> = {};
-          sortedCompletions.forEach((c: any) => {
-            const date = new Date(c.completed_at);
-            const weekStart = new Date(date);
-            weekStart.setDate(date.getDate() - date.getDay()); // Start of week (Sunday)
-            const weekKey = weekStart.toISOString().slice(0, 10);
-            
-            if (!weeklyData[weekKey]) {
-              weeklyData[weekKey] = 0;
-            }
-            weeklyData[weekKey]++;
-          });
-          
-          // Convert to cumulative progression
-          const sortedWeeks = Object.keys(weeklyData).sort();
-          sortedWeeks.forEach(week => {
-            cumulativeCount += weeklyData[week] || 0;
+          sortedDays.forEach(day => {
+            cumulativeCount += dailyData[day] || 0;
             timelineData.push({
-              day: week,
+              day: day,
               value: cumulativeCount
             });
           });
           
-          console.log('[Kingdom Stats] All time timeline data:', timelineData);
+          console.log('[Kingdom Stats] All time daily timeline data:', timelineData);
           return NextResponse.json({ data: timelineData });
         }
       } else {
@@ -403,42 +400,39 @@ export async function GET(request: Request) {
           }
         });
       } else if (period === 'all') {
-        // For all time, show progression over time with proper date distribution
+        // For all time, show actual daily progression with cumulative data
         if (completions && completions.length > 0) {
           // Sort completions by date to show progression
           const sortedCompletions = completions
             .filter((c: any) => c.date)
             .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
           
-          // Create a timeline showing when each completion happened
+          // Create a timeline showing when each completion happened by day
+          const dailyData: Record<string, number> = {};
+          sortedCompletions.forEach((c: any) => {
+            const date = new Date(c.date);
+            const dayKey = date.toISOString().slice(0, 10); // YYYY-MM-DD format
+            
+            if (!dailyData[dayKey]) {
+              dailyData[dayKey] = 0;
+            }
+            dailyData[dayKey]++;
+          });
+          
+          // Convert to cumulative progression by day
+          const sortedDays = Object.keys(dailyData).sort();
           const timelineData: Array<{day: string, value: number}> = [];
           let cumulativeCount = 0;
           
-          // Group by week for better visualization over time
-          const weeklyData: Record<string, number> = {};
-          sortedCompletions.forEach((c: any) => {
-            const date = new Date(c.date);
-            const weekStart = new Date(date);
-            weekStart.setDate(date.getDate() - date.getDay()); // Start of week (Sunday)
-            const weekKey = weekStart.toISOString().slice(0, 10);
-            
-            if (!weeklyData[weekKey]) {
-              weeklyData[weekKey] = 0;
-            }
-            weeklyData[weekKey]++;
-          });
-          
-          // Convert to cumulative progression
-          const sortedWeeks = Object.keys(weeklyData).sort();
-          sortedWeeks.forEach(week => {
-            cumulativeCount += weeklyData[week] || 0;
+          sortedDays.forEach(day => {
+            cumulativeCount += dailyData[day] || 0;
             timelineData.push({
-              day: week,
+              day: day,
               value: cumulativeCount
             });
           });
           
-          console.log('[Kingdom Stats] All time timeline data (challenges):', timelineData);
+          console.log('[Kingdom Stats] All time daily timeline data (challenges):', timelineData);
           return NextResponse.json({ data: timelineData });
         }
       } else {
@@ -516,42 +510,39 @@ export async function GET(request: Request) {
           }
         });
       } else if (period === 'all') {
-        // For all time, show progression over time with proper date distribution
+        // For all time, show actual daily progression with cumulative data
         if (completions && completions.length > 0) {
           // Sort completions by date to show progression
           const sortedCompletions = completions
             .filter((c: any) => c.date)
             .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
           
-          // Create a timeline showing when each completion happened
+          // Create a timeline showing when each completion happened by day
+          const dailyData: Record<string, number> = {};
+          sortedCompletions.forEach((c: any) => {
+            const date = new Date(c.date);
+            const dayKey = date.toISOString().slice(0, 10); // YYYY-MM-DD format
+            
+            if (!dailyData[dayKey]) {
+              dailyData[dayKey] = 0;
+            }
+            dailyData[dayKey]++;
+          });
+          
+          // Convert to cumulative progression by day
+          const sortedDays = Object.keys(dailyData).sort();
           const timelineData: Array<{day: string, value: number}> = [];
           let cumulativeCount = 0;
           
-          // Group by week for better visualization over time
-          const weeklyData: Record<string, number> = {};
-          sortedCompletions.forEach((c: any) => {
-            const date = new Date(c.date);
-            const weekStart = new Date(date);
-            weekStart.setDate(date.getDate() - date.getDay()); // Start of week (Sunday)
-            const weekKey = weekStart.toISOString().slice(0, 10);
-            
-            if (!weeklyData[weekKey]) {
-              weeklyData[weekKey] = 0;
-            }
-            weeklyData[weekKey]++;
-          });
-          
-          // Convert to cumulative progression
-          const sortedWeeks = Object.keys(weeklyData).sort();
-          sortedWeeks.forEach(week => {
-            cumulativeCount += weeklyData[week] || 0;
+          sortedDays.forEach(day => {
+            cumulativeCount += dailyData[day] || 0;
             timelineData.push({
-              day: week,
+              day: day,
               value: cumulativeCount
             });
           });
           
-          console.log('[Kingdom Stats] All time timeline data (milestones):', timelineData);
+          console.log('[Kingdom Stats] All time daily timeline data (milestones):', timelineData);
           return NextResponse.json({ data: timelineData });
         }
       } else {
