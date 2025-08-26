@@ -116,12 +116,16 @@ function getEarliestDateForPeriod(period: string): Date {
   const now = new Date();
   
   if (period === 'week') {
-    const earliest = new Date();
-    earliest.setUTCDate(earliest.getUTCDate() - 6);
+    // For week view, get data from the beginning of the current week (Monday)
+    const earliest = new Date(now);
+    const dayOfWeek = now.getUTCDay();
+    const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Monday = 1, Sunday = 0
+    earliest.setUTCDate(earliest.getUTCDate() - daysToSubtract);
+    earliest.setUTCHours(0, 0, 0, 0);
     return earliest;
   } else if (period === 'month') {
-    const earliest = new Date();
-    earliest.setUTCDate(earliest.getUTCDate() - 29);
+    // For month view, get data from the beginning of the current month
+    const earliest = new Date(now.getUTCFullYear(), now.getUTCMonth(), 1);
     return earliest;
   } else if (period === 'year') {
     const earliest = new Date(now.getUTCFullYear() - 1, now.getUTCMonth(), 1);
