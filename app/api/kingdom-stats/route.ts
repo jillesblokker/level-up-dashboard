@@ -272,7 +272,7 @@ export async function GET(request: Request) {
         console.log('[Kingdom Stats] Sample date format:', completions[0]?.completed_at);
       }
 
-      // Aggregate by day/month
+      // Aggregate by day/month with cumulative tracking
       let counts: Record<string, number> = {};
       
       // Initialize all days with 0
@@ -309,24 +309,20 @@ export async function GET(request: Request) {
           return NextResponse.json({ data });
         }
       } else {
-        // For week/month view, aggregate by day
-        completions?.forEach((c: any) => {
-          if (c.completed_at) {
-            const normalizedDay = normalizeDate(c.completed_at);
-            console.log('[Kingdom Stats] Processing quest completion:', { 
-              date: c.completed_at, 
-              normalized_day: normalizedDay, 
-              day_exists: counts[normalizedDay] !== undefined 
-            });
-            if (counts[normalizedDay] !== undefined) {
-              counts[normalizedDay]++;
-              console.log('[Kingdom Stats] Updated quest count for day', normalizedDay, ':', counts[normalizedDay]);
-            } else {
-              console.log('[Kingdom Stats] Quest day', normalizedDay, 'not in expected range');
-            }
-          } else {
-            console.log('[Kingdom Stats] Quest completion missing date:', c);
-          }
+        // For week/month view, aggregate by day and maintain cumulative view
+        let cumulativeCount = 0;
+        
+        // First, get all completions up to each day
+        days.forEach(day => {
+          const dayCompletions = completions?.filter((c: any) => {
+            if (!c.completed_at) return false;
+            const completionDate = normalizeDate(c.completed_at);
+            return completionDate <= day;
+          }) || [];
+          
+          cumulativeCount = dayCompletions.length;
+          counts[day] = cumulativeCount;
+          console.log('[Kingdom Stats] Cumulative quest count for day', day, ':', cumulativeCount);
         });
       }
       
@@ -369,7 +365,7 @@ export async function GET(request: Request) {
         console.log('[Kingdom Stats] Sample date format:', completions[0]?.date);
       }
 
-      // Aggregate by day/month
+      // Aggregate by day/month with cumulative tracking
       let counts: Record<string, number> = {};
       
       // Initialize all days with 0
@@ -406,24 +402,20 @@ export async function GET(request: Request) {
           return NextResponse.json({ data });
         }
       } else {
-        // For week/month view, aggregate by day
-        completions?.forEach((c: any) => {
-          if (c.date) {
-            const normalizedDay = normalizeDate(c.date);
-            console.log('[Kingdom Stats] Processing challenge completion:', { 
-              date: c.date, 
-              normalized_day: normalizedDay, 
-              day_exists: counts[normalizedDay] !== undefined 
-            });
-            if (counts[normalizedDay] !== undefined) {
-              counts[normalizedDay]++;
-              console.log('[Kingdom Stats] Updated challenge count for day', normalizedDay, ':', counts[normalizedDay]);
-            } else {
-              console.log('[Kingdom Stats] Challenge day', normalizedDay, 'not in expected range');
-            }
-          } else {
-            console.log('[Kingdom Stats] Challenge completion missing date:', c);
-          }
+        // For week/month view, aggregate by day and maintain cumulative view
+        let cumulativeCount = 0;
+        
+        // First, get all completions up to each day
+        days.forEach(day => {
+          const dayCompletions = completions?.filter((c: any) => {
+            if (!c.date) return false;
+            const completionDate = normalizeDate(c.date);
+            return completionDate <= day;
+          }) || [];
+          
+          cumulativeCount = dayCompletions.length;
+          counts[day] = cumulativeCount;
+          console.log('[Kingdom Stats] Cumulative challenge count for day', day, ':', cumulativeCount);
         });
       }
 
@@ -466,7 +458,7 @@ export async function GET(request: Request) {
         console.log('[Kingdom Stats] Sample date format:', completions[0]?.date);
       }
 
-      // Aggregate by day/month
+      // Aggregate by day/month with cumulative tracking
       let counts: Record<string, number> = {};
       
       // Initialize all days with 0
@@ -503,24 +495,20 @@ export async function GET(request: Request) {
           return NextResponse.json({ data });
         }
       } else {
-        // For week/month view, aggregate by day
-        completions?.forEach((c: any) => {
-          if (c.date) {
-            const normalizedDay = normalizeDate(c.date);
-            console.log('[Kingdom Stats] Processing milestone completion:', { 
-              date: c.date, 
-              normalized_day: normalizedDay, 
-              day_exists: counts[normalizedDay] !== undefined 
-            });
-            if (counts[normalizedDay] !== undefined) {
-              counts[normalizedDay]++;
-              console.log('[Kingdom Stats] Updated milestone count for day', normalizedDay, ':', counts[normalizedDay]);
-            } else {
-              console.log('[Kingdom Stats] Milestone day', normalizedDay, 'not in expected range');
-            }
-          } else {
-            console.log('[Kingdom Stats] Milestone completion missing date:', c);
-          }
+        // For week/month view, aggregate by day and maintain cumulative view
+        let cumulativeCount = 0;
+        
+        // First, get all completions up to each day
+        days.forEach(day => {
+          const dayCompletions = completions?.filter((c: any) => {
+            if (!c.date) return false;
+            const completionDate = normalizeDate(c.date);
+            return completionDate <= day;
+          }) || [];
+          
+          cumulativeCount = dayCompletions.length;
+          counts[day] = cumulativeCount;
+          console.log('[Kingdom Stats] Cumulative milestone count for day', day, ':', cumulativeCount);
         });
       }
       
@@ -658,46 +646,77 @@ export async function GET(request: Request) {
         console.log('[Kingdom Stats] Initialized gold day sums:', sums);
       }
 
-      // Add quest gold - use gold_earned from quest_completion table
-      questRes.data?.forEach((c: any) => {
-        if (c.completed_at) {
-          const normalizedDate = normalizeDate(c.completed_at);
-          const dateKey = period === 'year' ? normalizedDate.slice(0, 7) : 
-                         period === 'all' ? 'all' : normalizedDate;
-          if (sums[dateKey] !== undefined) {
-            sums[dateKey] += c.gold_earned || 0;
-            console.log('[Kingdom Stats] Added quest gold for', dateKey, ':', c.gold_earned, 'Total:', sums[dateKey]);
+      if (period === 'year' || period === 'all') {
+        // For year/all view, use the existing logic
+        // Add quest gold - use gold_earned from quest_completion table
+        questRes.data?.forEach((c: any) => {
+          if (c.completed_at) {
+            const normalizedDate = normalizeDate(c.completed_at);
+            const dateKey = period === 'year' ? normalizedDate.slice(0, 7) : 'all';
+            if (sums[dateKey] !== undefined) {
+              sums[dateKey] += c.gold_earned || 0;
+              console.log('[Kingdom Stats] Added quest gold for', dateKey, ':', c.gold_earned, 'Total:', sums[dateKey]);
+            }
           }
-        }
-      });
+        });
 
-      // Add challenge gold
-      challengeRes.data?.forEach((c: any) => {
-        const reward = challengeRewards.find(r => r.id === c.challenge_id);
-        if (c.date && reward) {
-          const normalizedDate = normalizeDate(c.date);
-          const dateKey = period === 'year' ? normalizedDate.slice(0, 7) : 
-                         period === 'all' ? 'all' : normalizedDate;
-          if (sums[dateKey] !== undefined) {
-            sums[dateKey] += reward.gold || 0;
-            console.log('[Kingdom Stats] Added challenge gold for', dateKey, ':', reward.gold, 'Total:', sums[dateKey]);
+        // Add challenge gold
+        challengeRes.data?.forEach((c: any) => {
+          const reward = challengeRewards.find(r => r.id === c.challenge_id);
+          if (c.date && reward) {
+            const normalizedDate = normalizeDate(c.date);
+            const dateKey = period === 'year' ? normalizedDate.slice(0, 7) : 'all';
+            if (sums[dateKey] !== undefined) {
+              sums[dateKey] += reward.gold || 0;
+              console.log('[Kingdom Stats] Added challenge gold for', dateKey, ':', reward.gold, 'Total:', sums[dateKey]);
+            }
           }
-        }
-      });
+        });
 
-      // Add milestone gold
-      milestoneRes.data?.forEach((m: any) => {
-        const reward = milestoneRewards.find(r => r.id === m.milestone_id);
-        if (m.date && reward) {
-          const normalizedDate = normalizeDate(m.date);
-          const dateKey = period === 'year' ? normalizedDate.slice(0, 7) : 
-                         period === 'all' ? 'all' : normalizedDate;
-          if (sums[dateKey] !== undefined) {
-            sums[dateKey] += reward.gold || 0;
-            console.log('[Kingdom Stats] Added milestone gold for', dateKey, ':', reward.gold, 'Total:', sums[dateKey]);
+        // Add milestone gold
+        milestoneRes.data?.forEach((m: any) => {
+          const reward = milestoneRewards.find(r => r.id === m.milestone_id);
+          if (m.date && reward) {
+            const normalizedDate = normalizeDate(m.date);
+            const dateKey = period === 'year' ? normalizedDate.slice(0, 7) : 'all';
+            if (sums[dateKey] !== undefined) {
+              sums[dateKey] += reward.gold || 0;
+              console.log('[Kingdom Stats] Added milestone gold for', dateKey, ':', reward.gold, 'Total:', sums[dateKey]);
+            }
           }
-        }
-      });
+        });
+      } else {
+        // For week/month view, calculate cumulative gold over time
+        days.forEach(day => {
+          let dayGold = 0;
+          
+          // Add quest gold up to this day
+          questRes.data?.forEach((c: any) => {
+            if (c.completed_at && normalizeDate(c.completed_at) <= day) {
+              dayGold += c.gold_earned || 0;
+            }
+          });
+          
+          // Add challenge gold up to this day
+          challengeRes.data?.forEach((c: any) => {
+            const reward = challengeRewards.find(r => r.id === c.challenge_id);
+            if (c.date && reward && normalizeDate(c.date) <= day) {
+              dayGold += reward.gold || 0;
+            }
+          });
+          
+          // Add milestone gold up to this day
+          milestoneRes.data?.forEach((m: any) => {
+            const reward = milestoneRewards.find(r => r.id === m.milestone_id);
+            if (m.date && reward && normalizeDate(m.date) <= day) {
+              dayGold += reward.gold || 0;
+            }
+          });
+          
+          sums[day] = dayGold;
+          console.log('[Kingdom Stats] Cumulative gold for day', day, ':', dayGold);
+        });
+      }
       
       console.log('[Kingdom Stats] Final processed gold sums:', sums);
       console.log('[Kingdom Stats] Gold days with data:', Object.entries(sums).filter(([day, sum]) => sum > 0));
@@ -832,46 +851,77 @@ export async function GET(request: Request) {
         console.log('[Kingdom Stats] Initialized XP day sums:', sums);
       }
 
-      // Add quest XP - use xp_earned from quest_completion table
-      questRes.data?.forEach((c: any) => {
-        if (c.completed_at) {
-          const normalizedDate = normalizeDate(c.completed_at);
-          const dateKey = period === 'year' ? normalizedDate.slice(0, 7) : 
-                         period === 'all' ? 'all' : normalizedDate;
-          if (sums[dateKey] !== undefined) {
-            sums[dateKey] += c.xp_earned || 0;
-            console.log('[Kingdom Stats] Added quest XP for', dateKey, ':', c.xp_earned, 'Total:', sums[dateKey]);
+      if (period === 'year' || period === 'all') {
+        // For year/all view, use the existing logic
+        // Add quest XP - use xp_earned from quest_completion table
+        questRes.data?.forEach((c: any) => {
+          if (c.completed_at) {
+            const normalizedDate = normalizeDate(c.completed_at);
+            const dateKey = period === 'year' ? normalizedDate.slice(0, 7) : 'all';
+            if (sums[dateKey] !== undefined) {
+              sums[dateKey] += c.xp_earned || 0;
+              console.log('[Kingdom Stats] Added quest XP for', dateKey, ':', c.xp_earned, 'Total:', sums[dateKey]);
+            }
           }
-        }
-      });
+        });
 
-      // Add challenge XP
-      challengeRes.data?.forEach((c: any) => {
-        const reward = challengeRewards.find(r => r.id === c.challenge_id);
-        if (c.date && reward) {
-          const normalizedDate = normalizeDate(c.date);
-          const dateKey = period === 'year' ? normalizedDate.slice(0, 7) : 
-                         period === 'all' ? 'all' : normalizedDate;
-          if (sums[dateKey] !== undefined) {
-            sums[dateKey] += reward.xp || 0;
-            console.log('[Kingdom Stats] Added challenge XP for', dateKey, ':', reward.xp, 'Total:', sums[dateKey]);
+        // Add challenge XP
+        challengeRes.data?.forEach((c: any) => {
+          const reward = challengeRewards.find(r => r.id === c.challenge_id);
+          if (c.date && reward) {
+            const normalizedDate = normalizeDate(c.date);
+            const dateKey = period === 'year' ? normalizedDate.slice(0, 7) : 'all';
+            if (sums[dateKey] !== undefined) {
+              sums[dateKey] += reward.xp || 0;
+              console.log('[Kingdom Stats] Added challenge XP for', dateKey, ':', reward.xp, 'Total:', sums[dateKey]);
+            }
           }
-        }
-      });
+        });
 
-      // Add milestone XP
-      milestoneRes.data?.forEach((m: any) => {
-        const reward = milestoneRewards.find(r => r.id === m.milestone_id);
-        if (m.date && reward) {
-          const normalizedDate = normalizeDate(m.date);
-          const dateKey = period === 'year' ? normalizedDate.slice(0, 7) : 
-                         period === 'all' ? 'all' : normalizedDate;
-          if (sums[dateKey] !== undefined) {
-            sums[dateKey] += reward.experience || 0;
-            console.log('[Kingdom Stats] Added milestone XP for', dateKey, ':', reward.experience, 'Total:', sums[dateKey]);
+        // Add milestone XP
+        milestoneRes.data?.forEach((m: any) => {
+          const reward = milestoneRewards.find(r => r.id === m.milestone_id);
+          if (m.date && reward) {
+            const normalizedDate = normalizeDate(m.date);
+            const dateKey = period === 'year' ? normalizedDate.slice(0, 7) : 'all';
+            if (sums[dateKey] !== undefined) {
+              sums[dateKey] += reward.experience || 0;
+              console.log('[Kingdom Stats] Added milestone XP for', dateKey, ':', reward.experience, 'Total:', sums[dateKey]);
+            }
           }
-        }
-      });
+        });
+      } else {
+        // For week/month view, calculate cumulative XP over time
+        days.forEach(day => {
+          let dayXP = 0;
+          
+          // Add quest XP up to this day
+          questRes.data?.forEach((c: any) => {
+            if (c.completed_at && normalizeDate(c.completed_at) <= day) {
+              dayXP += c.xp_earned || 0;
+            }
+          });
+          
+          // Add challenge XP up to this day
+          challengeRes.data?.forEach((c: any) => {
+            const reward = challengeRewards.find(r => r.id === c.challenge_id);
+            if (c.date && reward && normalizeDate(c.date) <= day) {
+              dayXP += reward.xp || 0;
+            }
+          });
+          
+          // Add milestone XP up to this day
+          milestoneRes.data?.forEach((m: any) => {
+            const reward = milestoneRewards.find(r => r.id === m.milestone_id);
+            if (m.date && reward && normalizeDate(m.date) <= day) {
+              dayXP += reward.experience || 0;
+            }
+          });
+          
+          sums[day] = dayXP;
+          console.log('[Kingdom Stats] Cumulative XP for day', day, ':', dayXP);
+        });
+      }
       
       console.log('[Kingdom Stats] Final processed XP sums:', sums);
       console.log('[Kingdom Stats] XP days with data:', Object.entries(sums).filter(([day, sum]) => sum > 0));
