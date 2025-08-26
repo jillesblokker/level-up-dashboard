@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ChevronDown } from "lucide-react"
@@ -21,7 +21,21 @@ import { useAuth } from '@clerk/nextjs'
 
 import { format, parseISO, isThisWeek, isThisMonth, isThisYear } from 'date-fns';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart as RechartsBarChart, Bar, Legend, Cell, Area } from 'recharts';
-import { useRef } from 'react';
+
+// Debounce hook for preventing excessive API calls
+function useDebounce<T extends (...args: any[]) => any>(
+  callback: T,
+  delay: number
+): T {
+  const timeoutRef = useRef<NodeJS.Timeout>();
+  
+  return useCallback((...args: Parameters<T>) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => callback(...args), delay);
+  }, [callback, delay]) as T;
+}
 
 // ---
 // KingdomStatsBlock and KingStatsBlock are now fully data-driven with REAL-TIME SUPABASE SUBSCRIPTIONS.
@@ -181,30 +195,61 @@ function LevelEmptyState() {
   );
 }
 
-// Helper to format x-axis labels
-function formatXAxisLabel(dateStr: string, period: TimePeriod) {
-  let date: Date;
+// Helper function to format X-axis labels based on time period
+function formatXAxisLabel(dateString: string, timePeriod: TimePeriod): { day: string; date: string } {
+  if (!dateString || dateString === 'all') {
+    return { day: 'All', date: 'Time' };
+  }
+
   try {
-    date = parseISO(dateStr);
-  } catch {
-    return { day: '', date: dateStr };
-  }
-  let dayName = format(date, 'EEE');
-  let dayDate = format(date, 'dd-MM-yyyy');
-  if (period === 'year') {
-    dayName = format(date, 'MMM');
-    dayDate = format(date, 'yyyy');
-  } else if (period === 'all') {
-    // Could be week/month/year, fallback to month/year
-    if (dateStr.length === 4) {
-      dayName = '';
-      dayDate = dateStr;
-    } else if (dateStr.length === 7) {
-      dayName = format(date, 'MMM');
-      dayDate = format(date, 'yyyy');
+    let date: Date;
+    
+    if (timePeriod === 'year') {
+      // For year view, dateString is YYYY-MM format
+      date = new Date(dateString + '-01T00:00:00Z');
+      const month = date.toLocaleDateString('en-US', { month: 'short' });
+      const year = date.getFullYear();
+      return { day: month, date: year.toString() };
+    } else if (timePeriod === 'all') {
+      // For all time, show date in a more compact format
+      date = new Date(dateString + 'T00:00:00Z');
+      const day = date.getDate();
+      const month = date.getMonth() + 1;
+      const year = date.getFullYear();
+      
+      // For all period, show fewer labels to avoid overcrowding
+      return { 
+        day: `${day}/${month}`, 
+        date: year.toString() 
+      };
+    } else {
+      // For week/month view, dateString is YYYY-MM-DD format
+      date = new Date(dateString + 'T00:00:00Z');
+      const day = date.getDate();
+      const month = date.getMonth() + 1;
+      const year = date.getFullYear();
+      const weekday = date.toLocaleDateString('en-US', { weekday: 'short' });
+      
+      return { 
+        day: weekday.charAt(0), // First letter only
+        date: `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}` 
+      };
     }
+  } catch (error) {
+    console.error('Error formatting date:', dateString, error);
+    return { day: '?', date: '??' };
   }
-  return { day: dayName, date: dayDate };
+}
+
+// Helper function to check if a date string is valid
+function isValidDateString(dateString: string): boolean {
+  if (!dateString || dateString === 'all') return false;
+  try {
+    const date = new Date(dateString + 'T00:00:00Z');
+    return !isNaN(date.getTime());
+  } catch {
+    return false;
+  }
 }
 
 // Helper to determine if a bar is in the current period
@@ -214,11 +259,6 @@ function isCurrentPeriod(dateStr: string, period: TimePeriod) {
   if (period === 'month') return isThisMonth(date);
   if (period === 'year') return isThisYear(date);
   return false;
-}
-
-// Helper to check if a string is a valid date (YYYY-MM-DD or YYYY-MM)
-function isValidDateString(str: string) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(str) || /^\d{4}-\d{2}$/.test(str);
 }
 
 // Chart type toggle
@@ -278,6 +318,18 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
   // Prevent overflow: scale bars to max height
   const maxBarHeight = 160;
   const maxValue = Math.max(...graphData.map(d => d.value), 1);
+  
+  // Improve Y-axis scaling for better readability
+  const getYAxisDomain = () => {
+    if (maxValue === 0) return [0, 1];
+    if (maxValue <= 5) return [0, Math.max(5, maxValue + 1)];
+    if (maxValue <= 20) return [0, Math.max(20, maxValue + 2)];
+    if (maxValue <= 100) return [0, Math.max(100, maxValue + 10)];
+    if (maxValue <= 1000) return [0, Math.max(1000, maxValue + 100)];
+    return [0, maxValue * 1.1]; // Add 10% padding
+  };
+  
+  const yAxisDomain = getYAxisDomain();
   // For scroll: set min width per bar
   let minBarWidth = 40;
   let snapType = '';
@@ -295,19 +347,78 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
     snapType = 'snap-x snap-mandatory';
   }
 
+  // Get the year range for display below the chart
+  const getYearRange = () => {
+    if (timePeriod === 'all') {
+      if (graphData.length > 0) {
+        const firstDate = graphData[0]?.day;
+        const lastDate = graphData[graphData.length - 1]?.day;
+        
+        if (firstDate && lastDate && firstDate !== lastDate) {
+          try {
+            const firstYear = new Date(firstDate + 'T00:00:00Z').getFullYear();
+            const lastYear = new Date(lastDate + 'T00:00:00Z').getFullYear();
+            return firstYear === lastYear ? `${firstYear} (All Time)` : `${firstYear} - ${lastYear} (All Time)`;
+          } catch (error) {
+            return 'All Time';
+          }
+        } else if (firstDate) {
+          try {
+            const year = new Date(firstDate + 'T00:00:00Z').getFullYear();
+            return `${year} (All Time)`;
+          } catch (error) {
+            return 'All Time';
+          }
+        }
+      }
+      return 'All Time';
+    }
+    
+    if (timePeriod === 'year') return new Date().getFullYear().toString();
+    
+    if (graphData.length > 0) {
+      const firstDate = graphData[0]?.day;
+      const lastDate = graphData[graphData.length - 1]?.day;
+      
+      if (firstDate && lastDate && firstDate !== lastDate) {
+        try {
+          const firstYear = new Date(firstDate + 'T00:00:00Z').getFullYear();
+          const lastYear = new Date(lastDate + 'T00:00:00Z').getFullYear();
+          return firstYear === lastYear ? firstYear.toString() : `${firstYear} - ${lastYear}`;
+        } catch (error) {
+          return new Date().getFullYear().toString();
+        }
+      } else if (firstDate) {
+        try {
+          return new Date(firstDate + 'T00:00:00Z').getFullYear().toString();
+        } catch (error) {
+          return new Date().getFullYear().toString();
+        }
+      }
+    }
+    return new Date().getFullYear().toString();
+  };
+
   // Chart rendering
   return (
-    <div className="h-64 w-full overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }} aria-label={ariaLabel} tabIndex={0} ref={chartRef}>
-      <ResponsiveContainer width="100%" height="100%">
-        {chartType === 'bar' ? (
-          <RechartsBarChart data={graphData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }} barCategoryGap={"20%"}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#444" />
-            <XAxis
+    <div className="space-y-2">
+      <div className="h-64 w-full overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }} aria-label={ariaLabel} tabIndex={0} ref={chartRef}>
+        <ResponsiveContainer width="100%" height="100%">
+          {chartType === 'bar' ? (
+            <RechartsBarChart data={graphData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }} barCategoryGap={"20%"}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#444" />
+                          <XAxis
               dataKey="day"
               tick={({ x, y, payload, index }) => {
-                const total = graphData.length;
-                if (index !== 0 && index !== total - 1) return <g />;
                 if (!isValidDateString(payload.value)) return <g />;
+                
+                // For 'all' period, show fewer labels to avoid overcrowding
+                if (timePeriod === 'all') {
+                  const totalDays = graphData.length;
+                  const shouldShowLabel = index === 0 || index === totalDays - 1 || index % Math.max(1, Math.floor(totalDays / 10)) === 0;
+                  if (!shouldShowLabel) return <g />;
+                }
+                
                 const { day, date } = formatXAxisLabel(payload.value, timePeriod);
                 return (
                   <g transform={`translate(${x},${y})`}>
@@ -321,96 +432,104 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
               interval={0}
               minTickGap={minBarWidth}
             />
-            <YAxis tick={{ fill: "#888" }} axisLine={{ stroke: "#444" }} domain={[0, maxValue]} allowDecimals={false} />
-            <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: "#222", opacity: 0.1 }} />
-            <Bar
-              dataKey="value"
-              fill="#f59e42"
-              radius={[8, 8, 0, 0]}
-              isAnimationActive={mounted}
-              animationDuration={350}
-              animationEasing="ease-out"
-              minPointSize={4}
-              maxBarSize={maxBarHeight}
-              onMouseOver={(_, idx) => {
-                if (chartRef.current) {
-                  const bars = chartRef.current.querySelectorAll('.recharts-rectangle');
-                  if (bars[idx]) bars[idx].classList.add('bar-glow');
-                }
-              }}
-              onMouseOut={(_, idx) => {
-                if (chartRef.current) {
-                  const bars = chartRef.current.querySelectorAll('.recharts-rectangle');
-                  if (bars[idx]) bars[idx].classList.remove('bar-glow');
-                }
-              }}
-            >
-              {graphData.map((entry, idx) => {
-                const isCurrent = highlightCurrent && isCurrentPeriod(entry.day, timePeriod);
-                return (
-                  <Cell
-                    key={`cell-${idx}`}
-                    fill={isCurrent ? "#fbbf24" : "#f59e42"}
-                    className={isCurrent ? "bar-glow" : ""}
-                  />
-                );
-              })}
-            </Bar>
-          </RechartsBarChart>
-        ) : (
-          <LineChart data={graphData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-            <defs>
-              <linearGradient id="lineGradient" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="300">
-                <stop offset="0%" stopColor="#ffd700" stopOpacity="1" />
-                <stop offset="60%" stopColor="#fbbf24" stopOpacity="0.5" />
-                <stop offset="100%" stopColor="#fff" stopOpacity="0.2" />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#444" />
-            <XAxis
-              dataKey="day"
-              tick={({ x, y, payload }) => (
-                <text
-                  x={x}
-                  y={y + 16}
-                  textAnchor="middle"
-                  fontSize={14}
-                  fill="#fbbf24"
-                  aria-label={`x-axis-label-${payload.value}`}
-                >
-                  {payload.value}
-                </text>
-              )}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              tick={{ fontSize: 14, fill: '#fbbf24' }}
-              axisLine={false}
-              tickLine={false}
-              width={32}
-            />
-            <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: "#222", opacity: 0.1 }} />
-            <Area
-              type="monotone"
-              dataKey="value"
-              stroke="none"
-              fill="url(#lineGradient)"
-              fillOpacity={1}
-              isAnimationActive={false}
-            />
-            <Line
-              type="monotone"
-              dataKey="value"
-              stroke="#fbbf24"
-              strokeWidth={3}
-              dot={{ r: 4, fill: '#fbbf24', stroke: '#fff', strokeWidth: 2 }}
-              activeDot={{ r: 6, fill: '#fbbf24', stroke: '#fff', strokeWidth: 2 }}
-              isAnimationActive={false}
-            />
-          </LineChart>
-        )}
-      </ResponsiveContainer>
+              <YAxis tick={{ fill: "#888" }} axisLine={{ stroke: "#444" }} domain={yAxisDomain} allowDecimals={false} />
+              <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: "#222", opacity: 0.1 }} />
+              <Bar
+                dataKey="value"
+                fill="#f59e42"
+                radius={[8, 8, 0, 0]}
+                isAnimationActive={mounted}
+                animationDuration={350}
+                animationEasing="ease-out"
+                minPointSize={4}
+                maxBarSize={maxBarHeight}
+                onMouseOver={(_, idx) => {
+                  if (chartRef.current) {
+                    const bars = chartRef.current.querySelectorAll('.recharts-rectangle');
+                    if (bars[idx]) bars[idx].classList.add('bar-glow');
+                  }
+                }}
+                onMouseOut={(_, idx) => {
+                  if (chartRef.current) {
+                    const bars = chartRef.current.querySelectorAll('.recharts-rectangle');
+                    if (bars[idx]) bars[idx].classList.remove('bar-glow');
+                  }
+                }}
+              >
+                {graphData.map((entry, idx) => {
+                  const isCurrent = highlightCurrent && isCurrentPeriod(entry.day, timePeriod);
+                  return (
+                    <Cell
+                      key={`cell-${idx}`}
+                      fill={isCurrent ? "#fbbf24" : "#f59e42"}
+                      className={isCurrent ? "bar-glow" : ""}
+                    />
+                  );
+                })}
+              </Bar>
+            </RechartsBarChart>
+          ) : (
+            <LineChart data={graphData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="lineGradient" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="300">
+                  <stop offset="0%" stopColor="#ffd700" stopOpacity="1" />
+                  <stop offset="60%" stopColor="#fbbf24" stopOpacity="0.5" />
+                  <stop offset="100%" stopColor="#fff" stopOpacity="0.2" />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#444" />
+              <XAxis
+                dataKey="day"
+                tick={({ x, y, payload }) => (
+                  <text
+                    x={x}
+                    y={y + 16}
+                    textAnchor="middle"
+                    fontSize={14}
+                    fill="#fbbf24"
+                    aria-label={`x-axis-label-${payload.value}`}
+                  >
+                    {payload.value}
+                  </text>
+                )}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fontSize: 14, fill: '#fbbf24' }}
+                axisLine={false}
+                tickLine={false}
+                width={32}
+                domain={yAxisDomain}
+              />
+              <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: "#222", opacity: 0.1 }} />
+              <Area
+                type="monotone"
+                dataKey="value"
+                stroke="none"
+                fill="url(#lineGradient)"
+                fillOpacity={1}
+                isAnimationActive={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="value"
+                stroke="#fbbf24"
+                strokeWidth={3}
+                dot={{ r: 4, fill: '#fbbf24', stroke: '#fff', strokeWidth: 2 }}
+                activeDot={{ r: 6, fill: '#fbbf24', stroke: '#fff', strokeWidth: 2 }}
+                isAnimationActive={false}
+              />
+            </LineChart>
+          )}
+        </ResponsiveContainer>
+      </div>
+      
+      {/* Year display below the chart */}
+      <div className="text-center">
+        <h5 className="text-gray-400 text-sm font-medium">{getYearRange()}</h5>
+      </div>
+      
       <style jsx>{`
         .bar-glow {
           filter: drop-shadow(0 0 8px #fbbf24cc) drop-shadow(0 0 16px #fbbf24aa);
@@ -483,28 +602,31 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
   }, [authUserId, isLoaded, activeTab, timePeriod, getToken]);
 
   useEffect(() => {
-    // Call fetchData when dependencies change
-    fetchData();
-  }, [fetchData]);
+      // Call fetchData when dependencies change
+  fetchData();
+}, [fetchData]);
 
-  // 🎯 REAL-TIME SUPABASE SUBSCRIPTIONS for instant updates
-  useSupabaseRealtimeSync({
-    table: 'quest_completion',
-    userId: authUserId,
-    onChange: fetchData
-  });
+// Create debounced version of fetchData to prevent excessive API calls
+const debouncedFetchData = useDebounce(fetchData, 1000); // 1 second delay
 
-  useSupabaseRealtimeSync({
-    table: 'challenge_completion',
-    userId: authUserId,
-    onChange: fetchData
-  });
+// 🎯 REAL-TIME SUPABASE SUBSCRIPTIONS for instant updates
+useSupabaseRealtimeSync({
+  table: 'quest_completion',
+  userId: authUserId,
+  onChange: debouncedFetchData
+});
 
-  useSupabaseRealtimeSync({
-    table: 'milestone_completion',
-    userId: authUserId,
-    onChange: fetchData
-  });
+useSupabaseRealtimeSync({
+  table: 'challenge_completion',
+  userId: authUserId,
+  onChange: debouncedFetchData
+});
+
+useSupabaseRealtimeSync({
+  table: 'milestone_completion',
+  userId: authUserId,
+  onChange: debouncedFetchData
+});
 
   // Keep legacy event listeners for backward compatibility
   useEffect(() => {
@@ -655,23 +777,26 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
     }
   }, [authUserId, activeTab, timePeriod, isLoaded, fetchData]);
 
+  // Create debounced version of fetchData to prevent excessive API calls
+  const debouncedFetchData = useDebounce(fetchData, 1000); // 1 second delay
+
   // 🎯 REAL-TIME SUPABASE SUBSCRIPTIONS for instant updates
   useSupabaseRealtimeSync({
     table: 'quest_completion',
     userId: authUserId,
-    onChange: fetchData
+    onChange: debouncedFetchData
   });
 
   useSupabaseRealtimeSync({
     table: 'challenge_completion',
     userId: authUserId,
-    onChange: fetchData
+    onChange: debouncedFetchData
   });
 
   useSupabaseRealtimeSync({
     table: 'milestone_completion',
     userId: authUserId,
-    onChange: fetchData
+    onChange: debouncedFetchData
   });
 
   // Keep legacy event listeners for backward compatibility

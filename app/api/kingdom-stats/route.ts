@@ -253,7 +253,7 @@ export async function GET(request: Request) {
       // Aggregate quest completions from quest_completion table
       const { data: completions, error } = await supabaseServer
         .from('quest_completion')
-        .select('id, quest_id, completed_at, completed, gold_earned, xp_earned')
+        .select('id, completed, completed_at, quest_id, gold_earned, xp_earned')
         .eq('user_id', userId)
         .eq('completed', true)
         .gte('completed_at', earliestDate.toISOString());
@@ -269,9 +269,7 @@ export async function GET(request: Request) {
       // Log sample data for debugging
       if (completions && completions.length > 0) {
         console.log('[Kingdom Stats] Sample quest completion:', completions[0]);
-        console.log('[Kingdom Stats] Sample completed_at format:', completions[0]?.completed_at);
-        console.log('[Kingdom Stats] Sample gold_earned:', completions[0]?.gold_earned);
-        console.log('[Kingdom Stats] Sample xp_earned:', completions[0]?.xp_earned);
+        console.log('[Kingdom Stats] Sample date format:', completions[0]?.completed_at);
       }
 
       // Aggregate by day/month
@@ -292,51 +290,50 @@ export async function GET(request: Request) {
           }
         });
       } else if (period === 'all') {
-        // For all time, aggregate by day using the dynamic date range
-        completions?.forEach((c: any) => {
-          if (c.completed_at) {
-            const normalizedDay = normalizeDate(c.completed_at);
-            console.log('[Kingdom Stats] Processing quest completion for all period:', { 
-              completed_at: c.completed_at, 
-              normalized_day: normalizedDay, 
-              day_exists: counts[normalizedDay] !== undefined 
-            });
-            if (counts[normalizedDay] !== undefined) {
-              counts[normalizedDay]++;
-              console.log('[Kingdom Stats] Updated count for day', normalizedDay, ':', counts[normalizedDay]);
-            } else {
-              console.log('[Kingdom Stats] Day', normalizedDay, 'not in expected range');
+        // For all time, create a more meaningful distribution
+        if (completions && completions.length > 0) {
+          // Group by month for better visualization
+          const monthlyData: Record<string, number> = {};
+          completions.forEach((c: any) => {
+            if (c.completed_at) {
+              const month = c.completed_at.slice(0, 7);
+              monthlyData[month] = (monthlyData[month] || 0) + 1;
             }
-          } else {
-            console.log('[Kingdom Stats] Quest completion missing completed_at:', c);
-          }
-        });
+          });
+          
+          // Convert to array format for chart
+          const data = Object.entries(monthlyData).map(([month, count]) => ({
+            day: month,
+            value: count
+          }));
+          return NextResponse.json({ data });
+        }
       } else {
         // For week/month view, aggregate by day
         completions?.forEach((c: any) => {
           if (c.completed_at) {
             const normalizedDay = normalizeDate(c.completed_at);
             console.log('[Kingdom Stats] Processing quest completion:', { 
-              completed_at: c.completed_at, 
+              date: c.completed_at, 
               normalized_day: normalizedDay, 
               day_exists: counts[normalizedDay] !== undefined 
             });
             if (counts[normalizedDay] !== undefined) {
               counts[normalizedDay]++;
-              console.log('[Kingdom Stats] Updated count for day', normalizedDay, ':', counts[normalizedDay]);
+              console.log('[Kingdom Stats] Updated quest count for day', normalizedDay, ':', counts[normalizedDay]);
             } else {
-              console.log('[Kingdom Stats] Day', normalizedDay, 'not in expected range');
+              console.log('[Kingdom Stats] Quest day', normalizedDay, 'not in expected range');
             }
           } else {
-            console.log('[Kingdom Stats] Quest completion missing completed_at:', c);
+            console.log('[Kingdom Stats] Quest completion missing date:', c);
           }
         });
       }
-
+      
       console.log('[Kingdom Stats] Final processed quest counts:', counts);
       console.log('[Kingdom Stats] Date range for period:', period, ':', days);
-      console.log('[Kingdom Stats] Days with data:', Object.entries(counts).filter(([day, count]) => count > 0));
-
+      console.log('[Kingdom Stats] Quest days with data:', Object.entries(counts).filter(([day, count]) => count > 0));
+      
       const data = days.map(day => ({ day, value: counts[day] || 0 }));
       console.log('[Kingdom Stats] Final quest data:', data);
       return NextResponse.json({ data });
@@ -353,7 +350,7 @@ export async function GET(request: Request) {
       // Aggregate challenge completions from challenge_completion table
       const { data: completions, error } = await supabaseServer
         .from('challenge_completion')
-        .select('id, challenge_id, date, completed, category')
+        .select('id, completed, date, challenge_id')
         .eq('user_id', userId)
         .eq('completed', true)
         .gte('date', earliestDate.toISOString().slice(0, 10));
@@ -390,8 +387,24 @@ export async function GET(request: Request) {
           }
         });
       } else if (period === 'all') {
-        // For all time, just count total
-        counts['all'] = completions?.length || 0;
+        // For all time, create a more meaningful distribution
+        if (completions && completions.length > 0) {
+          // Group by month for better visualization
+          const monthlyData: Record<string, number> = {};
+          completions.forEach((c: any) => {
+            if (c.date) {
+              const month = c.date.slice(0, 7);
+              monthlyData[month] = (monthlyData[month] || 0) + 1;
+            }
+          });
+          
+          // Convert to array format for chart
+          const data = Object.entries(monthlyData).map(([month, count]) => ({
+            day: month,
+            value: count
+          }));
+          return NextResponse.json({ data });
+        }
       } else {
         // For week/month view, aggregate by day
         completions?.forEach((c: any) => {
@@ -471,8 +484,24 @@ export async function GET(request: Request) {
           }
         });
       } else if (period === 'all') {
-        // For all time, just count total
-        counts['all'] = completions?.length || 0;
+        // For all time, create a more meaningful distribution
+        if (completions && completions.length > 0) {
+          // Group by month for better visualization
+          const monthlyData: Record<string, number> = {};
+          completions.forEach((c: any) => {
+            if (c.date) {
+              const month = c.date.slice(0, 7);
+              monthlyData[month] = (monthlyData[month] || 0) + 1;
+            }
+          });
+          
+          // Convert to array format for chart
+          const data = Object.entries(monthlyData).map(([month, count]) => ({
+            day: month,
+            value: count
+          }));
+          return NextResponse.json({ data });
+        }
       } else {
         // For week/month view, aggregate by day
         completions?.forEach((c: any) => {
@@ -500,7 +529,7 @@ export async function GET(request: Request) {
       console.log('[Kingdom Stats] Milestone days with data:', Object.entries(counts).filter(([day, count]) => count > 0));
       
       const data = days.map(day => ({ day, value: counts[day] || 0 }));
-      console.log('[Kingdom Stats] Returning milestones data:', data);
+      console.log('[Kingdom Stats] Final milestone data:', data);
       return NextResponse.json({ data });
     }
 
@@ -586,8 +615,44 @@ export async function GET(request: Request) {
       if (period === 'year') {
         // For year view, we already initialized months above
       } else if (period === 'all') {
-        // For all time, just sum total
-        sums['all'] = 0;
+        // For all time, create a more meaningful distribution
+        if (questRes.data?.length || challengeRes.data?.length || milestoneRes.data?.length) {
+          // Group by month for better visualization
+          const monthlyData: Record<string, number> = {};
+          
+          // Add quest gold by month
+          questRes.data?.forEach((c: any) => {
+            if (c.completed_at) {
+              const month = c.completed_at.slice(0, 7);
+              monthlyData[month] = (monthlyData[month] || 0) + (c.gold_earned || 0);
+            }
+          });
+          
+          // Add challenge gold by month
+          challengeRes.data?.forEach((c: any) => {
+            const reward = challengeRewards.find(r => r.id === c.challenge_id);
+            if (c.date && reward) {
+              const month = c.date.slice(0, 7);
+              monthlyData[month] = (monthlyData[month] || 0) + (reward.gold || 0);
+            }
+          });
+          
+          // Add milestone gold by month
+          milestoneRes.data?.forEach((m: any) => {
+            const reward = milestoneRewards.find(r => r.id === m.milestone_id);
+            if (m.date && reward) {
+              const month = m.date.slice(0, 7);
+              monthlyData[month] = (monthlyData[month] || 0) + (reward.gold || 0);
+            }
+          });
+          
+          // Convert to array format for chart
+          const data = Object.entries(monthlyData).map(([month, total]) => ({
+            day: month,
+            value: total
+          }));
+          return NextResponse.json({ data });
+        }
       } else {
         // For week/month view, we already initialized days above
         console.log('[Kingdom Stats] Initialized gold day sums:', sums);
@@ -724,8 +789,44 @@ export async function GET(request: Request) {
       if (period === 'year') {
         // For year view, we already initialized months above
       } else if (period === 'all') {
-        // For all time, just sum total
-        sums['all'] = 0;
+        // For all time, create a more meaningful distribution
+        if (questRes.data?.length || challengeRes.data?.length || milestoneRes.data?.length) {
+          // Group by month for better visualization
+          const monthlyData: Record<string, number> = {};
+          
+          // Add quest XP by month
+          questRes.data?.forEach((c: any) => {
+            if (c.completed_at) {
+              const month = c.completed_at.slice(0, 7);
+              monthlyData[month] = (monthlyData[month] || 0) + (c.xp_earned || 0);
+            }
+          });
+          
+          // Add challenge XP by month
+          challengeRes.data?.forEach((c: any) => {
+            const reward = challengeRewards.find(r => r.id === c.challenge_id);
+            if (c.date && reward) {
+              const month = c.date.slice(0, 7);
+              monthlyData[month] = (monthlyData[month] || 0) + (reward.xp || 0);
+            }
+          });
+          
+          // Add milestone XP by month
+          milestoneRes.data?.forEach((m: any) => {
+            const reward = milestoneRewards.find(r => r.id === m.milestone_id);
+            if (m.date && reward) {
+              const month = m.date.slice(0, 7);
+              monthlyData[month] = (monthlyData[month] || 0) + (reward.experience || 0);
+            }
+          });
+          
+          // Convert to array format for chart
+          const data = Object.entries(monthlyData).map(([month, total]) => ({
+            day: month,
+            value: total
+          }));
+          return NextResponse.json({ data });
+        }
       } else {
         // For week/month view, we already initialized days above
         console.log('[Kingdom Stats] Initialized XP day sums:', sums);
