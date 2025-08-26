@@ -354,6 +354,17 @@ export async function GET(request: NextRequest) {
           response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
           return response;
         }
+        // Fallback for no data in all time view
+        const timelineData: Array<{day: string, value: number}> = [];
+        console.log('[Kingdom Stats V2] No challenge completions found for all time view');
+        const response = NextResponse.json({ data: timelineData });
+        response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        response.headers.set('Pragma', 'no-cache');
+        response.headers.set('Expires', '0');
+        response.headers.set('X-Nuclear-Debug', uniqueId);
+        response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+        response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
+        return response;
       } else {
         // For week/month view, show daily completions
         days.forEach(day => {
@@ -401,7 +412,7 @@ export async function GET(request: NextRequest) {
       console.log('[Kingdom Stats V2] Raw milestone completions from DB:', completions);
       console.log('[Kingdom Stats V2] Total milestone completions found:', completions?.length || 0);
       
-      // Same logic as quests and challenges
+      // Same logic as quests - show daily completions
       let counts: Record<string, number> = {};
       days.forEach(day => { counts[day] = 0; });
       
@@ -449,6 +460,17 @@ export async function GET(request: NextRequest) {
           response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
           return response;
         }
+        // Fallback for no data in all time view
+        const timelineData: Array<{day: string, value: number}> = [];
+        console.log('[Kingdom Stats V2] No milestone completions found for all time view');
+        const response = NextResponse.json({ data: timelineData });
+        response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        response.headers.set('Pragma', 'no-cache');
+        response.headers.set('Expires', '0');
+        response.headers.set('X-Nuclear-Debug', uniqueId);
+        response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+        response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
+        return response;
       } else {
         // For week/month view, show daily completions
         days.forEach(day => {
@@ -476,8 +498,6 @@ export async function GET(request: NextRequest) {
       
       return response;
     }
-
-
 
     // Handle gold gained tab (new)
     if (tab === 'gold-gained') {
