@@ -344,19 +344,7 @@ export async function GET(request: NextRequest) {
             });
           });
           
-          console.log('[Kingdom Stats V2] All time daily data (challenges):', timelineData);
-          const response = NextResponse.json({ data: timelineData });
-          response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-          response.headers.set('Pragma', 'no-cache');
-          response.headers.set('Expires', '0');
-          response.headers.set('X-Nuclear-Debug', uniqueId);
-          response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
-          response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
-          return response;
-        }
-        // Fallback for no data in all time view
-        const timelineData: Array<{day: string, value: number}> = [];
-        console.log('[Kingdom Stats V2] No challenge completions found for all time view');
+                  console.log('[Kingdom Stats V2] All time daily data (challenges):', timelineData);
         const response = NextResponse.json({ data: timelineData });
         response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
         response.headers.set('Pragma', 'no-cache');
@@ -365,10 +353,23 @@ export async function GET(request: NextRequest) {
         response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
         response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
         return response;
-      } else {
-        // For week/month view, show daily completions
+      }
+      // Fallback for no data in all time view
+      const timelineData: Array<{day: string, value: number}> = [];
+      console.log('[Kingdom Stats V2] No challenge completions found for all time view');
+      const response = NextResponse.json({ data: timelineData });
+      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      response.headers.set('Pragma', 'no-cache');
+      response.headers.set('Expires', '0');
+      response.headers.set('X-Nuclear-Debug', uniqueId);
+      response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+      response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
+      return response;
+    } else {
+      // For week/month view, show daily completions
+      if (completions && completions.length > 0) {
         days.forEach(day => {
-          const completionsOnDay = completions?.filter((c: any) => {
+          const completionsOnDay = completions.filter((c: any) => {
             if (!c.completed_at) return false;
             const completionDate = new Date(c.completed_at);
             const completionDay = completionDate.toISOString().slice(0, 10);
@@ -377,7 +378,20 @@ export async function GET(request: NextRequest) {
           
           counts[day] = completionsOnDay.length;
         });
+      } else {
+        // Fallback for no data in week/month view
+        console.log('[Kingdom Stats V2] No challenge completions found for week/month view');
+        const data = days.map(day => ({ day, value: 0 }));
+        const response = NextResponse.json({ data });
+        response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        response.headers.set('Pragma', 'no-cache');
+        response.headers.set('Expires', '0');
+        response.headers.set('X-Nuclear-Debug', uniqueId);
+        response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+        response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
+        return response;
       }
+    }
 
       const data = days.map(day => ({ day, value: counts[day] || 0 }));
       console.log('[Kingdom Stats V2] Final challenge data:', data);
@@ -473,16 +487,30 @@ export async function GET(request: NextRequest) {
         return response;
       } else {
         // For week/month view, show daily completions
-        days.forEach(day => {
-          const completionsOnDay = completions?.filter((c: any) => {
-            if (!c.completed_at) return false;
-            const completionDate = new Date(c.completed_at);
-            const completionDay = completionDate.toISOString().slice(0, 10);
-            return completionDay === day;
-          }) || [];
-          
-          counts[day] = completionsOnDay.length;
-        });
+        if (completions && completions.length > 0) {
+          days.forEach(day => {
+            const completionsOnDay = completions.filter((c: any) => {
+              if (!c.completed_at) return false;
+              const completionDate = new Date(c.completed_at);
+              const completionDay = completionDate.toISOString().slice(0, 10);
+              return completionDay === day;
+            }) || [];
+            
+            counts[day] = completionsOnDay.length;
+          });
+        } else {
+          // Fallback for no data in week/month view
+          console.log('[Kingdom Stats V2] No milestone completions found for week/month view');
+          const data = days.map(day => ({ day, value: 0 }));
+          const response = NextResponse.json({ data });
+          response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+          response.headers.set('Pragma', 'no-cache');
+          response.headers.set('Expires', '0');
+          response.headers.set('X-Nuclear-Debug', uniqueId);
+          response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+          response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
+          return response;
+        }
       }
 
       const data = days.map(day => ({ day, value: counts[day] || 0 }));
