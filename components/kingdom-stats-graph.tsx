@@ -567,13 +567,13 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
       setIsLoading(true);
       console.log('[Kingdom Stats Component] 🚀 Fetching data from API...');
       
-      // Add cache-busting parameter to force fresh API call and see backend debugging
-      const timestamp = Date.now();
-      const res = await fetch(`/api/kingdom-stats?tab=${activeTab}&period=${timePeriod}&_t=${timestamp}`, {
-        headers: {
-          'Authorization': `Bearer ${await getToken()}`,
-        },
-      });
+              // Add cache-busting parameter to force fresh API call and see backend debugging
+        const timestamp = Date.now();
+        const res = await fetch(`/api/kingdom-stats-v2?tab=${activeTab}&period=${timePeriod}&_t=${timestamp}`, {
+          headers: {
+            'Authorization': `Bearer ${await getToken()}`,
+          },
+        });
 
       if (!res.ok) {
         throw new Error(`API error: ${res.status} ${res.statusText}`);
