@@ -402,13 +402,6 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
   // Chart rendering
   return (
     <div className="space-y-2">
-      {/* Debug info for week view */}
-      {timePeriod === 'week' && (
-        <div className="text-xs text-gray-400 mb-2">
-          Debug: Week data length: {graphData.length}, Data: {JSON.stringify(graphData.slice(0, 3))}...
-        </div>
-      )}
-      
       <div className="h-64 w-full" aria-label={ariaLabel} tabIndex={0} ref={chartRef}>
         <ResponsiveContainer width="100%" height="100%">
           {chartType === 'bar' ? (

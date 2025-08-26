@@ -105,8 +105,19 @@ function getDateRange(period: string): string[] {
       days.push(`${year}-${month}`);
     }
   } else if (period === 'all') {
-    // For all time, we'll generate a range based on actual data
-    days = ['all'];
+    // For all time, we'll generate a reasonable range
+    // Start from 1 year ago to avoid overwhelming data
+    const startDate = new Date();
+    startDate.setFullYear(startDate.getFullYear() - 1);
+    
+    const currentDate = new Date();
+    while (startDate <= currentDate) {
+      const year = startDate.getFullYear();
+      const month = String(startDate.getMonth() + 1).padStart(2, '0');
+      const day = String(startDate.getDate()).padStart(2, '0');
+      days.push(`${year}-${month}-${day}`);
+      startDate.setDate(startDate.getDate() + 1);
+    }
   }
   
   return days;
@@ -126,33 +137,18 @@ function getEarliestDateForPeriod(period: string): Date {
     return earliest;
   } else if (period === 'year') {
     const earliest = new Date();
-    earliest.setMonth(earliest.getMonth() - 11);
+    earliest.setFullYear(earliest.getFullYear() - 1);
     return earliest;
   } else if (period === 'all') {
-    // For all time, go back a reasonable amount
     const earliest = new Date();
-    earliest.setFullYear(earliest.getFullYear() - 2);
+    earliest.setFullYear(earliest.getFullYear() - 1);
     return earliest;
   }
   
-  return now;
-}
-
-// Helper to normalize dates to local timezone
-function normalizeDate(dateString: string): string {
-  const date = new Date(dateString);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-// Helper to generate all period date range for cumulative data
-function generateAllPeriodDateRange(period: string): string[] {
-  if (period === 'all') {
-    return ['all'];
-  }
-  return getDateRange(period);
+  // Default to 1 year ago
+  const earliest = new Date();
+  earliest.setFullYear(earliest.getFullYear() - 1);
+  return earliest;
 }
 
 export async function GET(request: NextRequest) {
@@ -160,7 +156,7 @@ export async function GET(request: NextRequest) {
   console.log('🚨🚨🚨 NUCLEAR DEBUGGING START 🚨🚨🚨');
   console.log('🚨🚨🚨 NUCLEAR DEBUGGING - V2 ROUTE CALLED 🚨🚨🚨');
   console.log('🚨🚨🚨 NUCLEAR DEBUGGING - TIMESTAMP:', new Date().toISOString());
-  console.log('🚨🚨🚨 NUCLEAR DEBUGGING - DEPLOYMENT ID: NUCLEAR-V2-ROUTE-2025-08-26-20-30');
+  console.log('🚨🚨🚨 NUCLEAR DEBUGGING - DEPLOYMENT ID: NUCLEAR-V2-ROUTE-2025-08-26-21-55');
   console.log('🚨🚨🚨 NUCLEAR DEBUGGING - IF YOU SEE THIS, V2 ROUTE IS WORKING 🚨🚨🚨');
   console.log('🚨🚨🚨 NUCLEAR DEBUGGING END 🚨🚨🚨');
   
@@ -211,17 +207,8 @@ export async function GET(request: NextRequest) {
       console.log('[Kingdom Stats V2] Raw quest completions from DB:', completions);
       console.log('[Kingdom Stats V2] Total quest completions found:', completions?.length || 0);
       
-      // Log sample data for debugging
-      if (completions && completions.length > 0) {
-        console.log('[Kingdom Stats V2] Sample quest completion:', completions[0]);
-        console.log('[Kingdom Stats V2] Sample completed_at format:', completions[0]?.completed_at);
-        console.log('[Kingdom Stats V2] Sample original_completion_date format:', completions[0]?.original_completion_date);
-      }
-
-      // Aggregate by day/month with cumulative tracking
+      // Aggregate by day - show daily completions (not cumulative)
       let counts: Record<string, number> = {};
-      
-      // Initialize all days with 0
       days.forEach(day => { counts[day] = 0; });
       
       if (period === 'year') {
@@ -231,44 +218,36 @@ export async function GET(request: NextRequest) {
             const month = c.completed_at.slice(0, 7);
             if (counts[month] !== undefined) {
               counts[month]++;
-              console.log('[Kingdom Stats V2] Added quest to month', month, ':', counts[month]);
             }
           }
         });
       } else if (period === 'all') {
-        // For all time, show actual daily progression with cumulative data
+        // For all time, show daily progression
         if (completions && completions.length > 0) {
-          // Sort completions by date to show progression
-          const sortedCompletions = completions
-            .filter((c: any) => c.completed_at)
-            .sort((a: any, b: any) => new Date(a.completed_at).getTime() - new Date(b.completed_at).getTime());
-          
-          // Create a timeline showing when each completion happened by day
           const dailyData: Record<string, number> = {};
-          sortedCompletions.forEach((c: any) => {
-            const date = new Date(c.completed_at);
-            const dayKey = date.toISOString().slice(0, 10); // YYYY-MM-DD format
-            
-            if (!dailyData[dayKey]) {
-              dailyData[dayKey] = 0;
+          completions.forEach((c: any) => {
+            if (c.completed_at) {
+              const date = new Date(c.completed_at);
+              const dayKey = date.toISOString().slice(0, 10);
+              
+              if (!dailyData[dayKey]) {
+                dailyData[dayKey] = 0;
+              }
+              dailyData[dayKey]++;
             }
-            dailyData[dayKey]++;
           });
           
-          // Convert to cumulative progression by day
           const sortedDays = Object.keys(dailyData).sort();
           const timelineData: Array<{day: string, value: number}> = [];
-          let cumulativeCount = 0;
           
           sortedDays.forEach(day => {
-            cumulativeCount += dailyData[day] || 0;
             timelineData.push({
               day: day,
-              value: cumulativeCount
+              value: dailyData[day] || 0
             });
           });
           
-          console.log('[Kingdom Stats V2] All time daily timeline data (quests):', timelineData);
+          console.log('[Kingdom Stats V2] All time daily data (quests):', timelineData);
           const response = NextResponse.json({ data: timelineData });
           response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
           response.headers.set('Pragma', 'no-cache');
@@ -279,40 +258,25 @@ export async function GET(request: NextRequest) {
           return response;
         }
       } else {
-        // For week/month view, aggregate by day and maintain cumulative view
-        let cumulativeCount = 0;
-        
-        // First, get all completions up to each day
-        const sortedCompletions = completions
-          ?.filter((c: any) => c.completed_at)
-          .sort((a: any, b: any) => new Date(a.completed_at).getTime() - new Date(b.completed_at).getTime()) || [];
-        
-        console.log('[Kingdom Stats V2] Sorted completions for cumulative counting:', sortedCompletions);
-        
-        // For each day, count completions up to that day
+        // For week/month view, show daily completions
         days.forEach(day => {
-          const dayDate = new Date(day);
-          
-          // Count completions that happened on or before this day
-          const completionsUpToDay = sortedCompletions.filter((c: any) => {
+          // Count completions that happened ON this specific day
+          const completionsOnDay = completions?.filter((c: any) => {
+            if (!c.completed_at) return false;
             const completionDate = new Date(c.completed_at);
-            return completionDate <= dayDate;
-          });
+            const completionDay = completionDate.toISOString().slice(0, 10);
+            return completionDay === day;
+          }) || [];
           
-          cumulativeCount = completionsUpToDay.length;
-          counts[day] = cumulativeCount;
-          
-          console.log('[Kingdom Stats V2] Day', day, 'cumulative count:', cumulativeCount, 'completions up to this day');
+          counts[day] = completionsOnDay.length;
+          console.log('[Kingdom Stats V2] Day', day, 'daily completions:', completionsOnDay.length);
         });
       }
 
-      // Convert to array format for the chart
       const data = days.map(day => ({ day, value: counts[day] || 0 }));
       console.log('[Kingdom Stats V2] Final quest data:', data);
       
       const response = NextResponse.json({ data });
-      
-      // NUCLEAR CACHE BUSTING - Force fresh responses
       response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
       response.headers.set('Pragma', 'no-cache');
       response.headers.set('Expires', '0');
@@ -342,7 +306,7 @@ export async function GET(request: NextRequest) {
       console.log('[Kingdom Stats V2] Raw challenge completions from DB:', completions);
       console.log('[Kingdom Stats V2] Total challenge completions found:', completions?.length || 0);
       
-      // Same cumulative logic as quests
+      // Same logic as quests - show daily completions
       let counts: Record<string, number> = {};
       days.forEach(day => { counts[day] = 0; });
       
@@ -357,34 +321,30 @@ export async function GET(request: NextRequest) {
         });
       } else if (period === 'all') {
         if (completions && completions.length > 0) {
-          const sortedCompletions = completions
-            .filter((c: any) => c.completed_at)
-            .sort((a: any, b: any) => new Date(a.completed_at).getTime() - new Date(b.completed_at).getTime());
-          
           const dailyData: Record<string, number> = {};
-          sortedCompletions.forEach((c: any) => {
-            const date = new Date(c.completed_at);
-            const dayKey = date.toISOString().slice(0, 10);
-            
-            if (!dailyData[dayKey]) {
-              dailyData[dayKey] = 0;
+          completions.forEach((c: any) => {
+            if (c.completed_at) {
+              const date = new Date(c.completed_at);
+              const dayKey = date.toISOString().slice(0, 10);
+              
+              if (!dailyData[dayKey]) {
+                dailyData[dayKey] = 0;
+              }
+              dailyData[dayKey]++;
             }
-            dailyData[dayKey]++;
           });
           
           const sortedDays = Object.keys(dailyData).sort();
           const timelineData: Array<{day: string, value: number}> = [];
-          let cumulativeCount = 0;
           
           sortedDays.forEach(day => {
-            cumulativeCount += dailyData[day] || 0;
             timelineData.push({
               day: day,
-              value: cumulativeCount
+              value: dailyData[day] || 0
             });
           });
           
-          console.log('[Kingdom Stats V2] All time daily timeline data (challenges):', timelineData);
+          console.log('[Kingdom Stats V2] All time daily data (challenges):', timelineData);
           const response = NextResponse.json({ data: timelineData });
           response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
           response.headers.set('Pragma', 'no-cache');
@@ -395,20 +355,16 @@ export async function GET(request: NextRequest) {
           return response;
         }
       } else {
-        let cumulativeCount = 0;
-        const sortedCompletions = completions
-          ?.filter((c: any) => c.completed_at)
-          .sort((a: any, b: any) => new Date(a.completed_at).getTime() - new Date(b.completed_at).getTime()) || [];
-        
+        // For week/month view, show daily completions
         days.forEach(day => {
-          const dayDate = new Date(day);
-          const completionsUpToDay = sortedCompletions.filter((c: any) => {
+          const completionsOnDay = completions?.filter((c: any) => {
+            if (!c.completed_at) return false;
             const completionDate = new Date(c.completed_at);
-            return completionDate <= dayDate;
-          });
+            const completionDay = completionDate.toISOString().slice(0, 10);
+            return completionDay === day;
+          }) || [];
           
-          cumulativeCount = completionsUpToDay.length;
-          counts[day] = cumulativeCount;
+          counts[day] = completionsOnDay.length;
         });
       }
 
@@ -445,7 +401,7 @@ export async function GET(request: NextRequest) {
       console.log('[Kingdom Stats V2] Raw milestone completions from DB:', completions);
       console.log('[Kingdom Stats V2] Total milestone completions found:', completions?.length || 0);
       
-      // Same cumulative logic as quests and challenges
+      // Same logic as quests and challenges
       let counts: Record<string, number> = {};
       days.forEach(day => { counts[day] = 0; });
       
@@ -460,34 +416,30 @@ export async function GET(request: NextRequest) {
         });
       } else if (period === 'all') {
         if (completions && completions.length > 0) {
-          const sortedCompletions = completions
-            .filter((c: any) => c.completed_at)
-            .sort((a: any, b: any) => new Date(a.completed_at).getTime() - new Date(b.completed_at).getTime());
-          
           const dailyData: Record<string, number> = {};
-          sortedCompletions.forEach((c: any) => {
-            const date = new Date(c.completed_at);
-            const dayKey = date.toISOString().slice(0, 10);
-            
-            if (!dailyData[dayKey]) {
-              dailyData[dayKey] = 0;
+          completions.forEach((c: any) => {
+            if (c.completed_at) {
+              const date = new Date(c.completed_at);
+              const dayKey = date.toISOString().slice(0, 10);
+              
+              if (!dailyData[dayKey]) {
+                dailyData[dayKey] = 0;
+              }
+              dailyData[dayKey]++;
             }
-            dailyData[dayKey]++;
           });
           
           const sortedDays = Object.keys(dailyData).sort();
           const timelineData: Array<{day: string, value: number}> = [];
-          let cumulativeCount = 0;
           
           sortedDays.forEach(day => {
-            cumulativeCount += dailyData[day] || 0;
             timelineData.push({
               day: day,
-              value: cumulativeCount
+              value: dailyData[day] || 0
             });
           });
           
-          console.log('[Kingdom Stats V2] All time daily timeline data (milestones):', timelineData);
+          console.log('[Kingdom Stats V2] All time daily data (milestones):', timelineData);
           const response = NextResponse.json({ data: timelineData });
           response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
           response.headers.set('Pragma', 'no-cache');
@@ -498,20 +450,16 @@ export async function GET(request: NextRequest) {
           return response;
         }
       } else {
-        let cumulativeCount = 0;
-        const sortedCompletions = completions
-          ?.filter((c: any) => c.completed_at)
-          .sort((a: any, b: any) => new Date(a.completed_at).getTime() - new Date(b.completed_at).getTime()) || [];
-        
+        // For week/month view, show daily completions
         days.forEach(day => {
-          const dayDate = new Date(day);
-          const completionsUpToDay = sortedCompletions.filter((c: any) => {
+          const completionsOnDay = completions?.filter((c: any) => {
+            if (!c.completed_at) return false;
             const completionDate = new Date(c.completed_at);
-            return completionDate <= dayDate;
-          });
+            const completionDay = completionDate.toISOString().slice(0, 10);
+            return completionDay === day;
+          }) || [];
           
-          cumulativeCount = completionsUpToDay.length;
-          counts[day] = cumulativeCount;
+          counts[day] = completionsOnDay.length;
         });
       }
 
@@ -547,7 +495,7 @@ export async function GET(request: NextRequest) {
       console.log('[Kingdom Stats V2] Raw gold transactions from DB:', transactions);
       console.log('[Kingdom Stats V2] Total gold transactions found:', transactions?.length || 0);
       
-      // Aggregate gold by day with cumulative tracking
+      // Aggregate gold by day - show daily transactions (not cumulative)
       let counts: Record<string, number> = {};
       days.forEach(day => { counts[day] = 0; });
       
@@ -562,34 +510,30 @@ export async function GET(request: NextRequest) {
         });
       } else if (period === 'all') {
         if (transactions && transactions.length > 0) {
-          const sortedTransactions = transactions
-            .filter((t: any) => t.created_at)
-            .sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-          
           const dailyData: Record<string, number> = {};
-          sortedTransactions.forEach((t: any) => {
-            const date = new Date(t.created_at);
-            const dayKey = date.toISOString().slice(0, 10);
-            
-            if (!dailyData[dayKey]) {
-              dailyData[dayKey] = 0;
+          transactions.forEach((t: any) => {
+            if (t.created_at) {
+              const date = new Date(t.created_at);
+              const dayKey = date.toISOString().slice(0, 10);
+              
+              if (!dailyData[dayKey]) {
+                dailyData[dayKey] = 0;
+              }
+              dailyData[dayKey] += t.amount || 0;
             }
-            dailyData[dayKey] += t.amount || 0;
           });
           
           const sortedDays = Object.keys(dailyData).sort();
           const timelineData: Array<{day: string, value: number}> = [];
-          let cumulativeAmount = 0;
           
           sortedDays.forEach(day => {
-            cumulativeAmount += dailyData[day] || 0;
             timelineData.push({
               day: day,
-              value: cumulativeAmount
+              value: dailyData[day] || 0
             });
           });
           
-          console.log('[Kingdom Stats V2] All time daily timeline data (gold):', timelineData);
+          console.log('[Kingdom Stats V2] All time daily data (gold):', timelineData);
           const response = NextResponse.json({ data: timelineData });
           response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
           response.headers.set('Pragma', 'no-cache');
@@ -600,20 +544,18 @@ export async function GET(request: NextRequest) {
           return response;
         }
       } else {
-        let cumulativeAmount = 0;
-        const sortedTransactions = transactions
-          ?.filter((t: any) => t.created_at)
-          .sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()) || [];
-        
+        // For week/month view, show daily transactions
         days.forEach(day => {
-          const dayDate = new Date(day);
-          const transactionsUpToDay = sortedTransactions.filter((t: any) => {
+          // Sum transactions that happened ON this specific day
+          const transactionsOnDay = transactions?.filter((t: any) => {
+            if (!t.created_at) return false;
             const transactionDate = new Date(t.created_at);
-            return transactionDate <= dayDate;
-          });
+            const transactionDay = transactionDate.toISOString().slice(0, 10);
+            return transactionDay === day;
+          }) || [];
           
-          cumulativeAmount = transactionsUpToDay.reduce((sum, t) => sum + (t.amount || 0), 0);
-          counts[day] = cumulativeAmount;
+          const dailyAmount = transactionsOnDay.reduce((sum, t) => sum + (t.amount || 0), 0);
+          counts[day] = dailyAmount;
         });
       }
 
@@ -649,7 +591,7 @@ export async function GET(request: NextRequest) {
       console.log('[Kingdom Stats V2] Raw experience transactions from DB:', transactions);
       console.log('[Kingdom Stats V2] Total experience transactions found:', transactions?.length || 0);
       
-      // Same cumulative logic as gold
+      // Same logic as gold - show daily transactions
       let counts: Record<string, number> = {};
       days.forEach(day => { counts[day] = 0; });
       
@@ -664,34 +606,30 @@ export async function GET(request: NextRequest) {
         });
       } else if (period === 'all') {
         if (transactions && transactions.length > 0) {
-          const sortedTransactions = transactions
-            .filter((t: any) => t.created_at)
-            .sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-          
           const dailyData: Record<string, number> = {};
-          sortedTransactions.forEach((t: any) => {
-            const date = new Date(t.created_at);
-            const dayKey = date.toISOString().slice(0, 10);
-            
-            if (!dailyData[dayKey]) {
-              dailyData[dayKey] = 0;
+          transactions.forEach((t: any) => {
+            if (t.created_at) {
+              const date = new Date(t.created_at);
+              const dayKey = date.toISOString().slice(0, 10);
+              
+              if (!dailyData[dayKey]) {
+                dailyData[dayKey] = 0;
+              }
+              dailyData[dayKey] += t.amount || 0;
             }
-            dailyData[dayKey] += t.amount || 0;
           });
           
           const sortedDays = Object.keys(dailyData).sort();
           const timelineData: Array<{day: string, value: number}> = [];
-          let cumulativeAmount = 0;
           
           sortedDays.forEach(day => {
-            cumulativeAmount += dailyData[day] || 0;
             timelineData.push({
               day: day,
-              value: cumulativeAmount
+              value: dailyData[day] || 0
             });
           });
           
-          console.log('[Kingdom Stats V2] All time daily timeline data (experience):', timelineData);
+          console.log('[Kingdom Stats V2] All time daily data (experience):', timelineData);
           const response = NextResponse.json({ data: timelineData });
           response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
           response.headers.set('Pragma', 'no-cache');
@@ -702,20 +640,17 @@ export async function GET(request: NextRequest) {
           return response;
         }
       } else {
-        let cumulativeAmount = 0;
-        const sortedTransactions = transactions
-          ?.filter((t: any) => t.created_at)
-          .sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()) || [];
-        
+        // For week/month view, show daily transactions
         days.forEach(day => {
-          const dayDate = new Date(day);
-          const transactionsUpToDay = sortedTransactions.filter((t: any) => {
+          const transactionsOnDay = transactions?.filter((t: any) => {
+            if (!t.created_at) return false;
             const transactionDate = new Date(t.created_at);
-            return transactionDate <= dayDate;
-          });
+            const transactionDay = transactionDate.toISOString().slice(0, 10);
+            return transactionDay === day;
+          }) || [];
           
-          cumulativeAmount = transactionsUpToDay.reduce((sum, t) => sum + (t.amount || 0), 0);
-          counts[day] = cumulativeAmount;
+          const dailyAmount = transactionsOnDay.reduce((sum, t) => sum + (t.amount || 0), 0);
+          counts[day] = dailyAmount;
         });
       }
 
@@ -756,6 +691,7 @@ export async function GET(request: NextRequest) {
       days.forEach(day => { counts[day] = 0; });
       
       if (period === 'year') {
+        // For year view, calculate level at end of each month
         const monthlyExperience: Record<string, number> = {};
         
         transactions?.forEach((t: any) => {
@@ -767,42 +703,39 @@ export async function GET(request: NextRequest) {
           }
         });
         
-                 // Calculate level for each month (simplified: level = sqrt(exp/100))
-         Object.keys(monthlyExperience).forEach(month => {
-           const exp = monthlyExperience[month] || 0;
-           counts[month] = Math.floor(Math.sqrt(exp / 100)) + 1;
-         });
+        // Calculate level for each month (simplified: level = sqrt(exp/100))
+        Object.keys(monthlyExperience).forEach(month => {
+          const exp = monthlyExperience[month] || 0;
+          counts[month] = Math.floor(Math.sqrt(exp / 100)) + 1;
+        });
       } else if (period === 'all') {
         if (transactions && transactions.length > 0) {
-          const sortedTransactions = transactions
-            .filter((t: any) => t.created_at)
-            .sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-          
           const dailyData: Record<string, number> = {};
-          sortedTransactions.forEach((t: any) => {
-            const date = new Date(t.created_at);
-            const dayKey = date.toISOString().slice(0, 10);
-            
-            if (!dailyData[dayKey]) {
-              dailyData[dayKey] = 0;
+          transactions.forEach((t: any) => {
+            if (t.created_at) {
+              const date = new Date(t.created_at);
+              const dayKey = date.toISOString().slice(0, 10);
+              
+              if (!dailyData[dayKey]) {
+                dailyData[dayKey] = 0;
+              }
+              dailyData[dayKey] += t.amount || 0;
             }
-            dailyData[dayKey] += t.amount || 0;
           });
           
           const sortedDays = Object.keys(dailyData).sort();
           const timelineData: Array<{day: string, value: number}> = [];
-          let cumulativeExp = 0;
           
           sortedDays.forEach(day => {
-            cumulativeExp += dailyData[day] || 0;
-            const level = Math.floor(Math.sqrt(cumulativeExp / 100)) + 1;
+            const exp = dailyData[day] || 0;
+            const level = Math.floor(Math.sqrt(exp / 100)) + 1;
             timelineData.push({
               day: day,
               value: level
             });
           });
           
-          console.log('[Kingdom Stats V2] All time daily timeline data (level):', timelineData);
+          console.log('[Kingdom Stats V2] All time daily data (level):', timelineData);
           const response = NextResponse.json({ data: timelineData });
           response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
           response.headers.set('Pragma', 'no-cache');
@@ -813,21 +746,17 @@ export async function GET(request: NextRequest) {
           return response;
         }
       } else {
-        // For week/month view, calculate cumulative level progression
-        let cumulativeExp = 0;
-        const sortedTransactions = transactions
-          ?.filter((t: any) => t.created_at)
-          .sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()) || [];
-        
+        // For week/month view, calculate daily level based on daily experience
         days.forEach(day => {
-          const dayDate = new Date(day);
-          const transactionsUpToDay = sortedTransactions.filter((t: any) => {
+          const transactionsOnDay = transactions?.filter((t: any) => {
+            if (!t.created_at) return false;
             const transactionDate = new Date(t.created_at);
-            return transactionDate <= dayDate;
-          });
+            const transactionDay = transactionDate.toISOString().slice(0, 10);
+            return transactionDay === day;
+          }) || [];
           
-          cumulativeExp = transactionsUpToDay.reduce((sum, t) => sum + (t.amount || 0), 0);
-          const level = Math.floor(Math.sqrt(cumulativeExp / 100)) + 1;
+          const dailyExp = transactionsOnDay.reduce((sum, t) => sum + (t.amount || 0), 0);
+          const level = Math.floor(Math.sqrt(dailyExp / 100)) + 1;
           counts[day] = level;
         });
       }
