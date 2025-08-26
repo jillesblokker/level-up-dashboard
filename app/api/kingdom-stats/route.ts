@@ -347,6 +347,9 @@ export async function GET(request: Request) {
         // For week/month view, we want to show cumulative progress over time
         // This means each day should show the total completions up to that point
         if (completions && completions.length > 0) {
+          console.log('[Kingdom Stats] 🔍 DEBUGGING: Raw completions count:', completions.length);
+          console.log('[Kingdom Stats] 🔍 DEBUGGING: Sample raw completion:', completions[0]);
+          
           // Sort completions by date to process them chronologically
           const sortedCompletions = completions
             .filter((c: any) => c.original_completion_date || c.completed_at)
@@ -356,10 +359,16 @@ export async function GET(request: Request) {
               return dateA.getTime() - dateB.getTime();
             });
           
-          console.log('[Kingdom Stats] Sorted completions by date:', sortedCompletions.slice(0, 3));
+          console.log('[Kingdom Stats] 🔍 DEBUGGING: Filtered completions count:', sortedCompletions.length);
+          console.log('[Kingdom Stats] 🔍 DEBUGGING: Sample filtered completion:', sortedCompletions[0]);
+          console.log('[Kingdom Stats] 🔍 DEBUGGING: Sorted completions by date:', sortedCompletions.slice(0, 3));
           
           // Process each day to show cumulative progress
+          console.log('[Kingdom Stats] 🔍 DEBUGGING: Processing days array:', days);
+          
           days.forEach(day => {
+            console.log(`[Kingdom Stats] 🔍 DEBUGGING: Processing day ${day}`);
+            
             // Count all completions that happened on or before this day
             const dayCompletions = sortedCompletions.filter((c: any) => {
               const completionDate = c.original_completion_date || c.completed_at;
@@ -382,7 +391,7 @@ export async function GET(request: Request) {
             
             cumulativeCount = dayCompletions.length;
             counts[day] = cumulativeCount;
-            console.log('[Kingdom Stats] Cumulative quest count for day', day, ':', cumulativeCount, 'completions found');
+            console.log(`[Kingdom Stats] 🔍 DEBUGGING: Day ${day} - Found ${cumulativeCount} completions, setting count to ${cumulativeCount}`);
           });
         } else {
           // No completions found, all days get 0
