@@ -210,14 +210,14 @@ export async function GET(request: Request) {
   try {
     // NUCLEAR DEBUGGING - This will definitely show up
     console.log('🚨🚨🚨 NUCLEAR DEBUGGING START 🚨🚨🚨');
-    console.log('🚨🚨🚨 NUCLEAR DEBUGGING - API CALLED 🚨🚨🚨');
+    console.log('🚨🚨🚨 NUCLEAR DEBUGGING - ORIGINAL ROUTE CALLED 🚨🚨🚨');
     console.log('🚨🚨🚨 NUCLEAR DEBUGGING - TIMESTAMP:', new Date().toISOString());
-    console.log('🚨🚨🚨 NUCLEAR DEBUGGING - DEPLOYMENT ID: NUCLEAR-2025-08-26-19-50');
-    console.log('🚨🚨🚨 NUCLEAR DEBUGGING - IF YOU SEE THIS, NEW CODE IS DEPLOYED 🚨🚨🚨');
+    console.log('🚨🚨🚨 NUCLEAR DEBUGGING - DEPLOYMENT ID: NUCLEAR-ORIGINAL-2025-08-26-20-20');
+    console.log('🚨🚨🚨 NUCLEAR DEBUGGING - IF YOU SEE THIS, ORIGINAL ROUTE IS WORKING 🚨🚨🚨');
     console.log('🚨🚨🚨 NUCLEAR DEBUGGING END 🚨🚨🚨');
     
     // NUCLEAR CACHE BUSTING - Force fresh responses with unique timestamp
-    const uniqueId = `NUCLEAR-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const uniqueId = `NUCLEAR-ORIGINAL-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     console.log('🚨🚨🚨 NUCLEAR UNIQUE ID:', uniqueId);
     
     const userId = await getUserIdFromRequest(request);
@@ -426,6 +426,7 @@ export async function GET(request: Request) {
       response.headers.set('Expires', '0');
       response.headers.set('X-Nuclear-Debug', uniqueId);
       response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+      response.headers.set('X-Nuclear-Route', 'ORIGINAL-ROUTE-NUCLEAR-DEBUG');
       
       return response;
     }
@@ -1243,6 +1244,7 @@ export async function GET(request: Request) {
       response.headers.set('Expires', '0');
       response.headers.set('X-Nuclear-Debug', uniqueId);
       response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+      response.headers.set('X-Nuclear-Route', 'ORIGINAL-ROUTE-NUCLEAR-DEBUG');
       
       return response;
     }
@@ -1258,6 +1260,7 @@ export async function GET(request: Request) {
     response.headers.set('Expires', '0');
     response.headers.set('X-Nuclear-Debug', uniqueId);
     response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+    response.headers.set('X-Nuclear-Route', 'ORIGINAL-ROUTE-NUCLEAR-DEBUG');
     
     return response;
 
