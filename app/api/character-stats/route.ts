@@ -58,7 +58,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid stats data' }, { status: 400 });
     }
 
-    // Extract individual fields from stats object
+    // Extract individual fields from stats object - match your actual table schema
     const statsData = {
       user_id: userId,
       gold: stats.gold || 0,
@@ -67,7 +67,7 @@ export async function POST(request: Request) {
       health: stats.health || 100,
       max_health: stats.max_health || 100,
       build_tokens: stats.build_tokens || 0,
-      kingdom_expansions: stats.kingdom_expansions || 0,
+      character_name: 'Adventurer', // Add missing required field
       updated_at: new Date().toISOString()
     };
 
