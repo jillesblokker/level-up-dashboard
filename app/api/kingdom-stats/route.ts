@@ -341,18 +341,33 @@ export async function GET(request: Request) {
         // For week/month view, aggregate by day and maintain cumulative view
         let cumulativeCount = 0;
         
+        console.log('[Kingdom Stats] Week/Month view - Processing days:', days);
+        console.log('[Kingdom Stats] Week/Month view - Raw completions:', completions?.slice(0, 3));
+        
         // First, get all completions up to each day
         days.forEach(day => {
           const dayCompletions = completions?.filter((c: any) => {
             const completionDate = c.original_completion_date || c.completed_at;
-            if (!completionDate) return false;
+            if (!completionDate) {
+              console.log('[Kingdom Stats] Skipping completion with no date:', c);
+              return false;
+            }
             const normalizedDate = normalizeDate(completionDate);
-            return normalizedDate <= day;
+            const isIncluded = normalizedDate <= day;
+            console.log('[Kingdom Stats] Date comparison:', {
+              day,
+              completionDate,
+              normalizedDate,
+              isIncluded,
+              originalDate: c.original_completion_date,
+              completedAt: c.completed_at
+            });
+            return isIncluded;
           }) || [];
           
           cumulativeCount = dayCompletions.length;
           counts[day] = cumulativeCount;
-          console.log('[Kingdom Stats] Cumulative quest count for day', day, ':', cumulativeCount);
+          console.log('[Kingdom Stats] Cumulative quest count for day', day, ':', cumulativeCount, 'completions found');
         });
       }
       
