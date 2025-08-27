@@ -345,18 +345,23 @@ export default function QuestsPage() {
 
   // Daily reset logic for non-milestone quests and challenges (persisted in DB)
   useEffect(() => {
-    if (!loading && quests.length > 0 && userId) {
+    if (!loading && quests.length > 0 && userId && token) {
       const lastReset = localStorage.getItem('last-quest-reset-date');
       const today = new Date().toISOString().slice(0, 10);
-      if (lastReset !== today) {
+      
+      // Only reset if we haven't reset today AND we have a valid token
+      if (lastReset !== today && token) {
+        console.log('[Daily Reset] Starting daily reset for date:', today);
+        
         // Call backend to reset quests and challenges
         fetch('/api/quests/reset-daily', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : '' },
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         })
           .then(async res => {
             if (!res.ok) {
               const err = await res.text();
+              console.error('[Daily Reset] API error:', res.status, err);
               toast({
                 title: 'Daily Reset Error',
                 description: `Failed to reset daily quests: ${err || res.statusText}`,
@@ -364,16 +369,22 @@ export default function QuestsPage() {
               });
               return;
             }
+            
             // Only parse JSON if response is OK
-            await res.json();
+            const result = await res.json();
+            console.log('[Daily Reset] Success:', result);
+            
+            // Update local state and localStorage
             setQuests(prev => prev.map(q => ({ ...q, completed: false })));
             localStorage.setItem('last-quest-reset-date', today);
+            
             toast({
               title: 'Daily Reset',
               description: 'Your daily quests and challenges have been reset! Time to build new habits.',
             });
           })
           .catch(err => {
+            console.error('[Daily Reset] Network error:', err);
             toast({
               title: 'Daily Reset Error',
               description: `Network or server error: ${err.message || err}`,
@@ -382,7 +393,7 @@ export default function QuestsPage() {
           });
       }
     }
-  }, [loading, quests.length, userId]);
+  }, [loading, quests.length, userId, token]);
 
   // Persist streaks and last completed
   useEffect(() => {

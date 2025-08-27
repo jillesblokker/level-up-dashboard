@@ -53,8 +53,11 @@ export async function GET(request: Request) {
     }
   } catch (error) {
     console.error('[User Preferences API] Error:', error);
+    if (error instanceof Error) {
+      console.error('[User Preferences API] Error details:', error.message, error.stack);
+    }
     return NextResponse.json(
-      { error: 'Internal server error' }, 
+      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, 
       { status: 500 }
     );
   }
@@ -96,8 +99,11 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error('[User Preferences API] Error:', error);
+    if (error instanceof Error) {
+      console.error('[User Preferences API] Error details:', error.message, error.stack);
+    }
     return NextResponse.json(
-      { error: 'Internal server error' }, 
+      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, 
       { status: 500 }
     );
   }
@@ -131,8 +137,11 @@ export async function DELETE(request: Request) {
     });
   } catch (error) {
     console.error('[User Preferences API] Error:', error);
+    if (error instanceof Error) {
+      console.error('[User Preferences API] Error details:', error.message, error.stack);
+    }
     return NextResponse.json(
-      { error: 'Internal server error' }, 
+      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, 
       { status: 500 }
     );
   }

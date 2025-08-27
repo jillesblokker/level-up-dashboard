@@ -48,7 +48,10 @@ export async function GET(request: Request) {
     }
   } catch (error) {
     console.error('[Realm Data API] Error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    if (error instanceof Error) {
+      console.error('[Realm Data API] Error details:', error.message, error.stack);
+    }
+    return NextResponse.json({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
   }
 }
 
@@ -68,6 +71,7 @@ export async function POST(request: Request) {
         user_id: userId,
         preference_key: key,
         preference_value: value,
+        updated_at: new Date().toISOString()
       }, {
         onConflict: 'user_id,preference_key'
       });
@@ -77,7 +81,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, message: 'Realm data saved successfully' });
   } catch (error) {
     console.error('[Realm Data API] Error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    if (error instanceof Error) {
+      console.error('[Realm Data API] Error details:', error.message, error.stack);
+    }
+    return NextResponse.json({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
   }
 }
 
@@ -106,6 +113,9 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ success: true, message: 'Realm data deleted successfully' });
   } catch (error) {
     console.error('[Realm Data API] Error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    if (error instanceof Error) {
+      console.error('[Realm Data API] Error details:', error.message, error.stack);
+    }
+    return NextResponse.json({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
   }
 }
