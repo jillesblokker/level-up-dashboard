@@ -116,11 +116,13 @@ export async function gainExperience(amount: number, source: string, category: s
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            experience: newExperience,
-            level: newLevel,
-            gold: currentStats.gold,
-            health: currentStats.health,
-            max_health: currentStats.max_health
+            stats: {
+              experience: newExperience,
+              level: newLevel,
+              gold: currentStats.gold,
+              health: currentStats.health,
+              max_health: currentStats.max_health
+            }
           })
         });
         

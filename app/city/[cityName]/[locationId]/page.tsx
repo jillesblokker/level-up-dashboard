@@ -353,7 +353,7 @@ export default function CityLocationPage() {
         const response = await fetch('/api/character-stats', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ gold: newGold }),
+          body: JSON.stringify({ stats: { gold: newGold } }),
           credentials: 'include'
         });
         if (!response.ok) {

@@ -180,7 +180,7 @@ export async function migrateLocalStorageToSupabase(userId: string): Promise<Mig
         const response = await fetch('/api/character-stats', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(migrationData.characterStats),
+          body: JSON.stringify({ stats: migrationData.characterStats }),
           credentials: 'include'
         });
         
