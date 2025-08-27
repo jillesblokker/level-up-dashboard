@@ -53,7 +53,10 @@ export async function POST(req: NextRequest) {
 
       const { error: insertError } = await supabaseServer
         .from('quest_completion')
-        .insert(newRecords);
+        .upsert(newRecords, {
+          onConflict: 'user_id,quest_id',
+          ignoreDuplicates: false
+        });
 
       if (insertError) {
         console.error('[Daily Reset] Error creating new daily records:', insertError);
