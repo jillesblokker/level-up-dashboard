@@ -1,6 +1,5 @@
 import { render, RenderOptions } from '@testing-library/react';
 import { ReactElement } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Mock data for testing
 export const mockQuests = [
@@ -279,32 +278,11 @@ export const resetMocks = () => {
   mockFunctions.console.info.mockReset();
 };
 
-// Custom render function with providers
-const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        cacheTime: 0,
-        staleTime: 0,
-      },
-      mutations: {
-        retry: false,
-      },
-    },
-  });
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  );
-};
-
+// Custom render function without providers (simplified)
 const customRender = (
   ui: ReactElement,
   options?: Omit<RenderOptions, 'wrapper'>
-) => render(ui, { wrapper: AllTheProviders, ...options });
+) => render(ui, options);
 
 // Re-export everything
 export * from '@testing-library/react';
@@ -420,7 +398,7 @@ export const questTestUtils = {
 export const userTestUtils = {
   createAuthenticatedUser: (overrides = {}) => generateMockUser({ ...overrides }),
   createUserWithPreferences: (preferences: Record<string, any>, overrides = {}) =>
-    generateMockUser({ preferences, ...overrides }),
+    generateMockUser({ preferences: preferences as any, ...overrides }),
 };
 
 export const characterTestUtils = {

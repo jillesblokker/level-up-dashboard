@@ -92,9 +92,9 @@ export const useAppStore = create<AppState>()(
         setQuests: (quests) =>
           set((state) => {
             state.quests.quests = quests;
-            state.quests.completedQuests = new Set(
-              quests.filter((q: any) => q.completed).map((q: any) => q.id)
-            );
+            // Convert Set to array for persistence, then back to Set
+            const completedQuestIds = quests.filter((q: any) => q.completed).map((q: any) => q.id);
+            state.quests.completedQuests = new Set(completedQuestIds);
           }),
 
         toggleQuestCompletion: (questId) =>
@@ -145,26 +145,7 @@ export const useAppStore = create<AppState>()(
           preferences: state.user.preferences,
         },
       }),
-      // Custom serialization for Set objects
-      serialize: (state) => {
-        const serialized = JSON.parse(JSON.stringify(state, (key, value) => {
-          if (value instanceof Set) {
-            return Array.from(value);
-          }
-          return value;
-        }));
-        return JSON.stringify(serialized);
-      },
-      // Custom deserialization for Set objects
-      deserialize: (str) => {
-        const parsed = JSON.parse(str, (key, value) => {
-          if (key === 'completedQuests' && Array.isArray(value)) {
-            return new Set(value);
-          }
-          return value;
-        });
-        return parsed;
-      },
+      // Note: Custom serialization for Set objects is handled in the state transformation
     }
   )
 );

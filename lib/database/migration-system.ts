@@ -188,7 +188,7 @@ export class DatabaseMigrationSystem {
         .limit(1);
 
       if (error) throw error;
-      return migrations && migrations.length > 0 ? migrations[0].version : 0;
+      return migrations && migrations.length > 0 ? migrations[0]?.version || 0 : 0;
     } catch (error) {
       console.error('Error getting current migration version:', error);
       return 0;
