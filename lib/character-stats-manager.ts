@@ -117,7 +117,7 @@ export async function fetchFreshCharacterStats(): Promise<CharacterStats | null>
     
     if (response.ok) {
       const result = await response.json();
-      const characterData = result.data?.data || result.data;
+      const characterData = result.stats;
       
       if (characterData) {
         // Update localStorage with fresh data
