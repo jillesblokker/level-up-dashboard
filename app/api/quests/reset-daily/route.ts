@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
         user_id: userId,
         quest_id: completion.quest_id,
         completed: false, // New day, not completed yet
-        completed_at: null, // Will be set when completed
+        completed_at: new Date().toISOString(), // Set to current timestamp to satisfy NOT NULL constraint
         gold_earned: 0, // Reset for new day
         xp_earned: 0, // Reset for new day
         // Add a reference to the original completion
