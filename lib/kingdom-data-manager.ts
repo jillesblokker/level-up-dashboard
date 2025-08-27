@@ -8,20 +8,50 @@ export interface KingdomData {
   characterStats: any;
 }
 
-// Save kingdom data to Supabase
+// Save kingdom data to the appropriate Supabase endpoint
 export async function saveKingdomData(key: string, value: any): Promise<boolean> {
   try {
-    const response = await fetch('/api/user-preferences', {
+    let endpoint = '/api/user-preferences';
+    let body: any = { key, value };
+
+    // Route different data types to their dedicated endpoints
+    switch (key) {
+      case 'challenges':
+        endpoint = '/api/challenges';
+        body = { challenges: value };
+        break;
+      case 'character-stats':
+        endpoint = '/api/character-stats';
+        body = { stats: value };
+        break;
+      case 'kingdom-grid':
+        endpoint = '/api/kingdom-grid';
+        body = { grid: value };
+        break;
+      case 'kingdom-tile-timers':
+        endpoint = '/api/kingdom-timers';
+        body = { timers: value };
+        break;
+      case 'kingdom-tile-items':
+        endpoint = '/api/kingdom-items';
+        body = { items: value };
+        break;
+      default:
+        // Use user-preferences for other data
+        break;
+    }
+
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key, value }),
+      body: JSON.stringify(body),
     });
 
     if (response.ok) {
-      console.log(`[Kingdom Data Manager] ✅ Saved kingdom data: ${key}`);
+      console.log(`[Kingdom Data Manager] ✅ Saved kingdom data: ${key} to ${endpoint}`);
       return true;
     } else {
-      console.error(`[Kingdom Data Manager] ❌ Failed to save kingdom data: ${key}`);
+      console.error(`[Kingdom Data Manager] ❌ Failed to save kingdom data: ${key} to ${endpoint}`, response.status, response.statusText);
       return false;
     }
   } catch (error) {
@@ -30,20 +60,62 @@ export async function saveKingdomData(key: string, value: any): Promise<boolean>
   }
 }
 
-// Get kingdom data from Supabase
+// Get kingdom data from the appropriate Supabase endpoint
 export async function getKingdomData(key: string): Promise<any | null> {
   try {
-    const response = await fetch(`/api/user-preferences?key=${encodeURIComponent(key)}`);
+    let endpoint = `/api/user-preferences?key=${encodeURIComponent(key)}`;
+    
+    // Route different data types to their dedicated endpoints
+    switch (key) {
+      case 'challenges':
+        endpoint = '/api/challenges';
+        break;
+      case 'character-stats':
+        endpoint = '/api/character-stats';
+        break;
+      case 'kingdom-grid':
+        endpoint = '/api/kingdom-grid';
+        break;
+      case 'kingdom-tile-timers':
+        endpoint = '/api/kingdom-timers';
+        break;
+      case 'kingdom-tile-items':
+        endpoint = '/api/kingdom-items';
+        break;
+      default:
+        // Use user-preferences for other data
+        break;
+    }
+
+    const response = await fetch(endpoint);
     
     if (response.ok) {
       const data = await response.json();
-      if (data.success && data.value !== null) {
-        console.log(`[Kingdom Data Manager] ✅ Retrieved kingdom data: ${key}`);
-        return data.value;
+      
+      // Handle different response formats from different endpoints
+      let value = null;
+      if (key === 'challenges' && data.challenges) {
+        value = data.challenges;
+      } else if (key === 'character-stats' && data.stats) {
+        value = data.stats;
+      } else if (key === 'kingdom-grid' && data.grid) {
+        value = data.grid;
+      } else if (key === 'kingdom-tile-timers' && data.timers) {
+        value = data.timers;
+      } else if (key === 'kingdom-tile-items' && data.items) {
+        value = data.items;
+      } else if (data.success && data.value !== null) {
+        // user-preferences format
+        value = data.value;
+      }
+      
+      if (value !== null) {
+        console.log(`[Kingdom Data Manager] ✅ Retrieved kingdom data: ${key} from ${endpoint}`);
+        return value;
       }
     }
     
-    console.log(`[Kingdom Data Manager] ℹ️ No kingdom data found for: ${key}`);
+    console.log(`[Kingdom Data Manager] ℹ️ No kingdom data found for: ${key} from ${endpoint}`);
     return null;
   } catch (error) {
     console.error(`[Kingdom Data Manager] Error retrieving kingdom data ${key}:`, error);
