@@ -155,26 +155,7 @@ jest.mock('@/lib/supabase/server-client', () => ({
   },
 }));
 
-// Mock React Query
-jest.mock('@tanstack/react-query', () => ({
-  ...jest.requireActual('@tanstack/react-query'),
-  useQuery: jest.fn(() => ({
-    data: null,
-    isLoading: false,
-    error: null,
-    refetch: jest.fn(),
-  })),
-  useMutation: jest.fn(() => ({
-    mutate: jest.fn(),
-    isLoading: false,
-    error: null,
-  })),
-  useQueryClient: jest.fn(() => ({
-    invalidateQueries: jest.fn(),
-    setQueryData: jest.fn(),
-    getQueryData: jest.fn(),
-  })),
-}));
+
 
 // Mock toast notifications
 jest.mock('@/hooks/use-toast', () => ({
@@ -316,13 +297,13 @@ beforeEach(() => {
   sessionStorageMock.clear.mockReset();
   
   // Reset fetch mock
-  (global.fetch as jest.Mock).mockClear();
+  global.fetch.mockClear();
   
   // Reset performance mock
-  (window.performance.now as jest.Mock).mockClear();
-  (window.performance.getEntriesByType as jest.Mock).mockClear();
-  (window.performance.mark as jest.Mock).mockClear();
-  (window.performance.measure as jest.Mock).mockClear();
+  window.performance.now.mockClear();
+  window.performance.getEntriesByType.mockClear();
+  window.performance.mark.mockClear();
+  window.performance.measure.mockClear();
 });
 
 // Global test timeout

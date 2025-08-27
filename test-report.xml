@@ -1,0 +1,726 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testExecutions version="1">
+  <file path="/Users/jillesblokker/Downloads/level-up/__tests__/lib/validation/schemas.test.ts">
+    <testCase name="Validation Schemas Quest Schema validates a valid quest" duration="7"/>
+    <testCase name="Validation Schemas Quest Schema requires title" duration="11">
+      <failure message="Error: expect(received).toBe(expected) // Object.is equality"><![CDATA[Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: "Quest title is required"
+Received: "Required"
+    at Object.toBe (/Users/jillesblokker/Downloads/level-up/__tests__/lib/validation/schemas.test.ts:39:48)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="Validation Schemas Quest Schema enforces title length limit" duration="1"/>
+    <testCase name="Validation Schemas Quest Schema enforces description length limit" duration="1"/>
+    <testCase name="Validation Schemas Quest Schema validates category enum values" duration="2"/>
+    <testCase name="Validation Schemas Quest Schema validates difficulty enum values" duration="1"/>
+    <testCase name="Validation Schemas Quest Schema enforces XP range" duration="0"/>
+    <testCase name="Validation Schemas Quest Schema enforces gold range" duration="2"/>
+    <testCase name="Validation Schemas Quest Schema allows optional fields to be undefined" duration="1"/>
+    <testCase name="Validation Schemas Quest Schema accepts valid tags array" duration="1"/>
+    <testCase name="Validation Schemas Challenge Schema validates a valid challenge" duration="0"/>
+    <testCase name="Validation Schemas Challenge Schema requires name" duration="3"/>
+    <testCase name="Validation Schemas Challenge Schema enforces name length limit" duration="1"/>
+    <testCase name="Validation Schemas Challenge Schema validates category enum values" duration="1"/>
+    <testCase name="Validation Schemas Challenge Schema enforces target minimum value" duration="1"/>
+    <testCase name="Validation Schemas Challenge Schema validates frequency enum values" duration="0"/>
+    <testCase name="Validation Schemas User Schema validates a valid user" duration="1"/>
+    <testCase name="Validation Schemas User Schema requires id" duration="0"/>
+    <testCase name="Validation Schemas User Schema validates email format" duration="1"/>
+    <testCase name="Validation Schemas User Schema allows email to be optional" duration="1"/>
+    <testCase name="Validation Schemas Quest Completion Schema validates a valid quest completion" duration="1"/>
+    <testCase name="Validation Schemas Quest Completion Schema requires questId" duration="1">
+      <failure message="Error: expect(received).toBe(expected) // Object.is equality"><![CDATA[Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: "User ID is required"
+Received: "Required"
+    at Object.toBe (/Users/jillesblokker/Downloads/level-up/__tests__/lib/validation/schemas.test.ts:239:48)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="Validation Schemas Quest Completion Schema validates UUID format for questId" duration="1"/>
+    <testCase name="Validation Schemas Quest Completion Schema enforces non-negative XP and gold" duration="1"/>
+    <testCase name="Validation Schemas Quest Completion Schema enforces notes length limit" duration="1"/>
+    <testCase name="Validation Schemas Quest Form Schema validates quest form data" duration="1"/>
+    <testCase name="Validation Schemas Quest Form Schema excludes id field" duration="1"/>
+    <testCase name="Validation Schemas Quest Filters Schema validates quest filters" duration="0"/>
+    <testCase name="Validation Schemas Quest Filters Schema allows partial filters" duration="1"/>
+    <testCase name="Validation Schemas Quest Filters Schema allows empty filters" duration="0"/>
+    <testCase name="Validation Schemas Date Range Schema validates valid date range" duration="1"/>
+    <testCase name="Validation Schemas Date Range Schema validates same start and end date" duration="1"/>
+    <testCase name="Validation Schemas Date Range Schema rejects invalid date format" duration="1"/>
+    <testCase name="Validation Schemas Date Range Schema rejects end date before start date" duration="1"/>
+    <testCase name="Validation Schemas Validation Helper Functions validateSchema returns success result for valid data" duration="1"/>
+    <testCase name="Validation Schemas Validation Helper Functions validateSchema returns error result for invalid data" duration="0"/>
+    <testCase name="Validation Schemas Validation Helper Functions safeParse returns parsed data for valid input" duration="1"/>
+    <testCase name="Validation Schemas Validation Helper Functions safeParse returns null for invalid input" duration="1"/>
+    <testCase name="Validation Schemas Edge Cases handles empty strings appropriately" duration="0"/>
+    <testCase name="Validation Schemas Edge Cases handles null values appropriately" duration="1"/>
+    <testCase name="Validation Schemas Edge Cases handles undefined values appropriately" duration="0"/>
+    <testCase name="Validation Schemas Edge Cases handles very large numbers" duration="1"/>
+    <testCase name="Validation Schemas Schema Composition allows extending base schemas" duration="1"/>
+    <testCase name="Validation Schemas Schema Composition maintains validation rules when extending" duration="0"/>
+  </file>
+  <file path="/Users/jillesblokker/Downloads/level-up/__tests__/lib/store/app-store.test.ts">
+  </file>
+  <file path="/Users/jillesblokker/Downloads/level-up/__tests__/components/error-boundary.test.tsx">
+    <testCase name="ErrorBoundary ErrorBoundary Component renders children when there is no error" duration="86"/>
+    <testCase name="ErrorBoundary ErrorBoundary Component renders error fallback when child throws error" duration="192"/>
+    <testCase name="ErrorBoundary ErrorBoundary Component shows error details in development mode" duration="27">
+      <failure message="TestingLibraryElementError: Found multiple elements with the text: /Test error for ErrorBoundary/"><![CDATA[TestingLibraryElementError: Found multiple elements with the text: /Test error for ErrorBoundary/
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+<div>
+  <strong>
+    Message:
+  </strong>
+   
+  Test error for ErrorBoundary
+</div>
+
+Ignored nodes: comments, script, style
+<div>
+  <strong>
+    Stack:
+  </strong>
+   
+  Error: Test error for ErrorBoundary
+    at ThrowError (/Users/jillesblokker/Downloads/level-up/__tests__/components/error-boundary.test.tsx:8:11)
+    at renderWithHooks (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:20103:13)
+    at beginWork (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:21626:16)
+    at beginWork$1 (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:27465:14)
+    at performUnitOfWork (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:26599:12)
+    at workLoopSync (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:26505:5)
+    at renderRootSync (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:26473:7)
+    at recoverFromConcurrentError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:25889:20)
+    at performConcurrentWorkOnRoot (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:25789:22)
+    at flushActQueue (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react@18.3.1/node_modules/react/cjs/react.development.js:2667:24)
+    at act (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react@18.3.1/node_modules/react/cjs/react.development.js:2582:11)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.0_@types+react-dom@18.3.7_@types+reac_n6zn3qn3zcksufzb7vek6rylvu/node_modules/@testing-library/react/dist/act-compat.js:47:25
+    at renderRoot (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.0_@types+react-dom@18.3.7_@types+reac_n6zn3qn3zcksufzb7vek6rylvu/node_modules/@testing-library/react/dist/pure.js:190:26)
+    at render (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.0_@types+react-dom@18.3.7_@types+reac_n6zn3qn3zcksufzb7vek6rylvu/node_modules/@testing-library/react/dist/pure.js:292:10)
+    at customRender (/Users/jillesblokker/Downloads/level-up/lib/testing/test-utils.tsx:285:12)
+    at Object.&lt;anonymous&gt; (/Users/jillesblokker/Downloads/level-up/__tests__/components/error-boundary.test.tsx:52:13)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)
+</div>
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen flex items-center justify-center bg-gray-50 p-4"
+    >
+      <div
+        class="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center"
+      >
+        <div
+          class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4"
+        >
+          <svg
+            class="lucide lucide-alert-triangle h-6 w-6 text-red-600"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"
+            />
+            <path
+              d="M12 9v4"
+            />
+            <path
+              d="M12 17h.01"
+            />
+          </svg>
+        </div>
+        <h1
+          class="text-lg font-semibold text-gray-900 mb-2"
+        >
+          Something went wrong
+        </h1>
+        <p
+          class="text-sm text-gray-600 mb-6"
+        >
+          We encountered an unexpected error. Don't worry, your data is safe.
+        </p>
+        <details
+          class="mb-4 text-left"
+        >
+          <summary
+            class="cursor-pointer text-sm text-gray-500 hover:text-gray-700"
+          >
+            Error Details (Development)
+          </summary>
+          <div
+            class="mt-2 p-3 bg-gray-100 rounded text-xs font-mono text-gray-700 overflow-auto max-h-32"
+          >
+            <div>
+              <strong>
+                Message:
+              </strong>
+               
+              Test error for ErrorBoundary
+            </div>
+            <div>
+              <strong>
+                Stack:
+              </strong>
+               
+              Error: Test error for ErrorBoundary
+    at ThrowError (/Users/jillesblokker/Downloads/level-up/__tests__/components/error-boundary.test.tsx:8:11)
+    at renderWithHooks (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:20103:13)
+    at beginWork (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:21626:16)
+    at beginWork$1 (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:27465:14)
+    at performUnitOfWork (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:26599:12)
+    at workLoopSync (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:26505:5)
+    at renderRootSync (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:26473:7)
+    at recoverFromConcurrentError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:25889:20)
+    at performConcurrentWorkOnRoot (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:25789:22)
+    at flushActQueue (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react@18.3.1/node_modules/react/cjs/react.development.js:2667:24)
+    at act (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react@18.3.1/node_modules/react/cjs/react.development.js:2582:11)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.0_@types+react-dom@18.3.7_@types+reac_n6zn3qn3zcksufzb7vek6rylvu/node_modules/@testing-library/react/dist/act-compat.js:47:25
+    at renderRoot (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.0_@types+react-dom@18.3.7_@types+reac_n6zn3qn3zcksufzb7vek6rylvu/node_modules/@testing-library/react/dist/pure.js:190:26)
+    at render (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.0_@types+react-dom@18.3.7_@types+reac_n6zn3qn3zcksufzb7vek6rylvu/node_modules/@testing-library/react/dist/pure.js:292:10)
+    at customRender (/Users/jillesblokker/Downloads/level-up/lib/testing/test-utils.tsx:285:12)
+    at Object.&lt;anonymous&gt; (/Users/jillesblokker/Downloads/level-up/__tests__/components/error-boundary.test.tsx:52:13)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_...
+    at Object.getElementError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19)
+    at getElementError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:20:35)
+    at getMultipleElementsFoundError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:23:10)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:55:13
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+    at Object.getByText (/Users/jillesblokker/Downloads/level-up/__tests__/components/error-boundary.test.tsx:59:21)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="ErrorBoundary ErrorBoundary Component hides error details in production mode" duration="15"/>
+    <testCase name="ErrorBoundary ErrorBoundary Component calls resetError when Try Again button is clicked" duration="21">
+      <failure message="TestingLibraryElementError: Unable to find an element with the text: No error. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible."><![CDATA[TestingLibraryElementError: Unable to find an element with the text: No error. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen flex items-center justify-center bg-gray-50 p-4"
+    >
+      <div
+        class="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center"
+      >
+        <div
+          class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4"
+        >
+          <svg
+            class="lucide lucide-alert-triangle h-6 w-6 text-red-600"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"
+            />
+            <path
+              d="M12 9v4"
+            />
+            <path
+              d="M12 17h.01"
+            />
+          </svg>
+        </div>
+        <h1
+          class="text-lg font-semibold text-gray-900 mb-2"
+        >
+          Something went wrong
+        </h1>
+        <p
+          class="text-sm text-gray-600 mb-6"
+        >
+          We encountered an unexpected error. Don't worry, your data is safe.
+        </p>
+        <details
+          class="mb-4 text-left"
+        >
+          <summary
+            class="cursor-pointer text-sm text-gray-500 hover:text-gray-700"
+          >
+            Error Details (Development)
+          </summary>
+          <div
+            class="mt-2 p-3 bg-gray-100 rounded text-xs font-mono text-gray-700 overflow-auto max-h-32"
+          >
+            <div>
+              <strong>
+                Message:
+              </strong>
+               
+              Test error for ErrorBoundary
+            </div>
+            <div>
+              <strong>
+                Stack:
+              </strong>
+               
+              Error: Test error for ErrorBoundary
+    at ThrowError (/Users/jillesblokker/Downloads/level-up/__tests__/components/error-boundary.test.tsx:8:11)
+    at renderWithHooks (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:20103:13)
+    at beginWork (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:21626:16)
+    at beginWork$1 (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:27465:14)
+    at performUnitOfWork (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:26599:12)
+    at workLoopSync (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:26505:5)
+    at renderRootSync (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:26473:7)
+    at recoverFromConcurrentError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:25889:20)
+    at performConcurrentWorkOnRoot (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:25789:22)
+    at flushActQueue (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react@18.3.1/node_modules/react/cjs/react.development.js:2667:24)
+    at act (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react@18.3.1/node_modules/react/cjs/react.development.js:2582:11)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.0_@types+react-dom@18.3.7_@types+reac_n6zn3qn3zcksufzb7vek6rylvu/node_modules/@testing-library/react/dist/act-compat.js:47:25
+    at renderRoot (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.0_@types+react-dom@18.3.7_@types+reac_n6zn3qn3zcksufzb7vek6rylvu/node_modules/@testing-library/react/dist/pure.js:190:26)
+    at render (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.0_@types+react-dom@18.3.7_@types+reac_n6zn3qn3zcksufzb7vek6rylvu/node_modules/@testing-library/react/dist/pure.js:292:10)
+    at customRender (/Users/jillesblokker/Downloads/level-up/lib/testing/test-utils.tsx:285:12)
+    at Object.&lt;anonymous&gt; (/Users/jillesblokker/Downloads/level-up/__tests__/components/error-boundary.test.tsx:80:34)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_...
+    at Object.getElementError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+    at Object.getByText (/Users/jillesblokker/Downloads/level-up/__tests__/components/error-boundary.test.tsx:95:21)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="ErrorBoundary ErrorBoundary Component navigates to home when Go Home button is clicked" duration="2">
+      <failure message="TypeError: &apos;toString&apos; called on an object that is not a valid instance of Location."><![CDATA[TypeError: 'toString' called on an object that is not a valid instance of Location.
+    at Object.toString (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jsdom@26.1.0_canvas@3.1.0/node_modules/jsdom/lib/jsdom/living/generated/Location.js:130:17)
+    at String (<anonymous>)
+    at Object.exports.DOMString (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/webidl-conversions@7.0.0/node_modules/webidl-conversions/lib/index.js:250:10)
+    at Object.exports.USVString (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/webidl-conversions@7.0.0/node_modules/webidl-conversions/lib/index.js:266:21)
+    at Location.set href [as href] (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jsdom@26.1.0_canvas@3.1.0/node_modules/jsdom/lib/jsdom/living/generated/Location.js:120:37)
+    at Reflect.set (<anonymous>)
+    at Window.set location [as location] (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jsdom@26.1.0_canvas@3.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:424:15)
+    at Object.<anonymous> (/Users/jillesblokker/Downloads/level-up/__tests__/components/error-boundary.test.tsx:101:22)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="ErrorBoundary ErrorBoundary Component logs error details to console" duration="11"/>
+    <testCase name="ErrorBoundary withErrorBoundary HOC wraps component with error boundary" duration="3"/>
+    <testCase name="ErrorBoundary withErrorBoundary HOC handles errors in wrapped component" duration="15"/>
+    <testCase name="ErrorBoundary withErrorBoundary HOC maintains component display name" duration="2"/>
+    <testCase name="ErrorBoundary Custom Fallback renders custom fallback when provided" duration="16"/>
+    <testCase name="ErrorBoundary Custom Fallback calls custom resetError function" duration="19">
+      <failure message="TestingLibraryElementError: Unable to find an element with the text: No error. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible."><![CDATA[TestingLibraryElementError: Unable to find an element with the text: No error. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div>
+      <h1>
+        Custom Error Page
+      </h1>
+      <p>
+        Error: 
+        Test error for ErrorBoundary
+      </p>
+      <button>
+        Custom Reset
+      </button>
+    </div>
+  </div>
+</body>
+    at Object.getElementError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+    at Object.getByText (/Users/jillesblokker/Downloads/level-up/__tests__/components/error-boundary.test.tsx:189:21)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="ErrorBoundary Error Boundary State Management maintains error state correctly" duration="16">
+      <failure message="TestingLibraryElementError: Unable to find an element with the text: No error. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible."><![CDATA[TestingLibraryElementError: Unable to find an element with the text: No error. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen flex items-center justify-center bg-gray-50 p-4"
+    >
+      <div
+        class="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center"
+      >
+        <div
+          class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4"
+        >
+          <svg
+            class="lucide lucide-alert-triangle h-6 w-6 text-red-600"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"
+            />
+            <path
+              d="M12 9v4"
+            />
+            <path
+              d="M12 17h.01"
+            />
+          </svg>
+        </div>
+        <h1
+          class="text-lg font-semibold text-gray-900 mb-2"
+        >
+          Something went wrong
+        </h1>
+        <p
+          class="text-sm text-gray-600 mb-6"
+        >
+          We encountered an unexpected error. Don't worry, your data is safe.
+        </p>
+        <details
+          class="mb-4 text-left"
+        >
+          <summary
+            class="cursor-pointer text-sm text-gray-500 hover:text-gray-700"
+          >
+            Error Details (Development)
+          </summary>
+          <div
+            class="mt-2 p-3 bg-gray-100 rounded text-xs font-mono text-gray-700 overflow-auto max-h-32"
+          >
+            <div>
+              <strong>
+                Message:
+              </strong>
+               
+              Test error for ErrorBoundary
+            </div>
+            <div>
+              <strong>
+                Stack:
+              </strong>
+               
+              Error: Test error for ErrorBoundary
+    at ThrowError (/Users/jillesblokker/Downloads/level-up/__tests__/components/error-boundary.test.tsx:8:11)
+    at renderWithHooks (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:20103:13)
+    at beginWork (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:21626:16)
+    at beginWork$1 (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:27465:14)
+    at performUnitOfWork (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:26599:12)
+    at workLoopSync (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:26505:5)
+    at renderRootSync (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:26473:7)
+    at recoverFromConcurrentError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:25889:20)
+    at performConcurrentWorkOnRoot (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:25789:22)
+    at flushActQueue (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react@18.3.1/node_modules/react/cjs/react.development.js:2667:24)
+    at act (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react@18.3.1/node_modules/react/cjs/react.development.js:2582:11)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.0_@types+react-dom@18.3.7_@types+reac_n6zn3qn3zcksufzb7vek6rylvu/node_modules/@testing-library/react/dist/act-compat.js:47:25
+    at renderRoot (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.0_@types+react-dom@18.3.7_@types+reac_n6zn3qn3zcksufzb7vek6rylvu/node_modules/@testing-library/react/dist/pure.js:190:26)
+    at render (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.0_@types+react-dom@18.3.7_@types+reac_n6zn3qn3zcksufzb7vek6rylvu/node_modules/@testing-library/react/dist/pure.js:292:10)
+    at customRender (/Users/jillesblokker/Downloads/level-up/lib/testing/test-utils.tsx:285:12)
+    at Object.&lt;anonymous&gt; (/Users/jillesblokker/Downloads/level-up/__tests__/components/error-boundary.test.tsx:195:34)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node...
+    at Object.getElementError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+    at Object.getByText (/Users/jillesblokker/Downloads/level-up/__tests__/components/error-boundary.test.tsx:212:21)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="ErrorBoundary Error Boundary State Management handles multiple error states" duration="14">
+      <failure message="TestingLibraryElementError: Unable to find an element with the text: No error. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible."><![CDATA[TestingLibraryElementError: Unable to find an element with the text: No error. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen flex items-center justify-center bg-gray-50 p-4"
+    >
+      <div
+        class="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center"
+      >
+        <div
+          class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4"
+        >
+          <svg
+            class="lucide lucide-alert-triangle h-6 w-6 text-red-600"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"
+            />
+            <path
+              d="M12 9v4"
+            />
+            <path
+              d="M12 17h.01"
+            />
+          </svg>
+        </div>
+        <h1
+          class="text-lg font-semibold text-gray-900 mb-2"
+        >
+          Something went wrong
+        </h1>
+        <p
+          class="text-sm text-gray-600 mb-6"
+        >
+          We encountered an unexpected error. Don't worry, your data is safe.
+        </p>
+        <details
+          class="mb-4 text-left"
+        >
+          <summary
+            class="cursor-pointer text-sm text-gray-500 hover:text-gray-700"
+          >
+            Error Details (Development)
+          </summary>
+          <div
+            class="mt-2 p-3 bg-gray-100 rounded text-xs font-mono text-gray-700 overflow-auto max-h-32"
+          >
+            <div>
+              <strong>
+                Message:
+              </strong>
+               
+              Test error for ErrorBoundary
+            </div>
+            <div>
+              <strong>
+                Stack:
+              </strong>
+               
+              Error: Test error for ErrorBoundary
+    at ThrowError (/Users/jillesblokker/Downloads/level-up/__tests__/components/error-boundary.test.tsx:8:11)
+    at renderWithHooks (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at updateFunctionComponent (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:19617:20)
+    at beginWork (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:21640:16)
+    at beginWork$1 (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:27465:14)
+    at performUnitOfWork (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:26599:12)
+    at workLoopSync (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:26505:5)
+    at renderRootSync (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:26473:7)
+    at recoverFromConcurrentError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:25889:20)
+    at performConcurrentWorkOnRoot (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:25789:22)
+    at flushActQueue (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react@18.3.1/node_modules/react/cjs/react.development.js:2667:24)
+    at act (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react@18.3.1/node_modules/react/cjs/react.development.js:2582:11)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.0_@types+react-dom@18.3.7_@types+reac_n6zn3qn3zcksufzb7vek6rylvu/node_modules/@testing-library/react/dist/act-compat.js:47:25
+    at renderRoot (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.0_@types+react-dom@18.3.7_@types+reac_n6zn3qn3zcksufzb7vek6rylvu/node_modules/@testing-library/react/dist/pure.js:190:26)
+    at rerender (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.0_@types+react-dom@18.3.7_@types+reac_n6zn3qn3zcksufzb7vek6rylvu/node_modules/@testing-library/react/dist/pure.js:211:7)
+    at Object.rerender (/Users/jillesblokker/Downloads/level-up/__tests__/components/error-boundary.test.tsx:226:7)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/nod...
+    at Object.getElementError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+    at Object.getByText (/Users/jillesblokker/Downloads/level-up/__tests__/components/error-boundary.test.tsx:243:21)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="ErrorBoundary Accessibility has proper ARIA labels and roles" duration="92">
+      <failure message="Error: expect(element).toHaveAccessibleName()"><![CDATA[Error: expect(element).toHaveAccessibleName()
+
+Expected element to have accessible name:
+  Try Again
+Received:
+  button
+    at Object.toHaveAccessibleName (/Users/jillesblokker/Downloads/level-up/__tests__/components/error-boundary.test.tsx:263:26)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="ErrorBoundary Accessibility provides clear error information" duration="14"/>
+  </file>
+</testExecutions>
