@@ -1,33 +1,31 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
+import { auth } from '@clerk/nextjs/server';
+import { supabaseServer } from '@/lib/supabase/server-client';
 
 export async function GET(request: Request) {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const key = searchParams.get('key'); // Optional: get specific preference
 
-    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
-      let query = supabase
-        .from('user_preferences')
-        .select('*')
-        .eq('user_id', userId);
+    let query = supabaseServer
+      .from('user_preferences')
+      .select('*')
+      .eq('user_id', userId);
 
-      if (key) {
-        query = query.eq('preference_key', key);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      
-      return { data, key };
-    });
-
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 401 });
+    if (key) {
+      query = query.eq('preference_key', key);
     }
 
-    const { data, key: requestedKey } = result.data || {};
+    const { data, error } = await query;
+    if (error) throw error;
+    
+    const { data: resultData, key: requestedKey } = { data, key };
 
     if (requestedKey && data && data.length > 0) {
       // Return single preference value
@@ -64,6 +62,11 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const BodySchema = z.object({
       key: z.string().min(1),
@@ -71,32 +74,25 @@ export async function POST(request: Request) {
     });
     const { key, value } = BodySchema.parse(body);
 
-    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
-      const { data, error } = await supabase
-        .from('user_preferences')
-        .upsert({
-          user_id: userId,
-          preference_key: key,
-          preference_value: value,
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'user_id,preference_key'
-        })
-        .select()
-        .single();
+    const { data, error } = await supabaseServer
+      .from('user_preferences')
+      .upsert({
+        user_id: userId,
+        preference_key: key,
+        preference_value: value,
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,preference_key'
+      })
+      .select()
+      .single();
 
-      if (error) throw error;
-      return data;
-    });
-
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 401 });
-    }
+    if (error) throw error;
 
     return NextResponse.json({ 
       success: true, 
       message: 'Preference saved successfully',
-      data: result.data 
+      data: data 
     });
   } catch (error) {
     console.error('[User Preferences API] Error:', error);
@@ -109,6 +105,11 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const key = searchParams.get('key');
 
@@ -116,20 +117,13 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Missing preference key' }, { status: 400 });
     }
 
-    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
-      const { error } = await supabase
-        .from('user_preferences')
-        .delete()
-        .eq('user_id', userId)
-        .eq('preference_key', key);
+    const { error } = await supabaseServer
+      .from('user_preferences')
+      .delete()
+      .eq('user_id', userId)
+      .eq('preference_key', key);
 
-      if (error) throw error;
-      return { success: true };
-    });
-
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 401 });
-    }
+    if (error) throw error;
 
     return NextResponse.json({ 
       success: true, 
