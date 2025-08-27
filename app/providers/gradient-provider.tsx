@@ -1,6 +1,7 @@
 "use client"
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
+import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager'
 
 interface GradientContextType {
   startColor: string
@@ -15,13 +16,35 @@ export function GradientProvider({ children }: { children: React.ReactNode }) {
   const [endColor, setEndColor] = useState('#004e92')
 
   useEffect(() => {
-    // Load saved gradient from localStorage
-    const savedGradient = localStorage.getItem('app-gradient')
-    if (savedGradient) {
-      const { start, end } = JSON.parse(savedGradient)
-      setStartColor(start)
-      setEndColor(end)
+    // Load saved gradient from Supabase with localStorage fallback
+    const loadGradient = async () => {
+      try {
+        // Try to load from Supabase first
+        const savedGradient = await getUserPreference('app-gradient')
+        if (savedGradient) {
+          const { start, end } = typeof savedGradient === 'string' ? JSON.parse(savedGradient) : savedGradient
+          setStartColor(start)
+          setEndColor(end)
+          return
+        }
+      } catch (error) {
+        console.warn('[Gradient Provider] Failed to load from Supabase:', error)
+      }
+
+      // Fallback to localStorage
+      try {
+        const savedGradient = localStorage.getItem('app-gradient')
+        if (savedGradient) {
+          const { start, end } = JSON.parse(savedGradient)
+          setStartColor(start)
+          setEndColor(end)
+        }
+      } catch (error) {
+        console.warn('[Gradient Provider] Failed to load from localStorage:', error)
+      }
     }
+
+    loadGradient()
   }, [])
 
   useEffect(() => {
@@ -30,10 +53,23 @@ export function GradientProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.style.setProperty('--card-gradient-end', endColor)
   }, [startColor, endColor])
 
-  const updateGradient = (start: string, end: string) => {
+  const updateGradient = async (start: string, end: string) => {
     setStartColor(start)
     setEndColor(end)
-    localStorage.setItem('app-gradient', JSON.stringify({ start, end }))
+    
+    // Save to Supabase
+    try {
+      await setUserPreference('app-gradient', { start, end })
+    } catch (error) {
+      console.warn('[Gradient Provider] Failed to save to Supabase:', error)
+    }
+    
+    // Save to localStorage as backup
+    try {
+      localStorage.setItem('app-gradient', JSON.stringify({ start, end }))
+    } catch (error) {
+      console.warn('[Gradient Provider] Failed to save to localStorage:', error)
+    }
   }
 
   return (

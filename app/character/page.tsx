@@ -297,7 +297,7 @@ export default function CharacterPage() {
           const { getUserPreference } = await import('@/lib/user-preferences-manager')
           const uid = (window as any).__clerk?.user?.id
           if (uid) {
-            const pref = await getUserPreference(uid, 'character-perks')
+            const pref = await getUserPreference('character-perks')
             if (pref) {
               setPerks(JSON.parse(pref))
               return
@@ -510,7 +510,7 @@ export default function CharacterPage() {
     try {
       const { setUserPreference } = await import('@/lib/user-preferences-manager')
       const uid = (window as any).__clerk?.user?.id
-      if (uid) await setUserPreference(uid, 'character-perks', JSON.stringify(updatedPerks))
+      if (uid) await setUserPreference('character-perks', JSON.stringify(updatedPerks))
     } catch {}
     localStorage.setItem('character-perks', JSON.stringify(updatedPerks))
     
@@ -532,7 +532,7 @@ export default function CharacterPage() {
     try {
       const { setUserPreference } = await import('@/lib/user-preferences-manager')
       const uid = (window as any).__clerk?.user?.id
-      if (uid) await setUserPreference(uid, 'character-perks', JSON.stringify(updatedPerks))
+      if (uid) await setUserPreference('character-perks', JSON.stringify(updatedPerks))
     } catch {}
     localStorage.setItem('character-perks', JSON.stringify(updatedPerks));
     
@@ -596,7 +596,7 @@ export default function CharacterPage() {
     try {
       const { setUserPreference } = await import('@/lib/user-preferences-manager')
       const uid = (window as any).__clerk?.user?.id
-      if (uid) await setUserPreference(uid, 'character-perks', JSON.stringify(updatedPerks))
+      if (uid) await setUserPreference('character-perks', JSON.stringify(updatedPerks))
     } catch {}
     localStorage.setItem('character-perks', JSON.stringify(updatedPerks));
     

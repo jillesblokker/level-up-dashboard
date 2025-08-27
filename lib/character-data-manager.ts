@@ -384,3 +384,176 @@ export async function updateCharacterPerk(userId: string, perkId: string, update
     console.error('[Character Data] Error updating character perk:', error);
   }
 } 
+
+// Character Data Manager - Handles character-specific data migration from localStorage to Supabase
+
+export interface CharacterData {
+  perks: any[];
+  activePotionPerks: Record<string, any>;
+  characterHeaderImage: string;
+  characterPerks: any[];
+}
+
+// Save character data to Supabase
+export async function saveCharacterData(key: string, value: any): Promise<boolean> {
+  try {
+    const response = await fetch('/api/user-preferences', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, value }),
+    });
+
+    if (response.ok) {
+      console.log(`[Character Data Manager] ✅ Saved character data: ${key}`);
+      return true;
+    } else {
+      console.error(`[Character Data Manager] ❌ Failed to save character data: ${key}`);
+      return false;
+    }
+  } catch (error) {
+    console.error(`[Character Data Manager] Error saving character data ${key}:`, error);
+    return false;
+  }
+}
+
+// Get character data from Supabase
+export async function getCharacterData(key: string): Promise<any | null> {
+  try {
+    const response = await fetch(`/api/user-preferences?key=${encodeURIComponent(key)}`);
+    
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success && data.value !== null) {
+        console.log(`[Character Data Manager] ✅ Retrieved character data: ${key}`);
+        return data.value;
+      }
+    }
+    
+    console.log(`[Character Data Manager] ℹ️ No character data found for: ${key}`);
+    return null;
+  } catch (error) {
+    console.error(`[Character Data Manager] Error retrieving character data ${key}:`, error);
+    return null;
+  }
+}
+
+// Migrate character data from localStorage to Supabase
+export async function migrateCharacterDataToSupabase(): Promise<boolean> {
+  try {
+    console.log('[Character Data Manager] 🚀 Starting character data migration...');
+    
+    if (typeof window === 'undefined') {
+      console.log('[Character Data Manager] Skipping migration - not in browser');
+      return true;
+    }
+
+    const migrationKey = 'character-data-migration-complete';
+    const migrationDone = localStorage.getItem(migrationKey);
+    
+    if (migrationDone) {
+      console.log('[Character Data Manager] Migration already completed');
+      return true;
+    }
+
+    const characterData: Partial<CharacterData> = {};
+    let hasData = false;
+
+    // Character perks
+    const characterPerks = localStorage.getItem('character-perks');
+    if (characterPerks) {
+      characterData.characterPerks = JSON.parse(characterPerks);
+      hasData = true;
+    }
+
+    // Active potion perks
+    const activePotionPerks = localStorage.getItem('active-potion-perks');
+    if (activePotionPerks) {
+      characterData.activePotionPerks = JSON.parse(activePotionPerks);
+      hasData = true;
+    }
+
+    // Character header image
+    const characterHeaderImage = localStorage.getItem('character-header-image');
+    if (characterHeaderImage) {
+      characterData.characterHeaderImage = characterHeaderImage;
+      hasData = true;
+    }
+
+    if (!hasData) {
+      console.log('[Character Data Manager] No character data to migrate');
+      localStorage.setItem(migrationKey, 'true');
+      return true;
+    }
+
+    // Save each piece of data to Supabase
+    const savePromises: Promise<boolean>[] = [];
+
+    if (characterData.characterPerks) {
+      savePromises.push(saveCharacterData('character-perks', characterData.characterPerks));
+    }
+
+    if (characterData.activePotionPerks) {
+      savePromises.push(saveCharacterData('active-potion-perks', characterData.activePotionPerks));
+    }
+
+    if (characterData.characterHeaderImage) {
+      savePromises.push(saveCharacterData('character-header-image', characterData.characterHeaderImage));
+    }
+
+    // Wait for all saves to complete
+    const results = await Promise.all(savePromises);
+    const allSuccessful = results.every(result => result);
+
+    if (allSuccessful) {
+      console.log('[Character Data Manager] ✅ Character data migration completed successfully');
+      localStorage.setItem(migrationKey, 'true');
+      
+      // Clean up localStorage after successful migration
+      const keysToRemove = [
+        'character-perks', 'active-potion-perks', 'character-header-image'
+      ];
+      
+      keysToRemove.forEach(key => {
+        try {
+          localStorage.removeItem(key);
+        } catch (error) {
+          console.warn(`[Character Data Manager] Could not remove localStorage key: ${key}`, error);
+        }
+      });
+      
+      return true;
+    } else {
+      console.error('[Character Data Manager] ❌ Some character data failed to migrate');
+      return false;
+    }
+  } catch (error) {
+    console.error('[Character Data Manager] ❌ Character data migration failed:', error);
+    return false;
+  }
+}
+
+// Sync character data to localStorage as backup
+export async function syncCharacterDataToLocalStorage(): Promise<void> {
+  try {
+    console.log('[Character Data Manager] 🔄 Syncing character data to localStorage...');
+    
+    const characterKeys = [
+      'character-perks', 'active-potion-perks', 'character-header-image'
+    ];
+    
+    for (const key of characterKeys) {
+      try {
+        const value = await getCharacterData(key);
+        if (value !== null) {
+          localStorage.setItem(key, JSON.stringify(value));
+        }
+      } catch (error) {
+        console.warn(`[Character Data Manager] Could not sync key to localStorage: ${key}`, error);
+      }
+    }
+    
+    console.log('[Character Data Manager] ✅ Character data synced to localStorage');
+  } catch (error) {
+    console.error('[Character Data Manager] Error syncing character data to localStorage:', error);
+  }
+} 

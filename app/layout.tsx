@@ -19,6 +19,7 @@ import { TitleEvolutionProvider } from '@/components/title-evolution-provider'
 import { NavBar } from '@/components/nav-bar'
 import { SeasonalHuntWrapper } from '@/components/seasonal-hunt-wrapper'
 import { OnboardingProvider } from '@/components/onboarding-provider'
+import LocalStorageMigrator from '@/components/local-storage-migrator'
 
 
 const fontSans = FontSans({
@@ -126,6 +127,8 @@ export default function RootLayout({
                         </AuthGate>
                       </div>
                     </OnboardingProvider>
+                    <LocalStorageMigrator />
+                    <Toaster />
                   </Providers>
                 </TitleEvolutionProvider>
               </GradientProvider>

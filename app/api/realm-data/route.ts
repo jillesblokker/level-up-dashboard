@@ -2,24 +2,23 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
+const realmDataSchema = z.object({
+  key: z.string(),
+  value: z.any(),
+});
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const key = searchParams.get('key'); // Optional: get specific preference
-
+    const key = searchParams.get('key');
+    
     const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
-      let query = supabase
-        .from('user_preferences')
-        .select('*')
-        .eq('user_id', userId);
-
+      let query = supabase.from('user_preferences').select('*').eq('user_id', userId);
       if (key) {
         query = query.eq('preference_key', key);
       }
-
       const { data, error } = await query;
       if (error) throw error;
-      
       return { data, key };
     });
 
@@ -28,82 +27,60 @@ export async function GET(request: Request) {
     }
 
     const { data, key: requestedKey } = result.data || {};
-
+    
     if (requestedKey && data && data.length > 0) {
-      // Return single preference value
-      return NextResponse.json({ 
-        success: true, 
-        value: data[0].preference_value 
-      });
+      return NextResponse.json({ success: true, value: data[0].preference_value });
     } else if (requestedKey) {
-      // Key not found
-      return NextResponse.json({ 
-        success: true, 
-        value: null 
-      });
+      return NextResponse.json({ success: true, value: null });
     } else {
-      // Return all preferences as key-value pairs
-      const preferences: Record<string, any> = {};
-      data?.forEach((pref: any) => {
-        preferences[pref.preference_key] = pref.preference_value;
+      // Return all realm-related preferences
+      const realmPreferences = data?.filter(item => 
+        item.preference_key.startsWith('realm-') ||
+        item.preference_key.startsWith('animal-') ||
+        item.preference_key.startsWith('mystery-')
+      ) || [];
+      
+      const formattedPreferences: Record<string, any> = {};
+      realmPreferences.forEach(item => {
+        formattedPreferences[item.preference_key] = item.preference_value;
       });
       
-      return NextResponse.json({ 
-        success: true, 
-        preferences 
-      });
+      return NextResponse.json({ success: true, preferences: formattedPreferences });
     }
   } catch (error) {
-    console.error('[User Preferences API] Error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' }, 
-      { status: 500 }
-    );
+    console.error('[Realm Data API] Error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const BodySchema = z.object({
-      key: z.string().min(1),
-      value: z.union([z.string(), z.number(), z.boolean(), z.object({}).passthrough(), z.array(z.any())])
-    });
-    const { key, value } = BodySchema.parse(body);
+    const { key, value } = realmDataSchema.parse(body);
 
     const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('user_preferences')
         .upsert({
           user_id: userId,
           preference_key: key,
           preference_value: value,
-          updated_at: new Date().toISOString()
         }, {
           onConflict: 'user_id,preference_key'
-        })
-        .select()
-        .single();
+        });
 
       if (error) throw error;
-      return data;
+      return { success: true };
     });
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 401 });
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Preference saved successfully',
-      data: result.data 
-    });
+    return NextResponse.json({ success: true, message: 'Realm data saved successfully' });
   } catch (error) {
-    console.error('[User Preferences API] Error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' }, 
-      { status: 500 }
-    );
+    console.error('[Realm Data API] Error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -113,7 +90,7 @@ export async function DELETE(request: Request) {
     const key = searchParams.get('key');
 
     if (!key) {
-      return NextResponse.json({ error: 'Missing preference key' }, { status: 400 });
+      return NextResponse.json({ error: 'Key parameter is required' }, { status: 400 });
     }
 
     const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
@@ -131,15 +108,9 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: result.error }, { status: 401 });
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Preference deleted successfully' 
-    });
+    return NextResponse.json({ success: true, message: 'Realm data deleted successfully' });
   } catch (error) {
-    console.error('[User Preferences API] Error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' }, 
-      { status: 500 }
-    );
+    console.error('[Realm Data API] Error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

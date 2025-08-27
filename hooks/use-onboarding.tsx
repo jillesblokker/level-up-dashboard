@@ -2,6 +2,7 @@
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react'
 import { smartLogger } from '@/lib/smart-logger'
+import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager'
 
 interface OnboardingState {
   hasCompletedOnboarding: boolean
@@ -44,41 +45,102 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     })
   }, [isOnboardingOpen, onboardingState])
 
-  // Load onboarding state from localStorage
+  // Load onboarding state from Supabase with localStorage fallback
   useEffect(() => {
-    const savedState = localStorage.getItem('onboarding-state')
-    if (savedState) {
+    const loadOnboardingState = async () => {
       try {
-        const parsed = JSON.parse(savedState)
-        setOnboardingState(parsed)
-        smartLogger.info('useOnboarding', 'STATE_LOADED', {
-          loadedState: parsed,
-          source: 'localStorage'
-        })
+        // Try to load from Supabase first
+        const savedState = await getUserPreference('onboarding-state')
+        if (savedState) {
+          try {
+            const parsed = typeof savedState === 'string' ? JSON.parse(savedState) : savedState
+            setOnboardingState(parsed)
+            smartLogger.info('useOnboarding', 'STATE_LOADED', {
+              loadedState: parsed,
+              source: 'Supabase'
+            })
+            return
+          } catch (error) {
+            smartLogger.error('useOnboarding', 'STATE_PARSE_ERROR', {
+              error: error instanceof Error ? error.message : String(error),
+              savedState
+            })
+          }
+        }
       } catch (error) {
-        smartLogger.error('useOnboarding', 'STATE_PARSE_ERROR', {
+        smartLogger.warn('useOnboarding', 'SUPABASE_LOAD_FAILED', {
           error: error instanceof Error ? error.message : String(error),
-          savedState
+          fallback: 'localStorage'
         })
       }
-    } else {
-      smartLogger.info('useOnboarding', 'NO_SAVED_STATE', {
-        message: 'No saved onboarding state found'
-      })
+
+      // Fallback to localStorage
+      try {
+        const savedState = localStorage.getItem('onboarding-state')
+        if (savedState) {
+          try {
+            const parsed = JSON.parse(savedState)
+            setOnboardingState(parsed)
+            smartLogger.info('useOnboarding', 'STATE_LOADED', {
+              loadedState: parsed,
+              source: 'localStorage'
+            })
+          } catch (error) {
+            smartLogger.error('useOnboarding', 'STATE_PARSE_ERROR', {
+              error: error instanceof Error ? error.message : String(error),
+              savedState
+            })
+          }
+        } else {
+          smartLogger.info('useOnboarding', 'NO_SAVED_STATE', {
+            message: 'No saved onboarding state found'
+          })
+        }
+      } catch (error) {
+        smartLogger.error('useOnboarding', 'LOCALSTORAGE_LOAD_FAILED', {
+          error: error instanceof Error ? error.message : String(error)
+        })
+      }
     }
+
+    loadOnboardingState()
   }, [])
 
-  // Save onboarding state to localStorage
-  const saveOnboardingState = (newState: Partial<OnboardingState>) => {
+  // Save onboarding state to both Supabase and localStorage
+  const saveOnboardingState = async (newState: Partial<OnboardingState>) => {
     const updatedState = { ...onboardingState, ...newState }
     setOnboardingState(updatedState)
-    localStorage.setItem('onboarding-state', JSON.stringify(updatedState))
     
-    smartLogger.info('useOnboarding', 'STATE_SAVED', {
-      previousState: onboardingState,
-      newState: updatedState,
-      changes: newState
-    })
+    // Save to Supabase
+    try {
+      await setUserPreference('onboarding-state', updatedState)
+      smartLogger.info('useOnboarding', 'STATE_SAVED', {
+        previousState: onboardingState,
+        newState: updatedState,
+        changes: newState,
+        destination: 'Supabase'
+      })
+    } catch (error) {
+      smartLogger.warn('useOnboarding', 'SUPABASE_SAVE_FAILED', {
+        error: error instanceof Error ? error.message : String(error),
+        fallback: 'localStorage'
+      })
+    }
+    
+    // Save to localStorage as backup
+    try {
+      localStorage.setItem('onboarding-state', JSON.stringify(updatedState))
+      smartLogger.info('useOnboarding', 'STATE_SAVED', {
+        previousState: onboardingState,
+        newState: updatedState,
+        changes: newState,
+        destination: 'localStorage'
+      })
+    } catch (error) {
+      smartLogger.error('useOnboarding', 'LOCALSTORAGE_SAVE_FAILED', {
+        error: error instanceof Error ? error.message : String(error)
+      })
+    }
   }
 
   // Check if onboarding should be shown

@@ -542,6 +542,23 @@ export const KINGDOM_TILES: KingdomTile[] = [
     itemType: 'material',
     rarity: 'common',
     image: '/images/kingdom-tiles/Stable.png'
+  },
+  {
+    id: 'house',
+    name: 'House',
+    timerMinutes: 60,
+    normalGoldRange: [8, 20],
+    luckyGoldAmount: 80,
+    luckyChance: 0.15,
+    clickMessage: "The cozy house welcomes you with warmth. The residents appreciate your visit and reward you with gold for your hospitality.",
+    possibleItems: [
+      '/images/items/food/fish-red.png',
+      '/images/items/food/fish-blue.png',
+      '/images/items/materials/material-logs.png'
+    ],
+    itemType: 'food',
+    rarity: 'common',
+    image: '/images/kingdom-tiles/House.png'
   }
 ]
 

@@ -32,9 +32,7 @@ async function getUserIdFromRequest(request: Request): Promise<string | null> {
       }
       
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      }).join(''));
+      const jsonPayload = Buffer.from(base64, 'base64').toString('utf8');
       
       const payload = JSON.parse(jsonPayload);
       console.log('[Kingdom Stats V2] JWT payload:', payload);
@@ -191,292 +189,371 @@ export async function GET(request: NextRequest) {
     // Handle quests tab
     if (tab === 'quests') {
       console.log('[Kingdom Stats V2] Fetching quest completion data...');
+      console.log('[Kingdom Stats V2] 🔍 About to query quest_completion table...');
+      console.log('[Kingdom Stats V2] 🔍 Query params:', { userId, earliestDate: earliestDate.toISOString() });
       
-      const { data: completions, error } = await supabase
-        .from('quest_completion')
-        .select('id, completed, completed_at, original_completion_date')
-        .eq('user_id', userId)
-        .eq('completed', true)
-        .gte('completed_at', earliestDate.toISOString());
-        
-      if (error) {
-        console.error('[Kingdom Stats V2] Supabase error (quests):', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
-
-      console.log('[Kingdom Stats V2] Raw quest completions from DB:', completions);
-      console.log('[Kingdom Stats V2] Total quest completions found:', completions?.length || 0);
-      
-      // Aggregate by day - show daily completions (not cumulative)
-      let counts: Record<string, number> = {};
-      days.forEach(day => { counts[day] = 0; });
-      
-      if (period === 'year') {
-        // For year view, aggregate by month
-        completions?.forEach((c: any) => {
-          if (c.completed_at) {
-            const month = c.completed_at.slice(0, 7);
-            if (counts[month] !== undefined) {
-              counts[month]++;
-            }
-          }
-        });
-      } else if (period === 'all') {
-        // For all time, show daily progression
-        if (completions && completions.length > 0) {
-          const dailyData: Record<string, number> = {};
-          completions.forEach((c: any) => {
-            if (c.completed_at) {
-              const date = new Date(c.completed_at);
-              const dayKey = date.toISOString().slice(0, 10);
-              
-              if (!dailyData[dayKey]) {
-                dailyData[dayKey] = 0;
-              }
-              dailyData[dayKey]++;
-            }
-          });
+      try {
+        const { data: completions, error } = await supabase
+          .from('quest_completion')
+          .select('id, quest_id, completed_at, original_completion_date, completed')
+          .eq('user_id', userId)
+          .eq('completed', true)
+          .or(`completed_at.gte.${earliestDate.toISOString()},original_completion_date.gte.${earliestDate.toISOString()}`);
           
-          const sortedDays = Object.keys(dailyData).sort();
-          const timelineData: Array<{day: string, value: number}> = [];
-          
-          sortedDays.forEach(day => {
-            timelineData.push({
-              day: day,
-              value: dailyData[day] || 0
-            });
-          });
-          
-          console.log('[Kingdom Stats V2] All time daily data (quests):', timelineData);
-          const response = NextResponse.json({ data: timelineData });
-          response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-          response.headers.set('Pragma', 'no-cache');
-          response.headers.set('Expires', '0');
-          response.headers.set('X-Nuclear-Debug', uniqueId);
-          response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
-          response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
-          return response;
+        if (error) {
+          console.error('[Kingdom Stats V2] Supabase error (quests):', error);
+          return NextResponse.json({ error: error.message }, { status: 500 });
         }
-      } else {
-        // For week/month view, show daily completions
-        days.forEach(day => {
-          // Count completions that happened ON this specific day
-          const completionsOnDay = completions?.filter((c: any) => {
-            if (!c.completed_at) return false;
-            const completionDate = new Date(c.completed_at);
-            const completionDay = completionDate.toISOString().slice(0, 10);
-            return completionDay === day;
-          }) || [];
-          
-          counts[day] = completionsOnDay.length;
-          console.log('[Kingdom Stats V2] Day', day, 'daily completions:', completionsOnDay.length);
-        });
-      }
 
-      const data = days.map(day => ({ day, value: counts[day] || 0 }));
-      console.log('[Kingdom Stats V2] Final quest data:', data);
-      
-      const response = NextResponse.json({ data });
-      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-      response.headers.set('Pragma', 'no-cache');
-      response.headers.set('Expires', '0');
-      response.headers.set('X-Nuclear-Debug', uniqueId);
-      response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
-      response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
-      
-      return response;
+        console.log('[Kingdom Stats V2] Raw quest completions from DB:', completions);
+        console.log('[Kingdom Stats V2] Total quest completions found:', completions?.length || 0);
+        
+        // Aggregate by day - show daily completions (not cumulative)
+        let counts: Record<string, number> = {};
+        days.forEach(day => { counts[day] = 0; });
+        
+        if (period === 'year') {
+          // For year view, aggregate by month
+          completions?.forEach((c: any) => {
+            const completionDate = c.original_completion_date || c.completed_at;
+            if (completionDate) {
+              const month = completionDate.slice(0, 7);
+              if (counts[month] !== undefined) {
+                counts[month]++;
+              }
+            }
+          });
+        } else if (period === 'all') {
+          // For all time, show daily progression
+          if (completions && completions.length > 0) {
+            const dailyData: Record<string, number> = {};
+            completions.forEach((c: any) => {
+              const completionDate = c.original_completion_date || c.completed_at;
+              if (completionDate) {
+                const date = new Date(completionDate);
+                const dayKey = date.toISOString().slice(0, 10);
+                
+                if (!dailyData[dayKey]) {
+                  dailyData[dayKey] = 0;
+                }
+                dailyData[dayKey]++;
+              }
+            });
+            
+            const sortedDays = Object.keys(dailyData).sort();
+            const timelineData: Array<{day: string, value: number}> = [];
+            
+            sortedDays.forEach(day => {
+              timelineData.push({
+                day: day,
+                value: dailyData[day] || 0
+              });
+            });
+            
+            console.log('[Kingdom Stats V2] All time daily data (quests):', timelineData);
+            const response = NextResponse.json({ data: timelineData });
+            response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+            response.headers.set('Pragma', 'no-cache');
+            response.headers.set('Expires', '0');
+            response.headers.set('X-Nuclear-Debug', uniqueId);
+            response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+            response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
+            return response;
+          } else {
+            // Return empty data if no completions found
+            console.log('[Kingdom Stats V2] No quest completions found for all time, returning empty data');
+            const data = days.map(day => ({ day, value: 0 }));
+            const response = NextResponse.json({ data });
+            response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+            response.headers.set('Pragma', 'no-cache');
+            response.headers.set('Expires', '0');
+            response.headers.set('X-Nuclear-Debug', uniqueId);
+            response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+            response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
+            return response;
+          }
+        } else {
+          // For week/month view, show daily completions
+          days.forEach(day => {
+            // Count completions that happened ON this specific day
+            const completionsOnDay = completions?.filter((c: any) => {
+              const completionDate = c.original_completion_date || c.completed_at;
+              if (!completionDate) return false;
+              const completionDay = new Date(completionDate).toISOString().slice(0, 10);
+              return completionDay === day;
+            }) || [];
+            
+            counts[day] = completionsOnDay.length;
+            console.log('[Kingdom Stats V2] Day', day, 'daily completions:', completionsOnDay.length);
+          });
+        }
+
+        const data = days.map(day => ({ day, value: counts[day] || 0 }));
+        console.log('[Kingdom Stats V2] Final quest data:', data);
+        
+        const response = NextResponse.json({ data });
+        response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        response.headers.set('Pragma', 'no-cache');
+        response.headers.set('Expires', '0');
+        response.headers.set('X-Nuclear-Debug', uniqueId);
+        response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+        response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
+        return response;
+        
+      } catch (dbError) {
+        console.error('[Kingdom Stats V2] Database query error (quests):', dbError);
+        return NextResponse.json({ error: 'Database query failed' }, { status: 500 });
+      }
     }
 
     // Handle challenges tab
     if (tab === 'challenges') {
       console.log('[Kingdom Stats V2] Fetching challenge completion data...');
+      console.log('[Kingdom Stats V2] 🔍 About to query challenge_completion table...');
+      console.log('[Kingdom Stats V2] 🔍 Query params:', { userId, earliestDate: earliestDate.toISOString() });
+      console.log('[Kingdom Stats V2] 🔍 Current period:', period);
+      console.log('[Kingdom Stats V2] 🔍 Days array:', days);
       
-      const { data: completions, error } = await supabase
-        .from('challenge_completion')
-        .select('id, completed, completed_at, original_completion_date')
-        .eq('user_id', userId)
-        .eq('completed', true)
-        .gte('completed_at', earliestDate.toISOString());
-        
-      if (error) {
-        console.error('[Kingdom Stats V2] Supabase error (challenges):', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
-
-      console.log('[Kingdom Stats V2] Raw challenge completions from DB:', completions);
-      console.log('[Kingdom Stats V2] Total challenge completions found:', completions?.length || 0);
-      
-      // Same logic as quests - show daily completions
-      let counts: Record<string, number> = {};
-      days.forEach(day => { counts[day] = 0; });
-      
-      if (period === 'year') {
-        completions?.forEach((c: any) => {
-          if (c.completed_at) {
-            const month = c.completed_at.slice(0, 7);
-            if (counts[month] !== undefined) {
-              counts[month]++;
-            }
-          }
-        });
-      } else if (period === 'all') {
-        if (completions && completions.length > 0) {
-          const dailyData: Record<string, number> = {};
-          completions.forEach((c: any) => {
-            if (c.completed_at) {
-              const date = new Date(c.completed_at);
-              const dayKey = date.toISOString().slice(0, 10);
-              
-              if (!dailyData[dayKey]) {
-                dailyData[dayKey] = 0;
-              }
-              dailyData[dayKey]++;
-            }
-          });
+      try {
+        const { data: completions, error } = await supabase
+          .from('challenge_completion')
+          .select('id, challenge_id, date, completed')
+          .eq('user_id', userId)
+          .eq('completed', true)
+          .gte('date', earliestDate.toISOString()); // Use full timestamp for comparison
           
-          const sortedDays = Object.keys(dailyData).sort();
-          const timelineData: Array<{day: string, value: number}> = [];
-          
-          sortedDays.forEach(day => {
-            timelineData.push({
-              day: day,
-              value: dailyData[day] || 0
-            });
-          });
-          
-          console.log('[Kingdom Stats V2] All time daily data (challenges):', timelineData);
-          const response = NextResponse.json({ data: timelineData });
-          response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-          response.headers.set('Pragma', 'no-cache');
-          response.headers.set('Expires', '0');
-          response.headers.set('X-Nuclear-Debug', uniqueId);
-          response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
-          response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
-          return response;
+        if (error) {
+          console.error('[Kingdom Stats V2] Supabase error (challenges):', error);
+          return NextResponse.json({ error: error.message }, { status: 500 });
         }
-      } else {
-        // For week/month view, show daily completions
-        days.forEach(day => {
-          // Count completions that happened ON this specific day
-          const completionsOnDay = completions?.filter((c: any) => {
-            if (!c.completed_at) return false;
-            const completionDate = new Date(c.completed_at);
-            const completionDay = completionDate.toISOString().slice(0, 10);
-            return completionDay === day;
-          }) || [];
-          
-          counts[day] = completionsOnDay.length;
-        });
-      }
 
-      const data = days.map(day => ({ day, value: counts[day] || 0 }));
-      console.log('[Kingdom Stats V2] Final challenge data:', data);
-      
-      const response = NextResponse.json({ data });
-      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-      response.headers.set('Pragma', 'no-cache');
-      response.headers.set('Expires', '0');
-      response.headers.set('X-Nuclear-Debug', uniqueId);
-      response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
-      response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
-      
-      return response;
+        console.log('[Kingdom Stats V2] Raw challenge completions from DB:', completions);
+        console.log('[Kingdom Stats V2] Total challenge completions found:', completions?.length || 0);
+        
+        // Debug: Check if any completions are within the date range
+        if (completions && completions.length > 0) {
+          console.log('[Kingdom Stats V2] Sample completion dates:', completions.slice(0, 3).map(c => ({ 
+            id: c.id, 
+            date: c.date, 
+            dateISO: new Date(c.date).toISOString(),
+            dateString: new Date(c.date).toISOString().slice(0, 10)
+          })));
+        }
+        
+        // Aggregate by day - show daily completions (not cumulative)
+        let counts: Record<string, number> = {};
+        days.forEach(day => { counts[day] = 0; });
+        
+        if (period === 'year') {
+          // For year view, aggregate by month
+          completions?.forEach((c: any) => {
+            if (c.date) {
+              // Convert ISO timestamp to date string (YYYY-MM-DD)
+              const dateStr = new Date(c.date).toISOString().slice(0, 10);
+              const month = dateStr.slice(0, 7);
+              if (counts[month] !== undefined) {
+                counts[month]++;
+              }
+            }
+          });
+        } else if (period === 'all') {
+          if (completions && completions.length > 0) {
+            const dailyData: Record<string, number> = {};
+            completions.forEach((c: any) => {
+              if (c.date) {
+                // Convert ISO timestamp to date string (YYYY-MM-DD)
+                const dayKey = new Date(c.date).toISOString().slice(0, 10);
+                
+                if (!dailyData[dayKey]) {
+                  dailyData[dayKey] = 0;
+                }
+                dailyData[dayKey]++;
+              }
+            });
+            
+            const sortedDays = Object.keys(dailyData).sort();
+            const timelineData: Array<{day: string, value: number}> = [];
+            
+            sortedDays.forEach(day => {
+              timelineData.push({
+                day: day,
+                value: dailyData[day] || 0
+              });
+            });
+            
+            console.log('[Kingdom Stats V2] All time daily data (challenges):', timelineData);
+            const response = NextResponse.json({ data: timelineData });
+            response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+            response.headers.set('Pragma', 'no-cache');
+            response.headers.set('Expires', '0');
+            response.headers.set('X-Nuclear-Debug', uniqueId);
+            response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+            response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
+            return response;
+          } else {
+            // Return empty data if no completions found
+            console.log('[Kingdom Stats V2] No challenge completions found for all time, returning empty data');
+            const data = days.map(day => ({ day, value: 0 }));
+            const response = NextResponse.json({ data });
+            response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+            response.headers.set('Pragma', 'no-cache');
+            response.headers.set('Expires', '0');
+            response.headers.set('X-Nuclear-Debug', uniqueId);
+            response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+            response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
+            return response;
+          }
+        } else {
+          // For week/month view, show daily completions
+          days.forEach(day => {
+            // Count completions that happened ON this specific day
+            const completionsOnDay = completions?.filter((c: any) => {
+              if (!c.date) return false;
+              // Convert ISO timestamp to date string (YYYY-MM-DD) for comparison
+              const completionDay = new Date(c.date).toISOString().slice(0, 10);
+              return completionDay === day;
+            }) || [];
+            
+            counts[day] = completionsOnDay.length;
+            console.log('[Kingdom Stats V2] Day', day, 'daily challenge completions:', completionsOnDay.length);
+          });
+        }
+
+        const data = days.map(day => ({ day, value: counts[day] || 0 }));
+        console.log('[Kingdom Stats V2] Final challenge data:', data);
+        
+        const response = NextResponse.json({ data });
+        response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        response.headers.set('Pragma', 'no-cache');
+        response.headers.set('Expires', '0');
+        response.headers.set('X-Nuclear-Debug', uniqueId);
+        response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+        response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
+        return response;
+        
+      } catch (dbError) {
+        console.error('[Kingdom Stats V2] Database query error (challenges):', dbError);
+        return NextResponse.json({ error: 'Database query failed' }, { status: 500 });
+      }
     }
 
     // Handle milestones tab
     if (tab === 'milestones') {
       console.log('[Kingdom Stats V2] Fetching milestone completion data...');
+      console.log('[Kingdom Stats V2] 🔍 About to query milestone_completion table...');
+      console.log('[Kingdom Stats V2] 🔍 Query params:', { userId, earliestDate: earliestDate.toISOString() });
       
-      const { data: completions, error } = await supabase
-        .from('milestone_completion')
-        .select('id, completed, completed_at, original_completion_date')
-        .eq('user_id', userId)
-        .eq('completed', true)
-        .gte('completed_at', earliestDate.toISOString());
-        
-      if (error) {
-        console.error('[Kingdom Stats V2] Supabase error (milestones):', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
-
-      console.log('[Kingdom Stats V2] Raw milestone completions from DB:', completions);
-      console.log('[Kingdom Stats V2] Total milestone completions found:', completions?.length || 0);
-      
-      // Same logic as quests - show daily completions
-      let counts: Record<string, number> = {};
-      days.forEach(day => { counts[day] = 0; });
-      
-      if (period === 'year') {
-        completions?.forEach((c: any) => {
-          if (c.completed_at) {
-            const month = c.completed_at.slice(0, 7);
-            if (counts[month] !== undefined) {
-              counts[month]++;
-            }
-          }
-        });
-      } else if (period === 'all') {
-        if (completions && completions.length > 0) {
-          const dailyData: Record<string, number> = {};
-          completions.forEach((c: any) => {
-            if (c.completed_at) {
-              const date = new Date(c.completed_at);
-              const dayKey = date.toISOString().slice(0, 10);
-              
-              if (!dailyData[dayKey]) {
-                dailyData[dayKey] = 0;
-              }
-              dailyData[dayKey]++;
-            }
-          });
+      try {
+        const { data: completions, error } = await supabase
+          .from('milestone_completion')
+          .select('id, milestone_id, date, completed')
+          .eq('user_id', userId)
+          .eq('completed', true)
+          .gte('date', earliestDate.toISOString()); // Use full timestamp for comparison
           
-          const sortedDays = Object.keys(dailyData).sort();
-          const timelineData: Array<{day: string, value: number}> = [];
-          
-          sortedDays.forEach(day => {
-            timelineData.push({
-              day: day,
-              value: dailyData[day] || 0
-            });
-          });
-          
-          console.log('[Kingdom Stats V2] All time daily data (milestones):', timelineData);
-          const response = NextResponse.json({ data: timelineData });
-          response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-          response.headers.set('Pragma', 'no-cache');
-          response.headers.set('Expires', '0');
-          response.headers.set('X-Nuclear-Debug', uniqueId);
-          response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
-          response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
-          return response;
+        if (error) {
+          console.error('[Kingdom Stats V2] Supabase error (milestones):', error);
+          return NextResponse.json({ error: error.message }, { status: 500 });
         }
-      } else {
-        // For week/month view, show daily completions
-        days.forEach(day => {
-          // Count completions that happened ON this specific day
-          const completionsOnDay = completions?.filter((c: any) => {
-            if (!c.completed_at) return false;
-            const completionDate = new Date(c.completed_at);
-            const completionDay = completionDate.toISOString().slice(0, 10);
-            return completionDay === day;
-          }) || [];
-          
-          counts[day] = completionsOnDay.length;
-        });
-      }
 
-      const data = days.map(day => ({ day, value: counts[day] || 0 }));
-      console.log('[Kingdom Stats V2] Final milestone data:', data);
-      
-      const response = NextResponse.json({ data });
-      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-      response.headers.set('Pragma', 'no-cache');
-      response.headers.set('Expires', '0');
-      response.headers.set('X-Nuclear-Debug', uniqueId);
-      response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
-      response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
-      
-      return response;
+        console.log('[Kingdom Stats V2] Raw milestone completions from DB:', completions);
+        console.log('[Kingdom Stats V2] Total milestone completions found:', completions?.length || 0);
+        
+        // Aggregate by day - show daily completions (not cumulative)
+        let counts: Record<string, number> = {};
+        days.forEach(day => { counts[day] = 0; });
+        
+        if (period === 'year') {
+          // For year view, aggregate by month
+          completions?.forEach((c: any) => {
+            if (c.date) {
+              // Convert ISO timestamp to date string (YYYY-MM-DD)
+              const dateStr = new Date(c.date).toISOString().slice(0, 10);
+              const month = dateStr.slice(0, 7);
+              if (counts[month] !== undefined) {
+                counts[month]++;
+              }
+            }
+          });
+        } else if (period === 'all') {
+          if (completions && completions.length > 0) {
+            const dailyData: Record<string, number> = {};
+            completions.forEach((c: any) => {
+              if (c.date) {
+                // Convert ISO timestamp to date string (YYYY-MM-DD)
+                const dayKey = new Date(c.date).toISOString().slice(0, 10);
+                
+                if (!dailyData[dayKey]) {
+                  dailyData[dayKey] = 0;
+                }
+                dailyData[dayKey]++;
+              }
+            });
+            
+            const sortedDays = Object.keys(dailyData).sort();
+            const timelineData: Array<{day: string, value: number}> = [];
+            
+            sortedDays.forEach(day => {
+              timelineData.push({
+                day: day,
+                value: dailyData[day] || 0
+              });
+            });
+            
+            console.log('[Kingdom Stats V2] All time daily data (milestones):', timelineData);
+            const response = NextResponse.json({ data: timelineData });
+            response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+            response.headers.set('Pragma', 'no-cache');
+            response.headers.set('Expires', '0');
+            response.headers.set('X-Nuclear-Debug', uniqueId);
+            response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+            response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
+            return response;
+          } else {
+            // Return empty data if no completions found
+            console.log('[Kingdom Stats V2] No milestone completions found for all time, returning empty data');
+            const data = days.map(day => ({ day, value: 0 }));
+            const response = NextResponse.json({ data });
+            response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+            response.headers.set('Pragma', 'no-cache');
+            response.headers.set('Expires', '0');
+            response.headers.set('X-Nuclear-Debug', uniqueId);
+            response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+            response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
+            return response;
+          }
+        } else {
+          // For week/month view, show daily completions
+          days.forEach(day => {
+            // Count completions that happened ON this specific day
+            const completionsOnDay = completions?.filter((c: any) => {
+              if (!c.date) return false;
+              // Convert ISO timestamp to date string (YYYY-MM-DD) for comparison
+              const completionDay = new Date(c.date).toISOString().slice(0, 10);
+              return completionDay === day;
+            }) || [];
+            
+            counts[day] = completionsOnDay.length;
+            console.log('[Kingdom Stats V2] Day', day, 'daily milestone completions:', completionsOnDay.length);
+          });
+        }
+
+        const data = days.map(day => ({ day, value: counts[day] || 0 }));
+        console.log('[Kingdom Stats V2] Final milestone data:', data);
+        
+        const response = NextResponse.json({ data });
+        response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        response.headers.set('Pragma', 'no-cache');
+        response.headers.set('Expires', '0');
+        response.headers.set('X-Nuclear-Debug', uniqueId);
+        response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+        response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
+        return response;
+        
+      } catch (dbError) {
+        console.error('[Kingdom Stats V2] Database query error (milestones):', dbError);
+        return NextResponse.json({ error: 'Database query failed' }, { status: 500 });
+      }
     }
 
     // Handle gold gained tab (new)
@@ -538,6 +615,18 @@ export async function GET(request: NextRequest) {
           
           console.log('[Kingdom Stats V2] All time daily data (gold-gained):', timelineData);
           const response = NextResponse.json({ data: timelineData });
+          response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+          response.headers.set('Pragma', 'no-cache');
+          response.headers.set('Expires', '0');
+          response.headers.set('X-Nuclear-Debug', uniqueId);
+          response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+          response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
+          return response;
+        } else {
+          // Return empty data if no transactions found
+          console.log('[Kingdom Stats V2] No gold gained transactions found for all time, returning empty data');
+          const data = days.map(day => ({ day, value: 0 }));
+          const response = NextResponse.json({ data });
           response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
           response.headers.set('Pragma', 'no-cache');
           response.headers.set('Expires', '0');
@@ -643,6 +732,18 @@ export async function GET(request: NextRequest) {
           response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
           response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
           return response;
+        } else {
+          // Return empty data if no transactions found
+          console.log('[Kingdom Stats V2] No gold spent transactions found for all time, returning empty data');
+          const data = days.map(day => ({ day, value: 0 }));
+          const response = NextResponse.json({ data });
+          response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+          response.headers.set('Pragma', 'no-cache');
+          response.headers.set('Expires', '0');
+          response.headers.set('X-Nuclear-Debug', uniqueId);
+          response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+          response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
+          return response;
         }
       } else {
         // For week/month view, show daily gold spent
@@ -711,7 +812,6 @@ export async function GET(request: NextRequest) {
             if (t.created_at) {
               const date = new Date(t.created_at);
               const dayKey = date.toISOString().slice(0, 10);
-              
               if (!dailyData[dayKey]) {
                 dailyData[dayKey] = 0;
               }
@@ -731,6 +831,18 @@ export async function GET(request: NextRequest) {
           
           console.log('[Kingdom Stats V2] All time daily data (experience):', timelineData);
           const response = NextResponse.json({ data: timelineData });
+          response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+          response.headers.set('Pragma', 'no-cache');
+          response.headers.set('Expires', '0');
+          response.headers.set('X-Nuclear-Debug', uniqueId);
+          response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+          response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
+          return response;
+        } else {
+          // Return empty data if no transactions found
+          console.log('[Kingdom Stats V2] No experience transactions found for all time, returning empty data');
+          const data = days.map(day => ({ day, value: 0 }));
+          const response = NextResponse.json({ data });
           response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
           response.headers.set('Pragma', 'no-cache');
           response.headers.set('Expires', '0');
@@ -837,6 +949,18 @@ export async function GET(request: NextRequest) {
           
           console.log('[Kingdom Stats V2] All time daily data (level):', timelineData);
           const response = NextResponse.json({ data: timelineData });
+          response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+          response.headers.set('Pragma', 'no-cache');
+          response.headers.set('Expires', '0');
+          response.headers.set('X-Nuclear-Debug', uniqueId);
+          response.headers.set('X-Nuclear-Timestamp', Date.now().toString());
+          response.headers.set('X-Nuclear-Route', 'V2-ROUTE-NUCLEAR-DEBUG');
+          return response;
+        } else {
+          // Return empty data if no transactions found
+          console.log('[Kingdom Stats V2] No experience transactions found for all time, returning empty data for level calculation');
+          const data = days.map(day => ({ day, value: 0 }));
+          const response = NextResponse.json({ data });
           response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
           response.headers.set('Pragma', 'no-cache');
           response.headers.set('Expires', '0');

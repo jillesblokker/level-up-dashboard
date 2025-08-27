@@ -258,7 +258,7 @@ export default function RealmPage() {
     const closeBtnRef = useRef<HTMLButtonElement>(null);
     const [horsePos, setHorsePos] = useState<{ x: number; y: number } | null>(() => {
       if (typeof window !== 'undefined') {
-        const saved = localStorage.getItem('horsePos');
+        const saved = localStorage.getItem('animal-horse-position');
         if (saved) return JSON.parse(saved);
       }
       return { x: 10, y: 4 };
@@ -278,7 +278,7 @@ export default function RealmPage() {
     const [penguinPos, setPenguinPos] = useState<{ x: number; y: number } | null>(null);
     const [sheepPos, setSheepPos] = useState<{ x: number; y: number } | null>(() => {
       if (typeof window !== 'undefined') {
-        const saved = localStorage.getItem('sheepPos');
+        const saved = localStorage.getItem('animal-sheep-position');
         if (saved) return JSON.parse(saved);
       }
       return { x: 5, y: 2 };
@@ -286,7 +286,7 @@ export default function RealmPage() {
     const [isSheepPresent, setIsSheepPresent] = useState(true);
     const [horseCaught, setHorseCaught] = useState(() => {
       if (typeof window !== 'undefined') {
-        return localStorage.getItem('horseCaught') === 'true';
+        return localStorage.getItem('animal-horse-state') === 'true';
       }
       return false;
     });
@@ -318,7 +318,7 @@ export default function RealmPage() {
     const handleAnimalInteraction = useCallback((animalType: 'horse' | 'sheep' | 'penguin' | 'eagle') => {
       if (animalType === 'horse') {
         setHorseCaught(true);
-        localStorage.setItem('horseCaught', 'true');
+        localStorage.setItem('animal-horse-state', 'true');
         
         // Dispatch horse-caught event
         window.dispatchEvent(new CustomEvent('horse-caught'));
@@ -461,7 +461,7 @@ export default function RealmPage() {
     // --- Load and transform completed mystery tiles on page load ---
     useEffect(() => {
       if (typeof window !== 'undefined' && grid.length > 0) {
-        const completedMysteryTiles = JSON.parse(localStorage.getItem('completedMysteryTiles') || '[]');
+        const completedMysteryTiles = JSON.parse(localStorage.getItem('mystery-completed-tiles') || '[]');
         if (completedMysteryTiles.length > 0) {
           let gridChanged = false;
           const newGrid = grid.map(row => row.slice());
@@ -526,11 +526,11 @@ export default function RealmPage() {
               
               // Save completed mystery tile to localStorage for persistence
               if (typeof window !== 'undefined') {
-                const completedMysteryTiles = JSON.parse(localStorage.getItem('completedMysteryTiles') || '[]');
+                const completedMysteryTiles = JSON.parse(localStorage.getItem('mystery-completed-tiles') || '[]');
                 const tileKey = `${x}-${y}`;
                 if (!completedMysteryTiles.includes(tileKey)) {
                   completedMysteryTiles.push(tileKey);
-                  localStorage.setItem('completedMysteryTiles', JSON.stringify(completedMysteryTiles));
+                  localStorage.setItem('mystery-completed-tiles', JSON.stringify(completedMysteryTiles));
                 }
               }
               
@@ -1425,7 +1425,7 @@ export default function RealmPage() {
         }
         setExpansions(prev => {
             const newVal = prev + 1;
-            localStorage.setItem('realm-map-expansions', String(newVal));
+            localStorage.setItem('realm-expansions', String(newVal));
             return newVal;
         });
         toast({
@@ -1740,7 +1740,7 @@ export default function RealmPage() {
                 setIsHorsePresent(false);
                 setHorseCaught(true);
                 if (typeof window !== 'undefined') {
-                    localStorage.setItem('horseCaught', 'true');
+                    localStorage.setItem('animal-horse-state', 'true');
                 }
             }
         };
@@ -1911,7 +1911,7 @@ export default function RealmPage() {
     // Expansion gating logic
     const [expansions, setExpansions] = useState<number>(() => {
       if (typeof window !== 'undefined') {
-        return parseInt(localStorage.getItem('realm-map-expansions') || '0', 10);
+        return parseInt(localStorage.getItem('realm-expansions') || '0', 10);
       }
       return 0;
     });
@@ -1927,7 +1927,7 @@ export default function RealmPage() {
       if (playerLevel >= 5 && expansions > 0) {
         // If user is level 5+ but has expansions recorded, reset to 0
         setExpansions(0);
-        localStorage.setItem('realm-map-expansions', '0');
+        localStorage.setItem('realm-expansions', '0');
       }
     }, [playerLevel, expansions]);
     
@@ -1951,7 +1951,7 @@ export default function RealmPage() {
               const checkTile = row[x];
               if (checkTile && checkTile.type === 'grass' && !checkTile.hasMonster) {
                 setHorsePos({ x, y });
-                localStorage.setItem('horsePos', JSON.stringify({ x, y }));
+                localStorage.setItem('animal-horse-position', JSON.stringify({ x, y }));
                 // Removed debugging log
                 break;
               }
@@ -1972,7 +1972,7 @@ export default function RealmPage() {
               const checkTile = row[x];
               if (checkTile && checkTile.type === 'grass' && !checkTile.hasMonster) {
                 setSheepPos({ x, y });
-                localStorage.setItem('sheepPos', JSON.stringify({ x, y }));
+                localStorage.setItem('animal-sheep-position', JSON.stringify({ x, y }));
                 break;
               }
             }
@@ -2015,7 +2015,7 @@ export default function RealmPage() {
 
         // Check for pending syncs on mount
         const checkPendingSyncs = () => {
-            const pendingTiles = JSON.parse(localStorage.getItem('pendingTilePlacements') || '[]');
+            const pendingTiles = JSON.parse(localStorage.getItem('realm-pending-tiles') || '[]');
             setPendingSyncCount(pendingTiles.length);
         };
 
@@ -2035,7 +2035,7 @@ export default function RealmPage() {
     // Sync pending tile placements when network is restored
     const syncPendingTilePlacements = async () => {
         try {
-            const pendingTiles = JSON.parse(localStorage.getItem('pendingTilePlacements') || '[]');
+            const pendingTiles = JSON.parse(localStorage.getItem('realm-pending-tiles') || '[]');
             if (pendingTiles.length === 0) return;
 
             // Removed debugging log
@@ -2088,7 +2088,7 @@ export default function RealmPage() {
             }
 
             // Update pending list with only failed syncs
-            localStorage.setItem('pendingTilePlacements', JSON.stringify(failedSyncs));
+            localStorage.setItem('realm-pending-tiles', JSON.stringify(failedSyncs));
             setPendingSyncCount(failedSyncs.length);
 
             if (successfulSyncs.length > 0) {

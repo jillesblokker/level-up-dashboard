@@ -1,3 +1,5 @@
+import { getUserPreference, setUserPreference, getAllUserPreferences } from './user-preferences-manager';
+
 export interface GameSetting {
   setting_key: string;
   setting_value?: any;
@@ -8,25 +10,38 @@ export interface GameSetting {
  */
 export async function loadGameSettings(): Promise<Record<string, any>> {
   try {
-    // Try to load from Supabase first
-    const response = await fetch('/api/game-settings', {
-      headers: {
-        'Content-Type': 'application/json',
-      },
+    // Try to load from Supabase first using new user preferences system
+    const settings = await getAllUserPreferences();
+    
+    // Filter for game settings (keys that start with game- or are known game keys)
+    const gameSettings: Record<string, any> = {};
+    const gameSettingKeys = [
+      'autoSave',
+      'gameMode',
+      'hasVisitedRealm',
+      'horsePos',
+      'sheepPos',
+      'horseCaught',
+      'headerImages',
+      'kingdom-grid-expansions',
+      'realm-map-expansions',
+      'onboarding-completed',
+      'app-gradient',
+      'character-header-image',
+      'market-onboarding-shown',
+      'levelup-gold-balance'
+    ];
+
+    // Extract game settings from user preferences
+    Object.entries(settings).forEach(([key, value]) => {
+      if (gameSettingKeys.includes(key) || key.startsWith('game-')) {
+        gameSettings[key] = value;
+      }
     });
 
-    if (response.ok) {
-      const data = await response.json();
-      if (data.data) {
-        const settings: Record<string, any> = {};
-        data.data.forEach((setting: GameSetting) => {
-          // Extract value from setting_value column
-          const value = setting.setting_value;
-          settings[setting.setting_key] = value;
-        });
-        console.log('[Game Settings Manager] Loaded from Supabase:', settings);
-        return settings;
-      }
+    if (Object.keys(gameSettings).length > 0) {
+      console.log('[Game Settings Manager] Loaded from Supabase:', gameSettings);
+      return gameSettings;
     }
   } catch (error) {
     console.warn('[Game Settings Manager] Failed to load from Supabase:', error);
@@ -43,7 +58,13 @@ export async function loadGameSettings(): Promise<Record<string, any>> {
       'sheepPos',
       'horseCaught',
       'headerImages',
-      'kingdom-grid-expansions'
+      'kingdom-grid-expansions',
+      'realm-map-expansions',
+      'onboarding-completed',
+      'app-gradient',
+      'character-header-image',
+      'market-onboarding-shown',
+      'levelup-gold-balance'
     ];
 
     settingKeys.forEach(key => {
@@ -73,22 +94,12 @@ export async function saveGameSettings(settings: Record<string, any>): Promise<{
   let supabaseSuccess = false;
   let localStorageSuccess = false;
 
-  // Save to Supabase
+  // Save to Supabase using new user preferences system
   try {
     // Save each setting individually
     for (const [key, value] of Object.entries(settings)) {
-      const response = await fetch('/api/game-settings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          setting_key: key,
-          setting_value: value
-        }),
-      });
-
-      if (!response.ok) {
+      const success = await setUserPreference(key, value);
+      if (!success) {
         console.warn('[Game Settings Manager] Failed to save setting to Supabase:', key);
         break;
       }
@@ -129,17 +140,57 @@ export async function saveGameSettings(settings: Record<string, any>): Promise<{
  * Gets a specific game setting
  */
 export async function getGameSetting(key: string): Promise<any> {
-  const settings = await loadGameSettings();
-  return settings[key];
+  try {
+    // Try Supabase first
+    const value = await getUserPreference(key);
+    if (value !== null) {
+      return value;
+    }
+  } catch (error) {
+    console.warn('[Game Settings Manager] Failed to get setting from Supabase:', key, error);
+  }
+
+  // Fallback to localStorage
+  try {
+    const value = localStorage.getItem(key);
+    if (value) {
+      try {
+        return JSON.parse(value);
+      } catch (e) {
+        return value; // Return as string if not JSON
+      }
+    }
+  } catch (error) {
+    console.warn('[Game Settings Manager] Failed to get setting from localStorage:', key, error);
+  }
+
+  return null;
 }
 
 /**
  * Sets a specific game setting
  */
 export async function setGameSetting(key: string, value: any): Promise<{ success: boolean; error?: string }> {
-  const settings = await loadGameSettings();
-  settings[key] = value;
-  return await saveGameSettings(settings);
+  try {
+    // Save to Supabase
+    const supabaseSuccess = await setUserPreference(key, value);
+    
+    // Save to localStorage as backup
+    try {
+      if (typeof value === 'object') {
+        localStorage.setItem(key, JSON.stringify(value));
+      } else {
+        localStorage.setItem(key, String(value));
+      }
+    } catch (error) {
+      console.warn('[Game Settings Manager] localStorage backup save error:', error);
+    }
+
+    return { success: supabaseSuccess };
+  } catch (error) {
+    console.warn('[Game Settings Manager] Error setting game setting:', error);
+    return { success: false, error: String(error) };
+  }
 }
 
 /**
@@ -156,7 +207,13 @@ export function getGameSettings(): Record<string, any> {
       'sheepPos',
       'horseCaught',
       'headerImages',
-      'kingdom-grid-expansions'
+      'kingdom-grid-expansions',
+      'realm-map-expansions',
+      'onboarding-completed',
+      'app-gradient',
+      'character-header-image',
+      'market-onboarding-shown',
+      'levelup-gold-balance'
     ];
 
     settingKeys.forEach(key => {

@@ -1105,7 +1105,7 @@ export function KingdomClient() {
     if (!user?.id) return;
     setCoverImageLoading(true);
     const loadCoverImage = async () => {
-      const pref = await getUserPreference(user.id, 'kingdom-header-image');
+      const pref = await getUserPreference('kingdom-header-image');
       if (pref) {
         setCoverImage(pref);
       } else {
@@ -1205,7 +1205,7 @@ export function KingdomClient() {
             const result = event.target?.result as string;
             setCoverImage(result);
             if (user?.id) {
-              await setUserPreference(user.id, 'kingdom-header-image', result);
+              await setUserPreference('kingdom-header-image', result);
             }
           };
           reader.readAsDataURL(file);

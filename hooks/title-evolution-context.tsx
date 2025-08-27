@@ -97,7 +97,7 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
         let initialLevel = currentLevel;
 
         if (userId) {
-          const pref = await getUserPreference(userId, 'title-evolution-last-processed');
+          const pref = await getUserPreference('title-evolution-last-processed');
           if (pref) {
             const parsed = parseInt(pref, 10);
             if (!Number.isNaN(parsed)) initialLevel = parsed;
@@ -124,7 +124,7 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     (async () => {
       try {
         if (userId && lastProcessedLevel > 0) {
-          await setUserPreference(userId, 'title-evolution-last-processed', String(lastProcessedLevel));
+          await setUserPreference('title-evolution-last-processed', String(lastProcessedLevel));
         }
       } catch {}
       try {
@@ -143,7 +143,7 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
       setLastProcessedLevel(prev => Math.max(prev, newLevel));
       // Save remotely as well
       if (userId) {
-        setUserPreference(userId, 'title-evolution-last-processed', String(newLevel)).catch(() => {});
+        setUserPreference('title-evolution-last-processed', String(newLevel)).catch(() => {});
       }
       // Fallback local storage
       try {

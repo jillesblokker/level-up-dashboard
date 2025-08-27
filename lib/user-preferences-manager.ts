@@ -1,92 +1,178 @@
-import { fetchWithAuth } from './fetchWithAuth';
+// User Preferences Manager - Replaces localStorage usage with Supabase persistence
+// This ensures all user preferences are saved across devices
 
 export interface UserPreference {
-  id: string;
-  user_id: string;
-  preference_key: string;
-  value: string;
+  key: string;
+  value: any;
 }
 
-export async function getUserPreferences(userId: string): Promise<UserPreference[]> {
-  if (!userId) return [];
-  
+/**
+ * Gets a user preference from Supabase
+ */
+export async function getUserPreference(key: string): Promise<any> {
   try {
-    const response = await fetchWithAuth(`/api/user-preferences?all=true`, {});
-    if (!response.ok) throw new Error(`Failed to fetch user preferences: ${response.status}`);
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching user preferences:', error);
-    return [];
-  }
-}
-
-export async function getUserPreference(userId: string, preferenceKey: string): Promise<string | null> {
-  if (!userId || !preferenceKey) return null;
-  
-  try {
-    const response = await fetchWithAuth(`/api/user-preferences?preference_key=${encodeURIComponent(preferenceKey)}`, {});
-    if (!response.ok) {
-      if (response.status === 404) return null;
-      throw new Error(`Failed to fetch user preference: ${response.status}`);
+    const response = await fetch(`/api/user-preferences?key=${encodeURIComponent(key)}`);
+    if (response.ok) {
+      const data = await response.json();
+      return data.value;
     }
-    const data = await response.json();
-    return data?.preference_value ?? data?.value ?? null;
+    return null;
   } catch (error) {
-    console.error('Error fetching user preference:', error);
+    console.error(`[User Preferences] Error getting preference ${key}:`, error);
     return null;
   }
 }
 
-export async function setUserPreference(userId: string, preferenceKey: string, value: string): Promise<boolean> {
-  if (!userId || !preferenceKey) return false;
-  
+/**
+ * Sets a user preference in Supabase
+ */
+export async function setUserPreference(key: string, value: any): Promise<boolean> {
   try {
-    const response = await fetchWithAuth('/api/user-preferences', {
+    const response = await fetch('/api/user-preferences', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ preference_key: preferenceKey, preference_value: value }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ key, value }),
     });
-    if (!response.ok) {
-      const errText = await response.text().catch(() => '');
-      throw new Error(`Failed to set user preference: ${response.status}${errText ? ` - ${errText}` : ''}`);
+
+    if (response.ok) {
+      console.log(`[User Preferences] ✅ Saved preference: ${key}`);
+      return true;
+    } else {
+      console.error(`[User Preferences] ❌ Failed to save preference: ${key}`);
+      return false;
     }
-    return true;
   } catch (error) {
-    console.error('Error setting user preference:', error);
+    console.error(`[User Preferences] Error setting preference ${key}:`, error);
     return false;
   }
 }
 
-export async function deleteUserPreference(userId: string, preferenceKey: string): Promise<boolean> {
-  if (!userId || !preferenceKey) return false;
-  
+/**
+ * Deletes a user preference from Supabase
+ */
+export async function deleteUserPreference(key: string): Promise<boolean> {
   try {
-    const response = await fetchWithAuth('/api/user-preferences', {
+    const response = await fetch(`/api/user-preferences?key=${encodeURIComponent(key)}`, {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ preference_key: preferenceKey }),
     });
-    if (!response.ok) throw new Error(`Failed to delete user preference: ${response.status}`);
-    return true;
+
+    if (response.ok) {
+      console.log(`[User Preferences] ✅ Deleted preference: ${key}`);
+      return true;
+    } else {
+      console.error(`[User Preferences] ❌ Failed to delete preference: ${key}`);
+      return false;
+    }
   } catch (error) {
-    console.error('Error deleting user preference:', error);
+    console.error(`[User Preferences] Error deleting preference ${key}:`, error);
     return false;
   }
 }
 
-// Helper functions for common preferences
-export async function getKingdomHeaderImage(userId: string): Promise<string | null> {
-  return await getUserPreference(userId, 'kingdom-header-image');
+/**
+ * Gets all user preferences from Supabase
+ */
+export async function getAllUserPreferences(): Promise<Record<string, any>> {
+  try {
+    const response = await fetch('/api/user-preferences');
+    if (response.ok) {
+      const data = await response.json();
+      return data.preferences || {};
+    }
+    return {};
+  } catch (error) {
+    console.error('[User Preferences] Error getting all preferences:', error);
+    return {};
+  }
 }
 
-export async function setKingdomHeaderImage(userId: string, imageUrl: string): Promise<boolean> {
-  return await setUserPreference(userId, 'kingdom-header-image', imageUrl);
+/**
+ * Migrates localStorage data to Supabase
+ */
+export async function migrateLocalStorageToSupabase(): Promise<void> {
+  try {
+    console.log('[User Preferences] 🚀 Starting localStorage migration to Supabase...');
+    
+    // List of localStorage keys to migrate
+    const keysToMigrate = [
+      'autoSave',
+      'gameMode',
+      'kingdom-grid-expansions',
+      'realm-map-expansions',
+      'headerImages',
+      'onboarding-completed',
+      'hasVisitedRealm',
+      'horsePos',
+      'sheepPos',
+      'horseCaught',
+      'completedMysteryTiles',
+      'pendingTilePlacements'
+    ];
+
+    let migratedCount = 0;
+    let failedCount = 0;
+
+    for (const key of keysToMigrate) {
+      try {
+        const value = localStorage.getItem(key);
+        if (value !== null) {
+          let parsedValue;
+          try {
+            parsedValue = JSON.parse(value);
+          } catch {
+            parsedValue = value; // Keep as string if not JSON
+          }
+
+          const success = await setUserPreference(key, parsedValue);
+          if (success) {
+            migratedCount++;
+            console.log(`[User Preferences] ✅ Migrated: ${key}`);
+          } else {
+            failedCount++;
+            console.log(`[User Preferences] ❌ Failed to migrate: ${key}`);
+          }
+        }
+      } catch (error) {
+        failedCount++;
+        console.error(`[User Preferences] Error migrating ${key}:`, error);
+      }
+    }
+
+    console.log(`[User Preferences] 🎉 Migration complete! Migrated: ${migratedCount}, Failed: ${failedCount}`);
+    
+    if (failedCount === 0) {
+      console.log('[User Preferences] 🧹 Clearing migrated localStorage data...');
+      keysToMigrate.forEach(key => localStorage.removeItem(key));
+      console.log('[User Preferences] ✅ localStorage cleared');
+    }
+  } catch (error) {
+    console.error('[User Preferences] Migration error:', error);
+  }
 }
 
-export async function getThemePreference(userId: string): Promise<string | null> {
-  return await getUserPreference(userId, 'theme');
-}
+/**
+ * Syncs preferences from Supabase to localStorage (fallback)
+ */
+export async function syncPreferencesToLocalStorage(): Promise<void> {
+  try {
+    console.log('[User Preferences] 🔄 Syncing preferences to localStorage...');
+    
+    const preferences = await getAllUserPreferences();
+    let syncedCount = 0;
 
-export async function setThemePreference(userId: string, theme: string): Promise<boolean> {
-  return await setUserPreference(userId, 'theme', theme);
+    for (const [key, value] of Object.entries(preferences)) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+        syncedCount++;
+      } catch (error) {
+        console.error(`[User Preferences] Error syncing ${key} to localStorage:`, error);
+      }
+    }
+
+    console.log(`[User Preferences] ✅ Synced ${syncedCount} preferences to localStorage`);
+  } catch (error) {
+    console.error('[User Preferences] Sync error:', error);
+  }
 } 

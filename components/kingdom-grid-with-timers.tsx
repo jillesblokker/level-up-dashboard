@@ -1073,18 +1073,18 @@ export function KingdomGridWithTimers({
     return () => clearInterval(interval)
   }, [])
 
-  // Initialize timers for placed kingdom tiles
+  // Initialize timers for existing kingdom tiles on mount
   useEffect(() => {
-    const newTimers: TileTimer[] = []
-    
-    grid.forEach((row, y) => {
-      row.forEach((tile, x) => {
-        if (tile && tile.type !== 'empty' && tile.type !== 'vacant') {
-          const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase())
-          if (kingdomTile) {
-            const existingTimer = tileTimers.find(t => t.x === x && t.y === y)
-            if (!existingTimer) {
-              // Create new timer
+    // Only run this once on mount when tileTimers is empty
+    if (tileTimers.length === 0) {
+      const newTimers: TileTimer[] = []
+      
+      grid.forEach((row, y) => {
+        row.forEach((tile, x) => {
+          if (tile && tile.type !== 'empty' && tile.type !== 'vacant') {
+            const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase())
+            if (kingdomTile) {
+              // Create timer for existing tile
               const endTime = Date.now() + (kingdomTile.timerMinutes * 60 * 1000)
               newTimers.push({
                 x,
@@ -1095,17 +1095,39 @@ export function KingdomGridWithTimers({
               })
             }
           }
-        }
+        })
       })
-    })
 
-    if (newTimers.length > 0) {
-      setTileTimers(prev => {
-        const merged = [...prev, ...newTimers]
-        return merged
-      })
+      if (newTimers.length > 0) {
+        console.log('[Kingdom] Initializing timers for', newTimers.length, 'existing tiles')
+        setTileTimers(newTimers)
+        
+        // Persist these initial timers to the database
+        ;(async () => {
+          try {
+            for (const timer of newTimers) {
+              const endIso = new Date(timer.endTime).toISOString()
+              await fetchAuthRetry('/api/property-timers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                  tileId: timer.tileId, 
+                  x: timer.x, 
+                  y: timer.y, 
+                  tileType: timer.tileId, 
+                  endTime: endIso, 
+                  isReady: false 
+                })
+              })
+            }
+            console.log('[Kingdom] Successfully persisted initial timers to database')
+          } catch (e) {
+            console.warn('[Kingdom] Failed to persist initial timers:', e)
+          }
+        })()
+      }
     }
-  }, [grid])
+  }, []) // Empty dependency array - only run on mount
 
   // Update tile click handler to support property placement
   const handleTileClick = (x: number, y: number, tile: Tile) => {
@@ -1126,7 +1148,20 @@ export function KingdomGridWithTimers({
       
       // Check if tile is ready
       const timer = tileTimers.find(t => t.x === x && t.y === y)
-      if (!timer || !timer.isReady) {
+      if (!timer) {
+        toast({
+          title: 'Property Not Ready',
+          description: 'This property is still producing. Wait for the timer to finish.',
+          variant: 'destructive',
+        });
+        return
+      }
+      
+      // Calculate if timer is actually ready (real-time check)
+      const now = Date.now()
+      const isReady = now >= timer.endTime
+      
+      if (!isReady) {
         toast({
           title: 'Property Not Ready',
           description: 'This property is still producing. Wait for the timer to finish.',
