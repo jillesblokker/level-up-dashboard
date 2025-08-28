@@ -100,21 +100,119 @@ export async function PUT(request: Request) {
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    const { questId, completed } = await request.json();
+    
+    const body = await request.json();
+    console.log('[QUESTS/COMPLETION][PUT] Request body:', body);
+    
+    const { questId, completed } = body;
     if (!questId || typeof completed !== 'boolean') {
+      console.error('[QUESTS/COMPLETION][PUT] Invalid request data:', { questId, completed });
       return NextResponse.json({ error: 'Missing questId or completed' }, { status: 400 });
     }
-    const { data, error } = await supabaseServer
+    
+    console.log('[QUESTS/COMPLETION][PUT] Processing quest completion:', { userId, questId, completed });
+    
+    // First, fetch the quest to get rewards
+    const { data: quest, error: questError } = await supabaseServer
+      .from('quests')
+      .select('id, xp_reward, gold_reward')
+      .eq('id', questId)
+      .single();
+      
+    if (questError || !quest) {
+      console.error('[QUESTS/COMPLETION][PUT] Quest not found:', { questError, questId });
+      return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
+    }
+    
+    console.log('[QUESTS/COMPLETION][PUT] Quest found:', { questId, xpReward: quest.xp_reward, goldReward: quest.gold_reward });
+    
+    // Check if quest completion record exists
+    const { data: existingCompletion, error: fetchError } = await supabaseServer
       .from('quest_completion')
-      .update({ completed })
+      .select('*')
       .eq('user_id', userId)
       .eq('quest_id', questId)
       .single();
-    if (error) {
-      console.error('[QUESTS/COMPLETION][PUT] Supabase error:', error, { userId, questId, completed });
-      return NextResponse.json({ error: error.message, details: error }, { status: 500 });
+      
+    console.log('[QUESTS/COMPLETION][PUT] Existing completion record:', { existingCompletion, fetchError });
+    
+    let questCompletion;
+    
+    if (existingCompletion) {
+      // Update existing record
+      console.log('[QUESTS/COMPLETION][PUT] Updating existing completion record');
+      const { data, error } = await supabaseServer
+        .from('quest_completion')
+        .update({ 
+          completed,
+          completed_at: completed ? new Date().toISOString() : null,
+          xp_earned: completed ? (quest.xp_reward || 50) : 0,
+          gold_earned: completed ? (quest.gold_reward || 25) : 0
+        })
+        .eq('user_id', userId)
+        .eq('quest_id', questId)
+        .single();
+        
+      if (error) {
+        console.error('[QUESTS/COMPLETION][PUT] Update error:', error);
+        return NextResponse.json({ error: error.message, details: error }, { status: 500 });
+      }
+      
+      questCompletion = data;
+      console.log('[QUESTS/COMPLETION][PUT] Successfully updated completion:', questCompletion);
+    } else {
+      // Create new record
+      console.log('[QUESTS/COMPLETION][PUT] Creating new completion record');
+      const { data, error } = await supabaseServer
+        .from('quest_completion')
+        .insert([{
+          user_id: userId,
+          quest_id: questId,
+          completed,
+          completed_at: completed ? new Date().toISOString() : null,
+          xp_earned: completed ? (quest.xp_reward || 50) : 0,
+          gold_earned: completed ? (quest.gold_reward || 25) : 0
+        }])
+        .single();
+        
+      if (error) {
+        console.error('[QUESTS/COMPLETION][PUT] Insert error:', error);
+        return NextResponse.json({ error: error.message, details: error }, { status: 500 });
+      }
+      
+      questCompletion = data;
+      console.log('[QUESTS/COMPLETION][PUT] Successfully created completion:', questCompletion);
     }
-    return NextResponse.json(data);
+    
+    // If quest is completed, grant rewards
+    if (completed && questCompletion) {
+      console.log('[QUESTS/COMPLETION][PUT] Granting rewards for completed quest');
+      try {
+        await grantReward({
+          userId,
+          type: 'quest',
+          relatedId: questId,
+          amount: quest.xp_reward || 50,
+          context: { gold: quest.gold_reward || 25 }
+        });
+        
+        await grantReward({
+          userId,
+          type: 'gold',
+          relatedId: questId,
+          amount: quest.gold_reward || 25,
+          context: { xp: quest.xp_reward || 50 }
+        });
+        
+        console.log('[QUESTS/COMPLETION][PUT] Rewards granted successfully');
+      } catch (rewardError) {
+        console.error('[QUESTS/COMPLETION][PUT] Error granting rewards:', rewardError);
+        // Don't fail the request if rewards fail
+      }
+    }
+    
+    console.log('[QUESTS/COMPLETION][PUT] Final completion record:', questCompletion);
+    return NextResponse.json(questCompletion);
   } catch (error) {
     console.error('[QUESTS/COMPLETION][PUT] Internal server error:', error);
     return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)), details: error }, { status: 500 });

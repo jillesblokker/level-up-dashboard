@@ -687,12 +687,15 @@ export default function QuestsPage() {
     
     try {
       const newCompleted = !currentCompleted;
+      console.log('[QUEST-TOGGLE] Starting quest toggle:', { questId, currentCompleted, newCompleted, userId });
       
       // Find the quest object
       const questObj = quests.find(q => q.id === questId);
       if (!questObj) {
         throw new Error('Quest not found');
       }
+      
+      console.log('[QUEST-TOGGLE] Quest object found:', { questId, name: questObj.name, xp: questObj.xp, gold: questObj.gold });
       
       // Update the quest in the local state
       setQuests(prevQuests => 
@@ -704,7 +707,7 @@ export default function QuestsPage() {
       );
       
       // Update in Supabase
-      // Sending quest update
+      console.log('[QUEST-TOGGLE] Sending quest update to /api/quests-complete');
       const response = await fetch('/api/quests-complete', {
         method: 'PUT',
         headers: {
@@ -716,11 +719,16 @@ export default function QuestsPage() {
         })
       });
       
-              // Response received
+      console.log('[QUEST-TOGGLE] Response received:', { status: response.status, ok: response.ok });
       
       if (!response.ok) {
-        throw new Error(`Failed to update quest: ${response.status}`);
+        const errorText = await response.text();
+        console.error('[QUEST-TOGGLE] Response error:', { status: response.status, errorText });
+        throw new Error(`Failed to update quest: ${response.status} - ${errorText}`);
       }
+      
+      const responseData = await response.json();
+      console.log('[QUEST-TOGGLE] Response data:', responseData);
       
       // Show success toast
       const quest = quests.find(q => q.id === questId);
@@ -730,14 +738,18 @@ export default function QuestsPage() {
           const goldEarned = quest.gold || 0;
           const xpEarned = quest.xp || 0;
           
+          console.log('[QUEST-TOGGLE] Quest completed, showing toast and updating stats:', { goldEarned, xpEarned });
           showQuestCompletionToast(quest.name, goldEarned, xpEarned);
           
           // Update character stats
+          console.log('[QUEST-TOGGLE] Updating character stats...');
           await gainGold(goldEarned, 'quest-completion');
           await gainExperience(xpEarned, 'quest-completion', 'general');
           await gainStrengthFromQuest(quest.category, 1);
+          console.log('[QUEST-TOGGLE] Character stats updated successfully');
         } else {
           // Quest uncompleted
+          console.log('[QUEST-TOGGLE] Quest uncompleted');
           toast({
             title: "Quest Uncompleted",
             description: `${quest.name} has been marked as incomplete.`,
@@ -746,10 +758,11 @@ export default function QuestsPage() {
         }
       }
       
+      console.log('[QUEST-TOGGLE] Quest toggle completed successfully');
       // Local state is already updated, no need to refetch
       
     } catch (error) {
-      console.error('Error toggling quest:', error);
+      console.error('[QUEST-TOGGLE] Error toggling quest:', error);
       
       // Revert local state on error
       setQuests(prevQuests => 
