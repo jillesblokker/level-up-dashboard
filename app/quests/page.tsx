@@ -28,7 +28,7 @@ import { MobileLayoutWrapper, MobileScrollContainer, MobileContentWrapper } from
 
 import { QuestOrganization } from '@/components/quest-organization'
 import { GameplayLoopIndicator } from '@/components/gameplay-loop-indicator'
-import { ProgressDashboard } from '@/components/progress-dashboard'
+
 import { KeyboardShortcutsProvider } from '@/components/keyboard-shortcuts'
 import { showQuestCompletionToast } from '@/components/enhanced-reward-toast'
 import { EmptyQuests } from '@/components/empty-states'
@@ -1439,10 +1439,7 @@ export default function QuestsPage() {
                   </div>
                 </div>
 
-                {/* Progress Dashboard */}
-                <div className="mt-6">
-                  <ProgressDashboard />
-                </div>
+
 
                 {/* Mobile Layout - Responsive (same component, smaller elements) */}
                 <div className="md:hidden flex flex-col w-full gap-6 p-6">
