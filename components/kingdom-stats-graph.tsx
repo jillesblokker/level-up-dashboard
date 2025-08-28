@@ -94,7 +94,7 @@ function EmptyState({ tab }: EmptyStateProps) {
             tabIndex={0}
             role="button"
           >
-            Start Your First Quest
+            Embark on Your First Quest
           </a>
         </Link>
       </div>
@@ -112,7 +112,7 @@ function QuestsEmptyState() {
         <div className="text-amber-500 text-xl font-bold drop-shadow-md">No quests yet</div>
         <div className="text-gray-100 text-base">Start habit building now to see your kingdom flourish!</div>
         <Link href="/quests?tab=quests" passHref legacyBehavior>
-          <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md" aria-label="Start your first quest" tabIndex={0} role="button">Start Your First Quest</a>
+          <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md" aria-label="Start your first quest" tabIndex={0} role="button">Embark on Your First Quest</a>
         </Link>
       </div>
     </section>
@@ -157,7 +157,7 @@ function GoldEmptyState() {
         <div className="text-amber-500 text-xl font-bold drop-shadow-md">No gold earned yet</div>
         <div className="text-gray-100 text-base">Complete quests to earn gold!</div>
         <Link href="/quests?tab=quests" passHref legacyBehavior>
-          <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md" aria-label="Start your first quest" tabIndex={0} role="button">Start Your First Quest</a>
+          <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md" aria-label="Start your first quest" tabIndex={0} role="button">Embark on Your First Quest</a>
         </Link>
       </div>
     </section>
@@ -172,7 +172,7 @@ function ExperienceEmptyState() {
         <div className="text-amber-500 text-xl font-bold drop-shadow-md">No experience gained yet</div>
         <div className="text-gray-100 text-base">Complete quests and challenges to start leveling up!</div>
         <Link href="/quests?tab=quests" passHref legacyBehavior>
-          <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md" aria-label="Start your first quest" tabIndex={0} role="button">Start Your First Quest</a>
+          <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md" aria-label="Start your first quest" tabIndex={0} role="button">Embark on Your First Quest</a>
         </Link>
       </div>
     </section>
@@ -188,7 +188,7 @@ function LevelEmptyState() {
         <div className="text-amber-500 text-xl font-bold drop-shadow-md">No level progression yet</div>
         <div className="text-gray-100 text-base">Gain experience to see your character level up over time!</div>
         <Link href="/quests?tab=quests" passHref legacyBehavior>
-          <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md" aria-label="Start your first quest" tabIndex={0} role="button">Start Your First Quest</a>
+          <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md" aria-label="Start your first quest" tabIndex={0} role="button">Embark on Your First Quest</a>
         </Link>
       </div>
     </section>
@@ -695,7 +695,6 @@ useSupabaseRealtimeSync({
             aria-label="Refresh kingdom stats data"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-            {isLoading ? 'Refreshing...' : 'Refresh'}
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -707,7 +706,7 @@ useSupabaseRealtimeSync({
                   if (timePeriod === 'all') return 'All';
                   return '';
                 })()}
-                <ChevronDown className="ml-2 w-4 h-4" />
+                <ChevronDown className="ml-2 w-4 h-4 text-amber-500" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -719,7 +718,7 @@ useSupabaseRealtimeSync({
           </DropdownMenu>
         </div>
         <div className="flex justify-end mt-2">
-          {/* Chart type toggle removed - component not defined */}
+          <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
         </div>
         <CardDescription className="text-gray-300">Track your realm&apos;s growth</CardDescription>
       </CardHeader>
@@ -891,7 +890,6 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
             aria-label="Refresh data"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-            {isLoading ? 'Refreshing...' : 'Refresh'}
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -903,7 +901,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
                   if (timePeriod === 'all') return 'All';
                   return '';
                 })()}
-                <ChevronDown className="ml-2 w-4 h-4" />
+                <ChevronDown className="ml-2 w-4 h-4 text-amber-500" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -916,7 +914,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
           </DropdownMenu>
         </div>
         <div className="flex justify-end mt-2">
-          {/* Chart type toggle removed - component not defined */}
+          <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
         </div>
         <CardDescription className="text-gray-300">Track your gold, experience, and level progression</CardDescription>
       </CardHeader>
