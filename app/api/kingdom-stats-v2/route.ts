@@ -161,6 +161,12 @@ export async function GET(request: NextRequest) {
   // NUCLEAR CACHE BUSTING - Force fresh responses with unique timestamp
   const uniqueId = `NUCLEAR-V2-ROUTE-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   console.log('🚨🚨🚨 NUCLEAR UNIQUE ID:', uniqueId);
+  
+  // Add cache-busting headers to prevent any caching
+  const response = NextResponse.next();
+  response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+  response.headers.set('Pragma', 'no-cache');
+  response.headers.set('Expires', '0');
 
   try {
     // Extract query parameters

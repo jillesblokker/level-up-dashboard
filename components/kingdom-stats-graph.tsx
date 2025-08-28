@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, RefreshCw } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -686,6 +686,17 @@ useSupabaseRealtimeSync({
       <CardHeader>
         <div className="flex items-center justify-between gap-4">
           <CardTitle className="text-amber-500 text-2xl font-bold">Kingdom stats</CardTitle>
+          <Button
+            onClick={fetchData}
+            variant="outline"
+            size="sm"
+            disabled={isLoading}
+            className="ml-2"
+            aria-label="Refresh kingdom stats data"
+          >
+            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            {isLoading ? 'Refreshing...' : 'Refresh'}
+          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" aria-label="Select time period" className="ml-2">
@@ -871,6 +882,17 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
       <CardHeader>
         <div className="flex items-center justify-between gap-4">
           <CardTitle className="text-amber-500 text-2xl font-bold">Gains</CardTitle>
+          <Button
+            onClick={fetchData}
+            variant="outline"
+            size="sm"
+            disabled={isLoading}
+            className="ml-2"
+            aria-label="Refresh data"
+          >
+            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            {isLoading ? 'Refreshing...' : 'Refresh'}
+          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" aria-label="Select time period" className="ml-2">
