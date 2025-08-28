@@ -1439,6 +1439,11 @@ export default function QuestsPage() {
                   </div>
                 </div>
 
+                {/* Progress Dashboard */}
+                <div className="mt-6">
+                  <ProgressDashboard />
+                </div>
+
                 {/* Mobile Layout - Responsive (same component, smaller elements) */}
                 <div className="md:hidden flex flex-col w-full gap-6 p-6">
                   {/* Streak Badge - Mobile (same layout as desktop but smaller) */}
