@@ -32,8 +32,6 @@ import { ProgressDashboard } from '@/components/progress-dashboard'
 import { KeyboardShortcutsProvider } from '@/components/keyboard-shortcuts'
 import { showQuestCompletionToast } from '@/components/enhanced-reward-toast'
 import { EmptyQuests } from '@/components/empty-states'
-import { questCacheManager } from '@/lib/cache-manager';
-import { CacheManagement } from '@/components/cache-management';
 
 interface Quest {
   id: string;
@@ -438,33 +436,23 @@ export default function QuestsPage() {
         try {
           const res = await fetch(`/api/streaks-direct?category=${encodeURIComponent(questCategory)}`, {
             headers: { Authorization: `Bearer ${token}` },
-            cache: 'no-cache', // Prevent caching issues
           });
-          
           if (res.ok) {
             const contentType = res.headers.get('content-type');
             if (contentType && contentType.includes('application/json')) {
-              try {
-                const data = await res.json();
-                setStreakData(data);
-              } catch (parseError) {
-                console.error('[Streaks Poll] JSON parse error:', parseError);
-                // Don't update state on parse error, keep existing data
-              }
+              const data = await res.json();
+              setStreakData(data);
             } else {
-              console.warn('[Streaks Poll] Unexpected content type:', contentType);
-              // Don't update state on content type mismatch, keep existing data
+              console.error('[Streaks Poll] Non-JSON response received');
             }
           } else {
             console.error('[Streaks Poll] HTTP error:', res.status, res.statusText);
-            // Don't update state on HTTP error, keep existing data
           }
         } catch (error) {
-          console.error('[Streaks Poll] Network error:', error);
-          // Don't update state on network error, keep existing data
+          console.error('[Streaks Poll] Error polling streak:', error);
         }
       }
-    }, 30000); // Increased to 30 seconds to reduce load
+    }, 15000); // Poll every 15 seconds instead of 10
     
     return () => clearInterval(pollInterval);
   }, [userId, questCategory, token]);
@@ -1554,11 +1542,6 @@ export default function QuestsPage() {
               showCategoryFilter={true}
               context="quests"
             />
-            
-            {/* Cache Management */}
-            <div className="flex justify-end mb-6">
-              <CacheManagement />
-            </div>
           </TabsContent>
 
           {/* Challenges Tab */}
@@ -2167,8 +2150,6 @@ export default function QuestsPage() {
           </div>
         </div>
       )}
-        </MobileContentWrapper>
-      </MobileLayoutWrapper>
     </div>
   );
 }

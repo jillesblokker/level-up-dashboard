@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { RefreshCw, Trash2, Info, CheckCircle, AlertTriangle } from 'lucide-react'
 import { questCacheManager } from '@/lib/cache-manager'
-import { toast } from 'sonner'
+import { toast } from '@/components/ui/use-toast'
 
 export function CacheManagement() {
   const [cacheStats, setCacheStats] = useState(questCacheManager.getCacheStats())
