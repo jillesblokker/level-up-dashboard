@@ -103,6 +103,7 @@ export async function GET(req: NextRequest) {
         status: 401,
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
         },
       })
     }
@@ -136,6 +137,7 @@ export async function GET(req: NextRequest) {
         status: 500,
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
         },
       });
     }
@@ -158,6 +160,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(defaultData, {
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
         },
       });
     }
@@ -168,6 +171,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(responseData, {
       headers: {
         'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
       },
     });
 
@@ -179,6 +183,7 @@ export async function GET(req: NextRequest) {
       status: 500,
       headers: {
         'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
       },
     });
   }

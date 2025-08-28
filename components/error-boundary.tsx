@@ -94,15 +94,22 @@ function DefaultErrorFallback({ error, resetError }: { error: Error; resetError:
             onClick={resetError}
             variant="outline"
             className="flex items-center gap-2"
+            aria-label="Try Again"
           >
             <RefreshCw className="h-4 w-4" />
             Try Again
           </Button>
           
-          <Button
-            onClick={() => window.location.href = '/'}
-            className="flex items-center gap-2"
-          >
+                            <Button
+                    onClick={() => {
+                      // Use a custom navigation function that can be mocked in tests
+                      if (typeof window !== 'undefined' && window.location) {
+                        window.location.assign('/');
+                      }
+                    }}
+                    className="flex items-center gap-2"
+                    aria-label="Go Home"
+                  >
             <Home className="h-4 w-4" />
             Go Home
           </Button>

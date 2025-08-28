@@ -106,12 +106,15 @@ export function KeyboardShortcutsHelp() {
           Shortcuts
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto" role="dialog" aria-label="keyboard-shortcuts-help">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <HelpCircle className="w-5 h-5" />
             Keyboard Shortcuts
           </DialogTitle>
+          <p className="text-sm text-gray-400 mt-1">
+            Quick keyboard commands to navigate and perform actions faster
+          </p>
         </DialogHeader>
         
         <div className="space-y-6">

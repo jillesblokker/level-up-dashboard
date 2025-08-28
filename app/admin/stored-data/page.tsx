@@ -18,6 +18,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { RARE_TILES, unlockRareTile, clearRareTileUnlock } from '@/lib/rare-tiles-manager';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import PerformanceDashboard from '@/components/performance-dashboard';
+import { errorHandler } from '@/lib/error-handler';
+import { performanceMonitor } from '@/lib/performance-monitor';
 import { 
   CheckCircle, 
   XCircle, 
@@ -38,7 +42,12 @@ import {
   Sword,
   Trophy,
   Coins,
-  Star
+  Star,
+  BarChart3,
+  AlertCircle,
+  RefreshCw,
+  Download,
+  Trash2
 } from 'lucide-react';
 
 interface SupabaseData {
@@ -80,6 +89,17 @@ interface DataComparison {
   lastChecked: string;
 }
 
+// Interface for error logs
+interface ErrorLog {
+  id: string;
+  message: string;
+  code?: string | undefined;
+  status?: number | undefined;
+  context?: string | undefined;
+  timestamp: Date;
+  stack?: string | undefined;
+}
+
 export default function AdminPage() {
   const [supabaseData, setSupabaseData] = useState<SupabaseData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -105,6 +125,11 @@ export default function AdminPage() {
   const [dataComparison, setDataComparison] = useState<DataComparison[]>([]);
   const [isComparingData, setIsComparingData] = useState(false);
   const [showTestingDropdown, setShowTestingDropdown] = useState(false);
+  
+  // New state for performance monitoring and error tracking
+  const [errorLogs, setErrorLogs] = useState<ErrorLog[]>([]);
+  const [performanceStats, setPerformanceStats] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   const { user } = useUser();
   const { getToken } = useAuth();
@@ -666,6 +691,10 @@ export default function AdminPage() {
         // 🎯 NEW: Auto-sync missing data to localStorage
         await autoSyncMissingData();
 
+        // Load error logs and performance stats
+        loadErrorLogs();
+        loadPerformanceStats();
+
       } catch (error) {
         console.error('Error loading Supabase data:', error);
         toast.error('Failed to load data');
@@ -720,6 +749,80 @@ export default function AdminPage() {
     localStorage.clear()
     sessionStorage.clear()
   }
+
+  // Load error logs from error handler
+  const loadErrorLogs = () => {
+    try {
+      const recentErrors = errorHandler.getRecentErrors(50);
+      const formattedErrors: ErrorLog[] = recentErrors.map((error, index) => ({
+        id: `error-${index}`,
+        message: error.message,
+        code: error.code,
+        status: error.status,
+        context: error.context,
+        timestamp: error.timestamp,
+        stack: error instanceof Error ? error.stack : undefined
+      }));
+      setErrorLogs(formattedErrors);
+    } catch (error) {
+      console.error('Error loading error logs:', error);
+    }
+  };
+
+  // Load performance stats
+  const loadPerformanceStats = () => {
+    try {
+      const stats = performanceMonitor.getStats();
+      setPerformanceStats(stats);
+    } catch (error) {
+      console.error('Error loading performance stats:', error);
+    }
+  };
+
+  // Track error in error logs
+  const trackError = (message: string, code: string, status: number, context: string, error?: any) => {
+    const errorLog: ErrorLog = {
+      id: `error-${Date.now()}`,
+      message,
+      code,
+      status,
+      context,
+      timestamp: new Date(),
+      stack: error instanceof Error ? error.stack : undefined
+    };
+    
+    setErrorLogs(prev => [errorLog, ...prev].slice(0, 100)); // Keep only last 100 errors
+  };
+
+  // Clear error logs
+  const clearErrorLogs = () => {
+    errorHandler.clearErrorLog();
+    setErrorLogs([]);
+    toast.success('Error logs cleared');
+  };
+
+  // Export error logs
+  const exportErrorLogs = () => {
+    const dataStr = JSON.stringify(errorLogs, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `error-logs-${new Date().toISOString().split('T')[0]}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+
+    toast.success(`Exported ${errorLogs.length} error logs`);
+  };
+
+  // Refresh all data
+  const refreshAllData = () => {
+    loadErrorLogs();
+    loadPerformanceStats();
+    checkAllConnections();
+    toast.success('All data refreshed');
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -1643,6 +1746,10 @@ TECHNICAL DETAILS:
           >
             {buildStatus.overall.toUpperCase()}
           </Badge>
+          <Button onClick={refreshAllData} variant="outline" size="sm">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh All
+          </Button>
           <Button onClick={checkAllConnections} variant="outline" size="sm">
             Refresh Status
           </Button>
@@ -1652,8 +1759,36 @@ TECHNICAL DETAILS:
         </div>
       </div>
 
-      {/* Event Toggles */}
-      <Card>
+      {/* Main Content Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="dashboard" className="flex items-center gap-2">
+            <Activity className="w-4 h-4" />
+            Dashboard
+          </TabsTrigger>
+          <TabsTrigger value="performance" className="flex items-center gap-2">
+            <Zap className="w-4 h-4" />
+            Performance
+          </TabsTrigger>
+          <TabsTrigger value="errors" className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4" />
+            Error Logs
+            {errorLogs.length > 0 && (
+              <Badge variant="destructive" className="ml-1 text-xs">
+                {errorLogs.length}
+              </Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="analytics" className="flex items-center gap-2">
+            <BarChart3 className="w-4 h-4" />
+            Analytics
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Dashboard Tab */}
+        <TabsContent value="dashboard" className="space-y-6">
+          {/* Event Toggles */}
+          <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Star className="w-5 h-5" />
@@ -2324,6 +2459,157 @@ TECHNICAL DETAILS:
           </div>
         </CardContent>
       </Card>
+        </TabsContent>
+
+        {/* Performance Tab */}
+        <TabsContent value="performance" className="space-y-6">
+          <PerformanceDashboard />
+        </TabsContent>
+
+        {/* Error Logs Tab */}
+        <TabsContent value="errors" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <AlertCircle className="w-5 h-5" />
+                    Error Logs
+                  </CardTitle>
+                  <CardDescription>
+                    Track and monitor application errors and issues
+                  </CardDescription>
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={exportErrorLogs}
+                    disabled={errorLogs.length === 0}
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Export Logs
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    onClick={clearErrorLogs}
+                    disabled={errorLogs.length === 0}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Clear Logs
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {errorLogs.length === 0 ? (
+                <div className="text-center py-8 text-gray-600 dark:text-gray-400">
+                  <CheckCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p>No errors logged. Your application is running smoothly!</p>
+                </div>
+              ) : (
+                <ScrollArea className="h-[600px] w-full">
+                  <div className="space-y-3">
+                    {errorLogs.map((error) => (
+                      <Card key={error.id} className="border-l-4 border-l-red-500">
+                        <CardContent className="pt-4">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <Badge variant="destructive">{error.code || 'ERROR'}</Badge>
+                                {error.status && (
+                                  <Badge variant="outline">HTTP {error.status}</Badge>
+                                )}
+                                <Badge variant="secondary">{error.context}</Badge>
+                              </div>
+                              <span className="text-sm text-gray-400">
+                                {error.timestamp.toLocaleString()}
+                              </span>
+                            </div>
+                            <div className="font-medium text-red-600">{error.message}</div>
+                            {error.stack && (
+                              <details className="text-xs">
+                                <summary className="cursor-pointer text-gray-500">Show Stack Trace</summary>
+                                <pre className="mt-2 bg-gray-900 p-2 rounded overflow-x-auto">
+                                  {error.stack}
+                                </pre>
+                              </details>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </ScrollArea>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Analytics Tab */}
+        <TabsContent value="analytics" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5" />
+                Performance Analytics
+              </CardTitle>
+              <CardDescription>
+                Detailed performance metrics and API call statistics
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {performanceStats ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <h4 className="font-medium">API Performance</h4>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span>Average Response Time:</span>
+                        <span className="font-medium">{performanceStats.averageResponseTime.toFixed(2)}ms</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Total Requests:</span>
+                        <span className="font-medium">{performanceStats.totalRequests}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Success Rate:</span>
+                        <span className="font-medium">{performanceStats.successRate.toFixed(1)}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Error Rate:</span>
+                        <span className="font-medium">{performanceStats.errorRate.toFixed(1)}%</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <h4 className="font-medium">Endpoint Performance</h4>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span>Slowest Endpoint:</span>
+                        <span className="font-medium text-red-600 text-sm truncate max-w-[200px]" title={performanceStats.slowestEndpoint}>
+                          {performanceStats.slowestEndpoint || 'N/A'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Fastest Endpoint:</span>
+                        <span className="font-medium text-green-600 text-sm truncate max-w-[200px]" title={performanceStats.fastestEndpoint}>
+                          {performanceStats.fastestEndpoint || 'N/A'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-600 dark:text-gray-400">
+                  <Activity className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p>No performance data available yet. Start using the application to collect metrics.</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </main>
   );
 } 

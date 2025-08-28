@@ -1,6 +1,4 @@
 import { create } from 'zustand';
-import { persist, subscribeWithSelector } from 'zustand/middleware';
-import { immer } from 'zustand/middleware/immer';
 
 // Types
 export interface UserState {
@@ -12,7 +10,7 @@ export interface UserState {
 
 export interface QuestState {
   quests: any[];
-  completedQuests: Set<string>;
+  completedQuests: string[];
   loading: boolean;
   error: string | null;
   lastResetDate: string | null;
@@ -57,7 +55,7 @@ const initialState = {
   },
   quests: {
     quests: [],
-    completedQuests: new Set<string>(),
+    completedQuests: [],
     loading: false,
     error: null,
     lastResetDate: null,
@@ -76,79 +74,80 @@ const initialState = {
 };
 
 // Create store
-export const useAppStore = create<AppState>()(
-  persist(
-    subscribeWithSelector(
-      immer((set, get) => ({
-        ...initialState,
+export const useAppStore = create<AppState>((set, get) => ({
+  ...initialState,
 
-        // User actions
-        setUser: (userData) =>
-          set((state) => {
-            Object.assign(state.user, userData);
-          }),
+  // User actions
+  setUser: (userData) =>
+    set((state) => ({
+      ...state,
+      user: { ...state.user, ...userData },
+    })),
 
-        // Quest actions
-        setQuests: (quests) =>
-          set((state) => {
-            state.quests.quests = quests;
-            // Convert Set to array for persistence, then back to Set
-            const completedQuestIds = quests.filter((q: any) => q.completed).map((q: any) => q.id);
-            state.quests.completedQuests = new Set(completedQuestIds);
-          }),
-
-        toggleQuestCompletion: (questId) =>
-          set((state) => {
-            const quest = state.quests.quests.find((q: any) => q.id === questId);
-            if (quest) {
-              quest.completed = !quest.completed;
-              if (quest.completed) {
-                state.quests.completedQuests.add(questId);
-              } else {
-                state.quests.completedQuests.delete(questId);
-              }
-            }
-          }),
-
-        // Inventory actions
-        setInventory: (inventory) =>
-          set((state) => {
-            state.inventory.items = inventory;
-          }),
-
-        // UI actions
-        setUI: (uiData) =>
-          set((state) => {
-            Object.assign(state.ui, uiData);
-          }),
-
-        // Reset app state
-        resetApp: () =>
-          set(() => ({
-            ...initialState,
-            user: {
-              ...initialState.user,
-              isLoaded: false,
-            },
-          })),
-      }))
-    ),
-    {
-      name: 'app-storage',
-      partialize: (state) => ({
-        // Only persist non-sensitive data
-        ui: {
-          sidebarOpen: state.ui.sidebarOpen,
-          theme: state.ui.theme,
+  // Quest actions
+  setQuests: (quests) =>
+    set((state) => {
+      const completedQuestIds = quests
+        .filter((q: any) => q.completed)
+        .map((q: any) => q.id);
+      
+      return {
+        ...state,
+        quests: {
+          ...state.quests,
+          quests,
+          completedQuests: completedQuestIds,
         },
-        user: {
-          preferences: state.user.preferences,
+      };
+    }),
+
+  toggleQuestCompletion: (questId) =>
+    set((state) => {
+      const quest = state.quests.quests.find((q: any) => q.id === questId);
+      if (!quest) return state;
+
+      const updatedQuests = state.quests.quests.map((q: any) =>
+        q.id === questId ? { ...q, completed: !q.completed } : q
+      );
+
+      const updatedCompletedQuests = quest.completed
+        ? state.quests.completedQuests.filter(id => id !== questId)
+        : [...state.quests.completedQuests, questId];
+
+      return {
+        ...state,
+        quests: {
+          ...state.quests,
+          quests: updatedQuests,
+          completedQuests: updatedCompletedQuests,
         },
-      }),
-      // Note: Custom serialization for Set objects is handled in the state transformation
-    }
-  )
-);
+      };
+    }),
+
+  // Inventory actions
+  setInventory: (inventory) =>
+    set((state) => ({
+      ...state,
+      inventory: { ...state.inventory, items: inventory },
+    })),
+
+  // UI actions
+  setUI: (uiData) =>
+    set((state) => ({
+      ...state,
+      ui: { ...state.ui, ...uiData },
+    })),
+
+  // Reset app state
+  resetApp: () =>
+    set(() => ({
+      ...initialState,
+      user: {
+        ...initialState.user,
+        isLoaded: false,
+      },
+    })),
+}));
 
 // Selectors for better performance
 export const useUser = () => useAppStore((state) => state.user);
@@ -168,7 +167,7 @@ export const useAppActions = () => useAppStore((state) => ({
 
 // Subscribe to specific state changes
 export const subscribeToUserChanges = (callback: (user: UserState) => void) =>
-  useAppStore.subscribe((state) => state.user, callback);
+  useAppStore.subscribe((state) => callback(state.user));
 
 export const subscribeToQuestChanges = (callback: (quests: QuestState) => void) =>
-  useAppStore.subscribe((state) => state.quests, callback);
+  useAppStore.subscribe((state) => callback(state.quests));

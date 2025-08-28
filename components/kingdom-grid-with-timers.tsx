@@ -1202,7 +1202,7 @@ export function KingdomGridWithTimers({
       // Basic telemetry: log collect
       ;(async () => {
         try {
-          await fetchAuthRetry('/api/kingdom-events/collect', {
+          await fetchAuthRetry('/api/kingdom-events', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ tileId: kingdomTile.id, wasLucky, goldEarned, experienceAwarded })
@@ -1288,7 +1288,7 @@ export function KingdomGridWithTimers({
     })()
     ;(async () => {
       try {
-        await fetchAuthRetry('/api/kingdom-events/collect', {
+        await fetchAuthRetry('/api/kingdom-events', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ tileId: kingdomTile.id, wasLucky, goldEarned, experienceAwarded })

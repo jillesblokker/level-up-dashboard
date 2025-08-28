@@ -58,59 +58,59 @@ export default function StoredDataPage() {
   const { toast } = useToast()
 
   // Load storage data
-  useEffect(() => {
-    const loadStorageData = () => {
-      setIsLoading(true)
-      try {
-        const items: StorageItem[] = []
-        const keys = Object.keys(localStorage)
-        
-        keys.forEach(key => {
-          try {
-            const value = localStorage.getItem(key)
-            if (value) {
-              let parsedValue
-              let type = 'string'
-              
-              try {
-                parsedValue = JSON.parse(value)
-                type = typeof parsedValue
-              } catch {
-                parsedValue = value
-                type = 'string'
-              }
-
-              const size = new Blob([value]).size
-              const category = getCategoryForKey(key)
-              
-              items.push({
-                key,
-                value: parsedValue,
-                size,
-                type,
-                lastModified: new Date().toISOString(), // localStorage doesn't track modification time
-                category
-              })
+  const loadStorageData = () => {
+    setIsLoading(true)
+    try {
+      const items: StorageItem[] = []
+      const keys = Object.keys(localStorage)
+      
+      keys.forEach(key => {
+        try {
+          const value = localStorage.getItem(key)
+          if (value) {
+            let parsedValue
+            let type = 'string'
+            
+            try {
+              parsedValue = JSON.parse(value)
+              type = typeof parsedValue
+            } catch {
+              parsedValue = value
+              type = 'string'
             }
-          } catch (e) {
-            console.error(`Error processing localStorage key: ${key}`, e)
+
+            const size = new Blob([value]).size
+            const category = getCategoryForKey(key)
+            
+            items.push({
+              key,
+              value: parsedValue,
+              size,
+              type,
+              lastModified: new Date().toISOString(), // localStorage doesn't track modification time
+              category
+            })
           }
-        })
+        } catch (e) {
+          console.error(`Error processing localStorage key: ${key}`, e)
+        }
+      })
 
-        setStorageItems(items)
-        calculateStats(items)
-      } catch (error) {
-        console.error('Error loading storage data:', error)
-        toast({
-          title: "Error",
-          description: "Failed to load storage data",
-          variant: "destructive"
-        })
-      } finally {
-        setIsLoading(false)
-      }
+      setStorageItems(items)
+      calculateStats(items)
+    } catch (error) {
+      console.error('Error loading storage data:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load storage data",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false)
     }
+  }
 
+  useEffect(() => {
     loadStorageData()
   }, [toast])
 

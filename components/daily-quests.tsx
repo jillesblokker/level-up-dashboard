@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Plus, Sword, Brain, Shield, Castle, Brush, Leaf } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 import { cn } from "@/lib/utils"
 import { useSupabaseSync } from '@/hooks/use-supabase-sync'
+import { questCacheManager } from '@/lib/cache-manager';
 
 // Quest item definitions with icons and categories
 interface QuestItem {
@@ -115,19 +116,38 @@ export function DailyQuests() {
   }
 
   // Check for daily reset
-  useEffect(() => {
-    const checkForReset = () => {
-      const currentDate = getCurrentCETDate()
-      // const savedResetDate = storageService.get<string>('last-quest-reset', '') // Removed
-      // if (!savedResetDate || savedResetDate !== currentDate) { // Removed
-      //   resetQuests() // Removed
-      // } // Removed
+  const checkForReset = useCallback(() => {
+    const currentDate = new Date().toISOString().slice(0, 10);
+    const lastReset = localStorage.getItem('daily-quests-reset-date');
+    
+    console.log('[🔍 DAILY QUESTS DEBUG] Checking for daily reset:', {
+      currentDate,
+      questItemsLength: questItems.length,
+      completedQuests: questItems.filter(q => q.completed).length
+    });
+    
+    if (lastReset !== currentDate) {
+      console.log('[🔍 DAILY QUESTS DEBUG] Daily reset detected, clearing quests and cache');
+      
+      // Clear quest cache when resetting
+      questCacheManager.clearCache();
+      
+      // Reset quests
+      setQuestItems(defaultQuestItems.map(quest => ({ ...quest, completed: false })));
+      localStorage.setItem('daily-quests-reset-date', currentDate);
+      
+      console.log('[🔍 DAILY QUESTS DEBUG] Daily quests reset completed');
+    } else {
+      console.log('[🔍 DAILY QUESTS DEBUG] No reset needed, using existing quests');
     }
+  }, [questItems.length]);
 
+  // Check for daily reset
+  useEffect(() => {
     checkForReset()
     const interval = setInterval(checkForReset, 60000)
     return () => clearInterval(interval)
-  }, [questItems])
+  }, [questItems, checkForReset])
 
   // Load daily quests from Supabase/localStorage on component mount
   useEffect(() => {

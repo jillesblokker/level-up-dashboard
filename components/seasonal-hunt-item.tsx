@@ -100,12 +100,15 @@ export function SeasonalHuntItem({ item, onFound }: SeasonalHuntItemProps) {
       </div>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="bg-black border border-amber-800/20 text-white">
+        <DialogContent className="bg-black border border-amber-800/20 text-white" role="dialog" aria-label="seasonal-hunt-item-found">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-amber-400">
               {getIcon()}
               {eventConfig.name}
             </DialogTitle>
+            <p className="text-sm text-gray-400 mt-1">
+              You found a seasonal item! Click to collect your reward.
+            </p>
           </DialogHeader>
           
           <div className="space-y-4">
