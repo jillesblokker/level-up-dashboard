@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChevronDown, RefreshCw } from "lucide-react"
+import { ChevronDown, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -554,6 +554,13 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
   const [isLoading, setIsLoading] = useState(false);
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
   const { userId: authUserId, isLoaded, getToken } = useAuth();
+
+  // Handle time period navigation (prev/next)
+  const handleTimeNavigation = (direction: 'prev' | 'next') => {
+    // For now, just refresh data with current time period
+    // In the future, this could be enhanced to store and navigate to specific dates
+    fetchData();
+  };
 
   const fetchData = useCallback(async () => {
     console.log('[Kingdom Stats Component] fetchData called with:', { authUserId, isLoaded, activeTab, timePeriod });
