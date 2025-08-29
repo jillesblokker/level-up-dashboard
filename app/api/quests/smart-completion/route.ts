@@ -22,16 +22,81 @@ export async function POST(request: Request) {
     }
 
     console.log('[Smart Quest Completion] Processing quest:', { userId, questId, completed, xpReward, goldReward });
+    console.log('[Smart Quest Completion] Quest ID type:', typeof questId, 'Length:', questId?.length, 'Format:', questId);
+    console.log('[Smart Quest Completion] User ID type:', typeof userId, 'Length:', userId?.length);
 
     // Use the smart database function instead of direct table operations
-    // Ensure questId is properly cast to UUID type
-    const { data, error } = await supabaseServer.rpc('smart_quest_completion', {
-      p_user_id: userId,
-      p_quest_id: questId as any, // Cast to any to avoid UUID type issues
-      p_completed: completed,
-      p_xp_reward: xpReward || 50,
-      p_gold_reward: goldReward || 25
-    });
+    // Try different approaches to handle UUID type issues
+    let rpcParams: any;
+    
+    try {
+      // Approach 1: Try with explicit UUID casting
+      rpcParams = {
+        p_user_id: userId,
+        p_quest_id: questId,
+        p_completed: completed,
+        p_xp_reward: xpReward || 50,
+        p_gold_reward: goldReward || 25
+      };
+      
+      console.log('[Smart Quest Completion] RPC params (approach 1):', rpcParams);
+      
+      const { data, error } = await supabaseServer.rpc('smart_quest_completion', rpcParams);
+      
+      if (error) {
+        console.error('[Smart Quest Completion] Database function error:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+      
+      console.log('[Smart Quest Completion] Smart function result:', data);
+      
+      // Return the smart function result
+      return NextResponse.json({
+        success: true,
+        data: data,
+        message: 'Quest completion processed intelligently'
+      });
+      
+    } catch (rpcError) {
+      console.error('[Smart Quest Completion] RPC call failed:', rpcError);
+      
+      // Approach 2: Try with explicit type casting
+      try {
+        console.log('[Smart Quest Completion] Trying approach 2: explicit type casting...');
+        
+        rpcParams = {
+          p_user_id: userId,
+          p_quest_id: questId as any, // Force type casting
+          p_completed: completed,
+          p_xp_reward: xpReward || 50,
+          p_gold_reward: goldReward || 25
+        };
+        
+        console.log('[Smart Quest Completion] RPC params (approach 2):', rpcParams);
+        
+        const { data, error } = await supabaseServer.rpc('smart_quest_completion', rpcParams);
+        
+        if (error) {
+          console.error('[Smart Quest Completion] Database function error (approach 2):', error);
+          return NextResponse.json({ error: error.message }, { status: 500 });
+        }
+        
+        console.log('[Smart Quest Completion] Smart function result (approach 2):', data);
+        
+        return NextResponse.json({
+          success: true,
+          data: data,
+          message: 'Quest completion processed intelligently'
+        });
+        
+      } catch (rpcError2) {
+        console.error('[Smart Quest Completion] All approaches failed:', rpcError2);
+        return NextResponse.json({ 
+          error: 'Failed to call smart quest completion function',
+          details: rpcError2 instanceof Error ? rpcError2.message : 'Unknown RPC error'
+        }, { status: 500 });
+      }
+    }
 
     if (error) {
       console.error('[Smart Quest Completion] Database function error:', error);

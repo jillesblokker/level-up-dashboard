@@ -125,19 +125,54 @@ export async function PUT(request: Request) {
     }
     
     console.log('[QUESTS/COMPLETION][PUT] Quest found:', { questId, xpReward: quest.xp_reward, goldReward: quest.gold_reward });
+    console.log('[QUESTS/COMPLETION][PUT] Quest ID type:', typeof questId, 'Length:', questId?.length, 'Format:', questId);
     
     // 🚀 USE SMART QUEST COMPLETION SYSTEM INSTEAD OF DIRECT TABLE OPERATIONS
     console.log('[QUESTS/COMPLETION][PUT] Using smart quest completion system...');
     
     // Call the smart completion function
-    // Ensure questId is properly cast to UUID type
-    const { data: smartResult, error: smartError } = await supabaseServer.rpc('smart_quest_completion', {
-      p_user_id: userId,
-      p_quest_id: questId as any, // Cast to any to avoid UUID type issues
-      p_completed: completed,
-      p_xp_reward: quest.xp_reward || 50,
-      p_gold_reward: quest.gold_reward || 25
-    });
+    // Try different approaches to handle UUID type issues
+    let smartResult: any;
+    let smartError: any;
+    
+    try {
+      // Approach 1: Try with explicit UUID casting
+      console.log('[QUESTS/COMPLETION][PUT] Trying approach 1: direct call...');
+      
+      const result = await supabaseServer.rpc('smart_quest_completion', {
+        p_user_id: userId,
+        p_quest_id: questId,
+        p_completed: completed,
+        p_xp_reward: quest.xp_reward || 50,
+        p_gold_reward: quest.gold_reward || 25
+      });
+      
+      smartResult = result.data;
+      smartError = result.error;
+      
+    } catch (rpcError) {
+      console.error('[QUESTS/COMPLETION][PUT] RPC call failed (approach 1):', rpcError);
+      
+      // Approach 2: Try with explicit type casting
+      try {
+        console.log('[QUESTS/COMPLETION][PUT] Trying approach 2: explicit type casting...');
+        
+        const result = await supabaseServer.rpc('smart_quest_completion', {
+          p_user_id: userId,
+          p_quest_id: questId as any, // Force type casting
+          p_completed: completed,
+          p_xp_reward: quest.xp_reward || 50,
+          p_gold_reward: quest.gold_reward || 25
+        });
+        
+        smartResult = result.data;
+        smartError = result.error;
+        
+      } catch (rpcError2) {
+        console.error('[QUESTS/COMPLETION][PUT] All approaches failed:', rpcError2);
+        smartError = rpcError2;
+      }
+    }
     
     if (smartError) {
       console.error('[QUESTS/COMPLETION][PUT] Smart completion error:', smartError);
