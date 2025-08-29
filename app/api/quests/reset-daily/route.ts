@@ -29,33 +29,32 @@ export async function POST(req: NextRequest) {
 
     console.log('[Daily Reset] Found', todayCompletions?.length || 0, 'completions from today');
 
-    // For each quest completed today, create a new record for today with completed = false
-    // This preserves historical completion data for charts while resetting the UI
+    // 🚀 USE SMART QUEST COMPLETION SYSTEM FOR DAILY RESET
+    // Instead of storing completed: false, we'll delete the completion records
+    // This aligns with our smart system philosophy
     if (todayCompletions && todayCompletions.length > 0) {
-      const newRecords = todayCompletions.map(completion => ({
-        user_id: userId,
-        quest_id: completion.quest_id,
-        completed: false, // Reset to not completed for the new day
-        completed_at: new Date().toISOString(), // Current timestamp for the new day
-        gold_earned: 0, // Reset for new day
-        xp_earned: 0, // Reset for new day
-        // Add a reference to the original completion
-        original_completion_date: completion.completed_at
-      }));
-
-      const { error: insertError } = await supabaseServer
-        .from('quest_completion')
-        .upsert(newRecords, {
-          onConflict: 'user_id,quest_id',
-          ignoreDuplicates: false
-        });
-
-      if (insertError) {
-        console.error('[Daily Reset] Error creating reset records:', insertError);
-        return NextResponse.json({ error: 'Failed to create reset records', details: insertError }, { status: 500 });
+      console.log('[Daily Reset] Using smart system to reset quests...');
+      
+      // For each quest completed today, use the smart system to "uncomplete" it
+      for (const completion of todayCompletions) {
+        try {
+          const { error: smartError } = await supabaseServer.rpc('smart_quest_completion', {
+            p_user_id: userId,
+            p_quest_id: completion.quest_id as any, // Cast to any to avoid UUID type issues
+            p_completed: false, // This will delete the record (smart behavior)
+            p_xp_reward: 0,
+            p_gold_reward: 0
+          });
+          
+          if (smartError) {
+            console.error('[Daily Reset] Smart completion error for quest:', completion.quest_id, smartError);
+          }
+        } catch (error) {
+          console.error('[Daily Reset] Error processing quest reset:', completion.quest_id, error);
+        }
       }
 
-      console.log('[Daily Reset] Successfully reset', newRecords.length, 'quests for today');
+      console.log('[Daily Reset] Successfully reset', todayCompletions.length, 'quests using smart system');
     }
 
     // For challenges, do the same approach

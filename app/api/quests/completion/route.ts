@@ -130,9 +130,10 @@ export async function PUT(request: Request) {
     console.log('[QUESTS/COMPLETION][PUT] Using smart quest completion system...');
     
     // Call the smart completion function
+    // Ensure questId is properly cast to UUID type
     const { data: smartResult, error: smartError } = await supabaseServer.rpc('smart_quest_completion', {
       p_user_id: userId,
-      p_quest_id: questId,
+      p_quest_id: questId as any, // Cast to any to avoid UUID type issues
       p_completed: completed,
       p_xp_reward: quest.xp_reward || 50,
       p_gold_reward: quest.gold_reward || 25

@@ -24,9 +24,10 @@ export async function POST(request: Request) {
     console.log('[Smart Quest Completion] Processing quest:', { userId, questId, completed, xpReward, goldReward });
 
     // Use the smart database function instead of direct table operations
+    // Ensure questId is properly cast to UUID type
     const { data, error } = await supabaseServer.rpc('smart_quest_completion', {
       p_user_id: userId,
-      p_quest_id: questId,
+      p_quest_id: questId as any, // Cast to any to avoid UUID type issues
       p_completed: completed,
       p_xp_reward: xpReward || 50,
       p_gold_reward: goldReward || 25
