@@ -811,6 +811,13 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
   const { userId: authUserId, isLoaded, getToken } = useAuth();
 
+  // Handle time period navigation (prev/next)
+  const handleTimeNavigation = (direction: 'prev' | 'next') => {
+    // For now, just refresh data with current time period
+    // In the future, this could be enhanced to store and navigate to specific dates
+    fetchData();
+  };
+
   const fetchData = useCallback(async () => {
     if (!authUserId) {
       console.log('[Gains Component] No authUserId');
