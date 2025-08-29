@@ -98,20 +98,6 @@ export async function POST(request: Request) {
       }
     }
 
-    if (error) {
-      console.error('[Smart Quest Completion] Database function error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    console.log('[Smart Quest Completion] Smart function result:', data);
-
-    // Return the smart function result
-    return NextResponse.json({
-      success: true,
-      data: data,
-      message: 'Quest completion processed intelligently'
-    });
-
   } catch (error) {
     console.error('[Smart Quest Completion] Unexpected error:', error);
     return NextResponse.json({ 
