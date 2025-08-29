@@ -72,10 +72,10 @@ function getDateRange(period: string, baseDate?: string): string[] {
   let days: string[] = [];
   
   if (period === 'week') {
-    // Generate dates for 7 days centered around the base date
-    for (let i = 3; i >= -3; i--) {
+    // Generate dates for 7 days ending on the base date (not centered)
+    for (let i = 6; i >= 0; i--) {
       const d = new Date(now);
-      d.setDate(now.getDate() + i);
+      d.setDate(now.getDate() - i);
       // Format as YYYY-MM-DD in local timezone
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -83,20 +83,20 @@ function getDateRange(period: string, baseDate?: string): string[] {
       days.push(`${year}-${month}-${day}`);
     }
   } else if (period === 'month') {
-    // Generate dates for 30 days centered around the base date
-    for (let i = 15; i >= -14; i--) {
+    // Generate dates for 30 days ending on the base date (not centered)
+    for (let i = 29; i >= 0; i--) {
       const d = new Date(now);
-      d.setDate(now.getDate() + i);
+      d.setDate(now.getDate() - i);
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, '0');
       const day = String(d.getDate()).padStart(2, '0');
       days.push(`${year}-${month}-${day}`);
     }
   } else if (period === 'year') {
-    // Generate months for 12 months centered around the base date
-    for (let i = 6; i >= -5; i--) {
+    // Generate months for 12 months ending on the base date (not centered)
+    for (let i = 11; i >= 0; i--) {
       const d = new Date(now);
-      d.setMonth(now.getMonth() + i);
+      d.setMonth(now.getMonth() - i);
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, '0');
       days.push(`${year}-${month}`);
@@ -126,15 +126,15 @@ function getEarliestDateForPeriod(period: string, baseDate?: string): Date {
   
   if (period === 'week') {
     const earliest = new Date(now);
-    earliest.setDate(now.getDate() - 3);
+    earliest.setDate(now.getDate() - 6); // 7 days ending today
     return earliest;
   } else if (period === 'month') {
     const earliest = new Date(now);
-    earliest.setDate(now.getDate() - 14);
+    earliest.setDate(now.getDate() - 29); // 30 days ending today
     return earliest;
   } else if (period === 'year') {
     const earliest = new Date(now);
-    earliest.setMonth(now.getMonth() - 5);
+    earliest.setMonth(now.getMonth() - 11); // 12 months ending today
     return earliest;
   } else if (period === 'all') {
     const earliest = new Date(now);
