@@ -787,31 +787,7 @@ useSupabaseRealtimeSync({
                 </Button>
               </div>
 
-              {/* Current navigation date indicator - KingdomStatsBlock */}
-              {navigationDate && (
-                <div className="flex items-center space-x-2 text-sm text-gray-400">
-                  <span>Viewing:</span>
-                  <span className="font-mono text-amber-400">
-                    {navigationDate.toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric'
-                    })}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0 text-xs text-gray-500 hover:text-amber-400"
-                    onClick={() => {
-                      setNavigationDate(null);
-                      fetchData();
-                    }}
-                    aria-label="Return to current time period"
-                  >
-                    ×
-                  </Button>
-                </div>
-              )}
+
 
               {/* Chart type toggle */}
               <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
@@ -1094,31 +1070,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
                 </Button>
               </div>
 
-              {/* Current navigation date indicator - KingStatsBlock */}
-              {navigationDate && (
-                <div className="flex items-center space-x-2 text-sm text-gray-400">
-                  <span>Viewing:</span>
-                  <span className="font-mono text-amber-400">
-                    {navigationDate.toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric'
-                    })}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0 text-xs text-gray-500 hover:text-amber-400"
-                    onClick={() => {
-                      setNavigationDate(null);
-                      fetchData();
-                    }}
-                    aria-label="Return to current time period"
-                  >
-                    ×
-                  </Button>
-                </div>
-              )}
+
 
               {/* Chart type toggle */}
               <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
