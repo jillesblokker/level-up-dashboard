@@ -50,8 +50,8 @@ export async function smartQuestCompletion(
       body: JSON.stringify({
         questId,
         completed: true, // Always send true - the smart system handles the rest
-        xpReward: options?.xpReward || 50,
-        goldReward: options?.goldReward || 25
+        xpReward: options?.xpReward ?? 50,
+        goldReward: options?.goldReward ?? 25
       }),
     });
 
@@ -176,13 +176,23 @@ export async function batchQuestCompletions(
 
     // Process completed quests in parallel
     const results = await Promise.all(
-      completedQuests.map(quest => 
-        smartQuestCompletion(quest.questId, true, {
-          xpReward: quest.xpReward,
-          goldReward: quest.goldReward,
+      completedQuests.map(quest => {
+        const options: { xpReward?: number; goldReward?: number; token: string } = {
           token: authToken
-        })
-      )
+        };
+        
+        // Only add xpReward if it's defined
+        if (quest.xpReward !== undefined) {
+          options.xpReward = quest.xpReward;
+        }
+        
+        // Only add goldReward if it's defined
+        if (quest.goldReward !== undefined) {
+          options.goldReward = quest.goldReward;
+        }
+        
+        return smartQuestCompletion(quest.questId, true, options);
+      })
     );
 
     return results;
