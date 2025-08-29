@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChevronDown, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronDown, RefreshCw, ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -739,7 +739,7 @@ useSupabaseRealtimeSync({
     <Card className="bg-black border-amber-800">
       <CardHeader>
         <div className="flex flex-col space-y-4">
-          {/* Header with title and description */}
+          {/* Header with title and description - KingdomStatsBlock */}
           <div className="flex flex-col space-y-2">
             <h3 className="text-2xl font-bold text-amber-500">Kingdom stats</h3>
             <p className="text-gray-400">Track your realm&apos;s growth</p>
@@ -747,8 +747,87 @@ useSupabaseRealtimeSync({
 
           {/* Control bar - grouped logically for mobile/web */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-            {/* Left side: Time period and chart type */}
-            <div className="flex items-center space-x-3">
+            {/* Mobile: Compact layout with kebab menu */}
+            <div className="flex md:hidden items-center justify-between w-full">
+              {/* Left side: Navigation */}
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 w-9 p-0"
+                  onClick={() => handleTimeNavigation('prev')}
+                  aria-label="Previous time period"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                
+                {/* Time period dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="h-9 px-3 text-sm">
+                      {timePeriod === 'week' ? 'Week' : timePeriod === 'month' ? 'Month' : 'Year'}
+                      <ChevronDown className="ml-2 h-4 w-4 text-amber-500" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => setTimePeriod('week')}>Week</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setTimePeriod('month')}>Month</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setTimePeriod('year')}>Year</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 w-9 p-0"
+                  onClick={() => handleTimeNavigation('next')}
+                  aria-label="Next time period"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+
+                {/* Current period button */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-3 text-sm"
+                  onClick={() => {
+                    setNavigationDate(null);
+                    fetchData();
+                  }}
+                  aria-label="Go to current time period"
+                >
+                  Current
+                </Button>
+              </div>
+
+              {/* Right side: Kebab menu for mobile */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 w-9 p-0"
+                    aria-label="More options"
+                  >
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={fetchData}>
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Refresh
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setChartType(chartType === 'bar' ? 'line' : 'bar')}>
+                    {chartType === 'bar' ? '📈' : '📊'} {chartType === 'bar' ? 'Line Chart' : 'Bar Chart'}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+                        {/* Desktop: Full layout */}
+            <div className="hidden md:flex items-center space-x-3">
+              {/* Left side: Time period and chart type */}
               {/* Time period navigation */}
               <div className="flex items-center space-x-2">
                 <Button
@@ -785,9 +864,21 @@ useSupabaseRealtimeSync({
                 >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
+
+                {/* Current period button */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-3 text-sm"
+                  onClick={() => {
+                    setNavigationDate(null);
+                    fetchData();
+                  }}
+                  aria-label="Go to current time period"
+                >
+                  Current
+                </Button>
               </div>
-
-
 
               {/* Chart type toggle */}
               <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
@@ -810,7 +901,7 @@ useSupabaseRealtimeSync({
       </CardHeader>
       <CardContent>
         <div className="py-4">
-          {/* Mobile tab selector */}
+          {/* Mobile tab selector - KingdomStatsBlock */}
           <div className="mb-4 md:hidden">
             <label htmlFor="kingdom-stats-tab-select" className="sr-only">Select stats tab</label>
             <select
@@ -825,8 +916,9 @@ useSupabaseRealtimeSync({
               <option value="milestones">Milestones</option>
             </select>
           </div>
+          {/* Desktop tabs - KingdomStatsBlock */}
           <Tabs value={activeTab} onValueChange={v => setActiveTab(v as typeof activeTab)} className="mb-4 hidden md:block">
-            <TabsList aria-label="kingdom-stats-tabs">
+            <TabsList aria-label="kingdom-stats-tabs-kingdom">
               <TabsTrigger value="quests" aria-label="quests-tab">Quests</TabsTrigger>
               <TabsTrigger value="challenges" aria-label="challenges-tab">Challenges</TabsTrigger>
               <TabsTrigger value="milestones" aria-label="milestones-tab">Milestones</TabsTrigger>
@@ -1030,9 +1122,9 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
 
           {/* Control bar - grouped logically for mobile/web */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-            {/* Left side: Time period and chart type */}
-            <div className="flex items-center space-x-3">
-              {/* Time period navigation */}
+            {/* Mobile: Compact layout with kebab menu */}
+            <div className="flex md:hidden items-center justify-between w-full">
+              {/* Left side: Navigation */}
               <div className="flex items-center space-x-2">
                 <Button
                   variant="outline"
@@ -1068,25 +1160,118 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
                 >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
+
+                {/* Current period button */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-3 text-sm"
+                  onClick={() => {
+                    setNavigationDate(null);
+                    fetchData();
+                  }}
+                  aria-label="Go to current time period"
+                >
+                  Current
+                </Button>
               </div>
 
-
-
-              {/* Chart type toggle */}
-              <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
+              {/* Right side: Kebab menu for mobile */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 w-9 p-0"
+                    aria-label="More options"
+                  >
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={fetchData}>
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Refresh
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setChartType(chartType === 'bar' ? 'line' : 'bar')}>
+                    {chartType === 'bar' ? '📈' : '📊'} {chartType === 'bar' ? 'Line Chart' : 'Bar Chart'}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
-            {/* Right side: Refresh button */}
-            <div className="flex justify-end">
-              <Button
-                onClick={fetchData}
-                variant="outline"
-                size="sm"
-                className="h-9 w-9 p-0"
-                aria-label="Refresh data"
-              >
-                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-              </Button>
+            {/* Desktop: Full layout */}
+            <div className="hidden md:flex items-center space-x-3">
+              {/* Left side: Time period and chart type */}
+              <div className="flex items-center space-x-3">
+                {/* Time period navigation */}
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 w-9 p-0"
+                    onClick={() => handleTimeNavigation('prev')}
+                    aria-label="Previous time period"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  
+                  {/* Time period dropdown */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="h-9 px-3 text-sm">
+                        {timePeriod === 'week' ? 'Week' : timePeriod === 'month' ? 'Month' : 'Year'}
+                        <ChevronDown className="ml-2 h-4 w-4 text-amber-500" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem onClick={() => setTimePeriod('week')}>Week</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setTimePeriod('month')}>Month</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setTimePeriod('year')}>Year</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 w-9 p-0"
+                    onClick={() => handleTimeNavigation('next')}
+                    aria-label="Next time period"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+
+                  {/* Current period button */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 px-3 text-sm"
+                    onClick={() => {
+                      setNavigationDate(null);
+                      fetchData();
+                    }}
+                    aria-label="Go to current time period"
+                  >
+                    Current
+                  </Button>
+                </div>
+
+                {/* Chart type toggle */}
+                <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
+              </div>
+
+              {/* Right side: Refresh button */}
+              <div className="flex justify-end">
+                <Button
+                  onClick={fetchData}
+                  variant="outline"
+                  size="sm"
+                  className="h-9 w-9 p-0"
+                  aria-label="Refresh data"
+                >
+                  <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
