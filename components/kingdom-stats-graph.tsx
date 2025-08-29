@@ -684,43 +684,50 @@ useSupabaseRealtimeSync({
   return (
     <Card className="bg-black border-amber-800">
       <CardHeader>
-        <div className="flex items-center justify-between gap-4">
-          <CardTitle className="text-amber-500 text-2xl font-bold">Kingdom stats</CardTitle>
-          <Button
-            onClick={fetchData}
-            variant="outline"
-            size="sm"
-            disabled={isLoading}
-            className="ml-2"
-            aria-label="Refresh kingdom stats data"
-          >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" aria-label="Select time period" className="ml-2">
-                {(() => {
-                  if (timePeriod === 'week') return 'Week';
-                  if (timePeriod === 'month') return 'Month';
-                  if (timePeriod === 'year') return 'Year';
-                  if (timePeriod === 'all') return 'All';
-                  return '';
-                })()}
-                <ChevronDown className="ml-2 w-4 h-4 text-amber-500" />
+        <div className="flex flex-col space-y-4">
+          {/* Header with title and description */}
+          <div className="flex flex-col space-y-2">
+            <h3 className="text-2xl font-bold text-amber-500">Kingdom stats</h3>
+            <p className="text-gray-400">Track your realm's growth</p>
+          </div>
+
+          {/* Control bar - grouped logically for mobile/web */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+            {/* Left side: Time period and chart type */}
+            <div className="flex items-center space-x-3">
+              {/* Time period dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="h-9 px-3 text-sm">
+                    {timePeriod === 'week' ? 'Week' : timePeriod === 'month' ? 'Month' : 'Year'}
+                    <ChevronDown className="ml-2 h-4 w-4 text-amber-500" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => setTimePeriod('week')}>Week</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTimePeriod('month')}>Month</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTimePeriod('year')}>Year</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Chart type toggle */}
+              <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
+            </div>
+
+            {/* Right side: Refresh button */}
+            <div className="flex justify-end">
+              <Button
+                onClick={fetchData}
+                variant="outline"
+                size="sm"
+                className="h-9 w-9 p-0"
+                aria-label="Refresh data"
+              >
+                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setTimePeriod('week')}>Week</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTimePeriod('month')}>Month</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTimePeriod('year')}>Year</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTimePeriod('all')}>All</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </div>
+          </div>
         </div>
-        <div className="flex justify-end mt-2">
-          <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
-        </div>
-        <CardDescription className="text-gray-300">Track your realm&apos;s growth</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="py-4">
@@ -879,44 +886,50 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
   return (
     <Card className="bg-black border-amber-800">
       <CardHeader>
-        <div className="flex items-center justify-between gap-4">
-          <CardTitle className="text-amber-500 text-2xl font-bold">Gains</CardTitle>
-          <Button
-            onClick={fetchData}
-            variant="outline"
-            size="sm"
-            disabled={isLoading}
-            className="ml-2"
-            aria-label="Refresh data"
-          >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" aria-label="Select time period" className="ml-2">
-                {(() => {
-                  if (timePeriod === 'week') return 'Week';
-                  if (timePeriod === 'month') return 'Month';
-                  if (timePeriod === 'year') return 'Year';
-                  if (timePeriod === 'all') return 'All';
-                  return '';
-                })()}
-                <ChevronDown className="ml-2 w-4 h-4 text-amber-500" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setTimePeriod('week')}>Week</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTimePeriod('month')}>Month</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTimePeriod('year')}>Year</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTimePeriod('all')}>All</DropdownMenuItem>
+        <div className="flex flex-col space-y-4">
+          {/* Header with title and description */}
+          <div className="flex flex-col space-y-2">
+            <h3 className="text-2xl font-bold text-amber-500">Gains</h3>
+            <p className="text-gray-400">Track your gold, experience, and level progression</p>
+          </div>
 
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* Control bar - grouped logically for mobile/web */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+            {/* Left side: Time period and chart type */}
+            <div className="flex items-center space-x-3">
+              {/* Time period dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="h-9 px-3 text-sm">
+                    {timePeriod === 'week' ? 'Week' : timePeriod === 'month' ? 'Month' : 'Year'}
+                    <ChevronDown className="ml-2 h-4 w-4 text-amber-500" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => setTimePeriod('week')}>Week</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTimePeriod('month')}>Month</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTimePeriod('year')}>Year</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Chart type toggle */}
+              <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
+            </div>
+
+            {/* Right side: Refresh button */}
+            <div className="flex justify-end">
+              <Button
+                onClick={fetchData}
+                variant="outline"
+                size="sm"
+                className="h-9 w-9 p-0"
+                aria-label="Refresh data"
+              >
+                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              </Button>
+            </div>
+          </div>
         </div>
-        <div className="flex justify-end mt-2">
-          <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
-        </div>
-        <CardDescription className="text-gray-300">Track your gold, experience, and level progression</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="py-4">
