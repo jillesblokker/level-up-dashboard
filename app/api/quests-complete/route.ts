@@ -16,13 +16,73 @@ async function getUserIdFromRequest(request: Request): Promise<string | null> {
 }
 
 export async function GET(request: Request) {
-  console.log('[QUESTS-COMPLETE][GET] 🚨 TEST ENDPOINT HIT');
-  return NextResponse.json({ 
-    message: 'Quest complete endpoint is working',
-    timestamp: new Date().toISOString(),
-    method: request.method,
-    url: request.url
-  });
+  try {
+    // Secure Clerk JWT verification
+    const userId = await getUserIdFromRequest(request);
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized (Clerk JWT invalid or missing)' }, { status: 401 });
+    }
+    
+    if (!supabase) {
+      console.error('[QUESTS][GET] Supabase client not initialized.');
+      return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
+    }
+
+    // Fetch quests from quests table
+    const { data: quests, error: questsError } = await supabase
+      .from('quests')
+      .select('*');
+
+    if (questsError) {
+      console.error('Quests fetch error:', questsError);
+      return NextResponse.json({ error: questsError.message }, { status: 500 });
+    }
+
+    // Get user's quest completions from quest_completion table
+    const { data: questCompletions, error: completionsError } = await supabase
+      .from('quest_completion')
+      .select('*')
+      .eq('user_id', userId);
+
+    if (completionsError) {
+      console.error('Quest completions fetch error:', completionsError);
+      // If the table doesn't exist, continue with empty completions
+    }
+
+    // Create a map of quest completions (only treat as completed if completed === true)
+    const completedQuests = new Map();
+    if (questCompletions) {
+      questCompletions.forEach((completion: any) => {
+        completedQuests.set(completion.quest_id, completion);
+      });
+    }
+
+    // Convert quests data to quest format
+    const questsWithCompletions = (quests || []).map((quest: any) => {
+      const completion = completedQuests.get(quest.id);
+      const isCompleted = completion?.completed === true;
+      
+      return {
+        id: quest.id,
+        name: quest.name,
+        title: quest.title,
+        description: quest.description,
+        category: quest.category,
+        difficulty: quest.difficulty,
+        xp: quest.xp_reward || quest.xp,
+        gold: quest.gold_reward || quest.gold,
+        completed: isCompleted,
+        date: completion?.completed_at || null,
+        isNew: !isCompleted,
+        completionId: completion?.id
+      };
+    });
+
+    return NextResponse.json(questsWithCompletions);
+  } catch (error) {
+    console.error('Error fetching quests:', error instanceof Error ? error.stack : error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
 // Update a quest completion status
