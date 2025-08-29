@@ -124,60 +124,27 @@ export async function PUT(request: Request) {
     
     console.log('[QUESTS-COMPLETE][PUT] Quest found:', { questId: quest.id, title, xpReward: quest.xp_reward, goldReward: quest.gold_reward });
 
-    if (completed) {
-      // Mark quest as completed
-      console.log('[QUESTS-COMPLETE][PUT] Marking quest as completed');
-      const { data: questCompletion, error } = await supabase
-        .from('quest_completion')
-        .upsert([
-          {
-            user_id: userId,
-            quest_id: quest.id,
-            completed: true,
-            completed_at: new Date().toISOString(),
-            xp_earned: quest.xp_reward || 50,
-            gold_earned: quest.gold_reward || 25,
-          },
-        ], { onConflict: 'user_id,quest_id' })
-        .single();
-
-      if (error) {
-        console.error('[QUESTS-COMPLETE][PUT] Error upserting quest completion:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
-      
-      console.log('[QUESTS-COMPLETE][PUT] Quest completion upserted successfully:', questCompletion);
-      
-      // Verify the record was actually created/updated
-      const { data: verification, error: verifyError } = await supabase
-        .from('quest_completion')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('quest_id', quest.id)
-        .single();
-        
-      if (verifyError) {
-        console.error('[QUESTS-COMPLETE][PUT] Verification query failed:', verifyError);
-      } else {
-        console.log('[QUESTS-COMPLETE][PUT] Verification record:', verification);
-      }
-      
-    } else {
-      // Mark quest as not completed (delete the completion record)
-      console.log('[QUESTS-COMPLETE][PUT] Marking quest as uncompleted');
-      const { error } = await supabase
-        .from('quest_completion')
-        .delete()
-        .eq('user_id', userId)
-        .eq('quest_id', quest.id);
-
-      if (error) {
-        console.error('[QUESTS-COMPLETE][PUT] Error deleting quest completion:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
-      
-      console.log('[QUESTS-COMPLETE][PUT] Quest completion deleted successfully');
+    // 🚀 USE SMART QUEST COMPLETION SYSTEM INSTEAD OF DIRECT TABLE OPERATIONS
+    console.log('[QUESTS-COMPLETE][PUT] Using smart quest completion system...');
+    
+    // Call the smart completion function
+    const { data: smartResult, error: smartError } = await supabase.rpc('smart_quest_completion', {
+      p_user_id: userId,
+      p_quest_id: quest.id,
+      p_completed: completed,
+      p_xp_reward: quest.xp_reward || 50,
+      p_gold_reward: quest.gold_reward || 25
+    });
+    
+    if (smartError) {
+      console.error('[QUESTS-COMPLETE][PUT] Smart completion error:', smartError);
+      return NextResponse.json({ error: smartError.message }, { status: 500 });
     }
+    
+    console.log('[QUESTS-COMPLETE][PUT] Smart completion result:', smartResult);
+    
+    // Extract completion data from smart result
+    const questCompletion = smartResult.record;
 
     return NextResponse.json({ 
       success: true, 

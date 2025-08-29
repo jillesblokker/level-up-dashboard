@@ -173,7 +173,7 @@ export function DailyQuests() {
     loadDailyQuests()
   }, [isSignedIn])
 
-  // Toggle quest completion with immediate save
+  // Toggle quest completion with smart system integration
   const toggleQuest = async (questId: string) => {
     const updatedQuests = questItems.map(quest =>
       quest.id === questId
@@ -183,29 +183,67 @@ export function DailyQuests() {
     
     setQuestItems(updatedQuests)
     
-    // Save to localStorage only for now
-    try {
-      // storageService.set('daily-quests', updatedQuests) // Removed
-      console.info('=== DAILY QUEST SAVE SUCCESSFUL ===', { questId, timestamp: new Date() })
-    } catch (error) {
-      console.error('=== DAILY QUEST SAVE FAILED ===', error)
-      toast({
-        title: "Save Warning",
-        description: "Quest updated locally. Will sync when connection is restored.",
-        variant: "destructive"
-      })
-    }
-    
-    // Check if quest was completed and show notification
+    // Find the quest to get its details
     const toggledQuest = updatedQuests.find(q => q.id === questId)
-    if (toggledQuest?.completed) {
-      console.info(`Daily quest completed: ${toggledQuest.name}`)
-      // emitQuestCompletedWithRewards( // Removed
-      //   toggledQuest.name, 
-      //   toggledQuest.rewards.gold, 
-      //   toggledQuest.rewards.experience, 
-      //   'daily-quests'
-      // ) // Removed
+    if (!toggledQuest) return
+    
+    // If user is signed in, use smart quest completion system
+    if (isSignedIn) {
+      try {
+        console.log('[Daily Quests] Using smart quest completion system...')
+        
+        const response = await fetch('/api/quests/smart-completion', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            questId: questId,
+            completed: toggledQuest.completed,
+            xpReward: toggledQuest.rewards.experience,
+            goldReward: toggledQuest.rewards.gold
+          }),
+        })
+        
+        if (!response.ok) {
+          console.error('[Daily Quests] Smart completion failed:', response.status)
+          toast({
+            title: "Sync Warning",
+            description: "Quest updated locally. Will retry sync later.",
+            variant: "destructive"
+          })
+        } else {
+          const result = await response.json()
+          console.log('[Daily Quests] Smart completion result:', result)
+          
+          if (toggledQuest.completed) {
+            console.info(`Daily quest completed: ${toggledQuest.name}`)
+            toast({
+              title: "Quest Completed! 🎉",
+              description: `Earned ${toggledQuest.rewards.experience} XP and ${toggledQuest.rewards.gold} Gold!`,
+            })
+          }
+        }
+      } catch (error) {
+        console.error('[Daily Quests] Smart completion error:', error)
+        toast({
+          title: "Sync Warning",
+          description: "Quest updated locally. Will retry sync later.",
+          variant: "destructive"
+        })
+      }
+    } else {
+      // Fallback to localStorage for non-signed-in users
+      try {
+        console.info('=== DAILY QUEST SAVE SUCCESSFUL (local) ===', { questId, timestamp: new Date() })
+      } catch (error) {
+        console.error('=== DAILY QUEST SAVE FAILED ===', error)
+        toast({
+          title: "Save Warning",
+          description: "Quest updated locally. Will sync when connection is restored.",
+          variant: "destructive"
+        })
+      }
     }
   }
 

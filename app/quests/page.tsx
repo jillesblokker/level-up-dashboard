@@ -708,16 +708,18 @@ export default function QuestsPage() {
         )
       );
       
-      // Update in Supabase
-      console.log('[QUEST-TOGGLE] Sending quest update to /api/quests-complete');
-      const response = await fetch('/api/quests-complete', {
-        method: 'PUT',
+      // 🚀 USE SMART QUEST COMPLETION SYSTEM INSTEAD OF OLD ENDPOINT
+      console.log('[QUEST-TOGGLE] Using smart quest completion system...');
+      const response = await fetch('/api/quests/smart-completion', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          title: questObj.name,
-          completed: newCompleted
+          questId: questId,
+          completed: newCompleted,
+          xpReward: questObj.xp || 50,
+          goldReward: questObj.gold || 25
         })
       });
       

@@ -82,40 +82,36 @@ export async function updateQuestCompletion(questId: string, completed: boolean)
       return false;
     }
 
-    // First, ensure the quest completion record exists
-    const postResponse = await fetch('/api/quests/completion', {
+    // 🚀 USE SMART QUEST COMPLETION SYSTEM INSTEAD OF OLD ENDPOINTS
+    console.log('[Quests Persistence] Using smart quest completion system...');
+    
+    const response = await fetch('/api/quests/smart-completion', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify({ questId }),
+      body: JSON.stringify({ 
+        questId, 
+        completed,
+        // Default rewards if not specified
+        xpReward: 50,
+        goldReward: 25
+      }),
     });
 
-    if (!postResponse.ok) {
-      console.error('[Quests Persistence] Failed to create quest completion record:', postResponse.status, postResponse.statusText);
+    if (!response.ok) {
+      console.error('[Quests Persistence] Failed to process quest completion:', response.status, response.statusText);
       return false;
     }
 
-    // Then update the completion status
-    const putResponse = await fetch('/api/quests/completion', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({ questId, completed }),
-    });
-
-    if (!putResponse.ok) {
-      console.error('[Quests Persistence] Failed to update quest completion:', putResponse.status, putResponse.statusText);
-      return false;
-    }
-
-    console.log('[Quests Persistence] Successfully updated quest completion');
+    const result = await response.json();
+    console.log('[Quests Persistence] Smart completion result:', result);
+    
+    console.log('[Quests Persistence] Successfully processed quest completion');
     return true;
   } catch (error) {
-    console.error('[Quests Persistence] Error updating quest completion:', error);
+    console.error('[Quests Persistence] Error processing quest completion:', error);
     return false;
   }
 }

@@ -126,63 +126,27 @@ export async function PUT(request: Request) {
     
     console.log('[QUESTS/COMPLETION][PUT] Quest found:', { questId, xpReward: quest.xp_reward, goldReward: quest.gold_reward });
     
-    // Check if quest completion record exists
-    const { data: existingCompletion, error: fetchError } = await supabaseServer
-      .from('quest_completion')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('quest_id', questId)
-      .single();
-      
-    console.log('[QUESTS/COMPLETION][PUT] Existing completion record:', { existingCompletion, fetchError });
+    // 🚀 USE SMART QUEST COMPLETION SYSTEM INSTEAD OF DIRECT TABLE OPERATIONS
+    console.log('[QUESTS/COMPLETION][PUT] Using smart quest completion system...');
     
-    let questCompletion;
+    // Call the smart completion function
+    const { data: smartResult, error: smartError } = await supabaseServer.rpc('smart_quest_completion', {
+      p_user_id: userId,
+      p_quest_id: questId,
+      p_completed: completed,
+      p_xp_reward: quest.xp_reward || 50,
+      p_gold_reward: quest.gold_reward || 25
+    });
     
-    if (existingCompletion) {
-      // Update existing record
-      console.log('[QUESTS/COMPLETION][PUT] Updating existing completion record');
-      const { data, error } = await supabaseServer
-        .from('quest_completion')
-        .update({ 
-          completed,
-          completed_at: completed ? new Date().toISOString() : null,
-          xp_earned: completed ? (quest.xp_reward || 50) : 0,
-          gold_earned: completed ? (quest.gold_reward || 25) : 0
-        })
-        .eq('user_id', userId)
-        .eq('quest_id', questId)
-        .single();
-        
-      if (error) {
-        console.error('[QUESTS/COMPLETION][PUT] Update error:', error);
-        return NextResponse.json({ error: error.message, details: error }, { status: 500 });
-      }
-      
-      questCompletion = data;
-      console.log('[QUESTS/COMPLETION][PUT] Successfully updated completion:', questCompletion);
-    } else {
-      // Create new record
-      console.log('[QUESTS/COMPLETION][PUT] Creating new completion record');
-      const { data, error } = await supabaseServer
-        .from('quest_completion')
-        .insert([{
-          user_id: userId,
-          quest_id: questId,
-          completed,
-          completed_at: completed ? new Date().toISOString() : null,
-          xp_earned: completed ? (quest.xp_reward || 50) : 0,
-          gold_earned: completed ? (quest.gold_reward || 25) : 0
-        }])
-        .single();
-        
-      if (error) {
-        console.error('[QUESTS/COMPLETION][PUT] Insert error:', error);
-        return NextResponse.json({ error: error.message, details: error }, { status: 500 });
-      }
-      
-      questCompletion = data;
-      console.log('[QUESTS/COMPLETION][PUT] Successfully created completion:', questCompletion);
+    if (smartError) {
+      console.error('[QUESTS/COMPLETION][PUT] Smart completion error:', smartError);
+      return NextResponse.json({ error: smartError.message }, { status: 500 });
     }
+    
+    console.log('[QUESTS/COMPLETION][PUT] Smart completion result:', smartResult);
+    
+    // Extract completion data from smart result
+    const questCompletion = smartResult.record;
     
     // If quest is completed, grant rewards
     if (completed && questCompletion) {
