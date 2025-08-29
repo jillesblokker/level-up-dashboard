@@ -558,35 +558,36 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
 
   // Handle time period navigation (prev/next) - KingdomStatsBlock
   const handleTimeNavigation = (direction: 'prev' | 'next') => {
-    const now = new Date();
+    // Use navigation date if available, otherwise use current date
+    const baseDate = navigationDate || new Date();
     let newDate: Date;
     
     switch (timePeriod) {
       case 'week':
-        // Navigate by weeks
-        newDate = new Date(now);
+        // Navigate by weeks from the current navigation position
+        newDate = new Date(baseDate);
         if (direction === 'prev') {
-          newDate.setDate(now.getDate() - 7);
+          newDate.setDate(baseDate.getDate() - 7);
         } else {
-          newDate.setDate(now.getDate() + 7);
+          newDate.setDate(baseDate.getDate() + 7);
         }
         break;
       case 'month':
-        // Navigate by months
-        newDate = new Date(now);
+        // Navigate by months from the current navigation position
+        newDate = new Date(baseDate);
         if (direction === 'prev') {
-          newDate.setMonth(now.getMonth() - 1);
+          newDate.setMonth(baseDate.getMonth() - 1);
         } else {
-          newDate.setMonth(now.getMonth() + 1);
+          newDate.setMonth(baseDate.getMonth() + 1);
         }
         break;
       case 'year':
-        // Navigate by years
-        newDate = new Date(now);
+        // Navigate by years from the current navigation position
+        newDate = new Date(baseDate);
         if (direction === 'prev') {
-          newDate.setFullYear(now.getFullYear() - 1);
+          newDate.setFullYear(baseDate.getFullYear() - 1);
         } else {
-          newDate.setFullYear(now.getFullYear() + 1);
+          newDate.setFullYear(baseDate.getFullYear() + 1);
         }
         break;
       default:
@@ -786,6 +787,32 @@ useSupabaseRealtimeSync({
                 </Button>
               </div>
 
+              {/* Current navigation date indicator - KingdomStatsBlock */}
+              {navigationDate && (
+                <div className="flex items-center space-x-2 text-sm text-gray-400">
+                  <span>Viewing:</span>
+                  <span className="font-mono text-amber-400">
+                    {navigationDate.toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 text-xs text-gray-500 hover:text-amber-400"
+                    onClick={() => {
+                      setNavigationDate(null);
+                      fetchData();
+                    }}
+                    aria-label="Return to current time period"
+                  >
+                    ×
+                  </Button>
+                </div>
+              )}
+
               {/* Chart type toggle */}
               <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
             </div>
@@ -849,6 +876,8 @@ useSupabaseRealtimeSync({
 }
 
 // --- Block 2: KingStatsBlock ---
+
+// --- Block 2: KingStatsBlock ---
 export function KingStatsBlock({ userId }: { userId: string | null }) {
   const [graphData, setGraphData] = useState<Array<{ day: string; value: number }>>([]);
   const [activeTab, setActiveTab] = useState<'gold-gained' | 'gold-spent' | 'experience' | 'level'>('gold-gained');
@@ -860,35 +889,36 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
 
   // Handle time period navigation (prev/next) - KingStatsBlock
   const handleTimeNavigation = (direction: 'prev' | 'next') => {
-    const now = new Date();
+    // Use navigation date if available, otherwise use current date
+    const baseDate = navigationDate || new Date();
     let newDate: Date;
     
     switch (timePeriod) {
       case 'week':
-        // Navigate by weeks
-        newDate = new Date(now);
+        // Navigate by weeks from the current navigation position
+        newDate = new Date(baseDate);
         if (direction === 'prev') {
-          newDate.setDate(now.getDate() - 7);
+          newDate.setDate(baseDate.getDate() - 7);
         } else {
-          newDate.setDate(now.getDate() + 7);
+          newDate.setDate(baseDate.getDate() + 7);
         }
         break;
       case 'month':
-        // Navigate by months
-        newDate = new Date(now);
+        // Navigate by months from the current navigation position
+        newDate = new Date(baseDate);
         if (direction === 'prev') {
-          newDate.setMonth(now.getMonth() - 1);
+          newDate.setMonth(baseDate.getMonth() - 1);
         } else {
-          newDate.setMonth(now.getMonth() + 1);
+          newDate.setMonth(baseDate.getMonth() + 1);
         }
         break;
       case 'year':
-        // Navigate by years
-        newDate = new Date(now);
+        // Navigate by years from the current navigation position
+        newDate = new Date(baseDate);
         if (direction === 'prev') {
-          newDate.setFullYear(now.getFullYear() - 1);
+          newDate.setFullYear(baseDate.getFullYear() - 1);
         } else {
-          newDate.setFullYear(now.getFullYear() + 1);
+          newDate.setFullYear(baseDate.getFullYear() + 1);
         }
         break;
       default:
@@ -1063,6 +1093,32 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
+
+              {/* Current navigation date indicator - KingStatsBlock */}
+              {navigationDate && (
+                <div className="flex items-center space-x-2 text-sm text-gray-400">
+                  <span>Viewing:</span>
+                  <span className="font-mono text-amber-400">
+                    {navigationDate.toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 text-xs text-gray-500 hover:text-amber-400"
+                    onClick={() => {
+                      setNavigationDate(null);
+                      fetchData();
+                    }}
+                    aria-label="Return to current time period"
+                  >
+                    ×
+                  </Button>
+                </div>
+              )}
 
               {/* Chart type toggle */}
               <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
