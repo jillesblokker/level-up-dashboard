@@ -688,7 +688,7 @@ useSupabaseRealtimeSync({
           {/* Header with title and description */}
           <div className="flex flex-col space-y-2">
             <h3 className="text-2xl font-bold text-amber-500">Kingdom stats</h3>
-            <p className="text-gray-400">Track your realm's growth</p>
+            <p className="text-gray-400">Track your realm&apos;s growth</p>
           </div>
 
           {/* Control bar - grouped logically for mobile/web */}
