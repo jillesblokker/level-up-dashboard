@@ -1255,6 +1255,16 @@ export function KingdomClient() {
           </TabsContent>
           <TabsContent value="journey">
             <div className="space-y-6">
+              {/* Kingdom Stats and Gains - Most Important for Kingdom Page */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div className="w-full" aria-label="kingdom-stats-block-container">
+                  <KingdomStatsBlock userId={user?.id || null} />
+                </div>
+                <div className="w-full" aria-label="king-stats-block-container">
+                  <KingStatsBlock userId={user?.id || null} />
+                </div>
+              </div>
+              
               {/* Progression Visualization */}
               <div className="mb-6">
                 <ProgressionVisualization />
@@ -1263,16 +1273,6 @@ export function KingdomClient() {
               {/* Economy Transparency */}
               <div className="mb-6">
                 <EconomyTransparency />
-              </div>
-              
-              {/* Existing Stats Blocks */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="w-full" aria-label="kingdom-stats-block-container">
-                  <KingdomStatsBlock userId={user?.id || null} />
-                </div>
-                <div className="w-full" aria-label="king-stats-block-container">
-                  <KingStatsBlock userId={user?.id || null} />
-                </div>
               </div>
             </div>
           </TabsContent>

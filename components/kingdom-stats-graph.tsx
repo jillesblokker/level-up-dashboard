@@ -785,20 +785,6 @@ useSupabaseRealtimeSync({
                 >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
-
-                {/* Current period button */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-9 px-3 text-sm"
-                  onClick={() => {
-                    setNavigationDate(null);
-                    fetchData();
-                  }}
-                  aria-label="Go to current time period"
-                >
-                  Current
-                </Button>
               </div>
 
               {/* Right side: Kebab menu for mobile */}
@@ -814,6 +800,12 @@ useSupabaseRealtimeSync({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => {
+                    setNavigationDate(null);
+                    fetchData();
+                  }}>
+                    🏠 Current Period
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={fetchData}>
                     <RefreshCw className="mr-2 h-4 w-4" />
                     Refresh
@@ -1160,20 +1152,6 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
                 >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
-
-                {/* Current period button */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-9 px-3 text-sm"
-                  onClick={() => {
-                    setNavigationDate(null);
-                    fetchData();
-                  }}
-                  aria-label="Go to current time period"
-                >
-                  Current
-                </Button>
               </div>
 
               {/* Right side: Kebab menu for mobile */}
@@ -1189,6 +1167,12 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => {
+                    setNavigationDate(null);
+                    fetchData();
+                  }}>
+                    🏠 Current Period
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={fetchData}>
                     <RefreshCw className="mr-2 h-4 w-4" />
                     Refresh
