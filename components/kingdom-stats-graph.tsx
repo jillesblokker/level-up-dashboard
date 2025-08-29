@@ -553,12 +553,51 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('week');
   const [isLoading, setIsLoading] = useState(false);
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
+  const [navigationDate, setNavigationDate] = useState<Date | null>(null);
   const { userId: authUserId, isLoaded, getToken } = useAuth();
 
-  // Handle time period navigation (prev/next)
+  // Handle time period navigation (prev/next) - KingdomStatsBlock
   const handleTimeNavigation = (direction: 'prev' | 'next') => {
-    // For now, just refresh data with current time period
-    // In the future, this could be enhanced to store and navigate to specific dates
+    const now = new Date();
+    let newDate: Date;
+    
+    switch (timePeriod) {
+      case 'week':
+        // Navigate by weeks
+        newDate = new Date(now);
+        if (direction === 'prev') {
+          newDate.setDate(now.getDate() - 7);
+        } else {
+          newDate.setDate(now.getDate() + 7);
+        }
+        break;
+      case 'month':
+        // Navigate by months
+        newDate = new Date(now);
+        if (direction === 'prev') {
+          newDate.setMonth(now.getMonth() - 1);
+        } else {
+          newDate.setMonth(now.getMonth() + 1);
+        }
+        break;
+      case 'year':
+        // Navigate by years
+        newDate = new Date(now);
+        if (direction === 'prev') {
+          newDate.setFullYear(now.getFullYear() - 1);
+        } else {
+          newDate.setFullYear(now.getFullYear() + 1);
+        }
+        break;
+      default:
+        // For 'all' period, just refresh current data
+        fetchData();
+        return;
+    }
+    
+    // Store the navigation date for API calls
+    setNavigationDate(newDate);
+    // Fetch data for the new period
     fetchData();
   };
 
@@ -576,7 +615,14 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
       
               // Add cache-busting parameter to force fresh API call and see backend debugging
       const timestamp = Date.now();
-      const apiUrl = `/api/kingdom-stats-v2?tab=${activeTab}&period=${timePeriod}&_t=${timestamp}`;
+      let apiUrl = `/api/kingdom-stats-v2?tab=${activeTab}&period=${timePeriod}&_t=${timestamp}`;
+      
+      // Add navigation date if available
+      if (navigationDate) {
+        const dateParam = navigationDate.toISOString().split('T')[0];
+        apiUrl += `&date=${dateParam}`;
+      }
+      
       console.log('[Kingdom Stats Component] 🔗 API URL:', apiUrl);
       console.log('[Kingdom Stats Component] 🔑 Auth token present:', !!getToken);
       
@@ -635,7 +681,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
     } finally {
       setIsLoading(false);
     }
-  }, [authUserId, isLoaded, activeTab, timePeriod, getToken]);
+  }, [authUserId, isLoaded, activeTab, timePeriod, navigationDate, getToken]);
 
   useEffect(() => {
       // Call fetchData when dependencies change
@@ -809,12 +855,51 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('week');
   const [isLoading, setIsLoading] = useState(false);
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
+  const [navigationDate, setNavigationDate] = useState<Date | null>(null);
   const { userId: authUserId, isLoaded, getToken } = useAuth();
 
-  // Handle time period navigation (prev/next)
+  // Handle time period navigation (prev/next) - KingStatsBlock
   const handleTimeNavigation = (direction: 'prev' | 'next') => {
-    // For now, just refresh data with current time period
-    // In the future, this could be enhanced to store and navigate to specific dates
+    const now = new Date();
+    let newDate: Date;
+    
+    switch (timePeriod) {
+      case 'week':
+        // Navigate by weeks
+        newDate = new Date(now);
+        if (direction === 'prev') {
+          newDate.setDate(now.getDate() - 7);
+        } else {
+          newDate.setDate(now.getDate() + 7);
+        }
+        break;
+      case 'month':
+        // Navigate by months
+        newDate = new Date(now);
+        if (direction === 'prev') {
+          newDate.setMonth(now.getMonth() - 1);
+        } else {
+          newDate.setMonth(now.getMonth() + 1);
+        }
+        break;
+      case 'year':
+        // Navigate by years
+        newDate = new Date(now);
+        if (direction === 'prev') {
+          newDate.setFullYear(now.getFullYear() - 1);
+        } else {
+          newDate.setFullYear(now.getFullYear() + 1);
+        }
+        break;
+      default:
+        // For 'all' period, just refresh current data
+        fetchData();
+        return;
+    }
+    
+    // Store the navigation date for API calls
+    setNavigationDate(newDate);
+    // Fetch data for the new period
     fetchData();
   };
 
@@ -839,7 +924,14 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
 
       // Add cache-busting parameter to force fresh API call and see backend debugging
       const timestamp = Date.now();
-      const apiUrl = `/api/kingdom-stats-v2?tab=${activeTab}&period=${timePeriod}&_t=${timestamp}`;
+      let apiUrl = `/api/kingdom-stats-v2?tab=${activeTab}&period=${timePeriod}&_t=${timestamp}`;
+      
+      // Add navigation date if available
+      if (navigationDate) {
+        const dateParam = navigationDate.toISOString().split('T')[0];
+        apiUrl += `&date=${dateParam}`;
+      }
+      
       console.log('[Gains Component] 🔗 API URL:', apiUrl);
       console.log('[Gains Component] 🔑 Token length:', token.length);
       
@@ -866,7 +958,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
     } finally {
       setIsLoading(false);
     }
-  }, [authUserId, activeTab, timePeriod, isLoaded, getToken]);
+  }, [authUserId, activeTab, timePeriod, isLoaded, navigationDate, getToken]);
 
   useEffect(() => {
     if (authUserId && isLoaded) {

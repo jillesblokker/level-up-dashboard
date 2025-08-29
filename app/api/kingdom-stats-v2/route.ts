@@ -67,16 +67,15 @@ async function getUserIdFromRequest(request: Request): Promise<string | null> {
 }
 
 // Helper to get date ranges for each period
-function getDateRange(period: string): string[] {
-  const now = new Date();
+function getDateRange(period: string, baseDate?: string): string[] {
+  const now = baseDate ? new Date(baseDate) : new Date();
   let days: string[] = [];
   
   if (period === 'week') {
-    // Generate dates for the last 7 days (including today)
-    // Use local dates to match user's timezone
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
+    // Generate dates for 7 days centered around the base date
+    for (let i = 3; i >= -3; i--) {
+      const d = new Date(now);
+      d.setDate(now.getDate() + i);
       // Format as YYYY-MM-DD in local timezone
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -84,20 +83,20 @@ function getDateRange(period: string): string[] {
       days.push(`${year}-${month}-${day}`);
     }
   } else if (period === 'month') {
-    // Generate dates for the last 30 days (including today)
-    for (let i = 29; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
+    // Generate dates for 30 days centered around the base date
+    for (let i = 15; i >= -14; i--) {
+      const d = new Date(now);
+      d.setDate(now.getDate() + i);
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, '0');
       const day = String(d.getDate()).padStart(2, '0');
       days.push(`${year}-${month}-${day}`);
     }
   } else if (period === 'year') {
-    // Generate months for the last 12 months
-    for (let i = 11; i >= 0; i--) {
-      const d = new Date();
-      d.setMonth(d.getMonth() - i);
+    // Generate months for 12 months centered around the base date
+    for (let i = 6; i >= -5; i--) {
+      const d = new Date(now);
+      d.setMonth(now.getMonth() + i);
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, '0');
       days.push(`${year}-${month}`);
@@ -105,10 +104,10 @@ function getDateRange(period: string): string[] {
   } else if (period === 'all') {
     // For all time, we'll generate a reasonable range
     // Start from 1 year ago to avoid overwhelming data
-    const startDate = new Date();
-    startDate.setFullYear(startDate.getFullYear() - 1);
+    const startDate = new Date(now);
+    startDate.setFullYear(now.getFullYear() - 1);
     
-    const currentDate = new Date();
+    const currentDate = new Date(now);
     while (startDate <= currentDate) {
       const year = startDate.getFullYear();
       const month = String(startDate.getMonth() + 1).padStart(2, '0');
@@ -122,30 +121,30 @@ function getDateRange(period: string): string[] {
 }
 
 // Helper to get the earliest date we need to fetch data for
-function getEarliestDateForPeriod(period: string): Date {
-  const now = new Date();
+function getEarliestDateForPeriod(period: string, baseDate?: string): Date {
+  const now = baseDate ? new Date(baseDate) : new Date();
   
   if (period === 'week') {
-    const earliest = new Date();
-    earliest.setDate(earliest.getDate() - 6);
+    const earliest = new Date(now);
+    earliest.setDate(now.getDate() - 3);
     return earliest;
   } else if (period === 'month') {
-    const earliest = new Date();
-    earliest.setDate(earliest.getDate() - 29);
+    const earliest = new Date(now);
+    earliest.setDate(now.getDate() - 14);
     return earliest;
   } else if (period === 'year') {
-    const earliest = new Date();
-    earliest.setFullYear(earliest.getFullYear() - 1);
+    const earliest = new Date(now);
+    earliest.setMonth(now.getMonth() - 5);
     return earliest;
   } else if (period === 'all') {
-    const earliest = new Date();
-    earliest.setFullYear(earliest.getFullYear() - 1);
+    const earliest = new Date(now);
+    earliest.setFullYear(now.getFullYear() - 1);
     return earliest;
   }
   
   // Default to 1 year ago
-  const earliest = new Date();
-  earliest.setFullYear(earliest.getFullYear() - 1);
+  const earliest = new Date(now);
+  earliest.setFullYear(now.getFullYear() - 1);
   return earliest;
 }
 
@@ -173,8 +172,9 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const tab = searchParams.get('tab') || 'quests';
     const period = searchParams.get('period') || 'week';
+    const date = searchParams.get('date'); // Optional date parameter for navigation
     
-    console.log('[Kingdom Stats V2] Request parameters:', { tab, period });
+    console.log('[Kingdom Stats V2] Request parameters:', { tab, period, date });
 
     // Get user ID from request
     const userId = await getUserIdFromRequest(request);
@@ -186,8 +186,8 @@ export async function GET(request: NextRequest) {
     console.log('[Kingdom Stats V2] Authenticated userId:', userId);
 
     // Get date range and earliest date for database query
-    const days = getDateRange(period);
-    const earliestDate = getEarliestDateForPeriod(period);
+    const days = getDateRange(period, date || undefined);
+    const earliestDate = getEarliestDateForPeriod(period, date || undefined);
     
     console.log('[Kingdom Stats V2] Date range:', days);
     console.log('[Kingdom Stats V2] Earliest date for DB query:', earliestDate);
