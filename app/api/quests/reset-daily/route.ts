@@ -11,16 +11,12 @@ export async function POST(req: NextRequest) {
 
     console.log('[Daily Reset] Starting daily reset for user:', userId);
 
-    // Instead of setting completed = false (which erases history),
-    // we'll add a new record for today with completed = false
-    // This preserves historical completion data for charts
-    
     // Get all quests that were completed today
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
     
     const { data: todayCompletions, error: fetchError } = await supabaseServer
       .from('quest_completion')
-      .select('quest_id, completed_at')
+      .select('quest_id, completed_at, xp_earned, gold_earned')
       .eq('user_id', userId)
       .eq('completed', true)
       .gte('completed_at', today + 'T00:00:00')
@@ -33,18 +29,14 @@ export async function POST(req: NextRequest) {
 
     console.log('[Daily Reset] Found', todayCompletions?.length || 0, 'completions from today');
 
-    // For each quest completed today, create a new record for tomorrow
-    // This allows the UI to show unchecked boxes while preserving completion history
+    // For each quest completed today, create a new record for today with completed = false
+    // This preserves historical completion data for charts while resetting the UI
     if (todayCompletions && todayCompletions.length > 0) {
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const tomorrowStr = tomorrow.toISOString().split('T')[0];
-
       const newRecords = todayCompletions.map(completion => ({
         user_id: userId,
         quest_id: completion.quest_id,
-        completed: false, // New day, not completed yet
-        completed_at: new Date().toISOString(), // Set to current timestamp to satisfy NOT NULL constraint
+        completed: false, // Reset to not completed for the new day
+        completed_at: new Date().toISOString(), // Current timestamp for the new day
         gold_earned: 0, // Reset for new day
         xp_earned: 0, // Reset for new day
         // Add a reference to the original completion
@@ -59,11 +51,11 @@ export async function POST(req: NextRequest) {
         });
 
       if (insertError) {
-        console.error('[Daily Reset] Error creating new daily records:', insertError);
-        return NextResponse.json({ error: 'Failed to create new daily records', details: insertError }, { status: 500 });
+        console.error('[Daily Reset] Error creating reset records:', insertError);
+        return NextResponse.json({ error: 'Failed to create reset records', details: insertError }, { status: 500 });
       }
 
-      console.log('[Daily Reset] Successfully created', newRecords.length, 'new daily records');
+      console.log('[Daily Reset] Successfully reset', newRecords.length, 'quests for today');
     }
 
     // For challenges, do the same approach
@@ -77,33 +69,32 @@ export async function POST(req: NextRequest) {
     if (challengeFetchError) {
       console.error('[Daily Reset] Error fetching today\'s challenge completions:', challengeFetchError);
     } else if (todayChallenges && todayChallenges.length > 0) {
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const tomorrowStr = tomorrow.toISOString().split('T')[0];
-
       const newChallengeRecords = todayChallenges.map(challenge => ({
         user_id: userId,
         challenge_id: challenge.challenge_id,
-        completed: false, // New day, not completed yet
-        date: tomorrowStr,
+        completed: false, // Reset to not completed for the new day
+        date: today, // Keep same date but mark as not completed
         original_completion_date: challenge.date
       }));
 
       const { error: challengeInsertError } = await supabaseServer
         .from('challenge_completion')
-        .insert(newChallengeRecords);
+        .upsert(newChallengeRecords, {
+          onConflict: 'user_id,challenge_id,date',
+          ignoreDuplicates: false
+        });
 
       if (challengeInsertError) {
-        console.error('[Daily Reset] Error creating new daily challenge records:', challengeInsertError);
+        console.error('[Daily Reset] Error creating reset challenge records:', challengeInsertError);
       } else {
-        console.log('[Daily Reset] Successfully created', newChallengeRecords.length, 'new daily challenge records');
+        console.log('[Daily Reset] Successfully reset', newChallengeRecords.length, 'challenges for today');
       }
     }
 
     console.log('[Daily Reset] Daily reset completed successfully');
     return NextResponse.json({ 
       success: true, 
-      message: 'Daily reset completed - historical data preserved',
+      message: 'Daily reset completed - quests reset for today, historical data preserved',
       questsReset: todayCompletions?.length || 0,
       challengesReset: todayChallenges?.length || 0
     });

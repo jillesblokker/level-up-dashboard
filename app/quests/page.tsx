@@ -349,7 +349,7 @@ export default function QuestsPage() {
       const lastReset = localStorage.getItem('last-quest-reset-date');
       const today = new Date().toISOString().slice(0, 10);
       
-      // Only reset if we haven't reset today AND we have a valid token
+      // Only reset if we haven't processed today's reset AND we have a valid token
       if (lastReset !== today && token) {
         console.log('[Daily Reset] Starting daily reset for date:', today);
         
@@ -374,8 +374,10 @@ export default function QuestsPage() {
             const result = await res.json();
             console.log('[Daily Reset] Success:', result);
             
-            // Update local state and localStorage
+            // Update local state to show quests as unchecked
             setQuests(prev => prev.map(q => ({ ...q, completed: false })));
+            
+            // Mark that we've processed today's reset
             localStorage.setItem('last-quest-reset-date', today);
             
             toast({
