@@ -702,20 +702,43 @@ useSupabaseRealtimeSync({
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
             {/* Left side: Time period and chart type */}
             <div className="flex items-center space-x-3">
-              {/* Time period dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="h-9 px-3 text-sm">
-                    {timePeriod === 'week' ? 'Week' : timePeriod === 'month' ? 'Month' : 'Year'}
-                    <ChevronDown className="ml-2 h-4 w-4 text-amber-500" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => setTimePeriod('week')}>Week</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setTimePeriod('month')}>Month</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setTimePeriod('year')}>Year</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {/* Time period navigation */}
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 w-9 p-0"
+                  onClick={() => handleTimeNavigation('prev')}
+                  aria-label="Previous time period"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                
+                {/* Time period dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="h-9 px-3 text-sm">
+                      {timePeriod === 'week' ? 'Week' : timePeriod === 'month' ? 'Month' : 'Year'}
+                      <ChevronDown className="ml-2 h-4 w-4 text-amber-500" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => setTimePeriod('week')}>Week</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setTimePeriod('month')}>Month</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setTimePeriod('year')}>Year</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 w-9 p-0"
+                  onClick={() => handleTimeNavigation('next')}
+                  aria-label="Next time period"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
 
               {/* Chart type toggle */}
               <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
@@ -904,20 +927,43 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
             {/* Left side: Time period and chart type */}
             <div className="flex items-center space-x-3">
-              {/* Time period dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="h-9 px-3 text-sm">
-                    {timePeriod === 'week' ? 'Week' : timePeriod === 'month' ? 'Month' : 'Year'}
-                    <ChevronDown className="ml-2 h-4 w-4 text-amber-500" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => setTimePeriod('week')}>Week</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setTimePeriod('month')}>Month</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setTimePeriod('year')}>Year</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {/* Time period navigation */}
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 w-9 p-0"
+                  onClick={() => handleTimeNavigation('prev')}
+                  aria-label="Previous time period"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                
+                {/* Time period dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="h-9 px-3 text-sm">
+                      {timePeriod === 'week' ? 'Week' : timePeriod === 'month' ? 'Month' : 'Year'}
+                      <ChevronDown className="ml-2 h-4 w-4 text-amber-500" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => setTimePeriod('week')}>Week</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setTimePeriod('month')}>Month</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setTimePeriod('year')}>Year</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 w-9 p-0"
+                  onClick={() => handleTimeNavigation('next')}
+                  aria-label="Next time period"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
 
               {/* Chart type toggle */}
               <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
