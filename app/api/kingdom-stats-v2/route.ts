@@ -286,6 +286,12 @@ export async function GET(request: NextRequest) {
               const completionDate = c.original_completion_date || c.completed_at;
               if (!completionDate) return false;
               const completionDay = new Date(completionDate).toISOString().slice(0, 10);
+              console.log('[Kingdom Stats V2] 🔍 Comparing:', { 
+                day, 
+                completionDate, 
+                completionDay, 
+                matches: completionDay === day 
+              });
               return completionDay === day;
             }) || [];
             
