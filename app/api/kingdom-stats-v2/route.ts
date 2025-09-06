@@ -221,7 +221,8 @@ export async function GET(request: NextRequest) {
         if (period === 'year') {
           // For year view, aggregate by month
           completions?.forEach((c: any) => {
-            const completionDate = c.original_completion_date || c.completed_at;
+            // Prioritize completed_at over original_completion_date for current data
+            const completionDate = c.completed_at || c.original_completion_date;
             if (completionDate) {
               const month = completionDate.slice(0, 7);
               if (counts[month] !== undefined) {
@@ -234,7 +235,8 @@ export async function GET(request: NextRequest) {
           if (completions && completions.length > 0) {
             const dailyData: Record<string, number> = {};
             completions.forEach((c: any) => {
-              const completionDate = c.original_completion_date || c.completed_at;
+              // Prioritize completed_at over original_completion_date for current data
+              const completionDate = c.completed_at || c.original_completion_date;
               if (completionDate) {
                 const date = new Date(completionDate);
                 const dayKey = date.toISOString().slice(0, 10);
@@ -283,7 +285,8 @@ export async function GET(request: NextRequest) {
           days.forEach(day => {
             // Count completions that happened ON this specific day
             const completionsOnDay = completions?.filter((c: any) => {
-              const completionDate = c.original_completion_date || c.completed_at;
+              // Prioritize completed_at over original_completion_date for current data
+              const completionDate = c.completed_at || c.original_completion_date;
               if (!completionDate) return false;
               const completionDay = new Date(completionDate).toISOString().slice(0, 10);
               console.log('[Kingdom Stats V2] 🔍 Comparing:', { 
