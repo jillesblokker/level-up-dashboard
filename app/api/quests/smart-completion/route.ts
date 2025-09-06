@@ -23,12 +23,28 @@ export async function POST(request: Request) {
 
     console.log('[Smart Quest Completion] Processing quest:', { userId, questId, completed, xpReward, goldReward });
     console.log('[Smart Quest Completion] Quest ID type:', typeof questId, 'Length:', questId?.length, 'Format:', questId);
-    console.log('[Smart Quest Completion] User ID type:', typeof userId, 'Length:', userId?.length);
+    console.log('[Smart Quest Completion] User ID type:', typeof userId, 'Length:', userId?.length, 'Format:', userId);
+    
+    // 🔍 VALIDATION LOGGING - Check if user ID is Clerk format
+    const isClerkUserId = userId?.startsWith('user_');
+    const isUUIDFormat = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId || '');
+    console.log('[Smart Quest Completion] 🔍 User ID Analysis:', {
+      isClerkUserId,
+      isUUIDFormat,
+      userIdFormat: isClerkUserId ? 'CLERK_TEXT' : isUUIDFormat ? 'UUID' : 'UNKNOWN'
+    });
+    
+    // 🔍 VALIDATION LOGGING - Check if quest ID is UUID format
+    const isQuestUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(questId || '');
+    console.log('[Smart Quest Completion] 🔍 Quest ID Analysis:', {
+      isQuestUUID,
+      questIdFormat: isQuestUUID ? 'UUID' : 'TEXT'
+    });
 
-    // Use the smart database function with proper UUID handling
+    // Use the smart database function with correct schema handling
     const rpcParams = {
-      p_user_id: userId,
-      p_quest_id: questId,
+      p_user_id: userId,        // user_id is TEXT in quest_completion table
+      p_quest_id: questId,      // quest_id will be converted to UUID in function
       p_completed: completed,
       p_xp_reward: xpReward || 50,
       p_gold_reward: goldReward || 25
