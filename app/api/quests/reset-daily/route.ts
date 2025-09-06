@@ -55,6 +55,24 @@ export async function POST(req: NextRequest) {
       }
 
       console.log('[Daily Reset] Successfully reset', todayCompletions.length, 'quests using smart system');
+      
+      // 🔍 DEBUG: Verify the quests were actually reset by checking the database
+      const { data: verifyCompletions, error: verifyError } = await supabaseServer
+        .from('quest_completion')
+        .select('quest_id, completed')
+        .eq('user_id', userId)
+        .eq('completed', true)
+        .gte('completed_at', today + 'T00:00:00')
+        .lt('completed_at', today + 'T23:59:59');
+      
+      if (verifyError) {
+        console.error('[Daily Reset] Error verifying reset:', verifyError);
+      } else {
+        console.log('[Daily Reset] 🔍 Verification - quests still completed after reset:', verifyCompletions?.length || 0);
+        if (verifyCompletions && verifyCompletions.length > 0) {
+          console.log('[Daily Reset] 🔍 Still completed quests:', verifyCompletions.map(c => c.quest_id));
+        }
+      }
     }
 
     // For challenges, do the same approach

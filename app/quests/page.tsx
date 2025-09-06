@@ -380,6 +380,9 @@ export default function QuestsPage() {
             // Mark that we've processed today's reset
             localStorage.setItem('last-quest-reset-date', today);
             
+            // 🔍 DEBUG: Log the quest state after reset
+            console.log('[Daily Reset] Quest state after reset:', quests.map(q => ({ id: q.id, name: q.name, completed: q.completed })));
+            
             toast({
               title: 'Daily Reset',
               description: 'Your daily quests and challenges have been reset! Time to build new habits.',
