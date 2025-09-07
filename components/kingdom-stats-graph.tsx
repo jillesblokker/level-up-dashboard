@@ -876,8 +876,8 @@ useSupabaseRealtimeSync({
               <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
             </div>
 
-            {/* Right side: Refresh button */}
-            <div className="flex justify-end">
+            {/* Right side: Refresh button - hidden on mobile (available in 3-dots menu) */}
+            <div className="hidden md:flex justify-end">
               <Button
                 onClick={fetchData}
                 variant="outline"
@@ -1244,8 +1244,8 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
                 <ChartTypeToggle chartType={chartType} setChartType={setChartType} />
               </div>
 
-              {/* Right side: Refresh button */}
-              <div className="flex justify-end">
+              {/* Right side: Refresh button - hidden on mobile (available in 3-dots menu) */}
+              <div className="hidden md:flex justify-end">
                 <Button
                   onClick={fetchData}
                   variant="outline"

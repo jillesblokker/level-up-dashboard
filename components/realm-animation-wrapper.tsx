@@ -113,34 +113,34 @@ export function RealmAnimationWrapper({
       // Start animation sequence
       setAnimationState('starting')
       
-      // Begin smooth scroll to top - OPTIMIZED: Reduced from 1000ms to 300ms
-      smoothScrollToTop(300)
+      // Begin smooth scroll to top - FURTHER OPTIMIZED: Reduced to 200ms
+      smoothScrollToTop(200)
       
-      // Begin animation after scroll starts - OPTIMIZED: Reduced from 50ms to 20ms
+      // Begin animation after scroll starts - FURTHER OPTIMIZED: Reduced to 10ms
       animationTimeoutRef.current = setTimeout(() => {
         setAnimationState('animating')
         
-        // End animation after transition duration - OPTIMIZED: Reduced from 500ms to 200ms
+        // End animation after transition duration - FURTHER OPTIMIZED: Reduced to 150ms
         animationTimeoutRef.current = setTimeout(() => {
           setAnimationState('ending')
           
-          // Complete animation and trigger image reveal - OPTIMIZED: Reduced from 100ms to 50ms
+          // Complete animation and trigger image reveal - FURTHER OPTIMIZED: Reduced to 30ms
           animationTimeoutRef.current = setTimeout(() => {
             setAnimationState('idle')
             
             // Trigger image reveal immediately so header image is visible
             onImageReveal?.(true)
             
-            // First, scroll down to show content (buttons and grid) - OPTIMIZED: Reduced from 500ms to 200ms
-            scrollDownToContent(200)
+            // First, scroll down to show content (buttons and grid) - FURTHER OPTIMIZED: Reduced to 150ms
+            scrollDownToContent(150)
             
-            // After 0.3 seconds, scroll to show header image - OPTIMIZED: Reduced from 800ms to 300ms
+            // After 0.2 seconds, scroll to show header image - FURTHER OPTIMIZED: Reduced to 200ms
             setTimeout(() => {
-              scrollToShowHeader(500) // OPTIMIZED: Reduced from 1500ms to 500ms
-            }, 300)
-          }, 50)
-        }, 200)
-      }, 20)
+              scrollToShowHeader(300) // FURTHER OPTIMIZED: Reduced to 300ms
+            }, 200)
+          }, 30)
+        }, 150)
+      }, 10)
     }
 
     return () => {

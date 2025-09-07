@@ -79,13 +79,12 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     [characterStats.experience]
   )
 
-  // Simplified navigation items
+  // Simplified navigation items (removed Inventory - accessible from kingdom page)
   const mainNavItems = useMemo(() => [
     { href: "/kingdom", label: "Kingdom", icon: Crown, description: "Manage your realm" },
     { href: "/quests", label: "Tasks", icon: Compass, description: "Complete challenges" },
     { href: "/realm", label: "Realm", icon: MapIcon, description: "Explore the world" },
     { href: "/achievements", label: "Achievements", icon: Trophy, description: "Track progress" },
-    { href: "/inventory", label: "Inventory", icon: Building, description: "Manage items" },
     { href: "/character", label: "Character", icon: User, description: "View stats" },
   ], [])
 
@@ -236,7 +235,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
           </SheetTrigger>
           <SheetContentWithoutClose 
             side="right" 
-            className="w-full bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl border-l border-amber-800/20 pt-safe-top pb-5"
+            className="w-full bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl border-l border-amber-800/20 pt-safe-top pb-5 h-screen max-h-screen overflow-hidden flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-amber-800/20 bg-gradient-to-r from-amber-900/10 to-transparent">
@@ -282,7 +281,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                   </div>
                   <div>
                     <p className="text-base font-semibold text-white">Level {characterStats.level}</p>
-                    <p className="text-sm text-amber-400">{characterStats.experience} / {characterStats.experienceToNextLevel} XP</p>
+                    <p className="text-sm text-amber-400">{characterStats.experience} / {characterStats.experience + characterStats.experienceToNextLevel} XP</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-amber-500 bg-amber-500/10 px-3 py-2 rounded-lg">
@@ -291,26 +290,6 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                 </div>
               </div>
               <Progress value={levelProgress} className="h-3 bg-gray-700" />
-              
-              {/* Data Source Indicator */}
-              <div className="mt-3 flex items-center gap-2 text-xs">
-                <div className={cn(
-                  "w-2 h-2 rounded-full",
-                  dataSource === 'supabase' ? "bg-green-500" : 
-                  dataSource === 'localStorage' ? "bg-yellow-500" : 
-                  "bg-gray-500"
-                )} />
-                <span className={cn(
-                  "text-xs",
-                  dataSource === 'supabase' ? "text-green-400" : 
-                  dataSource === 'localStorage' ? "text-yellow-400" : 
-                  "text-gray-400"
-                )}>
-                  {dataSource === 'supabase' ? 'Live Data' : 
-                   dataSource === 'localStorage' ? 'Cached Data' : 
-                   'Unknown Source'}
-                </span>
-              </div>
             </div>
 
             {/* Navigation Items */}
