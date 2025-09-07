@@ -231,7 +231,7 @@ export default function QuestsPage() {
       if (!token) return;
       
       try {
-        const res = await fetch('/api/quests-complete', {
+        const res = await fetch('/api/quests', {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -242,7 +242,7 @@ export default function QuestsPage() {
         }
         
         const data = await res.json();
-        setQuests(data.quests || []);
+        setQuests(data || []);
         console.log('[Quest Sync] Quests synced successfully');
       } catch (error) {
         console.error('[Quest Sync] Error syncing quests:', error);
@@ -497,11 +497,15 @@ export default function QuestsPage() {
     return () => { cancelled = true; };
   }, [token, userId, questCategory]);
 
-  // Polling for streak changes instead of real-time sync
+  // Polling for streak changes instead of real-time sync - DISABLED TO PREVENT INFINITE LOOPS
   useEffect(() => {
     if (!userId || !questCategory) return;
     
-    const pollInterval = setInterval(async () => {
+    // Disable polling to prevent infinite loops
+    console.log('[Streaks Poll] Polling disabled to prevent infinite loops');
+    
+    // Only fetch once on mount
+    const fetchStreakOnce = async () => {
       if (token) {
         try {
           const res = await fetch(`/api/streaks-direct?category=${encodeURIComponent(questCategory)}`, {
@@ -519,12 +523,12 @@ export default function QuestsPage() {
             console.error('[Streaks Poll] HTTP error:', res.status, res.statusText);
           }
         } catch (error) {
-          console.error('[Streaks Poll] Error polling streak:', error);
+          console.error('[Streaks Poll] Error fetching streak:', error);
         }
       }
-    }, 15000); // Poll every 15 seconds instead of 10
+    };
     
-    return () => clearInterval(pollInterval);
+    fetchStreakOnce();
   }, [userId, questCategory, token]);
 
   // Update challenge streak via API route when all challenges completed for today

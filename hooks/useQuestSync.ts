@@ -36,10 +36,10 @@ export function useQuestSync(callbacks: QuestSyncCallbacks) {
       onError: callbacks.onError || (() => {}),
     },
     {
-      enabled: true,
+      enabled: false, // DISABLED TO PREVENT INFINITE LOOPS
       intervalMs: 30000, // 30 seconds
-      onVisibilityChange: true,
-      onFocus: true,
+      onVisibilityChange: false, // DISABLED TO PREVENT INFINITE LOOPS
+      onFocus: false, // DISABLED TO PREVENT INFINITE LOOPS
     }
   );
 

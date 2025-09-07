@@ -399,21 +399,16 @@ export default function CharacterPage() {
     }
   }, [])
 
-  // Polling for character data changes instead of real-time sync
+  // Polling for character data changes instead of real-time sync - DISABLED TO PREVENT INFINITE LOOPS
   useEffect(() => {
     const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined;
     if (!userId) return;
     
-    const pollInterval = setInterval(() => {
-      // Reload character data
-      if (typeof window !== 'undefined') {
-        // You may want to call your actual fetch logic here
-        // For now, reload the page or trigger a state update
-        window.location.reload();
-      }
-    }, 5000); // Poll every 5 seconds
+    // Disable polling to prevent infinite loops and page reloads
+    console.log('[Character Page] Polling disabled to prevent infinite loops');
     
-    return () => clearInterval(pollInterval);
+    // Only load data once on mount
+    // Data will be updated via event listeners instead
   }, []);
 
   // Helper function to check if perk can be activated (weekly cooldown)

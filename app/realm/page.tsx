@@ -780,23 +780,15 @@ export default function RealmPage() {
         loadUserData();
     }, [isAuthLoaded, isGuest, userId, getToken]);
 
-    // --- Polling for grid changes instead of real-time sync ---
+    // --- Polling for grid changes instead of real-time sync - DISABLED TO PREVENT INFINITE LOOPS ---
     useEffect(() => {
         if (!isAuthLoaded || isGuest || !userId) return;
         
-        const pollInterval = setInterval(async () => {
-            try {
-                // Use the same authenticated approach as loadGridData
-                const gridResult = await loadGridData(userId);
-                if (gridResult && gridResult.data && Array.isArray(gridResult.data)) {
-                    setGrid(gridResult.data);
-                }
-            } catch (error) {
-                console.error('Error polling for grid changes:', error);
-            }
-        }, 10000); // Poll every 10 seconds instead of 5
+        // Disable polling to prevent infinite loops
+        console.log('[Realm Page] Polling disabled to prevent infinite loops');
         
-        return () => clearInterval(pollInterval);
+        // Only load grid data once on mount
+        // Grid will be updated via event listeners instead
     }, [isAuthLoaded, isGuest, userId, loadGridData, getToken]);
 
     // Auto-save grid to Supabase with localStorage fallback
