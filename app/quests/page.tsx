@@ -413,8 +413,12 @@ export default function QuestsPage() {
   const fetchFavorites = async () => {
     try {
       const token = await getToken({ template: 'supabase' });
-      if (!token) return;
+      if (!token) {
+        console.log('[Favorites] No token available');
+        return;
+      }
 
+      console.log('[Favorites] Fetching favorites from API...');
       const response = await fetch('/api/quests/favorites', {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -423,7 +427,11 @@ export default function QuestsPage() {
 
       if (response.ok) {
         const data = await response.json();
+        console.log('[Favorites] API response:', data);
         setFavoritedQuests(new Set(data.favorites || []));
+        console.log('[Favorites] Set favorited quests:', data.favorites || []);
+      } else {
+        console.error('[Favorites] API error:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Error fetching favorites:', error);
@@ -1045,11 +1053,21 @@ export default function QuestsPage() {
         !q.completed
       );
       
-      if (favoritedQuestsInCategory.length === 0) return;
+      console.log('[Bulk Complete] Found favorited quests:', {
+        category: questCategory,
+        favoritedCount: favoritedQuestsInCategory.length,
+        quests: favoritedQuestsInCategory.map(q => ({ id: q.id, name: q.name, completed: q.completed }))
+      });
+      
+      if (favoritedQuestsInCategory.length === 0) {
+        console.log('[Bulk Complete] No favorited quests to complete in category:', questCategory);
+        return;
+      }
       
       // Complete each favorited quest in the current category
       for (const quest of favoritedQuestsInCategory) {
-        await handleQuestToggle(quest.id, false); // false = currently not completed, so this will complete it
+        console.log('[Bulk Complete] Completing quest:', quest.name);
+        await handleQuestToggle(quest.id, true); // true = mark as completed
       }
       
       toast({
@@ -1436,7 +1454,18 @@ export default function QuestsPage() {
               {/* Bulk Complete Favorites Button */}
               <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
                 <Button
-                  onClick={handleBulkCompleteFavorites}
+                  onClick={() => {
+                    console.log('[Bulk Complete Button] Clicked!');
+                    console.log('[Bulk Complete Button] Current state:', {
+                      questCategory,
+                      favoritedQuests: Array.from(favoritedQuests),
+                      totalQuests: quests.length,
+                      questsInCategory: quests.filter(q => q.category === questCategory).length,
+                      favoritedInCategory: quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id)).length,
+                      incompleteFavoritedInCategory: quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length
+                    });
+                    handleBulkCompleteFavorites();
+                  }}
                   disabled={loading || quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length === 0}
                   className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-300 text-black px-4 py-3 font-bold rounded-lg shadow-lg"
                   aria-label="Complete all favorited quests in this category"
