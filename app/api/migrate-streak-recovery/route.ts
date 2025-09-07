@@ -24,125 +24,151 @@ export async function POST(request: NextRequest) {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Execute migration statements directly
-    const migrationResults = [];
-
-    // Add resilience_points column
-    try {
-      const { error } = await supabase.rpc('exec_sql', {
-        sql: 'ALTER TABLE public.streaks ADD COLUMN IF NOT EXISTS resilience_points INTEGER DEFAULT 0;'
-      });
-      if (error) throw error;
-      migrationResults.push({ column: 'resilience_points', success: true });
-    } catch (err: any) {
-      migrationResults.push({ column: 'resilience_points', error: err.message });
-    }
-
-    // Add safety_net_used column
-    try {
-      const { error } = await supabase.rpc('exec_sql', {
-        sql: 'ALTER TABLE public.streaks ADD COLUMN IF NOT EXISTS safety_net_used BOOLEAN DEFAULT false;'
-      });
-      if (error) throw error;
-      migrationResults.push({ column: 'safety_net_used', success: true });
-    } catch (err: any) {
-      migrationResults.push({ column: 'safety_net_used', error: err.message });
-    }
-
-    // Add missed_days_this_week column
-    try {
-      const { error } = await supabase.rpc('exec_sql', {
-        sql: 'ALTER TABLE public.streaks ADD COLUMN IF NOT EXISTS missed_days_this_week INTEGER DEFAULT 0;'
-      });
-      if (error) throw error;
-      migrationResults.push({ column: 'missed_days_this_week', success: true });
-    } catch (err: any) {
-      migrationResults.push({ column: 'missed_days_this_week', error: err.message });
-    }
-
-    // Add last_missed_date column
-    try {
-      const { error } = await supabase.rpc('exec_sql', {
-        sql: 'ALTER TABLE public.streaks ADD COLUMN IF NOT EXISTS last_missed_date DATE;'
-      });
-      if (error) throw error;
-      migrationResults.push({ column: 'last_missed_date', success: true });
-    } catch (err: any) {
-      migrationResults.push({ column: 'last_missed_date', error: err.message });
-    }
-
-    // Add consecutive_weeks_completed column
-    try {
-      const { error } = await supabase.rpc('exec_sql', {
-        sql: 'ALTER TABLE public.streaks ADD COLUMN IF NOT EXISTS consecutive_weeks_completed INTEGER DEFAULT 0;'
-      });
-      if (error) throw error;
-      migrationResults.push({ column: 'consecutive_weeks_completed', success: true });
-    } catch (err: any) {
-      migrationResults.push({ column: 'consecutive_weeks_completed', error: err.message });
-    }
-
-    // Add streak_broken_date column
-    try {
-      const { error } = await supabase.rpc('exec_sql', {
-        sql: 'ALTER TABLE public.streaks ADD COLUMN IF NOT EXISTS streak_broken_date DATE;'
-      });
-      if (error) throw error;
-      migrationResults.push({ column: 'streak_broken_date', success: true });
-    } catch (err: any) {
-      migrationResults.push({ column: 'streak_broken_date', error: err.message });
-    }
-
-    // Add max_streak_achieved column
-    try {
-      const { error } = await supabase.rpc('exec_sql', {
-        sql: 'ALTER TABLE public.streaks ADD COLUMN IF NOT EXISTS max_streak_achieved INTEGER DEFAULT 0;'
-      });
-      if (error) throw error;
-      migrationResults.push({ column: 'max_streak_achieved', success: true });
-    } catch (err: any) {
-      migrationResults.push({ column: 'max_streak_achieved', error: err.message });
-    }
-
-    // Update existing streaks to set max_streak_achieved
-    try {
-      const { error } = await supabase.rpc('exec_sql', {
-        sql: 'UPDATE public.streaks SET max_streak_achieved = GREATEST(streak_days, COALESCE(max_streak_achieved, 0)) WHERE max_streak_achieved IS NULL OR max_streak_achieved < streak_days;'
-      });
-      if (error) throw error;
-      migrationResults.push({ operation: 'update_max_streak', success: true });
-    } catch (err: any) {
-      migrationResults.push({ operation: 'update_max_streak', error: err.message });
-    }
-
-    // Check for any failures
-    const failedOperations = migrationResults.filter(r => r.error);
-    if (failedOperations.length > 0) {
-      console.error('[Streak Recovery Migration] Some operations failed:', failedOperations);
-      return NextResponse.json({ 
-        error: 'Some migration operations failed', 
-        details: failedOperations,
-        results: migrationResults 
-      }, { status: 500 });
-    }
-
-    console.log('[Streak Recovery Migration] All operations completed successfully');
-
-    // Verify the migration by checking if the new columns exist
-    const { data: columnCheck, error: checkError } = await supabase
+    // First, let's check if the columns already exist
+    console.log('[Streak Recovery Migration] Checking if columns already exist...');
+    const { data: existingColumns, error: checkError } = await supabase
       .from('streaks')
       .select('resilience_points, safety_net_used, missed_days_this_week, last_missed_date, consecutive_weeks_completed, streak_broken_date, max_streak_achieved')
       .limit(1);
 
-    if (checkError) {
-      console.error('[Streak Recovery Migration] Column verification failed:', checkError);
+    if (!checkError && existingColumns) {
+      console.log('[Streak Recovery Migration] Columns already exist! Migration not needed.');
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Streak recovery features are already enabled! 🎉',
+        alreadyMigrated: true,
+        columnsExist: true
+      });
+    }
+
+    console.log('[Streak Recovery Migration] Columns do not exist, attempting migration...');
+
+    // Try to create a custom RPC function for the migration
+    const migrationSQL = `
+      -- Add new columns to the streaks table for recovery features
+      ALTER TABLE public.streaks ADD COLUMN IF NOT EXISTS resilience_points INTEGER DEFAULT 0;
+      ALTER TABLE public.streaks ADD COLUMN IF NOT EXISTS safety_net_used BOOLEAN DEFAULT false;
+      ALTER TABLE public.streaks ADD COLUMN IF NOT EXISTS missed_days_this_week INTEGER DEFAULT 0;
+      ALTER TABLE public.streaks ADD COLUMN IF NOT EXISTS last_missed_date DATE;
+      ALTER TABLE public.streaks ADD COLUMN IF NOT EXISTS consecutive_weeks_completed INTEGER DEFAULT 0;
+      ALTER TABLE public.streaks ADD COLUMN IF NOT EXISTS streak_broken_date DATE;
+      ALTER TABLE public.streaks ADD COLUMN IF NOT EXISTS max_streak_achieved INTEGER DEFAULT 0;
+      
+      -- Update existing streaks to set max_streak_achieved
+      UPDATE public.streaks 
+      SET max_streak_achieved = GREATEST(streak_days, COALESCE(max_streak_achieved, 0))
+      WHERE max_streak_achieved IS NULL OR max_streak_achieved < streak_days;
+    `;
+
+    // Try different approaches to execute the migration
+    let migrationSuccess = false;
+    let migrationError = null;
+
+    // Approach 1: Try exec_sql RPC
+    try {
+      console.log('[Streak Recovery Migration] Attempting exec_sql RPC...');
+      const { error } = await supabase.rpc('exec_sql', { sql: migrationSQL });
+      if (!error) {
+        migrationSuccess = true;
+        console.log('[Streak Recovery Migration] exec_sql RPC succeeded!');
+      } else {
+        migrationError = error.message;
+        console.log('[Streak Recovery Migration] exec_sql RPC failed:', error.message);
+      }
+    } catch (err: any) {
+      migrationError = err.message;
+      console.log('[Streak Recovery Migration] exec_sql RPC exception:', err.message);
+    }
+
+    // Approach 2: Try creating a temporary function
+    if (!migrationSuccess) {
+      try {
+        console.log('[Streak Recovery Migration] Attempting temporary function approach...');
+        
+        // Create a temporary function to execute the migration
+        const createFunctionSQL = `
+          CREATE OR REPLACE FUNCTION temp_migrate_streak_recovery()
+          RETURNS TEXT AS $$
+          BEGIN
+            ALTER TABLE public.streaks ADD COLUMN IF NOT EXISTS resilience_points INTEGER DEFAULT 0;
+            ALTER TABLE public.streaks ADD COLUMN IF NOT EXISTS safety_net_used BOOLEAN DEFAULT false;
+            ALTER TABLE public.streaks ADD COLUMN IF NOT EXISTS missed_days_this_week INTEGER DEFAULT 0;
+            ALTER TABLE public.streaks ADD COLUMN IF NOT EXISTS last_missed_date DATE;
+            ALTER TABLE public.streaks ADD COLUMN IF NOT EXISTS consecutive_weeks_completed INTEGER DEFAULT 0;
+            ALTER TABLE public.streaks ADD COLUMN IF NOT EXISTS streak_broken_date DATE;
+            ALTER TABLE public.streaks ADD COLUMN IF NOT EXISTS max_streak_achieved INTEGER DEFAULT 0;
+            
+            UPDATE public.streaks 
+            SET max_streak_achieved = GREATEST(streak_days, COALESCE(max_streak_achieved, 0))
+            WHERE max_streak_achieved IS NULL OR max_streak_achieved < streak_days;
+            
+            RETURN 'Migration completed successfully';
+          END;
+          $$ LANGUAGE plpgsql;
+        `;
+
+        const { error: createError } = await supabase.rpc('exec_sql', { sql: createFunctionSQL });
+        if (!createError) {
+          // Execute the function
+          const { data: result, error: execError } = await supabase.rpc('temp_migrate_streak_recovery');
+          if (!execError) {
+            migrationSuccess = true;
+            console.log('[Streak Recovery Migration] Temporary function approach succeeded!');
+            
+            // Clean up the temporary function
+            await supabase.rpc('exec_sql', { sql: 'DROP FUNCTION IF EXISTS temp_migrate_streak_recovery();' });
+          } else {
+            migrationError = execError.message;
+          }
+        } else {
+          migrationError = createError.message;
+        }
+      } catch (err: any) {
+        migrationError = err.message;
+        console.log('[Streak Recovery Migration] Temporary function approach failed:', err.message);
+      }
+    }
+
+    if (!migrationSuccess) {
+      console.log('[Streak Recovery Migration] All automated approaches failed, providing manual instructions');
+      
+      // Provide manual migration instructions
+      return NextResponse.json({ 
+        success: false,
+        error: 'Automated migration not available',
+        message: 'The automated migration failed, but you can run it manually.',
+        manualInstructions: {
+          title: 'Manual Migration Required',
+          steps: [
+            '1. Go to your Supabase Dashboard',
+            '2. Navigate to SQL Editor',
+            '3. Copy and paste the migration SQL below',
+            '4. Click Run to execute the migration',
+            '5. Refresh this page to enable recovery features'
+          ],
+          sql: migrationSQL,
+          note: 'This is safe to run multiple times - it uses IF NOT EXISTS clauses.'
+        },
+        technicalDetails: migrationError
+      }, { status: 400 });
+    }
+
+    // Verify the migration was successful
+    console.log('[Streak Recovery Migration] Verifying migration...');
+    const { data: columnCheck, error: verifyError } = await supabase
+      .from('streaks')
+      .select('resilience_points, safety_net_used, missed_days_this_week, last_missed_date, consecutive_weeks_completed, streak_broken_date, max_streak_achieved')
+      .limit(1);
+
+    if (verifyError) {
+      console.error('[Streak Recovery Migration] Verification failed:', verifyError);
       return NextResponse.json({ 
         error: 'Migration completed but verification failed', 
-        details: checkError.message 
+        details: verifyError.message 
       }, { status: 500 });
     }
 
-    console.log('[Streak Recovery Migration] Column verification successful');
+    console.log('[Streak Recovery Migration] Migration completed successfully!');
 
     return NextResponse.json({ 
       success: true, 
@@ -156,8 +182,7 @@ export async function POST(request: NextRequest) {
         'consecutive_weeks_completed',
         'streak_broken_date',
         'max_streak_achieved'
-      ],
-      results: migrationResults
+      ]
     });
 
   } catch (error: any) {

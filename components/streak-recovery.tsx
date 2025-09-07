@@ -290,13 +290,55 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
                     const result = await response.json();
                     
                     if (result.success) {
+                      if (result.alreadyMigrated) {
+                        toast({
+                          title: "Already Migrated! 🎉",
+                          description: "Streak recovery features are already enabled.",
+                          duration: 3000,
+                        });
+                      } else {
+                        toast({
+                          title: "Migration Successful! 🎉",
+                          description: "Streak recovery features are now enabled. Please refresh the page.",
+                          duration: 5000,
+                        });
+                        // Trigger a page refresh to reload the component with new features
+                        setTimeout(() => window.location.reload(), 2000);
+                      }
+                    } else if (result.manualInstructions) {
+                      // Show manual migration instructions
+                      const instructions = result.manualInstructions;
+                      const sqlCode = instructions.sql.replace(/^\s+/gm, ''); // Remove leading whitespace
+                      
                       toast({
-                        title: "Migration Successful! 🎉",
-                        description: "Streak recovery features are now enabled. Please refresh the page.",
-                        duration: 5000,
+                        title: "Manual Migration Required",
+                        description: "Automated migration failed. Check the console for manual instructions.",
+                        duration: 8000,
                       });
-                      // Trigger a page refresh to reload the component with new features
-                      setTimeout(() => window.location.reload(), 2000);
+                      
+                      // Log detailed instructions to console
+                      console.log('🔧 MANUAL MIGRATION REQUIRED');
+                      console.log('=====================================');
+                      console.log('📋 Steps:');
+                      instructions.steps.forEach((step: string, index: number) => {
+                        console.log(`   ${step}`);
+                      });
+                      console.log('');
+                      console.log('📝 SQL to run:');
+                      console.log(sqlCode);
+                      console.log('');
+                      console.log('ℹ️ Note:', instructions.note);
+                      console.log('=====================================');
+                      
+                      // Copy SQL to clipboard if possible
+                      if (navigator.clipboard) {
+                        try {
+                          await navigator.clipboard.writeText(sqlCode);
+                          console.log('✅ SQL copied to clipboard!');
+                        } catch (clipboardError) {
+                          console.log('❌ Could not copy to clipboard');
+                        }
+                      }
                     } else {
                       toast({
                         title: "Migration Failed",
