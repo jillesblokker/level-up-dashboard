@@ -130,7 +130,11 @@ export async function GET(request: Request) {
       console.log('[Quests API] First few quests:', quests.slice(0, 3).map(q => ({
         id: q.id,
         name: q.name,
-        category: q.category
+        category: q.category,
+        xp_reward: q.xp_reward,
+        gold_reward: q.gold_reward,
+        xp: q.xp,
+        gold: q.gold
       })));
     }
 
@@ -203,8 +207,8 @@ export async function GET(request: Request) {
         description: quest.description,
         category: quest.category, // Use the quest's actual category (already correct)
         difficulty: quest.difficulty,
-        xp: quest.xp,
-        gold: quest.gold,
+        xp: quest.xp_reward || quest.xp || 50, // Use xp_reward from database, fallback to xp, then default
+        gold: quest.gold_reward || quest.gold || 25, // Use gold_reward from database, fallback to gold, then default
         completed: isCompleted,
         date: completionDate,
         isNew: !isCompleted,

@@ -830,7 +830,18 @@ export default function QuestsPage() {
         const goldEarned = questObj.gold || 0;
         const xpEarned = questObj.xp || 0;
         
-        console.log('[QUEST-TOGGLE] Updating character stats:', { goldEarned, xpEarned });
+        console.log('[QUEST-TOGGLE] Updating character stats:', { 
+          goldEarned, 
+          xpEarned, 
+          questData: { 
+            id: questObj.id, 
+            name: questObj.name, 
+            gold: questObj.gold, 
+            xp: questObj.xp,
+            goldType: typeof questObj.gold,
+            xpType: typeof questObj.xp
+          } 
+        });
         
         // Update rate limiter context for quest completion
         const { updateRateLimiterContext } = await import('@/lib/character-stats-manager');
