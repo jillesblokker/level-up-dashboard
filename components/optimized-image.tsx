@@ -71,7 +71,7 @@ export function OptimizedImage({
           priority={priority}
           quality={quality}
           placeholder={placeholder}
-          blurDataURL={blurDataURL}
+          {...(blurDataURL && { blurDataURL })}
           className={cn(
             'transition-all duration-300',
             isLoading ? 'opacity-0' : 'opacity-100',
@@ -105,7 +105,7 @@ export function OptimizedImage({
         priority={priority}
         quality={quality}
         placeholder={placeholder}
-        blurDataURL={blurDataURL}
+        {...(blurDataURL && { blurDataURL })}
         className={cn(
           'transition-opacity duration-300',
           isLoading ? 'opacity-0' : 'opacity-100'
@@ -143,7 +143,7 @@ export function QuestImage({
       alt={alt}
       width={sizeConfig[size].width}
       height={sizeConfig[size].height}
-      className={className}
+      {...(className && { className })}
       medieval={true}
       quality={80}
       placeholder="blur"

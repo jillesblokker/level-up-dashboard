@@ -127,7 +127,7 @@ export function GoldParticleEffect({
   }, [isActive, amount, onComplete]);
 
   return (
-    <ParticleSystem particles={particles} className={className} />
+    <ParticleSystem particles={particles} {...(className && { className })} />
   );
 }
 
@@ -196,7 +196,7 @@ export function XPParticleEffect({
   }, [isActive, amount, onComplete]);
 
   return (
-    <ParticleSystem particles={particles} className={className} />
+    <ParticleSystem particles={particles} {...(className && { className })} />
   );
 }
 
@@ -280,7 +280,7 @@ export function ResourceParticleEffect({
   }, [isActive, resourceType, onComplete]);
 
   return (
-    <ParticleSystem particles={particles} className={className} />
+    <ParticleSystem particles={particles} {...(className && { className })} />
   );
 }
 
@@ -361,7 +361,7 @@ export function SparkleEffect({
   }, [isActive, intensity, onComplete]);
 
   return (
-    <ParticleSystem particles={particles} className={className} />
+    <ParticleSystem particles={particles} {...(className && { className })} />
   );
 }
 
@@ -428,6 +428,6 @@ export function FireEffect({
   }, [isActive, onComplete]);
 
   return (
-    <ParticleSystem particles={particles} className={className} />
+    <ParticleSystem particles={particles} {...(className && { className })} />
   );
 }

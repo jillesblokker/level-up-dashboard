@@ -63,8 +63,10 @@ class CacheManager {
         const stored = storage.getItem(`cache_${key}`);
         if (stored) {
           item = JSON.parse(stored);
-          // Restore to memory cache
-          this.memoryCache.set(key, item);
+          // Restore to memory cache if item is valid
+          if (item) {
+            this.memoryCache.set(key, item);
+          }
         }
       } catch (error) {
         console.warn('Failed to retrieve cache item:', error);

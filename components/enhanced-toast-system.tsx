@@ -192,26 +192,26 @@ export function useToast() {
 
   // Convenience methods
   const showSuccess = React.useCallback((title: string, description?: string) => {
-    return addToast({ type: 'success', title, description });
+    return addToast({ type: 'success', title, ...(description && { description }) });
   }, [addToast]);
 
   const showError = React.useCallback((title: string, description?: string) => {
-    return addToast({ type: 'error', title, description });
+    return addToast({ type: 'error', title, ...(description && { description }) });
   }, [addToast]);
 
   const showWarning = React.useCallback((title: string, description?: string) => {
-    return addToast({ type: 'warning', title, description });
+    return addToast({ type: 'warning', title, ...(description && { description }) });
   }, [addToast]);
 
   const showInfo = React.useCallback((title: string, description?: string) => {
-    return addToast({ type: 'info', title, description });
+    return addToast({ type: 'info', title, ...(description && { description }) });
   }, [addToast]);
 
   const showOffline = React.useCallback((title: string, description?: string) => {
     return addToast({ 
       type: 'offline', 
       title, 
-      description,
+      ...(description && { description }),
       persistent: true 
     });
   }, [addToast]);
@@ -220,7 +220,7 @@ export function useToast() {
     return addToast({ 
       type: 'online', 
       title, 
-      description,
+      ...(description && { description }),
       duration: 3000 
     });
   }, [addToast]);

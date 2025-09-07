@@ -44,7 +44,7 @@ export function LazyWrapper({
   loadingMessage 
 }: LazyWrapperProps) {
   return (
-    <Suspense fallback={fallback || (medieval ? <MedievalLoading message={loadingMessage} /> : <GenericLoading message={loadingMessage} />)}>
+    <Suspense fallback={fallback || (medieval ? <MedievalLoading {...(loadingMessage && { message: loadingMessage })} /> : <GenericLoading {...(loadingMessage && { message: loadingMessage })} />)}>
       {children}
     </Suspense>
   );
@@ -52,38 +52,44 @@ export function LazyWrapper({
 
 // Lazy-loaded components for better bundle splitting
 export const LazyKingdomGrid = lazy(() => import('@/components/kingdom-grid').then(module => ({ default: module.KingdomGrid })));
-export const LazyKingdomStatsGraph = lazy(() => import('@/components/kingdom-stats-graph').then(module => ({ default: module.KingdomStatsGraph })));
+export const LazyKingdomStatsBlock = lazy(() => import('@/components/kingdom-stats-graph').then(module => ({ default: module.KingdomStatsBlock })));
 export const LazyQuestOrganization = lazy(() => import('@/components/quest-organization').then(module => ({ default: module.QuestOrganization })));
 export const LazyAchievementUnlockModal = lazy(() => import('@/components/achievement-unlock-modal').then(module => ({ default: module.AchievementUnlockModal })));
 export const LazyOnboardingModal = lazy(() => import('@/components/onboarding/OnboardingModal').then(module => ({ default: module.OnboardingModal })));
 
 // Wrapped lazy components with medieval loading
-export const MedievalKingdomGrid = () => (
+export const MedievalKingdomGrid = ({ grid, onTilePlace, selectedTile, setSelectedTile, onGridExpand }: any) => (
   <LazyWrapper medieval={true} loadingMessage="Building your kingdom...">
-    <LazyKingdomGrid />
+    <LazyKingdomGrid 
+      grid={grid} 
+      onTilePlace={onTilePlace} 
+      selectedTile={selectedTile} 
+      setSelectedTile={setSelectedTile} 
+      onGridExpand={onGridExpand}
+    />
   </LazyWrapper>
 );
 
-export const MedievalKingdomStatsGraph = () => (
+export const MedievalKingdomStatsGraph = ({ userId }: { userId: string | null }) => (
   <LazyWrapper medieval={true} loadingMessage="Calculating realm statistics...">
-    <LazyKingdomStatsGraph />
+    <LazyKingdomStatsBlock userId={userId} />
   </LazyWrapper>
 );
 
-export const MedievalQuestOrganization = () => (
+export const MedievalQuestOrganization = (props: any) => (
   <LazyWrapper medieval={true} loadingMessage="Organizing your quests...">
-    <LazyQuestOrganization />
+    <LazyQuestOrganization {...props} />
   </LazyWrapper>
 );
 
-export const MedievalAchievementUnlockModal = () => (
+export const MedievalAchievementUnlockModal = (props: any) => (
   <LazyWrapper medieval={true} loadingMessage="Unlocking achievement...">
-    <LazyAchievementUnlockModal />
+    <LazyAchievementUnlockModal {...props} />
   </LazyWrapper>
 );
 
-export const MedievalOnboardingModal = () => (
+export const MedievalOnboardingModal = (props: any) => (
   <LazyWrapper medieval={true} loadingMessage="Preparing your adventure...">
-    <LazyOnboardingModal />
+    <LazyOnboardingModal {...props} />
   </LazyWrapper>
 );

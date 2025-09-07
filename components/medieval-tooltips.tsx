@@ -136,7 +136,7 @@ export function QuestTooltip({
           </div>
         </div>
       }
-      className={className}
+      {...(className && { className })}
     >
       {children}
     </MedievalTooltip>
@@ -226,7 +226,7 @@ export function KingdomTileTooltip({
           </div>
         </div>
       }
-      className={className}
+      {...(className && { className })}
     >
       {children}
     </MedievalTooltip>
@@ -249,7 +249,7 @@ export function MedievalHelpButton({
     <MedievalTooltip
       content={content}
       side={side}
-      className={className}
+      {...(className && { className })}
     >
       <button 
         className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-600/20 border border-amber-500/30 text-amber-300 hover:bg-amber-600/30 hover:text-amber-200 transition-all duration-200"

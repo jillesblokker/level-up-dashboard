@@ -93,7 +93,7 @@ export function DebouncedSearch({
       debounceMs={debounceMs}
       medieval={medieval}
       placeholder={placeholder}
-      className={className}
+      {...(className && { className })}
     />
   );
 }

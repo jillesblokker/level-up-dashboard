@@ -99,7 +99,7 @@ export function VirtualQuestList({
       itemHeight={120} // Approximate height of a quest card
       containerHeight={height}
       renderItem={renderQuest}
-      className={className}
+      {...(className && { className })}
       overscan={3}
     />
   );
@@ -125,7 +125,7 @@ export function VirtualKingdomGrid({
       itemHeight={100} // Approximate height of a kingdom tile
       containerHeight={height}
       renderItem={renderTile}
-      className={className}
+      {...(className && { className })}
       overscan={2}
     />
   );

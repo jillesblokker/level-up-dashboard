@@ -66,9 +66,9 @@ export function useQuestCompletion() {
           data: {
             questId,
             completed: newCompleted,
-            xp: questData.xp,
-            gold: questData.gold,
-            category: questData.category,
+            ...(questData.xp !== undefined && { xp: questData.xp }),
+            ...(questData.gold !== undefined && { gold: questData.gold }),
+            ...(questData.category !== undefined && { category: questData.category }),
           },
         });
 

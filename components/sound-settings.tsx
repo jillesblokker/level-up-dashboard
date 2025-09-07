@@ -33,7 +33,7 @@ export function SoundSettings({
   const [isPlaying, setIsPlaying] = React.useState(false);
 
   const handleVolumeChange = (value: number[]) => {
-    updateVolume(value[0] / 100);
+    updateVolume((value[0] || 0) / 100);
   };
 
   const playTestSound = async () => {
