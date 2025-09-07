@@ -274,12 +274,52 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
           <CardContent className="pt-4">
             <div className="flex items-center gap-2 text-yellow-200">
               <AlertTriangle className="w-5 h-5" />
-              <div>
+              <div className="flex-1">
                 <h3 className="font-medium">Recovery Features Not Available</h3>
                 <p className="text-sm text-yellow-300/80 mt-1">
-                  Run the database migration to enable streak recovery features. Check the README for migration instructions.
+                  Run the database migration to enable streak recovery features.
                 </p>
               </div>
+              <Button
+                onClick={async () => {
+                  try {
+                    const response = await fetch('/api/migrate-streak-recovery', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                    });
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                      toast({
+                        title: "Migration Successful! 🎉",
+                        description: "Streak recovery features are now enabled. Please refresh the page.",
+                        duration: 5000,
+                      });
+                      // Trigger a page refresh to reload the component with new features
+                      setTimeout(() => window.location.reload(), 2000);
+                    } else {
+                      toast({
+                        title: "Migration Failed",
+                        description: result.error || "Unknown error occurred",
+                        variant: "destructive",
+                        duration: 5000,
+                      });
+                    }
+                  } catch (error) {
+                    console.error('Migration error:', error);
+                    toast({
+                      title: "Migration Error",
+                      description: "Failed to run migration. Please try again.",
+                      variant: "destructive",
+                      duration: 5000,
+                    });
+                  }
+                }}
+                className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 text-sm font-medium"
+                aria-label="Run streak recovery migration"
+              >
+                Run Migration
+              </Button>
             </div>
           </CardContent>
         </Card>
