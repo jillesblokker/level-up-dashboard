@@ -188,8 +188,8 @@ export function SoundSettings({
           {/* Info */}
           <div className="bg-amber-800/10 border border-amber-700/30 rounded-lg p-3">
             <p className="text-xs text-amber-200">
-              💡 All sounds are procedurally generated and don't require external files. 
-              They're designed to enhance your medieval adventure experience!
+              💡 All sounds are procedurally generated and don&apos;t require external files. 
+              They&apos;re designed to enhance your medieval adventure experience!
             </p>
           </div>
         </CardContent>

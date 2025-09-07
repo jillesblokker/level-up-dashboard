@@ -105,7 +105,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                 Something went wrong
               </CardTitle>
               <CardDescription className="text-gray-400">
-                We encountered an unexpected error. Don't worry, your progress is safe.
+                We encountered an unexpected error. Don&apos;t worry, your progress is safe.
               </CardDescription>
             </CardHeader>
             

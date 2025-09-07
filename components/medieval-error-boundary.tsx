@@ -115,7 +115,7 @@ export class MedievalErrorBoundary extends Component<Props, State> {
               <CardContent className="space-y-4">
                 <div className="bg-amber-800/20 border border-amber-700/30 rounded-lg p-3">
                   <p className="text-amber-100 text-sm text-center">
-                    "Even the mightiest castles face storms. What matters is how we rebuild."
+                    &ldquo;Even the mightiest castles face storms. What matters is how we rebuild.&rdquo;
                   </p>
                 </div>
 
@@ -201,7 +201,7 @@ export class MedievalErrorBoundary extends Component<Props, State> {
                 Something went wrong
               </CardTitle>
               <CardDescription className="text-gray-400">
-                We encountered an unexpected error. Don't worry, your progress is safe.
+                We encountered an unexpected error. Don&apos;t worry, your progress is safe.
               </CardDescription>
             </CardHeader>
             
