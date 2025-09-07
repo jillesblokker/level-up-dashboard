@@ -181,11 +181,11 @@ export const typography = {
 
 export const animation = {
   duration: {
-    fast: '150ms',
-    normal: '300ms',
-    slow: '500ms',
-    slower: '700ms',
-    slowest: '1000ms'
+    fast: '100ms',      // OPTIMIZED: Reduced from 150ms
+    normal: '200ms',     // OPTIMIZED: Reduced from 300ms  
+    slow: '300ms',      // OPTIMIZED: Reduced from 500ms
+    slower: '400ms',    // OPTIMIZED: Reduced from 700ms
+    slowest: '500ms'    // OPTIMIZED: Reduced from 1000ms
   },
   
   easing: {

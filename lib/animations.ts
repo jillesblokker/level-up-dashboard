@@ -52,37 +52,37 @@ export const combineAnimations = (...classes: string[]) => {
   return classes.filter(Boolean).join(' ')
 }
 
-// Predefined animation combinations
+// Predefined animation combinations - OPTIMIZED for faster performance
 export const animationPresets = {
-  // Interactive button
+  // Interactive button - OPTIMIZED: Reduced from 300ms to 200ms
   button: combineAnimations(
     animations.hover.scale,
     animations.focus.ring,
-    'transition-all duration-300'
+    'transition-all duration-200'
   ),
   
-  // Card hover effect
+  // Card hover effect - OPTIMIZED: Reduced from 300ms to 200ms
   card: combineAnimations(
     animations.hover.lift,
     animations.hover.glow,
-    'transition-all duration-300'
+    'transition-all duration-200'
   ),
   
-  // Loading state
+  // Loading state - OPTIMIZED: Reduced from 300ms to 200ms
   loading: combineAnimations(
     animations.loading.pulse,
-    'duration-300'
+    'duration-200'
   ),
   
-  // Success feedback
+  // Success feedback - OPTIMIZED: Reduced from 150ms to 100ms
   success: combineAnimations(
     animations.feedback.success,
-    'duration-150'
+    'duration-100'
   ),
   
-  // Error feedback
+  // Error feedback - OPTIMIZED: Reduced from 150ms to 100ms
   error: combineAnimations(
     animations.feedback.error,
-    'duration-150'
+    'duration-100'
   ),
 } as const 

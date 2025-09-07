@@ -1,90 +1,1336 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="/Users/jillesblokker/Downloads/level-up/__tests__/lib/validation/schemas.test.ts">
-    <testCase name="Validation Schemas Quest Schema validates a valid quest" duration="5"/>
-    <testCase name="Validation Schemas Quest Schema requires title" duration="1"/>
-    <testCase name="Validation Schemas Quest Schema enforces title length limit" duration="2"/>
-    <testCase name="Validation Schemas Quest Schema enforces description length limit" duration="0"/>
-    <testCase name="Validation Schemas Quest Schema validates category enum values" duration="1"/>
-    <testCase name="Validation Schemas Quest Schema validates difficulty enum values" duration="1"/>
-    <testCase name="Validation Schemas Quest Schema enforces XP range" duration="0"/>
-    <testCase name="Validation Schemas Quest Schema enforces gold range" duration="0"/>
-    <testCase name="Validation Schemas Quest Schema allows optional fields to be undefined" duration="1"/>
-    <testCase name="Validation Schemas Quest Schema accepts valid tags array" duration="0"/>
-    <testCase name="Validation Schemas Challenge Schema validates a valid challenge" duration="0"/>
-    <testCase name="Validation Schemas Challenge Schema requires name" duration="1"/>
-    <testCase name="Validation Schemas Challenge Schema enforces name length limit" duration="0"/>
-    <testCase name="Validation Schemas Challenge Schema validates category enum values" duration="1"/>
-    <testCase name="Validation Schemas Challenge Schema enforces target minimum value" duration="0"/>
-    <testCase name="Validation Schemas Challenge Schema validates frequency enum values" duration="0"/>
-    <testCase name="Validation Schemas User Schema validates a valid user" duration="1"/>
-    <testCase name="Validation Schemas User Schema requires id" duration="4"/>
-    <testCase name="Validation Schemas User Schema validates email format" duration="1"/>
-    <testCase name="Validation Schemas User Schema allows email to be optional" duration="1"/>
-    <testCase name="Validation Schemas Quest Completion Schema validates a valid quest completion" duration="1"/>
-    <testCase name="Validation Schemas Quest Completion Schema requires questId" duration="0"/>
-    <testCase name="Validation Schemas Quest Completion Schema validates UUID format for questId" duration="1"/>
-    <testCase name="Validation Schemas Quest Completion Schema enforces non-negative XP and gold" duration="1"/>
-    <testCase name="Validation Schemas Quest Completion Schema enforces notes length limit" duration="0"/>
-    <testCase name="Validation Schemas Quest Form Schema validates quest form data" duration="0"/>
-    <testCase name="Validation Schemas Quest Form Schema excludes id field" duration="1"/>
-    <testCase name="Validation Schemas Quest Filters Schema validates quest filters" duration="0"/>
-    <testCase name="Validation Schemas Quest Filters Schema allows partial filters" duration="1"/>
-    <testCase name="Validation Schemas Quest Filters Schema allows empty filters" duration="0"/>
-    <testCase name="Validation Schemas Date Range Schema validates valid date range" duration="0"/>
-    <testCase name="Validation Schemas Date Range Schema validates same start and end date" duration="0"/>
-    <testCase name="Validation Schemas Date Range Schema rejects invalid date format" duration="0"/>
-    <testCase name="Validation Schemas Date Range Schema rejects end date before start date" duration="1"/>
-    <testCase name="Validation Schemas Validation Helper Functions validateSchema returns success result for valid data" duration="1"/>
-    <testCase name="Validation Schemas Validation Helper Functions validateSchema returns error result for invalid data" duration="0"/>
-    <testCase name="Validation Schemas Validation Helper Functions safeParse returns parsed data for valid input" duration="1"/>
-    <testCase name="Validation Schemas Validation Helper Functions safeParse returns null for invalid input" duration="0"/>
-    <testCase name="Validation Schemas Edge Cases handles empty strings appropriately" duration="1"/>
-    <testCase name="Validation Schemas Edge Cases handles null values appropriately" duration="0"/>
-    <testCase name="Validation Schemas Edge Cases handles undefined values appropriately" duration="0"/>
-    <testCase name="Validation Schemas Edge Cases handles very large numbers" duration="1"/>
-    <testCase name="Validation Schemas Schema Composition allows extending base schemas" duration="0"/>
-    <testCase name="Validation Schemas Schema Composition maintains validation rules when extending" duration="0"/>
+  <file path="/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useQuestCompletion.test.tsx">
+    <testCase name="useQuestCompletion should initialize with correct default state" duration="9">
+      <failure message="TypeError: mockUseToast.mockReturnValue is not a function"><![CDATA[TypeError: mockUseToast.mockReturnValue is not a function
+    at Object.mockReturnValue (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useQuestCompletion.test.tsx:24:18)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusHook (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:975:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:940:5)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="useQuestCompletion should complete quest successfully when online" duration="2">
+      <failure message="TypeError: mockUseToast.mockReturnValue is not a function"><![CDATA[TypeError: mockUseToast.mockReturnValue is not a function
+    at Object.mockReturnValue (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useQuestCompletion.test.tsx:24:18)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusHook (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:975:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:940:5)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="useQuestCompletion should handle quest completion failure" duration="2">
+      <failure message="TypeError: mockUseToast.mockReturnValue is not a function"><![CDATA[TypeError: mockUseToast.mockReturnValue is not a function
+    at Object.mockReturnValue (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useQuestCompletion.test.tsx:24:18)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusHook (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:975:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:940:5)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="useQuestCompletion should handle offline scenario" duration="1">
+      <failure message="TypeError: mockUseToast.mockReturnValue is not a function"><![CDATA[TypeError: mockUseToast.mockReturnValue is not a function
+    at Object.mockReturnValue (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useQuestCompletion.test.tsx:24:18)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusHook (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:975:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:940:5)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="useQuestCompletion should prevent duplicate requests for same quest" duration="3">
+      <failure message="TypeError: mockUseToast.mockReturnValue is not a function"><![CDATA[TypeError: mockUseToast.mockReturnValue is not a function
+    at Object.mockReturnValue (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useQuestCompletion.test.tsx:24:18)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusHook (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:975:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:940:5)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="useQuestCompletion should track pending quests correctly" duration="1">
+      <failure message="TypeError: mockUseToast.mockReturnValue is not a function"><![CDATA[TypeError: mockUseToast.mockReturnValue is not a function
+    at Object.mockReturnValue (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useQuestCompletion.test.tsx:24:18)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusHook (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:975:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:940:5)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="useQuestCompletion should call success callback on successful completion" duration="1">
+      <failure message="TypeError: mockUseToast.mockReturnValue is not a function"><![CDATA[TypeError: mockUseToast.mockReturnValue is not a function
+    at Object.mockReturnValue (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useQuestCompletion.test.tsx:24:18)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusHook (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:975:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:940:5)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="useQuestCompletion should call error callback on failure" duration="1">
+      <failure message="TypeError: mockUseToast.mockReturnValue is not a function"><![CDATA[TypeError: mockUseToast.mockReturnValue is not a function
+    at Object.mockReturnValue (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useQuestCompletion.test.tsx:24:18)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusHook (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:975:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:940:5)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
   </file>
-  <file path="/Users/jillesblokker/Downloads/level-up/__tests__/lib/store/app-store.test.ts">
-    <testCase name="App Store Initial State has correct initial state" duration="42"/>
-    <testCase name="App Store User Actions sets user data correctly" duration="1"/>
-    <testCase name="App Store User Actions updates user preferences" duration="1"/>
-    <testCase name="App Store User Actions merges user data without overwriting existing fields" duration="1"/>
-    <testCase name="App Store Quest Actions sets quests correctly" duration="1"/>
-    <testCase name="App Store Quest Actions toggles quest completion correctly" duration="0"/>
-    <testCase name="App Store Quest Actions handles quest completion for non-existent quest" duration="1"/>
-    <testCase name="App Store Inventory Actions sets inventory correctly" duration="1"/>
-    <testCase name="App Store Inventory Actions overwrites existing inventory" duration="1"/>
-    <testCase name="App Store UI Actions sets UI state correctly" duration="0"/>
-    <testCase name="App Store UI Actions merges UI state without overwriting existing fields" duration="1"/>
-    <testCase name="App Store Reset App Action resets app state to initial values" duration="3"/>
-    <testCase name="App Store Selector Hooks useUser returns user state" duration="2"/>
-    <testCase name="App Store Selector Hooks useQuests returns quests state" duration="2"/>
-    <testCase name="App Store Selector Hooks useInventory returns inventory state" duration="2"/>
-    <testCase name="App Store Selector Hooks useUI returns UI state" duration="3"/>
-    <testCase name="App Store Selector Hooks useAppActions returns all actions" duration="0"/>
-    <testCase name="App Store State Updates triggers re-renders when state changes" duration="5"/>
-    <testCase name="App Store State Updates maintains referential equality for unchanged objects" duration="2"/>
-    <testCase name="App Store Edge Cases handles empty arrays and objects" duration="1"/>
-    <testCase name="App Store Edge Cases handles null and undefined values gracefully" duration="1"/>
+  <file path="/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useQuestSync.test.tsx">
+    <testCase name="useQuestSync should initialize with correct default state" duration="40"/>
+    <testCase name="useQuestSync should call both quest and character stats updates on sync" duration="12"/>
+    <testCase name="useQuestSync should handle quest update errors" duration="263">
+      <failure message="Error: Quest update failed"><![CDATA[Error: Quest update failed
+    at Object.<anonymous> (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useQuestSync.test.tsx:64:58)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="useQuestSync should handle character stats update errors" duration="27">
+      <failure message="Error: Character stats update failed"><![CDATA[Error: Character stats update failed
+    at Object.<anonymous> (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useQuestSync.test.tsx:94:66)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="useQuestSync should work without character stats update callback" duration="15"/>
+    <testCase name="useQuestSync should work without quest update callback" duration="12"/>
+    <testCase name="useQuestSync should work without any callbacks" duration="8"/>
+    <testCase name="useQuestSync should pass through syncNow function" duration="4"/>
+    <testCase name="useQuestSync should pass through isSyncing state" duration="7"/>
+    <testCase name="useQuestSync should pass through lastSync timestamp" duration="5"/>
+    <testCase name="useQuestSync should configure useRealtimeSync with correct options" duration="11"/>
   </file>
-  <file path="/Users/jillesblokker/Downloads/level-up/__tests__/components/error-boundary.test.tsx">
-    <testCase name="ErrorBoundary ErrorBoundary Component renders children when there is no error" duration="84"/>
-    <testCase name="ErrorBoundary ErrorBoundary Component renders error fallback when child throws error" duration="118"/>
-    <testCase name="ErrorBoundary ErrorBoundary Component shows error details in development mode" duration="13"/>
-    <testCase name="ErrorBoundary ErrorBoundary Component hides error details in production mode" duration="18"/>
-    <testCase name="ErrorBoundary ErrorBoundary Component calls resetError when Try Again button is clicked" duration="30"/>
-    <testCase name="ErrorBoundary ErrorBoundary Component navigates to home when Go Home button is clicked" duration="14"/>
-    <testCase name="ErrorBoundary ErrorBoundary Component logs error details to console" duration="6"/>
-    <testCase name="ErrorBoundary withErrorBoundary HOC wraps component with error boundary" duration="1"/>
-    <testCase name="ErrorBoundary withErrorBoundary HOC handles errors in wrapped component" duration="7"/>
-    <testCase name="ErrorBoundary withErrorBoundary HOC maintains component display name" duration="0"/>
-    <testCase name="ErrorBoundary Custom Fallback renders custom fallback when provided" duration="8"/>
-    <testCase name="ErrorBoundary Custom Fallback calls custom resetError function" duration="8"/>
-    <testCase name="ErrorBoundary Error Boundary State Management maintains error state correctly" duration="6"/>
-    <testCase name="ErrorBoundary Error Boundary State Management handles multiple error states" duration="7"/>
-    <testCase name="ErrorBoundary Accessibility has proper ARIA labels and roles" duration="70"/>
-    <testCase name="ErrorBoundary Accessibility provides clear error information" duration="9"/>
+  <file path="/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useOfflineSupport.test.tsx">
+    <testCase name="useOfflineSupport should initialize with correct default state" duration="42"/>
+    <testCase name="useOfflineSupport should load queue from localStorage on mount" duration="9"/>
+    <testCase name="useOfflineSupport should save queue to localStorage when queue changes" duration="102"/>
+    <testCase name="useOfflineSupport should add item to queue with correct structure" duration="11"/>
+    <testCase name="useOfflineSupport should process queue successfully when online" duration="100"/>
+    <testCase name="useOfflineSupport should retry failed items up to max retries" duration="70">
+      <failure message="Error: expect(received).toHaveLength(expected)"><![CDATA[Error: expect(received).toHaveLength(expected)
+
+Expected length: 1
+Received length: 2
+Received array:  [{"data": {"completed": true, "questId": "quest-1"}, "id": "quest-completion-quest-1-1757233573443", "retryCount": 0, "timestamp": 1757233573443, "type": "quest-completion"}, {"data": {"completed": true, "questId": "quest-1"}, "id": "quest-completion-quest-1-1757233573443", "retryCount": 1, "timestamp": 1757233573443, "type": "quest-completion"}]
+    at Object.toHaveLength (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useOfflineSupport.test.tsx:176:34)]]></failure>
+    </testCase>
+    <testCase name="useOfflineSupport should not process queue when offline" duration="21"/>
+    <testCase name="useOfflineSupport should not process queue when already processing" duration="33">
+      <failure message="Error: expect(jest.fn()).toHaveBeenCalledTimes(expected)"><![CDATA[Error: expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+Expected number of calls: 1
+Received number of calls: 2
+    at Object.toHaveBeenCalledTimes (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useOfflineSupport.test.tsx:247:26)]]></failure>
+    </testCase>
+    <testCase name="useOfflineSupport should clear queue correctly" duration="12">
+      <failure message="TypeError: Cannot read properties of null (reading &apos;addToQueue&apos;)"><![CDATA[TypeError: Cannot read properties of null (reading 'addToQueue')
+    at addToQueue (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useOfflineSupport.test.tsx:257:22)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.0_@types+react-dom@18.3.7_@types+reac_n6zn3qn3zcksufzb7vek6rylvu/node_modules/@testing-library/react/dist/act-compat.js:48:24
+    at act (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react@18.3.1/node_modules/react/cjs/react.development.js:2512:16)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.0_@types+react-dom@18.3.7_@types+reac_n6zn3qn3zcksufzb7vek6rylvu/node_modules/@testing-library/react/dist/act-compat.js:47:25
+    at Object.<anonymous> (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useOfflineSupport.test.tsx:256:8)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="useOfflineSupport should provide correct queue statistics" duration="8">
+      <failure message="TypeError: Cannot read properties of null (reading &apos;addToQueue&apos;)"><![CDATA[TypeError: Cannot read properties of null (reading 'addToQueue')
+    at addToQueue (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useOfflineSupport.test.tsx:283:22)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.0_@types+react-dom@18.3.7_@types+reac_n6zn3qn3zcksufzb7vek6rylvu/node_modules/@testing-library/react/dist/act-compat.js:48:24
+    at act (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react@18.3.1/node_modules/react/cjs/react.development.js:2512:16)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.0_@types+react-dom@18.3.7_@types+reac_n6zn3qn3zcksufzb7vek6rylvu/node_modules/@testing-library/react/dist/act-compat.js:47:25
+    at Object.<anonymous> (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useOfflineSupport.test.tsx:282:8)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="useOfflineSupport should handle localStorage errors gracefully" duration="11">
+      <failure message="TypeError: Cannot read properties of null (reading &apos;queue&apos;)"><![CDATA[TypeError: Cannot read properties of null (reading 'queue')
+    at Object.queue (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useOfflineSupport.test.tsx:314:27)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="useOfflineSupport should handle unknown queue item types" duration="5">
+      <failure message="TypeError: Cannot read properties of null (reading &apos;addToQueue&apos;)"><![CDATA[TypeError: Cannot read properties of null (reading 'addToQueue')
+    at addToQueue (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useOfflineSupport.test.tsx:322:22)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.0_@types+react-dom@18.3.7_@types+reac_n6zn3qn3zcksufzb7vek6rylvu/node_modules/@testing-library/react/dist/act-compat.js:48:24
+    at act (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/react@18.3.1/node_modules/react/cjs/react.development.js:2512:16)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.0_@types+react-dom@18.3.7_@types+reac_n6zn3qn3zcksufzb7vek6rylvu/node_modules/@testing-library/react/dist/act-compat.js:47:25
+    at Object.<anonymous> (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useOfflineSupport.test.tsx:321:8)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+  </file>
+  <file path="/Users/jillesblokker/Downloads/level-up/__tests__/components/sync-status-indicator.test.tsx">
+    <testCase name="SyncStatusIndicator should show live status when recently synced" duration="279"/>
+    <testCase name="SyncStatusIndicator should show syncing status when syncing" duration="59">
+      <failure message="TestingLibraryElementError: Unable to find an element with the role &quot;status&quot;"><![CDATA[TestingLibraryElementError: Unable to find an element with the role "status"
+
+There are no available roles.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="rounded-full px-2.5 py-0.5 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 bg-gray-900/50 border border-amber-800/20 hover:bg-gray-800/50 flex items-center gap-1 text-xs text-blue-400"
+    >
+      <svg
+        class="lucide lucide-loader2 h-3 w-3 animate-spin"
+        fill="none"
+        height="24"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M21 12a9 9 0 1 1-6.219-8.56"
+        />
+      </svg>
+      Syncing...
+    </div>
+  </div>
+</body>
+    at Object.getElementError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+    at Object.getByRole (/Users/jillesblokker/Downloads/level-up/__tests__/components/sync-status-indicator.test.tsx:28:28)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="SyncStatusIndicator should show offline status when not recently synced" duration="11"/>
+    <testCase name="SyncStatusIndicator should show error status when there is an error" duration="10"/>
+    <testCase name="SyncStatusIndicator should prioritize error over syncing status" duration="8"/>
+    <testCase name="SyncStatusIndicator should prioritize syncing over offline status" duration="5"/>
+    <testCase name="SyncStatusIndicator should apply custom className" duration="8"/>
+    <testCase name="SyncStatusIndicator should show correct icon for live status" duration="10">
+      <failure message="TestingLibraryElementError: Unable to find an element with the role &quot;status&quot;"><![CDATA[TestingLibraryElementError: Unable to find an element with the role "status"
+
+There are no available roles.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="rounded-full border px-2.5 py-0.5 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 border-transparent bg-amber-500 hover:bg-amber-600 flex items-center gap-1 text-xs text-green-400"
+    >
+      <svg
+        class="lucide lucide-wifi h-3 w-3"
+        fill="none"
+        height="24"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M12 20h.01"
+        />
+        <path
+          d="M2 8.82a15 15 0 0 1 20 0"
+        />
+        <path
+          d="M5 12.859a10 10 0 0 1 14 0"
+        />
+        <path
+          d="M8.5 16.429a5 5 0 0 1 7 0"
+        />
+      </svg>
+      Live
+    </div>
+  </div>
+</body>
+    at Object.getElementError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+    at Object.getByRole (/Users/jillesblokker/Downloads/level-up/__tests__/components/sync-status-indicator.test.tsx:80:25)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="SyncStatusIndicator should show correct icon for syncing status" duration="9">
+      <failure message="TestingLibraryElementError: Unable to find an element with the role &quot;status&quot;"><![CDATA[TestingLibraryElementError: Unable to find an element with the role "status"
+
+There are no available roles.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="rounded-full px-2.5 py-0.5 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 bg-gray-900/50 border border-amber-800/20 hover:bg-gray-800/50 flex items-center gap-1 text-xs text-blue-400"
+    >
+      <svg
+        class="lucide lucide-loader2 h-3 w-3 animate-spin"
+        fill="none"
+        height="24"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M21 12a9 9 0 1 1-6.219-8.56"
+        />
+      </svg>
+      Syncing...
+    </div>
+  </div>
+</body>
+    at Object.getElementError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+    at Object.getByRole (/Users/jillesblokker/Downloads/level-up/__tests__/components/sync-status-indicator.test.tsx:88:25)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="SyncStatusIndicator should show correct icon for error status" duration="6">
+      <failure message="TestingLibraryElementError: Unable to find an element with the role &quot;status&quot;"><![CDATA[TestingLibraryElementError: Unable to find an element with the role "status"
+
+There are no available roles.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="rounded-full border px-2.5 py-0.5 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 border-transparent bg-red-600 hover:bg-red-700 flex items-center gap-1 text-xs text-red-400"
+    >
+      <svg
+        class="lucide lucide-alert-circle h-3 w-3"
+        fill="none"
+        height="24"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <circle
+          cx="12"
+          cy="12"
+          r="10"
+        />
+        <line
+          x1="12"
+          x2="12"
+          y1="8"
+          y2="12"
+        />
+        <line
+          x1="12"
+          x2="12.01"
+          y1="16"
+          y2="16"
+        />
+      </svg>
+      Sync Error
+    </div>
+  </div>
+</body>
+    at Object.getElementError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+    at Object.getByRole (/Users/jillesblokker/Downloads/level-up/__tests__/components/sync-status-indicator.test.tsx:95:25)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="SyncStatusIndicator should show correct icon for offline status" duration="10">
+      <failure message="TestingLibraryElementError: Unable to find an element with the role &quot;status&quot;"><![CDATA[TestingLibraryElementError: Unable to find an element with the role "status"
+
+There are no available roles.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="rounded-full px-2.5 py-0.5 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 border border-amber-800/20 hover:bg-amber-900/20 flex items-center gap-1 text-xs text-gray-400"
+    >
+      <svg
+        class="lucide lucide-wifi h-3 w-3"
+        fill="none"
+        height="24"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M12 20h.01"
+        />
+        <path
+          d="M2 8.82a15 15 0 0 1 20 0"
+        />
+        <path
+          d="M5 12.859a10 10 0 0 1 14 0"
+        />
+        <path
+          d="M8.5 16.429a5 5 0 0 1 7 0"
+        />
+      </svg>
+      Offline
+    </div>
+  </div>
+</body>
+    at Object.getElementError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+    at Object.getByRole (/Users/jillesblokker/Downloads/level-up/__tests__/components/sync-status-indicator.test.tsx:104:25)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="SyncStatusIndicator should handle zero lastSync" duration="6"/>
+    <testCase name="SyncStatusIndicator should handle very recent lastSync" duration="6"/>
+    <testCase name="SyncStatusIndicator should handle exactly 1 minute ago lastSync" duration="7"/>
+    <testCase name="SyncStatusIndicator should handle empty error string" duration="7"/>
+    <testCase name="SyncStatusIndicator should handle null error" duration="5"/>
+    <testCase name="SyncStatusIndicator should handle undefined error" duration="4"/>
+  </file>
+  <file path="/Users/jillesblokker/Downloads/level-up/__tests__/components/offline-queue-indicator.test.tsx">
+    <testCase name="OfflineQueueIndicator should not render when online and no queue" duration="49"/>
+    <testCase name="OfflineQueueIndicator should show offline status when offline" duration="194"/>
+    <testCase name="OfflineQueueIndicator should show syncing status when processing" duration="10"/>
+    <testCase name="OfflineQueueIndicator should show failed status when there are retrying items" duration="10"/>
+    <testCase name="OfflineQueueIndicator should show pending status when there are pending items" duration="49"/>
+    <testCase name="OfflineQueueIndicator should prioritize failed over pending status" duration="17"/>
+    <testCase name="OfflineQueueIndicator should prioritize syncing over other statuses" duration="9"/>
+    <testCase name="OfflineQueueIndicator should show age of oldest item" duration="5"/>
+    <testCase name="OfflineQueueIndicator should show sync button when online and not processing" duration="20"/>
+    <testCase name="OfflineQueueIndicator should not show sync button when offline" duration="6"/>
+    <testCase name="OfflineQueueIndicator should not show sync button when processing" duration="5"/>
+    <testCase name="OfflineQueueIndicator should show clear button when there are items" duration="7"/>
+    <testCase name="OfflineQueueIndicator should not show clear button when no items" duration="3"/>
+    <testCase name="OfflineQueueIndicator should apply custom className" duration="10">
+      <failure message="Error: expect(element).toHaveClass(&quot;custom-class&quot;)"><![CDATA[Error: expect(element).toHaveClass("custom-class")
+
+Expected the element to have class:
+  custom-class
+Received:
+  rounded-full border px-2.5 py-0.5 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 border-transparent bg-red-600 hover:bg-red-700 flex items-center gap-1 text-xs text-red-400
+    at Object.toHaveClass (/Users/jillesblokker/Downloads/level-up/__tests__/components/offline-queue-indicator.test.tsx:167:23)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="OfflineQueueIndicator should format age correctly for different time periods" duration="27">
+      <failure message="TestingLibraryElementError: Found multiple elements with the text: Just now"><![CDATA[TestingLibraryElementError: Found multiple elements with the text: Just now
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+<span
+  class="text-xs text-gray-400"
+>
+  Just now
+</span>
+
+Ignored nodes: comments, script, style
+<span
+  class="text-xs text-gray-400"
+>
+  Just now
+</span>
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="flex items-center gap-2"
+    >
+      <div
+        class="rounded-full px-2.5 py-0.5 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 border border-amber-800/20 hover:bg-amber-900/20 flex items-center gap-1 text-xs text-amber-400"
+      >
+        <svg
+          class="lucide lucide-clock h-3 w-3"
+          fill="none"
+          height="24"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+          />
+          <polyline
+            points="12 6 12 12 16 14"
+          />
+        </svg>
+        1 Pending
+      </div>
+      <div
+        class="flex items-center gap-1"
+      >
+        <span
+          class="text-xs text-gray-400"
+        >
+          Just now
+        </span>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div
+      class="flex items-center gap-2"
+    >
+      <div
+        class="rounded-full px-2.5 py-0.5 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 border border-amber-800/20 hover:bg-amber-900/20 flex items-center gap-1 text-xs text-amber-400"
+      >
+        <svg
+          class="lucide lucide-clock h-3 w-3"
+          fill="none"
+          height="24"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+          />
+          <polyline
+            points="12 6 12 12 16 14"
+          />
+        </svg>
+        1 Pending
+      </div>
+      <div
+        class="flex items-center gap-1"
+      >
+        <span
+          class="text-xs text-gray-400"
+        >
+          Just now
+        </span>
+      </div>
+    </div>
+  </div>
+</body>
+    at Object.getElementError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19)
+    at getElementError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:20:35)
+    at getMultipleElementsFoundError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:23:10)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:55:13
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+    at getByText (/Users/jillesblokker/Downloads/level-up/__tests__/components/offline-queue-indicator.test.tsx:187:14)
+    at Array.forEach (<anonymous>)
+    at Object.forEach (/Users/jillesblokker/Downloads/level-up/__tests__/components/offline-queue-indicator.test.tsx:180:15)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="OfflineQueueIndicator should handle null oldestItem" duration="5"/>
+    <testCase name="OfflineQueueIndicator should handle zero total items" duration="2"/>
+    <testCase name="OfflineQueueIndicator should show correct icon for offline status" duration="27">
+      <failure message="TestingLibraryElementError: Unable to find an element with the role &quot;status&quot;"><![CDATA[TestingLibraryElementError: Unable to find an element with the role "status"
+
+There are no available roles.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="flex items-center gap-2"
+    >
+      <div
+        class="rounded-full border px-2.5 py-0.5 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 border-transparent bg-red-600 hover:bg-red-700 flex items-center gap-1 text-xs text-red-400"
+      >
+        <svg
+          class="lucide lucide-wifi-off h-3 w-3"
+          fill="none"
+          height="24"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M12 20h.01"
+          />
+          <path
+            d="M8.5 16.429a5 5 0 0 1 7 0"
+          />
+          <path
+            d="M5 12.859a10 10 0 0 1 5.17-2.69"
+          />
+          <path
+            d="M19 12.859a10 10 0 0 0-2.007-1.523"
+          />
+          <path
+            d="M2 8.82a15 15 0 0 1 4.177-2.643"
+          />
+          <path
+            d="M22 8.82a15 15 0 0 0-11.288-3.764"
+          />
+          <path
+            d="m2 2 20 20"
+          />
+        </svg>
+        Offline
+      </div>
+    </div>
+  </div>
+</body>
+    at Object.getElementError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+    at Object.getByRole (/Users/jillesblokker/Downloads/level-up/__tests__/components/offline-queue-indicator.test.tsx:214:25)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="OfflineQueueIndicator should show correct icon for syncing status" duration="7">
+      <failure message="TestingLibraryElementError: Unable to find an element with the role &quot;status&quot;"><![CDATA[TestingLibraryElementError: Unable to find an element with the role "status"
+
+There are no available roles.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="flex items-center gap-2"
+    >
+      <div
+        class="rounded-full px-2.5 py-0.5 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 bg-gray-900/50 border border-amber-800/20 hover:bg-gray-800/50 flex items-center gap-1 text-xs text-blue-400"
+      >
+        <svg
+          class="lucide lucide-clock h-3 w-3"
+          fill="none"
+          height="24"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+          />
+          <polyline
+            points="12 6 12 12 16 14"
+          />
+        </svg>
+        Syncing...
+      </div>
+      <div
+        class="flex items-center gap-1"
+      >
+        <span
+          class="text-xs text-gray-400"
+        >
+          Just now
+        </span>
+      </div>
+    </div>
+  </div>
+</body>
+    at Object.getElementError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+    at Object.getByRole (/Users/jillesblokker/Downloads/level-up/__tests__/components/offline-queue-indicator.test.tsx:225:25)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="OfflineQueueIndicator should show correct icon for failed status" duration="6">
+      <failure message="TestingLibraryElementError: Unable to find an element with the role &quot;status&quot;"><![CDATA[TestingLibraryElementError: Unable to find an element with the role "status"
+
+There are no available roles.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="flex items-center gap-2"
+    >
+      <div
+        class="rounded-full border px-2.5 py-0.5 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 border-transparent bg-red-600 hover:bg-red-700 flex items-center gap-1 text-xs text-red-400"
+      >
+        <svg
+          class="lucide lucide-alert-circle h-3 w-3"
+          fill="none"
+          height="24"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+          />
+          <line
+            x1="12"
+            x2="12"
+            y1="8"
+            y2="12"
+          />
+          <line
+            x1="12"
+            x2="12.01"
+            y1="16"
+            y2="16"
+          />
+        </svg>
+        1 Failed
+      </div>
+      <div
+        class="flex items-center gap-1"
+      >
+        <span
+          class="text-xs text-gray-400"
+        >
+          Just now
+        </span>
+      </div>
+    </div>
+  </div>
+</body>
+    at Object.getElementError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+    at Object.getByRole (/Users/jillesblokker/Downloads/level-up/__tests__/components/offline-queue-indicator.test.tsx:235:25)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="OfflineQueueIndicator should show correct icon for pending status" duration="5">
+      <failure message="TestingLibraryElementError: Unable to find an element with the role &quot;status&quot;"><![CDATA[TestingLibraryElementError: Unable to find an element with the role "status"
+
+There are no available roles.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="flex items-center gap-2"
+    >
+      <div
+        class="rounded-full px-2.5 py-0.5 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 border border-amber-800/20 hover:bg-amber-900/20 flex items-center gap-1 text-xs text-amber-400"
+      >
+        <svg
+          class="lucide lucide-clock h-3 w-3"
+          fill="none"
+          height="24"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+          />
+          <polyline
+            points="12 6 12 12 16 14"
+          />
+        </svg>
+        1 Pending
+      </div>
+      <div
+        class="flex items-center gap-1"
+      >
+        <span
+          class="text-xs text-gray-400"
+        >
+          Just now
+        </span>
+      </div>
+    </div>
+  </div>
+</body>
+    at Object.getElementError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+    at Object.getByRole (/Users/jillesblokker/Downloads/level-up/__tests__/components/offline-queue-indicator.test.tsx:245:25)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+  </file>
+  <file path="/Users/jillesblokker/Downloads/level-up/__tests__/components/quest-toggle-button.test.tsx">
+    <testCase name="QuestToggleButton should render checkbox variant by default" duration="300"/>
+    <testCase name="QuestToggleButton should render button variant when specified" duration="29"/>
+    <testCase name="QuestToggleButton should show completed state correctly" duration="27"/>
+    <testCase name="QuestToggleButton should show pending state with spinner" duration="33">
+      <failure message="TestingLibraryElementError: Unable to find an element with the role &quot;status&quot;"><![CDATA[TestingLibraryElementError: Unable to find an element with the role "status"
+
+Here are the available roles:
+
+  checkbox:
+
+  Name "":
+  <button
+    aria-checked="false"
+    class="peer shrink-0 rounded-sm border border-amber-500 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-amber-500 data-[state=checked]:text-black h-4 w-4"
+    data-disabled=""
+    data-state="unchecked"
+    disabled=""
+    id="quest-test-quest"
+    role="checkbox"
+    type="button"
+    value="on"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="flex items-center space-x-2"
+    >
+      <button
+        aria-checked="false"
+        class="peer shrink-0 rounded-sm border border-amber-500 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-amber-500 data-[state=checked]:text-black h-4 w-4"
+        data-disabled=""
+        data-state="unchecked"
+        disabled=""
+        id="quest-test-quest"
+        role="checkbox"
+        type="button"
+        value="on"
+      />
+      <svg
+        class="lucide lucide-loader2 h-3 w-3 animate-spin text-blue-500"
+        fill="none"
+        height="24"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M21 12a9 9 0 1 1-6.219-8.56"
+        />
+      </svg>
+    </div>
+  </div>
+</body>
+    at Object.getElementError (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:37:19)
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+    at /Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+    at Object.getByRole (/Users/jillesblokker/Downloads/level-up/__tests__/components/quest-toggle-button.test.tsx:85:28)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="QuestToggleButton should be disabled when disabled prop is true" duration="13"/>
+    <testCase name="QuestToggleButton should be disabled when quest is pending" duration="12"/>
+    <testCase name="QuestToggleButton should call toggleQuestCompletion when clicked" duration="40"/>
+    <testCase name="QuestToggleButton should call onToggle when quest completion succeeds" duration="1019">
+      <failure message="Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)"><![CDATA[Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: "test-quest", true
+
+Number of calls: 0
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body>
+    <div>
+      <div
+        class="flex items-center space-x-2"
+      >
+        <button
+          aria-checked="false"
+          class="peer shrink-0 rounded-sm border border-amber-500 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-amber-500 data-[state=checked]:text-black h-4 w-4"
+          data-state="unchecked"
+          id="quest-test-quest"
+          role="checkbox"
+          type="button"
+          value="on"
+        />
+      </div>
+    </div>
+  </body>
+</html>
+    at toHaveBeenCalledWith (/Users/jillesblokker/Downloads/level-up/__tests__/components/quest-toggle-button.test.tsx:169:28)
+    at runWithExpensiveErrorDiagnosticsDisabled (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:47:12)
+    at checkCallback (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+    at checkRealTimersCallback (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+    at Timeout.task [as _onTimeout] (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jsdom@26.1.0_canvas@3.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+    at listOnTimeout (node:internal/timers:611:17)
+    at processTimers (node:internal/timers:546:7)]]></failure>
+    </testCase>
+    <testCase name="QuestToggleButton should not call onToggle when quest completion fails" duration="55"/>
+    <testCase name="QuestToggleButton should handle button variant click" duration="5"/>
+    <testCase name="QuestToggleButton should show correct button text for completed quest" duration="4"/>
+    <testCase name="QuestToggleButton should show spinner in button when pending" duration="4"/>
+    <testCase name="QuestToggleButton should not call toggleQuestCompletion when disabled" duration="5"/>
+    <testCase name="QuestToggleButton should use default values for xp and gold when not provided" duration="7"/>
+    <testCase name="QuestToggleButton should handle undefined category gracefully" duration="6"/>
+  </file>
+  <file path="/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useRealtimeSync.test.tsx">
+    <testCase name="useRealtimeSync should initialize with correct default state" duration="7">
+      <failure message="TypeError: window.performance.now.mockClear is not a function"><![CDATA[TypeError: window.performance.now.mockClear is not a function
+    at Object.mockClear (/Users/jillesblokker/Downloads/level-up/jest.setup.js:303:26)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusHook (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:975:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:940:5)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="useRealtimeSync should start polling when enabled and visible" duration="291">
+      <failure message="Error: expect(jest.fn()).toHaveBeenCalledTimes(expected)"><![CDATA[Error: expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+Expected number of calls: 1
+Received number of calls: 0
+    at Object.toHaveBeenCalledTimes (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useRealtimeSync.test.tsx:45:22)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="useRealtimeSync should not poll when disabled" duration="56"/>
+    <testCase name="useRealtimeSync should not poll when page is not visible" duration="29"/>
+    <testCase name="useRealtimeSync should resume polling when page becomes visible" duration="21"/>
+    <testCase name="useRealtimeSync should sync immediately when page becomes visible if enough time has passed" duration="32"/>
+    <testCase name="useRealtimeSync should sync on window focus" duration="9"/>
+    <testCase name="useRealtimeSync should not sync on focus if recent sync occurred" duration="19">
+      <failure message="Error: expect(jest.fn()).toHaveBeenCalledTimes(expected)"><![CDATA[Error: expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+Expected number of calls: 1
+Received number of calls: 0
+    at Object.toHaveBeenCalledTimes (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useRealtimeSync.test.tsx:176:22)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="useRealtimeSync should handle sync errors gracefully" duration="1034">
+      <failure message="Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)"><![CDATA[Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: [Error: Sync failed]
+
+Number of calls: 0
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body>
+    <div />
+  </body>
+</html>
+    at toHaveBeenCalledWith (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useRealtimeSync.test.tsx:203:27)
+    at runWithExpensiveErrorDiagnosticsDisabled (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:47:12)
+    at checkCallback (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+    at checkRealTimersCallback (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+    at Timeout.task [as _onTimeout] (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jsdom@26.1.0_canvas@3.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+    at listOnTimeout (node:internal/timers:611:17)
+    at processTimers (node:internal/timers:546:7)]]></failure>
+    </testCase>
+    <testCase name="useRealtimeSync should prevent concurrent syncs" duration="23">
+      <failure message="Error: expect(jest.fn()).toHaveBeenCalledTimes(expected)"><![CDATA[Error: expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+Expected number of calls: 1
+Received number of calls: 0
+    at Object.toHaveBeenCalledTimes (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useRealtimeSync.test.tsx:227:22)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="useRealtimeSync should update lastSync timestamp on successful sync" duration="1013">
+      <failure message="Error: expect(received).toBeGreaterThan(expected)"><![CDATA[Error: expect(received).toBeGreaterThan(expected)
+
+Expected: > 0
+Received:   0
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body>
+    <div />
+  </body>
+</html>
+    at toBeGreaterThan (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useRealtimeSync.test.tsx:244:39)
+    at runWithExpensiveErrorDiagnosticsDisabled (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/config.js:47:12)
+    at checkCallback (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+    at checkRealTimersCallback (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/@testing-library+dom@10.4.0/node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+    at Timeout.task [as _onTimeout] (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jsdom@26.1.0_canvas@3.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+    at listOnTimeout (node:internal/timers:611:17)
+    at processTimers (node:internal/timers:546:7)]]></failure>
+    </testCase>
+    <testCase name="useRealtimeSync should provide manual sync function" duration="5"/>
+    <testCase name="useRealtimeSync should use custom interval" duration="12">
+      <failure message="Error: expect(jest.fn()).toHaveBeenCalledTimes(expected)"><![CDATA[Error: expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+Expected number of calls: 1
+Received number of calls: 0
+    at Object.toHaveBeenCalledTimes (/Users/jillesblokker/Downloads/level-up/__tests__/hooks/useRealtimeSync.test.tsx:275:22)
+    at Promise.finally.completed (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at _runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jillesblokker/Downloads/level-up/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="useRealtimeSync should clean up timers on unmount" duration="10"/>
   </file>
 </testExecutions>

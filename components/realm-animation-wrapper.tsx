@@ -113,34 +113,34 @@ export function RealmAnimationWrapper({
       // Start animation sequence
       setAnimationState('starting')
       
-      // Begin smooth scroll to top
-      smoothScrollToTop(1000)
+      // Begin smooth scroll to top - OPTIMIZED: Reduced from 1000ms to 300ms
+      smoothScrollToTop(300)
       
-      // Begin animation after scroll starts
+      // Begin animation after scroll starts - OPTIMIZED: Reduced from 50ms to 20ms
       animationTimeoutRef.current = setTimeout(() => {
         setAnimationState('animating')
         
-        // End animation after transition duration
+        // End animation after transition duration - OPTIMIZED: Reduced from 500ms to 200ms
         animationTimeoutRef.current = setTimeout(() => {
           setAnimationState('ending')
           
-          // Complete animation and trigger image reveal
+          // Complete animation and trigger image reveal - OPTIMIZED: Reduced from 100ms to 50ms
           animationTimeoutRef.current = setTimeout(() => {
             setAnimationState('idle')
             
             // Trigger image reveal immediately so header image is visible
             onImageReveal?.(true)
             
-            // First, scroll down to show content (buttons and grid)
-            scrollDownToContent(500)
+            // First, scroll down to show content (buttons and grid) - OPTIMIZED: Reduced from 500ms to 200ms
+            scrollDownToContent(200)
             
-            // After 0.8 seconds, scroll to show header image
+            // After 0.3 seconds, scroll to show header image - OPTIMIZED: Reduced from 800ms to 300ms
             setTimeout(() => {
-              scrollToShowHeader(1500)
-            }, 800)
-          }, 100)
-        }, 500)
-      }, 50)
+              scrollToShowHeader(500) // OPTIMIZED: Reduced from 1500ms to 500ms
+            }, 300)
+          }, 50)
+        }, 200)
+      }, 20)
     }
 
     return () => {

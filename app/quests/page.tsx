@@ -32,6 +32,13 @@ import { GameplayLoopIndicator } from '@/components/gameplay-loop-indicator'
 import { KeyboardShortcutsProvider } from '@/components/keyboard-shortcuts'
 import { showQuestCompletionToast } from '@/components/enhanced-reward-toast'
 import { EmptyQuests } from '@/components/empty-states'
+import { QuestToggleButton } from '@/components/quest-toggle-button'
+import { useQuestSync } from '@/hooks/useQuestSync'
+import { useOfflineSupport } from '@/hooks/useOfflineSupport'
+import { SyncStatusIndicator } from '@/components/sync-status-indicator'
+import { OfflineQueueIndicator } from '@/components/offline-queue-indicator'
+import { ToastContainer, useQuestToasts } from '@/components/enhanced-toast-system'
+import { EnhancedErrorBoundary } from '@/components/enhanced-error-boundary'
 
 interface Quest {
   id: string;
@@ -212,6 +219,63 @@ export default function QuestsPage() {
     gold: 50
   });
   const [token, setToken] = useState<string | null>(null);
+  
+  // --- Realtime Sync ---
+  const [syncError, setSyncError] = useState<string | null>(null);
+  
+  const { syncNow, isSyncing, lastSync } = useQuestSync({
+    onQuestsUpdate: async () => {
+      console.log('[Quest Sync] Syncing quests...');
+      // Refetch quests from the server
+      if (!token) return;
+      
+      try {
+        const res = await fetch('/api/quests-complete', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        
+        if (!res.ok) {
+          throw new Error(`Failed to fetch quests: ${res.status}`);
+        }
+        
+        const data = await res.json();
+        setQuests(data.quests || []);
+        console.log('[Quest Sync] Quests synced successfully');
+      } catch (error) {
+        console.error('[Quest Sync] Error syncing quests:', error);
+        throw error;
+      }
+    },
+    onCharacterStatsUpdate: async () => {
+      console.log('[Quest Sync] Syncing character stats...');
+      // Trigger character stats update
+      window.dispatchEvent(new Event('character-stats-update'));
+    },
+    onError: (error) => {
+      console.error('[Quest Sync] Sync error:', error);
+      setSyncError(error.message);
+      // Clear error after 5 seconds
+      setTimeout(() => setSyncError(null), 5000);
+    },
+  });
+  
+  // --- Offline Support ---
+  const { 
+    isOnline, 
+    queue, 
+    isProcessing: isQueueProcessing, 
+    processQueue, 
+    clearQueue, 
+    getQueueStats 
+  } = useOfflineSupport();
+  
+  const queueStats = getQueueStats();
+  
+  // --- Enhanced Toast System ---
+  const questToasts = useQuestToasts();
+  
   // --- Quest Streak Logic ---
   // Remove localStorage fallback for streak/history
   const [questStreak, setQuestStreak] = useState(0);
@@ -687,104 +751,42 @@ export default function QuestsPage() {
     }
   };
 
-  const handleQuestToggle = async (questId: string, currentCompleted: boolean) => {
+  const handleQuestToggle = async (questId: string, newCompleted: boolean) => {
     if (!token || !userId) return;
     
-    try {
-      const newCompleted = !currentCompleted;
-      console.log('[QUEST-TOGGLE] Starting quest toggle:', { questId, currentCompleted, newCompleted, userId });
-      
-      // Find the quest object
-      const questObj = quests.find(q => q.id === questId);
-      if (!questObj) {
-        throw new Error('Quest not found');
+    // Find the quest object
+    const questObj = quests.find(q => q.id === questId);
+    if (!questObj) {
+      console.error('[QUEST-TOGGLE] Quest not found:', questId);
+      return;
+    }
+    
+    console.log('[QUEST-TOGGLE] Updating quest state:', { questId, newCompleted, questName: questObj.name });
+    
+    // Update the quest in the local state (optimistic update)
+    setQuests(prevQuests => 
+      prevQuests.map(q => 
+        q.id === questId 
+          ? { ...q, completed: newCompleted }
+          : q
+      )
+    );
+    
+    // Update character stats if quest was completed
+    if (newCompleted) {
+      try {
+        const goldEarned = questObj.gold || 0;
+        const xpEarned = questObj.xp || 0;
+        
+        console.log('[QUEST-TOGGLE] Updating character stats:', { goldEarned, xpEarned });
+        await gainGold(goldEarned, 'quest-completion');
+        await gainExperience(xpEarned, 'quest-completion', 'general');
+        await gainStrengthFromQuest(questObj.category, 1);
+        console.log('[QUEST-TOGGLE] Character stats updated successfully');
+      } catch (error) {
+        console.error('[QUEST-TOGGLE] Error updating character stats:', error);
+        // Don't revert quest completion if stats fail - quest completion is more important
       }
-      
-      console.log('[QUEST-TOGGLE] Quest object found:', { questId, name: questObj.name, xp: questObj.xp, gold: questObj.gold });
-      
-      // Update the quest in the local state
-      setQuests(prevQuests => 
-        prevQuests.map(q => 
-          q.id === questId 
-            ? { ...q, completed: newCompleted }
-            : q
-        )
-      );
-      
-      // 🚀 USE SMART QUEST COMPLETION SYSTEM INSTEAD OF OLD ENDPOINT
-      console.log('[QUEST-TOGGLE] Using smart quest completion system...');
-      const response = await fetch('/api/quests/smart-completion', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          questId: questId,
-          completed: newCompleted,
-          xpReward: questObj.xp || 50,
-          goldReward: questObj.gold || 25
-        })
-      });
-      
-      console.log('[QUEST-TOGGLE] Response received:', { status: response.status, ok: response.ok });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('[QUEST-TOGGLE] Response error:', { status: response.status, errorText });
-        throw new Error(`Failed to update quest: ${response.status} - ${errorText}`);
-      }
-      
-      const responseData = await response.json();
-      console.log('[QUEST-TOGGLE] Response data:', responseData);
-      
-      // Show success toast
-      const quest = quests.find(q => q.id === questId);
-      if (quest) {
-        if (newCompleted) {
-          // Quest completed
-          const goldEarned = quest.gold || 0;
-          const xpEarned = quest.xp || 0;
-          
-          console.log('[QUEST-TOGGLE] Quest completed, showing toast and updating stats:', { goldEarned, xpEarned });
-          showQuestCompletionToast(quest.name, goldEarned, xpEarned);
-          
-          // Update character stats
-          console.log('[QUEST-TOGGLE] Updating character stats...');
-          await gainGold(goldEarned, 'quest-completion');
-          await gainExperience(xpEarned, 'quest-completion', 'general');
-          await gainStrengthFromQuest(quest.category, 1);
-          console.log('[QUEST-TOGGLE] Character stats updated successfully');
-        } else {
-          // Quest uncompleted
-          console.log('[QUEST-TOGGLE] Quest uncompleted');
-          toast({
-            title: "Quest Uncompleted",
-            description: `${quest.name} has been marked as incomplete.`,
-            duration: 2000,
-          });
-        }
-      }
-      
-      console.log('[QUEST-TOGGLE] Quest toggle completed successfully');
-      // Local state is already updated, no need to refetch
-      
-    } catch (error) {
-      console.error('[QUEST-TOGGLE] Error toggling quest:', error);
-      
-      // Revert local state on error
-      setQuests(prevQuests => 
-        prevQuests.map(quest => 
-          quest.id === questId 
-            ? { ...quest, completed: currentCompleted }
-            : quest
-        )
-      );
-      
-      toast({
-        title: "Error",
-        description: "Failed to update quest. Please try again.",
-        duration: 3000,
-      });
     }
   };
 
@@ -1295,9 +1297,10 @@ export default function QuestsPage() {
 
 
   return (
-    <div className="min-h-full quests-page-container scroll-prevent" style={{ overscrollBehavior: 'none' }}>
-      {/* Keyboard Shortcuts Provider */}
-      <KeyboardShortcutsProvider 
+    <EnhancedErrorBoundary>
+      <div className="min-h-full quests-page-container scroll-prevent" style={{ overscrollBehavior: 'none' }}>
+        {/* Keyboard Shortcuts Provider */}
+        <KeyboardShortcutsProvider 
         onNavigate={(route) => {
           // TODO: Implement navigation
           // Navigate to route
@@ -1325,6 +1328,22 @@ export default function QuestsPage() {
       <MobileLayoutWrapper className="quests-page-container">
         <MobileContentWrapper>
           {error && <p className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{error}</p>}
+          
+          {/* Sync Status Indicators */}
+          <div className="mb-4 flex justify-between items-center">
+            <OfflineQueueIndicator
+              isOnline={isOnline}
+              queueStats={queueStats}
+              isProcessing={isQueueProcessing}
+              onProcessQueue={processQueue}
+              onClearQueue={clearQueue}
+            />
+            <SyncStatusIndicator 
+              isSyncing={isSyncing}
+              lastSync={lastSync}
+              error={syncError}
+            />
+          </div>
           
           {/* Gameplay Loop Indicator */}
           <div className="mb-6">
@@ -2172,6 +2191,13 @@ export default function QuestsPage() {
           </div>
         </div>
       )}
+      
+      {/* Enhanced Toast Container */}
+      <ToastContainer 
+        toasts={questToasts.toasts}
+        onDismiss={questToasts.dismissToast}
+      />
     </div>
+    </EnhancedErrorBoundary>
   );
 }
