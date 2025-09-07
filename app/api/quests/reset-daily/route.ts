@@ -32,13 +32,14 @@ export async function POST(req: NextRequest) {
     // 🚀 USE SMART QUEST COMPLETION SYSTEM FOR DAILY RESET
     // Instead of storing completed: false, we'll delete the completion records
     // This aligns with our smart system philosophy
+    let resetCount = 0;
     if (todayCompletions && todayCompletions.length > 0) {
       console.log('[Daily Reset] Using smart system to reset quests...');
       
       // For each quest completed today, use the smart system to "uncomplete" it
       for (const completion of todayCompletions) {
         try {
-          const { error: smartError } = await supabaseServer.rpc('smart_quest_completion', {
+          const { data: smartResult, error: smartError } = await supabaseServer.rpc('smart_quest_completion', {
             p_user_id: userId,
             p_quest_id: completion.quest_id as any, // Cast to any to avoid UUID type issues
             p_completed: false, // This will delete the record (smart behavior)
@@ -48,13 +49,18 @@ export async function POST(req: NextRequest) {
           
           if (smartError) {
             console.error('[Daily Reset] Smart completion error for quest:', completion.quest_id, smartError);
+          } else if (smartResult) {
+            console.log('[Daily Reset] Smart completion result for quest:', completion.quest_id, smartResult);
+            if (smartResult.success && smartResult.action === 'uncompleted') {
+              resetCount++;
+            }
           }
         } catch (error) {
           console.error('[Daily Reset] Error processing quest reset:', completion.quest_id, error);
         }
       }
-
-      console.log('[Daily Reset] Successfully reset', todayCompletions.length, 'quests using smart system');
+      
+      console.log('[Daily Reset] Successfully reset', resetCount, 'out of', todayCompletions.length, 'quests using smart system');
       
       // 🔍 DEBUG: Verify the quests were actually reset by checking the database
       const { data: verifyCompletions, error: verifyError } = await supabaseServer
@@ -112,7 +118,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ 
       success: true, 
       message: 'Daily reset completed - quests reset for today, historical data preserved',
-      questsReset: todayCompletions?.length || 0,
+      questsReset: resetCount || 0,
       challengesReset: todayChallenges?.length || 0
     });
 
