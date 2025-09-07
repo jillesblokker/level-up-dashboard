@@ -440,9 +440,13 @@ export default function QuestsPage() {
 
   // Daily reset logic for non-milestone quests and challenges (persisted in DB)
   useEffect(() => {
+    console.log('[Daily Reset] useEffect triggered:', { loading, questsLength: quests.length, userId: !!userId, token: !!token });
+    
     if (!loading && quests.length > 0 && userId && token) {
       const lastReset = localStorage.getItem('last-quest-reset-date');
       const today = new Date().toISOString().slice(0, 10);
+      
+      console.log('[Daily Reset] Checking reset conditions:', { lastReset, today, shouldReset: lastReset !== today });
       
       // Only reset if we haven't processed today's reset AND we have a valid token AND we haven't already initiated a reset
       if (lastReset !== today && token && !dailyResetInitiated.current) {
@@ -1468,6 +1472,31 @@ export default function QuestsPage() {
                   Incomplete in category: {quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length},
                   Incomplete across ALL categories: {quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length}
                 </div>
+                {/* Manual reset button for testing */}
+                <Button
+                  onClick={async () => {
+                    console.log('[Manual Reset] Triggering daily reset...');
+                    try {
+                      const response = await fetch('/api/quests/reset-daily', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                      });
+                      const result = await response.json();
+                      console.log('[Manual Reset] Result:', result);
+                      // Force refresh
+                      setRefreshTrigger(prev => prev + 1);
+                      toast({
+                        title: 'Manual Reset',
+                        description: 'Daily reset triggered manually',
+                      });
+                    } catch (error) {
+                      console.error('[Manual Reset] Error:', error);
+                    }
+                  }}
+                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 text-sm"
+                >
+                  Manual Daily Reset
+                </Button>
                 <Button
                   onClick={() => {
                     alert('Button clicked! Check console for logs.');
