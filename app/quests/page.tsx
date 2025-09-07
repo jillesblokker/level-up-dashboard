@@ -1094,11 +1094,20 @@ export default function QuestsPage() {
         !q.completed
       );
       
-      if (allFavoritedQuests.length === 0) return;
+      console.log('[Bulk Complete All] Found favorited quests:', {
+        totalCount: allFavoritedQuests.length,
+        quests: allFavoritedQuests.map(q => ({ id: q.id, name: q.name, completed: q.completed, category: q.category }))
+      });
+      
+      if (allFavoritedQuests.length === 0) {
+        console.log('[Bulk Complete All] No favorited quests to complete');
+        return;
+      }
       
       // Complete each favorited quest across all categories
       for (const quest of allFavoritedQuests) {
-        await handleQuestToggle(quest.id, false); // false = currently not completed, so this will complete it
+        console.log('[Bulk Complete All] Completing quest:', quest.name);
+        await handleQuestToggle(quest.id, true); // true = mark as completed
       }
       
       toast({
@@ -1455,8 +1464,9 @@ export default function QuestsPage() {
               <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
                 {/* Debug info */}
                 <div className="text-xs text-gray-500 mb-2">
-                  DEBUG: Category: {questCategory}, Favorites: {Array.from(favoritedQuests).length}, 
-                  Incomplete in category: {quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length}
+                  DEBUG: Category: {questCategory}, Total Favorites: {Array.from(favoritedQuests).length}, 
+                  Incomplete in category: {quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length},
+                  Incomplete across ALL categories: {quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length}
                 </div>
                 <Button
                   onClick={() => {
@@ -1496,7 +1506,11 @@ export default function QuestsPage() {
                   })()} Favorites
                 </Button>
                 <Button
-                  onClick={handleBulkCompleteAllFavorites}
+                  onClick={() => {
+                    alert('Complete All Favorites clicked! Check console for logs.');
+                    console.log('[Complete All Favorites Button] Clicked!');
+                    handleBulkCompleteAllFavorites();
+                  }}
                   disabled={loading || quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length === 0}
                   className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-400 text-black px-4 py-3 font-bold rounded-lg shadow-lg"
                   aria-label="Complete all favorited quests across all categories"
