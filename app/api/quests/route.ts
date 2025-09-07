@@ -179,6 +179,61 @@ export async function GET(request: Request) {
     console.log('[Quests API] Sample quest completion keys:', Array.from(completedQuests.keys()).slice(0, 5));
     console.log('[Quests API] Sample challenge names:', challenges?.slice(0, 5).map(c => c.name));
 
+    // Map challenge categories to quest categories
+    const mapChallengeCategoryToQuestCategory = (challengeCategory: string): string => {
+      const categoryMap: Record<string, string> = {
+        // Physical/Strength categories -> might
+        'Pull/Shoulder/Core': 'might',
+        'HIIT & Full Body': 'might',
+        'Push': 'might',
+        'Legs': 'might',
+        'Core': 'might',
+        'Cardio': 'might',
+        'Strength': 'might',
+        'Upper Body': 'might',
+        'Lower Body': 'might',
+        
+        // Mental/Educational categories -> knowledge
+        'Learning': 'knowledge',
+        'Study': 'knowledge',
+        'Reading': 'knowledge',
+        'Education': 'knowledge',
+        
+        // Health/Wellness categories -> vitality
+        'Health': 'vitality',
+        'Fitness': 'vitality',
+        'Nutrition': 'vitality',
+        'Wellness': 'wellness',
+        'Meditation': 'wellness',
+        'Mindfulness': 'wellness',
+        
+        // Social/Personal categories -> honor
+        'Social': 'honor',
+        'Family': 'honor',
+        'Relationships': 'honor',
+        'Community': 'honor',
+        
+        // Creative/Productivity categories -> craft
+        'Creative': 'craft',
+        'Art': 'craft',
+        'Music': 'craft',
+        'Writing': 'craft',
+        'Productivity': 'craft',
+        
+        // Adventure/Exploration categories -> exploration
+        'Adventure': 'exploration',
+        'Travel': 'exploration',
+        'Nature': 'exploration',
+        'Outdoor': 'exploration',
+        
+        // Default fallback
+        'General': 'might',
+        'Other': 'might'
+      };
+      
+      return categoryMap[challengeCategory] || 'might'; // Default to might if no mapping found
+    };
+
     // Convert challenges to quest format with completion status
     const questsWithCompletions = (challenges || []).map((challenge: any) => {
       // Find completion by challenge name (since quest_id stores names, not IDs)
@@ -186,9 +241,14 @@ export async function GET(request: Request) {
       const isCompleted = completion ? completion.completed : false;
       const completionDate = completion ? completion.completedAt : null;
       
+      // Map challenge category to quest category
+      const questCategory = mapChallengeCategoryToQuestCategory(challenge.category);
+      
       console.log('[Quests API] Mapping challenge:', {
         challengeId: challenge.id,
         challengeName: challenge.name,
+        challengeCategory: challenge.category,
+        questCategory: questCategory,
         hasCompletion: !!completion,
         isCompleted,
         completionDate,
@@ -200,7 +260,7 @@ export async function GET(request: Request) {
         name: challenge.name,
         title: challenge.name,
         description: challenge.description,
-        category: challenge.category,
+        category: questCategory, // Use mapped quest category
         difficulty: challenge.difficulty,
         xp: challenge.xp,
         gold: challenge.gold,
