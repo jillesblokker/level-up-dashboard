@@ -104,12 +104,23 @@ export function getCharacterStats(): CharacterStats {
   };
 }
 
+// Global rate limiter to prevent infinite loops
+let lastFetchTime = 0;
+const MIN_FETCH_INTERVAL = 10000; // Minimum 10 seconds between API calls
+
 /**
  * Fetches fresh character stats from the API and updates localStorage
  * This is the primary data source for real-time updates
  */
 export async function fetchFreshCharacterStats(): Promise<CharacterStats | null> {
+  const now = Date.now();
+  if (now - lastFetchTime < MIN_FETCH_INTERVAL) {
+    console.log('[Character Stats Manager] Skipping API fetch - too soon since last fetch');
+    return getCharacterStats(); // Return cached data instead
+  }
+  
   try {
+    lastFetchTime = now;
     const { fetchWithAuth } = await import('./fetchWithAuth');
     const response = await fetchWithAuth('/api/character-stats', {
       method: 'GET',
@@ -261,6 +272,6 @@ export function addToCharacterStatSync(stat: keyof CharacterStats, amount: numbe
         console.warn('[Character Stats Manager] Failed to save to Supabase, but continuing:', error);
       });
       delete (window as any)[debounceKey];
-    }, 1000); // 1 second debounce
+    }, 3000); // 3 second debounce to prevent rapid calls
   }
 } 

@@ -321,7 +321,7 @@ export function KingdomGridWithTimers({
         const stats = getCharacterStats();
         setBuildTokens(stats.build_tokens || 0);
         
-        // Then try to fetch fresh data from API
+        // Then try to fetch fresh data from API (with debouncing to prevent infinite loops)
         const { fetchFreshCharacterStats } = await import('@/lib/character-stats-manager');
         const freshStats = await fetchFreshCharacterStats();
         if (freshStats) {

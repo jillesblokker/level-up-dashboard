@@ -1084,7 +1084,7 @@ export function KingdomClient() {
         if (!document.querySelector('[data-inventory-loading="true"]')) {
           loadInventory();
         }
-      }, 500); // 500ms debounce
+      }, 5000); // 5 second debounce to prevent infinite loops
     };
     
     const handleXPUpdate = (event: Event) => {
@@ -1097,7 +1097,7 @@ export function KingdomClient() {
         if (!document.querySelector('[data-inventory-loading="true"]')) {
           loadInventory();
         }
-      }, 500); // 500ms debounce
+      }, 5000); // 5 second debounce to prevent infinite loops
     };
     
     // 🎯 LISTEN FOR CHALLENGE COMPLETION EVENTS
