@@ -366,15 +366,25 @@ export default function QuestsPage() {
     async function fetchQuests() {
       try {
         if (!token) return; // Guard for linter
-        // console.log('[Quests Debug] Fetching /api/quests-complete with token:', token.slice(0, 10), '...');
+        console.log('[Quests Debug] Fetching /api/quests with token:', token.slice(0, 10), '...');
         const res = await fetch('/api/quests', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        if (!res.ok) throw new Error('Failed to fetch quests');
+        console.log('[Quests Debug] Response status:', res.status, 'ok:', res.ok);
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error('[Quests Debug] Error response:', errorText);
+          throw new Error(`Failed to fetch quests: ${res.status} ${errorText}`);
+        }
         const data = await res.json();
-        // Removed debugging log
+        console.log('[Quests Debug] Data received:', { 
+          dataType: typeof data, 
+          isArray: Array.isArray(data), 
+          length: Array.isArray(data) ? data.length : 'N/A',
+          sample: Array.isArray(data) ? data.slice(0, 2) : data
+        });
         setQuests(data || []);
       } catch (err: any) {
         setError('[Quests Debug] Error fetching quests: ' + (err.message || 'Failed to fetch quests'));
