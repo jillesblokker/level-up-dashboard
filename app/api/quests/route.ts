@@ -114,23 +114,23 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
     }
 
-    // FIXED: Fetch from challenges table (which actually has quest definitions)
-    // Fetching quest definitions from challenges table
-    const { data: challenges, error: challengesError } = await supabase
-      .from('challenges')
+    // FIXED: Fetch from quests table (which has the actual quest definitions)
+    // Fetching quest definitions from quests table
+    const { data: quests, error: questsError } = await supabase
+      .from('quests')
       .select('*');
 
-    if (challengesError) {
-      console.error('Challenges fetch error:', challengesError);
-      return NextResponse.json({ error: challengesError.message }, { status: 500 });
+    if (questsError) {
+      console.error('Quests fetch error:', questsError);
+      return NextResponse.json({ error: questsError.message }, { status: 500 });
     }
     
-    console.log('[Quests API] Challenges fetched:', challenges?.length || 0);
-    if (challenges && challenges.length > 0) {
-      console.log('[Quests API] First few challenges:', challenges.slice(0, 3).map(c => ({
-        id: c.id,
-        name: c.name,
-        category: c.category
+    console.log('[Quests API] Quests fetched:', quests?.length || 0);
+    if (quests && quests.length > 0) {
+      console.log('[Quests API] First few quests:', quests.slice(0, 3).map(q => ({
+        id: q.id,
+        name: q.name,
+        category: q.category
       })));
     }
 
@@ -177,78 +177,19 @@ export async function GET(request: Request) {
 
     console.log('[Quests API] Completed quests map:', Array.from(completedQuests.entries()));
     console.log('[Quests API] Sample quest completion keys:', Array.from(completedQuests.keys()).slice(0, 5));
-    console.log('[Quests API] Sample challenge names:', challenges?.slice(0, 5).map(c => c.name));
+    console.log('[Quests API] Sample quest names:', quests?.slice(0, 5).map(q => q.name));
 
-    // Map challenge categories to quest categories
-    const mapChallengeCategoryToQuestCategory = (challengeCategory: string): string => {
-      const categoryMap: Record<string, string> = {
-        // Physical/Strength categories -> might
-        'Pull/Shoulder/Core': 'might',
-        'HIIT & Full Body': 'might',
-        'Push': 'might',
-        'Legs': 'might',
-        'Core': 'might',
-        'Cardio': 'might',
-        'Strength': 'might',
-        'Upper Body': 'might',
-        'Lower Body': 'might',
-        
-        // Mental/Educational categories -> knowledge
-        'Learning': 'knowledge',
-        'Study': 'knowledge',
-        'Reading': 'knowledge',
-        'Education': 'knowledge',
-        
-        // Health/Wellness categories -> vitality
-        'Health': 'vitality',
-        'Fitness': 'vitality',
-        'Nutrition': 'vitality',
-        'Wellness': 'wellness',
-        'Meditation': 'wellness',
-        'Mindfulness': 'wellness',
-        
-        // Social/Personal categories -> honor
-        'Social': 'honor',
-        'Family': 'honor',
-        'Relationships': 'honor',
-        'Community': 'honor',
-        
-        // Creative/Productivity categories -> craft
-        'Creative': 'craft',
-        'Art': 'craft',
-        'Music': 'craft',
-        'Writing': 'craft',
-        'Productivity': 'craft',
-        
-        // Adventure/Exploration categories -> exploration
-        'Adventure': 'exploration',
-        'Travel': 'exploration',
-        'Nature': 'exploration',
-        'Outdoor': 'exploration',
-        
-        // Default fallback
-        'General': 'might',
-        'Other': 'might'
-      };
-      
-      return categoryMap[challengeCategory] || 'might'; // Default to might if no mapping found
-    };
-
-    // Convert challenges to quest format with completion status
-    const questsWithCompletions = (challenges || []).map((challenge: any) => {
-      // Find completion by challenge name (since quest_id stores names, not IDs)
-      const completion = completedQuests.get(challenge.name);
+    // Convert quests to quest format with completion status
+    const questsWithCompletions = (quests || []).map((quest: any) => {
+      // Find completion by quest name (since quest_id stores names, not IDs)
+      const completion = completedQuests.get(quest.name);
       const isCompleted = completion ? completion.completed : false;
       const completionDate = completion ? completion.completedAt : null;
       
-      // Map challenge category to quest category
-      const questCategory = mapChallengeCategoryToQuestCategory(challenge.category);
-      
-      console.log('[Quests API] Mapping challenge:', {
-        challengeId: challenge.id,
-        challengeName: challenge.name,
-        challengeCategory: challenge.category,
-        questCategory: questCategory,
+      console.log('[Quests API] Mapping quest:', {
+        questId: quest.id,
+        questName: quest.name,
+        questCategory: quest.category,
         hasCompletion: !!completion,
         isCompleted,
         completionDate,
@@ -256,18 +197,18 @@ export async function GET(request: Request) {
       });
       
       return {
-        id: challenge.id,
-        name: challenge.name,
-        title: challenge.name,
-        description: challenge.description,
-        category: questCategory, // Use mapped quest category
-        difficulty: challenge.difficulty,
-        xp: challenge.xp,
-        gold: challenge.gold,
+        id: quest.id,
+        name: quest.name,
+        title: quest.name,
+        description: quest.description,
+        category: quest.category, // Use the quest's actual category (already correct)
+        difficulty: quest.difficulty,
+        xp: quest.xp,
+        gold: quest.gold,
         completed: isCompleted,
         date: completionDate,
         isNew: !isCompleted,
-        completionId: isCompleted ? challenge.id : undefined,
+        completionId: isCompleted ? quest.id : undefined,
         xpEarned: completion?.xpEarned || 0,
         goldEarned: completion?.goldEarned || 0
       };
