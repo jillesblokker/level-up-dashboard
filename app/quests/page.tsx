@@ -440,13 +440,9 @@ export default function QuestsPage() {
 
   // Daily reset logic for non-milestone quests and challenges (persisted in DB)
   useEffect(() => {
-    console.log('[Daily Reset] useEffect triggered:', { loading, questsLength: quests.length, userId: !!userId, token: !!token });
-    
     if (!loading && quests.length > 0 && userId && token) {
       const lastReset = localStorage.getItem('last-quest-reset-date');
       const today = new Date().toISOString().slice(0, 10);
-      
-      console.log('[Daily Reset] Checking reset conditions:', { lastReset, today, shouldReset: lastReset !== today });
       
       // Only reset if we haven't processed today's reset AND we have a valid token AND we haven't already initiated a reset
       if (lastReset !== today && token && !dailyResetInitiated.current) {
@@ -1057,20 +1053,10 @@ export default function QuestsPage() {
         !q.completed
       );
       
-      console.log('[Bulk Complete] Found favorited quests:', {
-        category: questCategory,
-        favoritedCount: favoritedQuestsInCategory.length,
-        quests: favoritedQuestsInCategory.map(q => ({ id: q.id, name: q.name, completed: q.completed }))
-      });
-      
-      if (favoritedQuestsInCategory.length === 0) {
-        console.log('[Bulk Complete] No favorited quests to complete in category:', questCategory);
-        return;
-      }
+      if (favoritedQuestsInCategory.length === 0) return;
       
       // Complete each favorited quest in the current category
       for (const quest of favoritedQuestsInCategory) {
-        console.log('[Bulk Complete] Completing quest:', quest.name);
         await handleQuestToggle(quest.id, true); // true = mark as completed
       }
       
@@ -1098,19 +1084,10 @@ export default function QuestsPage() {
         !q.completed
       );
       
-      console.log('[Bulk Complete All] Found favorited quests:', {
-        totalCount: allFavoritedQuests.length,
-        quests: allFavoritedQuests.map(q => ({ id: q.id, name: q.name, completed: q.completed, category: q.category }))
-      });
-      
-      if (allFavoritedQuests.length === 0) {
-        console.log('[Bulk Complete All] No favorited quests to complete');
-        return;
-      }
+      if (allFavoritedQuests.length === 0) return;
       
       // Complete each favorited quest across all categories
       for (const quest of allFavoritedQuests) {
-        console.log('[Bulk Complete All] Completing quest:', quest.name);
         await handleQuestToggle(quest.id, true); // true = mark as completed
       }
       
@@ -1466,80 +1443,17 @@ export default function QuestsPage() {
             <div className="mb-6 space-y-6">
               {/* Bulk Complete Favorites Button */}
               <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
-                {/* Debug info */}
-                <div className="text-xs text-gray-500 mb-2">
-                  DEBUG: Category: {questCategory}, Total Favorites: {Array.from(favoritedQuests).length}, 
-                  Incomplete in category: {quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length},
-                  Incomplete across ALL categories: {quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length}
-                </div>
-                {/* Manual reset button for testing */}
                 <Button
-                  onClick={async () => {
-                    console.log('[Manual Reset] Triggering daily reset...');
-                    try {
-                      const response = await fetch('/api/quests/reset-daily', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                      });
-                      const result = await response.json();
-                      console.log('[Manual Reset] Result:', result);
-                      // Force refresh
-                      setRefreshTrigger(prev => prev + 1);
-                      toast({
-                        title: 'Manual Reset',
-                        description: 'Daily reset triggered manually',
-                      });
-                    } catch (error) {
-                      console.error('[Manual Reset] Error:', error);
-                    }
-                  }}
-                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 text-sm"
-                >
-                  Manual Daily Reset
-                </Button>
-                <Button
-                  onClick={() => {
-                    alert('Button clicked! Check console for logs.');
-                    console.log('[Bulk Complete Button] Clicked!');
-                    console.log('[Bulk Complete Button] Current state:', {
-                      questCategory,
-                      favoritedQuests: Array.from(favoritedQuests),
-                      totalQuests: quests.length,
-                      questsInCategory: quests.filter(q => q.category === questCategory).length,
-                      favoritedInCategory: quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id)).length,
-                      incompleteFavoritedInCategory: quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length
-                    });
-                    handleBulkCompleteFavorites();
-                  }}
-                  disabled={(() => {
-                    const incompleteFavoritedCount = quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length;
-                    const isDisabled = loading || incompleteFavoritedCount === 0;
-                    console.log('[Bulk Complete Button] Disabled check:', {
-                      loading,
-                      incompleteFavoritedCount,
-                      isDisabled,
-                      questCategory,
-                      favoritedQuests: Array.from(favoritedQuests),
-                      questsInCategory: quests.filter(q => q.category === questCategory).map(q => ({ id: q.id, name: q.name, completed: q.completed, isFavorited: favoritedQuests.has(q.id) }))
-                    });
-                    return isDisabled;
-                  })()}
+                  onClick={handleBulkCompleteFavorites}
+                  disabled={loading || quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length === 0}
                   className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-300 text-black px-4 py-3 font-bold rounded-lg shadow-lg"
                   aria-label="Complete all favorited quests in this category"
                 >
                   <Star className="w-4 h-4 mr-2" />
-                  Complete {(() => {
-                    const count = quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length;
-                    console.log('[Bulk Complete Button] Text count:', count, 'for category:', questCategory);
-                    return count;
-                  })()} Favorites
+                  Complete {quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length} Favorites
                 </Button>
                 <Button
-                  onClick={() => {
-                    alert('Complete All Favorites clicked! Check console for logs.');
-                    console.log('[Complete All Favorites Button] Clicked!');
-                    handleBulkCompleteAllFavorites();
-                  }}
+                  onClick={handleBulkCompleteAllFavorites}
                   disabled={loading || quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length === 0}
                   className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-400 text-black px-4 py-3 font-bold rounded-lg shadow-lg"
                   aria-label="Complete all favorited quests across all categories"
