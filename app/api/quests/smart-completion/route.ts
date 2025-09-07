@@ -25,6 +25,13 @@ export async function POST(request: Request) {
     console.log('[Smart Quest Completion] Quest ID type:', typeof questId, 'Length:', questId?.length, 'Format:', questId);
     console.log('[Smart Quest Completion] User ID type:', typeof userId, 'Length:', userId?.length, 'Format:', userId);
     
+    // 🔍 DEBUG: Log the action being performed
+    if (completed) {
+      console.log('[Smart Quest Completion] 🎯 ACTION: Marking quest as COMPLETED');
+    } else {
+      console.log('[Smart Quest Completion] 🧹 ACTION: Marking quest as INCOMPLETE (will delete record if exists)');
+    }
+    
     // 🔍 VALIDATION LOGGING - Check if user ID is Clerk format
     const isClerkUserId = userId?.startsWith('user_');
     const isUUIDFormat = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId || '');

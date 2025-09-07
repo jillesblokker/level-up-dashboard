@@ -132,11 +132,11 @@ export function DailyQuests() {
       // Clear quest cache when resetting
       questCache.clear();
       
-      // Reset quests - only reset quests that were actually completed
+      // Reset quests - force all quests to show as incomplete after daily reset
       setQuestItems(prevQuests => 
         prevQuests.map(quest => ({ 
           ...quest, 
-          completed: false // Reset all completed quests to false
+          completed: false // Force all quests to show as incomplete after reset
         }))
       );
       localStorage.setItem('daily-quests-reset-date', currentDate);
