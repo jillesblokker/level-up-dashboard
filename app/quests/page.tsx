@@ -1453,8 +1453,14 @@ export default function QuestsPage() {
             <div className="mb-6 space-y-6">
               {/* Bulk Complete Favorites Button */}
               <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
+                {/* Debug info */}
+                <div className="text-xs text-gray-500 mb-2">
+                  DEBUG: Category: {questCategory}, Favorites: {Array.from(favoritedQuests).length}, 
+                  Incomplete in category: {quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length}
+                </div>
                 <Button
                   onClick={() => {
+                    alert('Button clicked! Check console for logs.');
                     console.log('[Bulk Complete Button] Clicked!');
                     console.log('[Bulk Complete Button] Current state:', {
                       questCategory,
