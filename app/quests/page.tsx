@@ -219,6 +219,7 @@ export default function QuestsPage() {
     gold: 50
   });
   const [token, setToken] = useState<string | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   
   // --- Realtime Sync ---
   const [syncError, setSyncError] = useState<string | null>(null);
@@ -384,7 +385,7 @@ export default function QuestsPage() {
     }
     fetchQuests();
     fetchFavorites();
-  }, [token, user]);
+  }, [token, user, refreshTrigger]);
 
   // Fetch user's favorited quests
   const fetchFavorites = async () => {
@@ -438,14 +439,14 @@ export default function QuestsPage() {
             const result = await res.json();
             console.log('[Daily Reset] Success:', result);
             
-            // Update local state to show quests as unchecked
-            setQuests(prev => prev.map(q => ({ ...q, completed: false })));
-            
             // Mark that we've processed today's reset
             localStorage.setItem('last-quest-reset-date', today);
             
             // 🔍 DEBUG: Log the quest state after reset
             console.log('[Daily Reset] Quest state after reset:', quests.map(q => ({ id: q.id, name: q.name, completed: q.completed })));
+            
+            // Refresh quest data from backend to get the actual reset state
+            setRefreshTrigger(prev => prev + 1);
             
             toast({
               title: 'Daily Reset',

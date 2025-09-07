@@ -132,8 +132,13 @@ export function DailyQuests() {
       // Clear quest cache when resetting
       questCache.clear();
       
-      // Reset quests
-      setQuestItems(defaultQuestItems.map(quest => ({ ...quest, completed: false })));
+      // Reset quests - only reset quests that were actually completed
+      setQuestItems(prevQuests => 
+        prevQuests.map(quest => ({ 
+          ...quest, 
+          completed: false // Reset all completed quests to false
+        }))
+      );
       localStorage.setItem('daily-quests-reset-date', currentDate);
       
       console.log('[🔍 DAILY QUESTS DEBUG] Daily quests reset completed');
