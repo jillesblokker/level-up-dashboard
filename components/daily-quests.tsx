@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 import { cn } from "@/lib/utils"
 import { useSupabaseSync } from '@/hooks/use-supabase-sync'
-import { questCacheManager } from '@/lib/cache-manager';
+import { questCache } from '@/lib/cache-manager';
 
 // Quest item definitions with icons and categories
 interface QuestItem {
@@ -130,7 +130,7 @@ export function DailyQuests() {
       console.log('[🔍 DAILY QUESTS DEBUG] Daily reset detected, clearing quests and cache');
       
       // Clear quest cache when resetting
-      questCacheManager.clearCache();
+      questCache.clear();
       
       // Reset quests
       setQuestItems(defaultQuestItems.map(quest => ({ ...quest, completed: false })));

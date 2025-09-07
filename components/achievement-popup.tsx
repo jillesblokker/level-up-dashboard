@@ -55,6 +55,7 @@ export function AchievementPopup({
       // Show rewards after initial animation
       setTimeout(() => setShowRewards(true), 500);
     }
+    return undefined;
   }, [isVisible]);
 
   const getRarityConfig = () => {
@@ -292,6 +293,7 @@ export function AchievementNotification({
       }, 3000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [isVisible, onClose]);
 
   const getRarityConfig = () => {

@@ -141,11 +141,41 @@ class CacheManager {
 
   // Get cache stats
   getStats() {
+    const now = Date.now();
+    let oldestTimestamp = now;
+    
+    this.memoryCache.forEach((item) => {
+      if (item.timestamp < oldestTimestamp) {
+        oldestTimestamp = item.timestamp;
+      }
+    });
+    
+    const cacheAge = oldestTimestamp === now ? 0 : now - oldestTimestamp;
+    
     return {
       size: this.memoryCache.size,
       maxSize: this.config.maxSize,
       storage: this.config.storage,
+      isValid: this.hasValidCache(),
+      hasCache: this.memoryCache.size > 0,
+      cacheAge: cacheAge,
+      questsCount: this.memoryCache.size,
+      date: oldestTimestamp === now ? 'No cache' : new Date(oldestTimestamp).toLocaleString(),
     };
+  }
+
+  // Check if cache has valid data
+  hasValidCache(): boolean {
+    const now = Date.now();
+    let hasValid = false;
+    
+    this.memoryCache.forEach((item) => {
+      if (now - item.timestamp <= item.ttl) {
+        hasValid = true;
+      }
+    });
+    
+    return hasValid;
   }
 }
 

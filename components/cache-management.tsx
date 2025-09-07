@@ -5,22 +5,22 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { RefreshCw, Trash2, Info, CheckCircle, AlertTriangle } from 'lucide-react'
-import { questCacheManager } from '@/lib/cache-manager'
+import { questCache } from '@/lib/cache-manager'
 import { toast } from '@/components/ui/use-toast'
 
 export function CacheManagement() {
-  const [cacheStats, setCacheStats] = useState(questCacheManager.getCacheStats())
+  const [cacheStats, setCacheStats] = useState(questCache.getStats())
   const [isClearing, setIsClearing] = useState(false)
 
   const refreshStats = () => {
-    setCacheStats(questCacheManager.getCacheStats())
+    setCacheStats(questCache.getStats())
   }
 
-  const clearCache = async () => {
+  const clear = async () => {
     setIsClearing(true)
     try {
-      questCacheManager.clearCache()
-      setCacheStats(questCacheManager.getCacheStats())
+      questCache.clear()
+      setCacheStats(questCache.getStats())
       toast({
         title: "Cache Cleared",
         description: "All quest cache data has been cleared successfully.",
@@ -38,7 +38,7 @@ export function CacheManagement() {
   }
 
   const validateCache = () => {
-    const isValid = questCacheManager.hasValidCache()
+    const isValid = questCache.hasValidCache()
     if (isValid) {
       toast({
         title: "Cache Valid",
@@ -130,7 +130,7 @@ export function CacheManagement() {
         </div>
 
         <Button
-          onClick={clearCache}
+          onClick={clear}
           variant="destructive"
           size="sm"
           className="w-full"

@@ -88,6 +88,8 @@ export function QuestCelebration({
       }, 2000);
       return () => clearTimeout(timer);
     }
+    return undefined;
+    return undefined;
   }, [isVisible, onComplete]);
 
   if (!isVisible) return null;
@@ -167,6 +169,7 @@ export function LevelUpCelebration({
       }, 3000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [isVisible, onComplete]);
 
   if (!isVisible) return null;
@@ -239,6 +242,7 @@ export function StreakCelebration({
       }, 2500);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [isVisible, onComplete]);
 
   if (!isVisible) return null;
@@ -312,6 +316,7 @@ export function AchievementCelebration({
       }, 3000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [isVisible, onComplete]);
 
   if (!isVisible) return null;
