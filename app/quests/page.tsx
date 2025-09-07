@@ -295,6 +295,15 @@ export default function QuestsPage() {
   const todaysQuests = questsByCategorySafe[safeQuestCategory] ?? [];
   const todaysCompleted = todaysQuests.filter(q => q.completed).length;
   const todaysTotal = todaysQuests.length;
+  
+  // Debug quest filtering
+  console.log('[Quest Filter Debug]', {
+    totalQuests: quests.length,
+    currentCategory: safeQuestCategory,
+    questsInCategory: todaysTotal,
+    availableCategories: Object.keys(questsByCategorySafe),
+    categoryCounts: Object.entries(questsByCategorySafe).map(([cat, quests]) => ({ category: cat, count: quests.length }))
+  });
   // 7-day history (Mon-Sun, most recent last)
   const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const paddedHistory = Array(7).fill(null).map((_, i) => {
@@ -383,7 +392,9 @@ export default function QuestsPage() {
           dataType: typeof data, 
           isArray: Array.isArray(data), 
           length: Array.isArray(data) ? data.length : 'N/A',
-          sample: Array.isArray(data) ? data.slice(0, 2) : data
+          sample: Array.isArray(data) ? data.slice(0, 2) : data,
+          categories: Array.isArray(data) ? [...new Set(data.map(q => q.category))] : 'N/A',
+          currentFilter: questCategory
         });
         setQuests(data || []);
       } catch (err: any) {
