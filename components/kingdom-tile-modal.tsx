@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -37,6 +37,9 @@ export function KingdomTileModal({ isOpen, onClose, reward }: KingdomTileModalPr
             <Sparkles className="h-5 w-5 text-amber-500" />
             {reward.isLucky ? 'Lucky Find!' : 'Kingdom Reward'}
           </DialogTitle>
+          <DialogDescription id="kingdom-tile-modal-description">
+            You have received rewards from your kingdom tile!
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4">

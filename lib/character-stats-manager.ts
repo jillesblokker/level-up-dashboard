@@ -248,8 +248,19 @@ export function addToCharacterStatSync(stat: keyof CharacterStats, amount: numbe
     setCharacterStats({ [stat]: newValue });
   }
   
-  // Also save to Supabase immediately to prevent data loss
-  saveCharacterStats({ [stat]: newValue }).catch(error => {
-    console.warn('[Character Stats Manager] Failed to save to Supabase, but continuing:', error);
-  });
+  // Debounce Supabase saves to prevent rapid-fire calls
+  if (typeof window !== 'undefined') {
+    const debounceKey = `save-stats-${stat}`;
+    const existingTimeout = (window as any)[debounceKey];
+    if (existingTimeout) {
+      clearTimeout(existingTimeout);
+    }
+    
+    (window as any)[debounceKey] = setTimeout(() => {
+      saveCharacterStats({ [stat]: newValue }).catch(error => {
+        console.warn('[Character Stats Manager] Failed to save to Supabase, but continuing:', error);
+      });
+      delete (window as any)[debounceKey];
+    }, 1000); // 1 second debounce
+  }
 } 

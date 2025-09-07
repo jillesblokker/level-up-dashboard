@@ -1071,14 +1071,33 @@ export function KingdomClient() {
     window.addEventListener('character-inventory-update', handleInventoryUpdate);
     
     // 🎯 LISTEN FOR QUEST COMPLETION GOLD/XP UPDATES
+    let goldUpdateTimeout: NodeJS.Timeout | null = null;
+    let xpUpdateTimeout: NodeJS.Timeout | null = null;
+    
     const handleGoldUpdate = (event: Event) => {
-      // Force refresh kingdom stats when gold is gained
-      loadInventory();
+      // Debounce gold updates to prevent infinite loops
+      if (goldUpdateTimeout) {
+        clearTimeout(goldUpdateTimeout);
+      }
+      goldUpdateTimeout = setTimeout(() => {
+        // Only reload if not currently loading to prevent rapid fire requests
+        if (!document.querySelector('[data-inventory-loading="true"]')) {
+          loadInventory();
+        }
+      }, 500); // 500ms debounce
     };
     
     const handleXPUpdate = (event: Event) => {
-      // Force refresh kingdom stats when XP is gained
-      loadInventory();
+      // Debounce XP updates to prevent infinite loops
+      if (xpUpdateTimeout) {
+        clearTimeout(xpUpdateTimeout);
+      }
+      xpUpdateTimeout = setTimeout(() => {
+        // Only reload if not currently loading to prevent rapid fire requests
+        if (!document.querySelector('[data-inventory-loading="true"]')) {
+          loadInventory();
+        }
+      }, 500); // 500ms debounce
     };
     
     // 🎯 LISTEN FOR CHALLENGE COMPLETION EVENTS
@@ -1098,6 +1117,14 @@ export function KingdomClient() {
       window.removeEventListener('gold-update', handleGoldUpdate);
       window.removeEventListener('xp-update', handleXPUpdate);
       window.removeEventListener('challenge-update', handleChallengeUpdate);
+      
+      // Clean up timeouts
+      if (goldUpdateTimeout) {
+        clearTimeout(goldUpdateTimeout);
+      }
+      if (xpUpdateTimeout) {
+        clearTimeout(xpUpdateTimeout);
+      }
     };
   }, [user?.id]);
 
