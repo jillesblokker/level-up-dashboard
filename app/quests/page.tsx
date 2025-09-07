@@ -1466,12 +1466,28 @@ export default function QuestsPage() {
                     });
                     handleBulkCompleteFavorites();
                   }}
-                  disabled={loading || quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length === 0}
+                  disabled={(() => {
+                    const incompleteFavoritedCount = quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length;
+                    const isDisabled = loading || incompleteFavoritedCount === 0;
+                    console.log('[Bulk Complete Button] Disabled check:', {
+                      loading,
+                      incompleteFavoritedCount,
+                      isDisabled,
+                      questCategory,
+                      favoritedQuests: Array.from(favoritedQuests),
+                      questsInCategory: quests.filter(q => q.category === questCategory).map(q => ({ id: q.id, name: q.name, completed: q.completed, isFavorited: favoritedQuests.has(q.id) }))
+                    });
+                    return isDisabled;
+                  })()}
                   className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-300 text-black px-4 py-3 font-bold rounded-lg shadow-lg"
                   aria-label="Complete all favorited quests in this category"
                 >
                   <Star className="w-4 h-4 mr-2" />
-                  Complete {quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length} Favorites
+                  Complete {(() => {
+                    const count = quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length;
+                    console.log('[Bulk Complete Button] Text count:', count, 'for category:', questCategory);
+                    return count;
+                  })()} Favorites
                 </Button>
                 <Button
                   onClick={handleBulkCompleteAllFavorites}
