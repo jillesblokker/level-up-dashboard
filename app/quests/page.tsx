@@ -220,6 +220,7 @@ export default function QuestsPage() {
   });
   const [token, setToken] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const dailyResetInitiated = useRef(false);
   
   // --- Realtime Sync ---
   const [syncError, setSyncError] = useState<string | null>(null);
@@ -414,9 +415,13 @@ export default function QuestsPage() {
       const lastReset = localStorage.getItem('last-quest-reset-date');
       const today = new Date().toISOString().slice(0, 10);
       
-      // Only reset if we haven't processed today's reset AND we have a valid token
-      if (lastReset !== today && token) {
+      // Only reset if we haven't processed today's reset AND we have a valid token AND we haven't already initiated a reset
+      if (lastReset !== today && token && !dailyResetInitiated.current) {
         console.log('[Daily Reset] Starting daily reset for date:', today);
+        console.log('[Daily Reset] Last reset was:', lastReset, 'Today is:', today);
+        
+        // Mark that we've initiated a reset to prevent multiple calls
+        dailyResetInitiated.current = true;
         
         // Call backend to reset quests and challenges
         fetch('/api/quests/reset-daily', {
@@ -472,7 +477,19 @@ export default function QuestsPage() {
           });
       }
     }
-  }, [loading, quests.length, userId, token]);
+  }, [userId, token]); // Removed loading and quests.length to prevent multiple triggers
+
+  // Reset the daily reset flag when the date changes (at midnight)
+  useEffect(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    const lastReset = localStorage.getItem('last-quest-reset-date');
+    
+    // If the date has changed, reset the flag
+    if (lastReset !== today) {
+      dailyResetInitiated.current = false;
+      console.log('[Daily Reset] Date changed, resetting daily reset flag');
+    }
+  }, []);
 
   // Persist streaks and last completed
   useEffect(() => {
