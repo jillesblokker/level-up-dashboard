@@ -104,23 +104,109 @@ export function getCharacterStats(): CharacterStats {
   };
 }
 
-// Global rate limiter to prevent infinite loops
-let lastFetchTime = 0;
-const MIN_FETCH_INTERVAL = 10000; // Minimum 10 seconds between API calls
+// Smart Rate Limiting System
+class SmartRateLimiter {
+  private lastUpdate = 0;
+  private updateCount = 0;
+  private context = 'idle';
+  private actionHistory: Array<{ action: string, timestamp: number }> = [];
+  private readonly MAX_HISTORY = 10;
+  
+  // Context-aware rate limits (in milliseconds)
+  private readonly limits: Record<string, number> = {
+    'quest-completion': 2000,   // 2 seconds - fast for quest actions
+    'level-up': 1000,          // 1 second - immediate for level ups
+    'gold-earned': 3000,       // 3 seconds - moderate for gold
+    'experience-earned': 3000, // 3 seconds - moderate for XP
+    'idle': 30000,             // 30 seconds - slow when idle
+    'active': 10000,           // 10 seconds - moderate when active
+    'kingdom-action': 5000,    // 5 seconds - moderate for kingdom
+    'background-sync': 15000   // 15 seconds - slow for background
+  };
+  
+  shouldUpdate(action: string): boolean {
+    const now = Date.now();
+    const timeSinceLastUpdate = now - this.lastUpdate;
+    
+    // Add action to history
+    this.addToHistory(action, now);
+    
+    // Determine current context
+    this.updateContext();
+    
+    // Get appropriate limit for current context
+    const limit = this.limits[this.context] || this.limits['idle'] || 30000; // Default to 30 seconds
+    
+    // Check if enough time has passed
+    if (timeSinceLastUpdate < limit) {
+      console.log(`[Smart Rate Limiter] Skipping update - ${timeSinceLastUpdate}ms < ${limit}ms (context: ${this.context})`);
+      return false;
+    }
+    
+    // Allow update
+    this.lastUpdate = now;
+    this.updateCount++;
+    console.log(`[Smart Rate Limiter] Allowing update - context: ${this.context}, count: ${this.updateCount}`);
+    return true;
+  }
+  
+  private addToHistory(action: string, timestamp: number): void {
+    this.actionHistory.push({ action, timestamp });
+    
+    // Keep only recent history
+    if (this.actionHistory.length > this.MAX_HISTORY) {
+      this.actionHistory = this.actionHistory.slice(-this.MAX_HISTORY);
+    }
+  }
+  
+  private updateContext(): void {
+    const now = Date.now();
+    const recentActions = this.actionHistory.filter(
+      entry => now - entry.timestamp < 10000 // Last 10 seconds
+    );
+    
+    // Determine context based on recent actions
+    if (recentActions.some(a => a.action === 'quest-completion')) {
+      this.context = 'quest-completion';
+    } else if (recentActions.some(a => a.action === 'level-up')) {
+      this.context = 'level-up';
+    } else if (recentActions.some(a => a.action.includes('kingdom'))) {
+      this.context = 'kingdom-action';
+    } else if (recentActions.length > 0) {
+      this.context = 'active';
+    } else {
+      this.context = 'idle';
+    }
+  }
+  
+  getContext(): string {
+    return this.context;
+  }
+  
+  getStats(): { updateCount: number, context: string, lastUpdate: number } {
+    return {
+      updateCount: this.updateCount,
+      context: this.context,
+      lastUpdate: this.lastUpdate
+    };
+  }
+}
+
+// Global smart rate limiter instance
+const smartRateLimiter = new SmartRateLimiter();
 
 /**
  * Fetches fresh character stats from the API and updates localStorage
  * This is the primary data source for real-time updates
  */
-export async function fetchFreshCharacterStats(): Promise<CharacterStats | null> {
-  const now = Date.now();
-  if (now - lastFetchTime < MIN_FETCH_INTERVAL) {
-    console.log('[Character Stats Manager] Skipping API fetch - too soon since last fetch');
+export async function fetchFreshCharacterStats(action: string = 'background-sync'): Promise<CharacterStats | null> {
+  // Use smart rate limiter to determine if we should fetch
+  if (!smartRateLimiter.shouldUpdate(action)) {
+    console.log('[Character Stats Manager] Skipping API fetch - smart rate limiter blocked');
     return getCharacterStats(); // Return cached data instead
   }
   
   try {
-    lastFetchTime = now;
     const { fetchWithAuth } = await import('./fetchWithAuth');
     const response = await fetchWithAuth('/api/character-stats', {
       method: 'GET',
@@ -259,7 +345,7 @@ export function addToCharacterStatSync(stat: keyof CharacterStats, amount: numbe
     setCharacterStats({ [stat]: newValue });
   }
   
-  // Debounce Supabase saves to prevent rapid-fire calls
+  // Smart debounced Supabase saves with context awareness
   if (typeof window !== 'undefined') {
     const debounceKey = `save-stats-${stat}`;
     const existingTimeout = (window as any)[debounceKey];
@@ -267,11 +353,36 @@ export function addToCharacterStatSync(stat: keyof CharacterStats, amount: numbe
       clearTimeout(existingTimeout);
     }
     
+    // Determine context for smart rate limiting
+    let context = 'background-sync';
+    if (stat === 'gold') context = 'gold-earned';
+    if (stat === 'experience') context = 'experience-earned';
+    if (stat === 'level') context = 'level-up';
+    
     (window as any)[debounceKey] = setTimeout(() => {
-      saveCharacterStats({ [stat]: newValue }).catch(error => {
-        console.warn('[Character Stats Manager] Failed to save to Supabase, but continuing:', error);
-      });
+      // Use smart rate limiter for the actual save
+      if (smartRateLimiter.shouldUpdate(context)) {
+        saveCharacterStats({ [stat]: newValue }).catch(error => {
+          console.warn('[Character Stats Manager] Failed to save to Supabase, but continuing:', error);
+        });
+      } else {
+        console.log(`[Character Stats Manager] Skipping Supabase save for ${stat} - rate limited`);
+      }
       delete (window as any)[debounceKey];
-    }, 3000); // 3 second debounce to prevent rapid calls
+    }, 2000); // Reduced to 2 seconds for better responsiveness
   }
+}
+
+/**
+ * Gets the current smart rate limiter statistics for debugging
+ */
+export function getRateLimiterStats(): { updateCount: number, context: string, lastUpdate: number } {
+  return smartRateLimiter.getStats();
+}
+
+/**
+ * Forces a context update for the smart rate limiter
+ */
+export function updateRateLimiterContext(action: string): void {
+  smartRateLimiter.shouldUpdate(action);
 } 

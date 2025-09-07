@@ -793,6 +793,11 @@ export default function QuestsPage() {
         const xpEarned = questObj.xp || 0;
         
         console.log('[QUEST-TOGGLE] Updating character stats:', { goldEarned, xpEarned });
+        
+        // Update rate limiter context for quest completion
+        const { updateRateLimiterContext } = await import('@/lib/character-stats-manager');
+        updateRateLimiterContext('quest-completion');
+        
         await gainGold(goldEarned, 'quest-completion');
         await gainExperience(xpEarned, 'quest-completion', 'general');
         await gainStrengthFromQuest(questObj.category, 1);

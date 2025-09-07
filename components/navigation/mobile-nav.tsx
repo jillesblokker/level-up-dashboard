@@ -133,7 +133,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     
     try {
       // Use the new real-time data fetching system
-      const freshStats = await fetchFreshCharacterStats();
+      const freshStats = await fetchFreshCharacterStats('navigation');
       if (freshStats) {
         const currentLevel = calculateLevelFromExperience(freshStats.experience);
         const newStats = {
@@ -175,7 +175,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     // Then fetch fresh data from API
     const fetchInitialData = async () => {
       try {
-        const freshStats = await fetchFreshCharacterStats();
+        const freshStats = await fetchFreshCharacterStats('navigation');
         if (freshStats) {
           const currentLevel = calculateLevelFromExperience(freshStats.experience);
           const newStats = {
