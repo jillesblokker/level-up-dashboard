@@ -868,6 +868,9 @@ export default function QuestsPage() {
       }
       
       console.log('[QUEST-TOGGLE] Quest completion persisted successfully:', result);
+      
+      // Trigger a refresh to ensure the API is called again on page refresh
+      setRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error('[QUEST-TOGGLE] Error persisting quest completion:', error);
       // Revert the optimistic update
