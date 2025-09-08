@@ -333,21 +333,21 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
               </div>
             </nav>
 
-            {/* Quick Stats */}
-            <div className="p-5 border-t border-amber-800/20 bg-gradient-to-r from-gray-800/50 to-transparent">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-800/50 border border-gray-700/50">
-                  <Shield className="h-5 w-5 text-blue-400" />
-                  <div>
-                    <p className="text-sm text-gray-400">Titles</p>
-                    <p className="text-base font-semibold text-white">{characterStats.titles.unlocked}/{characterStats.titles.total}</p>
+            {/* Quick Stats - iOS Safe Area Compatible */}
+            <div className="px-5 pt-4 pb-safe-bottom border-t border-amber-800/20 bg-gradient-to-r from-gray-800/50 to-transparent">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-gray-800/50 border border-gray-700/50">
+                  <Shield className="h-4 w-4 text-blue-400 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs text-gray-400">Titles</p>
+                    <p className="text-sm font-semibold text-white truncate">{characterStats.titles.unlocked}/{characterStats.titles.total}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-800/50 border border-gray-700/50">
-                  <Zap className="h-5 w-5 text-yellow-400" />
-                  <div>
-                    <p className="text-sm text-gray-400">Perks</p>
-                    <p className="text-base font-semibold text-white">{characterStats.perks.active}/{characterStats.perks.total}</p>
+                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-gray-800/50 border border-gray-700/50">
+                  <Zap className="h-4 w-4 text-yellow-400 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs text-gray-400">Perks</p>
+                    <p className="text-sm font-semibold text-white truncate">{characterStats.perks.active}/{characterStats.perks.total}</p>
                   </div>
                 </div>
               </div>
