@@ -396,6 +396,13 @@ export default function QuestsPage() {
           categories: Array.isArray(data) ? [...new Set(data.map(q => q.category))] : 'N/A',
           currentFilter: questCategory
         });
+        
+        // Debug: Check for quests that are completed
+        const completedQuests = data?.filter((q: any) => q.completed) || [];
+        if (completedQuests.length > 0) {
+          console.log('[Quests Debug] Found completed quests:', completedQuests.map((q: any) => ({ id: q.id, name: q.name, completed: q.completed })));
+        }
+        
         setQuests(data || []);
       } catch (err: any) {
         setError('[Quests Debug] Error fetching quests: ' + (err.message || 'Failed to fetch quests'));
@@ -869,8 +876,11 @@ export default function QuestsPage() {
       
       console.log('[QUEST-TOGGLE] Quest completion persisted successfully:', result);
       
-      // Trigger a refresh to ensure the API is called again on page refresh
-      setRefreshTrigger(prev => prev + 1);
+      // Trigger a refresh with a small delay to prevent race conditions
+      // This ensures the database changes are fully processed before refetching
+      setTimeout(() => {
+        setRefreshTrigger(prev => prev + 1);
+      }, 100);
     } catch (error) {
       console.error('[QUEST-TOGGLE] Error persisting quest completion:', error);
       // Revert the optimistic update
