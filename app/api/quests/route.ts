@@ -159,23 +159,30 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: completionsError.message }, { status: 500 });
     }
 
-    // Create a map of completed quests by quest_id (which stores challenge names)
+    // Create a map of completed quests by quest_id (since smart quest completion stores by ID)
     const completedQuests = new Map();
     if (questCompletions) {
       questCompletions.forEach((completion: any) => {
+        // SMART LOGIC: Only consider quests as completed if they have completed=true AND completed_at is not null
+        // This aligns with the smart quest completion system that deletes records when quests are uncompleted
         const isCompleted = completion.completed === true && completion.completed_at !== null;
         console.log('[Quests API] Processing completion:', {
           quest_id: completion.quest_id,
           completed: completion.completed,
           completed_at: completion.completed_at,
-          isCompleted
+          isCompleted,
+          record_exists: true
         });
-        completedQuests.set(completion.quest_id, {
-          completed: isCompleted,
-          completedAt: completion.completed_at,
-          xpEarned: completion.xp_earned,
-          goldEarned: completion.gold_earned
-        });
+        
+        // Only add to map if the quest is actually completed (smart behavior)
+        if (isCompleted) {
+          completedQuests.set(completion.quest_id, {
+            completed: true,
+            completedAt: completion.completed_at,
+            xpEarned: completion.xp_earned,
+            goldEarned: completion.gold_earned
+          });
+        }
       });
     }
 
