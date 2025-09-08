@@ -832,6 +832,39 @@ export default function QuestsPage() {
       )
     );
     
+    // PERSIST QUEST COMPLETION TO DATABASE
+    try {
+      console.log('[QUEST-TOGGLE] Persisting quest completion to database...');
+      const { updateQuestCompletion } = await import('@/lib/quests-persistence');
+      const success = await updateQuestCompletion(questId, newCompleted);
+      
+      if (!success) {
+        console.error('[QUEST-TOGGLE] Failed to persist quest completion, reverting local state');
+        // Revert the optimistic update
+        setQuests(prevQuests => 
+          prevQuests.map(q => 
+            q.id === questId 
+              ? { ...q, completed: !newCompleted }
+              : q
+          )
+        );
+        return;
+      }
+      
+      console.log('[QUEST-TOGGLE] Quest completion persisted successfully');
+    } catch (error) {
+      console.error('[QUEST-TOGGLE] Error persisting quest completion:', error);
+      // Revert the optimistic update
+      setQuests(prevQuests => 
+        prevQuests.map(q => 
+          q.id === questId 
+            ? { ...q, completed: !newCompleted }
+            : q
+        )
+      );
+      return;
+    }
+    
     // Update character stats if quest was completed
     if (newCompleted) {
       try {
