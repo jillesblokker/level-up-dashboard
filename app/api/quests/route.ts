@@ -18,6 +18,10 @@ import { supabaseServer } from '../../../lib/supabase/server-client';
 
 const supabase = supabaseServer;
 
+// Disable Next.js caching for this route
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // Define schemas for request validation
 const questCompletionSchema = z.object({
   title: z.string().min(1),
@@ -45,6 +49,8 @@ async function getUserIdFromRequest(request: Request): Promise<string | null> {
 
 // Health check endpoint
 export async function GET(request: Request) {
+  console.log('[Quests API] GET request received at:', new Date().toISOString());
+  console.log('[Quests API] Request URL:', request.url);
   try {
     const { searchParams } = new URL(request.url);
     if (searchParams.get('health') === '1') {
@@ -241,7 +247,14 @@ export async function GET(request: Request) {
     const finalIncompleteCount = questsWithCompletions.filter(q => !q.completed).length;
     console.log('[Quests API] Final counts:', { completed: finalCompletedCount, incomplete: finalIncompleteCount });
     console.log('[Quests API] Final quests with completions (proven method):', questsWithCompletions.slice(0, 3));
-    return NextResponse.json(questsWithCompletions);
+    
+    // Add cache-busting headers to prevent Next.js from caching the response
+    const response = NextResponse.json(questsWithCompletions);
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+    response.headers.set('Surrogate-Control', 'no-store');
+    return response;
   } catch (error) {
     console.error('Error fetching quests:', error instanceof Error ? error.stack : error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
