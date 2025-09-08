@@ -185,8 +185,8 @@ export async function GET(request: Request) {
 
     // Convert quests to quest format with completion status
     const questsWithCompletions = (quests || []).map((quest: any) => {
-      // Find completion by quest name (since quest_id stores names, not IDs)
-      const completion = completedQuests.get(quest.name);
+      // Find completion by quest ID (since smart quest completion stores by ID)
+      const completion = completedQuests.get(quest.id);
       const isCompleted = completion ? completion.completed : false;
       const completionDate = completion ? completion.completedAt : null;
       
