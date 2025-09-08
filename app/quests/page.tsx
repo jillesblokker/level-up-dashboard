@@ -222,6 +222,7 @@ export default function QuestsPage() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const dailyResetInitiated = useRef(false);
   const [manualResetLoading, setManualResetLoading] = useState(false);
+  const [nuclearResetLoading, setNuclearResetLoading] = useState(false);
   
   // --- Realtime Sync ---
   const [syncError, setSyncError] = useState<string | null>(null);
@@ -1229,6 +1230,71 @@ export default function QuestsPage() {
     }
   };
 
+  // Nuclear reset function - clears ALL completed quests
+  const handleNuclearReset = async () => {
+    if (!token) return;
+    
+    // Confirm with user
+    if (!confirm('⚠️ NUCLEAR RESET WARNING ⚠️\n\nThis will reset ALL quests and challenges, including those from previous days. This action cannot be undone.\n\nAre you sure you want to continue?')) {
+      return;
+    }
+    
+    setNuclearResetLoading(true);
+    console.log('[Nuclear Reset] Starting nuclear reset...');
+    
+    try {
+      const res = await fetch('/api/quests/nuclear-reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      });
+      
+      if (!res.ok) {
+        const err = await res.text();
+        console.error('[Nuclear Reset] API error:', res.status, err);
+        toast({
+          title: 'Nuclear Reset Error',
+          description: `Failed to reset quests: ${err || res.statusText}`,
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      const result = await res.json();
+      console.log('[Nuclear Reset] Success:', result);
+      
+      // Force all quests to show as incomplete
+      setQuests(prevQuests => 
+        prevQuests.map(quest => ({
+          ...quest,
+          completed: false
+        }))
+      );
+      
+      // Refresh quest data from backend
+      setRefreshTrigger(prev => prev + 1);
+      
+      // Update localStorage
+      const today = new Date().toISOString().slice(0, 10);
+      localStorage.setItem('last-quest-reset-date', today);
+      dailyResetInitiated.current = true;
+      
+      toast({
+        title: 'Nuclear Reset Complete',
+        description: `Successfully reset ${result.questsReset} quests and ${result.challengesReset} challenges!`,
+      });
+      
+    } catch (err) {
+      console.error('[Nuclear Reset] Error:', err);
+      toast({
+        title: 'Nuclear Reset Error',
+        description: `Error: ${err instanceof Error ? err.message : String(err)}`,
+        variant: 'destructive',
+      });
+    } finally {
+      setNuclearResetLoading(false);
+    }
+  };
+
   // Add remaining missing variables and functions
   const [milestones, setMilestones] = useState<any[]>([]);
   const [addQuestError, setAddQuestError] = useState<string | null>(null);
@@ -1586,13 +1652,17 @@ export default function QuestsPage() {
                 </Button>
               </div>
               
-              {/* Manual Reset Button */}
-              <div className="flex justify-center mt-4">
+              {/* Reset Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 justify-center mt-4">
+                {/* Debug info */}
+                <div className="w-full text-center text-sm text-gray-400 mb-2">
+                  Debug: Manual reset only clears today&apos;s quests. Use Nuclear Reset to clear ALL quests.
+                </div>
                 <Button
                   onClick={handleManualReset}
                   disabled={manualResetLoading || !token}
                   className="bg-red-600 hover:bg-red-700 disabled:bg-red-800/50 disabled:text-gray-400 text-white px-6 py-3 font-bold rounded-lg shadow-lg"
-                  aria-label="Manually reset all quests"
+                  aria-label="Manually reset today's quests"
                 >
                   {manualResetLoading ? (
                     <>
@@ -1601,7 +1671,28 @@ export default function QuestsPage() {
                     </>
                   ) : (
                     <>
-                      🔄 Reset All Quests
+                      🔄 Reset Today&apos;s Quests
+                    </>
+                  )}
+                </Button>
+                
+                <Button
+                  onClick={() => {
+                    console.log('[Nuclear Reset] Button clicked!');
+                    handleNuclearReset();
+                  }}
+                  disabled={nuclearResetLoading || !token}
+                  className="bg-red-800 hover:bg-red-900 disabled:bg-red-900/50 disabled:text-gray-400 text-white px-6 py-3 font-bold rounded-lg shadow-lg border-2 border-red-600"
+                  aria-label="Nuclear reset ALL quests including previous days"
+                >
+                  {nuclearResetLoading ? (
+                    <>
+                      <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Nuclear Resetting...
+                    </>
+                  ) : (
+                    <>
+                      ☢️ Nuclear Reset ALL
                     </>
                   )}
                 </Button>

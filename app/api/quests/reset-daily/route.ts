@@ -28,6 +28,25 @@ export async function POST(req: NextRequest) {
     }
 
     console.log('[Daily Reset] Found', todayCompletions?.length || 0, 'completions from today');
+    
+    // 🔍 DEBUG: Check ALL completed quests for this user (not just today)
+    const { data: allCompletions, error: allCompletionsError } = await supabaseServer
+      .from('quest_completion')
+      .select('quest_id, completed, completed_at')
+      .eq('user_id', userId)
+      .eq('completed', true);
+    
+    if (allCompletionsError) {
+      console.error('[Daily Reset] Error fetching all completions:', allCompletionsError);
+    } else {
+      console.log('[Daily Reset] 🔍 DEBUG - Total completed quests in database:', allCompletions?.length || 0);
+      if (allCompletions && allCompletions.length > 0) {
+        console.log('[Daily Reset] 🔍 DEBUG - Sample completed quests:', allCompletions.slice(0, 5).map(c => ({
+          quest_id: c.quest_id,
+          completed_at: c.completed_at
+        })));
+      }
+    }
 
     // 🚀 USE SMART QUEST COMPLETION SYSTEM FOR DAILY RESET
     // Instead of storing completed: false, we'll delete the completion records
@@ -114,12 +133,21 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // 🚀 NUCLEAR OPTION: If no quests were reset today but there are completed quests, offer to reset ALL
+    if (resetCount === 0 && allCompletions && allCompletions.length > 0) {
+      console.log('[Daily Reset] 🚀 NUCLEAR OPTION - No quests completed today, but found', allCompletions.length, 'total completed quests');
+      console.log('[Daily Reset] 🚀 This suggests quests from previous days are still marked as completed');
+      console.log('[Daily Reset] 🚀 Consider implementing a "nuclear reset" option to clear all completed quests');
+    }
+
     console.log('[Daily Reset] Daily reset completed successfully');
     return NextResponse.json({ 
       success: true, 
       message: 'Daily reset completed - quests reset for today, historical data preserved',
       questsReset: resetCount || 0,
-      challengesReset: todayChallenges?.length || 0
+      challengesReset: todayChallenges?.length || 0,
+      totalCompletedQuests: allCompletions?.length || 0,
+      nuclearResetAvailable: resetCount === 0 && (allCompletions?.length || 0) > 0
     });
 
   } catch (error) {
