@@ -27,33 +27,35 @@ export async function POST(req: NextRequest) {
 
     let resetCount = 0;
     if (allCompletions && allCompletions.length > 0) {
-      console.log('[Nuclear Reset] Using smart system to reset ALL quests...');
+      console.log('[Nuclear Reset] DIRECT DELETION - Deleting ALL quest completion records...');
       
-      // For each completed quest, use the smart system to "uncomplete" it
-      for (const completion of allCompletions) {
-        try {
-          const { data: smartResult, error: smartError } = await supabaseServer.rpc('smart_quest_completion', {
-            p_user_id: userId,
-            p_quest_id: completion.quest_id as any,
-            p_completed: false, // This will delete the record (smart behavior)
-            p_xp_reward: 0,
-            p_gold_reward: 0
-          });
-          
-          if (smartError) {
-            console.error('[Nuclear Reset] Smart completion error for quest:', completion.quest_id, smartError);
-          } else if (smartResult) {
-            console.log('[Nuclear Reset] Smart completion result for quest:', completion.quest_id, smartResult);
-            if (smartResult.success && smartResult.action === 'uncompleted') {
-              resetCount++;
-            }
-          }
-        } catch (error) {
-          console.error('[Nuclear Reset] Error processing quest reset:', completion.quest_id, error);
-        }
+      // DIRECT DELETION: Delete all quest completion records for this user
+      const { error: deleteError, count: deletedCount } = await supabaseServer
+        .from('quest_completion')
+        .delete()
+        .eq('user_id', userId)
+        .eq('completed', true);
+      
+      if (deleteError) {
+        console.error('[Nuclear Reset] Direct deletion error:', deleteError);
+        return NextResponse.json({ error: 'Failed to delete quest completions', details: deleteError }, { status: 500 });
       }
       
-      console.log('[Nuclear Reset] Successfully reset', resetCount, 'out of', allCompletions.length, 'quests using smart system');
+      resetCount = deletedCount || 0;
+      console.log('[Nuclear Reset] DIRECT DELETION SUCCESS - Deleted', resetCount, 'quest completion records');
+      
+      // Verify deletion worked
+      const { data: verifyCompletions, error: verifyError } = await supabaseServer
+        .from('quest_completion')
+        .select('quest_id, completed')
+        .eq('user_id', userId)
+        .eq('completed', true);
+      
+      if (verifyError) {
+        console.error('[Nuclear Reset] Verification error:', verifyError);
+      } else {
+        console.log('[Nuclear Reset] VERIFICATION - Remaining completed quests:', verifyCompletions?.length || 0);
+      }
     }
 
     // Also reset challenges
@@ -67,18 +69,18 @@ export async function POST(req: NextRequest) {
     if (challengeFetchError) {
       console.error('[Nuclear Reset] Error fetching challenge completions:', challengeFetchError);
     } else if (allChallenges && allChallenges.length > 0) {
-      // Reset all challenges to not completed
-      const { error: challengeUpdateError } = await supabaseServer
+      // DIRECT DELETION: Delete all challenge completion records
+      const { error: challengeDeleteError, count: challengeDeletedCount } = await supabaseServer
         .from('challenge_completion')
-        .update({ completed: false })
+        .delete()
         .eq('user_id', userId)
         .eq('completed', true);
 
-      if (challengeUpdateError) {
-        console.error('[Nuclear Reset] Error resetting challenges:', challengeUpdateError);
+      if (challengeDeleteError) {
+        console.error('[Nuclear Reset] Error deleting challenges:', challengeDeleteError);
       } else {
-        challengeResetCount = allChallenges.length;
-        console.log('[Nuclear Reset] Successfully reset', challengeResetCount, 'challenges');
+        challengeResetCount = challengeDeletedCount || 0;
+        console.log('[Nuclear Reset] DIRECT DELETION SUCCESS - Deleted', challengeResetCount, 'challenge completion records');
       }
     }
 
