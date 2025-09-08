@@ -221,6 +221,7 @@ export default function QuestsPage() {
   const [token, setToken] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const dailyResetInitiated = useRef(false);
+  const [manualResetLoading, setManualResetLoading] = useState(false);
   
   // --- Realtime Sync ---
   const [syncError, setSyncError] = useState<string | null>(null);
@@ -523,7 +524,7 @@ export default function QuestsPage() {
         console.log('[Daily Reset] Skipping reset - already processed today or conditions not met');
       }
     }
-  }, [userId, token]); // Removed loading and quests.length to prevent multiple triggers
+  }, [loading, quests.length, userId, token]); // Include all dependencies that are checked in the condition
 
   // Reset the daily reset flag when the date changes (at midnight)
   useEffect(() => {
@@ -1168,6 +1169,66 @@ export default function QuestsPage() {
     }
   };
 
+  // Manual reset function for immediate control
+  const handleManualReset = async () => {
+    if (!token) return;
+    
+    setManualResetLoading(true);
+    console.log('[Manual Reset] Starting manual reset...');
+    
+    try {
+      const res = await fetch('/api/quests/reset-daily', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      });
+      
+      if (!res.ok) {
+        const err = await res.text();
+        console.error('[Manual Reset] API error:', res.status, err);
+        toast({
+          title: 'Manual Reset Error',
+          description: `Failed to reset quests: ${err || res.statusText}`,
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      const result = await res.json();
+      console.log('[Manual Reset] Success:', result);
+      
+      // Force all quests to show as incomplete
+      setQuests(prevQuests => 
+        prevQuests.map(quest => ({
+          ...quest,
+          completed: false
+        }))
+      );
+      
+      // Refresh quest data from backend
+      setRefreshTrigger(prev => prev + 1);
+      
+      // Update localStorage
+      const today = new Date().toISOString().slice(0, 10);
+      localStorage.setItem('last-quest-reset-date', today);
+      dailyResetInitiated.current = true;
+      
+      toast({
+        title: 'Manual Reset Complete',
+        description: 'All quests have been reset successfully!',
+      });
+      
+    } catch (err) {
+      console.error('[Manual Reset] Error:', err);
+      toast({
+        title: 'Manual Reset Error',
+        description: `Error: ${err instanceof Error ? err.message : String(err)}`,
+        variant: 'destructive',
+      });
+    } finally {
+      setManualResetLoading(false);
+    }
+  };
+
   // Add remaining missing variables and functions
   const [milestones, setMilestones] = useState<any[]>([]);
   const [addQuestError, setAddQuestError] = useState<string | null>(null);
@@ -1522,6 +1583,27 @@ export default function QuestsPage() {
                 >
                   <Star className="w-4 h-4 mr-2" />
                   Complete {quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length} Total Favorites
+                </Button>
+              </div>
+              
+              {/* Manual Reset Button */}
+              <div className="flex justify-center mt-4">
+                <Button
+                  onClick={handleManualReset}
+                  disabled={manualResetLoading || !token}
+                  className="bg-red-600 hover:bg-red-700 disabled:bg-red-800/50 disabled:text-gray-400 text-white px-6 py-3 font-bold rounded-lg shadow-lg"
+                  aria-label="Manually reset all quests"
+                >
+                  {manualResetLoading ? (
+                    <>
+                      <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Resetting...
+                    </>
+                  ) : (
+                    <>
+                      🔄 Reset All Quests
+                    </>
+                  )}
                 </Button>
               </div>
               
