@@ -162,6 +162,17 @@ export async function GET(request: Request) {
     // Create a map of completed quests by quest_id (since smart quest completion stores by ID)
     const completedQuests = new Map();
     if (questCompletions) {
+      console.log('[Quests API] Processing quest completions:', {
+        totalRecords: questCompletions.length,
+        sampleRecords: questCompletions.slice(0, 3).map(c => ({
+          quest_id: c.quest_id,
+          completed: c.completed,
+          completed_at: c.completed_at,
+          xp_earned: c.xp_earned,
+          gold_earned: c.gold_earned
+        }))
+      });
+      
       questCompletions.forEach((completion: any) => {
         // SMART LOGIC: Only consider quests as completed if they have completed=true AND completed_at is not null
         // This aligns with the smart quest completion system that deletes records when quests are uncompleted
