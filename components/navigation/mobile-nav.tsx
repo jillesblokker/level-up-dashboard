@@ -86,6 +86,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     { href: "/realm", label: "Realm", icon: MapIcon, description: "Explore the world" },
     { href: "/achievements", label: "Achievements", icon: Trophy, description: "Track progress" },
     { href: "/character", label: "Character", icon: User, description: "View stats" },
+    { href: "/account", label: "Account Settings", icon: Settings, description: "Manage your profile" },
   ], [])
 
   const isActive = useCallback((path: string) => pathname === path, [pathname])
@@ -352,25 +353,6 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
               </div>
             </div>
 
-            {/* Account Section */}
-            <div className="p-5 border-t border-amber-800/20">
-              <button
-                onClick={() => {
-                  setOpen(false)
-                  router.push('/account')
-                }}
-                className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-gray-800/50 to-gray-700/50 border border-gray-700/50 hover:border-amber-500/30 active:bg-amber-500/10 transition-all duration-300 group touch-manipulation min-h-[52px] w-full text-left"
-                aria-label="Account settings"
-              >
-                <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full flex items-center justify-center shadow-lg">
-                  <User className="h-5 w-5 text-black" />
-                </div>
-                <div className="text-left">
-                  <p className="text-base font-semibold text-white">Account Settings</p>
-                  <p className="text-sm text-gray-400">Manage your profile and preferences</p>
-                </div>
-              </button>
-            </div>
           </SheetContentWithoutClose>
         </Sheet>
       </ErrorBoundary>
