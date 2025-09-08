@@ -293,6 +293,26 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
               <Progress value={levelProgress} className="h-3 bg-gray-700" />
             </div>
 
+            {/* Quick Stats - Moved up from bottom */}
+            <div className="px-5 py-3 border-b border-amber-800/20 bg-gradient-to-r from-gray-800/50 to-transparent">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-gray-800/50 border border-gray-700/50">
+                  <Shield className="h-4 w-4 text-blue-400 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs text-gray-400">Titles</p>
+                    <p className="text-sm font-semibold text-white truncate">{characterStats.titles.unlocked}/{characterStats.titles.total}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-gray-800/50 border border-gray-700/50">
+                  <Zap className="h-4 w-4 text-yellow-400 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs text-gray-400">Perks</p>
+                    <p className="text-sm font-semibold text-white truncate">{characterStats.perks.active}/{characterStats.perks.total}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Navigation Items */}
             <nav className="flex-1 overflow-y-auto py-4">
               <div className="space-y-2 px-4">
@@ -333,25 +353,6 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
               </div>
             </nav>
 
-            {/* Quick Stats - iOS Safe Area Compatible */}
-            <div className="px-5 pt-4 pb-safe-bottom border-t border-amber-800/20 bg-gradient-to-r from-gray-800/50 to-transparent">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-gray-800/50 border border-gray-700/50">
-                  <Shield className="h-4 w-4 text-blue-400 flex-shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-xs text-gray-400">Titles</p>
-                    <p className="text-sm font-semibold text-white truncate">{characterStats.titles.unlocked}/{characterStats.titles.total}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-gray-800/50 border border-gray-700/50">
-                  <Zap className="h-4 w-4 text-yellow-400 flex-shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-xs text-gray-400">Perks</p>
-                    <p className="text-sm font-semibold text-white truncate">{characterStats.perks.active}/{characterStats.perks.total}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
 
           </SheetContentWithoutClose>
         </Sheet>
