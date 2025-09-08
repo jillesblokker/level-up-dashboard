@@ -444,6 +444,14 @@ export default function QuestsPage() {
       const lastReset = localStorage.getItem('last-quest-reset-date');
       const today = new Date().toISOString().slice(0, 10);
       
+      console.log('[Daily Reset] Checking reset conditions:', {
+        lastReset,
+        today,
+        shouldReset: lastReset !== today,
+        dailyResetInitiated: dailyResetInitiated.current,
+        token: !!token
+      });
+      
       // Only reset if we haven't processed today's reset AND we have a valid token AND we haven't already initiated a reset
       if (lastReset !== today && token && !dailyResetInitiated.current) {
         console.log('[Daily Reset] Starting daily reset for date:', today);
@@ -504,6 +512,8 @@ export default function QuestsPage() {
               variant: 'destructive',
             });
           });
+      } else {
+        console.log('[Daily Reset] Skipping reset - already processed today or conditions not met');
       }
     }
   }, [userId, token]); // Removed loading and quests.length to prevent multiple triggers
