@@ -1579,20 +1579,16 @@ export default function QuestsPage() {
                 <Button
                   onClick={handleBulkCompleteAllFavorites}
                   disabled={loading || quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length === 0}
-                  className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-400 text-black px-4 py-3 font-bold rounded-lg shadow-lg"
+                  className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
                   aria-label="Complete all favorited quests across all categories"
                 >
                   <Star className="w-4 h-4 mr-2" />
                   Complete {quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length} Total Favorites
                 </Button>
-              </div>
-              
-              {/* Manual Reset Button - Keep for emergency use */}
-              <div className="flex justify-center mt-4">
                 <Button
                   onClick={handleManualReset}
                   disabled={manualResetLoading || !token}
-                  className="bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800/50 disabled:text-gray-400 text-white px-6 py-2 font-bold rounded-lg shadow-lg border border-gray-500"
+                  className="bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800/50 disabled:text-gray-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg border border-gray-500"
                   aria-label="Manually reset today's quests"
                 >
                   {manualResetLoading ? (

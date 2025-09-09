@@ -365,7 +365,7 @@ export default function NotificationsPage() {
                       variant={selectedType === null ? "default" : "outline"}
                       className={`cursor-pointer transition-all duration-200 ${
                         selectedType === null 
-                          ? "bg-amber-500 text-black hover:bg-amber-600" 
+                          ? "bg-amber-500 text-white hover:bg-amber-600" 
                           : "border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
                       }`}
                       onClick={() => setSelectedType(null)}
@@ -376,7 +376,7 @@ export default function NotificationsPage() {
                       variant={selectedType === "achievement" ? "default" : "outline"}
                       className={`cursor-pointer transition-all duration-200 ${
                         selectedType === "achievement" 
-                          ? "bg-amber-500 text-black hover:bg-amber-600" 
+                          ? "bg-amber-500 text-white hover:bg-amber-600" 
                           : "border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
                       }`}
                       onClick={() => setSelectedType("achievement")}
@@ -388,7 +388,7 @@ export default function NotificationsPage() {
                       variant={selectedType === "quest" ? "default" : "outline"}
                       className={`cursor-pointer transition-all duration-200 ${
                         selectedType === "quest" 
-                          ? "bg-amber-500 text-black hover:bg-amber-600" 
+                          ? "bg-amber-500 text-white hover:bg-amber-600" 
                           : "border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
                       }`}
                       onClick={() => setSelectedType("quest")}
@@ -400,7 +400,7 @@ export default function NotificationsPage() {
                       variant={selectedType === "friend" ? "default" : "outline"}
                       className={`cursor-pointer transition-all duration-200 ${
                         selectedType === "friend" 
-                          ? "bg-amber-500 text-black hover:bg-amber-600" 
+                          ? "bg-amber-500 text-white hover:bg-amber-600" 
                           : "border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
                       }`}
                       onClick={() => setSelectedType("friend")}
@@ -412,7 +412,7 @@ export default function NotificationsPage() {
                       variant={selectedType === "system" ? "default" : "outline"}
                       className={`cursor-pointer transition-all duration-200 ${
                         selectedType === "system" 
-                          ? "bg-amber-500 text-black hover:bg-amber-600" 
+                          ? "bg-amber-500 text-white hover:bg-amber-600" 
                           : "border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
                       }`}
                       onClick={() => setSelectedType("system")}

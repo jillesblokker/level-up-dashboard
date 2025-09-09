@@ -2283,7 +2283,7 @@ export default function RealmPage() {
                         className={cn(
                           "flex items-center gap-2 min-w-[44px] min-h-[44px]",
                           gameMode === 'build' 
-                            ? "bg-amber-500 text-black hover:bg-amber-600" 
+                            ? "bg-amber-500 text-white hover:bg-amber-600" 
                             : "bg-gray-800 text-white hover:bg-gray-700 border-gray-600"
                         )}
                         aria-label="build-mode-button"

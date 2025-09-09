@@ -164,7 +164,7 @@ export function WeeklyProgressChart() {
             <div className="absolute inset-0 bg-black flex flex-col items-center justify-center rounded-lg z-10">
               <span className="text-2xl font-bold text-white drop-shadow mb-2">No data yet</span>
               <button
-                className="mt-2 px-4 py-2 bg-amber-500 text-black rounded hover:bg-amber-600 transition text-lg font-semibold shadow"
+                className="mt-2 px-4 py-2 bg-amber-500 text-white rounded hover:bg-amber-600 transition text-lg font-semibold shadow"
                 aria-label="Start habit building now"
                 onClick={() => router.push('/quests')}
                 tabIndex={0}
