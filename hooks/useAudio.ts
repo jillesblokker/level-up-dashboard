@@ -23,8 +23,8 @@ const defaultSettings: AudioSettings = {
   masterVolume: 0.7,
   musicVolume: 0.5,
   sfxVolume: 0.8,
-  musicEnabled: true,
-  sfxEnabled: true
+  musicEnabled: false,
+  sfxEnabled: false
 }
 
 // Medieval-themed audio tracks
