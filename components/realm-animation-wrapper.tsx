@@ -221,7 +221,7 @@ export function RealmAnimationWrapper({
     <div
       ref={containerRef}
       className={cn(
-        "flex flex-col min-h-screen text-white relative",
+        "flex flex-col text-white relative",
         getAnimationClasses(),
         className
       )}

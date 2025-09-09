@@ -393,7 +393,7 @@ export default function Page() {
           {achievementDefinitions.length > 0 && (
             <div className="mb-8">
               <h2 className="text-xl font-semibold text-amber-400 mb-4">Monster Battles</h2>
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2" aria-label="achievement-cards-grid">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-3" aria-label="achievement-cards-grid">
                 {achievementDefinitions
                   .filter(achievement => {
                     // Only show monster battle achievements (201-206)
