@@ -24,12 +24,13 @@ const AudioContext = createContext<AudioContextType | undefined>(undefined)
 export function AudioProvider({ children }: { children: React.ReactNode }) {
   const audio = useAudio()
 
-  // Auto-play ambient music on app start
+  // Auto-play ambient music on app start (disabled for now)
   useEffect(() => {
-    if (audio.settings.musicEnabled) {
-      // Play medieval ambient music by default
-      audio.playMusic('medieval-ambient')
-    }
+    // Disabled auto-play to prevent errors with missing audio files
+    // if (audio.settings.musicEnabled) {
+    //   // Play medieval ambient music by default
+    //   audio.playMusic('medieval-ambient')
+    // }
   }, [audio.settings.musicEnabled])
 
   return (

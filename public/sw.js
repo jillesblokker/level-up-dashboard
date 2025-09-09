@@ -10,8 +10,8 @@ const STATIC_FILES = [
   '/kingdom',
   '/character',
   '/manifest.json',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png'
+  '/icons/icon-192x192.svg',
+  '/icons/icon-512x512.svg'
 ]
 
 // Install event - cache static files
@@ -21,10 +21,17 @@ self.addEventListener('install', (event) => {
     caches.open(STATIC_CACHE)
       .then((cache) => {
         console.log('[SW] Caching static files')
-        return cache.addAll(STATIC_FILES)
+        return Promise.allSettled(
+          STATIC_FILES.map(url => 
+            cache.add(url).catch(err => {
+              console.warn(`[SW] Failed to cache ${url}:`, err)
+              return null
+            })
+          )
+        )
       })
       .then(() => {
-        console.log('[SW] Static files cached successfully')
+        console.log('[SW] Static files caching completed')
         return self.skipWaiting()
       })
       .catch((error) => {

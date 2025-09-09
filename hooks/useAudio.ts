@@ -203,7 +203,8 @@ export function useAudio() {
       audio.volume = audioTracks.find(t => t.id === id)?.volume || 0.8
       audio.volume *= settings.masterVolume * settings.sfxVolume
       audio.play().catch(error => {
-        console.error(`Failed to play SFX ${id}:`, error)
+        console.warn(`Audio file not found for ${id}, skipping sound effect`)
+        // Don't show error for missing audio files, just skip silently
       })
     }
   }, [settings])
@@ -230,7 +231,8 @@ export function useAudio() {
         setCurrentMusic(id)
         setIsPlaying(true)
       }).catch(error => {
-        console.error(`Failed to play music ${id}:`, error)
+        console.warn(`Audio file not found for ${id}, skipping audio playback`)
+        // Don't show error for missing audio files, just skip silently
       })
     }
   }, [settings, currentMusic])
