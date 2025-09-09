@@ -21,9 +21,14 @@ import {
   EyeOff,
   Copy,
   CheckCircle,
-  AlertTriangle
+  AlertTriangle,
+  Volume2,
+  VolumeX,
+  Play,
+  Pause
 } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast'
+import { useAudioContext } from '@/components/audio-provider'
 
 interface StorageItem {
   key: string
@@ -55,7 +60,10 @@ export default function StoredDataPage() {
   const [showValues, setShowValues] = useState(false)
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(true)
+  const [isPlayingMusic, setIsPlayingMusic] = useState(false)
+  const [isPlayingSFX, setIsPlayingSFX] = useState(false)
   const { toast } = useToast()
+  const { settings, playMusic, playSFX, stopMusic } = useAudioContext()
 
   // Load storage data
   const loadStorageData = () => {
@@ -286,6 +294,34 @@ export default function StoredDataPage() {
     })
   }
 
+  // Audio test functions
+  const testMusic = () => {
+    if (isPlayingMusic) {
+      stopMusic()
+      setIsPlayingMusic(false)
+    } else {
+      playMusic('medieval-ambient')
+      setIsPlayingMusic(true)
+      // Auto-stop after 5 seconds
+      setTimeout(() => {
+        setIsPlayingMusic(false)
+      }, 5000)
+    }
+  }
+
+  const testSFX = () => {
+    if (isPlayingSFX) {
+      setIsPlayingSFX(false)
+    } else {
+      playSFX('button-click')
+      setIsPlayingSFX(true)
+      // Auto-stop after 2 seconds
+      setTimeout(() => {
+        setIsPlayingSFX(false)
+      }, 2000)
+    }
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-6" aria-label="stored-data-section">
       <div className="flex items-center justify-between">
@@ -413,6 +449,44 @@ export default function StoredDataPage() {
               >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Clear Selected ({selectedItems.size})
+              </Button>
+            </div>
+          </div>
+          
+          {/* Audio Test Controls */}
+          <Separator className="my-4" />
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-white">Audio Test Controls</h3>
+            <div className="flex flex-wrap gap-4 items-center">
+              <div className="flex items-center gap-2">
+                <Label>Music Status:</Label>
+                <Badge variant={settings.musicEnabled ? "default" : "secondary"}>
+                  {settings.musicEnabled ? "Enabled" : "Disabled"}
+                </Badge>
+              </div>
+              <div className="flex items-center gap-2">
+                <Label>SFX Status:</Label>
+                <Badge variant={settings.sfxEnabled ? "default" : "secondary"}>
+                  {settings.sfxEnabled ? "Enabled" : "Disabled"}
+                </Badge>
+              </div>
+              <Button 
+                variant="outline" 
+                onClick={testMusic}
+                disabled={!settings.musicEnabled}
+                aria-label="test-music-button"
+              >
+                {isPlayingMusic ? <Pause className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
+                {isPlayingMusic ? 'Pause Music' : 'Test Music'}
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={testSFX}
+                disabled={!settings.sfxEnabled}
+                aria-label="test-sfx-button"
+              >
+                {isPlayingSFX ? <Pause className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
+                {isPlayingSFX ? 'Pause SFX' : 'Test SFX'}
               </Button>
             </div>
           </div>

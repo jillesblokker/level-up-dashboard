@@ -328,7 +328,7 @@ export function AchievementNotification({
             <div className="text-2xl">🏆</div>
             <div className="flex-1 min-w-0">
               <h4 className="text-sm font-bold text-white truncate">
-                {achievement.name}
+                Achievement Unlocked!
               </h4>
               <p className="text-xs text-white/80 truncate">
                 {achievement.description}
