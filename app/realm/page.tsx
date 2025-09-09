@@ -978,8 +978,8 @@ export default function RealmPage() {
         if (!hasTileInInventory && !hasTileInSelected) {
             // Removed debugging log
             toast({
-                title: "Cannot Place Tile",
-                description: "You don't have any of this tile type in your inventory",
+                title: "📦 Empty Inventory",
+                description: "Your tile pouch is empty! Visit the market to restock your building materials.",
                 variant: "destructive",
             });
             return;
@@ -1033,14 +1033,14 @@ export default function RealmPage() {
         try {
             if (!selectedTile?.type) {
                 console.error('No tile type selected');
-                toast({ title: 'Error', description: 'No tile type selected', variant: 'destructive' });
+                toast({ title: '🎯 No Target Selected', description: 'Choose your weapon! Select a tile type from your inventory first.', variant: 'destructive' });
                 return;
             }
             
             const tileTypeNum = tileTypeToNumeric[selectedTile.type];
             if (typeof tileTypeNum === 'undefined') {
                 console.error('Invalid tile type:', selectedTile.type);
-                toast({ title: 'Error', description: `Invalid tile type: ${selectedTile.type}`, variant: 'destructive' });
+                toast({ title: '⚠️ Unknown Material', description: 'This mysterious tile type defies classification! The realm doesn\'t recognize it.', variant: 'destructive' });
                 return;
             }
             
@@ -1323,8 +1323,8 @@ export default function RealmPage() {
             // Check for empty tile
             if (!targetTile || targetTile.type === 'empty') {
                 toast({
-                    title: "Cannot Move",
-                    description: "This is undiscovered land, buy a tile to expand the realm",
+                title: "🌌 Uncharted Territory",
+                description: "The void stretches before you! Place a tile to claim this mysterious land.",
                     variant: "destructive",
                 });
                 return;
@@ -1356,8 +1356,8 @@ export default function RealmPage() {
         // Check if there's a tile to destroy
         if (!targetTile || targetTile.type === 'empty') {
             toast({
-                title: "Nothing to Destroy",
-                description: "This tile is already empty",
+                title: "🌫️ Empty Void",
+                description: "There's nothing here to destroy - just empty space waiting for your touch.",
                 variant: "destructive",
             });
             return;
@@ -1365,9 +1365,16 @@ export default function RealmPage() {
 
         // Don't allow destroying certain protected tiles
         if (['mountain', 'water', 'lava', 'volcano'].includes(targetTile.type)) {
+            const protectionMessages = {
+                'mountain': "The ancient mountain stands defiant! Even your power cannot shake the eternal peaks.",
+                'water': "The mystical waters are protected by ancient magic! They cannot be destroyed.",
+                'lava': "The lava flows with primordial power! Your destruction attempts are futile against the earth's fury.",
+                'volcano': "The volcanic forces are beyond mortal control! The realm's fire cannot be extinguished."
+            };
+            
             toast({
-                title: "Cannot Destroy",
-                description: `You cannot destroy ${targetTile.type} tiles`,
+                title: "⛰️ Immovable Force",
+                description: protectionMessages[targetTile.type as keyof typeof protectionMessages] || `The ${targetTile.type} resists your power!`,
                 variant: "destructive",
             });
             return;
@@ -1423,9 +1430,20 @@ export default function RealmPage() {
             }
 
             // Show success message
+            const tileTypeNames = {
+                'forest': 'forest',
+                'mountain': 'mountain',
+                'water': 'water', 
+                'ice': 'ice',
+                'grass': 'grass',
+                'city': 'city',
+                'town': 'town'
+            };
+            const tileName = tileTypeNames[targetTile.type as keyof typeof tileTypeNames] || targetTile.type;
+            
             toast({
-                title: "Tile Destroyed",
-                description: `Successfully destroyed ${targetTile.type} tile`,
+                title: "💥 Devastation Complete!",
+                description: `The ${tileName} tile crumbles to dust beneath your mighty power!`,
             });
 
             // Track tile destruction for achievements
@@ -1473,9 +1491,17 @@ export default function RealmPage() {
                                 
                                 if (response.ok) {
                                     // Show achievement notification
+                                    const tileTypeNames = {
+                                        'forest': 'Forest',
+                                        'mountain': 'Mountain', 
+                                        'water': 'Water',
+                                        'ice': 'Ice'
+                                    };
+                                    const tileName = tileTypeNames[targetTile.type as keyof typeof tileTypeNames] || targetTile.type;
+                                    
                                     toast({
-                                        title: "Achievement Unlocked!",
-                                        description: `You've destroyed ${newCount} ${targetTile.type} tiles!`,
+                                        title: "🏆 Legendary Achievement!",
+                                        description: `The ancient ${tileName.toLowerCase()} trembles as you claim victory! ${tileName} Destroyer rank achieved!`,
                                     });
                                     
                                     // Discover creature if applicable
@@ -1502,8 +1528,8 @@ export default function RealmPage() {
             });
 
             toast({
-                title: "Destroy Failed",
-                description: "Failed to destroy tile. Please try again.",
+                title: "❌ Destruction Failed",
+                description: "The realm's magic resists your attempt. The tile remains untouched.",
                 variant: "destructive",
             });
         }
@@ -1513,8 +1539,8 @@ export default function RealmPage() {
     const expandMap = async () => {
         if (!canExpand) {
             toast({
-                title: 'Expansion Locked',
-                description: `Reach level ${nextExpansionLevel} to expand your realm map!`,
+                title: '🔒 Realm Locked',
+                description: `The ancient barriers hold strong! Reach level ${nextExpansionLevel} to unlock the realm's hidden depths!`,
                 variant: 'destructive',
             });
             return;
@@ -1587,8 +1613,8 @@ export default function RealmPage() {
             return newVal;
         });
         toast({
-            title: "Map Expanded",
-            description: "Your realm map has been expanded with 3 new rows!",
+            title: "🌍 Realm Expanded!",
+            description: "The mystical boundaries shift! Three new rows of land emerge from the cosmic void!",
         });
     };
 
@@ -1660,8 +1686,8 @@ export default function RealmPage() {
             // Check for empty tile
             if (!targetTile || targetTile.type === 'empty') {
                 toast({
-                    title: "Cannot Move",
-                    description: "This is undiscovered land, buy a tile to expand the realm",
+                title: "🌌 Uncharted Territory",
+                description: "The void stretches before you! Place a tile to claim this mysterious land.",
                     variant: "destructive",
                 });
                 return;
@@ -2473,11 +2499,6 @@ export default function RealmPage() {
                         <Trash2 className="w-4 h-4" />
                         <span className="hidden md:inline">Destroy</span>
                       </Button>
-                      {/* Auto Save Toggle - Desktop only */}
-                      <div className="hidden lg:flex items-center space-x-2 min-w-[100px]" aria-label="auto-save-controls">
-                        <Switch id="auto-save-switch" checked={autoSave} onCheckedChange={setAutoSave} />
-                        <label htmlFor="auto-save-switch" className="text-sm">Auto Save</label>
-                      </div>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
@@ -2536,11 +2557,11 @@ export default function RealmPage() {
                             <RotateCcw className="w-4 h-4" />
                             Reset Position
                           </DropdownMenuItem>
-                          {/* Mobile Auto Save Toggle */}
-                          <div className="lg:hidden px-2 py-1.5">
+                          {/* Auto Save Toggle */}
+                          <div className="px-2 py-1.5">
                             <div className="flex items-center space-x-2">
-                              <Switch id="auto-save-switch-mobile" checked={autoSave} onCheckedChange={setAutoSave} />
-                              <label htmlFor="auto-save-switch-mobile" className="text-sm">Auto Save</label>
+                              <Switch id="auto-save-switch-menu" checked={autoSave} onCheckedChange={setAutoSave} />
+                              <label htmlFor="auto-save-switch-menu" className="text-sm">Auto Save</label>
                             </div>
                           </div>
                           {/* Manual Sync Button */}
