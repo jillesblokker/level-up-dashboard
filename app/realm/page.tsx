@@ -15,12 +15,13 @@ import { createTileFromNumeric, numericToTileType, tileTypeToNumeric } from "@/l
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { X, Hammer, Move, Package, Settings, Save, Trash2, RotateCcw, PlusCircle } from 'lucide-react'
+import { X, Hammer, Move, Package, Settings, Save, Trash2, RotateCcw, PlusCircle, MoreVertical } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useRouter } from 'next/navigation'
 import { EnterLocationModal } from '@/components/enter-location-modal'
 import { AnimalInteractionModal } from '@/components/animal-interaction-modal'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { gainGold } from '@/lib/gold-manager'
 import { gainExperience } from '@/lib/experience-manager'
@@ -557,9 +558,9 @@ export default function RealmPage() {
         if (action === 'placed' && tileType) {
           actionCounts[req.action] = countTiles(grid, tileType as string);
         } else if (action === 'destroyed') {
-          // For destroyed, you may need to track this via a separate state or event log
-          // For now, skip unless you have a destruction log
-          actionCounts[req.action] = 0;
+          // Track destroyed tiles from localStorage
+          const achievementKey = `destroyed_${tileType}_tiles`;
+          actionCounts[req.action] = parseInt(localStorage.getItem(achievementKey) || '0');
         }
       }
       for (const req of creatureRequirements) {
@@ -1427,7 +1428,66 @@ export default function RealmPage() {
                 description: `Successfully destroyed ${targetTile.type} tile`,
             });
 
-            // TODO: Add achievement tracking for tile destruction
+            // Track tile destruction for achievements
+            if (userId && targetTile.type) {
+                const achievementKey = `destroyed_${targetTile.type}_tiles`;
+                const currentCount = parseInt(localStorage.getItem(achievementKey) || '0');
+                const newCount = currentCount + 1;
+                localStorage.setItem(achievementKey, newCount.toString());
+                
+                // Check for destruction achievements
+                const destructionAchievements = [
+                    { type: 'forest', threshold: 1, achievementId: '001' },
+                    { type: 'forest', threshold: 5, achievementId: '002' },
+                    { type: 'forest', threshold: 10, achievementId: '003' },
+                    { type: 'mountain', threshold: 1, achievementId: '010' },
+                    { type: 'mountain', threshold: 5, achievementId: '011' },
+                    { type: 'mountain', threshold: 10, achievementId: '012' },
+                    { type: 'water', threshold: 1, achievementId: '004' },
+                    { type: 'water', threshold: 5, achievementId: '005' },
+                    { type: 'water', threshold: 10, achievementId: '006' },
+                    { type: 'ice', threshold: 1, achievementId: '013' },
+                    { type: 'ice', threshold: 5, achievementId: '014' },
+                    { type: 'ice', threshold: 10, achievementId: '015' }
+                ];
+                
+                const achievement = destructionAchievements.find(a => a.type === targetTile.type);
+                if (achievement && newCount >= achievement.threshold) {
+                    // Check if achievement is already unlocked
+                    const unlockKey = `unlocked_${achievement.achievementId}`;
+                    if (!sessionStorage.getItem(unlockKey)) {
+                        sessionStorage.setItem(unlockKey, 'true');
+                        
+                        // Unlock achievement
+                        (async () => {
+                            try {
+                                const token = await getToken({ template: 'supabase' });
+                                const response = await fetch('/api/achievements/unlock', {
+                                    method: 'POST',
+                                    headers: { 
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${token}`
+                                    },
+                                    body: JSON.stringify({ achievementId: achievement.achievementId })
+                                });
+                                
+                                if (response.ok) {
+                                    // Show achievement notification
+                                    toast({
+                                        title: "Achievement Unlocked!",
+                                        description: `You've destroyed ${newCount} ${targetTile.type} tiles!`,
+                                    });
+                                    
+                                    // Discover creature if applicable
+                                    discoverCreature(achievement.achievementId);
+                                }
+                            } catch (error) {
+                                console.error('Error unlocking achievement:', error);
+                            }
+                        })();
+                    }
+                }
+            }
 
         } catch (error) {
             console.error('Error destroying tile:', error);
@@ -2366,7 +2426,8 @@ export default function RealmPage() {
                 <div className="flex items-center justify-between bg-gray-800 z-30 overflow-visible">
                   {/* On mobile, make action rows horizontally scrollable and touch-friendly */}
                   <div className="flex flex-1 flex-col gap-2 overflow-visible">
-                    <div className="flex items-center gap-2 overflow-x-auto flex-nowrap md:gap-4 md:overflow-visible md:flex-wrap overflow-visible p-2" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                    {/* Main Action Buttons - Always visible */}
+                    <div className="flex items-center gap-2 overflow-x-auto flex-nowrap md:gap-3 md:overflow-visible overflow-visible p-2" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                       <Button
                         variant={gameMode === 'move' ? 'default' : 'outline'}
                         size="sm"
@@ -2412,7 +2473,8 @@ export default function RealmPage() {
                         <Trash2 className="w-4 h-4" />
                         <span className="hidden md:inline">Destroy</span>
                       </Button>
-                      <div className="hidden md:flex items-center space-x-2 min-w-[100px]" aria-label="auto-save-controls">
+                      {/* Auto Save Toggle - Desktop only */}
+                      <div className="hidden lg:flex items-center space-x-2 min-w-[100px]" aria-label="auto-save-controls">
                         <Switch id="auto-save-switch" checked={autoSave} onCheckedChange={setAutoSave} />
                         <label htmlFor="auto-save-switch" className="text-sm">Auto Save</label>
                       </div>
@@ -2427,7 +2489,7 @@ export default function RealmPage() {
                               className="flex items-center gap-2 min-w-[44px] min-h-[44px] disabled:pointer-events-auto"
                             >
                               <PlusCircle className="w-4 h-4" />
-                              <span className="hidden sm:inline">Expand Map</span>
+                              <span className="hidden sm:inline">Expand</span>
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent 
@@ -2440,16 +2502,7 @@ export default function RealmPage() {
                             }
                           </TooltipContent>
                         </Tooltip>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleResetMap}
-                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
-                        aria-label="reset-map-button"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        <span className="hidden sm:inline">Reset Map</span>
-                      </Button>
+                      {/* Inventory Button */}
                       <Button
                         variant="outline"
                         size="sm"
@@ -2460,40 +2513,45 @@ export default function RealmPage() {
                         <Package className="w-4 h-4" />
                         <span className="hidden sm:inline">Inventory</span>
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleResetPosition}
-                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
-                        aria-label="reset-position-button"
-                      >
-                        <RotateCcw className="w-4 h-4" />
-                        <span className="hidden sm:inline">Reset Position</span>
-                      </Button>
-                      
-                      {/* Manual Sync Button */}
-                      {pendingSyncCount > 0 && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={syncPendingTilePlacements}
-                              className="flex items-center gap-2 min-w-[44px] min-h-[44px] bg-amber-700 border-amber-500 text-white hover:bg-amber-600"
-                              aria-label="sync-pending-tiles-button"
-                            >
-                              <div className="w-3 h-3 bg-amber-400 rounded-full animate-pulse"></div>
-                              <span className="hidden sm:inline">Sync ({pendingSyncCount})</span>
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent 
-                            side="top" 
-                            className="bg-gray-900 text-white border-amber-800/30"
+
+                      {/* Kebab Menu for Secondary Actions */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                            aria-label="more-actions-menu"
                           >
-                            Sync {pendingSyncCount} pending tile placements
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
+                            <MoreVertical className="w-4 h-4" />
+                            <span className="hidden sm:inline">More</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuItem onClick={handleResetMap} className="flex items-center gap-2">
+                            <Trash2 className="w-4 h-4" />
+                            Reset Map
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={handleResetPosition} className="flex items-center gap-2">
+                            <RotateCcw className="w-4 h-4" />
+                            Reset Position
+                          </DropdownMenuItem>
+                          {/* Mobile Auto Save Toggle */}
+                          <div className="lg:hidden px-2 py-1.5">
+                            <div className="flex items-center space-x-2">
+                              <Switch id="auto-save-switch-mobile" checked={autoSave} onCheckedChange={setAutoSave} />
+                              <label htmlFor="auto-save-switch-mobile" className="text-sm">Auto Save</label>
+                            </div>
+                          </div>
+                          {/* Manual Sync Button */}
+                          {pendingSyncCount > 0 && (
+                            <DropdownMenuItem onClick={syncPendingTilePlacements} className="flex items-center gap-2 text-amber-400">
+                              <div className="w-3 h-3 bg-amber-400 rounded-full animate-pulse"></div>
+                              Sync ({pendingSyncCount})
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                                     </div>
               </div>
             </div>
