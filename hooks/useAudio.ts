@@ -250,22 +250,23 @@ export function useAudio() {
     }
   }, [currentMusic])
 
-  // Pause/Resume music
+  // Toggle music enabled/disabled
   const toggleMusic = useCallback(() => {
-    if (currentMusic) {
-      const audio = audioRefs.current.get(currentMusic)
-      if (audio) {
-        if (audio.paused) {
-          audio.play().catch(error => {
-            console.error('Failed to resume music:', error)
-          })
-          setIsPlaying(true)
-        } else {
+    setSettings(prev => {
+      const newSettings = { ...prev, musicEnabled: !prev.musicEnabled }
+      
+      // If disabling music, stop current music
+      if (!newSettings.musicEnabled && currentMusic) {
+        const audio = audioRefs.current.get(currentMusic)
+        if (audio) {
           audio.pause()
-          setIsPlaying(false)
+          audio.currentTime = 0
         }
+        setIsPlaying(false)
       }
-    }
+      
+      return newSettings
+    })
   }, [currentMusic])
 
   // Update settings

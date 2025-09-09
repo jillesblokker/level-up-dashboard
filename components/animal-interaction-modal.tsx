@@ -101,7 +101,9 @@ export function AnimalInteractionModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={`${getModalSize()} bg-gray-900 border-amber-800`} role="dialog" aria-label="animal-interaction-modal">
-        <DialogDescription id="animal-interaction-modal-desc">Wild animal encounter</DialogDescription>
+        <DialogHeader>
+          <DialogDescription id="animal-interaction-modal-desc">Wild animal encounter</DialogDescription>
+        </DialogHeader>
 
         {/* Animal image */}
         <div className="mb-4 flex justify-center">
