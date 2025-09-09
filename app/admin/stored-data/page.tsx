@@ -1848,14 +1848,14 @@ TECHNICAL DETAILS:
               </div>
             </div>
             
-            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="text-sm text-blue-800">
-                <strong>How it works:</strong>
-                <ul className="mt-2 ml-4 space-y-1">
-                  <li>• <strong>When ACTIVE:</strong> Seasonal tiles are fully available for purchase and placement, with bonus rewards</li>
-                  <li>• <strong>When INACTIVE:</strong> Seasonal tiles only appear naturally through rare drops or special events</li>
-                  <li>• <strong>Winter tiles:</strong> Winter Fountain, Snowy Inn, Ice Sculpture, Fireworks Stand</li>
-                  <li>• <strong>Harvest tiles:</strong> Harvest Barn, Pumpkin Patch, Bakery, Brewery</li>
+            <div className="mt-4 p-3 bg-gray-800 border border-gray-600 rounded-lg">
+              <div className="text-sm text-white">
+                <strong className="text-amber-400">How it works:</strong>
+                <ul className="mt-2 ml-4 space-y-1 text-gray-200">
+                  <li>• <strong className="text-amber-300">When ACTIVE:</strong> Seasonal tiles are fully available for purchase and placement, with bonus rewards</li>
+                  <li>• <strong className="text-amber-300">When INACTIVE:</strong> Seasonal tiles only appear naturally through rare drops or special events</li>
+                  <li>• <strong className="text-amber-300">Winter tiles:</strong> Winter Fountain, Snowy Inn, Ice Sculpture, Fireworks Stand</li>
+                  <li>• <strong className="text-amber-300">Harvest tiles:</strong> Harvest Barn, Pumpkin Patch, Bakery, Brewery</li>
                 </ul>
               </div>
             </div>
@@ -2175,21 +2175,21 @@ TECHNICAL DETAILS:
       )}
 
       {/* Summary Action Card */}
-      <Card className="border-blue-200 bg-blue-50">
+      <Card className="border-gray-600 bg-gray-800">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-blue-800">
+          <CardTitle className="flex items-center gap-2 text-amber-400">
             📋 Generate Summary Report
           </CardTitle>
-          <CardDescription className="text-gray-600 dark:text-gray-400">
+          <CardDescription className="text-gray-300">
             Create a comprehensive report of all issues for easy sharing and debugging
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <p className="text-sm text-blue-700">
+            <p className="text-sm text-gray-300">
               Click the button below to generate a detailed summary that includes:
             </p>
-            <ul className="text-sm text-blue-700 space-y-1 ml-4">
+            <ul className="text-sm text-gray-300 space-y-1 ml-4">
               <li>• Critical, high, medium, and low priority issues</li>
               <li>• Working systems and progress percentages</li>
               <li>• Specific error messages and endpoints</li>
