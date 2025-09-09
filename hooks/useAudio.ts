@@ -33,31 +33,79 @@ const audioTracks: AudioTrack[] = [
   {
     id: 'medieval-ambient',
     name: 'Medieval Ambience',
-    url: '/audio/medieval-ambient.mp3',
+    url: '/audio/medieval-ambient.wav',
     loop: true,
     volume: 0.4,
     category: 'music'
   },
   {
-    id: 'tavern-music',
-    name: 'Tavern Music',
-    url: '/audio/tavern-music.mp3',
+    id: 'medieval-battle',
+    name: 'Medieval Battle',
+    url: '/audio/medieval-battle.wav',
     loop: true,
     volume: 0.3,
     category: 'music'
   },
   {
-    id: 'castle-theme',
-    name: 'Castle Theme',
-    url: '/audio/castle-theme.mp3',
+    id: 'medieval-village',
+    name: 'Medieval Village',
+    url: '/audio/medieval-village.wav',
     loop: true,
-    volume: 0.4,
+    volume: 0.3,
     category: 'music'
   },
   {
-    id: 'quest-theme',
-    name: 'Quest Theme',
-    url: '/audio/quest-theme.mp3',
+    id: 'medieval-castle',
+    name: 'Medieval Castle',
+    url: '/audio/medieval-castle.wav',
+    loop: true,
+    volume: 0.3,
+    category: 'music'
+  },
+  {
+    id: 'medieval-forest',
+    name: 'Medieval Forest',
+    url: '/audio/medieval-forest.wav',
+    loop: true,
+    volume: 0.3,
+    category: 'music'
+  },
+  {
+    id: 'medieval-tavern',
+    name: 'Medieval Tavern',
+    url: '/audio/medieval-tavern.wav',
+    loop: true,
+    volume: 0.3,
+    category: 'music'
+  },
+  {
+    id: 'medieval-mystical',
+    name: 'Medieval Mystical',
+    url: '/audio/medieval-mystical.wav',
+    loop: true,
+    volume: 0.3,
+    category: 'music'
+  },
+  {
+    id: 'medieval-epic',
+    name: 'Medieval Epic',
+    url: '/audio/medieval-epic.wav',
+    loop: true,
+    volume: 0.3,
+    category: 'music'
+  },
+  {
+    id: 'medieval-calm',
+    name: 'Medieval Calm',
+    url: '/audio/medieval-calm.wav',
+    loop: true,
+    volume: 0.3,
+    category: 'music'
+  },
+  {
+    id: 'medieval-adventure',
+    name: 'Medieval Adventure',
+    url: '/audio/medieval-adventure.wav',
     loop: true,
     volume: 0.3,
     category: 'music'
@@ -67,7 +115,7 @@ const audioTracks: AudioTrack[] = [
   {
     id: 'quest-complete',
     name: 'Quest Complete',
-    url: '/audio/quest-complete.mp3',
+    url: '/audio/quest-complete.wav',
     loop: false,
     volume: 0.8,
     category: 'sfx'
@@ -75,7 +123,7 @@ const audioTracks: AudioTrack[] = [
   {
     id: 'level-up',
     name: 'Level Up',
-    url: '/audio/level-up.mp3',
+    url: '/audio/level-up.wav',
     loop: false,
     volume: 0.9,
     category: 'sfx'
@@ -83,7 +131,7 @@ const audioTracks: AudioTrack[] = [
   {
     id: 'gold-earned',
     name: 'Gold Earned',
-    url: '/audio/gold-earned.mp3',
+    url: '/audio/gold-earned.wav',
     loop: false,
     volume: 0.7,
     category: 'sfx'
@@ -91,7 +139,7 @@ const audioTracks: AudioTrack[] = [
   {
     id: 'xp-earned',
     name: 'XP Earned',
-    url: '/audio/xp-earned.mp3',
+    url: '/audio/xp-earned.wav',
     loop: false,
     volume: 0.7,
     category: 'sfx'
@@ -99,7 +147,7 @@ const audioTracks: AudioTrack[] = [
   {
     id: 'button-click',
     name: 'Button Click',
-    url: '/audio/button-click.mp3',
+    url: '/audio/button-click.wav',
     loop: false,
     volume: 0.5,
     category: 'sfx'
@@ -107,52 +155,42 @@ const audioTracks: AudioTrack[] = [
   {
     id: 'sword-clash',
     name: 'Sword Clash',
-    url: '/audio/sword-clash.mp3',
+    url: '/audio/sword-clash.wav',
     loop: false,
     volume: 0.8,
     category: 'sfx'
   },
   {
-    id: 'magic-cast',
-    name: 'Magic Cast',
-    url: '/audio/magic-cast.mp3',
+    id: 'magic-spell',
+    name: 'Magic Spell',
+    url: '/audio/magic-spell.wav',
     loop: false,
     volume: 0.7,
     category: 'sfx'
   },
   {
-    id: 'page-turn',
-    name: 'Page Turn',
-    url: '/audio/page-turn.mp3',
+    id: 'door-open',
+    name: 'Door Open',
+    url: '/audio/door-open.wav',
     loop: false,
     volume: 0.4,
     category: 'sfx'
   },
-  
-  // Ambient sounds
   {
-    id: 'fire-crackle',
-    name: 'Fire Crackle',
-    url: '/audio/fire-crackle.mp3',
-    loop: true,
-    volume: 0.3,
-    category: 'ambient'
+    id: 'chest-open',
+    name: 'Chest Open',
+    url: '/audio/chest-open.wav',
+    loop: false,
+    volume: 0.6,
+    category: 'sfx'
   },
   {
-    id: 'wind-forest',
-    name: 'Forest Wind',
-    url: '/audio/wind-forest.mp3',
-    loop: true,
-    volume: 0.2,
-    category: 'ambient'
-  },
-  {
-    id: 'castle-ambient',
-    name: 'Castle Ambient',
-    url: '/audio/castle-ambient.mp3',
-    loop: true,
-    volume: 0.3,
-    category: 'ambient'
+    id: 'achievement-unlock',
+    name: 'Achievement Unlock',
+    url: '/audio/achievement-unlock.wav',
+    loop: false,
+    volume: 0.8,
+    category: 'sfx'
   }
 ]
 
