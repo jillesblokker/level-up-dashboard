@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { getCharacterStats } from '@/lib/character-stats-manager';
 import { useTitleEvolution } from '@/hooks/title-evolution-context'
 import { migrateLocalStorageToSupabase, checkMigrationStatus } from '@/lib/migration-utils';
+import { useAudioContext } from '@/components/audio-provider';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { RARE_TILES, unlockRareTile, clearRareTileUnlock } from '@/lib/rare-tiles-manager';
@@ -47,7 +48,9 @@ import {
   AlertCircle,
   RefreshCw,
   Download,
-  Trash2
+  Trash2,
+  Volume2,
+  Play
 } from 'lucide-react';
 
 interface SupabaseData {
@@ -120,6 +123,9 @@ export default function AdminPage() {
     brokenSystems: 0,
     progress: 0
   });
+
+  // Audio context
+  const { playSFX, playMusic, settings } = useAudioContext();
   
   // New state for data comparison
   const [dataComparison, setDataComparison] = useState<DataComparison[]>([]);
@@ -1761,7 +1767,7 @@ TECHNICAL DETAILS:
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="dashboard" className="flex items-center gap-2">
             <Activity className="w-4 h-4" />
             Dashboard
@@ -1782,6 +1788,10 @@ TECHNICAL DETAILS:
           <TabsTrigger value="analytics" className="flex items-center gap-2">
             <BarChart3 className="w-4 h-4" />
             Analytics
+          </TabsTrigger>
+          <TabsTrigger value="audio" className="flex items-center gap-2">
+            <Volume2 className="w-4 h-4" />
+            Audio Testing
           </TabsTrigger>
         </TabsList>
 
@@ -2606,6 +2616,131 @@ TECHNICAL DETAILS:
                   <p>No performance data available yet. Start using the application to collect metrics.</p>
                 </div>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Audio Testing Tab */}
+        <TabsContent value="audio" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Volume2 className="w-5 h-5" />
+                Audio Testing Interface
+              </CardTitle>
+              <CardDescription>
+                Test all audio files and sound effects. Current settings: Music {settings.musicEnabled ? 'Enabled' : 'Disabled'}, SFX {settings.sfxEnabled ? 'Enabled' : 'Disabled'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {/* Music Tracks */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-4 text-amber-400">🎵 Music Tracks</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {[
+                      'medieval-ambient',
+                      'medieval-battle', 
+                      'medieval-village',
+                      'medieval-castle',
+                      'medieval-forest',
+                      'medieval-tavern',
+                      'medieval-mystical',
+                      'medieval-epic',
+                      'medieval-calm',
+                      'medieval-adventure'
+                    ].map((track) => (
+                      <Button
+                        key={track}
+                        onClick={() => {
+                          console.log(`[Audio Test] Playing music: ${track}`);
+                          playMusic(track);
+                        }}
+                        className="w-full justify-start text-sm"
+                        variant="outline"
+                        disabled={!settings.musicEnabled}
+                      >
+                        <Play className="w-4 h-4 mr-2" />
+                        {track.replace('medieval-', '').replace('-', ' ')}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Sound Effects */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-4 text-amber-400">🔊 Sound Effects</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {[
+                      'quest-complete',
+                      'level-up',
+                      'gold-earned',
+                      'xp-earned',
+                      'button-click',
+                      'sword-clash',
+                      'magic-spell',
+                      'door-open',
+                      'chest-open',
+                      'achievement-unlock'
+                    ].map((sfx) => (
+                      <Button
+                        key={sfx}
+                        onClick={() => {
+                          console.log(`[Audio Test] Playing SFX: ${sfx}`);
+                          playSFX(sfx);
+                        }}
+                        className="w-full justify-start text-sm"
+                        variant="outline"
+                        disabled={!settings.sfxEnabled}
+                      >
+                        <Volume2 className="w-4 h-4 mr-2" />
+                        {sfx.replace('-', ' ')}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Audio Settings Display */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-4 text-amber-400">⚙️ Current Audio Settings</h3>
+                  <div className="bg-gray-800 p-4 rounded-lg">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-400">Master Volume:</span>
+                        <span className="ml-2 text-white">{Math.round(settings.masterVolume * 100)}%</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-400">Music Volume:</span>
+                        <span className="ml-2 text-white">{Math.round(settings.musicVolume * 100)}%</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-400">SFX Volume:</span>
+                        <span className="ml-2 text-white">{Math.round(settings.sfxVolume * 100)}%</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-400">Music Enabled:</span>
+                        <span className={`ml-2 ${settings.musicEnabled ? 'text-green-400' : 'text-red-400'}`}>
+                          {settings.musicEnabled ? 'Yes' : 'No'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Instructions */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-4 text-amber-400">📋 Instructions</h3>
+                  <div className="bg-blue-900/20 p-4 rounded-lg border border-blue-800/30">
+                    <ul className="text-sm text-gray-300 space-y-2">
+                      <li>• <strong className="text-blue-400">Music tracks</strong> will loop continuously when played</li>
+                      <li>• <strong className="text-blue-400">Sound effects</strong> play once and stop</li>
+                      <li>• <strong className="text-blue-400">Disabled audio</strong> buttons will be grayed out</li>
+                      <li>• <strong className="text-blue-400">Check console</strong> for audio debugging information</li>
+                      <li>• <strong className="text-blue-400">Toggle audio</strong> in the profile menu to enable/disable</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

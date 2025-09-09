@@ -163,11 +163,7 @@ export function UserNav() {
             <DropdownMenuItem 
               className="cursor-pointer rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation"
               onClick={() => {
-                if (settings.musicEnabled) {
-                  stopMusic();
-                } else {
-                  toggleMusic();
-                }
+                toggleMusic();
               }}
             >
               {settings.musicEnabled ? (

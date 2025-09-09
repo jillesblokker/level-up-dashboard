@@ -195,23 +195,31 @@ export function useAudio() {
 
   // Play sound effect
   const playSFX = useCallback((id: string) => {
-    if (!settings.sfxEnabled) return
+    if (!settings.sfxEnabled) {
+      console.log(`[Audio] SFX disabled, skipping ${id}`)
+      return
+    }
 
     const audio = audioRefs.current.get(id)
     if (audio) {
+      console.log(`[Audio] Playing SFX: ${id}`)
       audio.currentTime = 0
       audio.volume = audioTracks.find(t => t.id === id)?.volume || 0.8
       audio.volume *= settings.masterVolume * settings.sfxVolume
       audio.play().catch(error => {
-        console.warn(`Audio file not found for ${id}, skipping sound effect`)
-        // Don't show error for missing audio files, just skip silently
+        console.warn(`[Audio] Failed to play ${id}:`, error)
       })
+    } else {
+      console.warn(`[Audio] Audio element not found for ${id}`)
     }
   }, [settings])
 
   // Play music
   const playMusic = useCallback((id: string) => {
-    if (!settings.musicEnabled) return
+    if (!settings.musicEnabled) {
+      console.log(`[Audio] Music disabled, skipping ${id}`)
+      return
+    }
 
     // Stop current music
     if (currentMusic && currentMusic !== id) {
@@ -224,16 +232,19 @@ export function useAudio() {
 
     const audio = audioRefs.current.get(id)
     if (audio) {
+      console.log(`[Audio] Playing music: ${id}`)
       audio.volume = audioTracks.find(t => t.id === id)?.volume || 0.5
       audio.volume *= settings.masterVolume * settings.musicVolume
       audio.loop = true
       audio.play().then(() => {
         setCurrentMusic(id)
         setIsPlaying(true)
+        console.log(`[Audio] Music started: ${id}`)
       }).catch(error => {
-        console.warn(`Audio file not found for ${id}, skipping audio playback`)
-        // Don't show error for missing audio files, just skip silently
+        console.warn(`[Audio] Failed to play music ${id}:`, error)
       })
+    } else {
+      console.warn(`[Audio] Music element not found for ${id}`)
     }
   }, [settings, currentMusic])
 
