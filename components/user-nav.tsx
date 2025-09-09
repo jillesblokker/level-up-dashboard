@@ -23,7 +23,7 @@ export function UserNav() {
   const { user, isLoaded } = useUser();
   const [isClient, setIsClient] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const { settings, toggleMusic, stopMusic } = useAudioContext();
+  const { settings, setSettings, currentMusic, isPlaying, stopMusic, toggleMusic } = useAudioContext();
 
   useEffect(() => {
     setIsClient(true);
@@ -177,6 +177,31 @@ export function UserNav() {
                 </span>
                 <p className="text-xs text-gray-400">
                   {settings.musicEnabled ? 'Turn off background music and sounds' : 'Turn on background music and sounds'}
+                </p>
+              </div>
+            </DropdownMenuItem>
+            
+            {/* Disable All Audio Button */}
+            <DropdownMenuItem 
+              className="cursor-pointer rounded-lg hover:bg-red-500/10 focus:bg-red-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation"
+              onClick={() => {
+                // Disable both music and SFX
+                setSettings(prev => ({
+                  ...prev,
+                  musicEnabled: false,
+                  sfxEnabled: false
+                }));
+                // Stop any playing music
+                stopMusic();
+              }}
+            >
+              <VolumeX className="h-5 w-5 text-red-400" />
+              <div className="flex-1 text-left">
+                <span className="text-base font-medium text-white">
+                  Disable All Audio
+                </span>
+                <p className="text-xs text-gray-400">
+                  Turn off all music and sound effects completely
                 </p>
               </div>
             </DropdownMenuItem>

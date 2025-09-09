@@ -368,6 +368,7 @@ export function useAudio() {
 
   return {
     settings,
+    setSettings,
     currentMusic,
     isPlaying,
     audioTracks: audioTracks.filter(t => t.category === 'music'),

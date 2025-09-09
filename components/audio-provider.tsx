@@ -14,6 +14,7 @@ interface AudioContextType {
   playMusic: (id: string) => void
   stopMusic: () => void
   toggleMusic: () => void
+  setSettings: (updater: (prev: any) => any) => void
   settings: any
   currentMusic: string | null
   isPlaying: boolean
