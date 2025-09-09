@@ -1,0 +1,326 @@
+/* Medieval-themed animations and transitions */
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes medieval-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(245, 158, 11, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.6), 0 0 30px rgba(245, 158, 11, 0.4);
+  }
+}
+
+@keyframes medieval-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+@keyframes medieval-bounce {
+  0%, 20%, 53%, 80%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40%, 43% {
+    transform: translate3d(0, -8px, 0);
+  }
+  70% {
+    transform: translate3d(0, -4px, 0);
+  }
+  90% {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+@keyframes medieval-slide-in {
+  0% {
+    transform: translateY(-100px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes medieval-slide-out {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+}
+
+@keyframes medieval-fade-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes medieval-fade-out {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+@keyframes medieval-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes medieval-wiggle {
+  0%, 7% {
+    transform: rotateZ(0);
+  }
+  15% {
+    transform: rotateZ(-15deg);
+  }
+  20% {
+    transform: rotateZ(10deg);
+  }
+  25% {
+    transform: rotateZ(-10deg);
+  }
+  30% {
+    transform: rotateZ(6deg);
+  }
+  35% {
+    transform: rotateZ(-4deg);
+  }
+  40%, 100% {
+    transform: rotateZ(0);
+  }
+}
+
+@keyframes medieval-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes medieval-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-2px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes medieval-glow-pulse {
+  0%, 100% {
+    filter: brightness(1) drop-shadow(0 0 5px rgba(245, 158, 11, 0.3));
+  }
+  50% {
+    filter: brightness(1.2) drop-shadow(0 0 15px rgba(245, 158, 11, 0.6));
+  }
+}
+
+@keyframes medieval-scale-in {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes medieval-scale-out {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+/* Utility classes for medieval animations */
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+.animate-medieval-glow {
+  animation: medieval-glow 2s ease-in-out infinite;
+}
+
+.animate-medieval-pulse {
+  animation: medieval-pulse 2s ease-in-out infinite;
+}
+
+.animate-medieval-bounce {
+  animation: medieval-bounce 1s ease-in-out infinite;
+}
+
+.animate-medieval-slide-in {
+  animation: medieval-slide-in 0.5s ease-out;
+}
+
+.animate-medieval-slide-out {
+  animation: medieval-slide-out 0.5s ease-in;
+}
+
+.animate-medieval-fade-in {
+  animation: medieval-fade-in 0.3s ease-out;
+}
+
+.animate-medieval-fade-out {
+  animation: medieval-fade-out 0.3s ease-in;
+}
+
+.animate-medieval-rotate {
+  animation: medieval-rotate 1s linear infinite;
+}
+
+.animate-medieval-wiggle {
+  animation: medieval-wiggle 1s ease-in-out;
+}
+
+.animate-medieval-float {
+  animation: medieval-float 3s ease-in-out infinite;
+}
+
+.animate-medieval-shake {
+  animation: medieval-shake 0.5s ease-in-out;
+}
+
+.animate-medieval-glow-pulse {
+  animation: medieval-glow-pulse 2s ease-in-out infinite;
+}
+
+.animate-medieval-scale-in {
+  animation: medieval-scale-in 0.4s ease-out;
+}
+
+.animate-medieval-scale-out {
+  animation: medieval-scale-out 0.4s ease-in;
+}
+
+/* Hover effects */
+.hover-medieval-glow:hover {
+  animation: medieval-glow 1s ease-in-out infinite;
+}
+
+.hover-medieval-pulse:hover {
+  animation: medieval-pulse 1s ease-in-out infinite;
+}
+
+.hover-medieval-float:hover {
+  animation: medieval-float 2s ease-in-out infinite;
+}
+
+/* Focus effects for accessibility */
+.focus-medieval-glow:focus {
+  animation: medieval-glow 1s ease-in-out infinite;
+  outline: none;
+}
+
+/* Quest completion celebration */
+.quest-complete-celebration {
+  animation: medieval-scale-in 0.5s ease-out, medieval-glow-pulse 2s ease-in-out infinite;
+}
+
+/* Level up celebration */
+.level-up-celebration {
+  animation: medieval-bounce 0.6s ease-in-out, medieval-glow 1s ease-in-out infinite;
+}
+
+/* Gold earned celebration */
+.gold-earned-celebration {
+  animation: medieval-wiggle 0.8s ease-in-out, medieval-glow-pulse 1.5s ease-in-out infinite;
+}
+
+/* Medieval-themed transitions */
+.medieval-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.medieval-transition-slow {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.medieval-transition-fast {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Medieval-themed transforms */
+.medieval-hover-lift {
+  transition: transform 0.3s ease;
+}
+
+.medieval-hover-lift:hover {
+  transform: translateY(-4px) scale(1.02);
+}
+
+.medieval-hover-tilt {
+  transition: transform 0.3s ease;
+}
+
+.medieval-hover-tilt:hover {
+  transform: rotate(2deg) scale(1.05);
+}
+
+.medieval-hover-glow {
+  transition: box-shadow 0.3s ease;
+}
+
+.medieval-hover-glow:hover {
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+}
+
+/* Mobile-specific animations */
+@media (max-width: 768px) {
+  .animate-medieval-bounce {
+    animation-duration: 0.8s;
+  }
+  
+  .animate-medieval-float {
+    animation-duration: 2s;
+  }
+  
+  .medieval-hover-lift:hover {
+    transform: translateY(-2px) scale(1.01);
+  }
+}

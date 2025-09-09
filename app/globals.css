@@ -1,3 +1,6 @@
+/* Import medieval animations */
+@import '../styles/medieval-animations.css';
+
 /* Line clamp utilities for text truncation */
 .line-clamp-1 {
   overflow: hidden;

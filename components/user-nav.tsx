@@ -14,14 +14,16 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { logout } from '@/app/actions/auth'
 import Link from "next/link"
-import { ClipboardCheck, Palette, User, Settings, Monitor, BookOpen, Database } from "lucide-react"
+import { ClipboardCheck, Palette, User, Settings, Monitor, BookOpen, Database, Volume2, VolumeX } from "lucide-react"
 import type { Session } from '@supabase/supabase-js'
 import { useClerk, useUser } from "@clerk/nextjs";
+import { useAudioContext } from "@/components/audio-provider";
 
 export function UserNav() {
   const { user, isLoaded } = useUser();
   const [isClient, setIsClient] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const { settings, toggleMusic, stopMusic } = useAudioContext();
 
   useEffect(() => {
     setIsClient(true);
@@ -154,6 +156,36 @@ export function UserNav() {
               </button>
             </DropdownMenuItem>
           </DropdownMenuGroup>
+          <DropdownMenuSeparator className="bg-amber-800/20" />
+          
+          {/* Audio Controls Section */}
+          <DropdownMenuGroup className="p-2 space-y-1">
+            <DropdownMenuItem 
+              className="cursor-pointer rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation"
+              onClick={() => {
+                if (settings.musicEnabled) {
+                  stopMusic();
+                } else {
+                  toggleMusic();
+                }
+              }}
+            >
+              {settings.musicEnabled ? (
+                <Volume2 className="h-5 w-5 text-amber-400" />
+              ) : (
+                <VolumeX className="h-5 w-5 text-gray-400" />
+              )}
+              <div className="flex-1 text-left">
+                <span className="text-base font-medium text-white">
+                  {settings.musicEnabled ? 'Disable Audio' : 'Enable Audio'}
+                </span>
+                <p className="text-xs text-gray-400">
+                  {settings.musicEnabled ? 'Turn off background music and sounds' : 'Turn on background music and sounds'}
+                </p>
+              </div>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          
           <DropdownMenuSeparator className="bg-amber-800/20" />
           <form action={logout}>
             <DropdownMenuItem asChild className="rounded-lg hover:bg-red-500/10 focus:bg-red-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation">

@@ -20,6 +20,7 @@ import { NavBar } from '@/components/nav-bar'
 import { SeasonalHuntWrapper } from '@/components/seasonal-hunt-wrapper'
 import { OnboardingProvider } from '@/components/onboarding-provider'
 import LocalStorageMigrator from '@/components/local-storage-migrator'
+import { AudioProvider } from '@/components/audio-provider'
 
 
 const fontSans = FontSans({
@@ -55,17 +56,25 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: "Thrivehaven",
-  description: "Your personal growth and development companion",
+  title: "Level Up - Medieval Habit Tracker",
+  description: "A medieval-themed habit tracking app with quests, kingdom building, and character progression",
   manifest: "/manifest.json",
   icons: {
-    icon: "/icons/thrivehaven_fav_optimized.png",
-    apple: "/icons/thrivehaven_fav.png",
+    icon: "/icons/icon-192x192.png",
+    apple: "/icons/icon-152x152.png",
   },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Thrivehaven",
+    title: "Level Up",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "black-translucent",
+    "theme-color": "#f59e0b",
+    "msapplication-TileColor": "#000000",
+    "msapplication-config": "/browserconfig.xml"
   },
 }
 
@@ -97,8 +106,25 @@ export default function RootLayout({
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-          <meta name="theme-color" content="#000000" />
+          <meta name="theme-color" content="#f59e0b" />
           <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover" />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                if ('serviceWorker' in navigator) {
+                  window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('/sw.js')
+                      .then(function(registration) {
+                        console.log('SW registered: ', registration);
+                      })
+                      .catch(function(registrationError) {
+                        console.log('SW registration failed: ', registrationError);
+                      });
+                  });
+                }
+              `,
+            }}
+          />
         </head>
         <body className={cn(
           "h-full font-sans antialiased bg-black text-white",
@@ -114,9 +140,10 @@ export default function RootLayout({
             >
               <GradientProvider>
                 <TitleEvolutionProvider>
-                  <Providers>
-                    {/* OnboardingProvider restored with disabled functionality */}
-                    <OnboardingProvider>
+                  <AudioProvider>
+                    <Providers>
+                      {/* OnboardingProvider restored with disabled functionality */}
+                      <OnboardingProvider>
                       <div className="flex flex-col h-full">
                         <AuthGate>
                           <NavBar session={null} />
@@ -130,6 +157,7 @@ export default function RootLayout({
                     <LocalStorageMigrator />
                     <Toaster />
                   </Providers>
+                  </AudioProvider>
                 </TitleEvolutionProvider>
               </GradientProvider>
             </ThemeProvider>

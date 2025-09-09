@@ -9,6 +9,7 @@ import { Logo } from "@/components/logo"
 import { Progress } from "@/components/ui/progress"
 import { NotificationCenter } from "@/components/notification-center"
 import { UserNav } from "@/components/user-nav"
+import { AudioControls } from "@/components/audio-controls"
 import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character"
 import { getCharacterStats, loadCharacterStats } from "@/lib/character-stats-manager"
 
@@ -165,6 +166,7 @@ export function NavBar({ session }: NavBarProps) {
           <div className="relative">
             <NotificationCenter />
           </div>
+          <AudioControls compact />
           <UserNav />
         </div>
       </div>
