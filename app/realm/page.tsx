@@ -248,7 +248,7 @@ export default function RealmPage() {
     const [showInventory, setShowInventory] = useState(false);
     const [selectedTile, setSelectedTile] = useState<TileInventoryItem | null>(null);
     const [autoSave, setAutoSave] = useState(true);
-    const [gameMode, setGameMode] = useState<'build' | 'move'>('move');
+    const [gameMode, setGameMode] = useState<'build' | 'move' | 'destroy'>('move');
     const [hasVisitedRealm, setHasVisitedRealm] = useState(false);
     const [modalState, setModalState] = useState<{ isOpen: boolean; locationType: 'city' | 'town'; locationName: string } | null>(null);
     const defaultCharacterPosition = { x: 2, y: 0 };
@@ -958,6 +958,12 @@ export default function RealmPage() {
             return;
         }
         
+        // Handle tile destruction if in destroy mode
+        if (gameMode === 'destroy') {
+            handleDestroyTile(x, y);
+            return;
+        }
+        
         if (gameMode !== 'build' || !selectedTile) {
             // Removed debugging log
             return;
@@ -1340,6 +1346,106 @@ export default function RealmPage() {
             }
 
             setCharacterPosition({ x, y });
+        }
+    };
+
+    const handleDestroyTile = async (x: number, y: number) => {
+        const targetTile = grid[y]?.[x];
+        
+        // Check if there's a tile to destroy
+        if (!targetTile || targetTile.type === 'empty') {
+            toast({
+                title: "Nothing to Destroy",
+                description: "This tile is already empty",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        // Don't allow destroying certain protected tiles
+        if (['mountain', 'water', 'lava', 'volcano'].includes(targetTile.type)) {
+            toast({
+                title: "Cannot Destroy",
+                description: `You cannot destroy ${targetTile.type} tiles`,
+                variant: "destructive",
+            });
+            return;
+        }
+
+        // Show confirmation dialog
+        const confirmed = window.confirm(`Are you sure you want to destroy this ${targetTile.type} tile?`);
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            // Optimistically update the UI first
+            setGrid(prevGrid => {
+                const newGrid = prevGrid.map(row => row.slice());
+                if (newGrid[y]?.[x]) {
+                    newGrid[y][x] = { 
+                        id: `${x}-${y}`,
+                        type: 'empty', 
+                        name: 'Empty Tile',
+                        description: 'An empty tile',
+                        connections: [],
+                        rotation: 0,
+                        revealed: true,
+                        isVisited: false,
+                        x, 
+                        y,
+                        ariaLabel: `Empty tile at position ${x},${y}`,
+                        image: '/images/tiles/empty-tile.png',
+                        owned: 0,
+                        hasMonster: undefined
+                    };
+                }
+                return newGrid;
+            });
+
+            // Send destruction request to backend
+            const response = await fetch('/api/realm-tiles', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    x,
+                    y,
+                    tile_type: 0, // 0 = empty
+                    event_type: null
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to destroy tile');
+            }
+
+            // Show success message
+            toast({
+                title: "Tile Destroyed",
+                description: `Successfully destroyed ${targetTile.type} tile`,
+            });
+
+            // TODO: Add achievement tracking for tile destruction
+
+        } catch (error) {
+            console.error('Error destroying tile:', error);
+            
+            // Revert the UI change on error
+            setGrid(prevGrid => {
+                const newGrid = prevGrid.map(row => row.slice());
+                if (newGrid[y]?.[x]) {
+                    newGrid[y][x] = targetTile; // Restore original tile
+                }
+                return newGrid;
+            });
+
+            toast({
+                title: "Destroy Failed",
+                description: "Failed to destroy tile. Please try again.",
+                variant: "destructive",
+            });
         }
     };
 
@@ -2290,6 +2396,21 @@ export default function RealmPage() {
                       >
                         <Hammer className="w-4 h-4" />
                         <span className="hidden md:inline">Build</span>
+                      </Button>
+                      <Button
+                        variant={gameMode === 'destroy' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setGameMode('destroy')}
+                        className={cn(
+                          "flex items-center gap-2 min-w-[44px] min-h-[44px]",
+                          gameMode === 'destroy' 
+                            ? "bg-red-500 text-white hover:bg-red-600" 
+                            : "bg-gray-800 text-white hover:bg-gray-700 border-gray-600"
+                        )}
+                        aria-label="destroy-mode-button"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span className="hidden md:inline">Destroy</span>
                       </Button>
                       <div className="hidden md:flex items-center space-x-2 min-w-[100px]" aria-label="auto-save-controls">
                         <Switch id="auto-save-switch" checked={autoSave} onCheckedChange={setAutoSave} />
