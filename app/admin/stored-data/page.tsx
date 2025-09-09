@@ -2629,7 +2629,7 @@ TECHNICAL DETAILS:
                 Audio Testing Interface
               </CardTitle>
               <CardDescription>
-                Test all audio files and sound effects. Current settings: Music {settings.musicEnabled ? 'Enabled' : 'Disabled'}, SFX {settings.sfxEnabled ? 'Enabled' : 'Disabled'}
+                Test all audio files and sound effects. Current settings: Music {typeof window !== 'undefined' ? (settings.musicEnabled ? 'Enabled' : 'Disabled') : 'Loading...'}, SFX {typeof window !== 'undefined' ? (settings.sfxEnabled ? 'Enabled' : 'Disabled') : 'Loading...'}
               </CardDescription>
             </CardHeader>
             <CardContent>

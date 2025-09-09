@@ -8,6 +8,7 @@
     "dev:custom": "node server.js",
     "build": "next build",
     "start": "next start",
+    "postinstall": "node scripts/generate-real-audio.js",
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
