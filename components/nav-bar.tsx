@@ -11,6 +11,7 @@ import { NotificationCenter } from "@/components/notification-center"
 import { UserNav } from "@/components/user-nav"
 import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character"
 import { getCharacterStats, loadCharacterStats } from "@/lib/character-stats-manager"
+import { useUser } from "@clerk/nextjs"
 
 interface CustomSession {
   user?: {
@@ -25,6 +26,7 @@ interface NavBarProps {
 }
 
 export function NavBar({ session }: NavBarProps) {
+  const { isSignedIn, isLoaded } = useUser()
   const [isClient, setIsClient] = useState(false)
   const [characterStats, setCharacterStats] = useState({
     level: 1,
@@ -51,6 +53,11 @@ export function NavBar({ session }: NavBarProps) {
   }, [])
 
   useEffect(() => {
+    // Only load stats if user is authenticated and Clerk is loaded
+    if (!isLoaded || !isSignedIn) {
+      return
+    }
+
     // Load character stats
     const loadStats = async () => {
       try {
@@ -98,7 +105,7 @@ export function NavBar({ session }: NavBarProps) {
       clearInterval(refreshInterval)
       window.removeEventListener("character-stats-update", handleStatsUpdate)
     }
-  }, [])
+  }, [isLoaded, isSignedIn])
 
   useEffect(() => {
     if (characterStats.gold !== goldRef.current) {
