@@ -1490,19 +1490,43 @@ export default function RealmPage() {
                                 });
                                 
                                 if (response.ok) {
-                                    // Show achievement notification
-                                    const tileTypeNames = {
-                                        'forest': 'Forest',
-                                        'mountain': 'Mountain', 
-                                        'water': 'Water',
-                                        'ice': 'Ice'
+                                    // Show achievement notification with improved thematic messages
+                                    const achievementMessages = {
+                                        '001': { title: "🔥 Flamio Emerges!", description: "While clearing a path by destroying 1 forest tile, you discover the fiery creature Flamio and 25 gold for your treasure pile!" },
+                                        '002': { title: "🔥 Embera Awakens!", description: "While clearing a path by destroying 5 forest tiles, you find the fierce Embera and 50 gold for your treasure pile!" },
+                                        '003': { title: "🔥 Vulcana Rises!", description: "While clearing a path by destroying 10 forest tiles, you awaken the ultimate fire creature Vulcana and 100 gold for your treasure pile!" },
+                                        '004': { title: "💧 Dolpio Emerges!", description: "While clearing a path by destroying 1 water tile, you discover the playful water creature Dolpio and 25 gold for your treasure pile!" },
+                                        '005': { title: "💧 Divero Awakens!", description: "While clearing a path by destroying 5 water tiles, you find the experienced water dweller Divero and 50 gold for your treasure pile!" },
+                                        '006': { title: "💧 Flippur Rises!", description: "While clearing a path by destroying 10 water tiles, you awaken the supreme water creature Flippur and 100 gold for your treasure pile!" },
+                                        '010': { title: "⛰️ Rockie Emerges!", description: "While clearing a path by destroying 1 mountain tile, you discover the mountain spirit Rockie and 25 gold for your treasure pile!" },
+                                        '011': { title: "⛰️ Buldour Awakens!", description: "While clearing a path by destroying 5 mountain tiles, you find the stronger mountain spirit Buldour and 50 gold for your treasure pile!" },
+                                        '012': { title: "⛰️ Montano Rises!", description: "While clearing a path by destroying 10 mountain tiles, you awaken the ultimate mountain creature Montano and 100 gold for your treasure pile!" },
+                                        '013': { title: "❄️ Icey Emerges!", description: "While clearing a path by destroying 1 ice tile, you discover the small ice creature Icey and 25 gold for your treasure pile!" },
+                                        '014': { title: "❄️ Hailey Awakens!", description: "While clearing a path by destroying 5 ice tiles, you find the powerful ice spirit Hailey and 50 gold for your treasure pile!" },
+                                        '015': { title: "❄️ Blizzey Rises!", description: "While clearing a path by destroying 10 ice tiles, you awaken the supreme ice creature Blizzey and 100 gold for your treasure pile!" }
                                     };
-                                    const tileName = tileTypeNames[targetTile.type as keyof typeof tileTypeNames] || targetTile.type;
                                     
-                                    toast({
-                                        title: "🏆 Legendary Achievement!",
-                                        description: `The ancient ${tileName.toLowerCase()} trembles as you claim victory! ${tileName} Destroyer rank achieved!`,
-                                    });
+                                    const message = achievementMessages[achievement.achievementId as keyof typeof achievementMessages];
+                                    if (message) {
+                                        toast({
+                                            title: message.title,
+                                            description: message.description,
+                                        });
+                                    } else {
+                                        // Fallback for unknown achievements
+                                        const tileTypeNames = {
+                                            'forest': 'Forest',
+                                            'mountain': 'Mountain', 
+                                            'water': 'Water',
+                                            'ice': 'Ice'
+                                        };
+                                        const tileName = tileTypeNames[targetTile.type as keyof typeof tileTypeNames] || targetTile.type;
+                                        
+                                        toast({
+                                            title: "🏆 Legendary Achievement!",
+                                            description: `The ancient ${tileName.toLowerCase()} trembles as you claim victory! ${tileName} Destroyer rank achieved!`,
+                                        });
+                                    }
                                     
                                     // Discover creature if applicable
                                     discoverCreature(achievement.achievementId);
@@ -2421,7 +2445,7 @@ export default function RealmPage() {
                 <h2 className="text-2xl font-bold text-white mb-4">Exploring the lands of Valoreth</h2>
                 <div className="bg-black/70 border border-amber-800 rounded-lg p-6 max-w-lg text-center text-amber-100 text-lg shadow-lg">
                     <p>
-                        In the mystical realm of Valoreth, King Aldric sought treasures of growth.<br/>
+                        In the mystical realm of Valoreth, King Necrion sought treasures of growth.<br/>
                         Through ancient forests and crystal caves he wandered,<br/>
                         Each terrain revealing new mysteries and hidden wisdom.<br/>
                         Will you follow his path and claim your destiny?<br/>

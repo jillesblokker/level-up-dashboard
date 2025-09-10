@@ -257,10 +257,29 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
       })
     }
     
-    toast({
-      title: "Victory!",
-      description: `You defeated the ${monster.name}! Earned ${earnedGold} gold and ${earnedXP} XP! Achievement unlocked!`,
-    })
+    // Show improved thematic victory message based on monster type
+    const monsterVictoryMessages = {
+      '201': { title: "🐉 Dragon Slayer!", description: `After an epic Simon Says battle, you have vanquished the Ancient Dragon Dragoni and earned ${earnedGold} gold and ${earnedXP} XP for your legendary victory!` },
+      '202': { title: "👹 Goblin Hunter!", description: `After a quick Simon Says battle, you have defeated the Crafty Goblin Orci and earned ${earnedGold} gold and ${earnedXP} XP for your swift victory!` },
+      '203': { title: "🧌 Troll Crusher!", description: `After a challenging Simon Says battle, you have crushed the Mountain Troll Trollie and earned ${earnedGold} gold and ${earnedXP} XP for your mighty victory!` },
+      '204': { title: "🧙 Dark Wizard Vanquished!", description: `After an intense Simon Says battle, you have vanquished the Dark Wizard Sorceror and earned ${earnedGold} gold and ${earnedXP} XP for your magical victory!` },
+      '205': { title: "🦄 Pegasus Tamed!", description: `After a mystical Simon Says battle, you have tamed the Mystical Pegasus Peggie and earned ${earnedGold} gold and ${earnedXP} XP for your enchanting victory!` },
+      '206': { title: "🧚 Fairy Friend!", description: `After a delightful Simon Says battle, you have befriended the Enchanted Fairy Fairiel and earned ${earnedGold} gold and ${earnedXP} XP for your charming victory!` }
+    };
+    
+    const message = monsterVictoryMessages[monster.achievementId as keyof typeof monsterVictoryMessages];
+    if (message) {
+      toast({
+        title: message.title,
+        description: message.description,
+      });
+    } else {
+      // Fallback for unknown monsters
+      toast({
+        title: "Victory!",
+        description: `You defeated the ${monster.name}! Earned ${earnedGold} gold and ${earnedXP} XP! Achievement unlocked!`,
+      });
+    }
     
     setTimeout(() => {
       onBattleComplete(true, earnedGold, earnedXP)
