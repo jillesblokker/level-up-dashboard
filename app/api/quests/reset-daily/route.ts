@@ -31,6 +31,15 @@ export async function POST(req: NextRequest) {
         quest_id: c.quest_id,
         completed_at: c.completed_at
       })));
+      console.log('[Daily Reset] 🔍 DEBUG - All completion records:', allCompletions.map(c => ({
+        quest_id: c.quest_id,
+        completed: c.completed,
+        completed_at: c.completed_at,
+        xp_earned: c.xp_earned,
+        gold_earned: c.gold_earned
+      })));
+    } else {
+      console.log('[Daily Reset] 🔍 DEBUG - No completions found or allCompletions is null/undefined');
     }
 
     // 🚀 USE SMART QUEST COMPLETION SYSTEM FOR DAILY RESET
@@ -39,6 +48,7 @@ export async function POST(req: NextRequest) {
     let resetCount = 0;
     if (allCompletions && allCompletions.length > 0) {
       console.log('[Daily Reset] Using smart system to reset ALL quests...');
+      console.log('[Daily Reset] 🔍 DEBUG - Entering smart quest completion loop with', allCompletions.length, 'quests');
       
       // For each completed quest, use the smart system to "uncomplete" it
       for (const completion of allCompletions) {
