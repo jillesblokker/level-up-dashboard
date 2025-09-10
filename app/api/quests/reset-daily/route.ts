@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
       // For each completed quest, use the smart system to "uncomplete" it
       for (const completion of allCompletions) {
         try {
+          console.log('[Daily Reset] Calling smart_quest_completion for quest:', completion.quest_id, 'with completed: false');
           const { data: smartResult, error: smartError } = await supabaseServer.rpc('smart_quest_completion', {
             p_user_id: userId,
             p_quest_id: completion.quest_id as any, // Cast to any to avoid UUID type issues
@@ -55,8 +56,17 @@ export async function POST(req: NextRequest) {
             console.error('[Daily Reset] Smart completion error for quest:', completion.quest_id, smartError);
           } else if (smartResult) {
             console.log('[Daily Reset] Smart completion result for quest:', completion.quest_id, smartResult);
+            console.log('[Daily Reset] Smart result details:', {
+              success: smartResult.success,
+              action: smartResult.action,
+              message: smartResult.message,
+              deletedRecord: smartResult.deletedRecord
+            });
             if (smartResult.success && smartResult.action === 'uncompleted') {
               resetCount++;
+              console.log('[Daily Reset] ✅ Quest successfully uncompleted:', completion.quest_id);
+            } else {
+              console.log('[Daily Reset] ❌ Quest NOT uncompleted:', completion.quest_id, 'Action:', smartResult.action);
             }
           }
         } catch (error) {
