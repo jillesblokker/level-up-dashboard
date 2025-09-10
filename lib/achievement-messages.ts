@@ -108,5 +108,5 @@ export function getAchievementMessage(achievementId: string): AchievementMessage
 export function getAchievementIdFromSource(source: string): string | null {
   // Extract achievement ID from source strings like "achievement-015"
   const match = source.match(/achievement-(\d+)/);
-  return match ? match[1] : null;
+  return match?.[1] ?? null;
 }
