@@ -508,8 +508,11 @@ export default function QuestsPage() {
               }))
             );
             
-            // Refresh quest data from backend to get the actual reset state
-            setRefreshTrigger(prev => prev + 1);
+            // Add a small delay before refreshing to ensure the reset has completed
+            setTimeout(() => {
+              console.log('[Daily Reset] Refreshing quest data after reset...');
+              setRefreshTrigger(prev => prev + 1);
+            }, 1000);
             
             toast({
               title: 'Daily Reset',
@@ -1208,8 +1211,11 @@ export default function QuestsPage() {
         }))
       );
       
-      // Refresh quest data from backend
-      setRefreshTrigger(prev => prev + 1);
+      // Add a small delay before refreshing to ensure the reset has completed
+      setTimeout(() => {
+        console.log('[Manual Reset] Refreshing quest data after reset...');
+        setRefreshTrigger(prev => prev + 1);
+      }, 1000);
       
       // Update localStorage and reset the daily reset flag
       const today = new Date().toISOString().slice(0, 10);

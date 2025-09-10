@@ -157,7 +157,12 @@ export async function GET(request: Request) {
     console.log('[Quests API] Quest completions fetched:', {
       count: questCompletions?.length || 0,
       error: completionsError,
-      sample: questCompletions?.[0]
+      sample: questCompletions?.[0],
+      allCompletions: questCompletions?.map(c => ({
+        quest_id: c.quest_id,
+        completed: c.completed,
+        completed_at: c.completed_at
+      }))
     });
 
     if (completionsError) {
@@ -245,7 +250,9 @@ export async function GET(request: Request) {
     // Debug: Check final results
     const finalCompletedCount = questsWithCompletions.filter(q => q.completed).length;
     const finalIncompleteCount = questsWithCompletions.filter(q => !q.completed).length;
+    const completedQuestsList = questsWithCompletions.filter(q => q.completed).map(q => ({ id: q.id, name: q.name }));
     console.log('[Quests API] Final counts:', { completed: finalCompletedCount, incomplete: finalIncompleteCount });
+    console.log('[Quests API] Completed quests:', completedQuestsList);
     console.log('[Quests API] Final quests with completions (proven method):', questsWithCompletions.slice(0, 3));
     
     // Add cache-busting headers to prevent Next.js from caching the response
