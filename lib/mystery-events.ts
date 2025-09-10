@@ -421,7 +421,7 @@ export const handleEventOutcome = (event: MysteryEvent, choice: string, userId?:
     goldGained = reward.amount;
     // Use the proper gainGold function
     gainGold(reward.amount, 'mystery-events');
-    createEventNotification('Treasure Found!', `You opened a treasure chest and gained ${reward.amount} gold!`);
+    createEventNotification('🔮 Treasure Discovered!', `You found a hidden treasure chest containing ${reward.amount} gold!`);
   }
   
   if (reward.type === 'item' && reward.item && reward.item.length > 0) {
@@ -440,7 +440,7 @@ export const handleEventOutcome = (event: MysteryEvent, choice: string, userId?:
         duration: 3000
       });
 
-      createEventNotification('Artifact Found', `You found a mysterious artifact and gained ${experienceGained} XP!`);
+      createEventNotification('🔮 Mystical Discovery!', `You found a mysterious artifact and gained ${experienceGained} experience through ancient knowledge!`);
     }
   }
   
@@ -466,14 +466,14 @@ export const handleEventOutcome = (event: MysteryEvent, choice: string, userId?:
       duration: 3000
     });
 
-    createEventNotification('Scroll Discovered!', `You found ${reward.scroll.name} and gained ${experienceGained} XP!`);
+    createEventNotification('📜 Scroll Discovered!', `You found the ancient scroll "${reward.scroll.name}" and gained ${experienceGained} experience from its wisdom!`);
   }
 
   if (reward.type === 'experience' && reward.amount) {
     experienceGained = reward.amount;
     // Use the proper gainExperience function
     gainExperience(reward.amount, 'mystery-events', 'general');
-    createEventNotification('Ancient Shrine', `You prayed at the shrine and gained ${reward.amount} XP!`);
+    createEventNotification('🏛️ Ancient Shrine!', `You prayed at the sacred shrine and gained ${reward.amount} experience through divine blessing!`);
   }
 
   // Show combined reward message if multiple rewards

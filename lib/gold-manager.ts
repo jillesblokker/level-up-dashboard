@@ -42,9 +42,34 @@ export async function gainGold(amount: number, source: string, metadata?: any) {
         description: achievementMessage.description,
       });
     } else {
+      // Create improved toast messages for common sources
+      let title = "Gold Gained! 💰";
+      let description = `+${amount} gold from ${source}`;
+      
+      if (source === 'kingdom-tile-reward') {
+        title = "🏰 Kingdom Prosperity!";
+        description = `Your kingdom buildings generated ${amount} gold!`;
+      } else if (source === 'mystery-events') {
+        title = "🔮 Treasure Discovered!";
+        description = `You found ${amount} gold in a treasure chest!`;
+      } else if (source === 'quest-completion') {
+        title = "⚔️ Quest Reward!";
+        description = `Quest completed! You earned ${amount} gold!`;
+      } else if (source === 'daily-bonus') {
+        title = "🌅 Daily Blessing!";
+        description = `Daily kingdom prosperity: ${amount} gold!`;
+      } else if (source === 'weekly-bonus') {
+        title = "📅 Weekly Fortune!";
+        description = `Weekly kingdom earnings: ${amount} gold!`;
+      } else if (source.startsWith('tile-collect:')) {
+        const tileType = source.split(':')[1];
+        title = "🏰 Building Income!";
+        description = `Your ${tileType} building produced ${amount} gold!`;
+      }
+      
       toast({
-        title: "Gold Gained!",
-        description: `+${amount} gold from ${source}`,
+        title,
+        description,
       });
     }
 
