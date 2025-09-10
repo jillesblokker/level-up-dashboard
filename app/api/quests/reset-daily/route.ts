@@ -15,12 +15,15 @@ export async function POST(req: NextRequest) {
     console.log('[Daily Reset] Starting daily reset for user:', userId);
     console.log('[Daily Reset] 🔍 DEBUG - About to fetch all completions from database');
 
-    // Get ALL quests that were completed (not just today's)
-    const { data: allCompletions, error: fetchError } = await supabaseServer
+    // Get quests that were completed TODAY only (preserve historical data)
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    const { data: todayCompletions, error: fetchError } = await supabaseServer
       .from('quest_completion')
       .select('quest_id, completed, completed_at, xp_earned, gold_earned')
       .eq('user_id', userId)
-      .eq('completed', true);
+      .eq('completed', true)
+      .gte('completed_at', `${today}T00:00:00.000Z`)
+      .lt('completed_at', `${today}T23:59:59.999Z`);
 
     if (fetchError) {
       console.error('[Daily Reset] Error fetching all completions:', fetchError);
@@ -29,19 +32,19 @@ export async function POST(req: NextRequest) {
     
     console.log('[Daily Reset] 🔍 DEBUG - Database query completed, checking results...');
 
-    console.log('[Daily Reset] Found', allCompletions?.length || 0, 'total completed quests to reset');
-    console.log('[Daily Reset] 🔍 DEBUG - allCompletions type:', typeof allCompletions);
-    console.log('[Daily Reset] 🔍 DEBUG - allCompletions is null:', allCompletions === null);
-    console.log('[Daily Reset] 🔍 DEBUG - allCompletions is undefined:', allCompletions === undefined);
-    console.log('[Daily Reset] 🔍 DEBUG - allCompletions length:', allCompletions?.length);
+    console.log('[Daily Reset] Found', todayCompletions?.length || 0, 'quests completed TODAY to reset');
+    console.log('[Daily Reset] 🔍 DEBUG - todayCompletions type:', typeof todayCompletions);
+    console.log('[Daily Reset] 🔍 DEBUG - todayCompletions is null:', todayCompletions === null);
+    console.log('[Daily Reset] 🔍 DEBUG - todayCompletions is undefined:', todayCompletions === undefined);
+    console.log('[Daily Reset] 🔍 DEBUG - todayCompletions length:', todayCompletions?.length);
     
-    // 🔍 DEBUG: Log sample completed quests
-    if (allCompletions && allCompletions.length > 0) {
-      console.log('[Daily Reset] 🔍 DEBUG - Sample completed quests:', allCompletions.slice(0, 5).map(c => ({
+    // 🔍 DEBUG: Log sample completed quests from today
+    if (todayCompletions && todayCompletions.length > 0) {
+      console.log('[Daily Reset] 🔍 DEBUG - Sample quests completed today:', todayCompletions.slice(0, 5).map(c => ({
         quest_id: c.quest_id,
         completed_at: c.completed_at
       })));
-      console.log('[Daily Reset] 🔍 DEBUG - All completion records:', allCompletions.map(c => ({
+      console.log('[Daily Reset] 🔍 DEBUG - All today completion records:', todayCompletions.map(c => ({
         quest_id: c.quest_id,
         completed: c.completed,
         completed_at: c.completed_at,
@@ -49,21 +52,21 @@ export async function POST(req: NextRequest) {
         gold_earned: c.gold_earned
       })));
     } else {
-      console.log('[Daily Reset] 🔍 DEBUG - No completions found or allCompletions is null/undefined');
-      console.log('[Daily Reset] 🔍 DEBUG - This means the smart quest completion loop will NOT be entered');
-      console.log('[Daily Reset] 🔍 DEBUG - This explains why questsReset: 0');
+      console.log('[Daily Reset] 🔍 DEBUG - No quests completed today or todayCompletions is null/undefined');
+      console.log('[Daily Reset] 🔍 DEBUG - This means the reset loop will NOT be entered');
+      console.log('[Daily Reset] 🔍 DEBUG - Historical data is preserved');
     }
 
     // 🚀 USE SMART QUEST COMPLETION SYSTEM FOR DAILY RESET
     // Instead of storing completed: false, we'll delete the completion records
     // This aligns with our smart system philosophy
     let resetCount = 0;
-    if (allCompletions && allCompletions.length > 0) {
-      console.log('[Daily Reset] Using smart system to reset ALL quests...');
-      console.log('[Daily Reset] 🔍 DEBUG - Entering smart quest completion loop with', allCompletions.length, 'quests');
+    if (todayCompletions && todayCompletions.length > 0) {
+      console.log('[Daily Reset] Using direct delete to reset TODAY\'s quests only...');
+      console.log('[Daily Reset] 🔍 DEBUG - Entering reset loop with', todayCompletions.length, 'quests completed today');
       
-      // For each completed quest, directly delete the completion record
-      for (const completion of allCompletions) {
+      // For each quest completed today, directly delete the completion record
+      for (const completion of todayCompletions) {
         try {
           console.log('[Daily Reset] Directly deleting completion record for quest:', completion.quest_id);
           
@@ -89,7 +92,7 @@ export async function POST(req: NextRequest) {
         }
       }
       
-      console.log('[Daily Reset] Successfully reset', resetCount, 'out of', allCompletions.length, 'quests using smart system');
+      console.log('[Daily Reset] Successfully reset', resetCount, 'out of', todayCompletions.length, 'quests completed today');
       
       // 🔍 DEBUG: Verify the quests were actually reset by checking the database
       const { data: verifyCompletions, error: verifyError } = await supabaseServer
@@ -140,11 +143,10 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 🚀 NUCLEAR OPTION: If no quests were reset today but there are completed quests, offer to reset ALL
-    if (resetCount === 0 && allCompletions && allCompletions.length > 0) {
-      console.log('[Daily Reset] 🚀 NUCLEAR OPTION - No quests completed today, but found', allCompletions.length, 'total completed quests');
-      console.log('[Daily Reset] 🚀 This suggests quests from previous days are still marked as completed');
-      console.log('[Daily Reset] 🚀 Consider implementing a "nuclear reset" option to clear all completed quests');
+    // 🚀 INFO: Log historical data preservation
+    if (resetCount === 0) {
+      console.log('[Daily Reset] ℹ️ No quests completed today to reset');
+      console.log('[Daily Reset] ℹ️ Historical quest completion data is preserved');
     }
 
     console.log('[Daily Reset] Daily reset completed successfully');
@@ -153,13 +155,13 @@ export async function POST(req: NextRequest) {
       message: 'Daily reset completed - quests reset for today, historical data preserved',
       questsReset: resetCount || 0,
       challengesReset: allChallenges?.length || 0,
-      totalCompletedQuests: allCompletions?.length || 0,
-      nuclearResetAvailable: resetCount === 0 && (allCompletions?.length || 0) > 0,
+      totalCompletedQuests: todayCompletions?.length || 0,
+      historicalDataPreserved: true,
       timestamp: new Date().toISOString(),
       debugInfo: {
-        allCompletionsLength: allCompletions?.length || 0,
+        todayCompletionsLength: todayCompletions?.length || 0,
         resetCount: resetCount,
-        apiVersion: '2.0-debug'
+        apiVersion: '3.0-historical-preservation'
       }
     }, {
       headers: {
