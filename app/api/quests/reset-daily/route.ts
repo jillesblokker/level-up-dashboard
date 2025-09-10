@@ -11,52 +11,37 @@ export async function POST(req: NextRequest) {
 
     console.log('[Daily Reset] Starting daily reset for user:', userId);
 
-    // Get all quests that were completed today
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-    
-    const { data: todayCompletions, error: fetchError } = await supabaseServer
+    // Get ALL quests that were completed (not just today's)
+    const { data: allCompletions, error: fetchError } = await supabaseServer
       .from('quest_completion')
       .select('quest_id, completed_at, xp_earned, gold_earned')
       .eq('user_id', userId)
-      .eq('completed', true)
-      .gte('completed_at', today + 'T00:00:00')
-      .lt('completed_at', today + 'T23:59:59');
+      .eq('completed', true);
 
     if (fetchError) {
-      console.error('[Daily Reset] Error fetching today\'s completions:', fetchError);
-      return NextResponse.json({ error: 'Failed to fetch today\'s completions', details: fetchError }, { status: 500 });
+      console.error('[Daily Reset] Error fetching all completions:', fetchError);
+      return NextResponse.json({ error: 'Failed to fetch all completions', details: fetchError }, { status: 500 });
     }
 
-    console.log('[Daily Reset] Found', todayCompletions?.length || 0, 'completions from today');
+    console.log('[Daily Reset] Found', allCompletions?.length || 0, 'total completed quests to reset');
     
-    // 🔍 DEBUG: Check ALL completed quests for this user (not just today)
-    const { data: allCompletions, error: allCompletionsError } = await supabaseServer
-      .from('quest_completion')
-      .select('quest_id, completed, completed_at')
-      .eq('user_id', userId)
-      .eq('completed', true);
-    
-    if (allCompletionsError) {
-      console.error('[Daily Reset] Error fetching all completions:', allCompletionsError);
-    } else {
-      console.log('[Daily Reset] 🔍 DEBUG - Total completed quests in database:', allCompletions?.length || 0);
-      if (allCompletions && allCompletions.length > 0) {
-        console.log('[Daily Reset] 🔍 DEBUG - Sample completed quests:', allCompletions.slice(0, 5).map(c => ({
-          quest_id: c.quest_id,
-          completed_at: c.completed_at
-        })));
-      }
+    // 🔍 DEBUG: Log sample completed quests
+    if (allCompletions && allCompletions.length > 0) {
+      console.log('[Daily Reset] 🔍 DEBUG - Sample completed quests:', allCompletions.slice(0, 5).map(c => ({
+        quest_id: c.quest_id,
+        completed_at: c.completed_at
+      })));
     }
 
     // 🚀 USE SMART QUEST COMPLETION SYSTEM FOR DAILY RESET
     // Instead of storing completed: false, we'll delete the completion records
     // This aligns with our smart system philosophy
     let resetCount = 0;
-    if (todayCompletions && todayCompletions.length > 0) {
-      console.log('[Daily Reset] Using smart system to reset quests...');
+    if (allCompletions && allCompletions.length > 0) {
+      console.log('[Daily Reset] Using smart system to reset ALL quests...');
       
-      // For each quest completed today, use the smart system to "uncomplete" it
-      for (const completion of todayCompletions) {
+      // For each completed quest, use the smart system to "uncomplete" it
+      for (const completion of allCompletions) {
         try {
           const { data: smartResult, error: smartError } = await supabaseServer.rpc('smart_quest_completion', {
             p_user_id: userId,
@@ -79,16 +64,14 @@ export async function POST(req: NextRequest) {
         }
       }
       
-      console.log('[Daily Reset] Successfully reset', resetCount, 'out of', todayCompletions.length, 'quests using smart system');
+      console.log('[Daily Reset] Successfully reset', resetCount, 'out of', allCompletions.length, 'quests using smart system');
       
       // 🔍 DEBUG: Verify the quests were actually reset by checking the database
       const { data: verifyCompletions, error: verifyError } = await supabaseServer
         .from('quest_completion')
         .select('quest_id, completed')
         .eq('user_id', userId)
-        .eq('completed', true)
-        .gte('completed_at', today + 'T00:00:00')
-        .lt('completed_at', today + 'T23:59:59');
+        .eq('completed', true);
       
       if (verifyError) {
         console.error('[Daily Reset] Error verifying reset:', verifyError);
@@ -100,22 +83,21 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // For challenges, do the same approach
-    const { data: todayChallenges, error: challengeFetchError } = await supabaseServer
+    // For challenges, do the same approach - reset ALL challenges
+    const { data: allChallenges, error: challengeFetchError } = await supabaseServer
       .from('challenge_completion')
       .select('challenge_id, date')
       .eq('user_id', userId)
-      .eq('completed', true)
-      .eq('date', today);
+      .eq('completed', true);
 
     if (challengeFetchError) {
-      console.error('[Daily Reset] Error fetching today\'s challenge completions:', challengeFetchError);
-    } else if (todayChallenges && todayChallenges.length > 0) {
-      const newChallengeRecords = todayChallenges.map(challenge => ({
+      console.error('[Daily Reset] Error fetching all challenge completions:', challengeFetchError);
+    } else if (allChallenges && allChallenges.length > 0) {
+      const newChallengeRecords = allChallenges.map(challenge => ({
         user_id: userId,
         challenge_id: challenge.challenge_id,
-        completed: false, // Reset to not completed for the new day
-        date: today, // Keep same date but mark as not completed
+        completed: false, // Reset to not completed
+        date: challenge.date, // Keep original date
         original_completion_date: challenge.date
       }));
 
@@ -145,7 +127,7 @@ export async function POST(req: NextRequest) {
       success: true, 
       message: 'Daily reset completed - quests reset for today, historical data preserved',
       questsReset: resetCount || 0,
-      challengesReset: todayChallenges?.length || 0,
+      challengesReset: allChallenges?.length || 0,
       totalCompletedQuests: allCompletions?.length || 0,
       nuclearResetAvailable: resetCount === 0 && (allCompletions?.length || 0) > 0
     });

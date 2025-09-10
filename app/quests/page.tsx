@@ -460,8 +460,9 @@ export default function QuestsPage() {
         token: !!token
       });
       
-      // Only reset if we haven't processed today's reset AND we have a valid token AND we haven't already initiated a reset
-      if (lastReset !== today && token && !dailyResetInitiated.current) {
+      // Only reset if we haven't processed today's reset AND we have a valid token
+      // Remove the dailyResetInitiated check to allow manual resets
+      if (lastReset !== today && token) {
         console.log('[Daily Reset] Starting daily reset for date:', today);
         console.log('[Daily Reset] Last reset was:', lastReset, 'Today is:', today);
         
@@ -491,6 +492,9 @@ export default function QuestsPage() {
             
             // Mark that we've processed today's reset
             localStorage.setItem('last-quest-reset-date', today);
+            
+            // Reset the daily reset flag to allow future resets
+            dailyResetInitiated.current = false;
             
             // 🔍 DEBUG: Log the quest state after reset
             console.log('[Daily Reset] Quest state after reset:', quests.map(q => ({ id: q.id, name: q.name, completed: q.completed })));
@@ -1207,10 +1211,10 @@ export default function QuestsPage() {
       // Refresh quest data from backend
       setRefreshTrigger(prev => prev + 1);
       
-      // Update localStorage
+      // Update localStorage and reset the daily reset flag
       const today = new Date().toISOString().slice(0, 10);
       localStorage.setItem('last-quest-reset-date', today);
-      dailyResetInitiated.current = true;
+      dailyResetInitiated.current = false; // Allow future resets
       
       toast({
         title: 'Manual Reset Complete',
