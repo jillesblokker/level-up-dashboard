@@ -55,6 +55,25 @@ const getTileImage = (tileType: string) => {
   }
 };
 
+const getMonsterImageName = (monsterType: string) => {
+  switch (monsterType) {
+    case 'dragon':
+      return 'Dragoni';
+    case 'goblin':
+      return 'Orci';
+    case 'troll':
+      return 'Trollie';
+    case 'wizard':
+      return 'Sorceror';
+    case 'pegasus':
+      return 'Peggie';
+    case 'fairy':
+      return 'Fairiel';
+    default:
+      return 'Dragoni'; // fallback to dragon
+  }
+};
+
 export function MapGrid({ 
   grid, 
   playerPosition, 
@@ -273,7 +292,7 @@ export function MapGrid({
                   {tile.hasMonster && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <Image
-                        src={`/images/Monsters/${tile.hasMonster === 'wizard' ? 'Sorceror' : tile.hasMonster}.png`}
+                        src={`/images/Monsters/${getMonsterImageName(tile.hasMonster)}.png`}
                         alt={`${tile.hasMonster} monster`}
                         width={Math.floor(tileSize * 0.6)}
                         height={Math.floor(tileSize * 0.6)}
