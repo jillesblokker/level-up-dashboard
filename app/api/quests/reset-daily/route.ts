@@ -161,7 +161,19 @@ export async function POST(req: NextRequest) {
       questsReset: resetCount || 0,
       challengesReset: allChallenges?.length || 0,
       totalCompletedQuests: allCompletions?.length || 0,
-      nuclearResetAvailable: resetCount === 0 && (allCompletions?.length || 0) > 0
+      nuclearResetAvailable: resetCount === 0 && (allCompletions?.length || 0) > 0,
+      timestamp: new Date().toISOString(),
+      debugInfo: {
+        allCompletionsLength: allCompletions?.length || 0,
+        resetCount: resetCount,
+        apiVersion: '2.0-debug'
+      }
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
     });
 
   } catch (error) {
