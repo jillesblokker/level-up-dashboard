@@ -3,9 +3,12 @@ import { supabaseServer } from '../../../../lib/supabase/server-client';
 import { getAuth } from '@clerk/nextjs/server';
 
 export async function POST(req: NextRequest) {
+  console.log('[Daily Reset] 🚀 API ROUTE CALLED - Starting POST request');
   try {
     const { userId } = await getAuth(req);
+    console.log('[Daily Reset] 🚀 User ID from auth:', userId);
     if (!userId) {
+      console.log('[Daily Reset] 🚀 No user ID found, returning 401');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
