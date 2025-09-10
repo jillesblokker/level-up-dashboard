@@ -53,6 +53,7 @@ export default function Page() {
         const response = await fetch('/api/achievement-definitions');
         if (response.ok) {
           const data = await response.json();
+          console.log("Achievement definitions fetched:", data);
           // Fetched achievement definitions
           setAchievementDefinitions(data);
         } else {
@@ -233,10 +234,16 @@ export default function Page() {
         const response = await fetch(`/api/achievements?userId=${userId}`);
         if (response.ok) {
           const data: DbAchievement[] = await response.json();
-          const achievementMap = new Map(data.filter(Boolean).map(ach => [ach.achievementId, ach]));
+          console.log("Raw achievement data from API:", data);
+          
+          const achievementMap = new Map(data.filter(Boolean).map(ach => {
+            console.log("Mapping achievement:", ach);
+            return [ach.achievementId, ach];
+          }));
 
           // Fetched achievements
           console.log("Unlocked Achievement IDs:", Array.from(achievementMap.keys()));
+          console.log("Achievement Map:", achievementMap);
 
           setUnlockedAchievements(achievementMap);
         } else {

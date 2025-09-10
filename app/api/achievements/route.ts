@@ -185,13 +185,14 @@ export async function GET(request: Request) {
         id: row.id,
         userId: row.user_id,
         achievementId: row.achievement_id,
-        achievementName: row.achievement_name,
+        achievement_id: row.achievement_id, // Also include the original field name for compatibility
+        achievement_name: row.achievement_name,
         description: row.description,
       };
       
       // Only add unlockedAt if the column exists
       if (row.unlocked_at !== undefined) {
-        achievement.unlockedAt = row.unlocked_at;
+        achievement.unlocked_at = row.unlocked_at;
       }
       
       return achievement;
