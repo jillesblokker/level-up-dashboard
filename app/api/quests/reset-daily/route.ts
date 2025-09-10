@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     // Get ALL quests that were completed (not just today's)
     const { data: allCompletions, error: fetchError } = await supabaseServer
       .from('quest_completion')
-      .select('quest_id, completed_at, xp_earned, gold_earned')
+      .select('quest_id, completed, completed_at, xp_earned, gold_earned')
       .eq('user_id', userId)
       .eq('completed', true);
 
