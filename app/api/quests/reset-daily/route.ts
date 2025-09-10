@@ -62,34 +62,27 @@ export async function POST(req: NextRequest) {
       console.log('[Daily Reset] Using smart system to reset ALL quests...');
       console.log('[Daily Reset] 🔍 DEBUG - Entering smart quest completion loop with', allCompletions.length, 'quests');
       
-      // For each completed quest, use the smart system to "uncomplete" it
+      // For each completed quest, directly delete the completion record
       for (const completion of allCompletions) {
         try {
-          console.log('[Daily Reset] Calling smart_quest_completion for quest:', completion.quest_id, 'with completed: false');
-          const { data: smartResult, error: smartError } = await supabaseServer.rpc('smart_quest_completion', {
-            p_user_id: userId,
-            p_quest_id: completion.quest_id as any, // Cast to any to avoid UUID type issues
-            p_completed: false, // This will delete the record (smart behavior)
-            p_xp_reward: 0,
-            p_gold_reward: 0
-          });
+          console.log('[Daily Reset] Directly deleting completion record for quest:', completion.quest_id);
           
-          if (smartError) {
-            console.error('[Daily Reset] Smart completion error for quest:', completion.quest_id, smartError);
-          } else if (smartResult) {
-            console.log('[Daily Reset] Smart completion result for quest:', completion.quest_id, smartResult);
-            console.log('[Daily Reset] Smart result details:', {
-              success: smartResult.success,
-              action: smartResult.action,
-              message: smartResult.message,
-              deletedRecord: smartResult.deletedRecord
-            });
-            if (smartResult.success && smartResult.action === 'uncompleted') {
-              resetCount++;
-              console.log('[Daily Reset] ✅ Quest successfully uncompleted:', completion.quest_id);
-            } else {
-              console.log('[Daily Reset] ❌ Quest NOT uncompleted:', completion.quest_id, 'Action:', smartResult.action);
-            }
+          // Direct DELETE approach - more reliable than smart function
+          const { data: deleteResult, error: deleteError } = await supabaseServer
+            .from('quest_completion')
+            .delete()
+            .eq('user_id', userId)
+            .eq('quest_id', completion.quest_id)
+            .select();
+          
+          if (deleteError) {
+            console.error('[Daily Reset] Delete error for quest:', completion.quest_id, deleteError);
+          } else if (deleteResult && deleteResult.length > 0) {
+            resetCount++;
+            console.log('[Daily Reset] ✅ Quest completion record deleted:', completion.quest_id);
+            console.log('[Daily Reset] Deleted record:', deleteResult[0]);
+          } else {
+            console.log('[Daily Reset] ❌ No record found to delete for quest:', completion.quest_id);
           }
         } catch (error) {
           console.error('[Daily Reset] Error processing quest reset:', completion.quest_id, error);
