@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
 
 // Smart Quest Completion API - Uses the intelligent database function
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   console.log('[Smart Quest Completion] 🚀 API ROUTE CALLED - Starting POST request');
   try {
     const { userId } = await getAuth(request);
@@ -96,7 +96,7 @@ export async function POST(request: Request) {
 }
 
 // Get quest completion status using the clean view
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const { userId } = await getAuth(request);
     if (!userId) {
