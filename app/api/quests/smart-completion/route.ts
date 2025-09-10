@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { getAuth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
 
 // Smart Quest Completion API - Uses the intelligent database function
 export async function POST(request: Request) {
+  console.log('[Smart Quest Completion] 🚀 API ROUTE CALLED - Starting POST request');
   try {
-    const { userId } = await auth();
+    const { userId } = await getAuth(request);
+    console.log('[Smart Quest Completion] 🚀 User ID from auth:', userId);
     if (!userId) {
       console.error('[Smart Quest Completion] Unauthorized');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -96,7 +98,7 @@ export async function POST(request: Request) {
 // Get quest completion status using the clean view
 export async function GET(request: Request) {
   try {
-    const { userId } = await auth();
+    const { userId } = await getAuth(request);
     if (!userId) {
       console.error('[Smart Quest Completion] Unauthorized');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
