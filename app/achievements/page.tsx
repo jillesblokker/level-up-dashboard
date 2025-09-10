@@ -46,28 +46,6 @@ export default function Page() {
   const [showStats, setShowStats] = useState(false);
   const { getToken, isLoaded: isClerkLoaded } = useAuth();
 
-  // Debug function to manually unlock achievement 003
-  const manuallyUnlock003 = async () => {
-    try {
-      const token = await getToken({ template: 'supabase' });
-      const response = await fetch('/api/achievements/unlock', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ achievementId: '003' })
-      });
-      const result = await response.json();
-      console.log("Manual unlock 003 result:", result);
-      if (response.ok) {
-        // Refresh achievements
-        window.location.reload();
-      }
-    } catch (error) {
-      console.error("Error manually unlocking 003:", error);
-    }
-  };
 
   // Fetch new monster achievement definitions (201-206)
   useEffect(() => {
@@ -76,7 +54,6 @@ export default function Page() {
         const response = await fetch('/api/achievement-definitions');
         if (response.ok) {
           const data = await response.json();
-          console.log("Achievement definitions fetched:", data);
           // Fetched achievement definitions
           setAchievementDefinitions(data);
         } else {
@@ -257,30 +234,10 @@ export default function Page() {
         const response = await fetch(`/api/achievements?userId=${userId}`);
         if (response.ok) {
           const data: DbAchievement[] = await response.json();
-          console.log("Raw achievement data from API:", data);
-          
-          const achievementMap = new Map(data.filter(Boolean).map(ach => {
-            console.log("Mapping achievement:", ach);
-            return [ach.achievementId, ach];
-          }));
+          const achievementMap = new Map(data.filter(Boolean).map(ach => [ach.achievementId, ach]));
 
           // Fetched achievements
           console.log("Unlocked Achievement IDs:", Array.from(achievementMap.keys()));
-          console.log("Achievement Map:", achievementMap);
-          
-          // Debug: Check localStorage for destroyed tiles
-          const destroyedForestTiles = localStorage.getItem('destroyed_forest_tiles') || '0';
-          console.log("Destroyed forest tiles from localStorage:", destroyedForestTiles);
-          
-          // Debug: Check if achievement 003 should be unlocked
-          if (parseInt(destroyedForestTiles) >= 10) {
-            console.log("Achievement 003 should be unlocked (10+ forest tiles destroyed)");
-            if (!achievementMap.has('003')) {
-              console.log("❌ Achievement 003 is missing from unlocked achievements!");
-            } else {
-              console.log("✅ Achievement 003 is properly unlocked");
-            }
-          }
 
           setUnlockedAchievements(achievementMap);
         } else {
@@ -355,23 +312,14 @@ export default function Page() {
           <div className="mb-8">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-amber-400">Creatures</h2>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  className="px-6 py-2 rounded-lg bg-amber-500 text-white font-semibold shadow-md hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-opacity-75 transition-all duration-200"
-                  aria-label={showAllUnlocked ? "Hide unlocked achievements" : "Show unlocked achievements"}
-                  onClick={() => setShowAllUnlocked((prev) => !prev)}
-                >
-                  {showAllUnlocked ? "Hide unlocked" : "Show unlocked"}
-                </button>
-                <button
-                  type="button"
-                  className="px-4 py-2 rounded-lg bg-red-600 text-white font-semibold shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75 transition-all duration-200"
-                  onClick={manuallyUnlock003}
-                >
-                  Debug: Unlock 003
-                </button>
-              </div>
+              <button
+                type="button"
+                className="px-6 py-2 rounded-lg bg-amber-500 text-white font-semibold shadow-md hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-opacity-75 transition-all duration-200"
+                aria-label={showAllUnlocked ? "Hide unlocked achievements" : "Show unlocked achievements"}
+                onClick={() => setShowAllUnlocked((prev) => !prev)}
+              >
+                {showAllUnlocked ? "Hide unlocked" : "Show unlocked"}
+              </button>
             </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="creature-cards-grid">
               {creatures.map(creature => {

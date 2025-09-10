@@ -573,15 +573,32 @@ export default function RealmPage() {
             if (!sessionStorage.getItem(achievementKey)) {
               sessionStorage.setItem(achievementKey, 'true');
               (async () => {
-                const token = await getToken({ template: 'supabase' });
-                fetch('/api/achievements/unlock', {
-                  method: 'POST',
-                  headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                  },
-                  body: JSON.stringify({ achievementId: req.id })
-                });
+                try {
+                  const token = await getToken({ template: 'supabase' });
+                  console.log(`[Achievement Unlock] Attempting to unlock achievement ${req.id}`);
+                  const response = await fetch('/api/achievements/unlock', {
+                    method: 'POST',
+                    headers: { 
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ achievementId: req.id })
+                  });
+                  
+                  if (response.ok) {
+                    const result = await response.json();
+                    console.log(`[Achievement Unlock] ✅ Successfully unlocked achievement ${req.id}:`, result);
+                  } else {
+                    const error = await response.json();
+                    console.error(`[Achievement Unlock] ❌ Failed to unlock achievement ${req.id}:`, error);
+                    // Remove the session storage flag so it can be retried
+                    sessionStorage.removeItem(achievementKey);
+                  }
+                } catch (error) {
+                  console.error(`[Achievement Unlock] ❌ Error unlocking achievement ${req.id}:`, error);
+                  // Remove the session storage flag so it can be retried
+                  sessionStorage.removeItem(achievementKey);
+                }
               })();
               discoverCreature(req.id);
             }
