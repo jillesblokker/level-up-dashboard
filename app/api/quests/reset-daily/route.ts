@@ -10,6 +10,7 @@ export async function POST(req: NextRequest) {
     }
 
     console.log('[Daily Reset] Starting daily reset for user:', userId);
+    console.log('[Daily Reset] 🔍 DEBUG - About to fetch all completions from database');
 
     // Get ALL quests that were completed (not just today's)
     const { data: allCompletions, error: fetchError } = await supabaseServer
@@ -22,6 +23,8 @@ export async function POST(req: NextRequest) {
       console.error('[Daily Reset] Error fetching all completions:', fetchError);
       return NextResponse.json({ error: 'Failed to fetch all completions', details: fetchError }, { status: 500 });
     }
+    
+    console.log('[Daily Reset] 🔍 DEBUG - Database query completed, checking results...');
 
     console.log('[Daily Reset] Found', allCompletions?.length || 0, 'total completed quests to reset');
     console.log('[Daily Reset] 🔍 DEBUG - allCompletions type:', typeof allCompletions);
