@@ -1,4 +1,5 @@
 import { notificationService } from "@/lib/notification-service"
+import { getAchievementMessage, getAchievementIdFromSource } from "@/lib/achievement-messages"
 
 export function createAchievementNotification(achievementName: string) {
   notificationService.addNotification(
@@ -50,35 +51,74 @@ export function createLevelUpNotification(toLevel: number) {
 
 export function createExperienceGainedNotification(amount: number, source: string, perkBonus: number = 0) {
   const totalAmount = amount + perkBonus;
-  let message = `You gained ${amount} experience from ${source}`;
   
-  if (perkBonus > 0) {
-    message += ` (+${perkBonus} from perks)`;
-  }
+  // Check if this is an achievement source and get improved message
+  const achievementId = getAchievementIdFromSource(source);
+  const achievementMessage = achievementId ? getAchievementMessage(achievementId) : null;
   
-  message += `! Total: +${totalAmount} XP`;
-  
-  notificationService.addNotification(
-    "Experience Gained! ⭐",
-    message,
-    "success",
-    "medium",
-    {
-      label: "View Progress",
-      href: "/character",
+  if (achievementMessage) {
+    // Use improved achievement message
+    notificationService.addNotification(
+      achievementMessage.title,
+      achievementMessage.description,
+      "achievement",
+      "high",
+      {
+        label: "View Achievements",
+        href: "/achievements",
+      }
+    );
+  } else {
+    // Fallback to generic message for non-achievement sources
+    let message = `You gained ${amount} experience from ${source}`;
+    
+    if (perkBonus > 0) {
+      message += ` (+${perkBonus} from perks)`;
     }
-  )
+    
+    message += `! Total: +${totalAmount} XP`;
+    
+    notificationService.addNotification(
+      "Experience Gained! ⭐",
+      message,
+      "success",
+      "medium",
+      {
+        label: "View Progress",
+        href: "/character",
+      }
+    );
+  }
 }
 
 export function createGoldGainedNotification(amount: number, source: string) {
-  notificationService.addNotification(
-    "Gold Gained! 💰",
-    `You earned ${amount} gold from ${source}!`,
-    "success",
-    "medium",
-    {
-      label: "View Treasury",
-      href: "/treasury",
-    }
-  )
+  // Check if this is an achievement source and get improved message
+  const achievementId = getAchievementIdFromSource(source);
+  const achievementMessage = achievementId ? getAchievementMessage(achievementId) : null;
+  
+  if (achievementMessage) {
+    // Use improved achievement message
+    notificationService.addNotification(
+      achievementMessage.title,
+      achievementMessage.description,
+      "achievement",
+      "high",
+      {
+        label: "View Achievements",
+        href: "/achievements",
+      }
+    );
+  } else {
+    // Fallback to generic message for non-achievement sources
+    notificationService.addNotification(
+      "Gold Gained! 💰",
+      `You earned ${amount} gold from ${source}!`,
+      "success",
+      "medium",
+      {
+        label: "View Treasury",
+        href: "/treasury",
+      }
+    );
+  }
 } 

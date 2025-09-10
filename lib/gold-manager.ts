@@ -3,6 +3,7 @@ import { emitGoldGained } from "@/lib/kingdom-events";
 import { getCharacterStats, addToCharacterStatSync } from "@/lib/character-stats-manager";
 import { createGoldGainedNotification } from "@/lib/notifications";
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { getAchievementMessage, getAchievementIdFromSource } from "@/lib/achievement-messages";
 
 // Enhanced gold manager with database transaction logging
 export async function gainGold(amount: number, source: string, metadata?: any) {
@@ -31,11 +32,21 @@ export async function gainGold(amount: number, source: string, metadata?: any) {
     });
     window.dispatchEvent(goldGainEvent);
 
-    // Show toast notification
-    toast({
-      title: "Gold Gained!",
-      description: `+${amount} gold from ${source}`,
-    });
+    // Show improved toast notification for achievements
+    const achievementId = getAchievementIdFromSource(source);
+    const achievementMessage = achievementId ? getAchievementMessage(achievementId) : null;
+    
+    if (achievementMessage) {
+      toast({
+        title: achievementMessage.title,
+        description: achievementMessage.description,
+      });
+    } else {
+      toast({
+        title: "Gold Gained!",
+        description: `+${amount} gold from ${source}`,
+      });
+    }
 
     return { ...currentStats, gold: currentStats.gold + amount };
   } catch (error) {
