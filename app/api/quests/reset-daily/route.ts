@@ -24,6 +24,10 @@ export async function POST(req: NextRequest) {
     }
 
     console.log('[Daily Reset] Found', allCompletions?.length || 0, 'total completed quests to reset');
+    console.log('[Daily Reset] 🔍 DEBUG - allCompletions type:', typeof allCompletions);
+    console.log('[Daily Reset] 🔍 DEBUG - allCompletions is null:', allCompletions === null);
+    console.log('[Daily Reset] 🔍 DEBUG - allCompletions is undefined:', allCompletions === undefined);
+    console.log('[Daily Reset] 🔍 DEBUG - allCompletions length:', allCompletions?.length);
     
     // 🔍 DEBUG: Log sample completed quests
     if (allCompletions && allCompletions.length > 0) {
@@ -40,6 +44,8 @@ export async function POST(req: NextRequest) {
       })));
     } else {
       console.log('[Daily Reset] 🔍 DEBUG - No completions found or allCompletions is null/undefined');
+      console.log('[Daily Reset] 🔍 DEBUG - This means the smart quest completion loop will NOT be entered');
+      console.log('[Daily Reset] 🔍 DEBUG - This explains why questsReset: 0');
     }
 
     // 🚀 USE SMART QUEST COMPLETION SYSTEM FOR DAILY RESET
