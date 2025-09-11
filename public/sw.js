@@ -1,7 +1,7 @@
 // Service Worker for Level Up - Medieval Habit Tracker
-const CACHE_NAME = 'level-up-v1.0.0'
-const STATIC_CACHE = 'level-up-static-v1.0.0'
-const DYNAMIC_CACHE = 'level-up-dynamic-v1.0.0'
+const CACHE_NAME = 'level-up-v1.0.1'
+const STATIC_CACHE = 'level-up-static-v1.0.1'
+const DYNAMIC_CACHE = 'level-up-dynamic-v1.0.1'
 
 // Files to cache for offline functionality
 const STATIC_FILES = [
@@ -59,6 +59,14 @@ self.addEventListener('activate', (event) => {
       })
       .then(() => {
         console.log('[SW] Service worker activated')
+        // Clear all caches to handle authentication changes
+        return Promise.all([
+          caches.delete(STATIC_CACHE),
+          caches.delete(DYNAMIC_CACHE)
+        ])
+      })
+      .then(() => {
+        console.log('[SW] All caches cleared for fresh start')
         return self.clients.claim()
       })
   )
@@ -79,6 +87,11 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
+  // Skip authentication-related requests to avoid redirect issues
+  if (url.pathname.includes('/sign-in') || url.pathname.includes('/auth/')) {
+    return
+  }
+
   event.respondWith(
     caches.match(request)
       .then((cachedResponse) => {
@@ -88,10 +101,12 @@ self.addEventListener('fetch', (event) => {
         }
 
         console.log('[SW] Fetching from network:', request.url)
-        return fetch(request)
+        return fetch(request, {
+          redirect: 'follow' // Ensure redirects are followed
+        })
           .then((response) => {
-            // Don't cache non-successful responses
-            if (!response || response.status !== 200 || response.type !== 'basic') {
+            // Don't cache redirects or non-successful responses
+            if (!response || response.status !== 200 || response.type !== 'basic' || response.redirected) {
               return response
             }
 
