@@ -508,11 +508,11 @@ export default function QuestsPage() {
               }))
             );
             
-            // Add a small delay before refreshing to ensure the reset has completed
+            // Add a longer delay before refreshing to ensure the reset has completed
             setTimeout(() => {
               console.log('[Daily Reset] Refreshing quest data after reset...');
               setRefreshTrigger(prev => prev + 1);
-            }, 1000);
+            }, 3000); // Increased to 3 seconds to match API delay
             
             toast({
               title: 'Daily Reset',

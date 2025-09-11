@@ -185,19 +185,23 @@ export async function GET(request: Request) {
       });
       
       questCompletions.forEach((completion: any) => {
-        // SMART LOGIC: Only consider quests as completed if they have completed=true AND completed_at is not null
-        // This aligns with the smart quest completion system that deletes records when quests are uncompleted
+        // ENHANCED LOGIC: Only consider quests as completed if they have completed=true AND completed_at is not null
+        // AND the completion record is recent (within last 24 hours to prevent stale data)
         const isCompleted = completion.completed === true && completion.completed_at !== null;
+        const completionDate = new Date(completion.completed_at);
+        const isRecent = completionDate > new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 hours ago
+        
         console.log('[Quests API] Processing completion:', {
           quest_id: completion.quest_id,
           completed: completion.completed,
           completed_at: completion.completed_at,
           isCompleted,
+          isRecent,
           record_exists: true
         });
         
-        // Only add to map if the quest is actually completed (smart behavior)
-        if (isCompleted) {
+        // Only add to map if the quest is actually completed AND recent (prevents stale data)
+        if (isCompleted && isRecent) {
           completedQuests.set(completion.quest_id, {
             completed: true,
             completedAt: completion.completed_at,
