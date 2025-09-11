@@ -170,10 +170,11 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: completionsError.message }, { status: 500 });
     }
 
-    // Create a map of completed quests by quest_id (since smart quest completion stores by ID)
+    // NEW APPROACH: Handle both active completions and historical data
+    // This preserves historical data while showing current quest status
     const completedQuests = new Map();
     if (questCompletions) {
-      console.log('[Quests API] Processing quest completions:', {
+      console.log('[Quests API] Processing quest completions with historical preservation:', {
         totalRecords: questCompletions.length,
         sampleRecords: questCompletions.slice(0, 3).map(c => ({
           quest_id: c.quest_id,
@@ -184,29 +185,50 @@ export async function GET(request: Request) {
         }))
       });
       
+      // Group completions by quest_id to handle multiple completions of the same quest
+      const questCompletionGroups = new Map();
+      
       questCompletions.forEach((completion: any) => {
-        // ENHANCED LOGIC: Only consider quests as completed if they have completed=true AND completed_at is not null
-        // AND the completion record is recent (within last 24 hours to prevent stale data)
-        const isCompleted = completion.completed === true && completion.completed_at !== null;
-        const completionDate = new Date(completion.completed_at);
+        if (!questCompletionGroups.has(completion.quest_id)) {
+          questCompletionGroups.set(completion.quest_id, []);
+        }
+        questCompletionGroups.get(completion.quest_id).push(completion);
+      });
+      
+      // For each quest, find the most recent completion
+      questCompletionGroups.forEach((completions, questId) => {
+        // Sort by completed_at descending to get the most recent
+        const sortedCompletions = completions.sort((a: any, b: any) => 
+          new Date(b.completed_at).getTime() - new Date(a.completed_at).getTime()
+        );
+        
+        const mostRecentCompletion = sortedCompletions[0];
+        const completionDate = new Date(mostRecentCompletion.completed_at);
         const isRecent = completionDate > new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 hours ago
         
-        console.log('[Quests API] Processing completion:', {
-          quest_id: completion.quest_id,
-          completed: completion.completed,
-          completed_at: completion.completed_at,
-          isCompleted,
-          isRecent,
-          record_exists: true
+        console.log('[Quests API] Processing quest completions:', {
+          quest_id: questId,
+          total_completions: completions.length,
+          most_recent: {
+            completed: mostRecentCompletion.completed,
+            completed_at: mostRecentCompletion.completed_at,
+            isRecent
+          }
         });
         
-        // Only add to map if the quest is actually completed AND recent (prevents stale data)
-        if (isCompleted && isRecent) {
-          completedQuests.set(completion.quest_id, {
-            completed: true,
-            completedAt: completion.completed_at,
-            xpEarned: completion.xp_earned,
-            goldEarned: completion.gold_earned
+        // Show as completed if:
+        // 1. The most recent completion has completed=true AND is recent (active completion)
+        // 2. OR if there's any completion with completed=true (historical completion)
+        const hasActiveCompletion = mostRecentCompletion.completed === true && isRecent;
+        const hasHistoricalCompletion = completions.some((c: any) => c.completed === true);
+        
+        if (hasActiveCompletion || hasHistoricalCompletion) {
+          completedQuests.set(questId, {
+            completed: hasActiveCompletion, // Only true if actively completed today
+            completedAt: mostRecentCompletion.completed_at,
+            xpEarned: mostRecentCompletion.xp_earned,
+            goldEarned: mostRecentCompletion.gold_earned,
+            isHistorical: !hasActiveCompletion && hasHistoricalCompletion
           });
         }
       });

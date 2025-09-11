@@ -486,10 +486,10 @@ export default function QuestsPage() {
         dailyResetInitiated.current = true;
         
         // Call backend to reset quests and challenges
-        fetch('/api/quests/reset-daily', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        })
+              fetch('/api/quests/reset-daily-safe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+              })
           .then(async res => {
             if (!res.ok) {
               const err = await res.text();
@@ -1200,10 +1200,10 @@ export default function QuestsPage() {
     console.log('[Manual Reset] Starting manual reset...');
     
     try {
-      const res = await fetch('/api/quests/reset-daily', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      });
+        const res = await fetch('/api/quests/reset-daily-safe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        });
       
       if (!res.ok) {
         const err = await res.text();
