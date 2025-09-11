@@ -18,34 +18,32 @@ export async function POST(req: NextRequest) {
     const today = new Date().toISOString().split('T')[0];
     console.log('[Safe Daily Reset] 🔍 Today\'s date:', today);
     
-    // Get ONLY today's completed quests (not all historical data)
-    console.log('[Safe Daily Reset] 🔍 Fetching ONLY today\'s completed quests for user:', userId);
+    // Get ALL completed quests (we'll reset all of them to preserve historical data)
+    console.log('[Safe Daily Reset] 🔍 Fetching ALL completed quests for user:', userId);
     
-    const { data: todayCompletions, error: fetchError } = await supabaseServer
+    const { data: allCompletions, error: fetchError } = await supabaseServer
       .from('quest_completion')
       .select('quest_id, completed, completed_at, xp_earned, gold_earned')
       .eq('user_id', userId)
-      .eq('completed', true)
-      .gte('completed_at', `${today}T00:00:00.000Z`) // Only today's completions
-      .lt('completed_at', `${today}T23:59:59.999Z`);
+      .eq('completed', true);
 
     if (fetchError) {
-      console.error('[Safe Daily Reset] Error fetching today\'s completions:', fetchError);
-      return NextResponse.json({ error: 'Failed to fetch today\'s completions', details: fetchError }, { status: 500 });
+      console.error('[Safe Daily Reset] Error fetching all completions:', fetchError);
+      return NextResponse.json({ error: 'Failed to fetch all completions', details: fetchError }, { status: 500 });
     }
     
-    console.log('[Safe Daily Reset] Found', todayCompletions?.length || 0, 'quests completed TODAY to reset');
+    console.log('[Safe Daily Reset] Found', allCompletions?.length || 0, 'quests completed to reset');
     
-    if (todayCompletions && todayCompletions.length > 0) {
-      console.log('[Safe Daily Reset] 🔍 DEBUG - Sample today\'s completions:', todayCompletions.slice(0, 3));
+    if (allCompletions && allCompletions.length > 0) {
+      console.log('[Safe Daily Reset] 🔍 DEBUG - Sample completions:', allCompletions.slice(0, 3));
     }
 
     let resetCount = 0;
-    if (todayCompletions && todayCompletions.length > 0) {
-      console.log('[Safe Daily Reset] Using SAFE UPDATE to reset only today\'s quests (preserving ALL historical data)...');
-      console.log('[Safe Daily Reset] 🔍 DEBUG - Entering reset loop with', todayCompletions.length, 'today\'s completed quests');
+    if (allCompletions && allCompletions.length > 0) {
+      console.log('[Safe Daily Reset] Using SAFE UPDATE to reset ALL completed quests (preserving ALL historical data)...');
+      console.log('[Safe Daily Reset] 🔍 DEBUG - Entering reset loop with', allCompletions.length, 'completed quests');
       
-      for (const completion of todayCompletions) {
+      for (const completion of allCompletions) {
         try {
           console.log('[Safe Daily Reset] Updating completion record for quest:', completion.quest_id, 'from completed=true to completed=false');
           
@@ -77,27 +75,25 @@ export async function POST(req: NextRequest) {
         }
       }
       
-      console.log('[Safe Daily Reset] Successfully reset', resetCount, 'out of', todayCompletions.length, 'today\'s completed quests');
+      console.log('[Safe Daily Reset] Successfully reset', resetCount, 'out of', allCompletions.length, 'completed quests');
       
       // Add delay to ensure database changes are committed
       console.log('[Safe Daily Reset] ⏳ Waiting for database changes to commit...');
       await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
       
-      // Verify the quests were actually reset by checking today's completions
+      // Verify the quests were actually reset by checking all completions
       const { data: verifyCompletions, error: verifyError } = await supabaseServer
         .from('quest_completion')
         .select('quest_id, completed, completed_at, xp_earned, gold_earned')
         .eq('user_id', userId)
-        .eq('completed', true)
-        .gte('completed_at', `${today}T00:00:00.000Z`)
-        .lt('completed_at', `${today}T23:59:59.999Z`);
+        .eq('completed', true);
       
       if (verifyError) {
         console.error('[Safe Daily Reset] Error verifying reset:', verifyError);
       } else {
-        console.log('[Safe Daily Reset] 🔍 Verification - quests still completed today after reset:', verifyCompletions?.length || 0);
+        console.log('[Safe Daily Reset] 🔍 Verification - quests still completed after reset:', verifyCompletions?.length || 0);
         if (verifyCompletions && verifyCompletions.length > 0) {
-          console.log('[Safe Daily Reset] ⚠️ Some quests are still marked as completed today:', verifyCompletions.map(c => c.quest_id));
+          console.log('[Safe Daily Reset] ⚠️ Some quests are still marked as completed:', verifyCompletions.map(c => c.quest_id));
         }
       }
       
@@ -170,11 +166,11 @@ export async function POST(req: NextRequest) {
       message: 'SAFE daily reset completed - today\'s quests reset, ALL historical data preserved',
       questsReset: resetCount || 0,
       challengesReset: todayChallenges?.length || 0,
-      totalCompletedQuests: todayCompletions?.length || 0,
+      totalCompletedQuests: allCompletions?.length || 0,
       historicalDataPreserved: true,
       timestamp: new Date().toISOString(),
       debugInfo: {
-        todayCompletionsLength: todayCompletions?.length || 0,
+        allCompletionsLength: allCompletions?.length || 0,
         resetCount: resetCount,
         apiVersion: '5.0-safe-historical-preservation'
       }

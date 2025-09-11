@@ -216,19 +216,17 @@ export async function GET(request: Request) {
           }
         });
         
-        // Show as completed if:
-        // 1. The most recent completion has completed=true AND is recent (active completion)
-        // 2. OR if there's any completion with completed=true (historical completion)
+        // Show as completed ONLY if the most recent completion has completed=true
+        // This ensures that after a reset (completed=false), quests are not shown as completed
         const hasActiveCompletion = mostRecentCompletion.completed === true && isRecent;
-        const hasHistoricalCompletion = completions.some((c: any) => c.completed === true);
         
-        if (hasActiveCompletion || hasHistoricalCompletion) {
+        if (hasActiveCompletion) {
           completedQuests.set(questId, {
-            completed: hasActiveCompletion, // Only true if actively completed today
+            completed: true, // Only true if actively completed today
             completedAt: mostRecentCompletion.completed_at,
             xpEarned: mostRecentCompletion.xp_earned,
             goldEarned: mostRecentCompletion.gold_earned,
-            isHistorical: !hasActiveCompletion && hasHistoricalCompletion
+            isHistorical: false
           });
         }
       });
