@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
   try {
     // Add timeout handling
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Request timeout')), 8000); // 8 second timeout
+      setTimeout(() => reject(new Error('Request timeout')), 3000); // 3 second timeout
     });
 
     const body = await request.json();
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
   try {
     // Add timeout handling
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Request timeout')), 8000); // 8 second timeout
+      setTimeout(() => reject(new Error('Request timeout')), 3000); // 3 second timeout
     });
 
     const { searchParams } = new URL(request.url);
