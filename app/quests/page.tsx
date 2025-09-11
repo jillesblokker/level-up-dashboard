@@ -476,6 +476,12 @@ export default function QuestsPage() {
         token: !!token
       });
       
+      // Debug: Show if we're skipping due to localStorage
+      if (lastReset === today) {
+        console.log('[Daily Reset] ⚠️ Skipping reset because localStorage shows reset already processed today');
+        console.log('[Daily Reset] 💡 To force a reset, clear localStorage: localStorage.removeItem("last-quest-reset-date")');
+      }
+      
       // Only reset if we haven't processed today's reset AND we have a valid token
       // Remove the dailyResetInitiated check to allow manual resets
       if (lastReset !== today && token) {
@@ -1233,9 +1239,7 @@ export default function QuestsPage() {
         setRefreshTrigger(prev => prev + 1);
       }, 1000);
       
-      // Update localStorage and reset the daily reset flag
-      const today = new Date().toISOString().slice(0, 10);
-      localStorage.setItem('last-quest-reset-date', today);
+      // Reset the daily reset flag (but don't update localStorage for manual resets)
       dailyResetInitiated.current = false; // Allow future resets
       
       toast({
