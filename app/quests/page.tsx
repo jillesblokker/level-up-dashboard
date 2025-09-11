@@ -373,10 +373,10 @@ export default function QuestsPage() {
     }
     // Removed debugging log
     setLoading(true);
-    async function fetchQuests() {
+    async function fetchQuests(retryCount = 0) {
       try {
         if (!token) return; // Guard for linter
-        console.log('[Quests Debug] Fetching /api/quests with token:', token.slice(0, 10), '...');
+        console.log('[Quests Debug] Fetching /api/quests with token:', token.slice(0, 10), '... (attempt', retryCount + 1, ')');
         const res = await fetch(`/api/quests?t=${Date.now()}`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -388,6 +388,22 @@ export default function QuestsPage() {
           console.error('[Quests Debug] Error response:', errorText);
           throw new Error(`Failed to fetch quests: ${res.status} ${errorText}`);
         }
+        // Check if response is HTML (error page) instead of JSON
+        const contentType = res.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          const htmlText = await res.text();
+          console.error('[Quests Debug] Received HTML instead of JSON:', htmlText.substring(0, 200));
+          
+          // Retry once if we get HTML (might be a temporary auth issue)
+          if (retryCount < 1) {
+            console.log('[Quests Debug] Retrying after HTML response...');
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+            return fetchQuests(retryCount + 1);
+          }
+          
+          throw new Error(`API returned HTML instead of JSON. Status: ${res.status}`);
+        }
+        
         const data = await res.json();
         console.log('[Quests Debug] Data received:', { 
           dataType: typeof data, 

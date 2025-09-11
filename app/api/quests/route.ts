@@ -38,7 +38,7 @@ const questUpdateSchema = z.object({
 // Helper to extract and verify Clerk JWT, returns userId or null
 async function getUserIdFromRequest(request: Request): Promise<string | null> {
   try {
-    const { userId } = getAuth(request as NextRequest);
+    const { userId } = await getAuth(request as NextRequest);
     console.log('[Quests API] getUserIdFromRequest - Clerk userId:', userId);
     return userId || null;
   } catch (e) {
