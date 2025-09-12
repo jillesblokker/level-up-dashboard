@@ -222,7 +222,6 @@ export default function QuestsPage() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const dailyResetInitiated = useRef(false);
   const [manualResetLoading, setManualResetLoading] = useState(false);
-  const questToggleDebounce = useRef<Map<string, NodeJS.Timeout>>(new Map());
   
   // --- Realtime Sync ---
   const [syncError, setSyncError] = useState<string | null>(null);
@@ -862,12 +861,6 @@ export default function QuestsPage() {
   const handleQuestToggle = async (questId: string, newCompleted: boolean) => {
     if (!token || !userId) return;
     
-    // Clear any existing debounce timer for this quest
-    const existingTimer = questToggleDebounce.current.get(questId);
-    if (existingTimer) {
-      clearTimeout(existingTimer);
-    }
-    
     // Find the quest object
     const questObj = quests.find(q => q.id === questId);
     if (!questObj) {
@@ -886,79 +879,10 @@ export default function QuestsPage() {
       )
     );
     
-    // Debounce the database persistence to prevent rapid toggles
-    const debounceTimer = setTimeout(async () => {
-      await persistQuestCompletion(questId, newCompleted, questObj);
-      questToggleDebounce.current.delete(questId);
-    }, 300); // 300ms debounce delay
-    
-    questToggleDebounce.current.set(questId, debounceTimer);
+    // Quest completion is handled by the main completion system
+    // No need for additional debounced persistence
   };
 
-  const persistQuestCompletion = async (questId: string, newCompleted: boolean, questObj: any) => {
-    if (!token || !userId) return;
-    
-    // PERSIST QUEST COMPLETION TO DATABASE
-    try {
-      console.log('[QUEST-TOGGLE] Persisting quest completion to database...');
-      
-      // Use the direct API call instead of smart quest completion library
-      const response = await fetch('/api/quests/completion', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          questId,
-          completed: newCompleted
-        })
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('[QUEST-TOGGLE] API error:', response.status, errorText);
-        throw new Error(`API error: ${response.status} ${errorText}`);
-      }
-      
-      const result = await response.json();
-      
-      if (!result.success) {
-        console.error('[QUEST-TOGGLE] Failed to persist quest completion:', result.message);
-        // Revert the optimistic update
-        setQuests(prevQuests => 
-          prevQuests.map(q => 
-            q.id === questId 
-              ? { ...q, completed: !newCompleted }
-              : q
-          )
-        );
-        return;
-      }
-      
-      console.log('[QUEST-TOGGLE] Quest completion persisted successfully:', result);
-      
-      // Trigger a refresh with optimized delay to reduce API calls
-      // Only refresh if we haven't refreshed recently to prevent excessive calls
-      setTimeout(() => {
-        console.log('[QUEST-TOGGLE] Triggering optimized quest refresh...');
-        setRefreshTrigger(prev => prev + 1);
-      }, 500); // Increased delay to reduce API call frequency
-    } catch (error) {
-      console.error('[QUEST-TOGGLE] Error persisting quest completion:', error);
-      // Revert the optimistic update
-      setQuests(prevQuests => 
-        prevQuests.map(q => 
-          q.id === questId 
-            ? { ...q, completed: !newCompleted }
-            : q
-        )
-      );
-      return;
-    }
-    
-    // Character stats are handled by the API, no need for client-side updates
-  };
 
   const handleQuestFavorite = async (questId: string) => {
     if (!token || !userId) return;
