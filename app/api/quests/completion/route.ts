@@ -144,30 +144,68 @@ export async function PUT(request: Request) {
       console.log('[QUESTS/COMPLETION][PUT] Quest found:', { questId, xpReward: quest.xp_reward, goldReward: quest.gold_reward });
       console.log('[QUESTS/COMPLETION][PUT] Quest ID type:', typeof questId, 'Length:', questId?.length, 'Format:', questId);
       
-      // 🚀 USE SMART QUEST COMPLETION SYSTEM INSTEAD OF DIRECT TABLE OPERATIONS
-      console.log('[QUESTS/COMPLETION][PUT] Using smart quest completion system...');
+      // 🚀 DAILY HABIT TRACKING SYSTEM - Create new completion record for today
+      console.log('[QUESTS/COMPLETION][PUT] Using daily habit tracking system...');
       
-      // Call the smart completion function
-      const result = await supabase.rpc('smart_quest_completion', {
-        p_user_id: userId,
-        p_quest_id: questId,
-        p_completed: completed,
-        p_xp_reward: quest.xp_reward || 50,
-        p_gold_reward: quest.gold_reward || 25
-      });
+      const today = new Date().toISOString().split('T')[0];
+      let questCompletion: any;
       
-      if (result.error) {
-        console.error('[QUESTS/COMPLETION][PUT] Smart completion error:', result.error);
-        throw result.error;
+      if (completed) {
+        // Quest is being completed - create new completion record for today
+        const { data: completionData, error: completionError } = await supabase
+          .from('quest_completion')
+          .insert({
+            user_id: userId,
+            quest_id: questId,
+            completed: true,
+            completed_at: new Date().toISOString(),
+            xp_earned: quest.xp_reward || 50,
+            gold_earned: quest.gold_reward || 25
+          })
+          .select()
+          .single();
+        
+        if (completionError) {
+          console.error('[QUESTS/COMPLETION][PUT] Error creating completion record:', completionError);
+          throw completionError;
+        }
+        
+        questCompletion = completionData;
+        console.log('[QUESTS/COMPLETION][PUT] New completion record created:', questCompletion);
+      } else {
+        // Quest is being unchecked - find today's completion record and set to false
+        const { data: todayCompletion, error: fetchError } = await supabase
+          .from('quest_completion')
+          .select('id')
+          .eq('user_id', userId)
+          .eq('quest_id', questId)
+          .gte('completed_at', `${today}T00:00:00.000Z`)
+          .lt('completed_at', `${today}T23:59:59.999Z`)
+          .single();
+        
+        if (fetchError || !todayCompletion) {
+          console.error('[QUESTS/COMPLETION][PUT] No completion record found for today:', fetchError);
+          throw new Error('No completion record found for today');
+        }
+        
+        const { data: completionData, error: updateError } = await supabase
+          .from('quest_completion')
+          .update({ completed: false })
+          .eq('id', todayCompletion.id)
+          .select()
+          .single();
+        
+        if (updateError) {
+          console.error('[QUESTS/COMPLETION][PUT] Error updating completion record:', updateError);
+          throw updateError;
+        }
+        
+        questCompletion = completionData;
+        console.log('[QUESTS/COMPLETION][PUT] Completion record updated:', questCompletion);
       }
-    
-      console.log('[QUESTS/COMPLETION][PUT] Smart completion result:', result.data);
-      
-      // Extract completion data from smart result
-      const questCompletion = result.data.record;
       
       // If quest is completed, grant rewards
-      if (completed && questCompletion) {
+      if (completed) {
         try {
           // Grant XP reward
           if (quest.xp_reward && quest.xp_reward > 0) {

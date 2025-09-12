@@ -170,12 +170,14 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: completionsError.message }, { status: 500 });
     }
 
-    // NEW APPROACH: Handle both active completions and historical data
-    // This preserves historical data while showing current quest status
+    // DAILY HABIT TRACKING APPROACH: Show quests as completed only if completed=true for TODAY
     const completedQuests = new Map();
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    
     if (questCompletions) {
-      console.log('[Quests API] Processing quest completions with historical preservation:', {
+      console.log('[Quests API] Processing quest completions for daily habit tracking:', {
         totalRecords: questCompletions.length,
+        today: today,
         sampleRecords: questCompletions.slice(0, 3).map(c => ({
           quest_id: c.quest_id,
           completed: c.completed,
@@ -195,38 +197,33 @@ export async function GET(request: Request) {
         questCompletionGroups.get(completion.quest_id).push(completion);
       });
       
-      // For each quest, find the most recent completion
+      // For each quest, find TODAY'S completion record
       questCompletionGroups.forEach((completions, questId) => {
-        // Sort by completed_at descending to get the most recent
-        const sortedCompletions = completions.sort((a: any, b: any) => 
-          new Date(b.completed_at).getTime() - new Date(a.completed_at).getTime()
-        );
-        
-        const mostRecentCompletion = sortedCompletions[0];
-        const completionDate = new Date(mostRecentCompletion.completed_at);
-        const isRecent = completionDate > new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 hours ago
-        
-        console.log('[Quests API] Processing quest completions:', {
-          quest_id: questId,
-          total_completions: completions.length,
-          most_recent: {
-            completed: mostRecentCompletion.completed,
-            completed_at: mostRecentCompletion.completed_at,
-            isRecent
-          }
+        // Find completion record for today
+        const todayCompletion = completions.find((c: any) => {
+          const completionDate = new Date(c.completed_at).toISOString().split('T')[0];
+          return completionDate === today;
         });
         
-        // Show as completed ONLY if the most recent completion has completed=true
-        // This ensures that after a reset (completed=false), quests are not shown as completed
-        const hasActiveCompletion = mostRecentCompletion.completed === true && isRecent;
+        console.log('[Quests API] Processing quest for today:', {
+          quest_id: questId,
+          total_completions: completions.length,
+          today_completion: todayCompletion ? {
+            completed: todayCompletion.completed,
+            completed_at: todayCompletion.completed_at,
+            xp_earned: todayCompletion.xp_earned,
+            gold_earned: todayCompletion.gold_earned
+          } : null
+        });
         
-        if (hasActiveCompletion) {
+        // Show as completed ONLY if there's a completion record for today with completed=true
+        if (todayCompletion && todayCompletion.completed === true) {
           completedQuests.set(questId, {
-            completed: true, // Only true if actively completed today
-            completedAt: mostRecentCompletion.completed_at,
-            xpEarned: mostRecentCompletion.xp_earned,
-            goldEarned: mostRecentCompletion.gold_earned,
-            isHistorical: false
+            completed: true,
+            completedAt: todayCompletion.completed_at,
+            xpEarned: todayCompletion.xp_earned,
+            goldEarned: todayCompletion.gold_earned,
+            completionId: todayCompletion.id // Store the completion record ID for manual uncheck
           });
         }
       });
