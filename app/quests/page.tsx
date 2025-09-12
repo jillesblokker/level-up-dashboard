@@ -466,7 +466,10 @@ export default function QuestsPage() {
   useEffect(() => {
     if (!loading && quests.length > 0 && userId && token) {
       const lastReset = localStorage.getItem('last-quest-reset-date');
-      const today = new Date().toISOString().slice(0, 10);
+      // Use Netherlands timezone (Europe/Amsterdam) for daily reset
+      const now = new Date();
+      const netherlandsTime = new Date(now.toLocaleString("en-US", {timeZone: "Europe/Amsterdam"}));
+      const today = netherlandsTime.toISOString().slice(0, 10);
       
       console.log('[Daily Reset] Checking reset conditions:', {
         lastReset,
@@ -555,9 +558,12 @@ export default function QuestsPage() {
     }
   }, [loading, quests.length, userId, token]); // Include all dependencies that are checked in the condition
 
-  // Reset the daily reset flag when the date changes (at midnight)
+  // Reset the daily reset flag when the date changes (at midnight Netherlands time)
   useEffect(() => {
-    const today = new Date().toISOString().slice(0, 10);
+    // Use Netherlands timezone (Europe/Amsterdam) for date change detection
+    const now = new Date();
+    const netherlandsTime = new Date(now.toLocaleString("en-US", {timeZone: "Europe/Amsterdam"}));
+    const today = netherlandsTime.toISOString().slice(0, 10);
     const lastReset = localStorage.getItem('last-quest-reset-date');
     
     // If the date has changed, reset the flag

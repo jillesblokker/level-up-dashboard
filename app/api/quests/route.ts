@@ -172,7 +172,10 @@ export async function GET(request: Request) {
 
     // DAILY HABIT TRACKING APPROACH: Show quests as completed only if completed=true for TODAY
     const completedQuests = new Map();
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    // Use Netherlands timezone (Europe/Amsterdam) for quest display
+    const now = new Date();
+    const netherlandsTime = new Date(now.toLocaleString("en-US", {timeZone: "Europe/Amsterdam"}));
+    const today = netherlandsTime.toISOString().split('T')[0]; // YYYY-MM-DD format
     
     if (questCompletions) {
       console.log('[Quests API] Processing quest completions for daily habit tracking:', {

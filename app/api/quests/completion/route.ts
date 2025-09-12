@@ -147,7 +147,10 @@ export async function PUT(request: Request) {
       // 🚀 DAILY HABIT TRACKING SYSTEM - Create new completion record for today
       console.log('[QUESTS/COMPLETION][PUT] Using daily habit tracking system...');
       
-      const today = new Date().toISOString().split('T')[0];
+      // Use Netherlands timezone (Europe/Amsterdam) for quest completion
+      const now = new Date();
+      const netherlandsTime = new Date(now.toLocaleString("en-US", {timeZone: "Europe/Amsterdam"}));
+      const today = netherlandsTime.toISOString().split('T')[0];
       let questCompletion: any;
       
       if (completed) {
