@@ -902,13 +902,26 @@ export default function QuestsPage() {
     try {
       console.log('[QUEST-TOGGLE] Persisting quest completion to database...');
       
-      // Use the smart quest completion system directly with the existing token
-      const { smartQuestCompletion } = await import('@/lib/smart-quest-completion');
-      const result = await smartQuestCompletion(questId, newCompleted, {
-        xpReward: questObj.xp || 50,
-        goldReward: questObj.gold || 25,
-        token: token // Use the existing token instead of trying to get a new one
+      // Use the direct API call instead of smart quest completion library
+      const response = await fetch('/api/quests/completion', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          questId,
+          completed: newCompleted
+        })
       });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[QUEST-TOGGLE] API error:', response.status, errorText);
+        throw new Error(`API error: ${response.status} ${errorText}`);
+      }
+      
+      const result = await response.json();
       
       if (!result.success) {
         console.error('[QUEST-TOGGLE] Failed to persist quest completion:', result.message);
@@ -944,38 +957,7 @@ export default function QuestsPage() {
       return;
     }
     
-    // Update character stats if quest was completed
-    if (newCompleted) {
-      try {
-        const goldEarned = questObj.gold || 0;
-        const xpEarned = questObj.xp || 0;
-        
-        console.log('[QUEST-TOGGLE] Updating character stats:', { 
-          goldEarned, 
-          xpEarned, 
-          questData: { 
-            id: questObj.id, 
-            name: questObj.name, 
-            gold: questObj.gold, 
-            xp: questObj.xp,
-            goldType: typeof questObj.gold,
-            xpType: typeof questObj.xp
-          } 
-        });
-        
-        // Update rate limiter context for quest completion
-        const { updateRateLimiterContext } = await import('@/lib/character-stats-manager');
-        updateRateLimiterContext('quest-completion');
-        
-        await gainGold(goldEarned, 'quest-completion');
-        await gainExperience(xpEarned, 'quest-completion', 'general');
-        await gainStrengthFromQuest(questObj.category, 1);
-        console.log('[QUEST-TOGGLE] Character stats updated successfully');
-      } catch (error) {
-        console.error('[QUEST-TOGGLE] Error updating character stats:', error);
-        // Don't revert quest completion if stats fail - quest completion is more important
-      }
-    }
+    // Character stats are handled by the API, no need for client-side updates
   };
 
   const handleQuestFavorite = async (questId: string) => {
