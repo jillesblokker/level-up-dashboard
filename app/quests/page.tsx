@@ -222,6 +222,7 @@ export default function QuestsPage() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const dailyResetInitiated = useRef(false);
   const [manualResetLoading, setManualResetLoading] = useState(false);
+  const questToggleDebounce = useRef<Map<string, NodeJS.Timeout>>(new Map());
   
   // --- Realtime Sync ---
   const [syncError, setSyncError] = useState<string | null>(null);
@@ -530,11 +531,11 @@ export default function QuestsPage() {
               }))
             );
             
-            // Add a longer delay before refreshing to ensure the reset has completed
-            setTimeout(() => {
-              console.log('[Daily Reset] Refreshing quest data after reset...');
-              setRefreshTrigger(prev => prev + 1);
-            }, 3000); // Increased to 3 seconds to match API delay
+                  // Optimized delay before refreshing to ensure reset completion
+                  setTimeout(() => {
+                    console.log('[Daily Reset] Refreshing quest data after reset...');
+                    setRefreshTrigger(prev => prev + 1);
+                  }, 1500); // Reduced delay since UI-only reset is instant
             
             toast({
               title: 'Daily Reset',
@@ -861,6 +862,12 @@ export default function QuestsPage() {
   const handleQuestToggle = async (questId: string, newCompleted: boolean) => {
     if (!token || !userId) return;
     
+    // Clear any existing debounce timer for this quest
+    const existingTimer = questToggleDebounce.current.get(questId);
+    if (existingTimer) {
+      clearTimeout(existingTimer);
+    }
+    
     // Find the quest object
     const questObj = quests.find(q => q.id === questId);
     if (!questObj) {
@@ -878,6 +885,18 @@ export default function QuestsPage() {
           : q
       )
     );
+    
+    // Debounce the database persistence to prevent rapid toggles
+    const debounceTimer = setTimeout(async () => {
+      await persistQuestCompletion(questId, newCompleted, questObj);
+      questToggleDebounce.current.delete(questId);
+    }, 300); // 300ms debounce delay
+    
+    questToggleDebounce.current.set(questId, debounceTimer);
+  };
+
+  const persistQuestCompletion = async (questId: string, newCompleted: boolean, questObj: any) => {
+    if (!token || !userId) return;
     
     // PERSIST QUEST COMPLETION TO DATABASE
     try {
@@ -906,11 +925,12 @@ export default function QuestsPage() {
       
       console.log('[QUEST-TOGGLE] Quest completion persisted successfully:', result);
       
-      // Trigger a refresh with a small delay to prevent race conditions
-      // This ensures the database changes are fully processed before refetching
+      // Trigger a refresh with optimized delay to reduce API calls
+      // Only refresh if we haven't refreshed recently to prevent excessive calls
       setTimeout(() => {
+        console.log('[QUEST-TOGGLE] Triggering optimized quest refresh...');
         setRefreshTrigger(prev => prev + 1);
-      }, 100);
+      }, 500); // Increased delay to reduce API call frequency
     } catch (error) {
       console.error('[QUEST-TOGGLE] Error persisting quest completion:', error);
       // Revert the optimistic update
