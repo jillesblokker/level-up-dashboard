@@ -1321,7 +1321,7 @@ export default function QuestsPage() {
       
       // Update in Supabase
       const response = await fetch('/api/quests-complete', {
-        method: 'PATCH',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
