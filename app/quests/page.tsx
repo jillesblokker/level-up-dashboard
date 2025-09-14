@@ -468,8 +468,22 @@ export default function QuestsPage() {
       const lastReset = localStorage.getItem('last-quest-reset-date');
       // Use Netherlands timezone (Europe/Amsterdam) for daily reset
       const now = new Date();
-      const netherlandsTime = new Date(now.toLocaleString("en-US", {timeZone: "Europe/Amsterdam"}));
-      const today = netherlandsTime.toISOString().slice(0, 10);
+      // Use Intl.DateTimeFormat for reliable timezone conversion
+      const netherlandsDate = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Europe/Amsterdam',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).format(now);
+      const today = netherlandsDate; // Format: YYYY-MM-DD
+      
+      // Debug timezone conversion
+      console.log('[Daily Reset] Timezone debug:', {
+        utcTime: now.toISOString(),
+        netherlandsDate: netherlandsDate,
+        today: today,
+        lastReset: lastReset
+      });
       
       console.log('[Daily Reset] Checking reset conditions:', {
         lastReset,
@@ -562,8 +576,14 @@ export default function QuestsPage() {
   useEffect(() => {
     // Use Netherlands timezone (Europe/Amsterdam) for date change detection
     const now = new Date();
-    const netherlandsTime = new Date(now.toLocaleString("en-US", {timeZone: "Europe/Amsterdam"}));
-    const today = netherlandsTime.toISOString().slice(0, 10);
+    // Use Intl.DateTimeFormat for reliable timezone conversion
+    const netherlandsDate = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Amsterdam',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).format(now);
+    const today = netherlandsDate; // Format: YYYY-MM-DD
     const lastReset = localStorage.getItem('last-quest-reset-date');
     
     // If the date has changed, reset the flag

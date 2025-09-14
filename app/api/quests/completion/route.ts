@@ -149,8 +149,14 @@ export async function PUT(request: Request) {
       
       // Use Netherlands timezone (Europe/Amsterdam) for quest completion
       const now = new Date();
-      const netherlandsTime = new Date(now.toLocaleString("en-US", {timeZone: "Europe/Amsterdam"}));
-      const today = netherlandsTime.toISOString().split('T')[0];
+      // Use Intl.DateTimeFormat for reliable timezone conversion
+      const netherlandsDate = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Europe/Amsterdam',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).format(now);
+      const today = netherlandsDate; // Format: YYYY-MM-DD
       let questCompletion: any;
       
       if (completed) {
