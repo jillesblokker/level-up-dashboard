@@ -283,19 +283,50 @@ function ChartTypeToggle({ chartType, setChartType }: { chartType: 'bar' | 'line
   );
 }
 
+// Category emoji mapping
+const categoryEmojis: Record<string, string> = {
+  'might': '⚔️',
+  'vitality': '💪',
+  'knowledge': '📚',
+  'wellness': '🧘',
+  'honor': '🏆',
+  'exploration': '🗺️',
+  'craft': '🔨',
+  'castle': '🏰',
+  'unknown': '❓'
+};
+
 // Custom tooltip for both chart types
 function CustomTooltip({ active, payload, label }: any) {
   if (active && payload && payload.length) {
+    // Get the data point that contains category information
+    const dataPoint = payload[0]?.payload;
+    const categories = dataPoint?.categories || {};
+    
     return (
-      <div className="rounded-lg border border-amber-700 bg-black/90 p-2 shadow-lg">
-        <div className="text-xs text-amber-400 font-bold mb-1">{label}</div>
-        {payload.map((entry: any, i: number) => (
-          <div key={i} className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full inline-block" style={{ background: entry.color }} />
-            <span className="text-white text-sm font-semibold">{entry.value}</span>
-            <span className="text-gray-400 text-xs">{entry.name}</span>
+      <div className="rounded-lg border border-amber-700 bg-black/90 p-3 shadow-lg">
+        <div className="text-xs text-amber-400 font-bold mb-2">{label}</div>
+        
+        {/* Show total value */}
+        <div className="flex items-center gap-2 mb-2">
+          <span className="w-2 h-2 rounded-full inline-block bg-amber-500" />
+          <span className="text-white text-sm font-semibold">{payload[0]?.value}</span>
+          <span className="text-gray-400 text-xs">total</span>
+        </div>
+        
+        {/* Show category breakdown if available */}
+        {Object.keys(categories).length > 0 && (
+          <div className="space-y-1">
+            <div className="text-xs text-gray-400 mb-1">Categories:</div>
+            {Object.entries(categories).map(([category, count]) => (
+              <div key={category} className="flex items-center gap-2">
+                <span className="text-sm">{categoryEmojis[category] || '❓'}</span>
+                <span className="text-white text-xs font-medium">{category}</span>
+                <span className="text-gray-400 text-xs">({count as number})</span>
+              </div>
+            ))}
           </div>
-        ))}
+        )}
       </div>
     );
   }
@@ -304,7 +335,7 @@ function CustomTooltip({ active, payload, label }: any) {
 
 // Bar/Line chart block
 function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartType }: {
-  graphData: Array<{ day: string; value: number }>,
+  graphData: Array<{ day: string; value: number; categories?: Record<string, number> }>,
   timePeriod: TimePeriod,
   highlightCurrent?: boolean,
   ariaLabel: string,

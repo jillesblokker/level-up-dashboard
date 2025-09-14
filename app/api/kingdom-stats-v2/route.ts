@@ -101,7 +101,14 @@ export async function GET(request: NextRequest) {
       if (tab === 'quests') {
         const { data: completions, error } = await supabase
           .from('quest_completion')
-          .select('id, quest_id, completed_at, original_completion_date, completed')
+          .select(`
+            id, 
+            quest_id, 
+            completed_at, 
+            original_completion_date, 
+            completed,
+            quests!inner(category)
+          `)
           .eq('user_id', userId)
           .eq('completed', true)
           .or(`completed_at.gte.${earliestDate.toISOString()},original_completion_date.gte.${earliestDate.toISOString()}`);
@@ -110,9 +117,13 @@ export async function GET(request: NextRequest) {
           throw error;
         }
 
-        // Aggregate by day - show daily completions (not cumulative)
+        // Aggregate by day and category - show daily completions with category breakdown
         let counts: Record<string, number> = {};
-        days.forEach(day => { counts[day] = 0; });
+        let categoryData: Record<string, Record<string, number>> = {};
+        days.forEach(day => { 
+          counts[day] = 0;
+          categoryData[day] = {};
+        });
         
         if (period === 'year') {
           // For year view, aggregate by month
@@ -121,46 +132,54 @@ export async function GET(request: NextRequest) {
             const completionDate = c.completed_at || c.original_completion_date;
             if (completionDate) {
               const month = completionDate.slice(0, 7);
+              const category = c.quests?.category || 'unknown';
               if (counts[month] !== undefined) {
                 counts[month]++;
+                categoryData[month] = categoryData[month] || {};
+                categoryData[month][category] = (categoryData[month][category] || 0) + 1;
               }
             }
           });
         } else if (period === 'all') {
           if (completions && completions.length > 0) {
             const dailyData: Record<string, number> = {};
+            const dailyCategoryData: Record<string, Record<string, number>> = {};
             completions.forEach((c: any) => {
               // Prioritize completed_at over original_completion_date for current data
               const completionDate = c.completed_at || c.original_completion_date;
               if (completionDate) {
                 const date = new Date(completionDate);
                 const dayKey = date.toISOString().slice(0, 10);
+                const category = c.quests?.category || 'unknown';
                 
                 if (!dailyData[dayKey]) {
                   dailyData[dayKey] = 0;
+                  dailyCategoryData[dayKey] = {};
                 }
                 dailyData[dayKey]++;
+                dailyCategoryData[dayKey]![category] = (dailyCategoryData[dayKey]![category] || 0) + 1;
               }
             });
             
             const sortedDays = Object.keys(dailyData).sort();
-            const timelineData: Array<{day: string, value: number}> = [];
+            const timelineData: Array<{day: string, value: number, categories: Record<string, number>}> = [];
             
             sortedDays.forEach(day => {
               timelineData.push({
                 day: day,
-                value: dailyData[day] || 0
+                value: dailyData[day] || 0,
+                categories: dailyCategoryData[day] || {}
               });
             });
             
             return { data: timelineData };
           } else {
             // Return empty data if no completions found
-            const data = days.map(day => ({ day, value: 0 }));
+            const data = days.map(day => ({ day, value: 0, categories: {} }));
             return { data };
           }
         } else {
-          // For week/month view, show daily completions
+          // For week/month view, show daily completions with category breakdown
           days.forEach(day => {
             // Count completions that happened ON this specific day
             const completionsOnDay = completions?.filter((c: any) => {
@@ -172,10 +191,20 @@ export async function GET(request: NextRequest) {
             }) || [];
             
             counts[day] = completionsOnDay.length;
+            
+            // Group by category for this day
+            completionsOnDay.forEach((c: any) => {
+              const category = c.quests?.category || 'unknown';
+              categoryData[day]![category] = (categoryData[day]![category] || 0) + 1;
+            });
           });
         }
 
-        const data = days.map(day => ({ day, value: counts[day] || 0 }));
+        const data = days.map(day => ({ 
+          day, 
+          value: counts[day] || 0, 
+          categories: categoryData[day] || {} 
+        }));
         return { data };
       }
 
