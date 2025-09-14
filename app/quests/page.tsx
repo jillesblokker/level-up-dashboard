@@ -1101,7 +1101,54 @@ export default function QuestsPage() {
       
       // Complete each favorited quest in the current category
       for (const quest of favoritedQuestsInCategory) {
-        await handleQuestToggle(quest.id, true); // true = mark as completed
+        // Update local state first (optimistic update)
+        setQuests(prevQuests => 
+          prevQuests.map(q => 
+            q.id === quest.id 
+              ? { ...q, completed: true }
+              : q
+          )
+        );
+        
+        // Save to database using smart completion API
+        try {
+          const response = await fetch('/api/quests/smart-completion', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              questId: quest.id,
+              completed: true,
+              xpReward: quest.xp || 50,
+              goldReward: quest.gold || 25,
+            }),
+          });
+          
+          if (!response.ok) {
+            console.error(`[Bulk Complete] Failed to complete quest ${quest.id}:`, response.status);
+            // Revert optimistic update on failure
+            setQuests(prevQuests => 
+              prevQuests.map(q => 
+                q.id === quest.id 
+                  ? { ...q, completed: false }
+                  : q
+              )
+            );
+          } else {
+            console.log(`[Bulk Complete] Successfully completed quest: ${quest.name}`);
+          }
+        } catch (apiError) {
+          console.error(`[Bulk Complete] API error for quest ${quest.id}:`, apiError);
+          // Revert optimistic update on error
+          setQuests(prevQuests => 
+            prevQuests.map(q => 
+              q.id === quest.id 
+                ? { ...q, completed: false }
+                : q
+            )
+          );
+        }
       }
       
       toast({
@@ -1132,7 +1179,54 @@ export default function QuestsPage() {
       
       // Complete each favorited quest across all categories
       for (const quest of allFavoritedQuests) {
-        await handleQuestToggle(quest.id, true); // true = mark as completed
+        // Update local state first (optimistic update)
+        setQuests(prevQuests => 
+          prevQuests.map(q => 
+            q.id === quest.id 
+              ? { ...q, completed: true }
+              : q
+          )
+        );
+        
+        // Save to database using smart completion API
+        try {
+          const response = await fetch('/api/quests/smart-completion', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              questId: quest.id,
+              completed: true,
+              xpReward: quest.xp || 50,
+              goldReward: quest.gold || 25,
+            }),
+          });
+          
+          if (!response.ok) {
+            console.error(`[Bulk Complete All] Failed to complete quest ${quest.id}:`, response.status);
+            // Revert optimistic update on failure
+            setQuests(prevQuests => 
+              prevQuests.map(q => 
+                q.id === quest.id 
+                  ? { ...q, completed: false }
+                  : q
+              )
+            );
+          } else {
+            console.log(`[Bulk Complete All] Successfully completed quest: ${quest.name}`);
+          }
+        } catch (apiError) {
+          console.error(`[Bulk Complete All] API error for quest ${quest.id}:`, apiError);
+          // Revert optimistic update on error
+          setQuests(prevQuests => 
+            prevQuests.map(q => 
+              q.id === quest.id 
+                ? { ...q, completed: false }
+                : q
+            )
+          );
+        }
       }
       
       toast({
