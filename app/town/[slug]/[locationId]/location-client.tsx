@@ -101,7 +101,7 @@ export default function LocationClient({ slug, locationId }: Props) {
             });
             if (response.ok) {
               const inventoryItems = await response.json();
-              setInventory(inventoryItems || []);
+              setInventory(Array.isArray(inventoryItems) ? inventoryItems : []);
             }
           } catch (error) {
             console.error('Failed to load inventory:', error);
@@ -280,9 +280,9 @@ export default function LocationClient({ slug, locationId }: Props) {
                   <h2 className="text-xl font-bold mb-4">Sell Artifacts</h2>
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {location.items?.filter((artifact) =>
-                      inventory.some(inv => inv.id === artifact.id && artifact.type === "artifact")
+                      Array.isArray(inventory) && inventory.some(inv => inv.id === artifact.id && artifact.type === "artifact")
                     ).map((artifact) => {
-                      const invItem = inventory.find(inv => inv.id === artifact.id)
+                      const invItem = Array.isArray(inventory) ? inventory.find(inv => inv.id === artifact.id) : null
                       if (!invItem) return null
                       
                       // Get artifact image from the artifact folder
