@@ -1424,7 +1424,7 @@ export default function QuestsPage() {
     if (!token || !userId) return;
     
     try {
-      // Update local state
+      // Update local state first (optimistic update)
       setQuests(prevQuests => 
         prevQuests.map(q => 
           q.id === updatedQuest.id 
@@ -1433,18 +1433,30 @@ export default function QuestsPage() {
         )
       );
       
-      // Update in Supabase
-      const response = await fetch('/api/quests-complete', {
+      // Update in Supabase using the correct API endpoint
+      const response = await fetch(`/api/quests/${updatedQuest.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(updatedQuest)
+        body: JSON.stringify({
+          name: updatedQuest.name,
+          description: updatedQuest.description,
+          category: updatedQuest.category,
+          difficulty: updatedQuest.difficulty,
+          xp_reward: updatedQuest.xp || 50,
+          gold_reward: updatedQuest.gold || 25,
+        })
       });
       
       if (!response.ok) {
-        throw new Error('Failed to update quest');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update quest');
       }
+      
+      const result = await response.json();
+      console.log('[Quest Edit] Update successful:', result);
       
       toast({
         title: "Quest Updated",
@@ -1456,9 +1468,19 @@ export default function QuestsPage() {
       setEditingQuest(null);
     } catch (error) {
       console.error('Error updating quest:', error);
+      
+      // Revert optimistic update on error
+      setQuests(prevQuests => 
+        prevQuests.map(q => 
+          q.id === updatedQuest.id 
+            ? editingQuest || q
+            : q
+        )
+      );
+      
       toast({
         title: "Error",
-        description: "Failed to update quest. Please try again.",
+        description: `Failed to update quest: ${error instanceof Error ? error.message : 'Unknown error'}`,
         duration: 3000,
       });
     }
