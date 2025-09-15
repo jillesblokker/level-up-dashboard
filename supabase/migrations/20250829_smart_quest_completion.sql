@@ -54,7 +54,20 @@ CREATE OR REPLACE FUNCTION smart_quest_completion(
 DECLARE
     v_result JSONB;
     v_existing_record RECORD;
+    v_quest_exists BOOLEAN;
 BEGIN
+    -- First, validate that the quest exists in the quests table
+    SELECT EXISTS(SELECT 1 FROM quests WHERE id = p_quest_id) INTO v_quest_exists;
+    
+    IF NOT v_quest_exists THEN
+        RETURN jsonb_build_object(
+            'success', false,
+            'action', 'error',
+            'message', 'Quest not found in database',
+            'error', 'Quest ID ' || p_quest_id || ' does not exist in quests table'
+        );
+    END IF;
+    
     -- Get existing completion record
     SELECT * INTO v_existing_record 
     FROM quest_completion 

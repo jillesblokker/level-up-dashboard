@@ -73,6 +73,17 @@ export async function POST(request: NextRequest) {
     // Check if the function returned an error
     if (data && data.success === false) {
       console.error('[Smart Quest Completion] Function returned error:', data);
+      
+      // Handle quest not found error specifically
+      if (data.error && data.error.includes('does not exist in quests table')) {
+        return NextResponse.json({ 
+          error: 'Quest not found',
+          message: 'The quest you are trying to complete no longer exists in the database',
+          details: data.error,
+          questId: questId
+        }, { status: 404 });
+      }
+      
       return NextResponse.json({ 
         error: data.message || 'Smart quest completion failed',
         details: data.error || 'Unknown function error'
