@@ -14,15 +14,19 @@ DECLARE
     v_existing_record RECORD;
     v_quest_exists BOOLEAN;
 BEGIN
-    -- Validate that the quest exists in the quests table (cast TEXT to UUID)
-    SELECT EXISTS(SELECT 1 FROM quests WHERE id = p_quest_id::uuid) INTO v_quest_exists;
+    -- Validate that the quest exists in either quests OR challenges table (cast TEXT to UUID)
+    SELECT EXISTS(
+        SELECT 1 FROM quests WHERE id = p_quest_id::uuid
+        UNION
+        SELECT 1 FROM challenges WHERE id = p_quest_id::uuid
+    ) INTO v_quest_exists;
     
     IF NOT v_quest_exists THEN
         RETURN jsonb_build_object(
             'success', false,
             'action', 'error',
             'message', 'Quest not found in database',
-            'error', 'Quest ID ' || p_quest_id || ' does not exist in quests table'
+            'error', 'Quest ID ' || p_quest_id || ' does not exist in quests or challenges table'
         );
     END IF;
     
