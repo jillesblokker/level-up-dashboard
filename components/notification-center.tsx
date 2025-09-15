@@ -212,10 +212,10 @@ export function NotificationCenter() {
                         )}
                         <button
                           onClick={() => handleDelete(notification.id)}
-                          className="text-xs font-medium text-red-400 hover:text-red-300 px-3 py-1.5 rounded-md border border-red-600/30 hover:bg-red-900/20 hover:border-red-500/50 transition-all duration-200"
+                          className="text-sm px-2 py-1.5 rounded-md border border-red-600/30 hover:bg-red-900/20 hover:border-red-500/50 transition-all duration-200"
                           aria-label="Delete notification"
                         >
-                          Delete
+                          🗑️
                         </button>
                       </div>
                     </div>

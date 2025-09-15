@@ -149,14 +149,14 @@ export function NotificationAlert() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-6 w-6 p-0"
+                    className="h-6 w-6 p-0 text-red-400 hover:text-red-600"
                     onClick={(e) => {
                       e.stopPropagation()
                       deleteNotification(notification.id)
                     }}
                     aria-label={`Delete notification: ${notification.title}`}
                   >
-                    ×
+                    🗑️
                   </Button>
                 </div>
                 <p className="text-sm text-muted-foreground">{notification.message}</p>
