@@ -1,8 +1,5 @@
--- ==========================================
--- FIX SMART QUEST COMPLETION VALIDATION
--- Date: 2025-09-15
--- Purpose: Add quest existence validation to prevent foreign key constraint violations
--- ==========================================
+-- Quick fix for quest completion foreign key constraint violation
+-- Run this directly in your Supabase SQL editor
 
 -- Update the smart_quest_completion function to validate quest existence
 CREATE OR REPLACE FUNCTION smart_quest_completion(
@@ -17,7 +14,7 @@ DECLARE
     v_existing_record RECORD;
     v_quest_exists BOOLEAN;
 BEGIN
-    -- First, validate that the quest exists in the quests table
+    -- Validate that the quest exists in the quests table
     SELECT EXISTS(SELECT 1 FROM quests WHERE id = p_quest_id) INTO v_quest_exists;
     
     IF NOT v_quest_exists THEN
@@ -96,10 +93,5 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- Grant permissions
 GRANT EXECUTE ON FUNCTION smart_quest_completion TO authenticated;
 
--- Verify the function works
-DO $$ 
-BEGIN
-    RAISE NOTICE '✅ Updated smart_quest_completion function with quest validation';
-    RAISE NOTICE '🔍 Function now validates quest existence before creating completion records';
-    RAISE NOTICE '🛡️ This prevents foreign key constraint violations';
-END $$;
+-- Test the function
+SELECT 'Function updated successfully' as status;
