@@ -1242,6 +1242,26 @@ export default function QuestsPage() {
         }
       }
       
+      // Wait a moment for database to update, then refresh quest data
+      setTimeout(async () => {
+        try {
+          console.log('[Bulk Complete All] Refreshing quest data after completion...');
+          const response = await fetch('/api/quests', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            console.log('[Bulk Complete All] Refreshed quest data:', data);
+            setQuests(data);
+          }
+        } catch (error) {
+          console.error('[Bulk Complete All] Error refreshing quest data:', error);
+        }
+      }, 1000);
+      
       toast({
         title: "Bulk Complete Successful!",
         description: `Completed ${allFavoritedQuests.length} favorited quests across all categories.`,
