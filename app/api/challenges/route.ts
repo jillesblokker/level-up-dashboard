@@ -99,6 +99,8 @@ export async function GET(request: Request) {
         date: c.date,
         is_today: c.date === today
       })));
+      console.log('[Challenges API] Total completions found:', completions?.length || 0);
+      console.log('[Challenges API] Completed challenges count:', completedChallenges.size);
       
       // Merge completion state using daily habit tracking
       const challengesWithCompletion = (allChallenges || []).map((c: any) => {
@@ -124,6 +126,13 @@ export async function GET(request: Request) {
           date: completionDate,
         };
       });
+      
+      console.log('[Challenges API] Final challenges with completion:', challengesWithCompletion.slice(0, 3).map(c => ({
+        id: c.id,
+        name: c.name,
+        completed: c.completed,
+        date: c.date
+      })));
       
       return challengesWithCompletion;
     });
