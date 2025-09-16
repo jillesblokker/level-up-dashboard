@@ -29,16 +29,92 @@ export async function GET(request: Request) {
         throw completionError;
       }
       
-      // Merge completion state
-      const completionMap = new Map();
-      completions.forEach((c: any) => completionMap.set(String(c.challenge_id), c));
+      // DAILY HABIT TRACKING APPROACH: Show challenges as completed only if completed=true for TODAY
+      const completedChallenges = new Map();
+      // Use Netherlands timezone (Europe/Amsterdam) for challenge display
+      const now = new Date();
+      // Use Intl.DateTimeFormat for reliable timezone conversion
+      const netherlandsDate = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Europe/Amsterdam',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).format(now);
+      const today = netherlandsDate; // Format: YYYY-MM-DD
+      
+      if (completions) {
+        console.log('[Challenges API] Processing challenge completions for daily habit tracking:', {
+          totalRecords: completions.length,
+          today: today,
+          sampleRecords: completions.slice(0, 3).map(c => ({
+            challenge_id: c.challenge_id,
+            completed: c.completed,
+            date: c.date
+          }))
+        });
+        
+        // Group completions by challenge_id to handle multiple completions of the same challenge
+        const challengeCompletionGroups = new Map();
+        
+        completions.forEach((completion: any) => {
+          if (!challengeCompletionGroups.has(completion.challenge_id)) {
+            challengeCompletionGroups.set(completion.challenge_id, []);
+          }
+          challengeCompletionGroups.get(completion.challenge_id).push(completion);
+        });
+        
+        // For each challenge, find TODAY'S completion record
+        challengeCompletionGroups.forEach((completions, challengeId) => {
+          // Find completion record for today
+          const todayCompletion = completions.find((c: any) => {
+            const completionDate = c.date; // challenge_completion uses DATE field
+            return completionDate === today;
+          });
+          
+          console.log('[Challenges API] Processing challenge for today:', {
+            challenge_id: challengeId,
+            total_completions: completions.length,
+            today_completion: todayCompletion ? {
+              completed: todayCompletion.completed,
+              date: todayCompletion.date
+            } : null
+          });
+          
+          // Show as completed ONLY if there's a completion record for today with completed=true
+          if (todayCompletion && todayCompletion.completed === true) {
+            completedChallenges.set(challengeId, {
+              completed: true,
+              date: todayCompletion.date,
+              completionId: todayCompletion.id // Store the completion record ID
+            });
+          }
+        });
+      }
+
+      console.log('[Challenges API] Completed challenges map:', Array.from(completedChallenges.entries()));
+      
+      // Merge completion state using daily habit tracking
       const challengesWithCompletion = (allChallenges || []).map((c: any) => {
-        const completion = completionMap.get(String(c.id));
+        // Find completion by challenge ID
+        const completion = completedChallenges.get(c.id);
+        const isCompleted = completion ? completion.completed : false;
+        const completionDate = completion ? completion.date : null;
+        
+        console.log('[Challenges API] Mapping challenge:', {
+          challengeId: c.id,
+          challengeName: c.name,
+          challengeCategory: c.category,
+          hasCompletion: !!completion,
+          isCompleted,
+          completionDate,
+          completionData: completion
+        });
+        
         return {
           ...c,
-          completed: completion?.completed ?? false,
-          completionId: completion?.id,
-          date: completion?.date,
+          completed: isCompleted,
+          completionId: completion?.completionId,
+          date: completionDate,
         };
       });
       
@@ -79,16 +155,26 @@ export async function PUT(request: Request) {
 
     // Use proper authentication
     const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      // Use Netherlands timezone (Europe/Amsterdam) for challenge completion
+      const now = new Date();
+      const netherlandsDate = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Europe/Amsterdam',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).format(now);
+      const today = netherlandsDate; // Format: YYYY-MM-DD
+      
       if (completed) {
-        // Mark challenge as completed
+        // Mark challenge as completed for TODAY
         const { data, error } = await supabase
           .from('challenge_completion')
           .upsert({
             user_id: userId,
             challenge_id: challengeId,
             completed: true,
-            date: new Date().toISOString().split('T')[0], // Use date format (YYYY-MM-DD)
-          }, { onConflict: 'user_id,challenge_id' })
+            date: today, // Use today's date in Netherlands timezone
+          }, { onConflict: 'user_id,challenge_id,date' })
           .select()
           .single();
           
@@ -99,12 +185,13 @@ export async function PUT(request: Request) {
         
         return data;
       } else {
-        // Mark challenge as not completed (delete the completion record)
+        // Mark challenge as not completed for TODAY (delete today's completion record)
         const { error } = await supabase
           .from('challenge_completion')
           .delete()
           .eq('user_id', userId)
-          .eq('challenge_id', challengeId);
+          .eq('challenge_id', challengeId)
+          .eq('date', today); // Only delete today's completion
           
         if (error) {
           console.error('[Challenges PUT] Error deleting completion:', error);

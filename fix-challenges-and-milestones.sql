@@ -31,25 +31,18 @@ AND contype = 'u';
 
 DO $$ 
 BEGIN
-    -- Drop any existing constraints that include date
-    IF EXISTS (
-        SELECT 1 FROM pg_constraint 
-        WHERE conrelid = 'public.challenge_completion'::regclass 
-        AND conname LIKE '%user_id%challenge_id%date%'
-    ) THEN
-        ALTER TABLE public.challenge_completion 
-        DROP CONSTRAINT IF EXISTS challenge_completion_user_id_challenge_id_date_key;
-    END IF;
-    
-    -- Add the correct constraint for challenges
+    -- Keep the existing constraint that includes date for daily tracking
     IF NOT EXISTS (
         SELECT 1 FROM pg_constraint 
         WHERE conrelid = 'public.challenge_completion'::regclass 
-        AND conname = 'challenge_completion_user_id_challenge_id_key'
+        AND conname = 'challenge_completion_user_id_challenge_id_date_key'
     ) THEN
         ALTER TABLE public.challenge_completion 
-        ADD CONSTRAINT challenge_completion_user_id_challenge_id_key 
-        UNIQUE (user_id, challenge_id);
+        ADD CONSTRAINT challenge_completion_user_id_challenge_id_date_key 
+        UNIQUE (user_id, challenge_id, date);
+        RAISE NOTICE 'Added unique constraint on challenge_completion (user_id, challenge_id, date) for daily tracking';
+    ELSE
+        RAISE NOTICE 'Unique constraint challenge_completion_user_id_challenge_id_date_key already exists';
     END IF;
 END $$;
 
@@ -59,17 +52,7 @@ END $$;
 
 DO $$
 BEGIN
-    -- Drop any existing constraints that might conflict
-    IF EXISTS (
-        SELECT 1 FROM pg_constraint 
-        WHERE conrelid = 'public.milestone_completion'::regclass 
-        AND conname LIKE '%user_id%milestone_id%date%'
-    ) THEN
-        ALTER TABLE public.milestone_completion 
-        DROP CONSTRAINT IF EXISTS milestone_completion_user_id_milestone_id_date_key;
-    END IF;
-    
-    -- Add the correct constraint for milestones
+    -- Milestones don't reset daily, so use simple constraint without date
     IF NOT EXISTS (
         SELECT 1 FROM pg_constraint 
         WHERE conrelid = 'public.milestone_completion'::regclass 
@@ -78,6 +61,9 @@ BEGIN
         ALTER TABLE public.milestone_completion 
         ADD CONSTRAINT milestone_completion_user_id_milestone_id_key 
         UNIQUE (user_id, milestone_id);
+        RAISE NOTICE 'Added unique constraint on milestone_completion (user_id, milestone_id) - no daily reset';
+    ELSE
+        RAISE NOTICE 'Unique constraint milestone_completion_user_id_milestone_id_key already exists';
     END IF;
 END $$;
 
@@ -120,8 +106,8 @@ BEGIN
         -- Test the upsert with a real challenge ID
         INSERT INTO public.challenge_completion (user_id, challenge_id, completed, date)
         VALUES ('test_user', test_challenge_id, true, CURRENT_DATE)
-        ON CONFLICT (user_id, challenge_id) 
-        DO UPDATE SET completed = EXCLUDED.completed, date = EXCLUDED.date;
+        ON CONFLICT (user_id, challenge_id, date) 
+        DO UPDATE SET completed = EXCLUDED.completed;
         
         -- Clean up the test record
         DELETE FROM public.challenge_completion WHERE user_id = 'test_user' AND challenge_id = test_challenge_id;
