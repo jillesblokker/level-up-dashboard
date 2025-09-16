@@ -50,51 +50,140 @@ export async function POST(request: NextRequest) {
       questIdFormat: isQuestUUID ? 'UUID' : 'TEXT'
     });
 
-    // Use the smart database function with correct schema handling
-    const rpcParams = {
-      p_user_id: userId,        // user_id is TEXT in quest_completion table
-      p_quest_id: questId,      // quest_id will be converted to UUID in function
-      p_completed: completed,
-      p_xp_reward: xpReward || 50,
-      p_gold_reward: goldReward || 25
-    };
+    // TEMPORARY FIX: Implement quest completion logic directly instead of using broken database function
+    console.log('[Smart Quest Completion] Using direct implementation (bypassing broken function)');
     
-    console.log('[Smart Quest Completion] RPC params:', rpcParams);
+    // Validate that the quest exists in either quests OR challenges table
+    const { data: questExists, error: questCheckError } = await supabaseServer
+      .from('quests')
+      .select('id')
+      .eq('id', questId)
+      .single();
     
-    const { data, error } = await supabaseServer.rpc('smart_quest_completion', rpcParams);
+    const { data: challengeExists, error: challengeCheckError } = await supabaseServer
+      .from('challenges')
+      .select('id')
+      .eq('id', questId)
+      .single();
     
-    if (error) {
-      console.error('[Smart Quest Completion] Database function error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-    
-    console.log('[Smart Quest Completion] Smart function result:', data);
-    
-    // Check if the function returned an error
-    if (data && data.success === false) {
-      console.error('[Smart Quest Completion] Function returned error:', data);
-      
-      // Handle quest not found error specifically
-      if (data.error && data.error.includes('does not exist in quests table')) {
-        return NextResponse.json({ 
-          error: 'Quest not found',
-          message: 'The quest you are trying to complete no longer exists in the database',
-          details: data.error,
-          questId: questId
-        }, { status: 404 });
-      }
-      
+    if (questCheckError && challengeCheckError) {
+      console.error('[Smart Quest Completion] Quest not found in either table:', { questId });
       return NextResponse.json({ 
-        error: data.message || 'Smart quest completion failed',
-        details: data.error || 'Unknown function error'
-      }, { status: 500 });
+        error: 'Quest not found',
+        message: 'The quest you are trying to complete no longer exists in the database',
+        questId: questId
+      }, { status: 404 });
     }
     
-    // Return the smart function result
+    // Check if completion record already exists
+    const { data: existingRecord, error: fetchError } = await supabaseServer
+      .from('quest_completion')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('quest_id', questId)
+      .single();
+    
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      console.error('[Smart Quest Completion] Error fetching existing record:', fetchError);
+      return NextResponse.json({ error: fetchError.message }, { status: 500 });
+    }
+    
+    let result;
+    
+    if (completed) {
+      // Mark as completed
+      if (!existingRecord) {
+        // Insert new completion record
+        const { data: insertData, error: insertError } = await supabaseServer
+          .from('quest_completion')
+          .insert({
+            user_id: userId,
+            quest_id: questId,
+            completed: true,
+            xp_earned: xpReward || 50,
+            gold_earned: goldReward || 25
+          })
+          .select()
+          .single();
+        
+        if (insertError) {
+          console.error('[Smart Quest Completion] Insert error:', insertError);
+          return NextResponse.json({ error: insertError.message }, { status: 500 });
+        }
+        
+        result = {
+          success: true,
+          action: 'inserted',
+          message: 'Quest marked as completed',
+          xp_earned: xpReward || 50,
+          gold_earned: goldReward || 25
+        };
+      } else {
+        // Update existing record
+        const { data: updateData, error: updateError } = await supabaseServer
+          .from('quest_completion')
+          .update({
+            completed: true,
+            xp_earned: xpReward || 50,
+            gold_earned: goldReward || 25
+          })
+          .eq('user_id', userId)
+          .eq('quest_id', questId)
+          .select()
+          .single();
+        
+        if (updateError) {
+          console.error('[Smart Quest Completion] Update error:', updateError);
+          return NextResponse.json({ error: updateError.message }, { status: 500 });
+        }
+        
+        result = {
+          success: true,
+          action: 'updated',
+          message: 'Quest completion updated',
+          xp_earned: xpReward || 50,
+          gold_earned: goldReward || 25
+        };
+      }
+    } else {
+      // Mark as incomplete (delete the record)
+      if (existingRecord) {
+        const { error: deleteError } = await supabaseServer
+          .from('quest_completion')
+          .delete()
+          .eq('user_id', userId)
+          .eq('quest_id', questId);
+        
+        if (deleteError) {
+          console.error('[Smart Quest Completion] Delete error:', deleteError);
+          return NextResponse.json({ error: deleteError.message }, { status: 500 });
+        }
+        
+        result = {
+          success: true,
+          action: 'deleted',
+          message: 'Quest marked as incomplete',
+          deletedRecord: {
+            quest_id: questId,
+            user_id: userId
+          }
+        };
+      } else {
+        result = {
+          success: true,
+          action: 'no_change',
+          message: 'Quest was already incomplete'
+        };
+      }
+    }
+    
+    console.log('[Smart Quest Completion] Direct implementation result:', result);
+    
+    // Return the result
     return NextResponse.json({
       success: true,
-      data: data,
-      message: 'Quest completion processed intelligently'
+      data: result,
+      message: 'Quest completion processed directly'
     });
 
   } catch (error) {
