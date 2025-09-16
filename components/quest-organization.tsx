@@ -522,8 +522,12 @@ export function QuestOrganization({
                         completed={quest.completed}
                         xp={quest.xp || 50}
                         gold={quest.gold || 25}
+                        useCustomToggle={context === 'challenges' || context === 'milestones'}
                         category={quest.category}
-                        onToggle={onQuestToggle}
+                        onToggle={(questId, completed) => {
+                          console.log('[QuestOrganization] Toggle called:', { questId, completed, context });
+                          onQuestToggle(questId, completed);
+                        }}
                         variant="checkbox"
                       />
                       {/* Edit and Delete buttons */}

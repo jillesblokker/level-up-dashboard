@@ -28,7 +28,12 @@ export async function POST(request: Request) {
     const { data, error } = await supabaseServer
       .from('challenge_completion')
       .upsert([
-        { user_id: userId, challenge_id: challengeId }
+        { 
+          user_id: userId, 
+          challenge_id: challengeId,
+          completed: true,
+          date: new Date().toISOString().split('T')[0] // Use date format (YYYY-MM-DD)
+        }
       ], { onConflict: 'user_id,challenge_id' })
       .single();
     if (error) {

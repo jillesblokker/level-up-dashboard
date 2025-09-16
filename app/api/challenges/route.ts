@@ -87,7 +87,7 @@ export async function PUT(request: Request) {
             user_id: userId,
             challenge_id: challengeId,
             completed: true,
-            date: new Date().toISOString(),
+            date: new Date().toISOString().split('T')[0], // Use date format (YYYY-MM-DD)
           }, { onConflict: 'user_id,challenge_id' })
           .select()
           .single();

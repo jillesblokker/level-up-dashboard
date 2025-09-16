@@ -14,6 +14,7 @@ interface QuestToggleButtonProps {
   onToggle: (questId: string, newCompleted: boolean) => void;
   disabled?: boolean;
   variant?: 'checkbox' | 'button';
+  useCustomToggle?: boolean; // New prop to use custom toggle instead of quest completion
 }
 
 export function QuestToggleButton({
@@ -26,6 +27,7 @@ export function QuestToggleButton({
   onToggle,
   disabled = false,
   variant = 'checkbox',
+  useCustomToggle = false,
 }: QuestToggleButtonProps) {
   const { toggleQuestCompletion, isQuestPending } = useQuestCompletion();
   
@@ -35,24 +37,38 @@ export function QuestToggleButton({
   const handleToggle = async () => {
     if (isDisabled) return;
 
-    const result = await toggleQuestCompletion(
-      questId,
-      completed,
-      { name: questName, xp, gold, category: category || 'general' },
-      (newCompleted) => {
-        // Success callback - update parent state
-        onToggle(questId, newCompleted);
-      },
-      (error) => {
-        // Error callback - parent can handle if needed
-        console.error('[Quest Toggle Button] Error:', error);
-      }
-    );
+    console.log('[QuestToggleButton] Debug:', { 
+      questId, 
+      questName, 
+      useCustomToggle, 
+      context: useCustomToggle ? 'custom' : 'quest-completion' 
+    });
 
-    // If the API call failed, don't update the parent state
-    // The optimistic update will be reverted by the hook
-    if (!result.success) {
-      console.error('[Quest Toggle Button] Failed to toggle quest:', result.error);
+    if (useCustomToggle) {
+      // Use the custom toggle function (for challenges, milestones, etc.)
+      console.log('[QuestToggleButton] Using custom toggle for:', questName);
+      onToggle(questId, !completed);
+    } else {
+      // Use the quest completion system (for regular quests)
+      const result = await toggleQuestCompletion(
+        questId,
+        completed,
+        { name: questName, xp, gold, category: category || 'general' },
+        (newCompleted) => {
+          // Success callback - update parent state
+          onToggle(questId, newCompleted);
+        },
+        (error) => {
+          // Error callback - parent can handle if needed
+          console.error('[Quest Toggle Button] Error:', error);
+        }
+      );
+
+      // If the API call failed, don't update the parent state
+      // The optimistic update will be reverted by the hook
+      if (!result.success) {
+        console.error('[Quest Toggle Button] Failed to toggle quest:', result.error);
+      }
     }
   };
 

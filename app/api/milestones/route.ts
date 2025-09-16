@@ -151,7 +151,7 @@ export async function PUT(request: Request) {
             user_id: userId,
             milestone_id: milestoneId,
             completed: true,
-            date: new Date().toISOString(),
+            date: new Date().toISOString().split('T')[0], // Use date format (YYYY-MM-DD)
           }, { onConflict: "user_id,milestone_id" })
           .select()
           .single();
