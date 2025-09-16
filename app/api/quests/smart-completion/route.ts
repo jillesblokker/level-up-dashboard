@@ -100,6 +100,7 @@ export async function POST(request: NextRequest) {
             user_id: userId,
             quest_id: questId,
             completed: true,
+            completed_at: new Date().toISOString(),
             xp_earned: xpReward || 50,
             gold_earned: goldReward || 25
           })
@@ -124,6 +125,7 @@ export async function POST(request: NextRequest) {
           .from('quest_completion')
           .update({
             completed: true,
+            completed_at: new Date().toISOString(),
             xp_earned: xpReward || 50,
             gold_earned: goldReward || 25
           })
