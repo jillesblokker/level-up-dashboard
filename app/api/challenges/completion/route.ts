@@ -25,6 +25,16 @@ export async function POST(request: Request) {
     if (!challengeId) {
       return NextResponse.json({ error: 'Missing challengeId' }, { status: 400 });
     }
+    // Use Netherlands timezone (Europe/Amsterdam) for challenge completion
+    const now = new Date();
+    const netherlandsDate = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Amsterdam',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).format(now);
+    const today = netherlandsDate; // Format: YYYY-MM-DD
+    
     const { data, error } = await supabaseServer
       .from('challenge_completion')
       .upsert([
@@ -32,9 +42,9 @@ export async function POST(request: Request) {
           user_id: userId, 
           challenge_id: challengeId,
           completed: true,
-          date: new Date().toISOString().split('T')[0] // Use date format (YYYY-MM-DD)
+          date: today // Use Netherlands timezone date format (YYYY-MM-DD)
         }
-      ], { onConflict: 'user_id,challenge_id' })
+      ], { onConflict: 'user_id,challenge_id,date' })
       .single();
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
