@@ -1320,12 +1320,12 @@ export default function QuestsPage() {
 
   // Initialize challenges and milestones data - must be before early returns
   useEffect(() => {
-    console.log('[Challenges Frontend] useEffect triggered, token available:', !!token);
+    console.log('[Challenges Frontend] useEffect triggered, token available:', !!token, 'user:', !!user);
     
     // Fetch challenges and milestones from Supabase instead of using predefined data
     const fetchChallengesAndMilestones = async () => {
-      if (!token) {
-        console.log('[Challenges Frontend] No token available, skipping fetch');
+      if (!token || !user) {
+        console.log('[Challenges Frontend] No token or user available, skipping fetch');
         return;
       }
       
@@ -1373,7 +1373,7 @@ export default function QuestsPage() {
     };
 
     fetchChallengesAndMilestones();
-  }, [token]);
+  }, [token, user]);
 
   const handleMilestoneToggle = async (milestoneId: string, currentCompleted: boolean) => {
     if (!token || !userId) return;
