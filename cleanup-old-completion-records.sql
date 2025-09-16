@@ -37,14 +37,12 @@ LIMIT 5;
 -- Keep only records with valid dates (YYYY-MM-DD format)
 DELETE FROM public.challenge_completion 
 WHERE date IS NULL 
-   OR date = '' 
-   OR date !~ '^\d{4}-\d{2}-\d{2}$';
+   OR date::text !~ '^\d{4}-\d{2}-\d{2}$';
 
 -- Clean up milestone completion records that don't have proper date format
 DELETE FROM public.milestone_completion 
 WHERE date IS NULL 
-   OR date = '' 
-   OR date !~ '^\d{4}-\d{2}-\d{2}$';
+   OR date::text !~ '^\d{4}-\d{2}-\d{2}$';
 
 -- Show final counts
 SELECT 'After cleanup - challenge_completion' as info;
