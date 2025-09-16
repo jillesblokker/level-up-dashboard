@@ -993,6 +993,7 @@ export default function QuestsPage() {
     try {
       const newCompleted = !currentCompleted;
       console.log('[Challenge Toggle] Starting:', { challengeId, currentCompleted, newCompleted, token: !!token });
+      console.log('[Challenge Toggle] Toast will show:', newCompleted ? 'COMPLETED' : 'UNCOMPLETED');
       
       // Update local state
       setChallenges(prevChallenges => 
@@ -1024,6 +1025,7 @@ export default function QuestsPage() {
         throw new Error(`Failed to update challenge: ${response.status} - ${errorText}`);
       }
       
+      // Find the challenge name for the toast (use current state before update)
       const challenge = challenges.find(c => c.id === challengeId);
       if (challenge) {
         if (newCompleted) {
@@ -1382,6 +1384,8 @@ export default function QuestsPage() {
     
     try {
       const newCompleted = !currentCompleted;
+      console.log('[Milestone Toggle] Starting:', { milestoneId, currentCompleted, newCompleted, token: !!token });
+      console.log('[Milestone Toggle] Toast will show:', newCompleted ? 'COMPLETED' : 'UNCOMPLETED');
       
       // Update local state
       setMilestones(prevMilestones => 
