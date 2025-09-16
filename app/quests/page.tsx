@@ -1550,28 +1550,51 @@ export default function QuestsPage() {
   useEffect(() => {
     // Fetch challenges and milestones from Supabase instead of using predefined data
     const fetchChallengesAndMilestones = async () => {
-      if (!token) return;
+      if (!token) {
+        console.log('[Challenges Frontend] No token available, skipping fetch');
+        return;
+      }
+      
+      console.log('[Challenges Frontend] Starting to fetch challenges and milestones...');
       
       try {
         // Fetch challenges
+        console.log('[Challenges Frontend] Fetching challenges from /api/challenges...');
         const challengesRes = await fetch('/api/challenges', {
           headers: { Authorization: `Bearer ${token}` },
         });
+        console.log('[Challenges Frontend] Challenges response:', { status: challengesRes.status, ok: challengesRes.ok });
+        
         if (challengesRes.ok) {
           const challengesData = await challengesRes.json();
+          console.log('[Challenges Frontend] Challenges data received:', { 
+            count: challengesData?.length || 0, 
+            sample: challengesData?.slice(0, 2)?.map(c => ({ id: c.id, name: c.name, completed: c.completed }))
+          });
           setChallenges(challengesData || []);
+        } else {
+          console.error('[Challenges Frontend] Challenges fetch failed:', challengesRes.status, challengesRes.statusText);
         }
 
         // Fetch milestones
+        console.log('[Challenges Frontend] Fetching milestones from /api/milestones...');
         const milestonesRes = await fetch('/api/milestones', {
           headers: { Authorization: `Bearer ${token}` },
         });
+        console.log('[Challenges Frontend] Milestones response:', { status: milestonesRes.status, ok: milestonesRes.ok });
+        
         if (milestonesRes.ok) {
           const milestonesData = await milestonesRes.json();
+          console.log('[Challenges Frontend] Milestones data received:', { 
+            count: milestonesData?.length || 0, 
+            sample: milestonesData?.slice(0, 2)?.map(m => ({ id: m.id, name: m.name, completed: m.completed }))
+          });
           setMilestones(milestonesData || []);
+        } else {
+          console.error('[Challenges Frontend] Milestones fetch failed:', milestonesRes.status, milestonesRes.statusText);
         }
       } catch (error) {
-        console.error('Error fetching challenges and milestones:', error);
+        console.error('[Challenges Frontend] Error fetching challenges and milestones:', error);
       }
     };
 
