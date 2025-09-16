@@ -1569,7 +1569,7 @@ export default function QuestsPage() {
           const challengesData = await challengesRes.json();
           console.log('[Challenges Frontend] Challenges data received:', { 
             count: challengesData?.length || 0, 
-            sample: challengesData?.slice(0, 2)?.map(c => ({ id: c.id, name: c.name, completed: c.completed }))
+            sample: challengesData?.slice(0, 2)?.map((c: any) => ({ id: c.id, name: c.name, completed: c.completed }))
           });
           setChallenges(challengesData || []);
         } else {
@@ -1587,7 +1587,7 @@ export default function QuestsPage() {
           const milestonesData = await milestonesRes.json();
           console.log('[Challenges Frontend] Milestones data received:', { 
             count: milestonesData?.length || 0, 
-            sample: milestonesData?.slice(0, 2)?.map(m => ({ id: m.id, name: m.name, completed: m.completed }))
+            sample: milestonesData?.slice(0, 2)?.map((m: any) => ({ id: m.id, name: m.name, completed: m.completed }))
           });
           setMilestones(milestonesData || []);
         } else {
