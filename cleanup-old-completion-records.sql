@@ -22,15 +22,15 @@ FROM public.milestone_completion;
 
 -- Show sample records
 SELECT 'challenge_completion samples' as info;
-SELECT user_id, challenge_id, completed, date, created_at 
+SELECT user_id, challenge_id, completed, date 
 FROM public.challenge_completion 
-ORDER BY created_at DESC 
+ORDER BY date DESC 
 LIMIT 5;
 
 SELECT 'milestone_completion samples' as info;
-SELECT user_id, milestone_id, completed, date, created_at 
+SELECT user_id, milestone_id, completed, date 
 FROM public.milestone_completion 
-ORDER BY created_at DESC 
+ORDER BY date DESC 
 LIMIT 5;
 
 -- Clean up challenge completion records that don't have proper date format
