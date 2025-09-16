@@ -162,7 +162,7 @@ export default function QuestsPage() {
   const userId = user?.id;
   const isUserLoaded = isClerkLoaded;
   
-  console.log('[Challenges Frontend] Component rendered, isClerkLoaded:', isClerkLoaded, 'userId:', userId);
+  console.log('[Challenges Frontend] Component rendered, isClerkLoaded:', isClerkLoaded, 'userId:', userId, 'user:', !!user);
 
   const [quests, setQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(false);
@@ -1607,11 +1607,12 @@ export default function QuestsPage() {
 
 
   if (!isClerkLoaded || !isUserLoaded) {
-    console.log('Waiting for auth and Clerk client...');
+    console.log('[Challenges Frontend] Early return - Waiting for auth and Clerk client...', { isClerkLoaded, isUserLoaded, user: !!user });
     return <FullPageLoading message="Loading authentication..." />;
   }
 
   if (!userId) {
+    console.log('[Challenges Frontend] Early return - No userId found', { userId, user: !!user });
     return (
       <main className="p-8">
         <h1 className="text-2xl font-bold mb-4">Quests</h1>
