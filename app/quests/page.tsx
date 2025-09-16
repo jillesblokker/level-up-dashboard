@@ -161,6 +161,8 @@ export default function QuestsPage() {
   const { getToken } = useAuth();
   const userId = user?.id;
   const isUserLoaded = isClerkLoaded;
+  
+  console.log('[Challenges Frontend] Component rendered, isClerkLoaded:', isClerkLoaded, 'userId:', userId);
 
   const [quests, setQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(false);
@@ -1548,6 +1550,8 @@ export default function QuestsPage() {
 
   // Initialize predefined data - must be before any early returns
   useEffect(() => {
+    console.log('[Challenges Frontend] useEffect triggered, token available:', !!token);
+    
     // Fetch challenges and milestones from Supabase instead of using predefined data
     const fetchChallengesAndMilestones = async () => {
       if (!token) {
