@@ -466,7 +466,7 @@ export default function QuestsPage() {
 
   // Daily reset logic for non-milestone quests and challenges (persisted in DB)
   useEffect(() => {
-    if (!loading && quests.length > 0 && userId && token) {
+    if (!loading && quests && quests.length > 0 && userId && token) {
       const lastReset = localStorage.getItem('last-quest-reset-date');
       // Use Netherlands timezone (Europe/Amsterdam) for daily reset
       const now = new Date();
@@ -540,12 +540,12 @@ export default function QuestsPage() {
             // 🔍 DEBUG: Log the quest state after reset
             console.log('[Daily Reset] Quest state after reset:', quests.map(q => ({ id: q.id, name: q.name, completed: q.completed })));
             
-            // IMPORTANT: Force all quests to show as incomplete after daily reset
-            // This prevents the UI from showing completed quests that were just reset
+            // IMPORTANT: Only reset quests that were completed BEFORE the reset
+            // Don't overwrite quests that were completed AFTER the reset
             setQuests(prevQuests => 
               prevQuests.map(quest => ({
                 ...quest,
-                completed: false // Force all quests to show as incomplete after reset
+                completed: false // Reset quests to incomplete for the new day
               }))
             );
             
@@ -572,7 +572,7 @@ export default function QuestsPage() {
         console.log('[Daily Reset] Skipping reset - already processed today or conditions not met');
       }
     }
-  }, [loading, quests.length, userId, token]); // Include all dependencies that are checked in the condition
+  }, [loading, userId, token]); // Remove quests.length to prevent reset from running after every quest completion
 
   // Reset the daily reset flag when the date changes (at midnight Netherlands time)
   useEffect(() => {
