@@ -1215,7 +1215,8 @@ export default function QuestsPage() {
           });
           
           if (!response.ok) {
-            console.error(`[Bulk Complete All] Failed to complete quest ${quest.id}:`, response.status);
+            const errorText = await response.text();
+            console.error(`[Bulk Complete All] Failed to complete quest ${quest.id}:`, response.status, errorText);
             // Revert optimistic update on failure
             setQuests(prevQuests => 
               prevQuests.map(q => 
@@ -1225,7 +1226,8 @@ export default function QuestsPage() {
               )
             );
           } else {
-            console.log(`[Bulk Complete All] Successfully completed quest: ${quest.name}`);
+            const responseData = await response.json();
+            console.log(`[Bulk Complete All] Successfully completed quest: ${quest.name}`, responseData);
           }
         } catch (apiError) {
           console.error(`[Bulk Complete All] API error for quest ${quest.id}:`, apiError);
