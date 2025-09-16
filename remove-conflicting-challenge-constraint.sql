@@ -33,12 +33,11 @@ END $$;
 
 -- Verify the final state
 SELECT 
-    table_name,
-    constraint_name,
-    constraint_type,
-    constraint_definition
+    tc.table_name,
+    tc.constraint_name,
+    tc.constraint_type,
+    tc.constraint_definition
 FROM information_schema.table_constraints tc
-JOIN information_schema.constraint_column_usage ccu ON tc.constraint_name = ccu.constraint_name
 WHERE tc.table_name IN ('challenge_completion', 'milestone_completion')
 AND tc.constraint_type = 'UNIQUE'
-ORDER BY table_name, constraint_name;
+ORDER BY tc.table_name, tc.constraint_name;
