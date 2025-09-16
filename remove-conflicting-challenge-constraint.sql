@@ -35,8 +35,7 @@ END $$;
 SELECT 
     tc.table_name,
     tc.constraint_name,
-    tc.constraint_type,
-    tc.constraint_definition
+    tc.constraint_type
 FROM information_schema.table_constraints tc
 WHERE tc.table_name IN ('challenge_completion', 'milestone_completion')
 AND tc.constraint_type = 'UNIQUE'
