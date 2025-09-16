@@ -990,6 +990,7 @@ export default function QuestsPage() {
     
     try {
       const newCompleted = !currentCompleted;
+      console.log('[Challenge Toggle] Starting:', { challengeId, currentCompleted, newCompleted, token: !!token });
       
       // Update local state
       setChallenges(prevChallenges => 
@@ -1005,6 +1006,7 @@ export default function QuestsPage() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           challengeId,
@@ -1012,8 +1014,12 @@ export default function QuestsPage() {
         })
       });
       
+      console.log('[Challenge Toggle] API Response:', { status: response.status, ok: response.ok });
+      
       if (!response.ok) {
-        throw new Error('Failed to update challenge');
+        const errorText = await response.text();
+        console.error('[Challenge Toggle] API Error:', errorText);
+        throw new Error(`Failed to update challenge: ${response.status} - ${errorText}`);
       }
       
       const challenge = challenges.find(c => c.id === challengeId);
@@ -1330,6 +1336,7 @@ export default function QuestsPage() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           milestoneId,
