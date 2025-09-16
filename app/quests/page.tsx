@@ -1343,8 +1343,9 @@ export default function QuestsPage() {
           const challengesData = await challengesRes.json();
           console.log('[Challenges Frontend] Challenges data received:', { 
             count: challengesData?.length || 0, 
-            sample: challengesData?.slice(0, 2)?.map((c: any) => ({ id: c.id, name: c.name, completed: c.completed }))
+            sample: challengesData?.slice(0, 2)?.map((c: any) => ({ id: c.id, name: c.name, completed: c.completed, date: c.date }))
           });
+          console.log('[Challenges Frontend] All challenges completion status:', challengesData?.map((c: any) => ({ name: c.name, completed: c.completed, date: c.date })));
           setChallenges(challengesData || []);
         } else {
           console.error('[Challenges Frontend] Challenges fetch failed:', challengesRes.status, challengesRes.statusText);
@@ -1361,8 +1362,9 @@ export default function QuestsPage() {
           const milestonesData = await milestonesRes.json();
           console.log('[Challenges Frontend] Milestones data received:', { 
             count: milestonesData?.length || 0, 
-            sample: milestonesData?.slice(0, 2)?.map((m: any) => ({ id: m.id, name: m.name, completed: m.completed }))
+            sample: milestonesData?.slice(0, 2)?.map((m: any) => ({ id: m.id, name: m.name, completed: m.completed, date: m.date }))
           });
+          console.log('[Challenges Frontend] All milestones completion status:', milestonesData?.map((m: any) => ({ name: m.name, completed: m.completed, date: m.date })));
           setMilestones(milestonesData || []);
         } else {
           console.error('[Challenges Frontend] Milestones fetch failed:', milestonesRes.status, milestonesRes.statusText);
