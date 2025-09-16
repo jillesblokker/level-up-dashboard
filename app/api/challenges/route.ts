@@ -92,6 +92,13 @@ export async function GET(request: Request) {
       }
 
       console.log('[Challenges API] Completed challenges map:', Array.from(completedChallenges.entries()));
+      console.log('[Challenges API] Today date:', today);
+      console.log('[Challenges API] All completions:', completions?.map(c => ({
+        challenge_id: c.challenge_id,
+        completed: c.completed,
+        date: c.date,
+        is_today: c.date === today
+      })));
       
       // Merge completion state using daily habit tracking
       const challengesWithCompletion = (allChallenges || []).map((c: any) => {
