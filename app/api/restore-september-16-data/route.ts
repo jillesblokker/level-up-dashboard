@@ -122,7 +122,8 @@ export async function POST(request: NextRequest) {
         }
       } catch (error) {
         console.error(`[Restore September 16 Data] Exception for quest ${quest.name}:`, error);
-        errors.push({ quest: quest.name, error: error.message });
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        errors.push({ quest: quest.name, error: errorMessage });
         errorCount++;
       }
     }
