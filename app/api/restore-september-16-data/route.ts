@@ -42,6 +42,11 @@ export async function POST(request: NextRequest) {
       .select('id, name, category, xp_reward, gold_reward')
       .in('id', favoritedQuestIds);
 
+    console.log('[Restore September 16 Data] Fetched quest details:', favoritedQuests?.length || 0, 'quests');
+    if (favoritedQuests && favoritedQuests.length > 0) {
+      console.log('[Restore September 16 Data] Sample quest data:', favoritedQuests[0]);
+    }
+
     if (questError) {
       console.error('[Restore September 16 Data] Error fetching favorited quests:', questError);
       return NextResponse.json({ error: 'Failed to fetch favorited quests' }, { status: 500 });
@@ -103,7 +108,19 @@ export async function POST(request: NextRequest) {
 
     if (insertError) {
       console.error('[Restore September 16 Data] Error inserting completion records:', insertError);
-      return NextResponse.json({ error: 'Failed to insert completion records' }, { status: 500 });
+      console.error('[Restore September 16 Data] Insert error details:', {
+        message: insertError.message,
+        details: insertError.details,
+        hint: insertError.hint,
+        code: insertError.code
+      });
+      console.error('[Restore September 16 Data] Completion records that failed:', completionRecords);
+      return NextResponse.json({ 
+        error: 'Failed to insert completion records', 
+        details: insertError.message,
+        code: insertError.code,
+        hint: insertError.hint
+      }, { status: 500 });
     }
 
     console.log('[Restore September 16 Data] Successfully restored:', insertData?.length || 0, 'completion records');
