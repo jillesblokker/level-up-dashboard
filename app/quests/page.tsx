@@ -540,14 +540,10 @@ export default function QuestsPage() {
             // 🔍 DEBUG: Log the quest state after reset
             console.log('[Daily Reset] Quest state after reset:', quests.map(q => ({ id: q.id, name: q.name, completed: q.completed })));
             
-            // IMPORTANT: Only reset quests that were completed BEFORE the reset
-            // Don't overwrite quests that were completed AFTER the reset
-            setQuests(prevQuests => 
-              prevQuests.map(quest => ({
-                ...quest,
-                completed: false // Reset quests to incomplete for the new day
-              }))
-            );
+            // IMPORTANT: DO NOT manually reset quest state - this causes data loss!
+            // The quest completion logic will naturally show quests as incomplete
+            // if there's no completed=true record for today
+            console.log('[Daily Reset] ✅ Preserving quest state - no manual reset to prevent data loss');
             
                   // Optimized delay before refreshing to ensure reset completion
                   setTimeout(() => {
