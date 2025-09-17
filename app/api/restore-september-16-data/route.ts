@@ -62,13 +62,12 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Check existing completion records for September 16th
+    // Check existing completion records for ANY date (not just Sep 16)
     const { data: existingCompletions, error: existingError } = await supabaseServer
       .from('quest_completion')
-      .select('quest_id')
+      .select('quest_id, completed_at')
       .eq('user_id', userId)
-      .gte('completed_at', '2025-09-16T00:00:00.000Z')
-      .lt('completed_at', '2025-09-17T00:00:00.000Z');
+      .eq('completed', true);
 
     if (existingError) {
       console.error('[Restore September 16 Data] Error checking existing completions:', existingError);
@@ -76,26 +75,30 @@ export async function POST(request: NextRequest) {
     }
 
     const existingQuestIds = existingCompletions?.map(c => c.quest_id) || [];
-    console.log('[Restore September 16 Data] Existing completions for Sep 16:', existingQuestIds.length);
+    console.log('[Restore September 16 Data] Existing completions (any date):', existingQuestIds.length);
 
-    // Create completion records for quests that don't already have them
-    const questsToRestore = favoritedQuests.filter(q => !existingQuestIds.includes(q.id));
-    console.log('[Restore September 16 Data] Quests to restore:', questsToRestore.length);
+    // Separate quests into those that need new records vs those that need updates
+    const questsToInsert = favoritedQuests.filter(q => !existingQuestIds.includes(q.id));
+    const questsToUpdate = favoritedQuests.filter(q => existingQuestIds.includes(q.id));
+    
+    console.log('[Restore September 16 Data] Quests to insert:', questsToInsert.length);
+    console.log('[Restore September 16 Data] Quests to update:', questsToUpdate.length);
 
-    if (questsToRestore.length === 0) {
+    if (questsToInsert.length === 0 && questsToUpdate.length === 0) {
       return NextResponse.json({ 
         success: true, 
-        message: 'All favorited quests already have completion records for September 16th',
+        message: 'No favorited quests found to restore',
         restored: 0
       });
     }
 
-    // Insert completion records one by one to handle individual errors
+    // Process quests one by one to handle individual errors
     let successCount = 0;
     let errorCount = 0;
     const errors = [];
 
-    for (const quest of questsToRestore) {
+    // First, handle quests that need new records (insert)
+    for (const quest of questsToInsert) {
       try {
         const completionRecord = {
           user_id: userId,
@@ -117,7 +120,39 @@ export async function POST(request: NextRequest) {
           errors.push({ quest: quest.name, error: insertError.message });
           errorCount++;
         } else {
-          console.log(`[Restore September 16 Data] Successfully restored quest: ${quest.name}`);
+          console.log(`[Restore September 16 Data] Successfully inserted quest: ${quest.name}`);
+          successCount++;
+        }
+      } catch (error) {
+        console.error(`[Restore September 16 Data] Exception for quest ${quest.name}:`, error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        errors.push({ quest: quest.name, error: errorMessage });
+        errorCount++;
+      }
+    }
+
+    // Then, handle quests that need updates (update existing records)
+    for (const quest of questsToUpdate) {
+      try {
+        const { data: updateData, error: updateError } = await supabaseServer
+          .from('quest_completion')
+          .update({
+            completed_at: '2025-09-16T12:00:00.000Z', // Netherlands timezone
+            original_completion_date: '2025-09-16T12:00:00.000Z',
+            xp_earned: quest.xp_reward || 50,
+            gold_earned: quest.gold_reward || 25
+          })
+          .eq('user_id', userId)
+          .eq('quest_id', quest.id)
+          .eq('completed', true)
+          .select();
+
+        if (updateError) {
+          console.error(`[Restore September 16 Data] Error updating quest ${quest.name}:`, updateError);
+          errors.push({ quest: quest.name, error: updateError.message });
+          errorCount++;
+        } else {
+          console.log(`[Restore September 16 Data] Successfully updated quest: ${quest.name}`);
           successCount++;
         }
       } catch (error) {
@@ -130,9 +165,9 @@ export async function POST(request: NextRequest) {
 
     console.log(`[Restore September 16 Data] Restoration complete: ${successCount} successful, ${errorCount} errors`);
 
-    // Calculate total rewards for successfully restored quests
-    const totalXP = questsToRestore.slice(0, successCount).reduce((sum, quest) => sum + (quest.xp_reward || 50), 0);
-    const totalGold = questsToRestore.slice(0, successCount).reduce((sum, quest) => sum + (quest.gold_reward || 25), 0);
+    // Calculate total rewards for all favorited quests (both inserted and updated)
+    const totalXP = favoritedQuests.reduce((sum, quest) => sum + (quest.xp_reward || 50), 0);
+    const totalGold = favoritedQuests.reduce((sum, quest) => sum + (quest.gold_reward || 25), 0);
 
     if (successCount > 0) {
       return NextResponse.json({ 
@@ -141,7 +176,9 @@ export async function POST(request: NextRequest) {
         restored: successCount,
         totalXP,
         totalGold,
-        restoredQuests: questsToRestore.slice(0, successCount).map(q => q.name),
+        restoredQuests: favoritedQuests.map(q => q.name),
+        inserted: questsToInsert.length,
+        updated: questsToUpdate.length,
         errors: errors.length > 0 ? errors : undefined
       });
     } else {
