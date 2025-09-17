@@ -81,7 +81,7 @@ export async function GET(request: Request) {
           });
           
           // Show as completed ONLY if there's a completion record for today with completed=true
-          if (todayCompletion && todayCompletion.completed === true) {
+          if (todayCompletion?.completed === true) {
             completedChallenges.set(challengeId, {
               completed: true,
               date: todayCompletion.date,
