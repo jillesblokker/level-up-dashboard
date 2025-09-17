@@ -76,10 +76,11 @@ export async function POST(request: NextRequest) {
 
     // Group challenges by category for response
     const challengesByCategory = originalChallenges.reduce((acc, challenge) => {
-      if (!acc[challenge.category]) {
-        acc[challenge.category] = [];
+      const category = challenge.category || 'Uncategorized';
+      if (!acc[category]) {
+        acc[category] = [];
       }
-      acc[challenge.category].push(challenge.name);
+      acc[category].push(challenge.name);
       return acc;
     }, {} as Record<string, string[]>);
 
