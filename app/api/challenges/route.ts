@@ -259,3 +259,52 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+// PATCH: Update a specific challenge
+export async function PATCH(request: Request) {
+  try {
+    const body = await request.json();
+    const { id, name, description, category, difficulty, xp, gold } = body;
+    
+    if (!id) {
+      return NextResponse.json({ error: 'Challenge ID is required' }, { status: 400 });
+    }
+
+    // Use proper authentication
+    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      console.log('[Challenges PATCH] Updating challenge:', id, 'for user:', userId);
+      
+      // Update the challenge in the database
+      const { data, error } = await supabase
+        .from('challenges')
+        .update({
+          name: name || undefined,
+          description: description || undefined,
+          category: category || undefined,
+          difficulty: difficulty || undefined,
+          xp: xp || undefined,
+          gold: gold || undefined,
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('[Challenges PATCH] Database error:', error);
+        throw error;
+      }
+
+      console.log('[Challenges PATCH] Successfully updated challenge:', data);
+      return { success: true, data };
+    });
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 401 });
+    }
+
+    return NextResponse.json(result.data);
+  } catch (error) {
+    console.error('[Challenges PATCH] Error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}

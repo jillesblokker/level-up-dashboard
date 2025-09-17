@@ -199,6 +199,10 @@ export default function QuestsPage() {
   const [challengeStreakData, setChallengeStreakData] = useState<{ streak_days: number; week_streaks: number }>({ streak_days: 0, week_streaks: 0 });
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingQuest, setEditingQuest] = useState<Quest | null>(null);
+  const [editChallengeModalOpen, setEditChallengeModalOpen] = useState(false);
+  const [editingChallenge, setEditingChallenge] = useState<any | null>(null);
+  const [editMilestoneModalOpen, setEditMilestoneModalOpen] = useState(false);
+  const [editingMilestone, setEditingMilestone] = useState<any | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [questToDelete, setQuestToDelete] = useState<Quest | null>(null);
   const [addChallengeModalOpen, setAddChallengeModalOpen] = useState(false);
@@ -1049,11 +1053,8 @@ export default function QuestsPage() {
   };
 
   const handleEditChallenge = (challenge: any) => {
-    toast({
-      title: "Edit Challenge",
-      description: "Challenge editing functionality coming soon!",
-      duration: 2000,
-    });
+    setEditingChallenge(challenge);
+    setEditChallengeModalOpen(true);
   };
 
   const handleDeleteChallenge = async (challengeId: string) => {
@@ -1459,11 +1460,8 @@ export default function QuestsPage() {
   };
 
   const handleMilestoneEdit = (milestone: any) => {
-    toast({
-      title: "Edit Milestone",
-      description: "Milestone editing functionality coming soon!",
-      duration: 2000,
-    });
+    setEditingMilestone(milestone);
+    setEditMilestoneModalOpen(true);
   };
 
   const handleMilestoneDelete = async (milestoneId: string) => {
@@ -1572,6 +1570,114 @@ export default function QuestsPage() {
       toast({
         title: "Error",
         description: `Failed to update quest: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        duration: 3000,
+      });
+    }
+  };
+
+  const handleEditChallengeSubmit = async (updatedChallenge: any) => {
+    if (!token || !userId) return;
+    
+    try {
+      // Call API to update challenge
+      const response = await fetch('/api/challenges', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          id: updatedChallenge.id,
+          name: updatedChallenge.name,
+          description: updatedChallenge.description,
+          category: updatedChallenge.category,
+          difficulty: updatedChallenge.difficulty,
+          xp: updatedChallenge.xp,
+          gold: updatedChallenge.gold
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update challenge');
+      }
+      
+      // Update local state
+      setChallenges(prevChallenges => 
+        prevChallenges.map(c => 
+          c.id === updatedChallenge.id 
+            ? { ...c, ...updatedChallenge }
+            : c
+        )
+      );
+      
+      toast({
+        title: "Challenge Updated",
+        description: `${updatedChallenge.name} has been updated successfully!`,
+        duration: 3000,
+      });
+      
+      setEditChallengeModalOpen(false);
+      setEditingChallenge(null);
+    } catch (error) {
+      console.error('Error updating challenge:', error);
+      toast({
+        title: "Update Failed",
+        description: "Failed to update challenge. Please try again.",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
+  };
+
+  const handleEditMilestoneSubmit = async (updatedMilestone: any) => {
+    if (!token || !userId) return;
+    
+    try {
+      // Call API to update milestone
+      const response = await fetch('/api/milestones', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          id: updatedMilestone.id,
+          name: updatedMilestone.name,
+          description: updatedMilestone.description,
+          category: updatedMilestone.category,
+          difficulty: updatedMilestone.difficulty,
+          xp: updatedMilestone.xp,
+          gold: updatedMilestone.gold
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update milestone');
+      }
+      
+      // Update local state
+      setMilestones(prevMilestones => 
+        prevMilestones.map(m => 
+          m.id === updatedMilestone.id 
+            ? { ...m, ...updatedMilestone }
+            : m
+        )
+      );
+      
+      toast({
+        title: "Milestone Updated",
+        description: `${updatedMilestone.name} has been updated successfully!`,
+        duration: 3000,
+      });
+      
+      setEditMilestoneModalOpen(false);
+      setEditingMilestone(null);
+    } catch (error) {
+      console.error('Error updating milestone:', error);
+      toast({
+        title: "Update Failed",
+        description: "Failed to update milestone. Please try again.",
+        variant: "destructive",
         duration: 3000,
       });
     }
@@ -2278,6 +2384,175 @@ export default function QuestsPage() {
           </div>
         </div>
       )}
+
+      {/* Edit Challenge Modal */}
+      {editChallengeModalOpen && editingChallenge && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => { setEditChallengeModalOpen(false); setEditingChallenge(null); }} />
+          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">Edit Challenge</h2>
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                handleEditChallengeSubmit(editingChallenge);
+              }}
+            >
+              <label className="block mb-2 text-sm font-medium">Name</label>
+              <input
+                className="w-full mb-4 p-2 border rounded"
+                value={editingChallenge.name}
+                onChange={e => setEditingChallenge({ ...editingChallenge, name: e.target.value })}
+                placeholder="Challenge name"
+                title="Challenge name"
+                aria-label="Challenge name"
+                required
+              />
+              <label className="block mb-2 text-sm font-medium">Description</label>
+              <textarea
+                className="w-full mb-4 p-2 border rounded resize-none"
+                rows={3}
+                value={editingChallenge.description}
+                onChange={e => setEditingChallenge({ ...editingChallenge, description: e.target.value })}
+                placeholder="Challenge description"
+                title="Challenge description"
+                aria-label="Challenge description"
+              />
+              <label className="block mb-2 text-sm font-medium">Category</label>
+              <select 
+                className="w-full mb-4 p-2 border rounded" 
+                value={editingChallenge.category} 
+                onChange={e => setEditingChallenge({ ...editingChallenge, category: e.target.value })} 
+                aria-label="Challenge category"
+              >
+                <option value="Push/Legs/Core">Push/Legs/Core</option>
+                <option value="Pull/Shoulder/Core">Pull/Shoulder/Core</option>
+                <option value="Legs/Arms/Core">Legs/Arms/Core</option>
+                <option value="HIIT & Full Body">HIIT & Full Body</option>
+              </select>
+              <label className="block mb-2 text-sm font-medium">Difficulty</label>
+              <select 
+                className="w-full mb-4 p-2 border rounded" 
+                value={editingChallenge.difficulty} 
+                onChange={e => setEditingChallenge({ ...editingChallenge, difficulty: e.target.value })} 
+                aria-label="Challenge difficulty"
+              >
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+              <label className="block mb-2 text-sm font-medium">XP Reward</label>
+              <input 
+                type="number" 
+                className="w-full mb-4 p-2 border rounded" 
+                value={editingChallenge.xp || 0} 
+                onChange={e => setEditingChallenge({ ...editingChallenge, xp: Number(e.target.value) })} 
+                placeholder="XP" 
+                title="XP" 
+                aria-label="XP" 
+              />
+              <label className="block mb-2 text-sm font-medium">Gold Reward</label>
+              <input 
+                type="number" 
+                className="w-full mb-4 p-2 border rounded" 
+                value={editingChallenge.gold || 0} 
+                onChange={e => setEditingChallenge({ ...editingChallenge, gold: Number(e.target.value) })} 
+                placeholder="Gold" 
+                title="Gold" 
+                aria-label="Gold" 
+              />
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="secondary" onClick={() => { setEditChallengeModalOpen(false); setEditingChallenge(null); }}>Cancel</Button>
+                <Button type="submit" variant="default">Save</Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Milestone Modal */}
+      {editMilestoneModalOpen && editingMilestone && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => { setEditMilestoneModalOpen(false); setEditingMilestone(null); }} />
+          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">Edit Milestone</h2>
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                handleEditMilestoneSubmit(editingMilestone);
+              }}
+            >
+              <label className="block mb-2 text-sm font-medium">Name</label>
+              <input
+                className="w-full mb-4 p-2 border rounded"
+                value={editingMilestone.name}
+                onChange={e => setEditingMilestone({ ...editingMilestone, name: e.target.value })}
+                placeholder="Milestone name"
+                title="Milestone name"
+                aria-label="Milestone name"
+                required
+              />
+              <label className="block mb-2 text-sm font-medium">Description</label>
+              <textarea
+                className="w-full mb-4 p-2 border rounded resize-none"
+                rows={3}
+                value={editingMilestone.description}
+                onChange={e => setEditingMilestone({ ...editingMilestone, description: e.target.value })}
+                placeholder="Milestone description"
+                title="Milestone description"
+                aria-label="Milestone description"
+              />
+              <label className="block mb-2 text-sm font-medium">Category</label>
+              <select 
+                className="w-full mb-4 p-2 border rounded" 
+                value={editingMilestone.category} 
+                onChange={e => setEditingMilestone({ ...editingMilestone, category: e.target.value })} 
+                aria-label="Milestone category"
+              >
+                <option value="Push/Legs/Core">Push/Legs/Core</option>
+                <option value="Pull/Shoulder/Core">Pull/Shoulder/Core</option>
+                <option value="Legs/Arms/Core">Legs/Arms/Core</option>
+                <option value="HIIT & Full Body">HIIT & Full Body</option>
+              </select>
+              <label className="block mb-2 text-sm font-medium">Difficulty</label>
+              <select 
+                className="w-full mb-4 p-2 border rounded" 
+                value={editingMilestone.difficulty} 
+                onChange={e => setEditingMilestone({ ...editingMilestone, difficulty: e.target.value })} 
+                aria-label="Milestone difficulty"
+              >
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+              <label className="block mb-2 text-sm font-medium">XP Reward</label>
+              <input 
+                type="number" 
+                className="w-full mb-4 p-2 border rounded" 
+                value={editingMilestone.xp || 0} 
+                onChange={e => setEditingMilestone({ ...editingMilestone, xp: Number(e.target.value) })} 
+                placeholder="XP" 
+                title="XP" 
+                aria-label="XP" 
+              />
+              <label className="block mb-2 text-sm font-medium">Gold Reward</label>
+              <input 
+                type="number" 
+                className="w-full mb-4 p-2 border rounded" 
+                value={editingMilestone.gold || 0} 
+                onChange={e => setEditingMilestone({ ...editingMilestone, gold: Number(e.target.value) })} 
+                placeholder="Gold" 
+                title="Gold" 
+                aria-label="Gold" 
+              />
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="secondary" onClick={() => { setEditMilestoneModalOpen(false); setEditingMilestone(null); }}>Cancel</Button>
+                <Button type="submit" variant="default">Save</Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Add Milestone Modal */}
       {addMilestoneModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">

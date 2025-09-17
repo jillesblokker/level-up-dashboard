@@ -189,3 +189,52 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+
+// PATCH: Update a specific milestone
+export async function PATCH(request: Request) {
+  try {
+    const body = await request.json();
+    const { id, name, description, category, difficulty, xp, gold } = body;
+    
+    if (!id) {
+      return NextResponse.json({ error: 'Milestone ID is required' }, { status: 400 });
+    }
+
+    // Use proper authentication
+    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      console.log('[Milestones PATCH] Updating milestone:', id, 'for user:', userId);
+      
+      // Update the milestone in the database
+      const { data, error } = await supabase
+        .from('milestones')
+        .update({
+          name: name || undefined,
+          description: description || undefined,
+          category: category || undefined,
+          difficulty: difficulty || undefined,
+          xp: xp || undefined,
+          gold: gold || undefined,
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('[Milestones PATCH] Database error:', error);
+        throw error;
+      }
+
+      console.log('[Milestones PATCH] Successfully updated milestone:', data);
+      return { success: true, data };
+    });
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 401 });
+    }
+
+    return NextResponse.json(result.data);
+  } catch (error) {
+    console.error('[Milestones PATCH] Error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
