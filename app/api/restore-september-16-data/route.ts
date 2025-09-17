@@ -14,11 +14,33 @@ export async function POST(request: NextRequest) {
 
     console.log('[Restore September 16 Data] Authenticated user:', userId);
     
-    // First, check what favorited quests exist
+    // First, get user's favorited quest IDs from quest_favorites table
+    const { data: favoriteData, error: favoriteError } = await supabaseServer
+      .from('quest_favorites')
+      .select('quest_id')
+      .eq('user_id', userId);
+
+    if (favoriteError) {
+      console.error('[Restore September 16 Data] Error fetching favorited quests:', favoriteError);
+      return NextResponse.json({ error: 'Failed to fetch favorited quests' }, { status: 500 });
+    }
+
+    const favoritedQuestIds = favoriteData?.map(item => item.quest_id) || [];
+    console.log('[Restore September 16 Data] Found favorited quest IDs:', favoritedQuestIds);
+
+    if (favoritedQuestIds.length === 0) {
+      return NextResponse.json({ 
+        success: true, 
+        message: 'No favorited quests found to restore',
+        restored: 0
+      });
+    }
+
+    // Now fetch the actual quest details for these favorited quests
     const { data: favoritedQuests, error: questError } = await supabaseServer
       .from('quests')
       .select('id, name, category, xp_reward, gold_reward')
-      .eq('favorited', true);
+      .in('id', favoritedQuestIds);
 
     if (questError) {
       console.error('[Restore September 16 Data] Error fetching favorited quests:', questError);
