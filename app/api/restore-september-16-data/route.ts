@@ -90,53 +90,67 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Insert completion records
-    const completionRecords = questsToRestore.map(quest => ({
-      user_id: userId,
-      quest_id: quest.id,
-      completed: true,
-      completed_at: '2025-09-16T12:00:00.000Z', // Netherlands timezone
-      original_completion_date: '2025-09-16T12:00:00.000Z',
-      xp_earned: quest.xp_reward || 50,
-      gold_earned: quest.gold_reward || 25
-    }));
+    // Insert completion records one by one to handle individual errors
+    let successCount = 0;
+    let errorCount = 0;
+    const errors = [];
 
-    const { data: insertData, error: insertError } = await supabaseServer
-      .from('quest_completion')
-      .insert(completionRecords)
-      .select();
+    for (const quest of questsToRestore) {
+      try {
+        const completionRecord = {
+          user_id: userId,
+          quest_id: quest.id,
+          completed: true,
+          completed_at: '2025-09-16T12:00:00.000Z', // Netherlands timezone
+          original_completion_date: '2025-09-16T12:00:00.000Z',
+          xp_earned: quest.xp_reward || 50,
+          gold_earned: quest.gold_reward || 25
+        };
 
-    if (insertError) {
-      console.error('[Restore September 16 Data] Error inserting completion records:', insertError);
-      console.error('[Restore September 16 Data] Insert error details:', {
-        message: insertError.message,
-        details: insertError.details,
-        hint: insertError.hint,
-        code: insertError.code
-      });
-      console.error('[Restore September 16 Data] Completion records that failed:', completionRecords);
-      return NextResponse.json({ 
-        error: 'Failed to insert completion records', 
-        details: insertError.message,
-        code: insertError.code,
-        hint: insertError.hint
-      }, { status: 500 });
+        const { data: insertData, error: insertError } = await supabaseServer
+          .from('quest_completion')
+          .insert(completionRecord)
+          .select();
+
+        if (insertError) {
+          console.error(`[Restore September 16 Data] Error inserting quest ${quest.name}:`, insertError);
+          errors.push({ quest: quest.name, error: insertError.message });
+          errorCount++;
+        } else {
+          console.log(`[Restore September 16 Data] Successfully restored quest: ${quest.name}`);
+          successCount++;
+        }
+      } catch (error) {
+        console.error(`[Restore September 16 Data] Exception for quest ${quest.name}:`, error);
+        errors.push({ quest: quest.name, error: error.message });
+        errorCount++;
+      }
     }
 
-    console.log('[Restore September 16 Data] Successfully restored:', insertData?.length || 0, 'completion records');
+    console.log(`[Restore September 16 Data] Restoration complete: ${successCount} successful, ${errorCount} errors`);
 
-    // Calculate total rewards
-    const totalXP = completionRecords.reduce((sum, record) => sum + record.xp_earned, 0);
-    const totalGold = completionRecords.reduce((sum, record) => sum + record.gold_earned, 0);
+    // Calculate total rewards for successfully restored quests
+    const totalXP = questsToRestore.slice(0, successCount).reduce((sum, quest) => sum + (quest.xp_reward || 50), 0);
+    const totalGold = questsToRestore.slice(0, successCount).reduce((sum, quest) => sum + (quest.gold_reward || 25), 0);
 
-    return NextResponse.json({ 
-      success: true,
-      message: `Successfully restored ${insertData?.length || 0} quest completion records for September 16th, 2025`,
-      restored: insertData?.length || 0,
-      totalXP,
-      totalGold,
-      restoredQuests: questsToRestore.map(q => q.name)
-    });
+    if (successCount > 0) {
+      return NextResponse.json({ 
+        success: true,
+        message: `Successfully restored ${successCount} quest completion records for September 16th, 2025`,
+        restored: successCount,
+        totalXP,
+        totalGold,
+        restoredQuests: questsToRestore.slice(0, successCount).map(q => q.name),
+        errors: errors.length > 0 ? errors : undefined
+      });
+    } else {
+      return NextResponse.json({ 
+        success: false,
+        message: 'Failed to restore any quest completion records',
+        restored: 0,
+        errors: errors
+      }, { status: 500 });
+    }
 
   } catch (error) {
     console.error('[Restore September 16 Data] Internal server error:', error);
