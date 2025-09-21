@@ -6,7 +6,7 @@ interface TestResult {
   testName: string;
   passed: boolean;
   details: any;
-  error?: string;
+  error?: string | undefined;
 }
 
 interface AuditResults {
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 
     // Helper function to add test result
     const addTestResult = (testName: string, passed: boolean, details: any, error?: string) => {
-      testResults.push({ testName, passed, details, error });
+      testResults.push({ testName, passed, details, error: error || undefined });
       if (passed) passedTests++; else failedTests++;
     };
 
