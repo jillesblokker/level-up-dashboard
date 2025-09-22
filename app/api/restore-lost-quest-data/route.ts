@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
             .single();
 
           if (!existingRecord) {
-            // Insert completion record for this date
+            // Insert completion record for this date (only existing columns)
             const { error: insertError } = await supabaseServer
               .from('quest_completion')
               .insert({
@@ -83,11 +83,8 @@ export async function POST(request: NextRequest) {
                 quest_id: quest.id,
                 completed: true,
                 completed_at: `${date}T12:00:00.000Z`,
-                original_completion_date: `${date}T12:00:00.000Z`,
                 xp_earned: quest.xp_reward || 50,
-                gold_earned: quest.gold_reward || 25,
-                created_at: `${date}T12:00:00.000Z`,
-                updated_at: `${date}T12:00:00.000Z`
+                gold_earned: quest.gold_reward || 25
               });
 
             if (insertError) {
