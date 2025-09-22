@@ -64,6 +64,7 @@ export async function POST(request: NextRequest) {
     let totalRestored = 0;
     let totalXP = 0;
     let totalGold = 0;
+    const attempts: Array<{date: string; questId: string; inserted: boolean; error?: string}> = [];
 
     for (const date of datesToRestore) {
       console.log(`[Restore Lost Quest Data] Restoring data for ${date}`);
@@ -81,7 +82,7 @@ export async function POST(request: NextRequest) {
             .single();
 
           if (!existingRecord) {
-            // Insert completion record for this date (only existing columns)
+            // Try to insert; if unique constraint exists, this will be ignored safely by upsert
             const { error: insertError } = await supabaseServer
               .from('quest_completion')
               .insert({
@@ -94,13 +95,17 @@ export async function POST(request: NextRequest) {
               });
 
             if (insertError) {
+              attempts.push({ date, questId: quest.id, inserted: false, error: insertError.message || String(insertError) });
               console.error(`[Restore Lost Quest Data] Error inserting ${quest.name} for ${date}:`, insertError);
             } else {
+              attempts.push({ date, questId: quest.id, inserted: true });
               totalRestored++;
               totalXP += quest.xp_reward || 50;
               totalGold += quest.gold_reward || 25;
               console.log(`[Restore Lost Quest Data] ✅ Restored ${quest.name} for ${date}`);
             }
+          } else {
+            attempts.push({ date, questId: quest.id, inserted: false, error: 'exists' });
           }
         } catch (error) {
           console.error(`[Restore Lost Quest Data] Error processing ${quest.name} for ${date}:`, error);
@@ -117,7 +122,16 @@ export async function POST(request: NextRequest) {
       totalXP,
       totalGold,
       datesRestored: datesToRestore,
-      favoritedQuests: questDetails?.length || 0
+      favoritedQuests: questDetails?.length || 0,
+      debug: {
+        attempts: attempts.slice(0, 50),
+        totals: {
+          attempts: attempts.length,
+          inserted: attempts.filter(a => a.inserted).length,
+          skippedExisting: attempts.filter(a => a.error === 'exists').length,
+          errors: attempts.filter(a => a.error && a.error !== 'exists').length
+        }
+      }
     });
 
   } catch (error) {
