@@ -399,19 +399,19 @@ export async function POST(request: NextRequest) {
     try {
       // Test quests API
       const questsResponse = await fetch(`${request.url.replace('/audit-data-system', '/quests')}`, {
-        headers: { 'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}` }
+        headers: { 'Authorization': `Bearer ${process.env['CLERK_SECRET_KEY'] ?? ''}` }
       });
       const questsData = await questsResponse.json();
 
       // Test challenges API
       const challengesResponse = await fetch(`${request.url.replace('/audit-data-system', '/challenges')}`, {
-        headers: { 'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}` }
+        headers: { 'Authorization': `Bearer ${process.env['CLERK_SECRET_KEY'] ?? ''}` }
       });
       const challengesData = await challengesResponse.json();
 
       // Test milestones API
       const milestonesResponse = await fetch(`${request.url.replace('/audit-data-system', '/milestones')}`, {
-        headers: { 'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}` }
+        headers: { 'Authorization': `Bearer ${process.env['CLERK_SECRET_KEY'] ?? ''}` }
       });
       const milestonesData = await milestonesResponse.json();
 
