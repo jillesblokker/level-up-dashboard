@@ -49,10 +49,10 @@ export async function POST(request: NextRequest) {
 
     console.log('[Restore Lost Quest Data] Found quest details:', questDetails?.length || 0);
 
-    // Restore completion data for the last 14 days (inclusive of today)
+    // Restore completion data for the last 14 days (starting from yesterday to avoid future dates)
     const datesToRestore: string[] = [];
     const now = new Date();
-    for (let i = 0; i < 14; i++) {
+    for (let i = 1; i <= 14; i++) {
       const d = new Date(now);
       d.setDate(now.getDate() - i);
       const yyyy = d.getFullYear();
