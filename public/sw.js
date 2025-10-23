@@ -87,20 +87,9 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // Skip API requests with cache-busting parameters
-  if (url.pathname.startsWith('/api/') && (url.search.includes('t=') || url.search.includes('r='))) {
-    console.log('[SW] Skipping cache for API with cache-busting:', request.url)
-    return fetch(request, {
-      redirect: 'follow'
-    })
-  }
-
-  // Skip API requests with no-cache headers
-  if (url.pathname.startsWith('/api/') && (
-    request.headers.get('Cache-Control') === 'no-cache' ||
-    request.headers.get('Pragma') === 'no-cache'
-  )) {
-    console.log('[SW] Skipping cache for API with no-cache headers:', request.url)
+  // Skip ALL API requests - never cache API responses
+  if (url.pathname.startsWith('/api/')) {
+    console.log('[SW] Skipping cache for API request:', request.url)
     return fetch(request, {
       redirect: 'follow'
     })
