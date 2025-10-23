@@ -19,7 +19,15 @@ interface AuditResults {
   summary: string;
 }
 
+export async function GET(request: NextRequest) {
+  return await runAudit(request);
+}
+
 export async function POST(request: NextRequest) {
+  return await runAudit(request);
+}
+
+async function runAudit(request: NextRequest) {
   try {
     console.log('[Data System Audit] Starting comprehensive audit...');
     
