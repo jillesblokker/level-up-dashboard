@@ -77,8 +77,7 @@ export async function POST(request: NextRequest) {
             .select('id')
             .eq('user_id', userId)
             .eq('quest_id', quest.id)
-            .gte('completed_at', `${date}T00:00:00.000Z`)
-            .lt('completed_at', `${date}T23:59:59.999Z`)
+            .eq('completion_date', date)
             .single();
 
           if (!existingRecord) {
@@ -90,6 +89,7 @@ export async function POST(request: NextRequest) {
                 quest_id: quest.id,
                 completed: true,
                 completed_at: `${date}T12:00:00.000Z`,
+                completion_date: date,
                 xp_earned: quest.xp_reward || 50,
                 gold_earned: quest.gold_reward || 25
               });
