@@ -261,11 +261,15 @@ async function runAudit(request: NextRequest) {
         }
       );
     } catch (error) {
+      const errObj = error as any;
       addTestResult(
         'Milestone Completion Saving',
         false,
-        {},
-        `Milestone completion saving failed: ${error}`
+        {
+          errorMessage: errObj?.message ?? String(error),
+          errorJson: (() => { try { return JSON.stringify(errObj); } catch { return undefined; } })()
+        },
+        `Milestone completion saving failed: ${errObj?.message ?? String(error)}`
       );
     }
 
@@ -288,6 +292,7 @@ async function runAudit(request: NextRequest) {
       const testQuestId = histQuest.id as string;
 
       // Create historical completion record
+      const yesterdayDate = yesterdayISO.split('T')[0];
       const { data: historicalCompletion, error: historicalError } = await supabaseServer
         .from('quest_completion')
         .insert({
@@ -295,7 +300,7 @@ async function runAudit(request: NextRequest) {
           quest_id: testQuestId,
           completed: true,
           completed_at: yesterdayISO,
-          original_completion_date: yesterdayISO,
+          completion_date: yesterdayDate,
           xp_earned: 50,
           gold_earned: 25
         })
@@ -342,11 +347,15 @@ async function runAudit(request: NextRequest) {
         }
       );
     } catch (error) {
+      const errObj = error as any;
       addTestResult(
         'Historical Data Preservation',
         false,
-        {},
-        `Historical data preservation failed: ${error}`
+        {
+          errorMessage: errObj?.message ?? String(error),
+          errorJson: (() => { try { return JSON.stringify(errObj); } catch { return undefined; } })()
+        },
+        `Historical data preservation failed: ${errObj?.message ?? String(error)}`
       );
     }
 
