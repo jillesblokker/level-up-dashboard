@@ -210,9 +210,15 @@ export async function GET(request: Request) {
       questCompletionGroups.forEach((completions, questId) => {
         // Find completion record for today
         const todayCompletion = completions.find((c: any) => {
-          // Use completion_date if available, otherwise parse completed_at
-          const completionDate = c.completion_date || new Date(c.completed_at).toISOString().split('T')[0];
-          return completionDate === today;
+          // Convert UTC completed_at to Netherlands timezone date
+          const utcDate = new Date(c.completed_at);
+          const netherlandsDate = new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'Europe/Amsterdam',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          }).format(utcDate);
+          return netherlandsDate === today;
         });
         
         console.log('[Quests API] Processing quest for today:', {
