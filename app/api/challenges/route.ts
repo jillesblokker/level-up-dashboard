@@ -144,7 +144,13 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: result.error }, { status: 401 });
     }
 
-    return NextResponse.json(result.data);
+    return NextResponse.json(result.data, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
   } catch (error) {
     console.error('[Challenges Error]', error);
     
@@ -222,7 +228,13 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: result.error }, { status: 401 });
     }
 
-    return NextResponse.json(result.data);
+    return NextResponse.json(result.data, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
   } catch (error) {
     console.error('[Challenges PUT] Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
