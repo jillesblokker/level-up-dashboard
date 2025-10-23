@@ -239,7 +239,7 @@ export default function QuestsPage() {
       if (!token) return;
       
       try {
-        const res = await fetch('/api/quests', {
+        const res = await fetch(`/api/quests?t=${Date.now()}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -1243,7 +1243,7 @@ export default function QuestsPage() {
       setTimeout(async () => {
         try {
           console.log('[Bulk Complete All] Refreshing quest data after completion...');
-          const response = await fetch('/api/quests', {
+          const response = await fetch(`/api/quests?t=${Date.now()}`, {
             headers: {
               'Authorization': `Bearer ${token}`,
             },
@@ -1356,7 +1356,7 @@ export default function QuestsPage() {
       try {
         // Fetch challenges
         console.log('[Challenges Frontend] Fetching challenges from /api/challenges...');
-        const challengesRes = await fetch('/api/challenges', {
+        const challengesRes = await fetch(`/api/challenges?t=${Date.now()}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         console.log('[Challenges Frontend] Challenges response:', { status: challengesRes.status, ok: challengesRes.ok });
@@ -1375,7 +1375,7 @@ export default function QuestsPage() {
 
         // Fetch milestones
         console.log('[Challenges Frontend] Fetching milestones from /api/milestones...');
-        const milestonesRes = await fetch('/api/milestones', {
+        const milestonesRes = await fetch(`/api/milestones?t=${Date.now()}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         console.log('[Challenges Frontend] Milestones response:', { status: milestonesRes.status, ok: milestonesRes.ok });
