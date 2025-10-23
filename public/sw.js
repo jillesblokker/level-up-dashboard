@@ -87,9 +87,23 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // Skip authentication-related requests to avoid redirect issues
-  if (url.pathname.includes('/sign-in') || url.pathname.includes('/auth/')) {
-    return
+  // Skip API requests with cache-busting parameters
+  if (url.pathname.startsWith('/api/') && (url.search.includes('t=') || url.search.includes('r='))) {
+    console.log('[SW] Skipping cache for API with cache-busting:', request.url)
+    return fetch(request, {
+      redirect: 'follow'
+    })
+  }
+
+  // Skip API requests with no-cache headers
+  if (url.pathname.startsWith('/api/') && (
+    request.headers.get('Cache-Control') === 'no-cache' ||
+    request.headers.get('Pragma') === 'no-cache'
+  )) {
+    console.log('[SW] Skipping cache for API with no-cache headers:', request.url)
+    return fetch(request, {
+      redirect: 'follow'
+    })
   }
 
   event.respondWith(

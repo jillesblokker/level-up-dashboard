@@ -1356,8 +1356,12 @@ export default function QuestsPage() {
       try {
         // Fetch challenges
         console.log('[Challenges Frontend] Fetching challenges from /api/challenges...');
-        const challengesRes = await fetch(`/api/challenges?t=${Date.now()}`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const challengesRes = await fetch(`/api/challenges?t=${Date.now()}&r=${Math.random()}`, {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          },
         });
         console.log('[Challenges Frontend] Challenges response:', { status: challengesRes.status, ok: challengesRes.ok });
         
@@ -1375,8 +1379,12 @@ export default function QuestsPage() {
 
         // Fetch milestones
         console.log('[Challenges Frontend] Fetching milestones from /api/milestones...');
-        const milestonesRes = await fetch(`/api/milestones?t=${Date.now()}`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const milestonesRes = await fetch(`/api/milestones?t=${Date.now()}&r=${Math.random()}`, {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          },
         });
         console.log('[Challenges Frontend] Milestones response:', { status: milestonesRes.status, ok: milestonesRes.ok });
         
