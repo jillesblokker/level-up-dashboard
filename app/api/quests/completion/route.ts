@@ -168,6 +168,7 @@ export async function PUT(request: Request) {
             quest_id: questId,
             completed: true,
             completed_at: new Date().toISOString(),
+            completion_date: today, // Add completion_date for daily tracking
             xp_earned: quest.xp_reward || 50,
             gold_earned: quest.gold_reward || 25
           })

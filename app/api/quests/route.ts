@@ -210,7 +210,8 @@ export async function GET(request: Request) {
       questCompletionGroups.forEach((completions, questId) => {
         // Find completion record for today
         const todayCompletion = completions.find((c: any) => {
-          const completionDate = new Date(c.completed_at).toISOString().split('T')[0];
+          // Use completion_date if available, otherwise parse completed_at
+          const completionDate = c.completion_date || new Date(c.completed_at).toISOString().split('T')[0];
           return completionDate === today;
         });
         
