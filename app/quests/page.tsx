@@ -1366,7 +1366,11 @@ export default function QuestsPage() {
         console.log('[Challenges Frontend] Challenges response:', { status: challengesRes.status, ok: challengesRes.ok });
 
         if (challengesRes.ok) {
-          const challengesData = await challengesRes.json();
+          const responseData = await challengesRes.json();
+          // Handle both old (array) and new (object) response formats
+          const challengesData = Array.isArray(responseData) ? responseData : responseData.challenges;
+          const debugAllCompletions = !Array.isArray(responseData) ? responseData.debug_all_completions : [];
+
           const completedChallenges = challengesData?.filter((c: any) => c.completed === true) || [];
           console.log('[Challenges Frontend] Challenges data received:', {
             count: challengesData?.length || 0,
@@ -1380,6 +1384,13 @@ export default function QuestsPage() {
             date: c.date,
             debug: c.completion_debug
           })));
+
+          if (debugAllCompletions && debugAllCompletions.length > 0) {
+            console.log('[Challenges Frontend] 🔍 RAW DB COMPLETIONS (All dates):', JSON.stringify(debugAllCompletions));
+          } else {
+            console.log('[Challenges Frontend] ⚠️ No raw completions returned from API');
+          }
+
           console.log('[Challenges Frontend] ✅ COMPLETED challenges:', completedChallenges.map((c: any) => ({ name: c.name, completed: c.completed, date: c.date, completionId: c.completionId })));
           console.log('[Challenges Frontend] All challenges completion status:', challengesData?.map((c: any) => ({ name: c.name, completed: c.completed, date: c.date })));
           setChallenges(challengesData || []);

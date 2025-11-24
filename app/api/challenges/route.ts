@@ -192,7 +192,10 @@ export async function GET(request: Request) {
         date: c.date
       })));
 
-      return challengesWithCompletion;
+      return {
+        data: challengesWithCompletion,
+        debug_all_completions: allCompletions
+      };
     });
 
     // Race between timeout and query
@@ -202,7 +205,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: result.error }, { status: 401 });
     }
 
-    return NextResponse.json(result.data, {
+    return NextResponse.json({
+      challenges: result.data,
+      debug_all_completions: result.debug_all_completions
+    }, {
       headers: {
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
         'Pragma': 'no-cache',
