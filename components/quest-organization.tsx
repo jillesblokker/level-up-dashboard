@@ -134,6 +134,31 @@ const categoryConfig = {
     bgColor: 'bg-red-500/10',
     borderColor: 'border-red-800/30',
     description: 'High-intensity interval training and full body workouts'
+  },
+  // Legacy categories (fallback for current database)
+  'Push Day (Chest, Shoulders, Triceps)': {
+    name: 'Push Day',
+    icon: '💪',
+    color: 'text-blue-400',
+    bgColor: 'bg-blue-500/10',
+    borderColor: 'border-blue-800/30',
+    description: 'Push exercises for chest, shoulders, and triceps'
+  },
+  'Pull Day (Back, Biceps)': {
+    name: 'Pull Day',
+    icon: '🏋️',
+    color: 'text-green-400',
+    bgColor: 'bg-green-500/10',
+    borderColor: 'border-green-800/30',
+    description: 'Pull exercises for back and biceps'
+  },
+  'Leg Day': {
+    name: 'Leg Day',
+    icon: '🦵',
+    color: 'text-orange-400',
+    bgColor: 'bg-orange-500/10',
+    borderColor: 'border-orange-800/30',
+    description: 'Leg strength and conditioning exercises'
   }
 }
 
@@ -209,7 +234,11 @@ export function QuestOrganization({
         'Push/Legs/Core',
         'Pull/Shoulder/Core', 
         'Core & Flexibility',
-        'HIIT & Full Body'
+        'HIIT & Full Body',
+        // Legacy categories (fallback for current database)
+        'Push Day (Chest, Shoulders, Triceps)',
+        'Pull Day (Back, Biceps)',
+        'Leg Day'
       ];
     }
     if (context === 'quests') {
@@ -230,7 +259,7 @@ export function QuestOrganization({
   // Set default selected category based on context
   useEffect(() => {
     if (context === 'challenges') {
-      setSelectedCategory('Push/Legs/Core');
+      setSelectedCategory('Push Day (Chest, Shoulders, Triceps)'); // Use actual database category
     } else if (context === 'quests') {
       setSelectedCategory('might');
     } else {

@@ -34,17 +34,17 @@ export async function POST(request: Request) {
       day: '2-digit'
     }).format(now);
     const today = netherlandsDate; // Format: YYYY-MM-DD
-    
+
     const { data, error } = await supabaseServer
       .from('challenge_completion')
       .upsert([
-        { 
-          user_id: userId, 
+        {
+          user_id: userId,
           challenge_id: challengeId,
           completed: true,
           date: today // Use Netherlands timezone date format (YYYY-MM-DD)
         }
-      ], { onConflict: 'user_id,challenge_id,date' })
+      ], { onConflict: 'user_id,challenge_id' })
       .single();
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });

@@ -47,7 +47,7 @@ export function QuestToggleButton({
     if (useCustomToggle) {
       // Use the custom toggle function (for challenges, milestones, etc.)
       console.log('[QuestToggleButton] Using custom toggle for:', questName);
-      onToggle(questId, completed);
+      onToggle(questId, !completed);
     } else {
       // Use the quest completion system (for regular quests)
       const result = await toggleQuestCompletion(

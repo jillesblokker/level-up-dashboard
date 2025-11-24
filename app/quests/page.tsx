@@ -69,7 +69,7 @@ const categoryIcons = {
 
 const categoryLabels = {
   might: 'Might',
-  knowledge: 'Knowledge', 
+  knowledge: 'Knowledge',
   honor: 'Honor',
   castle: 'Castle',
   craft: 'Craft',
@@ -161,7 +161,7 @@ export default function QuestsPage() {
   const { getToken } = useAuth();
   const userId = user?.id;
   const isUserLoaded = isClerkLoaded;
-  
+
   console.log('[Challenges Frontend] Component rendered, isClerkLoaded:', isClerkLoaded, 'userId:', userId, 'user:', !!user);
 
   const [quests, setQuests] = useState<Quest[]>([]);
@@ -228,27 +228,27 @@ export default function QuestsPage() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const dailyResetInitiated = useRef(false);
   const [manualResetLoading, setManualResetLoading] = useState(false);
-  
+
   // --- Realtime Sync ---
   const [syncError, setSyncError] = useState<string | null>(null);
-  
+
   const { syncNow, isSyncing, lastSync } = useQuestSync({
     onQuestsUpdate: async () => {
       console.log('[Quest Sync] Syncing quests...');
       // Refetch quests from the server
       if (!token) return;
-      
+
       try {
         const res = await fetch(`/api/quests?t=${Date.now()}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
         });
-        
+
         if (!res.ok) {
           throw new Error(`Failed to fetch quests: ${res.status}`);
         }
-        
+
         const data = await res.json();
         setQuests(data || []);
         console.log('[Quest Sync] Quests synced successfully');
@@ -269,26 +269,26 @@ export default function QuestsPage() {
       setTimeout(() => setSyncError(null), 5000);
     },
   });
-  
+
   // --- Offline Support ---
-  const { 
-    isOnline, 
-    queue, 
-    isProcessing: isQueueProcessing, 
-    processQueue, 
-    clearQueue, 
-    getQueueStats 
+  const {
+    isOnline,
+    queue,
+    isProcessing: isQueueProcessing,
+    processQueue,
+    clearQueue,
+    getQueueStats
   } = useOfflineSupport();
-  
+
   const queueStats = getQueueStats();
-  
+
   // --- Enhanced Toast System ---
   const questToasts = useQuestToasts();
-  
+
   // --- Quest Streak Logic ---
   // Remove localStorage fallback for streak/history
   const [questStreak, setQuestStreak] = useState(0);
-  const [questHistory, setQuestHistory] = useState<{date: string, completed: boolean}[]>([]);
+  const [questHistory, setQuestHistory] = useState<{ date: string, completed: boolean }[]>([]);
   const today = new Date().toISOString().slice(0, 10);
   // Calculate today's quest completion
   // eslint-disable-next-line
@@ -302,7 +302,7 @@ export default function QuestsPage() {
   const todaysQuests = questsByCategorySafe[safeQuestCategory] ?? [];
   const todaysCompleted = todaysQuests.filter(q => q.completed).length;
   const todaysTotal = todaysQuests.length;
-  
+
   // Debug quest filtering
   console.log('[Quest Filter Debug]', {
     totalQuests: quests.length,
@@ -399,33 +399,33 @@ export default function QuestsPage() {
         if (!contentType || !contentType.includes('application/json')) {
           const htmlText = await res.text();
           console.error('[Quests Debug] Received HTML instead of JSON:', htmlText.substring(0, 200));
-          
+
           // Retry once if we get HTML (might be a temporary auth issue)
           if (retryCount < 1) {
             console.log('[Quests Debug] Retrying after HTML response...');
             await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
             return fetchQuests(retryCount + 1);
           }
-          
+
           throw new Error(`API returned HTML instead of JSON. Status: ${res.status}`);
         }
-        
+
         const data = await res.json();
-        console.log('[Quests Debug] Data received:', { 
-          dataType: typeof data, 
-          isArray: Array.isArray(data), 
+        console.log('[Quests Debug] Data received:', {
+          dataType: typeof data,
+          isArray: Array.isArray(data),
           length: Array.isArray(data) ? data.length : 'N/A',
           sample: Array.isArray(data) ? data.slice(0, 2) : data,
           categories: Array.isArray(data) ? [...new Set(data.map(q => q.category))] : 'N/A',
           currentFilter: questCategory
         });
-        
+
         // Debug: Check for quests that are completed
         const completedQuests = data?.filter((q: any) => q.completed) || [];
         if (completedQuests.length > 0) {
           console.log('[Quests Debug] Found completed quests:', completedQuests.map((q: any) => ({ id: q.id, name: q.name, completed: q.completed })));
         }
-        
+
         setQuests(data || []);
       } catch (err: any) {
         setError('[Quests Debug] Error fetching quests: ' + (err.message || 'Failed to fetch quests'));
@@ -482,7 +482,7 @@ export default function QuestsPage() {
         day: '2-digit'
       }).format(now);
       const today = netherlandsDate; // Format: YYYY-MM-DD
-      
+
       // Debug timezone conversion
       console.log('[Daily Reset] Timezone debug:', {
         utcTime: now.toISOString(),
@@ -490,7 +490,7 @@ export default function QuestsPage() {
         today: today,
         lastReset: lastReset
       });
-      
+
       console.log('[Daily Reset] Checking reset conditions:', {
         lastReset,
         today,
@@ -498,27 +498,27 @@ export default function QuestsPage() {
         dailyResetInitiated: dailyResetInitiated.current,
         token: !!token
       });
-      
+
       // Debug: Show if we're skipping due to localStorage
       if (lastReset === today) {
         console.log('[Daily Reset] ⚠️ Skipping reset because localStorage shows reset already processed today');
         console.log('[Daily Reset] 💡 To force a reset, clear localStorage: localStorage.removeItem("last-quest-reset-date")');
       }
-      
+
       // Only reset if we haven't processed today's reset AND we have a valid token
       // Remove the dailyResetInitiated check to allow manual resets
       if (lastReset !== today && token) {
         console.log('[Daily Reset] Starting daily reset for date:', today);
         console.log('[Daily Reset] Last reset was:', lastReset, 'Today is:', today);
-        
+
         // Mark that we've initiated a reset to prevent multiple calls
         dailyResetInitiated.current = true;
-        
+
         // Call backend to reset quests and challenges
-              fetch('/api/quests/reset-daily-ui-only', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-              })
+        fetch('/api/quests/reset-daily-ui-only', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        })
           .then(async res => {
             if (!res.ok) {
               const err = await res.text();
@@ -530,31 +530,31 @@ export default function QuestsPage() {
               });
               return;
             }
-            
+
             // Only parse JSON if response is OK
             const result = await res.json();
             console.log('[Daily Reset] Success:', result);
-            
+
             // Mark that we've processed today's reset
             localStorage.setItem('last-quest-reset-date', today);
-            
+
             // Reset the daily reset flag to allow future resets
             dailyResetInitiated.current = false;
-            
+
             // 🔍 DEBUG: Log the quest state after reset
             console.log('[Daily Reset] Quest state after reset:', quests.map(q => ({ id: q.id, name: q.name, completed: q.completed })));
-            
+
             // IMPORTANT: DO NOT manually reset quest state - this causes data loss!
             // The quest completion logic will naturally show quests as incomplete
             // if there's no completed=true record for today
             console.log('[Daily Reset] ✅ Preserving quest state - no manual reset to prevent data loss');
-            
-                  // Optimized delay before refreshing to ensure reset completion
-                  setTimeout(() => {
-                    console.log('[Daily Reset] Refreshing quest data after reset...');
-                    setRefreshTrigger(prev => prev + 1);
-                  }, 1500); // Reduced delay since UI-only reset is instant
-            
+
+            // Optimized delay before refreshing to ensure reset completion
+            setTimeout(() => {
+              console.log('[Daily Reset] Refreshing quest data after reset...');
+              setRefreshTrigger(prev => prev + 1);
+            }, 1500); // Reduced delay since UI-only reset is instant
+
             toast({
               title: 'Daily Reset',
               description: 'Your daily quests and challenges have been reset! Time to build new habits.',
@@ -587,7 +587,7 @@ export default function QuestsPage() {
     }).format(now);
     const today = netherlandsDate; // Format: YYYY-MM-DD
     const lastReset = localStorage.getItem('last-quest-reset-date');
-    
+
     // If the date has changed, reset the flag
     if (lastReset !== today) {
       dailyResetInitiated.current = false;
@@ -630,10 +630,10 @@ export default function QuestsPage() {
   // Polling for streak changes instead of real-time sync - DISABLED TO PREVENT INFINITE LOOPS
   useEffect(() => {
     if (!userId || !questCategory) return;
-    
+
     // Disable polling to prevent infinite loops
     console.log('[Streaks Poll] Polling disabled to prevent infinite loops');
-    
+
     // Only fetch once on mount
     const fetchStreakOnce = async () => {
       if (token) {
@@ -657,7 +657,7 @@ export default function QuestsPage() {
         }
       }
     };
-    
+
     fetchStreakOnce();
   }, [userId, questCategory, token]);
 
@@ -678,7 +678,7 @@ export default function QuestsPage() {
           week_streaks: newWeekStreaks,
         }),
       });
-      
+
       // ⭐ IMMEDIATELY REFETCH the updated streak to refresh UI
       // Removed debugging log
       const res = await fetch(`/api/streaks-direct?category=${encodeURIComponent(challengeCategory)}`, {
@@ -712,38 +712,38 @@ export default function QuestsPage() {
       return;
     }
     if (typeof window === 'undefined') return;
-    
+
     const today = new Date().toISOString().slice(0, 10);
     const allQuestsCompleted = todaysCompleted === todaysTotal && todaysTotal > 0;
     // console.log('[Quest Streak Debug] All quests completed?', allQuestsCompleted);
-    
+
     // 🎯 SIMPLIFIED: Just check if all quests are completed and we haven't updated today
     const alreadyUpdatedToday = questCategory ? questStreakUpdatedToday[questCategory] === today : false;
     // console.log('[Quest Streak Debug] Already updated today?', alreadyUpdatedToday);
-    
+
     if (allQuestsCompleted && !alreadyUpdatedToday && questCategory) {
       // console.log('[Quest Streak Debug] 🎉 ALL QUESTS COMPLETED! Updating streak...');
-      
+
       // Mark as updated today to prevent infinite loop
       setQuestStreakUpdatedToday(prev => ({ ...prev, [questCategory]: today }));
-      
+
       // Get current streak from state and increment
       const currentStreak = streakData?.streak_days ?? 0;
       const newStreak = currentStreak + 1;
       // console.log('[Quest Streak Debug] Updating from', currentStreak, 'to', newStreak);
-      
+
       updateStreak(newStreak, 0);
-      
+
       // 🎯 AWARD BUILD TOKENS for completing all quests + streak achievements
       let buildTokensEarned = 1; // 1 token for completing all quests in category
-      
+
       // Bonus tokens for streak milestones (every 5 streak days)
       if (newStreak % 5 === 0) {
         buildTokensEarned += 1; // Extra token for streak milestone
       }
-      
+
       // Removed debugging log
-      
+
       // Update build tokens in Supabase
       import('@/lib/character-stats-manager').then(({ loadCharacterStats, saveCharacterStats }) => {
         loadCharacterStats().then(current => {
@@ -751,11 +751,11 @@ export default function QuestsPage() {
           saveCharacterStats({ build_tokens: currentBuildTokens + buildTokensEarned });
         });
       });
-      
+
       // Trigger kingdom update for build tokens
       window.dispatchEvent(new CustomEvent('kingdom:buildTokensGained', { detail: buildTokensEarned }));
       window.dispatchEvent(new Event('character-stats-update'));
-      
+
       toast({
         title: 'Quest Streak',
         description: `You completed all quests for ${questCategory}! Streak increased to ${newStreak} days. Earned ${buildTokensEarned} build token(s)!`,
@@ -800,20 +800,20 @@ export default function QuestsPage() {
       const newStreak = challengeStreakData?.streak_days ?? 0;
       const newWeekStreaks = challengeStreakData?.week_streaks ?? 0;
       updateChallengeStreak(newStreak + 1, newWeekStreaks + 1);
-      
+
       // Mark as updated today to prevent infinite loop
       setStreakUpdatedToday(prev => ({ ...prev, [challengeCategory]: today }));
-      
+
       // 🎯 AWARD BUILD TOKENS for completing all challenges + streak achievements
       let buildTokensEarned = 1; // 1 token for completing all challenges in category
-      
+
       // Bonus tokens for streak milestones (every 5 streak days)
       if ((newStreak + 1) % 5 === 0) {
         buildTokensEarned += 1; // Extra token for streak milestone
       }
-      
+
       // Removed debugging log
-      
+
       // Update build tokens in Supabase
       import('@/lib/character-stats-manager').then(({ loadCharacterStats, saveCharacterStats }) => {
         loadCharacterStats().then(current => {
@@ -821,20 +821,20 @@ export default function QuestsPage() {
           saveCharacterStats({ build_tokens: currentBuildTokens + buildTokensEarned });
         });
       });
-      
+
       // Trigger kingdom update for build tokens
       window.dispatchEvent(new CustomEvent('kingdom:buildTokensGained', { detail: buildTokensEarned }));
       window.dispatchEvent(new Event('character-stats-update'));
-      
+
       // Update state without causing infinite loop
       const newStreakData = { [challengeCategory]: [...(challengeStreaks[challengeCategory] || []), newStreak + 1] };
       const newLastCompletedData = { [challengeCategory]: [...(challengeLastCompleted[challengeCategory] || []), new Date().toISOString()] };
-      
+
       setChallengeStreaks(prev => ({ ...prev, ...newStreakData }));
       setChallengeLastCompleted(prev => ({ ...prev, ...newLastCompletedData }));
       localStorage.setItem(CHALLENGE_STREAKS_KEY, JSON.stringify({ ...challengeStreaks, ...newStreakData }));
       localStorage.setItem(CHALLENGE_LAST_COMPLETED_KEY, JSON.stringify({ ...challengeLastCompleted, ...newLastCompletedData }));
-      
+
       toast({
         title: 'Challenge Streak',
         description: `You completed all challenges for ${challengeCategory}! Streak increased to ${newStreak + 1} days. Earned ${buildTokensEarned} build token(s)!`,
@@ -845,7 +845,7 @@ export default function QuestsPage() {
   // Add missing functions
   const updateStreak = async (newStreak: number, newWeekStreaks: number) => {
     if (!token || !userId) return;
-    
+
     try {
       // Update local state
       setStreakData(prev => ({
@@ -853,7 +853,7 @@ export default function QuestsPage() {
         currentStreak: newStreak,
         weekStreaks: newWeekStreaks
       }));
-      
+
       // Update in Supabase
       const response = await fetch('/api/streaks', {
         method: 'PUT',
@@ -866,11 +866,11 @@ export default function QuestsPage() {
           weekStreaks: newWeekStreaks
         })
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to update streak');
       }
-      
+
       toast({
         title: "Streak Updated",
         description: `Your streak is now ${newStreak} days!`,
@@ -888,25 +888,25 @@ export default function QuestsPage() {
 
   const handleQuestToggle = async (questId: string, newCompleted: boolean) => {
     if (!token || !userId) return;
-    
+
     // Find the quest object
     const questObj = quests.find(q => q.id === questId);
     if (!questObj) {
       console.error('[QUEST-TOGGLE] Quest not found:', questId);
       return;
     }
-    
+
     console.log('[QUEST-TOGGLE] Updating quest state:', { questId, newCompleted, questName: questObj.name });
-    
+
     // Update the quest in the local state (optimistic update)
-    setQuests(prevQuests => 
-      prevQuests.map(q => 
-        q.id === questId 
+    setQuests(prevQuests =>
+      prevQuests.map(q =>
+        q.id === questId
           ? { ...q, completed: newCompleted }
           : q
       )
     );
-    
+
     // Quest completion is handled by the main completion system
     // No need for additional debounced persistence
   };
@@ -914,7 +914,7 @@ export default function QuestsPage() {
 
   const handleQuestFavorite = async (questId: string) => {
     if (!token || !userId) return;
-    
+
     try {
       // Toggle favorite status in local state
       setFavoritedQuests(prev => {
@@ -926,10 +926,10 @@ export default function QuestsPage() {
         }
         return newFavorites;
       });
-      
+
       // Update in Supabase (if you have a favorites table)
       // For now, we'll just use local state
-      
+
       toast({
         title: "Favorite Updated",
         description: "Quest favorite status updated.",
@@ -952,11 +952,11 @@ export default function QuestsPage() {
 
   const handleDeleteQuest = async (questId: string) => {
     if (!token || !userId) return;
-    
+
     try {
       // Remove from local state
       setQuests(prevQuests => prevQuests.filter(q => q.id !== questId));
-      
+
       // Delete from Supabase
       const response = await fetch('/api/quests-complete', {
         method: 'DELETE',
@@ -967,11 +967,11 @@ export default function QuestsPage() {
           questId
         })
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to delete quest');
       }
-      
+
       toast({
         title: "Quest Deleted",
         description: "Quest has been successfully deleted.",
@@ -989,21 +989,21 @@ export default function QuestsPage() {
 
   const handleChallengeToggle = async (challengeId: string, currentCompleted: boolean) => {
     if (!token || !userId) return;
-    
+
     try {
       const newCompleted = !currentCompleted;
       console.log('[Challenge Toggle] Starting:', { challengeId, currentCompleted, newCompleted, token: !!token });
       console.log('[Challenge Toggle] Toast will show:', newCompleted ? 'COMPLETED' : 'UNCOMPLETED');
-      
+
       // Update local state
-      setChallenges(prevChallenges => 
-        prevChallenges.map(challenge => 
-          challenge.id === challengeId 
+      setChallenges(prevChallenges =>
+        prevChallenges.map(challenge =>
+          challenge.id === challengeId
             ? { ...challenge, completed: newCompleted }
             : challenge
         )
       );
-      
+
       // Update in Supabase
       const response = await fetch('/api/challenges', {
         method: 'PUT',
@@ -1016,15 +1016,15 @@ export default function QuestsPage() {
           completed: newCompleted
         })
       });
-      
+
       console.log('[Challenge Toggle] API Response:', { status: response.status, ok: response.ok });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error('[Challenge Toggle] API Error:', errorText);
         throw new Error(`Failed to update challenge: ${response.status} - ${errorText}`);
       }
-      
+
       // Find the challenge name for the toast (use current state before update)
       const challenge = challenges.find(c => c.id === challengeId);
       if (challenge) {
@@ -1059,11 +1059,11 @@ export default function QuestsPage() {
 
   const handleDeleteChallenge = async (challengeId: string) => {
     if (!token || !userId) return;
-    
+
     try {
       // Remove from local state
       setChallenges(prevChallenges => prevChallenges.filter(c => c.id !== challengeId));
-      
+
       // Delete from Supabase
       const response = await fetch('/api/challenges', {
         method: 'DELETE',
@@ -1074,11 +1074,11 @@ export default function QuestsPage() {
           challengeId
         })
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to delete challenge');
       }
-      
+
       toast({
         title: "Challenge Deleted",
         description: "Challenge has been successfully deleted.",
@@ -1096,27 +1096,27 @@ export default function QuestsPage() {
 
   const handleBulkCompleteFavorites = async () => {
     if (!token) return;
-    
+
     try {
-      const favoritedQuestsInCategory = quests.filter(q => 
-        q.category === questCategory && 
-        favoritedQuests.has(q.id) && 
+      const favoritedQuestsInCategory = quests.filter(q =>
+        q.category === questCategory &&
+        favoritedQuests.has(q.id) &&
         !q.completed
       );
-      
+
       if (favoritedQuestsInCategory.length === 0) return;
-      
+
       // Complete each favorited quest in the current category
       for (const quest of favoritedQuestsInCategory) {
         // Update local state first (optimistic update)
-        setQuests(prevQuests => 
-          prevQuests.map(q => 
-            q.id === quest.id 
+        setQuests(prevQuests =>
+          prevQuests.map(q =>
+            q.id === quest.id
               ? { ...q, completed: true }
               : q
           )
         );
-        
+
         // Save to database using smart completion API
         try {
           const response = await fetch('/api/quests/smart-completion', {
@@ -1131,13 +1131,13 @@ export default function QuestsPage() {
               goldReward: quest.gold || 25,
             }),
           });
-          
+
           if (!response.ok) {
             console.error(`[Bulk Complete] Failed to complete quest ${quest.id}:`, response.status);
             // Revert optimistic update on failure
-            setQuests(prevQuests => 
-              prevQuests.map(q => 
-                q.id === quest.id 
+            setQuests(prevQuests =>
+              prevQuests.map(q =>
+                q.id === quest.id
                   ? { ...q, completed: false }
                   : q
               )
@@ -1148,16 +1148,16 @@ export default function QuestsPage() {
         } catch (apiError) {
           console.error(`[Bulk Complete] API error for quest ${quest.id}:`, apiError);
           // Revert optimistic update on error
-          setQuests(prevQuests => 
-            prevQuests.map(q => 
-              q.id === quest.id 
+          setQuests(prevQuests =>
+            prevQuests.map(q =>
+              q.id === quest.id
                 ? { ...q, completed: false }
                 : q
             )
           );
         }
       }
-      
+
       toast({
         title: "Bulk Complete Successful!",
         description: `Completed ${favoritedQuestsInCategory.length} favorited quests in ${getCategoryLabel(questCategory || '')} category.`,
@@ -1175,26 +1175,26 @@ export default function QuestsPage() {
 
   const handleBulkCompleteAllFavorites = async () => {
     if (!token) return;
-    
+
     try {
-      const allFavoritedQuests = quests.filter(q => 
-        favoritedQuests.has(q.id) && 
+      const allFavoritedQuests = quests.filter(q =>
+        favoritedQuests.has(q.id) &&
         !q.completed
       );
-      
+
       if (allFavoritedQuests.length === 0) return;
-      
+
       // Complete each favorited quest across all categories
       for (const quest of allFavoritedQuests) {
         // Update local state first (optimistic update)
-        setQuests(prevQuests => 
-          prevQuests.map(q => 
-            q.id === quest.id 
+        setQuests(prevQuests =>
+          prevQuests.map(q =>
+            q.id === quest.id
               ? { ...q, completed: true }
               : q
           )
         );
-        
+
         // Save to database using smart completion API
         try {
           const response = await fetch('/api/quests/smart-completion', {
@@ -1210,14 +1210,14 @@ export default function QuestsPage() {
               goldReward: quest.gold || 25,
             }),
           });
-          
+
           if (!response.ok) {
             const errorText = await response.text();
             console.error(`[Bulk Complete All] Failed to complete quest ${quest.id}:`, response.status, errorText);
             // Revert optimistic update on failure
-            setQuests(prevQuests => 
-              prevQuests.map(q => 
-                q.id === quest.id 
+            setQuests(prevQuests =>
+              prevQuests.map(q =>
+                q.id === quest.id
                   ? { ...q, completed: false }
                   : q
               )
@@ -1229,16 +1229,16 @@ export default function QuestsPage() {
         } catch (apiError) {
           console.error(`[Bulk Complete All] API error for quest ${quest.id}:`, apiError);
           // Revert optimistic update on error
-          setQuests(prevQuests => 
-            prevQuests.map(q => 
-              q.id === quest.id 
+          setQuests(prevQuests =>
+            prevQuests.map(q =>
+              q.id === quest.id
                 ? { ...q, completed: false }
                 : q
             )
           );
         }
       }
-      
+
       // Wait a moment for database to update, then refresh quest data
       setTimeout(async () => {
         try {
@@ -1248,7 +1248,7 @@ export default function QuestsPage() {
               'Authorization': `Bearer ${token}`,
             },
           });
-          
+
           if (response.ok) {
             const data = await response.json();
             console.log('[Bulk Complete All] Refreshed quest data:', data);
@@ -1258,7 +1258,7 @@ export default function QuestsPage() {
           console.error('[Bulk Complete All] Error refreshing quest data:', error);
         }
       }, 1000);
-      
+
       toast({
         title: "Bulk Complete Successful!",
         description: `Completed ${allFavoritedQuests.length} favorited quests across all categories.`,
@@ -1277,16 +1277,16 @@ export default function QuestsPage() {
   // Manual reset function for immediate control
   const handleManualReset = async () => {
     if (!token) return;
-    
+
     setManualResetLoading(true);
     console.log('[Manual Reset] Starting manual reset...');
-    
+
     try {
-        const res = await fetch('/api/quests/reset-daily-ui-only', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        });
-      
+      const res = await fetch('/api/quests/reset-daily-ui-only', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      });
+
       if (!res.ok) {
         const err = await res.text();
         console.error('[Manual Reset] API error:', res.status, err);
@@ -1297,32 +1297,32 @@ export default function QuestsPage() {
         });
         return;
       }
-      
+
       const result = await res.json();
       console.log('[Manual Reset] Success:', result);
-      
+
       // Force all quests to show as incomplete
-      setQuests(prevQuests => 
+      setQuests(prevQuests =>
         prevQuests.map(quest => ({
           ...quest,
           completed: false
         }))
       );
-      
+
       // Add a small delay before refreshing to ensure the reset has completed
       setTimeout(() => {
         console.log('[Manual Reset] Refreshing quest data after reset...');
         setRefreshTrigger(prev => prev + 1);
       }, 1000);
-      
+
       // Reset the daily reset flag (but don't update localStorage for manual resets)
       dailyResetInitiated.current = false; // Allow future resets
-      
+
       toast({
         title: 'Manual Reset Complete',
         description: 'All quests have been reset successfully!',
       });
-      
+
     } catch (err) {
       console.error('[Manual Reset] Error:', err);
       toast({
@@ -1343,34 +1343,44 @@ export default function QuestsPage() {
   // Initialize challenges and milestones data - must be before early returns
   useEffect(() => {
     console.log('[Challenges Frontend] useEffect triggered, token available:', !!token, 'user:', !!user);
-    
+
     // Fetch challenges and milestones from Supabase instead of using predefined data
     const fetchChallengesAndMilestones = async () => {
       if (!token || !user) {
         console.log('[Challenges Frontend] No token or user available, skipping fetch');
         return;
       }
-      
+
       console.log('[Challenges Frontend] Starting to fetch challenges and milestones...');
-      
+
       try {
         // Fetch challenges
         console.log('[Challenges Frontend] Fetching challenges from /api/challenges...');
         const challengesRes = await fetch(`/api/challenges?t=${Date.now()}&r=${Math.random()}`, {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
             'Cache-Control': 'no-cache',
             'Pragma': 'no-cache'
           },
         });
         console.log('[Challenges Frontend] Challenges response:', { status: challengesRes.status, ok: challengesRes.ok });
-        
+
         if (challengesRes.ok) {
           const challengesData = await challengesRes.json();
-          console.log('[Challenges Frontend] Challenges data received:', { 
-            count: challengesData?.length || 0, 
+          const completedChallenges = challengesData?.filter((c: any) => c.completed === true) || [];
+          console.log('[Challenges Frontend] Challenges data received:', {
+            count: challengesData?.length || 0,
+            completedCount: completedChallenges.length,
             sample: challengesData?.slice(0, 2)?.map((c: any) => ({ id: c.id, name: c.name, completed: c.completed, date: c.date }))
           });
+          console.log('[Challenges Frontend] Detailed completion debug:', challengesData.map((c: any) => ({
+            id: c.id,
+            name: c.name,
+            completed: c.completed,
+            date: c.date,
+            debug: c.completion_debug
+          })));
+          console.log('[Challenges Frontend] ✅ COMPLETED challenges:', completedChallenges.map((c: any) => ({ name: c.name, completed: c.completed, date: c.date, completionId: c.completionId })));
           console.log('[Challenges Frontend] All challenges completion status:', challengesData?.map((c: any) => ({ name: c.name, completed: c.completed, date: c.date })));
           setChallenges(challengesData || []);
         } else {
@@ -1380,18 +1390,18 @@ export default function QuestsPage() {
         // Fetch milestones
         console.log('[Challenges Frontend] Fetching milestones from /api/milestones...');
         const milestonesRes = await fetch(`/api/milestones?t=${Date.now()}&r=${Math.random()}`, {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
             'Cache-Control': 'no-cache',
             'Pragma': 'no-cache'
           },
         });
         console.log('[Challenges Frontend] Milestones response:', { status: milestonesRes.status, ok: milestonesRes.ok });
-        
+
         if (milestonesRes.ok) {
           const milestonesData = await milestonesRes.json();
-          console.log('[Challenges Frontend] Milestones data received:', { 
-            count: milestonesData?.length || 0, 
+          console.log('[Challenges Frontend] Milestones data received:', {
+            count: milestonesData?.length || 0,
             sample: milestonesData?.slice(0, 2)?.map((m: any) => ({ id: m.id, name: m.name, completed: m.completed, date: m.date }))
           });
           console.log('[Challenges Frontend] All milestones completion status:', milestonesData?.map((m: any) => ({ name: m.name, completed: m.completed, date: m.date })));
@@ -1409,21 +1419,21 @@ export default function QuestsPage() {
 
   const handleMilestoneToggle = async (milestoneId: string, currentCompleted: boolean) => {
     if (!token || !userId) return;
-    
+
     try {
       const newCompleted = !currentCompleted;
       console.log('[Milestone Toggle] Starting:', { milestoneId, currentCompleted, newCompleted, token: !!token });
       console.log('[Milestone Toggle] Toast will show:', newCompleted ? 'COMPLETED' : 'UNCOMPLETED');
-      
+
       // Update local state
-      setMilestones(prevMilestones => 
-        prevMilestones.map(milestone => 
-          milestone.id === milestoneId 
+      setMilestones(prevMilestones =>
+        prevMilestones.map(milestone =>
+          milestone.id === milestoneId
             ? { ...milestone, completed: newCompleted }
             : milestone
         )
       );
-      
+
       // Update in Supabase
       const response = await fetch('/api/milestones', {
         method: 'PUT',
@@ -1436,11 +1446,11 @@ export default function QuestsPage() {
           completed: newCompleted
         })
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to update milestone');
       }
-      
+
       const milestone = milestones.find(m => m.id === milestoneId);
       if (milestone) {
         if (newCompleted) {
@@ -1474,11 +1484,11 @@ export default function QuestsPage() {
 
   const handleMilestoneDelete = async (milestoneId: string) => {
     if (!token || !userId) return;
-    
+
     try {
       // Remove from local state
       setMilestones(prevMilestones => prevMilestones.filter(m => m.id !== milestoneId));
-      
+
       // Delete from Supabase
       const response = await fetch('/api/milestones', {
         method: 'DELETE',
@@ -1489,11 +1499,11 @@ export default function QuestsPage() {
           milestoneId
         })
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to delete milestone');
       }
-      
+
       toast({
         title: "Milestone Deleted",
         description: "Milestone has been successfully deleted.",
@@ -1519,17 +1529,17 @@ export default function QuestsPage() {
 
   const handleEditQuestSubmit = async (updatedQuest: Quest) => {
     if (!token || !userId) return;
-    
+
     try {
       // Update local state first (optimistic update)
-      setQuests(prevQuests => 
-        prevQuests.map(q => 
-          q.id === updatedQuest.id 
+      setQuests(prevQuests =>
+        prevQuests.map(q =>
+          q.id === updatedQuest.id
             ? updatedQuest
             : q
         )
       );
-      
+
       // Update in Supabase using the correct API endpoint
       const response = await fetch(`/api/quests/${updatedQuest.id}`, {
         method: 'PUT',
@@ -1546,35 +1556,35 @@ export default function QuestsPage() {
           gold_reward: updatedQuest.gold || 25,
         })
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to update quest');
       }
-      
+
       const result = await response.json();
       console.log('[Quest Edit] Update successful:', result);
-      
+
       toast({
         title: "Quest Updated",
         description: "Quest has been successfully updated.",
         duration: 2000,
       });
-      
+
       setEditModalOpen(false);
       setEditingQuest(null);
     } catch (error) {
       console.error('Error updating quest:', error);
-      
+
       // Revert optimistic update on error
-      setQuests(prevQuests => 
-        prevQuests.map(q => 
-          q.id === updatedQuest.id 
+      setQuests(prevQuests =>
+        prevQuests.map(q =>
+          q.id === updatedQuest.id
             ? editingQuest || q
             : q
         )
       );
-      
+
       toast({
         title: "Error",
         description: `Failed to update quest: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -1585,7 +1595,7 @@ export default function QuestsPage() {
 
   const handleEditChallengeSubmit = async (updatedChallenge: any) => {
     if (!token || !userId) return;
-    
+
     try {
       // Call API to update challenge
       const response = await fetch('/api/challenges', {
@@ -1604,26 +1614,26 @@ export default function QuestsPage() {
           gold: updatedChallenge.gold
         })
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to update challenge');
       }
-      
+
       // Update local state
-      setChallenges(prevChallenges => 
-        prevChallenges.map(c => 
-          c.id === updatedChallenge.id 
+      setChallenges(prevChallenges =>
+        prevChallenges.map(c =>
+          c.id === updatedChallenge.id
             ? { ...c, ...updatedChallenge }
             : c
         )
       );
-      
+
       toast({
         title: "Challenge Updated",
         description: `${updatedChallenge.name} has been updated successfully!`,
         duration: 3000,
       });
-      
+
       setEditChallengeModalOpen(false);
       setEditingChallenge(null);
     } catch (error) {
@@ -1639,7 +1649,7 @@ export default function QuestsPage() {
 
   const handleEditMilestoneSubmit = async (updatedMilestone: any) => {
     if (!token || !userId) return;
-    
+
     try {
       // Call API to update milestone
       const response = await fetch('/api/milestones', {
@@ -1658,26 +1668,26 @@ export default function QuestsPage() {
           gold: updatedMilestone.gold
         })
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to update milestone');
       }
-      
+
       // Update local state
-      setMilestones(prevMilestones => 
-        prevMilestones.map(m => 
-          m.id === updatedMilestone.id 
+      setMilestones(prevMilestones =>
+        prevMilestones.map(m =>
+          m.id === updatedMilestone.id
             ? { ...m, ...updatedMilestone }
             : m
         )
       );
-      
+
       toast({
         title: "Milestone Updated",
         description: `${updatedMilestone.name} has been updated successfully!`,
         duration: 3000,
       });
-      
+
       setEditMilestoneModalOpen(false);
       setEditingMilestone(null);
     } catch (error) {
@@ -1693,12 +1703,12 @@ export default function QuestsPage() {
 
   const handleAddQuestSubmit = async (quest: Quest) => {
     if (!token || !userId) return;
-    
+
     try {
       // Add to local state
       const newQuest = { ...quest, id: Date.now().toString(), isNew: false };
       setQuests(prevQuests => [...prevQuests, newQuest]);
-      
+
       // Add to Supabase
       const response = await fetch('/api/quests-complete', {
         method: 'POST',
@@ -1707,17 +1717,17 @@ export default function QuestsPage() {
         },
         body: JSON.stringify(quest)
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to add quest');
       }
-      
+
       toast({
         title: "Quest Added",
         description: "New quest has been successfully added.",
         duration: 2000,
       });
-      
+
       setAddQuestModalOpen(false);
     } catch (error) {
       console.error('Error adding quest:', error);
@@ -1773,1090 +1783,1090 @@ export default function QuestsPage() {
     <EnhancedErrorBoundary>
       <div className="min-h-full quests-page-container scroll-prevent" style={{ overscrollBehavior: 'none' }}>
         {/* Keyboard Shortcuts Provider */}
-        <KeyboardShortcutsProvider 
-        onNavigate={(route) => {
-          // TODO: Implement navigation
-          // Navigate to route
-        }}
-        onAddQuest={() => setAddQuestModalOpen(true)}
-        onAddChallenge={() => setAddChallengeModalOpen(true)}
-        onAddMilestone={() => setAddMilestoneModalOpen(true)}
-        onBuyTile={() => {
-          // TODO: Navigate to kingdom and open tile purchase
-          // Buy tile
-        }}
-        onShowHelp={() => {
-          // TODO: Show help modal
-          // Show help
-        }}
-      />
-      
-      <HeaderSection
-        title="Message Board"
-        subtitle="Embark on epic journeys and complete tasks to earn rewards."
-        imageSrc="/images/quests-header.jpg"
-        defaultBgColor="bg-amber-900"
-        shouldRevealImage={true}
-      />
-      <MobileLayoutWrapper className="quests-page-container">
-        <MobileContentWrapper>
-          {error && <p className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{error}</p>}
-          
-          {/* Sync Status Indicators */}
-          <div className="mb-4 flex justify-between items-center">
-            <OfflineQueueIndicator
-              isOnline={isOnline}
-              queueStats={queueStats}
-              isProcessing={isQueueProcessing}
-              onProcessQueue={processQueue}
-              onClearQueue={clearQueue}
-            />
-            <SyncStatusIndicator 
-              isSyncing={isSyncing}
-              lastSync={lastSync}
-              error={syncError}
-            />
-          </div>
-          
-          {/* Gameplay Loop Indicator */}
-          <div className="mb-6">
-            <GameplayLoopIndicator 
-              questsCompleted={quests.filter(q => q.completed).length}
-              goldEarned={quests.reduce((sum, q) => sum + (q.completed ? (q.gold || 0) : 0), 0)}
-              kingdomTiles={0} // TODO: Get from kingdom state
-            />
-          </div>
-          
-          <Tabs value={mainTab} onValueChange={v => setMainTab(v as 'quests' | 'challenges' | 'milestones' | 'recovery')} className="space-y-6">
-          <TabsList className="mb-6 w-full grid grid-cols-4">
-            <TabsTrigger value="quests">Tasks</TabsTrigger>
-            <TabsTrigger value="challenges">Challenges</TabsTrigger>
-            <TabsTrigger value="milestones">Milestones</TabsTrigger>
-            <TabsTrigger value="recovery">Recovery</TabsTrigger>
-          </TabsList>
+        <KeyboardShortcutsProvider
+          onNavigate={(route) => {
+            // TODO: Implement navigation
+            // Navigate to route
+          }}
+          onAddQuest={() => setAddQuestModalOpen(true)}
+          onAddChallenge={() => setAddChallengeModalOpen(true)}
+          onAddMilestone={() => setAddMilestoneModalOpen(true)}
+          onBuyTile={() => {
+            // TODO: Navigate to kingdom and open tile purchase
+            // Buy tile
+          }}
+          onShowHelp={() => {
+            // TODO: Show help modal
+            // Show help
+          }}
+        />
 
-          {/* Quests Tab */}
-          <TabsContent value="quests">
-            <div className="mb-6 space-y-6">
-              {/* Bulk Complete Favorites Button */}
-              <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
-                <Button
-                  onClick={handleBulkCompleteFavorites}
-                  disabled={loading || quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length === 0}
-                  className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-300 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
-                  aria-label="Complete all favorited quests in this category"
-                >
-                  <Star className="w-4 h-4 mr-2" />
-                  Complete {quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length} Favorites
-                </Button>
-                <Button
-                  onClick={handleBulkCompleteAllFavorites}
-                  disabled={loading || quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length === 0}
-                  className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
-                  aria-label="Complete all favorited quests across all categories"
-                >
-                  <Star className="w-4 h-4 mr-2" />
-                  Complete {quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length} Total Favorites
-                </Button>
-                <Button
-                  onClick={handleManualReset}
-                  disabled={manualResetLoading || !token}
-                  className="bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800/50 disabled:text-gray-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg border border-gray-500"
-                  aria-label="Manually reset today's quests"
-                >
-                  {manualResetLoading ? (
-                    <>
-                      <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Resetting...
-                    </>
-                  ) : (
-                    <>
-                      🔄 Reset Today&apos;s Quests
-                    </>
-                  )}
-                </Button>
-              </div>
-              
-              {/* Category Dropdown - REMOVED for Tasks tab */}
+        <HeaderSection
+          title="Message Board"
+          subtitle="Embark on epic journeys and complete tasks to earn rewards."
+          imageSrc="/images/quests-header.jpg"
+          defaultBgColor="bg-amber-900"
+          shouldRevealImage={true}
+        />
+        <MobileLayoutWrapper className="quests-page-container">
+          <MobileContentWrapper>
+            {error && <p className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{error}</p>}
+
+            {/* Sync Status Indicators */}
+            <div className="mb-4 flex justify-between items-center">
+              <OfflineQueueIndicator
+                isOnline={isOnline}
+                queueStats={queueStats}
+                isProcessing={isQueueProcessing}
+                onProcessQueue={processQueue}
+                onClearQueue={clearQueue}
+              />
+              <SyncStatusIndicator
+                isSyncing={isSyncing}
+                lastSync={lastSync}
+                error={syncError}
+              />
             </div>
-            {/* Quest Streak Summary Card */}
-            <div className="mb-6 w-full">
-              <Card className="medieval-card-primary w-full" style={{ height: 'auto', minHeight: '226px' }} aria-label="quest-streak-summary-card">
-                {/* Desktop/Tablet Layout - Horizontal 3-Column */}
-                <div className="hidden md:flex items-center gap-6 w-full">
-                  {/* Left: Streak Badge - Vertical Layout */}
-                  <div className="flex flex-col items-center justify-center bg-black rounded-2xl p-6 flex-shrink-0">
-                    <Flame className="w-14 h-14 text-[#0D7200] mb-2" aria-hidden="true" />
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="text-4xl font-extrabold text-white text-center truncate" aria-label="quest-streak-value">{streakData?.streak_days ?? 0} days</div>
-                      </TooltipTrigger>
-                      <TooltipContent>{streakData?.streak_days ?? 0} days</TooltipContent>
-                    </Tooltip>
-                    <div className="text-lg text-gray-300 text-center">Day streak</div>
-                  </div>
-                  
-                  {/* Middle: Quest Progress Section */}
-                  <div className="flex-1 flex flex-col gap-3">
-                    <div className="flex items-baseline gap-2">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="text-4xl font-bold text-white truncate">{todaysCompleted}</span>
-                        </TooltipTrigger>
-                        <TooltipContent>{todaysCompleted}</TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="text-lg text-gray-300 truncate">/ {todaysTotal} quests</span>
-                        </TooltipTrigger>
-                        <TooltipContent>/ {todaysTotal} quests</TooltipContent>
-                      </Tooltip>
-                    </div>
-                    <div className="w-full h-5 bg-black rounded-full overflow-hidden relative">
-                      <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${todaysTotal ? (todaysCompleted / todaysTotal) * 100 : 0}%` }} />
-                    </div>
-                    {/* Days of the week with styled circles */}
-                    <div className="flex justify-between text-sm text-gray-300 mt-3">
-                      <div className="flex flex-col items-center">
-                        <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>Mon</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>Tue</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>Wed</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>Thu</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>Fri</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>Sat</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>Sun</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Right: Bonus and Scrolls */}
-                  <div className="flex gap-4 flex-shrink-0">
-                    <div className="text-center p-4 bg-black/20 rounded-xl">
-                      <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="text-lg sm:text-xl font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
-                        </TooltipTrigger>
-                        <TooltipContent>+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</TooltipContent>
-                      </Tooltip>
-                      <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
-                    </div>
-                    <div className="text-center p-4 bg-black/20 rounded-xl">
-                      <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Scrolls:</div>
-                      <div className="text-xl font-bold text-[#F0F0F0] mb-1">{getStreakScrollCount()}</div>
-                      <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
-                    </div>
-                  </div>
-                </div>
 
-
-
-                {/* Mobile Layout - Responsive (same component, smaller elements) */}
-                <div className="md:hidden flex flex-col w-full gap-6 p-6">
-                  {/* Streak Badge - Mobile (same layout as desktop but smaller) */}
-                  <div className="flex flex-col items-center justify-center bg-black rounded-xl p-4">
-                    <Flame className="w-8 h-8 text-[#0D7200] mb-1" aria-hidden="true" />
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="text-xl font-extrabold text-white text-center truncate" aria-label="quest-streak-value">{streakData?.streak_days ?? 0} days</div>
-                      </TooltipTrigger>
-                      <TooltipContent>{streakData?.streak_days ?? 0} days</TooltipContent>
-                    </Tooltip>
-                    <div className="text-sm text-gray-300 text-center">Day streak</div>
-                  </div>
-                  
-                  {/* Quest Progress Section - Mobile */}
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-baseline gap-2">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="text-2xl font-bold text-white truncate">{todaysCompleted}</span>
-                        </TooltipTrigger>
-                        <TooltipContent>{todaysCompleted}</TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="text-lg text-gray-300 truncate">/ {todaysTotal} quests</span>
-                        </TooltipTrigger>
-                        <TooltipContent>/ {todaysTotal} quests</TooltipContent>
-                      </Tooltip>
-                    </div>
-                    <div className="w-full h-4 bg-black rounded-full overflow-hidden relative">
-                      <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${todaysTotal ? (todaysCompleted / todaysTotal) * 100 : 0}%` }} />
-                    </div>
-                    {/* Days of the week with smaller circles */}
-                    <div className="flex justify-between text-xs text-gray-300 mt-3">
-                      <div className="flex flex-col items-center">
-                        <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>Mon</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>Tue</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>Wed</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>Thu</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>Fri</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>Sat</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>Sun</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Bonus and Scrolls - Mobile Stacked */}
-                  <div className="flex flex-col gap-3">
-                    <div className="text-center p-3 bg-black/20 rounded-lg">
-                      <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="text-lg sm:text-xl font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
-                        </TooltipTrigger>
-                        <TooltipContent>+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</TooltipContent>
-                      </Tooltip>
-                      <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
-                    </div>
-                    <div className="text-center p-3 bg-black/20 rounded-lg">
-                      <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Scrolls:</div>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="text-lg font-bold text-[#F0F0F0] mb-1 truncate">{getStreakScrollCount()}</div>
-                        </TooltipTrigger>
-                        <TooltipContent>{getStreakScrollCount()}</TooltipContent>
-                      </Tooltip>
-                      <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </div>
-            {/* Enhanced Quest Organization */}
-            <QuestOrganization
-              quests={quests}
-              onQuestToggle={handleQuestToggle}
-              onQuestFavorite={handleQuestFavorite}
-              onQuestEdit={handleEditQuest}
-              onQuestDelete={handleDeleteQuest}
-              onAddQuest={() => setAddQuestModalOpen(true)}
-              showCategoryFilter={true}
-              context="quests"
-            />
-          </TabsContent>
-
-          {/* Challenges Tab */}
-          <TabsContent value="challenges">
-            {/* Challenge Streak Summary Card (updated to match Tasks tab) */}
-            <div className="mb-6 w-full">
-              <Card className="medieval-card-primary w-full" style={{ height: 'auto', minHeight: '226px' }} aria-label="challenge-streak-summary-card">
-                {/* Desktop/Tablet Layout - Horizontal 3-Column */}
-                <div className="hidden md:flex items-center gap-6 w-full">
-                  {/* Left: Streak Badge - Vertical Layout */}
-                  <div className="flex flex-col items-center justify-center bg-black rounded-2xl p-6 flex-shrink-0">
-                    <Flame className="w-14 h-14 text-[#0D7200] mb-2" aria-hidden="true" />
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="text-4xl font-extrabold text-white text-center truncate" aria-label="challenge-streak-value">{challengeStreakData?.streak_days ?? 0} days</div>
-                      </TooltipTrigger>
-                      <TooltipContent>{challengeStreakData?.streak_days ?? 0} days</TooltipContent>
-                    </Tooltip>
-                    <div className="text-lg text-gray-300 text-center">Day streak</div>
-                  </div>
-                  
-                  {/* Middle: Challenge Progress Section */}
-                  <div className="flex-1 flex flex-col gap-3">
-                    <div className="flex items-baseline gap-2">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="text-4xl font-bold text-white truncate">{challenges.filter(c => c.category === challengeCategory && c.completed).length}</span>
-                        </TooltipTrigger>
-                        <TooltipContent>{challenges.filter(c => c.category === challengeCategory && c.completed).length}</TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="text-lg text-gray-300 truncate">/ {challenges.filter(c => c.category === challengeCategory).length} challenges</span>
-                        </TooltipTrigger>
-                        <TooltipContent>/ {challenges.filter(c => c.category === challengeCategory).length} challenges</TooltipContent>
-                      </Tooltip>
-                    </div>
-                    <div className="w-full h-5 bg-black rounded-full overflow-hidden relative">
-                      <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${challenges.filter(c => c.category === challengeCategory).length ? (challenges.filter(c => c.category === challengeCategory && c.completed).length / challenges.filter(c => c.category === challengeCategory).length) * 100 : 0}%` }} />
-                    </div>
-                    {/* Days of the week with styled circles */}
-                    <div className="flex justify-between text-sm text-gray-300 mt-3">
-                      <div className="flex flex-col items-center">
-                        <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>Mon</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>Tue</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>Wed</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>Thu</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>Fri</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>Sat</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>Sun</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Bonus and Scrolls - Desktop Layout */}
-                  <div className="flex flex-col gap-3">
-                    <div className="text-center p-3 bg-black/20 rounded-lg">
-                      <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="text-lg sm:text-xl font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
-                        </TooltipTrigger>
-                        <TooltipContent>+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</TooltipContent>
-                      </Tooltip>
-                      <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
-                    </div>
-                    <div className="text-center p-3 bg-black/20 rounded-lg">
-                      <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Scrolls:</div>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="text-lg font-bold text-[#F0F0F0] mb-1 truncate">{getStreakScrollCount()}</div>
-                        </TooltipTrigger>
-                        <TooltipContent>{getStreakScrollCount()}</TooltipContent>
-                      </Tooltip>
-                      <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Mobile Layout - Vertical Stack */}
-                <div className="md:hidden flex flex-col gap-4 w-full">
-                  {/* Streak Badge - Mobile */}
-                  <div className="flex flex-col items-center justify-center bg-black rounded-xl p-4">
-                    <Flame className="w-10 h-10 text-[#0D7200] mb-2" aria-hidden="true" />
-                    <div className="text-2xl font-extrabold text-white text-center truncate" aria-label="challenge-streak-value-mobile">{challengeStreakData?.streak_days ?? 0} days</div>
-                    <div className="text-sm text-gray-300 text-center">Day streak</div>
-                  </div>
-                  
-                  {/* Challenge Progress Section - Mobile */}
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-baseline gap-2 justify-center">
-                      <span className="text-2xl font-bold text-white truncate">{challenges.filter(c => c.category === challengeCategory && c.completed).length}</span>
-                      <span className="text-base text-gray-300 truncate">/ {challenges.filter(c => c.category === challengeCategory).length} challenges</span>
-                    </div>
-                    <div className="w-full h-4 bg-black rounded-full overflow-hidden relative">
-                      <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${challenges.filter(c => c.category === challengeCategory).length ? (challenges.filter(c => c.category === challengeCategory && c.completed).length / challenges.filter(c => c.category === challengeCategory).length) * 100 : 0}%` }} />
-                    </div>
-                    {/* Days of the week with styled circles - Mobile */}
-                    <div className="flex justify-between text-xs text-gray-300 mt-2">
-                      <div className="flex flex-col items-center">
-                        <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>M</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>T</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>W</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>T</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>F</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>S</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                        <span>S</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Bonus and Scrolls - Mobile Stacked */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="text-center p-3 bg-black/20 rounded-lg">
-                      <div className="text-xs font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
-                      <div className="text-sm font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
-                      <div className="text-xs text-[#F0F0F0]">(Max 50)</div>
-                    </div>
-                    <div className="text-center p-3 bg-black/20 rounded-lg">
-                      <div className="text-xs font-bold text-[#F0F0F0] mb-1">Streak Scrolls:</div>
-                      <div className="text-sm font-bold text-[#F0F0F0] mb-1 truncate">{getStreakScrollCount()}</div>
-                      <div className="text-xs text-[#F0F0F0]">(Save streak)</div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </div>
-            {/* Enhanced Challenge Organization */}
-            <QuestOrganization
-              quests={challenges}
-              onQuestToggle={handleChallengeToggle}
-              onQuestFavorite={() => {}} // Challenges don't have favorites
-              onQuestEdit={handleEditChallenge}
-              onQuestDelete={(challengeId) => handleDeleteChallenge(challengeId)}
-              onAddQuest={() => setAddChallengeModalOpen(true)}
-              showCategoryFilter={true}
-              context="challenges"
-            />
-          </TabsContent>
-
-          {/* Milestones Tab */}
-          <TabsContent value="milestones">
-            {/* Enhanced Milestone Organization */}
-            <QuestOrganization
-              quests={milestones}
-              onQuestToggle={handleMilestoneToggle}
-              onQuestFavorite={() => {}} // Milestones don't have favorites
-              onQuestEdit={handleMilestoneEdit}
-              onQuestDelete={handleMilestoneDelete}
-              onAddQuest={handleAddMilestone}
-              showCategoryFilter={true}
-              context="milestones"
-            />
-          </TabsContent>
-
-          {/* Recovery Tab */}
-          <TabsContent value="recovery">
+            {/* Gameplay Loop Indicator */}
             <div className="mb-6">
-              <label htmlFor="recovery-category-select" className="block text-sm font-medium text-amber-300 mb-2">
-                Select Workout Category
-              </label>
-              <Select value={challengeCategory || ''} onValueChange={handleChallengeCategoryChange}>
-                <SelectTrigger className="w-full rounded-lg border border-[#F59E0B] bg-black text-amber-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 transition-colors" aria-label="Recovery category dropdown">
-                  <SelectValue placeholder="Select workout category" />
-                </SelectTrigger>
-                <SelectContent className="bg-black border border-[#F59E0B]">
-                  {workoutPlan.map(day => (
-                    <SelectItem key={day.category} value={day.category}>
-                      {day.category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <GameplayLoopIndicator
+                questsCompleted={quests.filter(q => q.completed).length}
+                goldEarned={quests.reduce((sum, q) => sum + (q.completed ? (q.gold || 0) : 0), 0)}
+                kingdomTiles={0} // TODO: Get from kingdom state
+              />
             </div>
-            {token && (
-              <StreakRecovery
-                token={token}
-                category={challengeCategory}
-                streakData={challengeStreakData}
-                onStreakUpdate={() => {
-                  // Refetch streak data when recovery actions are taken
-                  if (token && challengeCategory) {
-                    fetch(`/api/streaks-direct?category=${encodeURIComponent(challengeCategory)}`, {
-                      headers: { Authorization: `Bearer ${token}` },
-                    })
-                    .then(res => {
-                      if (res.ok) return res.json();
-                      throw new Error('Failed to refetch');
-                    })
-                    .then(data => setChallengeStreakData(data))
-                    .catch(error => console.error('Error refetching streak:', error));
-                  }
+
+            <Tabs value={mainTab} onValueChange={v => setMainTab(v as 'quests' | 'challenges' | 'milestones' | 'recovery')} className="space-y-6">
+              <TabsList className="mb-6 w-full grid grid-cols-4">
+                <TabsTrigger value="quests">Tasks</TabsTrigger>
+                <TabsTrigger value="challenges">Challenges</TabsTrigger>
+                <TabsTrigger value="milestones">Milestones</TabsTrigger>
+                <TabsTrigger value="recovery">Recovery</TabsTrigger>
+              </TabsList>
+
+              {/* Quests Tab */}
+              <TabsContent value="quests">
+                <div className="mb-6 space-y-6">
+                  {/* Bulk Complete Favorites Button */}
+                  <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
+                    <Button
+                      onClick={handleBulkCompleteFavorites}
+                      disabled={loading || quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length === 0}
+                      className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-300 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
+                      aria-label="Complete all favorited quests in this category"
+                    >
+                      <Star className="w-4 h-4 mr-2" />
+                      Complete {quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length} Favorites
+                    </Button>
+                    <Button
+                      onClick={handleBulkCompleteAllFavorites}
+                      disabled={loading || quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length === 0}
+                      className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
+                      aria-label="Complete all favorited quests across all categories"
+                    >
+                      <Star className="w-4 h-4 mr-2" />
+                      Complete {quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length} Total Favorites
+                    </Button>
+                    <Button
+                      onClick={handleManualReset}
+                      disabled={manualResetLoading || !token}
+                      className="bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800/50 disabled:text-gray-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg border border-gray-500"
+                      aria-label="Manually reset today's quests"
+                    >
+                      {manualResetLoading ? (
+                        <>
+                          <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          Resetting...
+                        </>
+                      ) : (
+                        <>
+                          🔄 Reset Today&apos;s Quests
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  {/* Category Dropdown - REMOVED for Tasks tab */}
+                </div>
+                {/* Quest Streak Summary Card */}
+                <div className="mb-6 w-full">
+                  <Card className="medieval-card-primary w-full" style={{ height: 'auto', minHeight: '226px' }} aria-label="quest-streak-summary-card">
+                    {/* Desktop/Tablet Layout - Horizontal 3-Column */}
+                    <div className="hidden md:flex items-center gap-6 w-full">
+                      {/* Left: Streak Badge - Vertical Layout */}
+                      <div className="flex flex-col items-center justify-center bg-black rounded-2xl p-6 flex-shrink-0">
+                        <Flame className="w-14 h-14 text-[#0D7200] mb-2" aria-hidden="true" />
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="text-4xl font-extrabold text-white text-center truncate" aria-label="quest-streak-value">{streakData?.streak_days ?? 0} days</div>
+                          </TooltipTrigger>
+                          <TooltipContent>{streakData?.streak_days ?? 0} days</TooltipContent>
+                        </Tooltip>
+                        <div className="text-lg text-gray-300 text-center">Day streak</div>
+                      </div>
+
+                      {/* Middle: Quest Progress Section */}
+                      <div className="flex-1 flex flex-col gap-3">
+                        <div className="flex items-baseline gap-2">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="text-4xl font-bold text-white truncate">{todaysCompleted}</span>
+                            </TooltipTrigger>
+                            <TooltipContent>{todaysCompleted}</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="text-lg text-gray-300 truncate">/ {todaysTotal} quests</span>
+                            </TooltipTrigger>
+                            <TooltipContent>/ {todaysTotal} quests</TooltipContent>
+                          </Tooltip>
+                        </div>
+                        <div className="w-full h-5 bg-black rounded-full overflow-hidden relative">
+                          <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${todaysTotal ? (todaysCompleted / todaysTotal) * 100 : 0}%` }} />
+                        </div>
+                        {/* Days of the week with styled circles */}
+                        <div className="flex justify-between text-sm text-gray-300 mt-3">
+                          <div className="flex flex-col items-center">
+                            <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>Mon</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>Tue</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>Wed</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>Thu</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>Fri</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>Sat</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>Sun</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right: Bonus and Scrolls */}
+                      <div className="flex gap-4 flex-shrink-0">
+                        <div className="text-center p-4 bg-black/20 rounded-xl">
+                          <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-lg sm:text-xl font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
+                            </TooltipTrigger>
+                            <TooltipContent>+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</TooltipContent>
+                          </Tooltip>
+                          <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
+                        </div>
+                        <div className="text-center p-4 bg-black/20 rounded-xl">
+                          <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Scrolls:</div>
+                          <div className="text-xl font-bold text-[#F0F0F0] mb-1">{getStreakScrollCount()}</div>
+                          <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
+                        </div>
+                      </div>
+                    </div>
+
+
+
+                    {/* Mobile Layout - Responsive (same component, smaller elements) */}
+                    <div className="md:hidden flex flex-col w-full gap-6 p-6">
+                      {/* Streak Badge - Mobile (same layout as desktop but smaller) */}
+                      <div className="flex flex-col items-center justify-center bg-black rounded-xl p-4">
+                        <Flame className="w-8 h-8 text-[#0D7200] mb-1" aria-hidden="true" />
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="text-xl font-extrabold text-white text-center truncate" aria-label="quest-streak-value">{streakData?.streak_days ?? 0} days</div>
+                          </TooltipTrigger>
+                          <TooltipContent>{streakData?.streak_days ?? 0} days</TooltipContent>
+                        </Tooltip>
+                        <div className="text-sm text-gray-300 text-center">Day streak</div>
+                      </div>
+
+                      {/* Quest Progress Section - Mobile */}
+                      <div className="flex flex-col gap-3">
+                        <div className="flex items-baseline gap-2">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="text-2xl font-bold text-white truncate">{todaysCompleted}</span>
+                            </TooltipTrigger>
+                            <TooltipContent>{todaysCompleted}</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="text-lg text-gray-300 truncate">/ {todaysTotal} quests</span>
+                            </TooltipTrigger>
+                            <TooltipContent>/ {todaysTotal} quests</TooltipContent>
+                          </Tooltip>
+                        </div>
+                        <div className="w-full h-4 bg-black rounded-full overflow-hidden relative">
+                          <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${todaysTotal ? (todaysCompleted / todaysTotal) * 100 : 0}%` }} />
+                        </div>
+                        {/* Days of the week with smaller circles */}
+                        <div className="flex justify-between text-xs text-gray-300 mt-3">
+                          <div className="flex flex-col items-center">
+                            <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>Mon</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>Tue</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>Wed</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>Thu</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>Fri</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>Sat</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>Sun</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Bonus and Scrolls - Mobile Stacked */}
+                      <div className="flex flex-col gap-3">
+                        <div className="text-center p-3 bg-black/20 rounded-lg">
+                          <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-lg sm:text-xl font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
+                            </TooltipTrigger>
+                            <TooltipContent>+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</TooltipContent>
+                          </Tooltip>
+                          <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
+                        </div>
+                        <div className="text-center p-3 bg-black/20 rounded-lg">
+                          <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Scrolls:</div>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-lg font-bold text-[#F0F0F0] mb-1 truncate">{getStreakScrollCount()}</div>
+                            </TooltipTrigger>
+                            <TooltipContent>{getStreakScrollCount()}</TooltipContent>
+                          </Tooltip>
+                          <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+                {/* Enhanced Quest Organization */}
+                <QuestOrganization
+                  quests={quests}
+                  onQuestToggle={handleQuestToggle}
+                  onQuestFavorite={handleQuestFavorite}
+                  onQuestEdit={handleEditQuest}
+                  onQuestDelete={handleDeleteQuest}
+                  onAddQuest={() => setAddQuestModalOpen(true)}
+                  showCategoryFilter={true}
+                  context="quests"
+                />
+              </TabsContent>
+
+              {/* Challenges Tab */}
+              <TabsContent value="challenges">
+                {/* Challenge Streak Summary Card (updated to match Tasks tab) */}
+                <div className="mb-6 w-full">
+                  <Card className="medieval-card-primary w-full" style={{ height: 'auto', minHeight: '226px' }} aria-label="challenge-streak-summary-card">
+                    {/* Desktop/Tablet Layout - Horizontal 3-Column */}
+                    <div className="hidden md:flex items-center gap-6 w-full">
+                      {/* Left: Streak Badge - Vertical Layout */}
+                      <div className="flex flex-col items-center justify-center bg-black rounded-2xl p-6 flex-shrink-0">
+                        <Flame className="w-14 h-14 text-[#0D7200] mb-2" aria-hidden="true" />
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="text-4xl font-extrabold text-white text-center truncate" aria-label="challenge-streak-value">{challengeStreakData?.streak_days ?? 0} days</div>
+                          </TooltipTrigger>
+                          <TooltipContent>{challengeStreakData?.streak_days ?? 0} days</TooltipContent>
+                        </Tooltip>
+                        <div className="text-lg text-gray-300 text-center">Day streak</div>
+                      </div>
+
+                      {/* Middle: Challenge Progress Section */}
+                      <div className="flex-1 flex flex-col gap-3">
+                        <div className="flex items-baseline gap-2">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="text-4xl font-bold text-white truncate">{challenges.filter(c => c.category === challengeCategory && c.completed).length}</span>
+                            </TooltipTrigger>
+                            <TooltipContent>{challenges.filter(c => c.category === challengeCategory && c.completed).length}</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="text-lg text-gray-300 truncate">/ {challenges.filter(c => c.category === challengeCategory).length} challenges</span>
+                            </TooltipTrigger>
+                            <TooltipContent>/ {challenges.filter(c => c.category === challengeCategory).length} challenges</TooltipContent>
+                          </Tooltip>
+                        </div>
+                        <div className="w-full h-5 bg-black rounded-full overflow-hidden relative">
+                          <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${challenges.filter(c => c.category === challengeCategory).length ? (challenges.filter(c => c.category === challengeCategory && c.completed).length / challenges.filter(c => c.category === challengeCategory).length) * 100 : 0}%` }} />
+                        </div>
+                        {/* Days of the week with styled circles */}
+                        <div className="flex justify-between text-sm text-gray-300 mt-3">
+                          <div className="flex flex-col items-center">
+                            <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>Mon</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>Tue</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>Wed</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>Thu</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>Fri</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>Sat</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>Sun</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Bonus and Scrolls - Desktop Layout */}
+                      <div className="flex flex-col gap-3">
+                        <div className="text-center p-3 bg-black/20 rounded-lg">
+                          <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-lg sm:text-xl font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
+                            </TooltipTrigger>
+                            <TooltipContent>+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</TooltipContent>
+                          </Tooltip>
+                          <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
+                        </div>
+                        <div className="text-center p-3 bg-black/20 rounded-lg">
+                          <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Scrolls:</div>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-lg font-bold text-[#F0F0F0] mb-1 truncate">{getStreakScrollCount()}</div>
+                            </TooltipTrigger>
+                            <TooltipContent>{getStreakScrollCount()}</TooltipContent>
+                          </Tooltip>
+                          <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Mobile Layout - Vertical Stack */}
+                    <div className="md:hidden flex flex-col gap-4 w-full">
+                      {/* Streak Badge - Mobile */}
+                      <div className="flex flex-col items-center justify-center bg-black rounded-xl p-4">
+                        <Flame className="w-10 h-10 text-[#0D7200] mb-2" aria-hidden="true" />
+                        <div className="text-2xl font-extrabold text-white text-center truncate" aria-label="challenge-streak-value-mobile">{challengeStreakData?.streak_days ?? 0} days</div>
+                        <div className="text-sm text-gray-300 text-center">Day streak</div>
+                      </div>
+
+                      {/* Challenge Progress Section - Mobile */}
+                      <div className="flex flex-col gap-3">
+                        <div className="flex items-baseline gap-2 justify-center">
+                          <span className="text-2xl font-bold text-white truncate">{challenges.filter(c => c.category === challengeCategory && c.completed).length}</span>
+                          <span className="text-base text-gray-300 truncate">/ {challenges.filter(c => c.category === challengeCategory).length} challenges</span>
+                        </div>
+                        <div className="w-full h-4 bg-black rounded-full overflow-hidden relative">
+                          <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${challenges.filter(c => c.category === challengeCategory).length ? (challenges.filter(c => c.category === challengeCategory && c.completed).length / challenges.filter(c => c.category === challengeCategory).length) * 100 : 0}%` }} />
+                        </div>
+                        {/* Days of the week with styled circles - Mobile */}
+                        <div className="flex justify-between text-xs text-gray-300 mt-2">
+                          <div className="flex flex-col items-center">
+                            <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>M</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>T</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>W</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>T</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>F</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>S</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                            <span>S</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Bonus and Scrolls - Mobile Stacked */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="text-center p-3 bg-black/20 rounded-lg">
+                          <div className="text-xs font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
+                          <div className="text-sm font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
+                          <div className="text-xs text-[#F0F0F0]">(Max 50)</div>
+                        </div>
+                        <div className="text-center p-3 bg-black/20 rounded-lg">
+                          <div className="text-xs font-bold text-[#F0F0F0] mb-1">Streak Scrolls:</div>
+                          <div className="text-sm font-bold text-[#F0F0F0] mb-1 truncate">{getStreakScrollCount()}</div>
+                          <div className="text-xs text-[#F0F0F0]">(Save streak)</div>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+                {/* Enhanced Challenge Organization */}
+                <QuestOrganization
+                  quests={challenges}
+                  onQuestToggle={handleChallengeToggle}
+                  onQuestFavorite={() => { }} // Challenges don't have favorites
+                  onQuestEdit={handleEditChallenge}
+                  onQuestDelete={(challengeId) => handleDeleteChallenge(challengeId)}
+                  onAddQuest={() => setAddChallengeModalOpen(true)}
+                  showCategoryFilter={true}
+                  context="challenges"
+                />
+              </TabsContent>
+
+              {/* Milestones Tab */}
+              <TabsContent value="milestones">
+                {/* Enhanced Milestone Organization */}
+                <QuestOrganization
+                  quests={milestones}
+                  onQuestToggle={handleMilestoneToggle}
+                  onQuestFavorite={() => { }} // Milestones don't have favorites
+                  onQuestEdit={handleMilestoneEdit}
+                  onQuestDelete={handleMilestoneDelete}
+                  onAddQuest={handleAddMilestone}
+                  showCategoryFilter={true}
+                  context="milestones"
+                />
+              </TabsContent>
+
+              {/* Recovery Tab */}
+              <TabsContent value="recovery">
+                <div className="mb-6">
+                  <label htmlFor="recovery-category-select" className="block text-sm font-medium text-amber-300 mb-2">
+                    Select Workout Category
+                  </label>
+                  <Select value={challengeCategory || ''} onValueChange={handleChallengeCategoryChange}>
+                    <SelectTrigger className="w-full rounded-lg border border-[#F59E0B] bg-black text-amber-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 transition-colors" aria-label="Recovery category dropdown">
+                      <SelectValue placeholder="Select workout category" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-black border border-[#F59E0B]">
+                      {workoutPlan.map(day => (
+                        <SelectItem key={day.category} value={day.category}>
+                          {day.category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {token && (
+                  <StreakRecovery
+                    token={token}
+                    category={challengeCategory}
+                    streakData={challengeStreakData}
+                    onStreakUpdate={() => {
+                      // Refetch streak data when recovery actions are taken
+                      if (token && challengeCategory) {
+                        fetch(`/api/streaks-direct?category=${encodeURIComponent(challengeCategory)}`, {
+                          headers: { Authorization: `Bearer ${token}` },
+                        })
+                          .then(res => {
+                            if (res.ok) return res.json();
+                            throw new Error('Failed to refetch');
+                          })
+                          .then(data => setChallengeStreakData(data))
+                          .catch(error => console.error('Error refetching streak:', error));
+                      }
+                    }}
+                  />
+                )}
+              </TabsContent>
+            </Tabs>
+          </MobileContentWrapper>
+        </MobileLayoutWrapper>
+        {/* Bottom spacing */}
+        <div className="h-8 md:h-12"></div>
+        {/* Edit Quest Modal */}
+        {editModalOpen && editingQuest && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => { setEditModalOpen(false); setEditingQuest(null); }} />
+            <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
+              <h2 className="text-lg font-semibold mb-4">Edit Quest</h2>
+              <form
+                onSubmit={e => {
+                  e.preventDefault();
+                  handleEditQuestSubmit(editingQuest);
                 }}
-              />
-            )}
-          </TabsContent>
-        </Tabs>
-        </MobileContentWrapper>
-      </MobileLayoutWrapper>
-      {/* Bottom spacing */}
-      <div className="h-8 md:h-12"></div>
-      {/* Edit Quest Modal */}
-      {editModalOpen && editingQuest && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => { setEditModalOpen(false); setEditingQuest(null); }} />
-          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Edit Quest</h2>
-            <form
-              onSubmit={e => {
-                e.preventDefault();
-                handleEditQuestSubmit(editingQuest);
-              }}
-            >
-              <label className="block mb-2 text-sm font-medium">Name</label>
-              <input
-                className="w-full mb-4 p-2 border rounded"
-                value={editingQuest.name}
-                onChange={e => setEditingQuest({ ...editingQuest, name: e.target.value })}
-                placeholder="Quest name"
-                title="Quest name"
-                aria-label="Quest name"
-                required
-              />
-              <label className="block mb-2 text-sm font-medium">Description</label>
-              <textarea
-                className="w-full mb-4 p-2 border rounded resize-none"
-                rows={3}
-                value={editingQuest.description}
-                onChange={e => setEditingQuest({ ...editingQuest, description: e.target.value })}
-                placeholder="Quest description"
-                title="Quest description"
-                aria-label="Quest description"
-              />
-              <label className="block mb-2 text-sm font-medium">Category</label>
-              <select 
-                className="w-full mb-4 p-2 border rounded" 
-                value={editingQuest.category} 
-                onChange={e => setEditingQuest({ ...editingQuest, category: e.target.value })} 
-                aria-label="Quest category"
               >
-                {questCategories.map((category: string) => (
-                  <option key={category} value={category}>{getCategoryLabel(category)}</option>
-                ))}
-              </select>
-              <label className="block mb-2 text-sm font-medium">Difficulty</label>
-              <input 
-                className="w-full mb-4 p-2 border rounded" 
-                value={editingQuest.difficulty} 
-                onChange={e => setEditingQuest({ ...editingQuest, difficulty: e.target.value })} 
-                placeholder="Difficulty" 
-                title="Difficulty" 
-                aria-label="Difficulty" 
-              />
-              <label className="block mb-2 text-sm font-medium">XP Reward</label>
-              <input 
-                type="number" 
-                className="w-full mb-4 p-2 border rounded" 
-                value={editingQuest.xp || 0} 
-                onChange={e => setEditingQuest({ ...editingQuest, xp: Number(e.target.value) })} 
-                placeholder="XP" 
-                title="XP" 
-                aria-label="XP" 
-              />
-              <label className="block mb-2 text-sm font-medium">Gold Reward</label>
-              <input 
-                type="number" 
-                className="w-full mb-4 p-2 border rounded" 
-                value={editingQuest.gold || 0} 
-                onChange={e => setEditingQuest({ ...editingQuest, gold: Number(e.target.value) })} 
-                placeholder="Gold" 
-                title="Gold" 
-                aria-label="Gold" 
-              />
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="secondary" onClick={() => { setEditModalOpen(false); setEditingQuest(null); }}>Cancel</Button>
-                <Button type="submit" variant="default">Save</Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Edit Challenge Modal */}
-      {editChallengeModalOpen && editingChallenge && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => { setEditChallengeModalOpen(false); setEditingChallenge(null); }} />
-          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Edit Challenge</h2>
-            <form
-              onSubmit={e => {
-                e.preventDefault();
-                handleEditChallengeSubmit(editingChallenge);
-              }}
-            >
-              <label className="block mb-2 text-sm font-medium">Name</label>
-              <input
-                className="w-full mb-4 p-2 border rounded"
-                value={editingChallenge.name}
-                onChange={e => setEditingChallenge({ ...editingChallenge, name: e.target.value })}
-                placeholder="Challenge name"
-                title="Challenge name"
-                aria-label="Challenge name"
-                required
-              />
-              <label className="block mb-2 text-sm font-medium">Description</label>
-              <textarea
-                className="w-full mb-4 p-2 border rounded resize-none"
-                rows={3}
-                value={editingChallenge.description}
-                onChange={e => setEditingChallenge({ ...editingChallenge, description: e.target.value })}
-                placeholder="Challenge description"
-                title="Challenge description"
-                aria-label="Challenge description"
-              />
-              <label className="block mb-2 text-sm font-medium">Category</label>
-              <select 
-                className="w-full mb-4 p-2 border rounded" 
-                value={editingChallenge.category} 
-                onChange={e => setEditingChallenge({ ...editingChallenge, category: e.target.value })} 
-                aria-label="Challenge category"
-              >
-                <option value="Push/Legs/Core">Push/Legs/Core</option>
-                <option value="Pull/Shoulder/Core">Pull/Shoulder/Core</option>
-                <option value="Legs/Arms/Core">Legs/Arms/Core</option>
-                <option value="HIIT & Full Body">HIIT & Full Body</option>
-              </select>
-              <label className="block mb-2 text-sm font-medium">Difficulty</label>
-              <select 
-                className="w-full mb-4 p-2 border rounded" 
-                value={editingChallenge.difficulty} 
-                onChange={e => setEditingChallenge({ ...editingChallenge, difficulty: e.target.value })} 
-                aria-label="Challenge difficulty"
-              >
-                <option value="easy">Easy</option>
-                <option value="medium">Medium</option>
-                <option value="hard">Hard</option>
-              </select>
-              <label className="block mb-2 text-sm font-medium">XP Reward</label>
-              <input 
-                type="number" 
-                className="w-full mb-4 p-2 border rounded" 
-                value={editingChallenge.xp || 0} 
-                onChange={e => setEditingChallenge({ ...editingChallenge, xp: Number(e.target.value) })} 
-                placeholder="XP" 
-                title="XP" 
-                aria-label="XP" 
-              />
-              <label className="block mb-2 text-sm font-medium">Gold Reward</label>
-              <input 
-                type="number" 
-                className="w-full mb-4 p-2 border rounded" 
-                value={editingChallenge.gold || 0} 
-                onChange={e => setEditingChallenge({ ...editingChallenge, gold: Number(e.target.value) })} 
-                placeholder="Gold" 
-                title="Gold" 
-                aria-label="Gold" 
-              />
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="secondary" onClick={() => { setEditChallengeModalOpen(false); setEditingChallenge(null); }}>Cancel</Button>
-                <Button type="submit" variant="default">Save</Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Edit Milestone Modal */}
-      {editMilestoneModalOpen && editingMilestone && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => { setEditMilestoneModalOpen(false); setEditingMilestone(null); }} />
-          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Edit Milestone</h2>
-            <form
-              onSubmit={e => {
-                e.preventDefault();
-                handleEditMilestoneSubmit(editingMilestone);
-              }}
-            >
-              <label className="block mb-2 text-sm font-medium">Name</label>
-              <input
-                className="w-full mb-4 p-2 border rounded"
-                value={editingMilestone.name}
-                onChange={e => setEditingMilestone({ ...editingMilestone, name: e.target.value })}
-                placeholder="Milestone name"
-                title="Milestone name"
-                aria-label="Milestone name"
-                required
-              />
-              <label className="block mb-2 text-sm font-medium">Description</label>
-              <textarea
-                className="w-full mb-4 p-2 border rounded resize-none"
-                rows={3}
-                value={editingMilestone.description}
-                onChange={e => setEditingMilestone({ ...editingMilestone, description: e.target.value })}
-                placeholder="Milestone description"
-                title="Milestone description"
-                aria-label="Milestone description"
-              />
-              <label className="block mb-2 text-sm font-medium">Category</label>
-              <select 
-                className="w-full mb-4 p-2 border rounded" 
-                value={editingMilestone.category} 
-                onChange={e => setEditingMilestone({ ...editingMilestone, category: e.target.value })} 
-                aria-label="Milestone category"
-              >
-                <option value="Push/Legs/Core">Push/Legs/Core</option>
-                <option value="Pull/Shoulder/Core">Pull/Shoulder/Core</option>
-                <option value="Legs/Arms/Core">Legs/Arms/Core</option>
-                <option value="HIIT & Full Body">HIIT & Full Body</option>
-              </select>
-              <label className="block mb-2 text-sm font-medium">Difficulty</label>
-              <select 
-                className="w-full mb-4 p-2 border rounded" 
-                value={editingMilestone.difficulty} 
-                onChange={e => setEditingMilestone({ ...editingMilestone, difficulty: e.target.value })} 
-                aria-label="Milestone difficulty"
-              >
-                <option value="easy">Easy</option>
-                <option value="medium">Medium</option>
-                <option value="hard">Hard</option>
-              </select>
-              <label className="block mb-2 text-sm font-medium">XP Reward</label>
-              <input 
-                type="number" 
-                className="w-full mb-4 p-2 border rounded" 
-                value={editingMilestone.xp || 0} 
-                onChange={e => setEditingMilestone({ ...editingMilestone, xp: Number(e.target.value) })} 
-                placeholder="XP" 
-                title="XP" 
-                aria-label="XP" 
-              />
-              <label className="block mb-2 text-sm font-medium">Gold Reward</label>
-              <input 
-                type="number" 
-                className="w-full mb-4 p-2 border rounded" 
-                value={editingMilestone.gold || 0} 
-                onChange={e => setEditingMilestone({ ...editingMilestone, gold: Number(e.target.value) })} 
-                placeholder="Gold" 
-                title="Gold" 
-                aria-label="Gold" 
-              />
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="secondary" onClick={() => { setEditMilestoneModalOpen(false); setEditingMilestone(null); }}>Cancel</Button>
-                <Button type="submit" variant="default">Save</Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Add Milestone Modal */}
-      {addMilestoneModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => setAddMilestoneModalOpen(false)} />
-          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Add Milestone</h2>
-            <form
-              onSubmit={e => {
-                e.preventDefault();
-                // TODO: Implement milestone creation
-                // Add milestone
-                setAddMilestoneModalOpen(false);
-              }}
-            >
-              <label className="block mb-2 text-sm font-medium">Name</label>
-              <input
-                className="w-full mb-4 p-2 border rounded"
-                value={newMilestone.name}
-                onChange={e => setNewMilestone({ ...newMilestone, name: e.target.value })}
-                placeholder="Milestone name"
-                title="Milestone name"
-                aria-label="Milestone name"
-                required
-              />
-              <label className="block mb-2 text-sm font-medium">Description</label>
-              <textarea
-                className="w-full mb-4 p-2 border rounded resize-none"
-                rows={3}
-                value={newMilestone.description}
-                onChange={e => setNewMilestone({ ...newMilestone, description: e.target.value })}
-                placeholder="Milestone description"
-                title="Milestone description"
-                aria-label="Milestone description"
-              />
-              <label className="block mb-2 text-sm font-medium">Category</label>
-              <select 
-                className="w-full mb-4 p-2 border rounded" 
-                value={newMilestone.category} 
-                onChange={e => setNewMilestone({ ...newMilestone, category: e.target.value })} 
-                aria-label="Milestone category"
-              >
-                {questCategories.map((category: string) => (
-                  <option key={category} value={category}>{getCategoryLabel(category)}</option>
-                ))}
-              </select>
-              <label className="block mb-2 text-sm font-medium">Difficulty</label>
-              <input 
-                className="w-full mb-4 p-2 border rounded" 
-                value={newMilestone.difficulty} 
-                onChange={e => setNewMilestone({ ...newMilestone, difficulty: e.target.value })} 
-                placeholder="Difficulty" 
-                title="Difficulty" 
-                aria-label="Difficulty" 
-              />
-              <label className="block mb-2 text-sm font-medium">XP Reward</label>
-              <input 
-                type="number" 
-                className="w-full mb-4 p-2 border rounded" 
-                value={newMilestone.xp} 
-                onChange={e => setNewMilestone({ ...newMilestone, xp: Number(e.target.value) })} 
-                placeholder="XP" 
-                title="XP" 
-                aria-label="XP" 
-              />
-              <label className="block mb-2 text-sm font-medium">Gold Reward</label>
-              <input 
-                type="number" 
-                className="w-full mb-4 p-2 border rounded" 
-                value={newMilestone.gold} 
-                onChange={e => setNewMilestone({ ...newMilestone, gold: Number(e.target.value) })} 
-                placeholder="Gold" 
-                title="Gold" 
-                aria-label="Gold" 
-              />
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="secondary" onClick={() => setAddMilestoneModalOpen(false)}>Cancel</Button>
-                <Button type="submit" variant="default">Add Milestone</Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-      {/* Add Custom Challenge Modal */}
-      {addChallengeModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => setAddChallengeModalOpen(false)} />
-          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Add Custom Challenge</h2>
-            <form
-              onSubmit={e => e.preventDefault()}
-            >
-              <label className="block mb-2 text-sm font-medium">Name</label>
-              <input
-                className="w-full mb-4 p-2 border rounded"
-                value={newChallenge.name}
-                onChange={e => setNewChallenge({ ...newChallenge, name: e.target.value })}
-                placeholder="Challenge name"
-                title="Challenge name"
-                aria-label="Challenge name"
-                required
-              />
-              <label className="block mb-2 text-sm font-medium">Instructions</label>
-              <textarea
-                className="w-full mb-4 p-2 border rounded"
-                value={newChallenge.instructions}
-                onChange={e => setNewChallenge({ ...newChallenge, instructions: e.target.value })}
-                placeholder="Instructions"
-                title="Instructions"
-                aria-label="Instructions"
-              />
-              <label className="block mb-2 text-sm font-medium">Sets/Reps</label>
-              <input
-                className="w-full mb-4 p-2 border rounded"
-                value={newChallenge.setsReps}
-                onChange={e => setNewChallenge({ ...newChallenge, setsReps: e.target.value })}
-                placeholder="e.g. 3x12"
-                title="Sets/Reps"
-                aria-label="Sets/Reps"
-              />
-              <label className="block mb-2 text-sm font-medium">Tips</label>
-              <input
-                className="w-full mb-4 p-2 border rounded"
-                value={newChallenge.tips}
-                onChange={e => setNewChallenge({ ...newChallenge, tips: e.target.value })}
-                placeholder="Tips"
-                title="Tips"
-                aria-label="Tips"
-              />
-              <label className="block mb-2 text-sm font-medium">Weight</label>
-              <input
-                className="w-full mb-4 p-2 border rounded"
-                value={newChallenge.weight}
-                onChange={e => setNewChallenge({ ...newChallenge, weight: e.target.value })}
-                placeholder="e.g. 8kg"
-                title="Weight"
-                aria-label="Weight"
-              />
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="secondary" onClick={() => setAddChallengeModalOpen(false)}>Cancel</Button>
-                <Button type="submit" variant="default">Add</Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-      {/* Edit Custom Challenge Modal */}
-      {editCustomChallengeIdx !== null && editCustomChallengeData && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => { setEditCustomChallengeIdx(null); setEditCustomChallengeData(null); }} />
-          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Edit Custom Challenge</h2>
-            <form
-              onSubmit={e => e.preventDefault()}
-            >
-              <label className="block mb-2 text-sm font-medium">Name</label>
-              <input
-                className="w-full mb-4 p-2 border rounded"
-                value={editCustomChallengeData.name}
-                onChange={e => setEditCustomChallengeData({ ...editCustomChallengeData, name: e.target.value })}
-                placeholder="Challenge name"
-                title="Challenge name"
-                aria-label="Challenge name"
-                required
-              />
-              <label className="block mb-2 text-sm font-medium">Instructions</label>
-              <textarea
-                className="w-full mb-4 p-2 border rounded resize-none"
-                rows={3}
-                value={editCustomChallengeData.description || editCustomChallengeData.instructions || ''}
-                onChange={e => setEditCustomChallengeData({ 
-                  ...editCustomChallengeData, 
-                  description: e.target.value,
-                  instructions: e.target.value 
-                })}
-                placeholder="Instructions"
-                title="Instructions"
-                aria-label="Instructions"
-              />
-              <label className="block mb-2 text-sm font-medium">Sets/Reps</label>
-              <input
-                className="w-full mb-4 p-2 border rounded"
-                value={editCustomChallengeData.setsReps}
-                onChange={e => setEditCustomChallengeData({ ...editCustomChallengeData, setsReps: e.target.value })}
-                placeholder="e.g. 3x12"
-                title="Sets/Reps"
-                aria-label="Sets/Reps"
-              />
-              <label className="block mb-2 text-sm font-medium">Tips</label>
-              <input
-                className="w-full mb-4 p-2 border rounded"
-                value={editCustomChallengeData.tips}
-                onChange={e => setEditCustomChallengeData({ ...editCustomChallengeData, tips: e.target.value })}
-                placeholder="Tips"
-                title="Tips"
-                aria-label="Tips"
-              />
-              <label className="block mb-2 text-sm font-medium">Weight</label>
-              <input
-                className="w-full mb-4 p-2 border rounded"
-                value={editCustomChallengeData.weight}
-                onChange={e => setEditCustomChallengeData({ ...editCustomChallengeData, weight: e.target.value })}
-                placeholder="e.g. 8kg"
-                title="Weight"
-                aria-label="Weight"
-              />
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="secondary" onClick={() => { setEditCustomChallengeIdx(null); setEditCustomChallengeData(null); }}>Cancel</Button>
-                <Button type="submit" variant="default">Save</Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-      {/* Add Custom Quest Modal */}
-      {addQuestModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => setAddQuestModalOpen(false)} />
-          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Add Custom Quest</h2>
-            <form onSubmit={e => { e.preventDefault(); handleAddQuestSubmit({ ...newQuest, id: Date.now().toString(), completed: false, isNew: true, category: String(newQuest.category || questCategories[0]) }); }}>
-              {addQuestError && <div className="mb-4 text-red-500 bg-red-900 p-2 rounded">{addQuestError}</div>}
-              <label className="block mb-2 text-sm font-medium">Name</label>
-              <input className="w-full mb-4 p-2 border rounded" value={newQuest.name} onChange={e => setNewQuest({ ...newQuest, name: e.target.value })} placeholder="Quest name" title="Quest name" aria-label="Quest name" required />
-              <label className="block mb-2 text-sm font-medium">Description</label>
-              <textarea className="w-full mb-4 p-2 border rounded" value={newQuest.description} onChange={e => setNewQuest({ ...newQuest, description: e.target.value })} placeholder="Quest description" title="Quest description" aria-label="Quest description" />
-              <label className="block mb-2 text-sm font-medium">Category</label>
-              <select className="w-full mb-4 p-2 border rounded" value={newQuest.category} onChange={e => setNewQuest({ ...newQuest, category: e.target.value })} aria-label="Quest category">
-                {questCategories.map((category: string) => (
-                  <option key={category} value={category}>{getCategoryLabel(category)}</option>
-                ))}
-              </select>
-              <label className="block mb-2 text-sm font-medium">Difficulty</label>
-              <input className="w-full mb-4 p-2 border rounded" value={newQuest.difficulty} onChange={e => setNewQuest({ ...newQuest, difficulty: e.target.value })} placeholder="Difficulty" title="Difficulty" aria-label="Difficulty" />
-              <label className="block mb-2 text-sm font-medium">XP Reward</label>
-              <input type="number" className="w-full mb-4 p-2 border rounded" value={newQuest.xp} onChange={e => setNewQuest({ ...newQuest, xp: Number(e.target.value) })} placeholder="XP" title="XP" aria-label="XP" />
-              <label className="block mb-2 text-sm font-medium">Gold Reward</label>
-              <input type="number" className="w-full mb-4 p-2 border rounded" value={newQuest.gold} onChange={e => setNewQuest({ ...newQuest, gold: Number(e.target.value) })} placeholder="Gold" title="Gold" aria-label="Gold" />
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="secondary" onClick={() => setAddQuestModalOpen(false)} disabled={addQuestLoading}>Cancel</Button>
-                <Button type="submit" variant="default" disabled={addQuestLoading}>{addQuestLoading ? 'Adding...' : 'Add'}</Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-      {/* Delete Confirmation Modal */}
-      {deleteConfirmOpen && questToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={cancelDeleteQuest} />
-          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Delete Quest</h2>
-            <p>Are you sure you want to delete the quest &quot;{questToDelete.name}&quot;?</p>
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="secondary" onClick={cancelDeleteQuest}>Cancel</Button>
-              <Button type="button" variant="destructive" onClick={confirmDeleteQuest}>Delete</Button>
+                <label className="block mb-2 text-sm font-medium">Name</label>
+                <input
+                  className="w-full mb-4 p-2 border rounded"
+                  value={editingQuest.name}
+                  onChange={e => setEditingQuest({ ...editingQuest, name: e.target.value })}
+                  placeholder="Quest name"
+                  title="Quest name"
+                  aria-label="Quest name"
+                  required
+                />
+                <label className="block mb-2 text-sm font-medium">Description</label>
+                <textarea
+                  className="w-full mb-4 p-2 border rounded resize-none"
+                  rows={3}
+                  value={editingQuest.description}
+                  onChange={e => setEditingQuest({ ...editingQuest, description: e.target.value })}
+                  placeholder="Quest description"
+                  title="Quest description"
+                  aria-label="Quest description"
+                />
+                <label className="block mb-2 text-sm font-medium">Category</label>
+                <select
+                  className="w-full mb-4 p-2 border rounded"
+                  value={editingQuest.category}
+                  onChange={e => setEditingQuest({ ...editingQuest, category: e.target.value })}
+                  aria-label="Quest category"
+                >
+                  {questCategories.map((category: string) => (
+                    <option key={category} value={category}>{getCategoryLabel(category)}</option>
+                  ))}
+                </select>
+                <label className="block mb-2 text-sm font-medium">Difficulty</label>
+                <input
+                  className="w-full mb-4 p-2 border rounded"
+                  value={editingQuest.difficulty}
+                  onChange={e => setEditingQuest({ ...editingQuest, difficulty: e.target.value })}
+                  placeholder="Difficulty"
+                  title="Difficulty"
+                  aria-label="Difficulty"
+                />
+                <label className="block mb-2 text-sm font-medium">XP Reward</label>
+                <input
+                  type="number"
+                  className="w-full mb-4 p-2 border rounded"
+                  value={editingQuest.xp || 0}
+                  onChange={e => setEditingQuest({ ...editingQuest, xp: Number(e.target.value) })}
+                  placeholder="XP"
+                  title="XP"
+                  aria-label="XP"
+                />
+                <label className="block mb-2 text-sm font-medium">Gold Reward</label>
+                <input
+                  type="number"
+                  className="w-full mb-4 p-2 border rounded"
+                  value={editingQuest.gold || 0}
+                  onChange={e => setEditingQuest({ ...editingQuest, gold: Number(e.target.value) })}
+                  placeholder="Gold"
+                  title="Gold"
+                  aria-label="Gold"
+                />
+                <div className="flex justify-end gap-2">
+                  <Button type="button" variant="secondary" onClick={() => { setEditModalOpen(false); setEditingQuest(null); }}>Cancel</Button>
+                  <Button type="submit" variant="default">Save</Button>
+                </div>
+              </form>
             </div>
           </div>
-        </div>
-      )}
-      {/* Add Challenge Type Modal */}
-      {showAddChallengeTypeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => setShowAddChallengeTypeModal(false)} />
-          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Add Challenge Type</h2>
-            <form
-              onSubmit={e => {
-                e.preventDefault();
-                handleAddChallengeType();
-              }}
-            >
-              <label className="block mb-2 text-sm font-medium">Name</label>
-              <input
-                className="w-full mb-4 p-2 border rounded"
-                value={newChallengeTypeName}
-                onChange={e => setNewChallengeTypeName(e.target.value)}
-                placeholder="Challenge type name"
-                title="Challenge type name"
-                aria-label="Challenge type name"
-                required
-              />
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="secondary" onClick={() => setShowAddChallengeTypeModal(false)}>Cancel</Button>
-                <Button type="submit" variant="default">Add</Button>
-              </div>
-            </form>
+        )}
+
+        {/* Edit Challenge Modal */}
+        {editChallengeModalOpen && editingChallenge && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => { setEditChallengeModalOpen(false); setEditingChallenge(null); }} />
+            <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
+              <h2 className="text-lg font-semibold mb-4">Edit Challenge</h2>
+              <form
+                onSubmit={e => {
+                  e.preventDefault();
+                  handleEditChallengeSubmit(editingChallenge);
+                }}
+              >
+                <label className="block mb-2 text-sm font-medium">Name</label>
+                <input
+                  className="w-full mb-4 p-2 border rounded"
+                  value={editingChallenge.name}
+                  onChange={e => setEditingChallenge({ ...editingChallenge, name: e.target.value })}
+                  placeholder="Challenge name"
+                  title="Challenge name"
+                  aria-label="Challenge name"
+                  required
+                />
+                <label className="block mb-2 text-sm font-medium">Description</label>
+                <textarea
+                  className="w-full mb-4 p-2 border rounded resize-none"
+                  rows={3}
+                  value={editingChallenge.description}
+                  onChange={e => setEditingChallenge({ ...editingChallenge, description: e.target.value })}
+                  placeholder="Challenge description"
+                  title="Challenge description"
+                  aria-label="Challenge description"
+                />
+                <label className="block mb-2 text-sm font-medium">Category</label>
+                <select
+                  className="w-full mb-4 p-2 border rounded"
+                  value={editingChallenge.category}
+                  onChange={e => setEditingChallenge({ ...editingChallenge, category: e.target.value })}
+                  aria-label="Challenge category"
+                >
+                  <option value="Push/Legs/Core">Push/Legs/Core</option>
+                  <option value="Pull/Shoulder/Core">Pull/Shoulder/Core</option>
+                  <option value="Legs/Arms/Core">Legs/Arms/Core</option>
+                  <option value="HIIT & Full Body">HIIT & Full Body</option>
+                </select>
+                <label className="block mb-2 text-sm font-medium">Difficulty</label>
+                <select
+                  className="w-full mb-4 p-2 border rounded"
+                  value={editingChallenge.difficulty}
+                  onChange={e => setEditingChallenge({ ...editingChallenge, difficulty: e.target.value })}
+                  aria-label="Challenge difficulty"
+                >
+                  <option value="easy">Easy</option>
+                  <option value="medium">Medium</option>
+                  <option value="hard">Hard</option>
+                </select>
+                <label className="block mb-2 text-sm font-medium">XP Reward</label>
+                <input
+                  type="number"
+                  className="w-full mb-4 p-2 border rounded"
+                  value={editingChallenge.xp || 0}
+                  onChange={e => setEditingChallenge({ ...editingChallenge, xp: Number(e.target.value) })}
+                  placeholder="XP"
+                  title="XP"
+                  aria-label="XP"
+                />
+                <label className="block mb-2 text-sm font-medium">Gold Reward</label>
+                <input
+                  type="number"
+                  className="w-full mb-4 p-2 border rounded"
+                  value={editingChallenge.gold || 0}
+                  onChange={e => setEditingChallenge({ ...editingChallenge, gold: Number(e.target.value) })}
+                  placeholder="Gold"
+                  title="Gold"
+                  aria-label="Gold"
+                />
+                <div className="flex justify-end gap-2">
+                  <Button type="button" variant="secondary" onClick={() => { setEditChallengeModalOpen(false); setEditingChallenge(null); }}>Cancel</Button>
+                  <Button type="submit" variant="default">Save</Button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
-      
-      {/* Enhanced Toast Container */}
-      <ToastContainer 
-        toasts={questToasts.toasts}
-        onDismiss={questToasts.dismissToast}
-      />
-    </div>
+        )}
+
+        {/* Edit Milestone Modal */}
+        {editMilestoneModalOpen && editingMilestone && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => { setEditMilestoneModalOpen(false); setEditingMilestone(null); }} />
+            <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
+              <h2 className="text-lg font-semibold mb-4">Edit Milestone</h2>
+              <form
+                onSubmit={e => {
+                  e.preventDefault();
+                  handleEditMilestoneSubmit(editingMilestone);
+                }}
+              >
+                <label className="block mb-2 text-sm font-medium">Name</label>
+                <input
+                  className="w-full mb-4 p-2 border rounded"
+                  value={editingMilestone.name}
+                  onChange={e => setEditingMilestone({ ...editingMilestone, name: e.target.value })}
+                  placeholder="Milestone name"
+                  title="Milestone name"
+                  aria-label="Milestone name"
+                  required
+                />
+                <label className="block mb-2 text-sm font-medium">Description</label>
+                <textarea
+                  className="w-full mb-4 p-2 border rounded resize-none"
+                  rows={3}
+                  value={editingMilestone.description}
+                  onChange={e => setEditingMilestone({ ...editingMilestone, description: e.target.value })}
+                  placeholder="Milestone description"
+                  title="Milestone description"
+                  aria-label="Milestone description"
+                />
+                <label className="block mb-2 text-sm font-medium">Category</label>
+                <select
+                  className="w-full mb-4 p-2 border rounded"
+                  value={editingMilestone.category}
+                  onChange={e => setEditingMilestone({ ...editingMilestone, category: e.target.value })}
+                  aria-label="Milestone category"
+                >
+                  <option value="Push/Legs/Core">Push/Legs/Core</option>
+                  <option value="Pull/Shoulder/Core">Pull/Shoulder/Core</option>
+                  <option value="Legs/Arms/Core">Legs/Arms/Core</option>
+                  <option value="HIIT & Full Body">HIIT & Full Body</option>
+                </select>
+                <label className="block mb-2 text-sm font-medium">Difficulty</label>
+                <select
+                  className="w-full mb-4 p-2 border rounded"
+                  value={editingMilestone.difficulty}
+                  onChange={e => setEditingMilestone({ ...editingMilestone, difficulty: e.target.value })}
+                  aria-label="Milestone difficulty"
+                >
+                  <option value="easy">Easy</option>
+                  <option value="medium">Medium</option>
+                  <option value="hard">Hard</option>
+                </select>
+                <label className="block mb-2 text-sm font-medium">XP Reward</label>
+                <input
+                  type="number"
+                  className="w-full mb-4 p-2 border rounded"
+                  value={editingMilestone.xp || 0}
+                  onChange={e => setEditingMilestone({ ...editingMilestone, xp: Number(e.target.value) })}
+                  placeholder="XP"
+                  title="XP"
+                  aria-label="XP"
+                />
+                <label className="block mb-2 text-sm font-medium">Gold Reward</label>
+                <input
+                  type="number"
+                  className="w-full mb-4 p-2 border rounded"
+                  value={editingMilestone.gold || 0}
+                  onChange={e => setEditingMilestone({ ...editingMilestone, gold: Number(e.target.value) })}
+                  placeholder="Gold"
+                  title="Gold"
+                  aria-label="Gold"
+                />
+                <div className="flex justify-end gap-2">
+                  <Button type="button" variant="secondary" onClick={() => { setEditMilestoneModalOpen(false); setEditingMilestone(null); }}>Cancel</Button>
+                  <Button type="submit" variant="default">Save</Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Add Milestone Modal */}
+        {addMilestoneModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => setAddMilestoneModalOpen(false)} />
+            <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
+              <h2 className="text-lg font-semibold mb-4">Add Milestone</h2>
+              <form
+                onSubmit={e => {
+                  e.preventDefault();
+                  // TODO: Implement milestone creation
+                  // Add milestone
+                  setAddMilestoneModalOpen(false);
+                }}
+              >
+                <label className="block mb-2 text-sm font-medium">Name</label>
+                <input
+                  className="w-full mb-4 p-2 border rounded"
+                  value={newMilestone.name}
+                  onChange={e => setNewMilestone({ ...newMilestone, name: e.target.value })}
+                  placeholder="Milestone name"
+                  title="Milestone name"
+                  aria-label="Milestone name"
+                  required
+                />
+                <label className="block mb-2 text-sm font-medium">Description</label>
+                <textarea
+                  className="w-full mb-4 p-2 border rounded resize-none"
+                  rows={3}
+                  value={newMilestone.description}
+                  onChange={e => setNewMilestone({ ...newMilestone, description: e.target.value })}
+                  placeholder="Milestone description"
+                  title="Milestone description"
+                  aria-label="Milestone description"
+                />
+                <label className="block mb-2 text-sm font-medium">Category</label>
+                <select
+                  className="w-full mb-4 p-2 border rounded"
+                  value={newMilestone.category}
+                  onChange={e => setNewMilestone({ ...newMilestone, category: e.target.value })}
+                  aria-label="Milestone category"
+                >
+                  {questCategories.map((category: string) => (
+                    <option key={category} value={category}>{getCategoryLabel(category)}</option>
+                  ))}
+                </select>
+                <label className="block mb-2 text-sm font-medium">Difficulty</label>
+                <input
+                  className="w-full mb-4 p-2 border rounded"
+                  value={newMilestone.difficulty}
+                  onChange={e => setNewMilestone({ ...newMilestone, difficulty: e.target.value })}
+                  placeholder="Difficulty"
+                  title="Difficulty"
+                  aria-label="Difficulty"
+                />
+                <label className="block mb-2 text-sm font-medium">XP Reward</label>
+                <input
+                  type="number"
+                  className="w-full mb-4 p-2 border rounded"
+                  value={newMilestone.xp}
+                  onChange={e => setNewMilestone({ ...newMilestone, xp: Number(e.target.value) })}
+                  placeholder="XP"
+                  title="XP"
+                  aria-label="XP"
+                />
+                <label className="block mb-2 text-sm font-medium">Gold Reward</label>
+                <input
+                  type="number"
+                  className="w-full mb-4 p-2 border rounded"
+                  value={newMilestone.gold}
+                  onChange={e => setNewMilestone({ ...newMilestone, gold: Number(e.target.value) })}
+                  placeholder="Gold"
+                  title="Gold"
+                  aria-label="Gold"
+                />
+                <div className="flex justify-end gap-2">
+                  <Button type="button" variant="secondary" onClick={() => setAddMilestoneModalOpen(false)}>Cancel</Button>
+                  <Button type="submit" variant="default">Add Milestone</Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+        {/* Add Custom Challenge Modal */}
+        {addChallengeModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => setAddChallengeModalOpen(false)} />
+            <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
+              <h2 className="text-lg font-semibold mb-4">Add Custom Challenge</h2>
+              <form
+                onSubmit={e => e.preventDefault()}
+              >
+                <label className="block mb-2 text-sm font-medium">Name</label>
+                <input
+                  className="w-full mb-4 p-2 border rounded"
+                  value={newChallenge.name}
+                  onChange={e => setNewChallenge({ ...newChallenge, name: e.target.value })}
+                  placeholder="Challenge name"
+                  title="Challenge name"
+                  aria-label="Challenge name"
+                  required
+                />
+                <label className="block mb-2 text-sm font-medium">Instructions</label>
+                <textarea
+                  className="w-full mb-4 p-2 border rounded"
+                  value={newChallenge.instructions}
+                  onChange={e => setNewChallenge({ ...newChallenge, instructions: e.target.value })}
+                  placeholder="Instructions"
+                  title="Instructions"
+                  aria-label="Instructions"
+                />
+                <label className="block mb-2 text-sm font-medium">Sets/Reps</label>
+                <input
+                  className="w-full mb-4 p-2 border rounded"
+                  value={newChallenge.setsReps}
+                  onChange={e => setNewChallenge({ ...newChallenge, setsReps: e.target.value })}
+                  placeholder="e.g. 3x12"
+                  title="Sets/Reps"
+                  aria-label="Sets/Reps"
+                />
+                <label className="block mb-2 text-sm font-medium">Tips</label>
+                <input
+                  className="w-full mb-4 p-2 border rounded"
+                  value={newChallenge.tips}
+                  onChange={e => setNewChallenge({ ...newChallenge, tips: e.target.value })}
+                  placeholder="Tips"
+                  title="Tips"
+                  aria-label="Tips"
+                />
+                <label className="block mb-2 text-sm font-medium">Weight</label>
+                <input
+                  className="w-full mb-4 p-2 border rounded"
+                  value={newChallenge.weight}
+                  onChange={e => setNewChallenge({ ...newChallenge, weight: e.target.value })}
+                  placeholder="e.g. 8kg"
+                  title="Weight"
+                  aria-label="Weight"
+                />
+                <div className="flex justify-end gap-2">
+                  <Button type="button" variant="secondary" onClick={() => setAddChallengeModalOpen(false)}>Cancel</Button>
+                  <Button type="submit" variant="default">Add</Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+        {/* Edit Custom Challenge Modal */}
+        {editCustomChallengeIdx !== null && editCustomChallengeData && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => { setEditCustomChallengeIdx(null); setEditCustomChallengeData(null); }} />
+            <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
+              <h2 className="text-lg font-semibold mb-4">Edit Custom Challenge</h2>
+              <form
+                onSubmit={e => e.preventDefault()}
+              >
+                <label className="block mb-2 text-sm font-medium">Name</label>
+                <input
+                  className="w-full mb-4 p-2 border rounded"
+                  value={editCustomChallengeData.name}
+                  onChange={e => setEditCustomChallengeData({ ...editCustomChallengeData, name: e.target.value })}
+                  placeholder="Challenge name"
+                  title="Challenge name"
+                  aria-label="Challenge name"
+                  required
+                />
+                <label className="block mb-2 text-sm font-medium">Instructions</label>
+                <textarea
+                  className="w-full mb-4 p-2 border rounded resize-none"
+                  rows={3}
+                  value={editCustomChallengeData.description || editCustomChallengeData.instructions || ''}
+                  onChange={e => setEditCustomChallengeData({
+                    ...editCustomChallengeData,
+                    description: e.target.value,
+                    instructions: e.target.value
+                  })}
+                  placeholder="Instructions"
+                  title="Instructions"
+                  aria-label="Instructions"
+                />
+                <label className="block mb-2 text-sm font-medium">Sets/Reps</label>
+                <input
+                  className="w-full mb-4 p-2 border rounded"
+                  value={editCustomChallengeData.setsReps}
+                  onChange={e => setEditCustomChallengeData({ ...editCustomChallengeData, setsReps: e.target.value })}
+                  placeholder="e.g. 3x12"
+                  title="Sets/Reps"
+                  aria-label="Sets/Reps"
+                />
+                <label className="block mb-2 text-sm font-medium">Tips</label>
+                <input
+                  className="w-full mb-4 p-2 border rounded"
+                  value={editCustomChallengeData.tips}
+                  onChange={e => setEditCustomChallengeData({ ...editCustomChallengeData, tips: e.target.value })}
+                  placeholder="Tips"
+                  title="Tips"
+                  aria-label="Tips"
+                />
+                <label className="block mb-2 text-sm font-medium">Weight</label>
+                <input
+                  className="w-full mb-4 p-2 border rounded"
+                  value={editCustomChallengeData.weight}
+                  onChange={e => setEditCustomChallengeData({ ...editCustomChallengeData, weight: e.target.value })}
+                  placeholder="e.g. 8kg"
+                  title="Weight"
+                  aria-label="Weight"
+                />
+                <div className="flex justify-end gap-2">
+                  <Button type="button" variant="secondary" onClick={() => { setEditCustomChallengeIdx(null); setEditCustomChallengeData(null); }}>Cancel</Button>
+                  <Button type="submit" variant="default">Save</Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+        {/* Add Custom Quest Modal */}
+        {addQuestModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => setAddQuestModalOpen(false)} />
+            <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
+              <h2 className="text-lg font-semibold mb-4">Add Custom Quest</h2>
+              <form onSubmit={e => { e.preventDefault(); handleAddQuestSubmit({ ...newQuest, id: Date.now().toString(), completed: false, isNew: true, category: String(newQuest.category || questCategories[0]) }); }}>
+                {addQuestError && <div className="mb-4 text-red-500 bg-red-900 p-2 rounded">{addQuestError}</div>}
+                <label className="block mb-2 text-sm font-medium">Name</label>
+                <input className="w-full mb-4 p-2 border rounded" value={newQuest.name} onChange={e => setNewQuest({ ...newQuest, name: e.target.value })} placeholder="Quest name" title="Quest name" aria-label="Quest name" required />
+                <label className="block mb-2 text-sm font-medium">Description</label>
+                <textarea className="w-full mb-4 p-2 border rounded" value={newQuest.description} onChange={e => setNewQuest({ ...newQuest, description: e.target.value })} placeholder="Quest description" title="Quest description" aria-label="Quest description" />
+                <label className="block mb-2 text-sm font-medium">Category</label>
+                <select className="w-full mb-4 p-2 border rounded" value={newQuest.category} onChange={e => setNewQuest({ ...newQuest, category: e.target.value })} aria-label="Quest category">
+                  {questCategories.map((category: string) => (
+                    <option key={category} value={category}>{getCategoryLabel(category)}</option>
+                  ))}
+                </select>
+                <label className="block mb-2 text-sm font-medium">Difficulty</label>
+                <input className="w-full mb-4 p-2 border rounded" value={newQuest.difficulty} onChange={e => setNewQuest({ ...newQuest, difficulty: e.target.value })} placeholder="Difficulty" title="Difficulty" aria-label="Difficulty" />
+                <label className="block mb-2 text-sm font-medium">XP Reward</label>
+                <input type="number" className="w-full mb-4 p-2 border rounded" value={newQuest.xp} onChange={e => setNewQuest({ ...newQuest, xp: Number(e.target.value) })} placeholder="XP" title="XP" aria-label="XP" />
+                <label className="block mb-2 text-sm font-medium">Gold Reward</label>
+                <input type="number" className="w-full mb-4 p-2 border rounded" value={newQuest.gold} onChange={e => setNewQuest({ ...newQuest, gold: Number(e.target.value) })} placeholder="Gold" title="Gold" aria-label="Gold" />
+                <div className="flex justify-end gap-2">
+                  <Button type="button" variant="secondary" onClick={() => setAddQuestModalOpen(false)} disabled={addQuestLoading}>Cancel</Button>
+                  <Button type="submit" variant="default" disabled={addQuestLoading}>{addQuestLoading ? 'Adding...' : 'Add'}</Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+        {/* Delete Confirmation Modal */}
+        {deleteConfirmOpen && questToDelete && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={cancelDeleteQuest} />
+            <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
+              <h2 className="text-lg font-semibold mb-4">Delete Quest</h2>
+              <p>Are you sure you want to delete the quest &quot;{questToDelete.name}&quot;?</p>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="secondary" onClick={cancelDeleteQuest}>Cancel</Button>
+                <Button type="button" variant="destructive" onClick={confirmDeleteQuest}>Delete</Button>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Add Challenge Type Modal */}
+        {showAddChallengeTypeModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => setShowAddChallengeTypeModal(false)} />
+            <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
+              <h2 className="text-lg font-semibold mb-4">Add Challenge Type</h2>
+              <form
+                onSubmit={e => {
+                  e.preventDefault();
+                  handleAddChallengeType();
+                }}
+              >
+                <label className="block mb-2 text-sm font-medium">Name</label>
+                <input
+                  className="w-full mb-4 p-2 border rounded"
+                  value={newChallengeTypeName}
+                  onChange={e => setNewChallengeTypeName(e.target.value)}
+                  placeholder="Challenge type name"
+                  title="Challenge type name"
+                  aria-label="Challenge type name"
+                  required
+                />
+                <div className="flex justify-end gap-2">
+                  <Button type="button" variant="secondary" onClick={() => setShowAddChallengeTypeModal(false)}>Cancel</Button>
+                  <Button type="submit" variant="default">Add</Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Enhanced Toast Container */}
+        <ToastContainer
+          toasts={questToasts.toasts}
+          onDismiss={questToasts.dismissToast}
+        />
+      </div>
     </EnhancedErrorBoundary>
   );
 }

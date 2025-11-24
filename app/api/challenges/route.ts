@@ -3,6 +3,33 @@ import { NextResponse } from 'next/server';
 import { NextRequest } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
+const netherlandsFormatter = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Europe/Amsterdam',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit'
+});
+
+function formatNetherlandsDate(input?: string | Date | null) {
+  if (!input) return null;
+
+  if (typeof input === 'string') {
+    const normalized = input.includes('T') ? (input.split('T')[0] ?? input) : input;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(normalized)) {
+      return normalized;
+    }
+
+    const parsed = new Date(input);
+    if (!Number.isNaN(parsed.getTime())) {
+      return netherlandsFormatter.format(parsed);
+    }
+
+    return normalized;
+  }
+
+  return netherlandsFormatter.format(input);
+}
+
 export async function GET(request: Request) {
   try {
     // Add timeout handling
@@ -19,96 +46,120 @@ export async function GET(request: Request) {
       if (challengesError) {
         throw challengesError;
       }
-      
-      // Fetch user's challenge completions
-      const { data: completions, error: completionError } = await supabase
+
+      // Use Netherlands timezone (Europe/Amsterdam) for challenge display
+      const today = formatNetherlandsDate(new Date()) || new Date().toISOString().slice(0, 10);
+
+      console.log('[Challenges API] Querying for today:', today, 'userId:', userId);
+
+      // Fetch all challenge completions for the user, then filter by date in code
+      // This avoids type casting issues between DATE column and string comparison
+      const { data: allCompletions, error: completionError } = await supabase
         .from('challenge_completion')
         .select('*')
         .eq('user_id', userId);
       if (completionError) {
         throw completionError;
       }
-      
-      // DAILY HABIT TRACKING APPROACH: Show challenges as completed only if completed=true for TODAY
-      const completedChallenges = new Map();
-      // Use Netherlands timezone (Europe/Amsterdam) for challenge display
-      const now = new Date();
-      // Use Intl.DateTimeFormat for reliable timezone conversion
-      const netherlandsDate = new Intl.DateTimeFormat('en-CA', {
-        timeZone: 'Europe/Amsterdam',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      }).format(now);
-      const today = netherlandsDate; // Format: YYYY-MM-DD
-      
-      if (completions) {
-        console.log('[Challenges API] Processing challenge completions for daily habit tracking:', {
-          totalRecords: completions.length,
-          today: today,
-          sampleRecords: completions.slice(0, 3).map(c => ({
-            challenge_id: c.challenge_id,
-            completed: c.completed,
-            date: c.date
-          }))
-        });
-        
-        // Group completions by challenge_id to handle multiple completions of the same challenge
-        const challengeCompletionGroups = new Map();
-        
-        completions.forEach((completion: any) => {
-          if (!challengeCompletionGroups.has(completion.challenge_id)) {
-            challengeCompletionGroups.set(completion.challenge_id, []);
+
+      console.log('[Challenges API] All completions fetched:', allCompletions?.length || 0);
+      if (allCompletions?.length) {
+        console.log('[Challenges API] Sample completions:', allCompletions.slice(0, 3).map((c: any) => ({
+          challenge_id: c.challenge_id,
+          completed: c.completed,
+          date: c.date,
+          date_type: typeof c.date,
+          date_string: String(c.date)
+        })));
+      }
+
+      // Filter to only today's completions, normalizing dates for comparison
+      const todaysCompletions = (allCompletions || []).filter((completion: any) => {
+        // Handle all possible date formats from Supabase
+        let completionDate: string | null = null;
+
+        if (completion.date) {
+          if (typeof completion.date === 'string') {
+            // String format - extract YYYY-MM-DD part
+            completionDate = completion.date.split('T')[0].split(' ')[0];
+          } else if (completion.date instanceof Date) {
+            // Date object - format it
+            completionDate = formatNetherlandsDate(completion.date);
+          } else {
+            // Fallback - try to convert to string
+            completionDate = formatNetherlandsDate(String(completion.date));
           }
-          challengeCompletionGroups.get(completion.challenge_id).push(completion);
-        });
-        
-        // For each challenge, find TODAY'S completion record
-        challengeCompletionGroups.forEach((completions, challengeId) => {
-          // Find completion record for today
-          const todayCompletion = completions.find((c: any) => {
-            const completionDate = c.date; // challenge_completion uses DATE field
-            return completionDate === today;
+        }
+
+        const matches = completionDate === today;
+        if (matches) {
+          console.log('[Challenges API] ✅ Found today match:', {
+            challenge_id: completion.challenge_id,
+            stored_date: completion.date,
+            stored_date_type: typeof completion.date,
+            normalized_date: completionDate,
+            today: today,
+            completed: completion.completed
           });
-          
-          console.log('[Challenges API] Processing challenge for today:', {
-            challenge_id: challengeId,
-            total_completions: completions.length,
-            today_completion: todayCompletion ? {
-              completed: todayCompletion.completed,
-              date: todayCompletion.date
-            } : null
+        } else if (completion.completed) {
+          // Log mismatches for completed items to debug
+          console.log('[Challenges API] ⚠️ Date mismatch for completed challenge:', {
+            challenge_id: completion.challenge_id,
+            stored_date: completion.date,
+            stored_date_type: typeof completion.date,
+            normalized_date: completionDate,
+            today: today,
+            completed: completion.completed
           });
-          
-          // Show as completed ONLY if there's a completion record for today with completed=true
-          if (todayCompletion?.completed === true) {
-            completedChallenges.set(challengeId, {
+        }
+        return matches;
+      });
+
+      console.log('[Challenges API] Today\'s completions after filtering:', todaysCompletions.length);
+
+      const completedChallenges = new Map();
+
+      if (todaysCompletions.length > 0) {
+        console.log('[Challenges API] Processing today\'s completions:', todaysCompletions.map((c: any) => ({
+          challenge_id: c.challenge_id,
+          completed: c.completed,
+          date: c.date
+        })));
+
+        todaysCompletions.forEach((completion: any) => {
+          if (completion.completed === true) {
+            completedChallenges.set(completion.challenge_id, {
               completed: true,
-              date: todayCompletion.date,
-              completionId: todayCompletion.id // Store the completion record ID
+              date: formatNetherlandsDate(completion.date) || String(completion.date).split('T')[0],
+              completionId: completion.id
             });
           }
         });
+      } else {
+        console.log('[Challenges API] ⚠️ No completions found for today:', today);
+        console.log('[Challenges API] Available dates in completions:',
+          [...new Set((allCompletions || []).map((c: any) => formatNetherlandsDate(c.date) || String(c.date).split('T')[0]))]
+        );
       }
 
       console.log('[Challenges API] Completed challenges map:', Array.from(completedChallenges.entries()));
       console.log('[Challenges API] Today date:', today);
-      console.log('[Challenges API] All completions:', completions?.map(c => ({
+      console.log('[Challenges API] All completions (today only):', todaysCompletions?.map((c: any) => ({
         challenge_id: c.challenge_id,
         completed: c.completed,
         date: c.date,
-        is_today: c.date === today
+        is_today: true
       })));
-      console.log('[Challenges API] Total completions found:', completions?.length || 0);
+      console.log('[Challenges API] Total completions found:', todaysCompletions?.length || 0);
       console.log('[Challenges API] Completed challenges count:', completedChallenges.size);
-      
+
       // Merge completion state using daily habit tracking
       const challengesWithCompletion = (allChallenges || []).map((c: any) => {
         // Find completion by challenge ID
         const completion = completedChallenges.get(c.id);
         const isCompleted = completion ? completion.completed : false;
         const completionDate = completion ? completion.date : null;
-        
+
         console.log('[Challenges API] Mapping challenge:', {
           challengeId: c.id,
           challengeName: c.name,
@@ -118,22 +169,29 @@ export async function GET(request: Request) {
           completionDate,
           completionData: completion
         });
-        
+
         return {
           ...c,
           completed: isCompleted,
           completionId: completion?.completionId,
           date: completionDate,
+          completion_debug: {
+            isCompleted,
+            completionDate,
+            today,
+            matches: completionDate === today,
+            raw_completion: completion
+          }
         };
       });
-      
+
       console.log('[Challenges API] Final challenges with completion:', challengesWithCompletion.slice(0, 3).map(c => ({
         id: c.id,
         name: c.name,
         completed: c.completed,
         date: c.date
       })));
-      
+
       return challengesWithCompletion;
     });
 
@@ -153,15 +211,15 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error('[Challenges Error]', error);
-    
+
     // Handle timeout specifically
     if (error instanceof Error && error.message === 'Request timeout') {
       return NextResponse.json(
-        { error: 'Request timeout - please try again' }, 
+        { error: 'Request timeout - please try again' },
         { status: 408 }
       );
     }
-    
+
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -170,7 +228,7 @@ export async function PUT(request: Request) {
   try {
     const body = await request.json();
     const { challengeId, completed } = body;
-    
+
     if (!challengeId || completed === undefined) {
       return NextResponse.json({ error: 'Missing challengeId or completed status' }, { status: 400 });
     }
@@ -178,17 +236,17 @@ export async function PUT(request: Request) {
     // Use proper authentication
     const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
       // Use Netherlands timezone (Europe/Amsterdam) for challenge completion
-      const now = new Date();
-      const netherlandsDate = new Intl.DateTimeFormat('en-CA', {
-        timeZone: 'Europe/Amsterdam',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      }).format(now);
-      const today = netherlandsDate; // Format: YYYY-MM-DD
-      
+      const today = formatNetherlandsDate(new Date()) || new Date().toISOString().slice(0, 10);
+
       if (completed) {
         // Mark challenge as completed for TODAY
+        console.log('[Challenges PUT] Upserting completion:', {
+          userId,
+          challengeId,
+          today,
+          dateType: typeof today
+        });
+
         const { data, error } = await supabase
           .from('challenge_completion')
           .upsert({
@@ -199,12 +257,39 @@ export async function PUT(request: Request) {
           }, { onConflict: 'user_id,challenge_id' })
           .select()
           .single();
-          
+
         if (error) {
-          console.error('[Challenges PUT] Error upserting completion:', error);
+          console.error('[Challenges PUT] ❌ Error upserting completion:', error);
           return NextResponse.json({ error: error.message }, { status: 500 });
         }
-        
+
+        console.log('[Challenges PUT] ✅ Successfully saved completion:', {
+          id: data?.id,
+          challenge_id: data?.challenge_id,
+          completed: data?.completed,
+          date: data?.date,
+          dateType: typeof data?.date
+        });
+
+        // Verify the data was actually saved by querying it back
+        const { data: verifyData, error: verifyError } = await supabase
+          .from('challenge_completion')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('challenge_id', challengeId)
+          .eq('date', today)
+          .single();
+
+        if (verifyError) {
+          console.error('[Challenges PUT] ⚠️ Verification query failed:', verifyError);
+        } else {
+          console.log('[Challenges PUT] ✅ Verification successful - data exists in DB:', {
+            id: verifyData?.id,
+            date: verifyData?.date,
+            completed: verifyData?.completed
+          });
+        }
+
         return data;
       } else {
         // Mark challenge as not completed for TODAY (delete today's completion record)
@@ -214,12 +299,12 @@ export async function PUT(request: Request) {
           .eq('user_id', userId)
           .eq('challenge_id', challengeId)
           .eq('date', today); // Only delete today's completion
-          
+
         if (error) {
           console.error('[Challenges PUT] Error deleting completion:', error);
           return NextResponse.json({ error: error.message }, { status: 500 });
         }
-        
+
         return { success: true };
       }
     });
@@ -246,7 +331,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { challenges } = body;
-    
+
     if (!challenges || !Array.isArray(challenges)) {
       return NextResponse.json({ error: 'Invalid challenges data' }, { status: 400 });
     }
@@ -257,7 +342,7 @@ export async function POST(request: Request) {
       // The actual challenge data is stored in the challenges table
       // User-specific completion data is handled by the PUT method
       console.log('[Challenges POST] Received challenges data for user:', userId, 'Count:', challenges.length);
-      
+
       return { success: true, message: 'Challenges data received' };
     });
 
@@ -277,7 +362,7 @@ export async function PATCH(request: Request) {
   try {
     const body = await request.json();
     const { id, name, description, category, difficulty, xp, gold } = body;
-    
+
     if (!id) {
       return NextResponse.json({ error: 'Challenge ID is required' }, { status: 400 });
     }
@@ -285,7 +370,7 @@ export async function PATCH(request: Request) {
     // Use proper authentication
     const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
       console.log('[Challenges PATCH] Updating challenge:', id, 'for user:', userId);
-      
+
       // Update the challenge in the database
       const { data, error } = await supabase
         .from('challenges')
