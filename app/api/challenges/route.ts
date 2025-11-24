@@ -205,10 +205,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: result.error }, { status: 401 });
     }
 
-    return NextResponse.json({
-      challenges: result.data,
-      debug_all_completions: result.debug_all_completions
-    }, {
+    // Log debug info to server console instead of breaking the response structure
+    console.log('[Challenges API] DEBUG ALL COMPLETIONS:', JSON.stringify(result.debug_all_completions));
+
+    return NextResponse.json(result.data, {
       headers: {
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
         'Pragma': 'no-cache',
