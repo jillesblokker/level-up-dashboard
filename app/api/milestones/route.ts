@@ -1,6 +1,9 @@
+```typescript
 import { NextResponse } from 'next/server';
 import { NextRequest } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
+import { supabaseServer } from '@/lib/supabase/server-client';
+import logger from '@/lib/logger';
 
 export async function GET(request: Request) {
   try {
@@ -214,7 +217,7 @@ export async function PATCH(request: Request) {
 
     // Use proper authentication
     const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
-      console.log('[Milestones PATCH] Updating milestone:', id, 'for user:', userId);
+      logger.info(`Updating milestone: ${ id } for user: ${ userId } `, 'Milestones PATCH');
       
       // Update the milestone in the database
       const { data, error } = await supabase
@@ -236,7 +239,7 @@ export async function PATCH(request: Request) {
         throw error;
       }
 
-      console.log('[Milestones PATCH] Successfully updated milestone:', data);
+      logger.info(`Successfully updated milestone: ${ JSON.stringify(data) } `, 'Milestones PATCH');
       return { success: true, data };
     });
 
