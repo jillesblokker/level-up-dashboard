@@ -35,7 +35,7 @@ export async function GET(request: Request) {
   try {
     // Add timeout handling
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Request timeout')), 3000); // 3 second timeout
+      setTimeout(() => reject(new Error('Request timeout')), 15000); // 15 second timeout
     });
 
     // Use authenticated Supabase query with proper Clerk JWT verification

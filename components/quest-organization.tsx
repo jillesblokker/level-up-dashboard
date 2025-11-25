@@ -102,7 +102,7 @@ const categoryConfig = {
     borderColor: 'border-gray-800/30',
     description: 'Discovery and adventure'
   },
-  // Workout categories for challenges
+  // Workout categories for challenges (New)
   'Push/Legs/Core': {
     name: 'Push/Legs/Core',
     icon: '💪',
@@ -126,6 +126,31 @@ const categoryConfig = {
     bgColor: 'bg-green-500/10',
     borderColor: 'border-green-800/30',
     description: 'Leg intensity, arm isolation, and core focus'
+  },
+  // Legacy categories (for backward compatibility)
+  'Push Day (Chest, Shoulders, Triceps)': {
+    name: 'Push Day',
+    icon: '💪',
+    color: 'text-red-400',
+    bgColor: 'bg-red-500/10',
+    borderColor: 'border-red-800/30',
+    description: 'Push movements (Legacy)'
+  },
+  'Pull Day (Back, Biceps)': {
+    name: 'Pull Day',
+    icon: '🏋️',
+    color: 'text-blue-400',
+    bgColor: 'bg-blue-500/10',
+    borderColor: 'border-blue-800/30',
+    description: 'Pull movements (Legacy)'
+  },
+  'Leg Day': {
+    name: 'Leg Day',
+    icon: '🦵',
+    color: 'text-green-400',
+    bgColor: 'bg-green-500/10',
+    borderColor: 'border-green-800/30',
+    description: 'Leg training (Legacy)'
   },
   'Core & Flexibility': {
     name: 'Core & Flexibility',
@@ -218,7 +243,11 @@ export function QuestOrganization({
         'Pull/Shoulder/Core',
         'Legs/Arms/Core',
         'Core & Flexibility',
-        'HIIT & Full Body'
+        'HIIT & Full Body',
+        // Include legacy categories if they exist in the quests data
+        ...(quests.some(q => q.category === 'Push Day (Chest, Shoulders, Triceps)') ? ['Push Day (Chest, Shoulders, Triceps)'] : []),
+        ...(quests.some(q => q.category === 'Pull Day (Back, Biceps)') ? ['Pull Day (Back, Biceps)'] : []),
+        ...(quests.some(q => q.category === 'Leg Day') ? ['Leg Day'] : [])
       ];
     }
     if (context === 'quests') {
