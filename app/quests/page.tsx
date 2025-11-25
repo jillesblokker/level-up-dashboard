@@ -1418,12 +1418,12 @@ export default function QuestsPage() {
     fetchChallengesAndMilestones();
   }, [token, user]);
 
-  const handleMilestoneToggle = async (milestoneId: string, currentCompleted: boolean) => {
+  const handleMilestoneToggle = async (milestoneId: string, newCompleted: boolean) => {
     if (!token || !userId) return;
 
     try {
-      const newCompleted = !currentCompleted;
-      console.log('[Milestone Toggle] Starting:', { milestoneId, currentCompleted, newCompleted, token: !!token });
+      // newCompleted is passed directly from the toggle button (it's already the target state)
+      console.log('[Milestone Toggle] Starting:', { milestoneId, newCompleted, token: !!token });
       console.log('[Milestone Toggle] Toast will show:', newCompleted ? 'COMPLETED' : 'UNCOMPLETED');
 
       // Update local state
