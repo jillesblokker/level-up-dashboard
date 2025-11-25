@@ -1371,10 +1371,9 @@ export default function QuestsPage() {
 
       try {
         // Fetch challenges
-        console.log('[Challenges Frontend] Fetching challenges from /api/challenges...');
-        const challengesRes = await fetch(`/api/challenges?t=${Date.now()}&r=${Math.random()}`, {
+        console.log('[Challenges Frontend] Fetching challenges from /api/challenges-simple...');
+        const challengesRes = await fetch(`/api/challenges-simple?t=${Date.now()}&r=${Math.random()}`, {
           headers: {
-            Authorization: `Bearer ${token}`,
             'Cache-Control': 'no-cache',
             'Pragma': 'no-cache'
           },
