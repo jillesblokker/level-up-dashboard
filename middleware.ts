@@ -1,4 +1,3 @@
-```typescript
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 
@@ -11,9 +10,24 @@ const isPublicRoute = createRouteMatcher([
 
 export default clerkMiddleware(async (auth, request) => {
   const { userId } = await auth();
-  return NextResponse.next();
+  const { pathname } = request.nextUrl;
+
+  // If user is signed in and trying to access sign-in/sign-up, redirect to kingdom
+  if (userId && (pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up'))) {
+    return NextResponse.redirect(new URL('/kingdom', request.url));
+  }
+
+  // Protect all routes except public ones
+  if (!isPublicRoute(request)) {
+    await auth.protect();
+  }
 });
 
 export const config = {
-  matcher: ['/((?!.*\\..*|_next).*)', '/', '/(api|trpc)(.*)'],
+  matcher: [
+    // Skip Next.js internals and all static files, unless found in search params
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Always run for API routes
+    '/(api|trpc)(.*)',
+  ],
 };
