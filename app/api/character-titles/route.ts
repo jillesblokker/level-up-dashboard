@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
+import logger from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -9,15 +10,15 @@ export async function GET() {
     }
 
     // Simple test response
-    console.log('[character-titles] Test call:', { userId });
-    
-    return NextResponse.json({ 
-      success: true, 
+    logger.info(`Test call: userId=${userId}`, 'Character Titles');
+
+    return NextResponse.json({
+      success: true,
       data: [],
       message: 'Character titles API connected'
     });
   } catch (err) {
-    console.error('[character-titles] Error:', err);
+    logger.error(`Error: ${err}`, 'Character Titles');
     return NextResponse.json({ error: (err as Error).message }, { status: 500 });
   }
 } 
