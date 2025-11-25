@@ -238,7 +238,7 @@ export async function PUT(request: Request) {
             challenge_id: challengeId,
             completed: true,
             date: today, // Use today's date in Netherlands timezone
-          }, { onConflict: 'user_id,challenge_id' })
+          }, { onConflict: 'user_id,challenge_id,date' })
           .select()
           .single();
 

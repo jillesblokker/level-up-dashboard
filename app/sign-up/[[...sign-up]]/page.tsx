@@ -3,7 +3,9 @@ import { SignUp } from "@clerk/nextjs";
 export default function Page() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#000428] to-[#004e92]">
-      <SignUp 
+      <SignUp
+        forceRedirectUrl="/kingdom"
+        fallbackRedirectUrl="/kingdom"
         appearance={{
           elements: {
             rootBox: "mx-auto",

@@ -170,9 +170,7 @@ export default function QuestsPage() {
   const [allCategories, setAllCategories] = useState<string[]>(questCategories);
   const [mainTab, setMainTab] = useState<'quests' | 'challenges' | 'milestones' | 'recovery'>('quests');
   const [questCategory, setQuestCategory] = useState(questCategories[0]);
-  const [challengeCategory, setChallengeCategory] = useState<string>(
-    workoutPlan[0]?.category ?? ""
-  );
+  const [challengeCategory, setChallengeCategory] = useState<string>("all");
   const [milestoneCategory, setMilestoneCategory] = useState(questCategories[0]);
   const [completedChallenges, setCompletedChallenges] = useState<Record<string, boolean[]>>({});
   const [newChallenge, setNewChallenge] = useState({
@@ -1342,12 +1340,19 @@ export default function QuestsPage() {
 
   // Initialize challenges and milestones data - must be before early returns
   useEffect(() => {
-    console.log('[Challenges Frontend] useEffect triggered, token available:', !!token, 'user:', !!user);
+    console.log('[Challenges Frontend] useEffect triggered, user:', !!user);
 
     // Fetch challenges and milestones from Supabase instead of using predefined data
     const fetchChallengesAndMilestones = async () => {
-      if (!token || !user) {
-        console.log('[Challenges Frontend] No token or user available, skipping fetch');
+      if (!user) {
+        console.log('[Challenges Frontend] No user available, skipping fetch');
+        return;
+      }
+
+      // Get token directly instead of depending on token state
+      const token = await getToken({ template: 'supabase' });
+      if (!token) {
+        console.log('[Challenges Frontend] No token available, skipping fetch');
         return;
       }
 
@@ -1416,7 +1421,7 @@ export default function QuestsPage() {
     };
 
     fetchChallengesAndMilestones();
-  }, [token, user]);
+  }, [user, getToken]);
 
   const handleMilestoneToggle = async (milestoneId: string, newCompleted: boolean) => {
     if (!token || !userId) return;
