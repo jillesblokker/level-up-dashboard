@@ -1,54 +1,63 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
+import logger from '@/lib/logger';
 
 // Extract user ID from Supabase JWT token
 async function extractUserIdFromToken(req: NextRequest): Promise<string | null> {
   try {
     const authHeader = req.headers.get('authorization');
-    console.log('[Creatures Discover] Authorization header:', authHeader ? 'present' : 'missing');
-    
+    logger.info(`Authorization header: ${authHeader ? 'present' : 'missing'}`, 'Creatures Discover');
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.log('[Creatures Discover] No Authorization header found or invalid format');
+      logger.warn('No Authorization header found or invalid format', 'Creatures Discover');
       return null;
     }
 
     const token = authHeader.substring(7);
-    console.log('[Creatures Discover] Token received, length:', token.length);
-    console.log('[Creatures Discover] Token starts with:', token.substring(0, 20) + '...');
+    logger.info(`Token received, length: ${token.length}`, 'Creatures Discover');
+    logger.info(`Token starts with: ${token.substring(0, 20)}...`, 'Creatures Discover');
+
+    let userId: string | null = null; // Declare userId here
 
     // For Clerk JWT tokens, we can extract the user ID from the token
     const parts = token.split('.');
-    console.log('[Creatures Discover] Token parts count:', parts.length);
-    
+    logger.info(`Token parts count: ${parts.length}`, 'Creatures Discover');
+
     if (parts.length === 3 && parts[1]) {
       try {
         // Decode base64url to base64, then decode
         const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-        console.log('[Creatures Discover] Base64 payload length:', base64.length);
-        
-        const payload = JSON.parse(Buffer.from(base64, 'base64').toString());
-        console.log('[Creatures Discover] Token payload keys:', Object.keys(payload));
-        console.log('[Creatures Discover] Token payload sub:', payload.sub);
-        
+        logger.info(`Base64 payload length: ${base64.length}`, 'Creatures Discover');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        const payload = JSON.parse(jsonPayload);
+        logger.info(`Token payload keys: ${Object.keys(payload)}`, 'Creatures Discover');
+        logger.info(`Token payload sub: ${payload.sub}`, 'Creatures Discover');
+
         // The user ID is in the 'sub' field for Clerk tokens
         if (payload.sub) {
-          console.log('[Creatures Discover] UserId from token:', payload.sub);
-          return payload.sub;
+          userId = payload.sub;
+          logger.info(`UserId from token: ${payload.sub}`, 'Creatures Discover');
         } else {
-          console.log('[Creatures Discover] No sub field found in token payload');
+          logger.warn('No sub field found in token payload', 'Creatures Discover');
         }
-      } catch (decodeError) {
-        console.error('[Creatures Discover] Token decode failed:', decodeError);
-        console.log('[Creatures Discover] Raw payload part:', parts[1].substring(0, 50) + '...');
+      } catch (e) {
+        logger.error(`Error decoding token: ${e}`, 'Creatures Discover');
+        logger.info(`Raw payload part: ${parts[1].substring(0, 50)}...`, 'Creatures Discover');
       }
     } else {
-      console.log('[Creatures Discover] Invalid token format - expected 3 parts, got:', parts.length);
+      logger.warn(`Invalid token format - expected 3 parts, got: ${parts.length}`, 'Creatures Discover');
     }
 
-    console.log('[Creatures Discover] No user ID could be extracted from token');
-    return null;
+    if (!userId) {
+      logger.error('No user ID could be extracted from token', 'Creatures Discover');
+      return null;
+    }
+    return userId;
   } catch (error) {
-    console.error('[Creatures Discover] Error extracting user ID:', error);
+    logger.error(`Error extracting user ID: ${error}`, 'Creatures Discover');
     return null;
   }
 }
@@ -66,13 +75,13 @@ export async function POST(request: Request) {
     if (!creatureId) {
       return NextResponse.json({ error: 'Creature ID is required' }, { status: 400 });
     }
-    
+
     // Simple test - just return success without database operations
-    console.log('[creatures/discover] Test call:', { userId, creatureId });
-    
+    logger.info(`Test call: userId=${userId}, creatureId=${creatureId}`, 'creatures/discover');
+
     return NextResponse.json({ success: true, alreadyDiscovered: false });
   } catch (err) {
-    console.error('[creatures/discover] Error:', err);
+    logger.error(`Error in creatures/discover: ${err}`, 'creatures/discover');
     return NextResponse.json({ error: (err as Error).message }, { status: 500 });
   }
 } 
