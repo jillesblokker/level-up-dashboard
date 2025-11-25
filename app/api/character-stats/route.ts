@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
+import logger from '@/lib/logger';
 import { supabaseServer } from '@/lib/supabase/server-client';
 
 // GET: Return character stats for the user
@@ -25,7 +26,7 @@ export async function GET() {
     }
 
     // Return the individual columns as stats object
-    return NextResponse.json({ 
+    return NextResponse.json({
       stats: {
         gold: data.gold || 0,
         experience: data.experience || 0,
@@ -50,11 +51,11 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    console.log('[Character Stats API] Received request body:', body);
-    
+    logger.info(`Received request body: ${JSON.stringify(body)}`, 'Character Stats API');
+
     const { stats } = body;
     if (!stats || typeof stats !== 'object') {
-      console.log('[Character Stats API] Invalid stats data:', stats);
+      logger.warn(`Invalid stats data: ${JSON.stringify(stats)}`, 'Character Stats API');
       return NextResponse.json({ error: 'Invalid stats data' }, { status: 400 });
     }
 
@@ -71,7 +72,7 @@ export async function POST(request: Request) {
       updated_at: new Date().toISOString()
     };
 
-    console.log('[Character Stats API] Prepared stats data:', statsData);
+    logger.info(`Prepared stats data: ${JSON.stringify(statsData)}`, 'Character Stats API');
 
     // Upsert the stats data
     const { error } = await supabaseServer
@@ -80,16 +81,16 @@ export async function POST(request: Request) {
         onConflict: 'user_id'
       });
 
-    console.log('[Character Stats API] Supabase upsert result:', { error });
+    logger.info(`Supabase upsert result: ${JSON.stringify({ error })}`, 'Character Stats API');
 
     if (error) {
-      console.error('[Character Stats API] Supabase error:', error);
+      logger.error(`Supabase error: ${error.message}`, 'Character Stats API');
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('[Character Stats API] Error:', error);
+    logger.error(`Error: ${error}`, 'Character Stats API');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 
