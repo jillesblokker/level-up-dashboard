@@ -51,7 +51,7 @@ export async function GET(request: Request) {
       // Use Netherlands timezone (Europe/Amsterdam) for challenge display
       const today = formatNetherlandsDate(new Date()) || new Date().toISOString().slice(0, 10);
 
-      logger.debug(`Querying for today: ${today}, userId: ${userId}`, 'Challenges API');
+      logger.info(`Querying for today: ${today}, userId: ${userId}`, 'Challenges API');
 
       // Fetch all challenge completions for the user, then filter by date in code
       // This avoids type casting issues between DATE column and string comparison
@@ -63,9 +63,9 @@ export async function GET(request: Request) {
         throw completionError;
       }
 
-      logger.debug(`All completions fetched: ${allCompletions?.length || 0}`, 'Challenges API');
+      logger.info(`All completions fetched: ${allCompletions?.length || 0}`, 'Challenges API');
       if (allCompletions?.length) {
-        logger.debug('Sample completions:', 'Challenges API', JSON.stringify(allCompletions.slice(0, 3).map((c: any) => ({
+        logger.info('Sample completions:', 'Challenges API', JSON.stringify(allCompletions.slice(0, 3).map((c: any) => ({
           challenge_id: c.challenge_id,
           completed: c.completed,
           date: c.date,
@@ -86,13 +86,13 @@ export async function GET(request: Request) {
         const matches = dbDate === todayDate;
 
         if (matches) {
-          logger.debug(`✅ Found today match: challenge_id=${completion.challenge_id}, dbDate=${dbDate}, todayDate=${todayDate}, completed=${completion.completed}`, 'Challenges API');
+          logger.info(`✅ Found today match: challenge_id=${completion.challenge_id}, dbDate=${dbDate}, todayDate=${todayDate}, completed=${completion.completed}`, 'Challenges API');
         }
 
         return matches;
       });
 
-      logger.debug(`Today's completions after filtering: ${todaysCompletions.length}`, 'Challenges API');
+      logger.info(`Today's completions after filtering: ${todaysCompletions.length}`, 'Challenges API');
 
       const completedChallenges = new Map();
 
