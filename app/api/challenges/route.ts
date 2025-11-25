@@ -181,9 +181,12 @@ export async function GET(request: Request) {
     }
 
     // Log debug info to server console instead of breaking the response structure
-    console.log('[Challenges API] DEBUG ALL COMPLETIONS:', JSON.stringify(result.debug_all_completions));
+    // result.data contains { data: challenges, debug_all_completions: completions }
+    const { data: challenges, debug_all_completions } = result.data;
 
-    return NextResponse.json(result.data, {
+    console.log('[Challenges API] DEBUG ALL COMPLETIONS:', JSON.stringify(debug_all_completions));
+
+    return NextResponse.json(challenges, {
       headers: {
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
         'Pragma': 'no-cache',
