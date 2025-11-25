@@ -28,30 +28,40 @@ export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
       try {
         const parts = token.split('.');
         if (parts.length === 3 && parts[1]) {
-          const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+          // Decode base64url (not regular base64)
+          const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = Buffer.from(base64, 'base64').toString('utf8');
+          const payload = JSON.parse(jsonPayload);
+
+          console.log('[JWT Verification] Token payload:', { sub: payload.sub, exp: payload.exp });
+
           if (payload.sub) {
             return { success: true, userId: payload.sub };
           }
         }
-      } catch {}
+      } catch (decodeError) {
+        console.error('[JWT Verification] Token decode error:', decodeError);
+      }
     }
 
     // Fallback to Clerk getAuth (cookie-based auth) with timeout
     const nextReq = request instanceof NextRequest
       ? request
       : new NextRequest(request.url, { headers: request.headers, method: request.method });
-    
+
     // Add timeout to Clerk getAuth
     const authPromise = getAuth(nextReq);
     const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => reject(new Error('Auth timeout')), 3000); // 3 second timeout for auth
     });
-    
+
     const { userId } = await Promise.race([authPromise, timeoutPromise]) as any;
     if (userId) {
+      console.log('[JWT Verification] Fallback auth successful, userId:', userId);
       return { success: true, userId };
     }
 
+    console.log('[JWT Verification] No valid authentication found');
     return { success: false, error: 'No valid authentication found' };
   } catch (error) {
     console.error('[JWT Verification] Clerk verification failed:', error);
@@ -84,13 +94,13 @@ export async function querySupabaseWithServiceKey<T>(
 
     // Execute query with service key privileges and RLS enforcement
     const data = await queryFn(supabaseServer, userId);
-    
+
     return { success: true, data };
   } catch (error) {
     console.error('[Supabase Query] Error:', error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Database query failed' 
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Database query failed'
     };
   }
 }
@@ -103,16 +113,16 @@ export async function authenticatedSupabaseQuery<T>(
   queryFn: (supabase: typeof supabaseServer, userId: string) => Promise<T>
 ): Promise<{ success: boolean; data?: T; error?: string; userId?: string }> {
   console.log('[AuthenticatedSupabaseQuery] Starting authentication for:', request.url);
-  
+
   // Step 1: Verify Clerk JWT
   const authResult = await verifyClerkJWT(request);
   console.log('[AuthenticatedSupabaseQuery] Auth result:', authResult);
-  
+
   if (!authResult.success || !authResult.userId) {
     console.log('[AuthenticatedSupabaseQuery] Authentication failed:', authResult.error);
-    return { 
-      success: false, 
-      error: authResult.error || 'Authentication failed' 
+    return {
+      success: false,
+      error: authResult.error || 'Authentication failed'
     };
   }
 
@@ -120,7 +130,7 @@ export async function authenticatedSupabaseQuery<T>(
   console.log('[AuthenticatedSupabaseQuery] Proceeding to Supabase query with userId:', authResult.userId);
   const queryResult = await querySupabaseWithServiceKey(authResult.userId, queryFn);
   console.log('[AuthenticatedSupabaseQuery] Query result:', queryResult);
-  
+
   return {
     success: queryResult.success,
     data: queryResult.data,
@@ -138,10 +148,10 @@ export function withAuth<T>(
 ) {
   return async (request: Request) => {
     const result = await authenticatedSupabaseQuery(request, queryFn);
-    
+
     if (!result.success) {
       return Response.json(
-        { error: result.error || 'Authentication failed' }, 
+        { error: result.error || 'Authentication failed' },
         { status: 401 }
       );
     }
