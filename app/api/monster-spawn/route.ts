@@ -1,27 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { getAuth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
+import logger from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('Monster spawn API called');
-    
-    const { userId } = await auth();
-    console.log('User ID:', userId);
+    logger.info('Monster spawn API called', 'Monster Spawn');
+
+    const { userId } = getAuth(request as NextRequest);
+    logger.info(`User ID: ${userId}`, 'Monster Spawn');
 
     if (!userId) {
-      console.log('No user ID found');
+      logger.warn('No user ID found', 'Monster Spawn');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
-    console.log('Request body:', body);
-    
+    logger.info(`Request body: ${JSON.stringify(body)}`, 'Monster Spawn');
+
     const { x, y, monsterType } = body;
-    
-    if (typeof x !== 'number' || typeof y !== 'number' || !monsterType) {
-      console.log('Invalid data types:', { x: typeof x, y: typeof y, monsterType: typeof monsterType });
-      return NextResponse.json({ error: 'Invalid monster spawn data' }, { status: 400 });
+
+    if (typeof x !== 'number' || typeof y !== 'number' || typeof monsterType !== 'string') {
+      logger.error(`Invalid data types: ${JSON.stringify({ x: typeof x, y: typeof y, monsterType: typeof monsterType })}`, 'Monster Spawn');
+      return NextResponse.json({ error: 'Invalid data types' }, { status: 400 });
     }
 
     const spawnData = {
@@ -31,8 +32,8 @@ export async function POST(request: NextRequest) {
       monster_type: monsterType,
       spawned_at: new Date().toISOString()
     };
-    
-    console.log('Attempting to insert spawn data:', spawnData);
+
+    logger.info(`Attempting to insert spawn data: ${JSON.stringify(spawnData)}`, 'Monster Spawn');
 
     // Save monster spawn to Supabase
     const { data, error } = await supabaseServer
@@ -40,19 +41,19 @@ export async function POST(request: NextRequest) {
       .insert(spawnData);
 
     if (error) {
-      console.error('Supabase error saving monster spawn:', error);
-      return NextResponse.json({ 
-        error: 'Failed to save monster spawn', 
+      logger.error(`Error saving monster spawn: ${error instanceof Error ? error.message : error}`, 'Monster Spawn');
+      return NextResponse.json({
+        error: 'Failed to save monster spawn',
         details: error.message,
-        code: error.code 
+        code: error.code
       }, { status: 500 });
     }
 
-    console.log('Monster spawn saved successfully:', data);
+    logger.info(`Monster spawn saved successfully: ${JSON.stringify(data)}`, 'Monster Spawn');
     return NextResponse.json({ success: true, data });
   } catch (error) {
-    console.error('Unexpected error in monster spawn API:', error);
-    return NextResponse.json({ 
+    logger.error(`Unexpected error in monster spawn API: ${error instanceof Error ? error.message : error}`, 'Monster Spawn');
+    return NextResponse.json({
       error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
