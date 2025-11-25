@@ -105,9 +105,17 @@ export async function GET() {
         return NextResponse.json(challengesWithStatus);
 
     } catch (error) {
-        logger.error(`Unexpected error: ${error instanceof Error ? error.message : 'Unknown'}`, 'Challenges API');
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        const errorStack = error instanceof Error ? error.stack : '';
+        logger.error(`Unexpected error in challenges-simple: ${errorMessage}`, 'Challenges API');
+        logger.error(`Error stack: ${errorStack}`, 'Challenges API');
+        logger.error(`Error object: ${JSON.stringify(error)}`, 'Challenges API');
+
         return NextResponse.json(
-            { error: error instanceof Error ? error.message : 'Internal server error' },
+            {
+                error: errorMessage,
+                details: process.env.NODE_ENV === 'development' ? errorStack : undefined
+            },
             { status: 500 }
         );
     }
