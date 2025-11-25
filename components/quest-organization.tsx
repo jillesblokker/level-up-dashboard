@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
-import { Search, Filter, Star, Trophy, Target, TrendingUp, CheckCircle, Pencil, Trash2 } from 'lucide-react'
+import { Search, Filter, Star, Trophy, Target, TrendingUp, CheckCircle, Pencil, Trash2, Plus, Minus } from 'lucide-react'
 import { QuestToggleButton } from '@/components/quest-toggle-button'
 
 interface Quest {
@@ -193,6 +193,11 @@ export function QuestOrganization({
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState<'name' | 'reward' | 'difficulty'>('name')
 
+  // Collapse state for sections
+  const [isOverviewCollapsed, setIsOverviewCollapsed] = useState(false)
+  const [isCategoriesCollapsed, setIsCategoriesCollapsed] = useState(false)
+  const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(false)
+
   // Context-based labels
   const labels = {
     quests: {
@@ -326,193 +331,233 @@ export function QuestOrganization({
       {/* Quest Statistics */}
       <Card className="border-amber-800/20 bg-gradient-to-br from-gray-900 to-gray-800">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-amber-400">
-            <TrendingUp className="h-5 w-5" />
-            {currentLabels.title}
-          </CardTitle>
-          <CardDescription className="text-gray-300">
-            {currentLabels.subtitle}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-4">
-            <div className="text-center p-4 bg-gray-800/50 rounded-lg">
-              <div className="text-2xl font-bold text-white">{stats.total}</div>
-              <div className="text-sm text-gray-400">Total Quests</div>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-amber-400">
+                <TrendingUp className="h-5 w-5" />
+                {currentLabels.title}
+              </CardTitle>
+              <CardDescription className="text-gray-300">
+                {currentLabels.subtitle}
+              </CardDescription>
             </div>
-            <div className="text-center p-4 bg-green-800/50 rounded-lg">
-              <div className="text-2xl font-bold text-green-400">{stats.completed}</div>
-              <div className="text-sm text-gray-400">Completed</div>
-            </div>
-            <div className="text-center p-4 bg-amber-800/50 rounded-lg">
-              <div className="text-2xl font-bold text-amber-400">{stats.active}</div>
-              <div className="text-sm text-gray-400">Active</div>
-            </div>
-            <div className="text-center p-4 bg-purple-800/50 rounded-lg">
-              <div className="text-2xl font-bold text-purple-400">{stats.totalReward}</div>
-              <div className="text-sm text-gray-400">Total Reward</div>
-            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsOverviewCollapsed(!isOverviewCollapsed)}
+              className="h-8 w-8 p-0 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10"
+            >
+              {isOverviewCollapsed ? <Plus className="h-4 w-4" /> : <Minus className="h-4 w-4" />}
+            </Button>
           </div>
-        </CardContent>
+        </CardHeader>
+        {!isOverviewCollapsed && (
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-4">
+              <div className="text-center p-4 bg-gray-800/50 rounded-lg">
+                <div className="text-2xl font-bold text-white">{stats.total}</div>
+                <div className="text-sm text-gray-400">Total Quests</div>
+              </div>
+              <div className="text-center p-4 bg-green-800/50 rounded-lg">
+                <div className="text-2xl font-bold text-green-400">{stats.completed}</div>
+                <div className="text-sm text-gray-400">Completed</div>
+              </div>
+              <div className="text-center p-4 bg-amber-800/50 rounded-lg">
+                <div className="text-2xl font-bold text-amber-400">{stats.active}</div>
+                <div className="text-sm text-gray-400">Active</div>
+              </div>
+              <div className="text-center p-4 bg-purple-800/50 rounded-lg">
+                <div className="text-2xl font-bold text-purple-400">{stats.totalReward}</div>
+                <div className="text-sm text-gray-400">Total Reward</div>
+              </div>
+            </div>
+          </CardContent>
+        )}
       </Card>
 
       {/* Category Overview */}
       <Card className="border-amber-800/20 bg-gradient-to-br from-gray-900 to-gray-800">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-amber-400">
-            <Target className="h-5 w-5" />
-            {currentLabels.categories}
-          </CardTitle>
-          <CardDescription className="text-gray-300">
-            {currentLabels.categoriesSubtitle}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {getAvailableCategories().map(key => {
-              const config = categoryConfig[key as keyof typeof categoryConfig];
-              const stats = getCategoryStats(key)
-              const progress = stats.total > 0 ? (stats.completed / stats.total) * 100 : 0
-
-              return (
-                <Card key={key} className={`border ${config.borderColor} ${config.bgColor} hover:shadow-lg transition-all duration-300`}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className="text-2xl">{config.icon}</span>
-                      <div>
-                        <h3 className={`font-semibold ${config.color}`}>{config.name}</h3>
-                        <p className="text-xs text-gray-400">{config.description}</p>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-300">Progress</span>
-                        <span className={`font-semibold ${config.color}`}>
-                          {stats.completed}/{stats.total}
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-700 rounded-full h-2">
-                        <div
-                          className={`h-2 rounded-full ${config.color.replace('text-', 'bg-')}`}
-                          style={{ width: `${progress}%` }}
-                        />
-                      </div>
-                      <div className="text-xs text-gray-400">
-                        {stats.totalReward} total reward
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-amber-400">
+                <Target className="h-5 w-5" />
+                {currentLabels.categories}
+              </CardTitle>
+              <CardDescription className="text-gray-300">
+                {currentLabels.categoriesSubtitle}
+              </CardDescription>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsCategoriesCollapsed(!isCategoriesCollapsed)}
+              className="h-8 w-8 p-0 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10"
+            >
+              {isCategoriesCollapsed ? <Plus className="h-4 w-4" /> : <Minus className="h-4 w-4" />}
+            </Button>
           </div>
-        </CardContent>
+        </CardHeader>
+        {!isCategoriesCollapsed && (
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {getAvailableCategories().map(key => {
+                const config = categoryConfig[key as keyof typeof categoryConfig];
+                const stats = getCategoryStats(key)
+                const progress = stats.total > 0 ? (stats.completed / stats.total) * 100 : 0
+
+                return (
+                  <Card key={key} className={`border ${config.borderColor} ${config.bgColor} hover:shadow-lg transition-all duration-300`}>
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <span className="text-2xl">{config.icon}</span>
+                        <div>
+                          <h3 className={`font-semibold ${config.color}`}>{config.name}</h3>
+                          <p className="text-xs text-gray-400">{config.description}</p>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-300">Progress</span>
+                          <span className={`font-semibold ${config.color}`}>
+                            {stats.completed}/{stats.total}
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-700 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full ${config.color.replace('text-', 'bg-')}`}
+                            style={{ width: `${progress}%` }}
+                          />
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          {stats.totalReward} total reward
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+          </CardContent>
+        )}
       </Card>
 
       {/* Filters and Search */}
       <Card className="border-amber-800/20 bg-gradient-to-br from-gray-900 to-gray-800">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-amber-400">
-            <Filter className="h-5 w-5" />
-            {currentLabels.filters}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder={currentLabels.searchPlaceholder}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-gray-800 border-gray-700 text-white"
-            />
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-amber-400">
+              <Filter className="h-5 w-5" />
+              {currentLabels.filters}
+            </CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsFiltersCollapsed(!isFiltersCollapsed)}
+              className="h-8 w-8 p-0 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10"
+            >
+              {isFiltersCollapsed ? <Plus className="h-4 w-4" /> : <Minus className="h-4 w-4" />}
+            </Button>
           </div>
+        </CardHeader>
+        {!isFiltersCollapsed && (
+          <CardContent className="space-y-4">
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder={currentLabels.searchPlaceholder}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 bg-gray-800 border-gray-700 text-white"
+              />
+            </div>
 
-          {/* Filters */}
-          <div className={`grid gap-4 ${showCategoryFilter ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
-            {showCategoryFilter && (
+            {/* Filters */}
+            <div className={`grid gap-4 ${showCategoryFilter ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
+              {showCategoryFilter && (
+                <div>
+                  <label className="text-sm text-gray-300 mb-2 block">Category</label>
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                    <SelectTrigger className="bg-gray-800 border-gray-700">
+                      <SelectValue placeholder="All categories" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-700">
+                      <SelectItem value="all">All Categories</SelectItem>
+                      {getAvailableCategories().map(key => (
+                        <SelectItem key={key} value={key}>
+                          <div className="flex items-center gap-2">
+                            <span>{categoryConfig[key as keyof typeof categoryConfig]?.icon || '📋'}</span>
+                            <span>{categoryConfig[key as keyof typeof categoryConfig]?.name || key}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
               <div>
-                <label className="text-sm text-gray-300 mb-2 block">Category</label>
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <label className="text-sm text-gray-300 mb-2 block">Difficulty</label>
+                <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
                   <SelectTrigger className="bg-gray-800 border-gray-700">
-                    <SelectValue placeholder="All categories" />
+                    <SelectValue placeholder="All difficulties" />
                   </SelectTrigger>
                   <SelectContent className="bg-gray-900 border-gray-700">
-                    <SelectItem value="all">All Categories</SelectItem>
-                    {getAvailableCategories().map(key => (
+                    <SelectItem value="all">All Difficulties</SelectItem>
+                    {Object.entries(difficultyConfig).map(([key, config]) => (
                       <SelectItem key={key} value={key}>
-                        <div className="flex items-center gap-2">
-                          <span>{categoryConfig[key as keyof typeof categoryConfig]?.icon || '📋'}</span>
-                          <span>{categoryConfig[key as keyof typeof categoryConfig]?.name || key}</span>
-                        </div>
+                        {config.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-            )}
 
-            <div>
-              <label className="text-sm text-gray-300 mb-2 block">Difficulty</label>
-              <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
-                <SelectTrigger className="bg-gray-800 border-gray-700">
-                  <SelectValue placeholder="All difficulties" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-700">
-                  <SelectItem value="all">All Difficulties</SelectItem>
-                  {Object.entries(difficultyConfig).map(([key, config]) => (
-                    <SelectItem key={key} value={key}>
-                      {config.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div>
+                <label className="text-sm text-gray-300 mb-2 block">Status</label>
+                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                  <SelectTrigger className="bg-gray-800 border-gray-700">
+                    <SelectValue placeholder="All statuses" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-900 border-gray-700">
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-300 mb-2 block">Sort By</label>
+                <Select value={sortBy} onValueChange={(value) => setSortBy(value as 'name' | 'reward' | 'difficulty')}>
+                  <SelectTrigger className="bg-gray-800 border-gray-700">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-900 border-gray-700">
+                    <SelectItem value="name">Name</SelectItem>
+                    <SelectItem value="reward">Reward</SelectItem>
+                    <SelectItem value="difficulty">Difficulty</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            <div>
-              <label className="text-sm text-gray-300 mb-2 block">Status</label>
-              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                <SelectTrigger className="bg-gray-800 border-gray-700">
-                  <SelectValue placeholder="All statuses" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-700">
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                </SelectContent>
-              </Select>
+            {/* Results Summary */}
+            <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
+              <span className="text-sm text-gray-300">
+                Showing {sortedQuests.length} of {quests.length} {currentLabels.showing}
+              </span>
+              <Button
+                onClick={onAddQuest}
+                className="bg-amber-500 hover:bg-amber-600 text-black"
+                size="sm"
+              >
+                {currentLabels.addButton}
+              </Button>
             </div>
-
-            <div>
-              <label className="text-sm text-gray-300 mb-2 block">Sort By</label>
-              <Select value={sortBy} onValueChange={(value) => setSortBy(value as 'name' | 'reward' | 'difficulty')}>
-                <SelectTrigger className="bg-gray-800 border-gray-700">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-700">
-                  <SelectItem value="name">Name</SelectItem>
-                  <SelectItem value="reward">Reward</SelectItem>
-                  <SelectItem value="difficulty">Difficulty</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Results Summary */}
-          <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
-            <span className="text-sm text-gray-300">
-              Showing {sortedQuests.length} of {quests.length} {currentLabels.showing}
-            </span>
-            <Button
-              onClick={onAddQuest}
-              className="bg-amber-500 hover:bg-amber-600 text-black"
-              size="sm"
-            >
-              {currentLabels.addButton}
-            </Button>
-          </div>
-        </CardContent>
+          </CardContent>
+        )}
       </Card>
 
       {/* Quest List */}
