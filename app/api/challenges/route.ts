@@ -107,22 +107,20 @@ export async function GET(request: Request) {
           }
         });
       } else {
-        console.log('[Challenges API] ⚠️ No completions found for today:', today);
-        console.log('[Challenges API] Available dates in completions:',
-          [...new Set((allCompletions || []).map((c: any) => String(c.date).split('T')[0]))]
-        );
+        logger.warn(`⚠️ No completions found for today: ${today}`, 'Challenges API');
+        logger.info(`Available dates in completions: ${JSON.stringify([...new Set((allCompletions || []).map((c: any) => String(c.date).split('T')[0]))])}`, 'Challenges API');
       }
 
-      console.log('[Challenges API] Completed challenges map:', Array.from(completedChallenges.entries()));
-      console.log('[Challenges API] Today date:', today);
-      console.log('[Challenges API] All completions (today only):', todaysCompletions?.map((c: any) => ({
+      logger.info(`Completed challenges map: ${JSON.stringify(Array.from(completedChallenges.entries()))}`, 'Challenges API');
+      logger.info(`Today date: ${today}`, 'Challenges API');
+      logger.info(`All completions (today only): ${JSON.stringify(todaysCompletions?.map((c: any) => ({
         challenge_id: c.challenge_id,
         completed: c.completed,
         date: c.date,
         is_today: true
-      })));
-      console.log('[Challenges API] Total completions found:', todaysCompletions?.length || 0);
-      console.log('[Challenges API] Completed challenges count:', completedChallenges.size);
+      })))}`, 'Challenges API');
+      logger.info(`Total completions found: ${todaysCompletions?.length || 0}`, 'Challenges API');
+      logger.info(`Completed challenges count: ${completedChallenges.size}`, 'Challenges API');
 
       // Merge completion state using daily habit tracking
       const challengesWithCompletion = (allChallenges || []).map((c: any) => {
@@ -131,7 +129,7 @@ export async function GET(request: Request) {
         const isCompleted = completion ? completion.completed : false;
         const completionDate = completion ? completion.date : null;
 
-        console.log('[Challenges API] Mapping challenge:', {
+        logger.info(`Mapping challenge: ${JSON.stringify({
           challengeId: c.id,
           challengeName: c.name,
           challengeCategory: c.category,
@@ -139,7 +137,7 @@ export async function GET(request: Request) {
           isCompleted,
           completionDate,
           completionData: completion
-        });
+        })}`, 'Challenges API');
 
         return {
           ...c,
@@ -156,12 +154,12 @@ export async function GET(request: Request) {
         };
       });
 
-      console.log('[Challenges API] Final challenges with completion:', challengesWithCompletion.slice(0, 3).map(c => ({
+      logger.info(`Final challenges with completion: ${JSON.stringify(challengesWithCompletion.slice(0, 3).map(c => ({
         id: c.id,
         name: c.name,
         completed: c.completed,
         date: c.date
-      })));
+      })))}`, 'Challenges API');
 
       return {
         data: challengesWithCompletion,
@@ -180,7 +178,7 @@ export async function GET(request: Request) {
     // result.data contains { data: challenges, debug_all_completions: completions }
     const { data: challenges, debug_all_completions } = result.data;
 
-    console.log('[Challenges API] DEBUG ALL COMPLETIONS:', JSON.stringify(debug_all_completions));
+    logger.info(`DEBUG ALL COMPLETIONS: ${JSON.stringify(debug_all_completions)}`, 'Challenges API');
 
     return NextResponse.json(challenges, {
       headers: {
@@ -220,12 +218,7 @@ export async function PUT(request: Request) {
 
       if (completed) {
         // Mark challenge as completed for TODAY
-        console.log('[Challenges PUT] Upserting completion:', {
-          userId,
-          challengeId,
-          today,
-          dateType: typeof today
-        });
+        logger.info(`Upserting completion: userId=${userId}, challengeId=${challengeId}, today=${today}, dateType=${typeof today}`, 'Challenges PUT');
 
         const { data, error } = await supabase
           .from('challenge_completion')
@@ -238,20 +231,14 @@ export async function PUT(request: Request) {
           .select()
           .single();
 
-        console.log('[Challenges PUT] Saving completion with date:', today);
+        logger.info(`Saving completion with date: ${today}`, 'Challenges PUT');
 
         if (error) {
-          console.error('[Challenges PUT] ❌ Error upserting completion:', error);
+          logger.error(`❌ Error upserting completion: ${error.message}`, 'Challenges PUT');
           return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
-        console.log('[Challenges PUT] ✅ Successfully saved completion:', {
-          id: data?.id,
-          challenge_id: data?.challenge_id,
-          completed: data?.completed,
-          date: data?.date,
-          dateType: typeof data?.date
-        });
+        logger.info(`✅ Successfully saved completion: id=${data?.id}, challenge_id=${data?.challenge_id}, completed=${data?.completed}, date=${data?.date}, dateType=${typeof data?.date}`, 'Challenges PUT');
 
         // Verify the data was actually saved by querying it back
         const { data: verifyData, error: verifyError } = await supabase
@@ -263,13 +250,9 @@ export async function PUT(request: Request) {
           .single();
 
         if (verifyError) {
-          console.error('[Challenges PUT] ⚠️ Verification query failed:', verifyError);
+          logger.error(`⚠️ Verification query failed: ${verifyError.message}`, 'Challenges PUT');
         } else {
-          console.log('[Challenges PUT] ✅ Verification successful - data exists in DB:', {
-            id: verifyData?.id,
-            date: verifyData?.date,
-            completed: verifyData?.completed
-          });
+          logger.info(`✅ Verification successful - data exists in DB: id=${verifyData?.id}, date=${verifyData?.date}, completed=${verifyData?.completed}`, 'Challenges PUT');
         }
 
         return data;
@@ -323,7 +306,7 @@ export async function POST(request: Request) {
       // For now, just return success since challenges are typically seeded data
       // The actual challenge data is stored in the challenges table
       // User-specific completion data is handled by the PUT method
-      console.log('[Challenges POST] Received challenges data for user:', userId, 'Count:', challenges.length);
+      logger.info(`Received challenges data for user: ${userId}, Count: ${challenges.length}`, 'Challenges POST');
 
       return { success: true, message: 'Challenges data received' };
     });
@@ -334,7 +317,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(result.data);
   } catch (error) {
-    console.error('[Challenges POST] Error:', error);
+    logger.error(`Error: ${error}`, 'Challenges POST');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -351,7 +334,7 @@ export async function PATCH(request: Request) {
 
     // Use proper authentication
     const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
-      console.log('[Challenges PATCH] Updating challenge:', id, 'for user:', userId);
+      logger.info(`Updating challenge: ${id} for user: ${userId}`, 'Challenges PATCH');
 
       // Update the challenge in the database
       const { data, error } = await supabase
@@ -369,11 +352,11 @@ export async function PATCH(request: Request) {
         .single();
 
       if (error) {
-        console.error('[Challenges PATCH] Database error:', error);
+        logger.error(`Database error: ${error.message}`, 'Challenges PATCH');
         throw error;
       }
 
-      console.log('[Challenges PATCH] Successfully updated challenge:', data);
+      logger.info(`Successfully updated challenge: ${JSON.stringify(data)}`, 'Challenges PATCH');
       return { success: true, data };
     });
 
@@ -383,7 +366,7 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json(result.data);
   } catch (error) {
-    console.error('[Challenges PATCH] Error:', error);
+    logger.error(`Error: ${error}`, 'Challenges PATCH');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
