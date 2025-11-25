@@ -987,12 +987,12 @@ export default function QuestsPage() {
     }
   };
 
-  const handleChallengeToggle = async (challengeId: string, currentCompleted: boolean) => {
+  const handleChallengeToggle = async (challengeId: string, newCompleted: boolean) => {
     if (!token || !userId) return;
 
     try {
-      const newCompleted = !currentCompleted;
-      console.log('[Challenge Toggle] Starting:', { challengeId, currentCompleted, newCompleted, token: !!token });
+      // newCompleted is passed directly from the toggle button (it's already the target state)
+      console.log('[Challenge Toggle] Starting:', { challengeId, newCompleted, token: !!token });
       console.log('[Challenge Toggle] Toast will show:', newCompleted ? 'COMPLETED' : 'UNCOMPLETED');
 
       // Update local state
