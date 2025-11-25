@@ -2416,9 +2416,6 @@ export default function QuestsPage() {
                   onChange={e => setEditingChallenge({ ...editingChallenge, category: e.target.value })}
                   aria-label="Challenge category"
                 >
-                  <option value="Push/Legs/Core">Push/Legs/Core</option>
-                  <option value="Pull/Shoulder/Core">Pull/Shoulder/Core</option>
-                  <option value="Legs/Arms/Core">Legs/Arms/Core</option>
                   <option value="HIIT & Full Body">HIIT & Full Body</option>
                 </select>
                 <label className="block mb-2 text-sm font-medium">Difficulty</label>
@@ -2500,9 +2497,6 @@ export default function QuestsPage() {
                   onChange={e => setEditingMilestone({ ...editingMilestone, category: e.target.value })}
                   aria-label="Milestone category"
                 >
-                  <option value="Push/Legs/Core">Push/Legs/Core</option>
-                  <option value="Pull/Shoulder/Core">Pull/Shoulder/Core</option>
-                  <option value="Legs/Arms/Core">Legs/Arms/Core</option>
                   <option value="HIIT & Full Body">HIIT & Full Body</option>
                 </select>
                 <label className="block mb-2 text-sm font-medium">Difficulty</label>

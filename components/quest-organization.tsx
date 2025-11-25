@@ -103,30 +103,6 @@ const categoryConfig = {
     description: 'Discovery and adventure'
   },
   // Workout categories for challenges
-  'Push/Legs/Core': {
-    name: 'Push/Legs/Core',
-    icon: '💪',
-    color: 'text-blue-400',
-    bgColor: 'bg-blue-500/10',
-    borderColor: 'border-blue-800/30',
-    description: 'Push exercises, legs, and core training'
-  },
-  'Pull/Shoulder/Core': {
-    name: 'Pull/Shoulder/Core',
-    icon: '🏋️',
-    color: 'text-green-400',
-    bgColor: 'bg-green-500/10',
-    borderColor: 'border-green-800/30',
-    description: 'Pull exercises, shoulders, and core training'
-  },
-  'Core & Flexibility': {
-    name: 'Core & Flexibility',
-    icon: '🧘',
-    color: 'text-purple-400',
-    bgColor: 'bg-purple-500/10',
-    borderColor: 'border-purple-800/30',
-    description: 'Core strength and flexibility training'
-  },
   'HIIT & Full Body': {
     name: 'HIIT & Full Body',
     icon: '⚡',
@@ -134,31 +110,6 @@ const categoryConfig = {
     bgColor: 'bg-red-500/10',
     borderColor: 'border-red-800/30',
     description: 'High-intensity interval training and full body workouts'
-  },
-  // Legacy categories (fallback for current database)
-  'Push Day (Chest, Shoulders, Triceps)': {
-    name: 'Push Day',
-    icon: '💪',
-    color: 'text-blue-400',
-    bgColor: 'bg-blue-500/10',
-    borderColor: 'border-blue-800/30',
-    description: 'Push exercises for chest, shoulders, and triceps'
-  },
-  'Pull Day (Back, Biceps)': {
-    name: 'Pull Day',
-    icon: '🏋️',
-    color: 'text-green-400',
-    bgColor: 'bg-green-500/10',
-    borderColor: 'border-green-800/30',
-    description: 'Pull exercises for back and biceps'
-  },
-  'Leg Day': {
-    name: 'Leg Day',
-    icon: '🦵',
-    color: 'text-orange-400',
-    bgColor: 'bg-orange-500/10',
-    borderColor: 'border-orange-800/30',
-    description: 'Leg strength and conditioning exercises'
   }
 }
 
@@ -169,12 +120,12 @@ const difficultyConfig = {
   epic: { name: 'Epic', color: 'text-amber-600', bgColor: 'bg-amber-500/10' }
 }
 
-export function QuestOrganization({ 
-  quests, 
-  onQuestToggle, 
-  onQuestFavorite, 
-  onQuestEdit, 
-  onQuestDelete, 
+export function QuestOrganization({
+  quests,
+  onQuestToggle,
+  onQuestFavorite,
+  onQuestEdit,
+  onQuestDelete,
   onAddQuest,
   showCategoryFilter = true,
   context = 'quests'
@@ -231,14 +182,7 @@ export function QuestOrganization({
   const getAvailableCategories = () => {
     if (context === 'challenges') {
       return [
-        'Push/Legs/Core',
-        'Pull/Shoulder/Core', 
-        'Core & Flexibility',
-        'HIIT & Full Body',
-        // Legacy categories (fallback for current database)
-        'Push Day (Chest, Shoulders, Triceps)',
-        'Pull Day (Back, Biceps)',
-        'Leg Day'
+        'HIIT & Full Body'
       ];
     }
     if (context === 'quests') {
@@ -259,7 +203,7 @@ export function QuestOrganization({
   // Set default selected category based on context
   useEffect(() => {
     if (context === 'challenges') {
-      setSelectedCategory('Push Day (Chest, Shoulders, Triceps)'); // Use actual database category
+      setSelectedCategory('all'); // Default to all categories
     } else if (context === 'quests') {
       setSelectedCategory('might');
     } else {
@@ -271,12 +215,12 @@ export function QuestOrganization({
   const filteredQuests = quests.filter(quest => {
     const matchesCategory = selectedCategory === 'all' || quest.category === selectedCategory
     const matchesDifficulty = selectedDifficulty === 'all' || quest.difficulty === selectedDifficulty
-    const matchesStatus = selectedStatus === 'all' || 
+    const matchesStatus = selectedStatus === 'all' ||
       (selectedStatus === 'completed' && quest.completed) ||
       (selectedStatus === 'active' && !quest.completed)
     const matchesSearch = quest.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         quest.description.toLowerCase().includes(searchQuery.toLowerCase())
-    
+      quest.description.toLowerCase().includes(searchQuery.toLowerCase())
+
     return matchesCategory && matchesDifficulty && matchesStatus && matchesSearch
   })
 
@@ -287,8 +231,8 @@ export function QuestOrganization({
         return ((b.gold || 0) + (b.xp || 0)) - ((a.gold || 0) + (a.xp || 0))
       case 'difficulty':
         const difficultyOrder = { easy: 1, medium: 2, hard: 3, epic: 4 }
-        return (difficultyOrder[a.difficulty as keyof typeof difficultyOrder] || 0) - 
-               (difficultyOrder[b.difficulty as keyof typeof difficultyOrder] || 0)
+        return (difficultyOrder[a.difficulty as keyof typeof difficultyOrder] || 0) -
+          (difficultyOrder[b.difficulty as keyof typeof difficultyOrder] || 0)
       default:
         return a.name.localeCompare(b.name)
     }
@@ -364,7 +308,7 @@ export function QuestOrganization({
               const config = categoryConfig[key as keyof typeof categoryConfig];
               const stats = getCategoryStats(key)
               const progress = stats.total > 0 ? (stats.completed / stats.total) * 100 : 0
-              
+
               return (
                 <Card key={key} className={`border ${config.borderColor} ${config.bgColor} hover:shadow-lg transition-all duration-300`}>
                   <CardContent className="p-4">
@@ -383,7 +327,7 @@ export function QuestOrganization({
                         </span>
                       </div>
                       <div className="w-full bg-gray-700 rounded-full h-2">
-                        <div 
+                        <div
                           className={`h-2 rounded-full ${config.color.replace('text-', 'bg-')}`}
                           style={{ width: `${progress}%` }}
                         />
@@ -521,11 +465,10 @@ export function QuestOrganization({
             {sortedQuests.map((quest) => (
               <Card
                 key={quest.id}
-                className={`border transition-all duration-300 hover:shadow-lg ${
-                  quest.completed 
-                    ? 'border-green-800/30 bg-green-900/10' 
+                className={`border transition-all duration-300 hover:shadow-lg ${quest.completed
+                    ? 'border-green-800/30 bg-green-900/10'
                     : 'border-amber-800/20 bg-gray-900 hover:border-amber-500/40'
-                }`}
+                  }`}
                 aria-label={`Quest card: ${quest.name}`}
               >
                 <CardContent className="p-4">
@@ -534,11 +477,10 @@ export function QuestOrganization({
                       <span className="text-lg">
                         {categoryConfig[quest.category as keyof typeof categoryConfig]?.icon || '📋'}
                       </span>
-                      <Badge 
-                        variant="outline" 
-                        className={`text-xs ${
-                          categoryConfig[quest.category as keyof typeof categoryConfig]?.color || 'text-gray-400'
-                        }`}
+                      <Badge
+                        variant="outline"
+                        className={`text-xs ${categoryConfig[quest.category as keyof typeof categoryConfig]?.color || 'text-gray-400'
+                          }`}
                       >
                         {categoryConfig[quest.category as keyof typeof categoryConfig]?.name || quest.category}
                       </Badge>
@@ -612,11 +554,10 @@ export function QuestOrganization({
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Badge 
-                        variant="outline" 
-                        className={`text-xs ${
-                          difficultyConfig[quest.difficulty as keyof typeof difficultyConfig]?.color || 'text-gray-400'
-                        }`}
+                      <Badge
+                        variant="outline"
+                        className={`text-xs ${difficultyConfig[quest.difficulty as keyof typeof difficultyConfig]?.color || 'text-gray-400'
+                          }`}
                       >
                         {difficultyConfig[quest.difficulty as keyof typeof difficultyConfig]?.name || quest.difficulty}
                       </Badge>
