@@ -1,6 +1,20 @@
-import { SignUp } from "@clerk/nextjs";
+"use client"
+
+import { SignUp, useUser } from "@clerk/nextjs";
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function Page() {
+  const { isSignedIn, isLoaded } = useUser();
+  const router = useRouter();
+
+  // Redirect to kingdom if already signed in
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      router.push('/kingdom');
+    }
+  }, [isLoaded, isSignedIn, router]);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#000428] to-[#004e92]">
       <SignUp
