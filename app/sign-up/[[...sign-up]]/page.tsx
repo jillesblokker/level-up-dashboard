@@ -1,24 +1,25 @@
 "use client"
 
-import { SignUp, useUser } from "@clerk/nextjs";
+import { SignUp, useClerk } from "@clerk/nextjs";
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function Page() {
-  const { isSignedIn, isLoaded } = useUser();
+  const { user } = useClerk();
   const router = useRouter();
 
-  // Redirect to kingdom if already signed in
+  // Redirect to kingdom when user is authenticated
   useEffect(() => {
-    if (isLoaded && isSignedIn) {
+    if (user) {
+      console.log('[Sign-Up] User detected, redirecting to kingdom...');
       router.push('/kingdom');
     }
-  }, [isLoaded, isSignedIn, router]);
+  }, [user, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#000428] to-[#004e92]">
       <SignUp
-        afterSignUpUrl="/kingdom"
+        fallbackRedirectUrl="/kingdom"
         appearance={{
           elements: {
             rootBox: "mx-auto",
