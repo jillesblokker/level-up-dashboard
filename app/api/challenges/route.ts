@@ -2,6 +2,7 @@ import { supabaseServer } from '@/lib/supabase/server-client';
 import { NextResponse } from 'next/server';
 import { NextRequest } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
+import logger from '@/lib/logger';
 
 const netherlandsFormatter = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'Europe/Amsterdam',
@@ -50,7 +51,7 @@ export async function GET(request: Request) {
       // Use Netherlands timezone (Europe/Amsterdam) for challenge display
       const today = formatNetherlandsDate(new Date()) || new Date().toISOString().slice(0, 10);
 
-      console.log('[Challenges API] Querying for today:', today, 'userId:', userId);
+      logger.debug(`Querying for today: ${today}, userId: ${userId}`, 'Challenges API');
 
       // Fetch all challenge completions for the user, then filter by date in code
       // This avoids type casting issues between DATE column and string comparison
@@ -62,15 +63,15 @@ export async function GET(request: Request) {
         throw completionError;
       }
 
-      console.log('[Challenges API] All completions fetched:', allCompletions?.length || 0);
+      logger.debug(`All completions fetched: ${allCompletions?.length || 0}`, 'Challenges API');
       if (allCompletions?.length) {
-        console.log('[Challenges API] Sample completions:', allCompletions.slice(0, 3).map((c: any) => ({
+        logger.debug('Sample completions:', 'Challenges API', JSON.stringify(allCompletions.slice(0, 3).map((c: any) => ({
           challenge_id: c.challenge_id,
           completed: c.completed,
           date: c.date,
           date_type: typeof c.date,
           date_string: String(c.date)
-        })));
+        }))));
       }
 
       // Filter to only today's completions, normalizing dates for comparison
@@ -85,18 +86,13 @@ export async function GET(request: Request) {
         const matches = dbDate === todayDate;
 
         if (matches) {
-          console.log('[Challenges API] ✅ Found today match:', {
-            challenge_id: completion.challenge_id,
-            dbDate,
-            todayDate,
-            completed: completion.completed
-          });
+          logger.debug(`✅ Found today match: challenge_id=${completion.challenge_id}, dbDate=${dbDate}, todayDate=${todayDate}, completed=${completion.completed}`, 'Challenges API');
         }
 
         return matches;
       });
 
-      console.log('[Challenges API] Today\'s completions after filtering:', todaysCompletions.length);
+      logger.debug(`Today's completions after filtering: ${todaysCompletions.length}`, 'Challenges API');
 
       const completedChallenges = new Map();
 

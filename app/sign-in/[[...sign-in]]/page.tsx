@@ -3,6 +3,7 @@
 import { SignIn, useClerk } from "@clerk/nextjs";
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import logger from '@/lib/logger';
 
 export default function Page() {
   const { user } = useClerk();
@@ -11,7 +12,7 @@ export default function Page() {
   // Redirect to kingdom when user is authenticated
   useEffect(() => {
     if (user) {
-      console.log('[Sign-In] User detected, redirecting to kingdom...');
+      logger.info('User detected, redirecting to kingdom...', 'Sign-In');
       router.push('/kingdom');
     }
   }, [user, router]);
