@@ -12,9 +12,7 @@ export default function Page() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#000428] to-[#004e92]">
       <SignIn
-        signInUrl="/sign-in"
         afterSignInUrl="/kingdom"
-        fallbackRedirectUrl={redirectUrl}
         appearance={{
           elements: {
             rootBox: "mx-auto",
