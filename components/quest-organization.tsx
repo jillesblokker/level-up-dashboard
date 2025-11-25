@@ -103,12 +103,44 @@ const categoryConfig = {
     description: 'Discovery and adventure'
   },
   // Workout categories for challenges
-  'HIIT & Full Body': {
-    name: 'HIIT & Full Body',
-    icon: '⚡',
+  'Push/Legs/Core': {
+    name: 'Push/Legs/Core',
+    icon: '💪',
     color: 'text-red-400',
     bgColor: 'bg-red-500/10',
     borderColor: 'border-red-800/30',
+    description: 'Push movements, leg training, and core stability'
+  },
+  'Pull/Shoulder/Core': {
+    name: 'Pull/Shoulder/Core',
+    icon: '🏋️',
+    color: 'text-blue-400',
+    bgColor: 'bg-blue-500/10',
+    borderColor: 'border-blue-800/30',
+    description: 'Pull movements, shoulder work, and core strength'
+  },
+  'Legs/Arms/Core': {
+    name: 'Legs/Arms/Core',
+    icon: '🦵',
+    color: 'text-green-400',
+    bgColor: 'bg-green-500/10',
+    borderColor: 'border-green-800/30',
+    description: 'Leg intensity, arm isolation, and core focus'
+  },
+  'Core & Flexibility': {
+    name: 'Core & Flexibility',
+    icon: '🧘',
+    color: 'text-teal-400',
+    bgColor: 'bg-teal-500/10',
+    borderColor: 'border-teal-800/30',
+    description: 'Active recovery, core strength, and mobility'
+  },
+  'HIIT & Full Body': {
+    name: 'HIIT & Full Body',
+    icon: '⚡',
+    color: 'text-yellow-400',
+    bgColor: 'bg-yellow-500/10',
+    borderColor: 'border-yellow-800/30',
     description: 'High-intensity interval training and full body workouts'
   }
 }
@@ -182,6 +214,10 @@ export function QuestOrganization({
   const getAvailableCategories = () => {
     if (context === 'challenges') {
       return [
+        'Push/Legs/Core',
+        'Pull/Shoulder/Core',
+        'Legs/Arms/Core',
+        'Core & Flexibility',
         'HIIT & Full Body'
       ];
     }
@@ -466,8 +502,8 @@ export function QuestOrganization({
               <Card
                 key={quest.id}
                 className={`border transition-all duration-300 hover:shadow-lg ${quest.completed
-                    ? 'border-green-800/30 bg-green-900/10'
-                    : 'border-amber-800/20 bg-gray-900 hover:border-amber-500/40'
+                  ? 'border-green-800/30 bg-green-900/10'
+                  : 'border-amber-800/20 bg-gray-900 hover:border-amber-500/40'
                   }`}
                 aria-label={`Quest card: ${quest.name}`}
               >

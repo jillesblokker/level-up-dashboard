@@ -94,6 +94,50 @@ const categoryColorMap: Record<string, string> = {
 // --- 4-Day Workout Plan Data ---
 const workoutPlan = [
   {
+    category: 'Push/Legs/Core',
+    exercises: [
+      { name: 'Squat (Barbell/Dumbbell)', instructions: 'Feet shoulder-width, chest up, lower hips back and down.', setsReps: '3x10', tips: 'Keep knees in line with toes.', weight: '2x10kg' },
+      { name: 'Push-up', instructions: 'Hands shoulder-width, body in straight line, lower chest to floor.', setsReps: '3x12', tips: 'Engage core, don\'t sag hips.', weight: '0' },
+      { name: 'Lunge (Walking/Static)', instructions: 'Step forward, lower back knee, keep torso upright.', setsReps: '3x10 per leg', tips: '90-degree angle at knees.', weight: '2x8kg' },
+      { name: 'Dumbbell Shoulder Press', instructions: 'Seated or standing, press weights overhead.', setsReps: '3x10', tips: 'Don\'t arch back excessively.', weight: '2x8kg' },
+      { name: 'Plank', instructions: 'Forearms on ground, body straight, hold.', setsReps: '3x45 sec', tips: 'Squeeze glutes and core.', weight: '0' },
+      { name: 'Leg Raise', instructions: 'Lying on back, lift legs to 90 degrees, lower slowly.', setsReps: '3x12', tips: 'Keep lower back pressed to floor.', weight: '0' }
+    ]
+  },
+  {
+    category: 'Pull/Shoulder/Core',
+    exercises: [
+      { name: 'Deadlift (Dumbbell/Kettlebell)', instructions: 'Hinge at hips, keep back flat, lift weight.', setsReps: '3x10', tips: 'Drive through heels.', weight: '2x12kg' },
+      { name: 'Dumbbell Row', instructions: 'Hand on bench, pull weight to hip.', setsReps: '3x10 per arm', tips: 'Squeeze shoulder blade.', weight: '12kg' },
+      { name: 'Lateral Raise', instructions: 'Lift weights to side until shoulder height.', setsReps: '3x12', tips: 'Lead with elbows.', weight: '2x4kg' },
+      { name: 'Bicep Curl', instructions: 'Curl weights up, keep elbows pinned.', setsReps: '3x12', tips: 'Control the descent.', weight: '2x8kg' },
+      { name: 'Russian Twist', instructions: 'Seated, lean back, twist torso side to side.', setsReps: '3x20 total', tips: 'Follow hands with eyes.', weight: '5kg' },
+      { name: 'Superman', instructions: 'Lying on stomach, lift arms and legs.', setsReps: '3x12', tips: 'Squeeze lower back and glutes.', weight: '0' }
+    ]
+  },
+  {
+    category: 'Legs/Arms/Core',
+    exercises: [
+      { name: 'Goblet Squat', instructions: 'Hold weight at chest, squat down.', setsReps: '3x12', tips: 'Keep chest up.', weight: '12kg' },
+      { name: 'Glute Bridge', instructions: 'Lying on back, lift hips up.', setsReps: '3x15', tips: 'Squeeze glutes at top.', weight: '0' },
+      { name: 'Tricep Dip (Chair/Bench)', instructions: 'Lower body using arms, push back up.', setsReps: '3x12', tips: 'Keep elbows close to body.', weight: '0' },
+      { name: 'Hammer Curl', instructions: 'Curl weights with palms facing each other.', setsReps: '3x12', tips: 'Focus on forearms/biceps.', weight: '2x8kg' },
+      { name: 'Bicycle Crunch', instructions: 'Opposite elbow to opposite knee.', setsReps: '3x20 total', tips: 'Slow and controlled.', weight: '0' },
+      { name: 'Calf Raise', instructions: 'Lift heels off ground, pause at top.', setsReps: '3x20', tips: 'Full range of motion.', weight: '0' }
+    ]
+  },
+  {
+    category: 'Core & Flexibility',
+    exercises: [
+      { name: 'Sun Salutation A', instructions: 'Flow through yoga poses.', setsReps: '5 rounds', tips: 'Match breath to movement.', weight: '0' },
+      { name: 'Cat-Cow Stretch', instructions: 'Arch and round spine on all fours.', setsReps: '10 reps', tips: 'Move with breath.', weight: '0' },
+      { name: 'Bird-Dog', instructions: 'Extend opposite arm and leg, hold.', setsReps: '3x10 per side', tips: 'Keep hips level.', weight: '0' },
+      { name: 'Child\'s Pose', instructions: 'Kneel, sit back on heels, stretch arms forward.', setsReps: 'Hold 1 min', tips: 'Relax into the stretch.', weight: '0' },
+      { name: 'Hip Flexor Stretch', instructions: 'Lunge position, push hips forward.', setsReps: '30 sec per side', tips: 'Tuck tailbone.', weight: '0' },
+      { name: 'Seated Forward Fold', instructions: 'Legs straight, reach for toes.', setsReps: 'Hold 1 min', tips: 'Hinge from hips.', weight: '0' }
+    ]
+  },
+  {
     category: 'HIIT & Full Body',
     exercises: [
       { name: 'Burpee', instructions: 'Squat, jump to plank, jump in, explode up – repeat.', setsReps: '3x15', tips: 'Jump high, move smoothly.', weight: '0' },
