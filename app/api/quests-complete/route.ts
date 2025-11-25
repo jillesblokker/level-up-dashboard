@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
 import { supabaseServer } from '../../../lib/supabase/server-client';
+import logger from '@/lib/logger';
 
 const supabase = supabaseServer;
 
@@ -10,7 +11,7 @@ async function getUserIdFromRequest(request: Request): Promise<string | null> {
     const { userId } = getAuth(request as NextRequest);
     return userId || null;
   } catch (e) {
-    console.error('[Clerk] JWT verification failed:', e);
+    logger.error(`JWT verification failed: ${e}`, 'Clerk');
     return null;
   }
 }
@@ -22,9 +23,9 @@ export async function GET(request: Request) {
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized (Clerk JWT invalid or missing)' }, { status: 401 });
     }
-    
+
     if (!supabase) {
-      console.error('[QUESTS][GET] Supabase client not initialized.');
+      logger.error('Supabase client not initialized.', 'QUESTS GET');
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
     }
 
@@ -34,7 +35,7 @@ export async function GET(request: Request) {
       .select('*');
 
     if (questsError) {
-      console.error('Quests fetch error:', questsError);
+      logger.error(`Quests fetch error: ${questsError.message}`, 'QUESTS GET');
       return NextResponse.json({ error: questsError.message }, { status: 500 });
     }
 
@@ -45,7 +46,7 @@ export async function GET(request: Request) {
       .eq('user_id', userId);
 
     if (completionsError) {
-      console.error('Quest completions fetch error:', completionsError);
+      logger.error(`Quest completions fetch error: ${completionsError?.message}`, 'QUESTS GET');
       // If the table doesn't exist, continue with empty completions
     }
 
@@ -61,7 +62,7 @@ export async function GET(request: Request) {
     const questsWithCompletions = (quests || []).map((quest: any) => {
       const completion = completedQuests.get(quest.id);
       const isCompleted = completion?.completed === true;
-      
+
       return {
         id: quest.id,
         name: quest.name,
@@ -80,36 +81,36 @@ export async function GET(request: Request) {
 
     return NextResponse.json(questsWithCompletions);
   } catch (error) {
-    console.error('Error fetching quests:', error instanceof Error ? error.stack : error);
+    logger.error(`Error fetching quests: ${error instanceof Error ? error.stack : error}`, 'QUESTS GET');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 // Update a quest completion status
 export async function PUT(request: Request) {
-  console.log('[QUESTS-COMPLETE][PUT] 🚨 ENDPOINT HIT - Method:', request.method, 'URL:', request.url);
-  
+  logger.info(`🚨 ENDPOINT HIT - Method: ${request.method}, URL: ${request.url}`, 'QUESTS-COMPLETE PUT');
+
   try {
     // Secure Clerk JWT verification
     const userId = await getUserIdFromRequest(request);
     if (!userId) {
-      console.error('[QUESTS-COMPLETE][PUT] Unauthorized - no valid Clerk JWT');
+      logger.error('Unauthorized - no valid Clerk JWT', 'QUESTS-COMPLETE PUT');
       return NextResponse.json({ error: 'Unauthorized (Clerk JWT invalid or missing)' }, { status: 401 });
     }
-    
+
     if (!supabase) {
-      console.error('[QUESTS-COMPLETE][PUT] Supabase client not initialized');
+      logger.error('Supabase client not initialized', 'QUESTS-COMPLETE PUT');
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
     }
 
     const body = await request.json();
-    console.log('[QUESTS-COMPLETE][PUT] Request body:', body);
-    
+    logger.info(`Request body: ${JSON.stringify(body)}`, 'QUESTS-COMPLETE PUT');
+
     // Quest completion request
     const { title, completed } = body;
-    
-    console.log('[QUESTS-COMPLETE][PUT] Processing quest completion:', { userId, title, completed });
-    
+
+    logger.info(`Processing quest completion: userId=${userId}, title=${title}, completed=${completed}`, 'QUESTS-COMPLETE PUT');
+
     // Find the quest by name to get its ID
     const { data: quest, error: questError } = await supabase
       .from('quests')
@@ -118,15 +119,15 @@ export async function PUT(request: Request) {
       .single();
 
     if (questError || !quest) {
-      console.error('[QUESTS-COMPLETE][PUT] Quest not found:', { questError, title });
+      logger.error(`Quest not found: ${JSON.stringify({ questError, title })}`, 'QUESTS-COMPLETE PUT');
       return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
     }
-    
-    console.log('[QUESTS-COMPLETE][PUT] Quest found:', { questId: quest.id, title, xpReward: quest.xp_reward, goldReward: quest.gold_reward });
+
+    logger.info(`Quest found: questId=${quest.id}, title=${title}, xpReward=${quest.xp_reward}, goldReward=${quest.gold_reward}`, 'QUESTS-COMPLETE PUT');
 
     // 🚀 USE SMART QUEST COMPLETION SYSTEM INSTEAD OF DIRECT TABLE OPERATIONS
-    console.log('[QUESTS-COMPLETE][PUT] Using smart quest completion system...');
-    
+    logger.info('Using smart quest completion system...', 'QUESTS-COMPLETE PUT');
+
     // Call the smart completion function
     // Ensure questId is properly cast to UUID type
     const { data: smartResult, error: smartError } = await supabase.rpc('smart_quest_completion', {
@@ -136,23 +137,23 @@ export async function PUT(request: Request) {
       p_xp_reward: quest.xp_reward || 50,
       p_gold_reward: quest.gold_reward || 25
     });
-    
+
     if (smartError) {
-      console.error('[QUESTS-COMPLETE][PUT] Smart completion error:', smartError);
+      logger.error(`Smart completion error: ${smartError.message}`, 'QUESTS-COMPLETE PUT');
       return NextResponse.json({ error: smartError.message }, { status: 500 });
     }
-    
-    console.log('[QUESTS-COMPLETE][PUT] Smart completion result:', smartResult);
-    
+
+    logger.info(`Smart completion result: ${JSON.stringify(smartResult)}`, 'QUESTS-COMPLETE PUT');
+
     // Extract completion data from smart result
     const questCompletion = smartResult.record;
 
-    return NextResponse.json({ 
-      success: true, 
-      message: `Quest ${completed ? 'completed' : 'uncompleted'} successfully` 
+    return NextResponse.json({
+      success: true,
+      message: `Quest ${completed ? 'completed' : 'uncompleted'} successfully`
     });
   } catch (error) {
-    console.error('[QUESTS-COMPLETE][PUT] Error updating quest completion:', error instanceof Error ? error.stack : error);
+    logger.error(`Error updating quest completion: ${error instanceof Error ? error.stack : error}`, 'QUESTS-COMPLETE PUT');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
