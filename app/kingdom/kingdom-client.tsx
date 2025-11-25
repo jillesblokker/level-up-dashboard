@@ -12,15 +12,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogAction } from "@/components/ui/alert-dialog"
 import { useToast } from "@/components/ui/use-toast"
 import { useUser, useAuth } from '@clerk/nextjs'
-import { 
-  getKingdomInventory, 
-  getEquippedItems, 
-  getStoredItems, 
-  equipItem, 
+import {
+  getKingdomInventory,
+  getEquippedItems,
+  getStoredItems,
+  equipItem,
   unequipItem,
   getTotalStats,
   addToInventory,
-  type InventoryItem 
+  type InventoryItem
 } from "@/lib/inventory-manager"
 import {
   Dialog,
@@ -44,10 +44,10 @@ import { gainGold } from '@/lib/gold-manager';
 import { KINGDOM_TILES } from '@/lib/kingdom-tiles';
 import { saveKingdomGrid, saveKingdomTimers, saveKingdomItems, saveKingdomTileStates, loadKingdomGrid, loadKingdomTimers, loadKingdomItems, loadKingdomTileStates } from '@/lib/supabase-persistence-client'
 
-type KingdomInventoryItem = (DefaultInventoryItem | ManagerInventoryItem) & { 
-  stats?: Record<string, number>, 
+type KingdomInventoryItem = (DefaultInventoryItem | ManagerInventoryItem) & {
+  stats?: Record<string, number>,
   description?: string,
-  category?: string 
+  category?: string
 }
 
 interface WindowWithHeaderImages extends Window {
@@ -96,7 +96,7 @@ function mergeGrids(defaultGrid: Tile[][], userGrid: Tile[][]): Tile[][] {
       return cell;
     })
   );
-  
+
   return mergedGrid;
 }
 
@@ -155,7 +155,7 @@ const getConsumableEffect = (item: KingdomInventoryItem) => {
 // Helper to get display name (remove category prefix like "fish-", "horse-", etc.)
 function getItemDisplayName(item: KingdomInventoryItem): string {
   if (!item.name) return 'Unknown Item';
-  
+
   // Split by hyphen and take the part after the first hyphen
   const parts = item.name.split('-');
   if (parts.length > 1) {
@@ -163,7 +163,7 @@ function getItemDisplayName(item: KingdomInventoryItem): string {
     const displayName = parts.slice(1).join('-');
     return displayName.charAt(0).toUpperCase() + displayName.slice(1);
   }
-  
+
   // If no hyphen, return the original name
   return item.name;
 }
@@ -190,11 +190,11 @@ function isEquippable(item: KingdomInventoryItem): boolean {
 // Helper to create an empty kingdom grid
 function createEmptyKingdomGrid(): Tile[][] {
   console.log('[Kingdom] createEmptyKingdomGrid called');
-  
+
   const KINGDOM_GRID_ROWS = 12; // Doubled from 6 to 12 rows
   const KINGDOM_GRID_COLS = 6;
   const VACANT_TILE_IMAGE = '/images/kingdom-tiles/Vacant.png';
-  
+
   const grid = Array.from({ length: KINGDOM_GRID_ROWS }, (_, y) =>
     Array.from({ length: KINGDOM_GRID_COLS }, (_, x) => ({
       id: `vacant-${x}-${y}`,
@@ -211,9 +211,9 @@ function createEmptyKingdomGrid(): Tile[][] {
       image: VACANT_TILE_IMAGE,
     }))
   );
-  
+
   console.log('[Kingdom] Base grid created with dimensions:', { rows: KINGDOM_GRID_ROWS, cols: KINGDOM_GRID_COLS });
-  
+
   // Add some default kingdom tiles to make the grid interesting
   const defaultKingdomTiles = [
     { x: 1, y: 1, type: 'well' as TileType },
@@ -237,9 +237,9 @@ function createEmptyKingdomGrid(): Tile[][] {
     { x: 4, y: 4, type: 'archery' as TileType },
     { x: 5, y: 4, type: 'watchtower' as TileType },
   ];
-  
+
   console.log('[Kingdom] Adding default kingdom tiles:', defaultKingdomTiles.length);
-  
+
   defaultKingdomTiles.forEach(({ x, y, type }) => {
     const kingdomTile = KINGDOM_TILES.find(kt => kt.id === type);
     if (kingdomTile && grid[y] && grid[y][x]) {
@@ -266,10 +266,10 @@ function createEmptyKingdomGrid(): Tile[][] {
       console.warn(`[Kingdom] Failed to add ${type} tile at position (${x}, ${y}) - kingdomTile:`, kingdomTile, 'grid[y]:', grid[y], 'grid[y][x]:', grid[y]?.[x]);
     }
   });
-  
+
   const finalTileCount = grid.flat().filter(cell => cell && cell.type && cell.type !== 'empty').length;
   console.log('[Kingdom] Final grid created with', finalTileCount, 'non-empty tiles');
-  
+
   return grid;
 }
 
@@ -283,7 +283,7 @@ function getKingdomTileInventoryWithBuildTokens(): Tile[] {
     const isCastle = filename === 'Castle.png';
     // Find the corresponding kingdom tile configuration
     const kingdomTileConfig = KINGDOM_TILES.find(kt => kt.name.toLowerCase() === tileName.toLowerCase());
-    
+
     return {
       id: `kingdom-tile-${idx}`,
       type: kingdomTileConfig ? (kingdomTileConfig.id as TileType) : 'special',
@@ -338,15 +338,19 @@ export function KingdomClient() {
 
   // Initialize timers for default kingdom tiles (only if they don't exist)
   useEffect(() => {
-    console.log('[Kingdom] Initializing kingdom grid and timers...');
-    
+    if (!user) return; // Wait for user to be loaded
+
+    console.log('[Kingdom] Initializing kingdom grid and timers for user:', user.id);
+
     const initializeKingdomData = async () => {
       try {
+        const token = await getToken();
+
         // Load timers from Supabase with localStorage fallback
-        const savedTimers = await loadKingdomTimers();
+        const savedTimers = await loadKingdomTimers(token);
         if (!savedTimers || Object.keys(savedTimers).length === 0) {
           console.log('[Kingdom] Creating default timers...');
-          
+
           const defaultTimers = {
             '1,1': { x: 1, y: 1, tileId: 'well', endTime: Date.now() + (10 * 60 * 1000), isReady: false }, // 10 min
             '2,1': { x: 2, y: 1, tileId: 'blacksmith', endTime: Date.now() + (30 * 60 * 1000), isReady: false }, // 30 min
@@ -369,20 +373,20 @@ export function KingdomClient() {
             '4,4': { x: 4, y: 4, tileId: 'archery', endTime: Date.now() + (28 * 60 * 1000), isReady: false }, // 28 min
             '5,4': { x: 5, y: 4, tileId: 'watchtower', endTime: Date.now() + (65 * 60 * 1000), isReady: false }, // 1.1 hours
           };
-          
+
           // Save default timers to Supabase
-          await saveKingdomTimers(defaultTimers);
+          await saveKingdomTimers(defaultTimers, token);
           console.log('[Kingdom] Default timers created and saved to Supabase');
         } else {
           console.log('[Kingdom] Using existing timers from Supabase');
         }
-        
+
         // Load kingdom grid from Supabase with localStorage fallback
-        const savedGrid = await loadKingdomGrid();
+        const savedGrid = await loadKingdomGrid(token);
         if (savedGrid && savedGrid.length > 0) {
           try {
             console.log('[Kingdom] Loading existing grid from Supabase...');
-            
+
             // Use the existing grid directly instead of recreating and merging
             console.log('[Kingdom] Using existing grid from Supabase:', {
               gridLength: savedGrid.length,
@@ -390,7 +394,7 @@ export function KingdomClient() {
               vacantTileCount: savedGrid.flat().filter((cell: any) => cell && cell.type === 'vacant').length,
               userTileCount: savedGrid.flat().filter((cell: any) => cell && cell.type && cell.type !== 'vacant' && cell.type !== 'empty').length
             });
-            
+
             setKingdomGrid(savedGrid);
           } catch (error) {
             console.warn('[Kingdom] Failed to load existing grid, creating new one:', error);
@@ -401,7 +405,7 @@ export function KingdomClient() {
             });
             setKingdomGrid(newGrid);
             // Save the new grid to Supabase
-            await saveKingdomGrid(newGrid);
+            await saveKingdomGrid(newGrid, token);
           }
         } else {
           console.log('[Kingdom] No existing grid found, creating new one...');
@@ -412,63 +416,63 @@ export function KingdomClient() {
           });
           setKingdomGrid(newGrid);
           // Save the new grid to Supabase
-          await saveKingdomGrid(newGrid);
+          await saveKingdomGrid(newGrid, token);
         }
-        
-                // Mark initialization as complete
+
+        // Mark initialization as complete
         console.log('[Kingdom] Kingdom initialization complete');
         setGridLoading(false);
       } catch (error) {
-          console.error('[Kingdom] Error initializing kingdom data:', error);
-          // Fallback to localStorage if Supabase fails
-          const existingTimers = localStorage.getItem('kingdom-tile-timers');
-          if (!existingTimers) {
-            // Create default timers in localStorage as fallback
-            const defaultTimers = [
-              { x: 1, y: 1, tileId: 'well', endTime: Date.now() + (10 * 60 * 1000), isReady: false }, // 10 min
-              { x: 2, y: 1, tileId: 'blacksmith', endTime: Date.now() + (30 * 60 * 1000), isReady: false }, // 30 min
-              { x: 3, y: 1, tileId: 'fisherman', endTime: Date.now() + (15 * 60 * 1000), isReady: false }, // 15 min
-              { x: 4, y: 1, tileId: 'sawmill', endTime: Date.now() + (45 * 60 * 1000), isReady: false }, // 45 min
-              { x: 5, y: 1, tileId: 'windmill', endTime: Date.now() + (20 * 60 * 1000), isReady: false }, // 20 min
-              { x: 1, y: 2, tileId: 'grocery', endTime: Date.now() + (5 * 60 * 1000), isReady: false }, // 5 min
-              { x: 2, y: 2, tileId: 'castle', endTime: Date.now() + (480 * 60 * 1000), isReady: false }, // 8 hours (legendary)
-              { x: 3, y: 2, tileId: 'temple', endTime: Date.now() + (60 * 60 * 1000), isReady: false }, // 1 hour
-              { x: 4, y: 2, tileId: 'fountain', endTime: Date.now() + (25 * 60 * 1000), isReady: false }, // 25 min
-              { x: 5, y: 2, tileId: 'pond', endTime: Date.now() + (12 * 60 * 1000), isReady: false }, // 12 min
-              { x: 1, y: 3, tileId: 'foodcourt', endTime: Date.now() + (8 * 60 * 1000), isReady: false }, // 8 min
-              { x: 2, y: 3, tileId: 'vegetables', endTime: Date.now() + (35 * 60 * 1000), isReady: false }, // 35 min
-              { x: 3, y: 3, tileId: 'wizard', endTime: Date.now() + (90 * 60 * 1000), isReady: false }, // 1.5 hours
-              { x: 4, y: 3, tileId: 'mayor', endTime: Date.now() + (75 * 60 * 1000), isReady: false }, // 1.25 hours
-              { x: 5, y: 3, tileId: 'inn', endTime: Date.now() + (18 * 60 * 1000), isReady: false }, // 18 min
-              { x: 1, y: 4, tileId: 'library', endTime: Date.now() + (22 * 60 * 1000), isReady: false }, // 22 min - FIXED: was 'house'
-              { x: 2, y: 4, tileId: 'mansion', endTime: Date.now() + (120 * 60 * 1000), isReady: false }, // 2 hours
-              { x: 3, y: 4, tileId: 'jousting', endTime: Date.now() + (150 * 60 * 1000), isReady: false }, // 2.5 hours
-              { x: 4, y: 4, tileId: 'archery', endTime: Date.now() + (28 * 60 * 1000), isReady: false }, // 28 min
-              { x: 5, y: 4, tileId: 'watchtower', endTime: Date.now() + (65 * 60 * 1000), isReady: false }, // 1.1 hours
-            ];
-            localStorage.setItem('kingdom-tile-timers', JSON.stringify(defaultTimers));
-          }
-          
-          const existingGrid = localStorage.getItem('kingdom-grid');
-          if (existingGrid) {
-            try {
-              const parsedGrid = JSON.parse(existingGrid);
-              setKingdomGrid(parsedGrid);
-            } catch (error) {
-              const newGrid = createEmptyKingdomGrid();
-              setKingdomGrid(newGrid);
-            }
-          } else {
+        console.error('[Kingdom] Error initializing kingdom data:', error);
+        // Fallback to localStorage if Supabase fails
+        const existingTimers = localStorage.getItem('kingdom-tile-timers');
+        if (!existingTimers) {
+          // Create default timers in localStorage as fallback
+          const defaultTimers = [
+            { x: 1, y: 1, tileId: 'well', endTime: Date.now() + (10 * 60 * 1000), isReady: false }, // 10 min
+            { x: 2, y: 1, tileId: 'blacksmith', endTime: Date.now() + (30 * 60 * 1000), isReady: false }, // 30 min
+            { x: 3, y: 1, tileId: 'fisherman', endTime: Date.now() + (15 * 60 * 1000), isReady: false }, // 15 min
+            { x: 4, y: 1, tileId: 'sawmill', endTime: Date.now() + (45 * 60 * 1000), isReady: false }, // 45 min
+            { x: 5, y: 1, tileId: 'windmill', endTime: Date.now() + (20 * 60 * 1000), isReady: false }, // 20 min
+            { x: 1, y: 2, tileId: 'grocery', endTime: Date.now() + (5 * 60 * 1000), isReady: false }, // 5 min
+            { x: 2, y: 2, tileId: 'castle', endTime: Date.now() + (480 * 60 * 1000), isReady: false }, // 8 hours (legendary)
+            { x: 3, y: 2, tileId: 'temple', endTime: Date.now() + (60 * 60 * 1000), isReady: false }, // 1 hour
+            { x: 4, y: 2, tileId: 'fountain', endTime: Date.now() + (25 * 60 * 1000), isReady: false }, // 25 min
+            { x: 5, y: 2, tileId: 'pond', endTime: Date.now() + (12 * 60 * 1000), isReady: false }, // 12 min
+            { x: 1, y: 3, tileId: 'foodcourt', endTime: Date.now() + (8 * 60 * 1000), isReady: false }, // 8 min
+            { x: 2, y: 3, tileId: 'vegetables', endTime: Date.now() + (35 * 60 * 1000), isReady: false }, // 35 min
+            { x: 3, y: 3, tileId: 'wizard', endTime: Date.now() + (90 * 60 * 1000), isReady: false }, // 1.5 hours
+            { x: 4, y: 3, tileId: 'mayor', endTime: Date.now() + (75 * 60 * 1000), isReady: false }, // 1.25 hours
+            { x: 5, y: 3, tileId: 'inn', endTime: Date.now() + (18 * 60 * 1000), isReady: false }, // 18 min
+            { x: 1, y: 4, tileId: 'library', endTime: Date.now() + (22 * 60 * 1000), isReady: false }, // 22 min - FIXED: was 'house'
+            { x: 2, y: 4, tileId: 'mansion', endTime: Date.now() + (120 * 60 * 1000), isReady: false }, // 2 hours
+            { x: 3, y: 4, tileId: 'jousting', endTime: Date.now() + (150 * 60 * 1000), isReady: false }, // 2.5 hours
+            { x: 4, y: 4, tileId: 'archery', endTime: Date.now() + (28 * 60 * 1000), isReady: false }, // 28 min
+            { x: 5, y: 4, tileId: 'watchtower', endTime: Date.now() + (65 * 60 * 1000), isReady: false }, // 1.1 hours
+          ];
+          localStorage.setItem('kingdom-tile-timers', JSON.stringify(defaultTimers));
+        }
+
+        const existingGrid = localStorage.getItem('kingdom-grid');
+        if (existingGrid) {
+          try {
+            const parsedGrid = JSON.parse(existingGrid);
+            setKingdomGrid(parsedGrid);
+          } catch (error) {
             const newGrid = createEmptyKingdomGrid();
             setKingdomGrid(newGrid);
           }
+        } else {
+          const newGrid = createEmptyKingdomGrid();
+          setKingdomGrid(newGrid);
         }
-        
+      }
 
-      };
-      
-      initializeKingdomData();
-    }, []); // Empty dependency array - only run once on mount
+
+    };
+
+    initializeKingdomData();
+  }, [user, getToken]); // Depend on user and getToken
 
   // Load timers from Supabase to sync with kingdom grid
   useEffect(() => {
@@ -489,7 +493,7 @@ export function KingdomClient() {
         }
       }
     };
-    
+
     loadTimers();
   }, []);
 
@@ -585,10 +589,10 @@ export function KingdomClient() {
       'material': 5,
       'item': 10
     };
-    
+
     // Get base price for item type, default to 10
     const basePrice = basePrices[item.type] || 10;
-    
+
     // Add bonus for items with stats
     let bonus = 0;
     if (item.stats) {
@@ -598,7 +602,7 @@ export function KingdomClient() {
         }
       });
     }
-    
+
     // Add rarity bonus based on item name/type - more comprehensive
     const itemName = item.name.toLowerCase();
     if (itemName.includes('golden') || itemName.includes('rainbow') || itemName.includes('legendary')) {
@@ -612,19 +616,19 @@ export function KingdomClient() {
     } else if (itemName.includes('gold') || itemName.includes('crystal')) {
       bonus += 8; // Special items
     }
-    
+
     // Add bonus for specific item types
     if (item.type === 'artifact') bonus += 30;
     if (item.type === 'weapon' && itemName.includes('sword')) bonus += 10;
     if (item.type === 'armor' && itemName.includes('plate')) bonus += 15;
-    
+
     return Math.max(5, basePrice + bonus); // Minimum 5 gold
   };
 
   // Handle selling items
   const handleSellItem = async (item: KingdomInventoryItem) => {
     // Removed debugging log
-    
+
     if (!user?.id) {
       // Removed debugging log
       toast({
@@ -634,10 +638,10 @@ export function KingdomClient() {
       });
       return;
     }
-    
+
     const sellPrice = getItemSellPrice(item);
     // Removed debugging log
-    
+
     try {
       // Remove item from Supabase inventory
       const response = await fetch('/api/inventory/remove-item', {
@@ -645,22 +649,22 @@ export function KingdomClient() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ itemId: item.id })
       });
-      
+
       // Removed debugging log
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error('[Sell] Response error:', errorText);
         throw new Error(`Failed to remove item from inventory: ${response.status} ${response.statusText}`);
       }
-      
+
       // Give gold for the sale
       gainGold(sellPrice, `sell-${item.name.toLowerCase()}`);
-      
+
       // Show selling confirmation modal
       setSoldItem({ name: item.name, gold: sellPrice });
       setSellingModalOpen(true);
-      
+
       // Refresh inventory from Supabase
       const equipped = await getEquippedItems(user.id);
       const stored = await getStoredItems(user.id);
@@ -685,13 +689,13 @@ export function KingdomClient() {
       }
       return newGrid;
     });
-    
+
     // Save the updated grid
     const updatedGrid = kingdomGrid.map(row => row.slice());
     if (updatedGrid[y]) {
       updatedGrid[y][x] = { ...tile, x, y, id: `${tile.id}-${x}-${y}` };
     }
-    
+
     // Save to API
     saveKingdomGridToSupabase(updatedGrid);
   }
@@ -699,10 +703,10 @@ export function KingdomClient() {
   // Restore renderItemCard for inventory display
   const renderItemCard = (item: KingdomInventoryItem, isEquipped: boolean = false) => {
     const imagePath = getItemImagePath(item);
-    
+
     return (
-      <Card 
-        key={item.id} 
+      <Card
+        key={item.id}
         className={`bg-black border-2 border-amber-500/30 rounded-xl shadow-lg transition-all duration-300 hover:border-amber-400/50 hover:shadow-amber-500/20 hover:-translate-y-1 hover:scale-[1.02] ${isEquipped ? 'ring-2 ring-amber-500 shadow-amber-500/30' : ''}`}
         aria-label={`inventory-item-${item.id}`}
       >
@@ -713,8 +717,8 @@ export function KingdomClient() {
             alt={`${item.name} ${item.type}`}
             className="object-cover w-full h-full"
             aria-label={`${item.name}-image`}
-            onError={(e: React.SyntheticEvent<HTMLImageElement>) => { 
-              (e.target as HTMLImageElement).src = "/images/placeholders/item-placeholder.svg"; 
+            onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+              (e.target as HTMLImageElement).src = "/images/placeholders/item-placeholder.svg";
             }}
             onLoad={() => {
             }}
@@ -728,7 +732,7 @@ export function KingdomClient() {
             </div>
           )}
         </div>
-        
+
         <CardHeader className="p-4 pb-2">
           <div className="flex items-start justify-between">
             <div className="flex-1">
@@ -748,7 +752,7 @@ export function KingdomClient() {
             </div>
           </div>
         </CardHeader>
-        
+
         <CardContent className="p-4 pt-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -777,22 +781,21 @@ export function KingdomClient() {
                 </span>
               )}
             </div>
-            
+
             <div className="flex gap-2">
               {/* Only render the action button if it has valid content */}
               {(isEquipped || isEquippable(item) || isConsumable(item)) && (
                 <Button
                   size="sm"
                   onClick={() => isEquipped ? handleUnequip(item) : handleEquip(item)}
-                  className={`${
-                    isEquipped
+                  className={`${isEquipped
                       ? 'bg-red-600 hover:bg-red-700'
                       : isEquippable(item)
                         ? 'bg-green-600 hover:bg-blue-700'
                         : isConsumable(item)
                           ? 'bg-amber-600 hover:bg-amber-700'
                           : 'bg-blue-600 hover:bg-blue-700'
-                  }`}
+                    }`}
                   aria-label={
                     isEquipped
                       ? `Unequip ${item.name}`
@@ -812,7 +815,7 @@ export function KingdomClient() {
                         : null}
                 </Button>
               )}
-              
+
               {/* Sell button for stored items */}
               {!isEquipped && (
                 <Button
@@ -856,7 +859,7 @@ export function KingdomClient() {
   // Load kingdom grid on mount
   useEffect(() => {
     if (!user?.id) return;
-    
+
     const loadKingdomGrid = async () => {
       try {
         const response = await fetch('/api/kingdom-grid');
@@ -877,7 +880,7 @@ export function KingdomClient() {
   // 🎯 LOAD CHALLENGES ON COMPONENT MOUNT
   useEffect(() => {
     if (!user?.id) return;
-    
+
     const loadChallenges = async () => {
       try {
         const response = await fetch('/api/challenges');
@@ -916,7 +919,7 @@ export function KingdomClient() {
         const equipped = await getEquippedItems(user.id);
         const stored = await getStoredItems(user.id);
         const stats = await getTotalStats(user.id);
-        
+
         // 🎯 LOAD CHALLENGES DATA
         let challenges = [];
         try {
@@ -925,7 +928,7 @@ export function KingdomClient() {
             const challengesData = await challengesResponse.json();
             challenges = challengesData.challenges || [];
             console.log('[Kingdom] Loaded challenges:', challenges.length);
-            
+
             // 🎯 SAVE CHALLENGES TO LOCALSTORAGE FOR PERSISTENCE
             localStorage.setItem('challenges', JSON.stringify(challenges));
             setChallenges(challenges);
@@ -944,7 +947,7 @@ export function KingdomClient() {
             console.warn('[Kingdom] Failed to load challenges from localStorage:', localError);
           }
         }
-        
+
         // Debug logging to see what we're getting
         console.log('[Kingdom] Inventory data:', {
           equipped: equipped,
@@ -956,7 +959,7 @@ export function KingdomClient() {
           stats: stats,
           challenges: challenges.length
         });
-        
+
         // Normalize items to always have a 'stats' property and description
         const normalizeItems = (items: any[]) => {
           if (!Array.isArray(items)) {
@@ -969,11 +972,11 @@ export function KingdomClient() {
             description: (item as any).description || '',
           }) as KingdomInventoryItem);
         };
-        
+
         // Ensure equipped and stored are arrays with defensive programming
         const equippedArray = Array.isArray(equipped) ? equipped : [];
         const storedArray = Array.isArray(stored) ? stored : [];
-        
+
         // Filter equipped items safely
         const equippableItems = equippedArray.filter(item => {
           try {
@@ -983,9 +986,9 @@ export function KingdomClient() {
             return false;
           }
         });
-        
+
         let equippedItemsToShow = normalizeItems(equippableItems);
-        
+
         // 🎯 SHOW DEFAULT ITEMS if no items are equipped
         if (equippedItemsToShow.length === 0) {
           // No equipped items found, showing default items
@@ -998,10 +1001,10 @@ export function KingdomClient() {
             category: item.type,
           })) as KingdomInventoryItem[];
         }
-        
+
         setEquippedItems(equippedItemsToShow);
         setStoredItems(normalizeItems(storedArray));
-        
+
         // 🎯 CALCULATE STATS from equipped items (including defaults)
         const calculatedStats = equippedItemsToShow.reduce(
           (totals, item) => {
@@ -1019,7 +1022,7 @@ export function KingdomClient() {
           },
           { movement: 0, attack: 0, defense: 0 }
         );
-        
+
         setTotalStats(calculatedStats);
         // Removed debugging log
       } catch (error) {
@@ -1035,7 +1038,7 @@ export function KingdomClient() {
         })) as KingdomInventoryItem[];
         setEquippedItems(defaultItems);
         setStoredItems([]);
-        
+
         // Calculate stats from default items
         const defaultStats = defaultItems.reduce(
           (totals, item) => {
@@ -1058,22 +1061,22 @@ export function KingdomClient() {
         setInventoryLoading(false);
       }
     };
-    
+
     loadInventory();
-    
+
     const handleInventoryUpdate = () => {
       // Only reload if not currently loading to prevent rapid fire requests
       if (!document.querySelector('[data-inventory-loading="true"]')) {
         loadInventory();
       }
     };
-    
+
     window.addEventListener('character-inventory-update', handleInventoryUpdate);
-    
+
     // 🎯 LISTEN FOR QUEST COMPLETION GOLD/XP UPDATES
     let goldUpdateTimeout: NodeJS.Timeout | null = null;
     let xpUpdateTimeout: NodeJS.Timeout | null = null;
-    
+
     const handleGoldUpdate = (event: Event) => {
       // Debounce gold updates to prevent infinite loops
       if (goldUpdateTimeout) {
@@ -1086,7 +1089,7 @@ export function KingdomClient() {
         }
       }, 5000); // 5 second debounce to prevent infinite loops
     };
-    
+
     const handleXPUpdate = (event: Event) => {
       // Debounce XP updates to prevent infinite loops
       if (xpUpdateTimeout) {
@@ -1099,25 +1102,25 @@ export function KingdomClient() {
         }
       }, 5000); // 5 second debounce to prevent infinite loops
     };
-    
+
     // 🎯 LISTEN FOR CHALLENGE COMPLETION EVENTS
     const handleChallengeUpdate = (event: Event) => {
       console.log('[Kingdom] Challenge update event received:', event);
       // Reload challenges when they're updated
       loadInventory();
     };
-    
+
     window.addEventListener('character-inventory-update', handleInventoryUpdate);
     window.addEventListener('gold-update', handleGoldUpdate);
     window.addEventListener('xp-update', handleXPUpdate);
     window.addEventListener('challenge-update', handleChallengeUpdate);
-    
+
     return () => {
       window.removeEventListener('character-inventory-update', handleInventoryUpdate);
       window.removeEventListener('gold-update', handleGoldUpdate);
       window.removeEventListener('xp-update', handleXPUpdate);
       window.removeEventListener('challenge-update', handleChallengeUpdate);
-      
+
       // Clean up timeouts
       if (goldUpdateTimeout) {
         clearTimeout(goldUpdateTimeout);
@@ -1147,11 +1150,11 @@ export function KingdomClient() {
   const handleKingdomTileGoldEarned = (amount: number) => {
     // Use the unified gold system
     gainGold(amount, 'kingdom-tile-reward')
-    
+
     // Trigger gold update event
     if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('gold-updated', { 
-        detail: { amount, source: 'kingdom-tile' } 
+      window.dispatchEvent(new CustomEvent('gold-updated', {
+        detail: { amount, source: 'kingdom-tile' }
       }))
     }
   }
@@ -1180,8 +1183,8 @@ export function KingdomClient() {
 
     // Trigger inventory update
     if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('inventory-updated', { 
-        detail: { item: inventoryItem } 
+      window.dispatchEvent(new CustomEvent('inventory-updated', {
+        detail: { item: inventoryItem }
       }))
     }
   }
@@ -1291,12 +1294,12 @@ export function KingdomClient() {
                   <KingStatsBlock userId={user?.id || null} />
                 </div>
               </div>
-              
+
               {/* Progression Visualization */}
               <div className="mb-6">
                 <ProgressionVisualization />
               </div>
-              
+
               {/* Economy Transparency */}
               <div className="mb-6">
                 <EconomyTransparency />
@@ -1367,31 +1370,31 @@ export function KingdomClient() {
                 </Tabs>
               </CardContent>
             </Card>
-                     </TabsContent>
-           <TabsContent value="rewards">
-             <Card className="bg-gradient-to-br from-blue-900 to-blue-800 border-blue-700">
-               <CardHeader>
-                 <CardTitle className="text-xl font-bold text-blue-100">
-                   Kingdom Rewards
-                 </CardTitle>
-                 <CardDescription className="text-blue-200">
-                   Visit your kingdom tiles to earn gold and find items
-                 </CardDescription>
-               </CardHeader>
-               <CardContent>
-                                 <KingdomTileGrid 
+          </TabsContent>
+          <TabsContent value="rewards">
+            <Card className="bg-gradient-to-br from-blue-900 to-blue-800 border-blue-700">
+              <CardHeader>
+                <CardTitle className="text-xl font-bold text-blue-100">
+                  Kingdom Rewards
+                </CardTitle>
+                <CardDescription className="text-blue-200">
+                  Visit your kingdom tiles to earn gold and find items
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <KingdomTileGrid
                   onGoldEarned={handleKingdomTileGoldEarned}
                   onItemFound={handleKingdomTileItemFound}
                   kingdomGrid={kingdomGrid}
                 />
-               </CardContent>
-             </Card>
-           </TabsContent>
-         </Tabs>
-       </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
       {/* Bottom spacing */}
       <div className="h-8 md:h-12"></div>
-      
+
       {/* Selling Confirmation Modal */}
       <Dialog open={sellingModalOpen} onOpenChange={setSellingModalOpen}>
         <DialogContent className="bg-gray-900 border-amber-800/20" role="dialog" aria-label="selling-confirmation-modal">

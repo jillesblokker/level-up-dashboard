@@ -242,6 +242,8 @@ export async function PUT(request: Request) {
           .select()
           .single();
 
+        console.log('[Challenges PUT] Saving completion with date:', today);
+
         if (error) {
           console.error('[Challenges PUT] ❌ Error upserting completion:', error);
           return NextResponse.json({ error: error.message }, { status: 500 });

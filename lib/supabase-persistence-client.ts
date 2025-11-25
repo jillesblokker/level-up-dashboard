@@ -5,24 +5,28 @@
 export async function saveToSupabaseClient<T>(
   endpoint: string,
   data: T,
-  localStorageKey: string
+  localStorageKey: string,
+  token?: string | null
 ): Promise<boolean> {
   try {
-    // For client-side, we'll use the existing API endpoints
-    // The API endpoints handle their own authentication
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(endpoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(data),
     });
 
     if (response.ok) {
       console.log(`[Supabase Persistence Client] ✅ Data saved to Supabase successfully: ${endpoint}`);
-      // Also save to localStorage as backup
       localStorage.setItem(localStorageKey, JSON.stringify(data));
-      return true; // Indicates Supabase was used
+      return true;
     } else {
       console.log(`[Supabase Persistence Client] ⚠️ Failed to save to Supabase, falling back to localStorage: ${endpoint}`);
       localStorage.setItem(localStorageKey, JSON.stringify(data));
@@ -30,7 +34,6 @@ export async function saveToSupabaseClient<T>(
     }
   } catch (error) {
     console.error(`[Supabase Persistence Client] Error saving to Supabase: ${endpoint}`, error);
-    console.log(`[Supabase Persistence Client] Falling back to localStorage: ${localStorageKey}`);
     localStorage.setItem(localStorageKey, JSON.stringify(data));
     return false;
   }
@@ -40,20 +43,24 @@ export async function saveToSupabaseClient<T>(
 export async function loadFromSupabaseClient<T>(
   endpoint: string,
   localStorageKey: string,
-  defaultValue: T
+  defaultValue: T,
+  token?: string | null
 ): Promise<T> {
   try {
-    // For client-side, we'll use the existing API endpoints
-    // The API endpoints handle their own authentication
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(endpoint, {
       method: 'GET',
+      headers,
     });
 
     if (response.ok) {
       const result = await response.json();
       if (result.stats || result.progress || result.grid || result.timers || result.items || result.states) {
         console.log(`[Supabase Persistence Client] ✅ Data loaded from Supabase: ${endpoint}`);
-        // Also save to localStorage as backup
         const data = result.stats || result.progress || result.grid || result.timers || result.items || result.states;
         localStorage.setItem(localStorageKey, JSON.stringify(data));
         return data;
@@ -65,7 +72,6 @@ export async function loadFromSupabaseClient<T>(
     return stored ? JSON.parse(stored) : defaultValue;
   } catch (error) {
     console.error(`[Supabase Persistence Client] Error loading from Supabase: ${endpoint}`, error);
-    console.log(`[Supabase Persistence Client] Using localStorage: ${localStorageKey}`);
     const stored = localStorage.getItem(localStorageKey);
     return stored ? JSON.parse(stored) : defaultValue;
   }
@@ -74,73 +80,73 @@ export async function loadFromSupabaseClient<T>(
 // Kingdom-specific persistence functions
 
 // Kingdom Grid
-export async function saveKingdomGrid(grid: any): Promise<boolean> {
-  return await saveToSupabaseClient('/api/kingdom-grid', { grid }, 'kingdom-grid');
+export async function saveKingdomGrid(grid: any, token?: string | null): Promise<boolean> {
+  return await saveToSupabaseClient('/api/kingdom-grid', { grid }, 'kingdom-grid', token);
 }
 
-export async function loadKingdomGrid(): Promise<any> {
-  return await loadFromSupabaseClient('/api/kingdom-grid', 'kingdom-grid', []);
+export async function loadKingdomGrid(token?: string | null): Promise<any> {
+  return await loadFromSupabaseClient('/api/kingdom-grid', 'kingdom-grid', [], token);
 }
 
 // Kingdom Timers
-export async function saveKingdomTimers(timers: any): Promise<boolean> {
-  return await saveToSupabaseClient('/api/kingdom-timers', { timers }, 'kingdom-tile-timers');
+export async function saveKingdomTimers(timers: any, token?: string | null): Promise<boolean> {
+  return await saveToSupabaseClient('/api/kingdom-timers', { timers }, 'kingdom-tile-timers', token);
 }
 
-export async function loadKingdomTimers(): Promise<any> {
-  return await loadFromSupabaseClient('/api/kingdom-timers', 'kingdom-tile-timers', {});
+export async function loadKingdomTimers(token?: string | null): Promise<any> {
+  return await loadFromSupabaseClient('/api/kingdom-timers', 'kingdom-tile-timers', {}, token);
 }
 
 // Kingdom Items
-export async function saveKingdomItems(items: any[]): Promise<boolean> {
-  return await saveToSupabaseClient('/api/kingdom-items', { items }, 'kingdom-tile-items');
+export async function saveKingdomItems(items: any[], token?: string | null): Promise<boolean> {
+  return await saveToSupabaseClient('/api/kingdom-items', { items }, 'kingdom-tile-items', token);
 }
 
-export async function loadKingdomItems(): Promise<any[]> {
-  return await loadFromSupabaseClient('/api/kingdom-items', 'kingdom-tile-items', []);
+export async function loadKingdomItems(token?: string | null): Promise<any[]> {
+  return await loadFromSupabaseClient('/api/kingdom-items', 'kingdom-tile-items', [], token);
 }
 
 // Kingdom Tile States
-export async function saveKingdomTileStates(states: any): Promise<boolean> {
-  return await saveToSupabaseClient('/api/kingdom-tile-states', { states }, 'kingdom-tile-states');
+export async function saveKingdomTileStates(states: any, token?: string | null): Promise<boolean> {
+  return await saveToSupabaseClient('/api/kingdom-tile-states', { states }, 'kingdom-tile-states', token);
 }
 
-export async function loadKingdomTileStates(): Promise<any> {
-  return await loadFromSupabaseClient('/api/kingdom-tile-states', 'kingdom-tile-states', {});
+export async function loadKingdomTileStates(token?: string | null): Promise<any> {
+  return await loadFromSupabaseClient('/api/kingdom-tile-states', 'kingdom-tile-states', {}, token);
 }
 
 // Character Stats
-export async function saveCharacterStats(stats: any): Promise<boolean> {
-  return await saveToSupabaseClient('/api/character-stats', { stats }, 'character-stats');
+export async function saveCharacterStats(stats: any, token?: string | null): Promise<boolean> {
+  return await saveToSupabaseClient('/api/character-stats', { stats }, 'character-stats', token);
 }
 
-export async function loadCharacterStats(): Promise<any> {
-  return await loadFromSupabaseClient('/api/character-stats', 'character-stats', {});
+export async function loadCharacterStats(token?: string | null): Promise<any> {
+  return await loadFromSupabaseClient('/api/character-stats', 'character-stats', {}, token);
 }
 
 // Quest Progress
-export async function saveQuestProgress(progress: any[]): Promise<boolean> {
-  return await saveToSupabaseClient('/api/quest-progress', { progress }, 'quest-progress');
+export async function saveQuestProgress(progress: any[], token?: string | null): Promise<boolean> {
+  return await saveToSupabaseClient('/api/quest-progress', { progress }, 'quest-progress', token);
 }
 
-export async function loadQuestProgress(): Promise<any[]> {
-  return await loadFromSupabaseClient('/api/quest-progress', 'quest-progress', []);
+export async function loadQuestProgress(token?: string | null): Promise<any[]> {
+  return await loadFromSupabaseClient('/api/quest-progress', 'quest-progress', [], token);
 }
 
 // Challenge Progress
-export async function saveChallengeProgress(progress: any[]): Promise<boolean> {
-  return await saveToSupabaseClient('/api/challenge-progress', { progress }, 'challenge-progress');
+export async function saveChallengeProgress(progress: any[], token?: string | null): Promise<boolean> {
+  return await saveToSupabaseClient('/api/challenge-progress', { progress }, 'challenge-progress', token);
 }
 
-export async function loadChallengeProgress(): Promise<any[]> {
-  return await loadFromSupabaseClient('/api/challenge-progress', 'challenge-progress', []);
+export async function loadChallengeProgress(token?: string | null): Promise<any[]> {
+  return await loadFromSupabaseClient('/api/challenge-progress', 'challenge-progress', [], token);
 }
 
 // Milestone Progress
-export async function saveMilestoneProgress(progress: any[]): Promise<boolean> {
-  return await saveToSupabaseClient('/api/milestone-progress', { progress }, 'milestone-progress');
+export async function saveMilestoneProgress(progress: any[], token?: string | null): Promise<boolean> {
+  return await saveToSupabaseClient('/api/milestone-progress', { progress }, 'milestone-progress', token);
 }
 
-export async function loadMilestoneProgress(): Promise<any[]> {
-  return await loadFromSupabaseClient('/api/milestone-progress', 'milestone-progress', []);
+export async function loadMilestoneProgress(token?: string | null): Promise<any[]> {
+  return await loadFromSupabaseClient('/api/milestone-progress', 'milestone-progress', [], token);
 }
