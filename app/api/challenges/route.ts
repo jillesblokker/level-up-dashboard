@@ -75,43 +75,24 @@ export async function GET(request: Request) {
 
       // Filter to only today's completions, normalizing dates for comparison
       const todaysCompletions = (allCompletions || []).filter((completion: any) => {
-        // Handle all possible date formats from Supabase
-        let completionDate: string | null = null;
+        if (!completion.date) return false;
 
-        if (completion.date) {
-          if (typeof completion.date === 'string') {
-            // String format - extract YYYY-MM-DD part
-            completionDate = completion.date.split('T')[0].split(' ')[0];
-          } else if (completion.date instanceof Date) {
-            // Date object - format it
-            completionDate = formatNetherlandsDate(completion.date);
-          } else {
-            // Fallback - try to convert to string
-            completionDate = formatNetherlandsDate(String(completion.date));
-          }
-        }
+        // Normalize both dates to YYYY-MM-DD for comparison
+        // The database date might be a full ISO string or just a date string
+        const dbDate = String(completion.date).split('T')[0];
+        const todayDate = today.split('T')[0];
 
-        const matches = completionDate === today;
+        const matches = dbDate === todayDate;
+
         if (matches) {
           console.log('[Challenges API] ✅ Found today match:', {
             challenge_id: completion.challenge_id,
-            stored_date: completion.date,
-            stored_date_type: typeof completion.date,
-            normalized_date: completionDate,
-            today: today,
-            completed: completion.completed
-          });
-        } else if (completion.completed) {
-          // Log mismatches for completed items to debug
-          console.log('[Challenges API] ⚠️ Date mismatch for completed challenge:', {
-            challenge_id: completion.challenge_id,
-            stored_date: completion.date,
-            stored_date_type: typeof completion.date,
-            normalized_date: completionDate,
-            today: today,
+            dbDate,
+            todayDate,
             completed: completion.completed
           });
         }
+
         return matches;
       });
 
@@ -120,17 +101,11 @@ export async function GET(request: Request) {
       const completedChallenges = new Map();
 
       if (todaysCompletions.length > 0) {
-        console.log('[Challenges API] Processing today\'s completions:', todaysCompletions.map((c: any) => ({
-          challenge_id: c.challenge_id,
-          completed: c.completed,
-          date: c.date
-        })));
-
         todaysCompletions.forEach((completion: any) => {
           if (completion.completed === true) {
             completedChallenges.set(completion.challenge_id, {
               completed: true,
-              date: formatNetherlandsDate(completion.date) || String(completion.date).split('T')[0],
+              date: String(completion.date).split('T')[0],
               completionId: completion.id
             });
           }
@@ -138,7 +113,7 @@ export async function GET(request: Request) {
       } else {
         console.log('[Challenges API] ⚠️ No completions found for today:', today);
         console.log('[Challenges API] Available dates in completions:',
-          [...new Set((allCompletions || []).map((c: any) => formatNetherlandsDate(c.date) || String(c.date).split('T')[0]))]
+          [...new Set((allCompletions || []).map((c: any) => String(c.date).split('T')[0]))]
         );
       }
 
