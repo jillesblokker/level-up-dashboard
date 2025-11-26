@@ -1351,9 +1351,9 @@ export function KingdomClient() {
                               <div className="w-16 h-16 mb-4 rounded-full bg-amber-900/30 flex items-center justify-center">
                                 <span className="text-2xl">🎒</span>
                               </div>
-                              <h3 className="text-amber-500 font-semibold text-lg mb-2">Your bag is empty</h3>
+                              <h3 className="text-amber-500 font-semibold text-lg mb-2">Your bag is empty, adventurer!</h3>
                               <p className="text-gray-400 text-sm leading-relaxed">
-                                Keep traversing the land and buy new items to be better equipped.
+                                Complete quests and explore your kingdom to find treasures and equipment.
                               </p>
                             </CardContent>
                           </Card>

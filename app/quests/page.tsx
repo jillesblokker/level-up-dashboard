@@ -1852,7 +1852,7 @@ export default function QuestsPage() {
 
         <HeaderSection
           title="Message Board"
-          subtitle="Embark on epic journeys and complete tasks to earn rewards."
+          subtitle="Complete daily quests to earn gold and experience. Build your legend!"
           imageSrc="/images/quests-header.jpg"
           defaultBgColor="bg-amber-900"
           shouldRevealImage={true}
