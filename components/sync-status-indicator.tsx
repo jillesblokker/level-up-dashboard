@@ -10,11 +10,11 @@ interface SyncStatusIndicatorProps {
   className?: string;
 }
 
-export function SyncStatusIndicator({ 
-  isSyncing, 
-  lastSync, 
-  error, 
-  className 
+export function SyncStatusIndicator({
+  isSyncing,
+  lastSync,
+  error,
+  className
 }: SyncStatusIndicatorProps) {
   const getStatusInfo = () => {
     if (error) {
@@ -25,7 +25,7 @@ export function SyncStatusIndicator({
         color: 'text-red-400',
       };
     }
-    
+
     if (isSyncing) {
       return {
         icon: Loader2,
@@ -34,15 +34,15 @@ export function SyncStatusIndicator({
         color: 'text-blue-400',
       };
     }
-    
+
     const timeSinceLastSync = Date.now() - lastSync;
     const isRecent = timeSinceLastSync < 60000; // Less than 1 minute
-    
+
     return {
       icon: Wifi,
-      text: isRecent ? 'Live' : 'Offline',
+      text: isRecent ? 'Live' : 'Synced',
       variant: isRecent ? 'default' as const : 'outline' as const,
-      color: isRecent ? 'text-green-400' : 'text-gray-400',
+      color: isRecent ? 'text-green-400' : 'text-amber-400',
     };
   };
 
@@ -50,7 +50,7 @@ export function SyncStatusIndicator({
   const Icon = statusInfo.icon;
 
   return (
-    <Badge 
+    <Badge
       variant={statusInfo.variant}
       className={cn(
         'flex items-center gap-1 text-xs',
@@ -58,11 +58,11 @@ export function SyncStatusIndicator({
         className
       )}
     >
-      <Icon 
+      <Icon
         className={cn(
           'h-3 w-3',
           isSyncing && 'animate-spin'
-        )} 
+        )}
       />
       {statusInfo.text}
     </Badge>
