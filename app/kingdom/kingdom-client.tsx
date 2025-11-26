@@ -789,12 +789,12 @@ export function KingdomClient() {
                   size="sm"
                   onClick={() => isEquipped ? handleUnequip(item) : handleEquip(item)}
                   className={`${isEquipped
-                      ? 'bg-red-600 hover:bg-red-700'
-                      : isEquippable(item)
-                        ? 'bg-green-600 hover:bg-blue-700'
-                        : isConsumable(item)
-                          ? 'bg-amber-600 hover:bg-amber-700'
-                          : 'bg-blue-600 hover:bg-blue-700'
+                    ? 'bg-red-600 hover:bg-red-700'
+                    : isEquippable(item)
+                      ? 'bg-green-600 hover:bg-blue-700'
+                      : isConsumable(item)
+                        ? 'bg-amber-600 hover:bg-amber-700'
+                        : 'bg-blue-600 hover:bg-blue-700'
                     }`}
                   aria-label={
                     isEquipped
@@ -883,10 +883,9 @@ export function KingdomClient() {
 
     const loadChallenges = async () => {
       try {
-        const response = await fetch('/api/challenges');
+        const response = await fetch('/api/challenges-ultra-simple');
         if (response.ok) {
-          const data = await response.json();
-          const challengesData = data.challenges || [];
+          const challengesData = await response.json();
           setChallenges(challengesData);
           localStorage.setItem('challenges', JSON.stringify(challengesData));
           console.log('[Kingdom] Initial challenges loaded:', challengesData.length);
@@ -923,10 +922,9 @@ export function KingdomClient() {
         // 🎯 LOAD CHALLENGES DATA
         let challenges = [];
         try {
-          const challengesResponse = await fetch('/api/challenges');
+          const challengesResponse = await fetch('/api/challenges-ultra-simple');
           if (challengesResponse.ok) {
-            const challengesData = await challengesResponse.json();
-            challenges = challengesData.challenges || [];
+            challenges = await challengesResponse.json();
             console.log('[Kingdom] Loaded challenges:', challenges.length);
 
             // 🎯 SAVE CHALLENGES TO LOCALSTORAGE FOR PERSISTENCE
