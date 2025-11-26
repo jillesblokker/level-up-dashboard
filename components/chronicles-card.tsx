@@ -51,7 +51,7 @@ export function ChroniclesCard({ currentStreak }: ChroniclesCardProps) {
                 {/* Lore Text */}
                 <div className="relative pl-4 border-l-2 border-amber-800/50">
                     <p className="text-amber-200/80 italic font-serif leading-relaxed">
-                        "{currentChapter.description}"
+                        &ldquo;{currentChapter.description}&rdquo;
                     </p>
                 </div>
 
