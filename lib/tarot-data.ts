@@ -18,7 +18,7 @@ export const TAROT_DECK: TarotCard[] = [
         id: 'the-warrior',
         name: 'The Warrior',
         symbol: '⚔️',
-        description: 'Strength flows through your veins.',
+        description: 'The steel sings to you. Your arm strikes with the weight of legends.',
         effect: {
             type: 'category_boost',
             category: 'might',
@@ -32,7 +32,7 @@ export const TAROT_DECK: TarotCard[] = [
         id: 'the-scholar',
         name: 'The Scholar',
         symbol: '📚',
-        description: 'Knowledge is power.',
+        description: 'The ink of history is not yet dry. Your mind is the quill that writes the future.',
         effect: {
             type: 'category_boost',
             category: 'knowledge',
@@ -46,7 +46,7 @@ export const TAROT_DECK: TarotCard[] = [
         id: 'the-merchant',
         name: 'The Merchant',
         symbol: '💰',
-        description: 'Gold flows like water.',
+        description: 'Fortune favors the bold, but wealth favors the shrewd. Your pockets shall not be empty today.',
         effect: {
             type: 'gold_boost',
             xpMultiplier: 1.0,
@@ -59,7 +59,7 @@ export const TAROT_DECK: TarotCard[] = [
         id: 'the-sage',
         name: 'The Sage',
         symbol: '🔮',
-        description: 'Experience comes swiftly.',
+        description: 'Time is a river, but for you, it flows faster. Wisdom seeks you out.',
         effect: {
             type: 'xp_boost',
             xpMultiplier: 1.5,
@@ -72,7 +72,7 @@ export const TAROT_DECK: TarotCard[] = [
         id: 'the-gambler',
         name: 'The Gambler',
         symbol: '🎲',
-        description: 'Risk and reward dance together.',
+        description: 'The dice are cast. Fate smiles—or perhaps she smirks. Will you take the bet?',
         effect: {
             type: 'mixed',
             xpMultiplier: 2.0,
@@ -85,7 +85,7 @@ export const TAROT_DECK: TarotCard[] = [
         id: 'the-noble',
         name: 'The Noble',
         symbol: '👑',
-        description: 'Honor brings prosperity.',
+        description: 'Walk with your head high. The realm recognizes true nobility, and rewards it in kind.',
         effect: {
             type: 'category_boost',
             category: 'honor',
@@ -99,7 +99,7 @@ export const TAROT_DECK: TarotCard[] = [
         id: 'the-builder',
         name: 'The Builder',
         symbol: '🏰',
-        description: 'Your kingdom grows strong.',
+        description: 'Stone by stone, a legacy is forged. The foundations of your empire have never been stronger.',
         effect: {
             type: 'category_boost',
             category: 'castle',
@@ -113,7 +113,7 @@ export const TAROT_DECK: TarotCard[] = [
         id: 'the-artisan',
         name: 'The Artisan',
         symbol: '🔨',
-        description: 'Craftsmanship is rewarded.',
+        description: 'Your hands are guided by the masters of old. Every creation is a masterpiece waiting to be born.',
         effect: {
             type: 'category_boost',
             category: 'craft',
@@ -127,7 +127,7 @@ export const TAROT_DECK: TarotCard[] = [
         id: 'the-healer',
         name: 'The Healer',
         symbol: '💚',
-        description: 'Vitality restores the spirit.',
+        description: 'A gentle wind mends what is broken. Your spirit is renewed, ready to face the dawn.',
         effect: {
             type: 'category_boost',
             category: 'vitality',
@@ -141,7 +141,7 @@ export const TAROT_DECK: TarotCard[] = [
         id: 'the-wanderer',
         name: 'The Wanderer',
         symbol: '🗺️',
-        description: 'Adventure calls to you.',
+        description: 'The horizon is not a limit, but an invitation. The unknown whispers your name.',
         effect: {
             type: 'category_boost',
             category: 'exploration',

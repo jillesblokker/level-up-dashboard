@@ -9,63 +9,63 @@ export const achievementMessages: Record<string, AchievementMessage> = {
   // Destruction Achievements (001-015)
   '001': {
     title: "🔥 Flamio Emerges!",
-    description: "While clearing a path by destroying 1 forest tile, you discover the fiery creature Flamio and 25 gold for your treasure pile!"
+    description: "You smashed a tree and out popped Flamio! 'Hey! Watch it!' he sputters, sparks flying. He tosses you 25 gold to leave him alone."
   },
   '002': {
     title: "🔥 Embera Awakens!",
-    description: "While clearing a path by destroying 5 forest tiles, you find the fierce Embera and 50 gold for your treasure pile!"
+    description: "The smoke clears to reveal Embera. 'Finally, some room to breathe!' she roars, her flames dancing. She grants you 50 gold for clearing the clutter."
   },
   '003': {
     title: "🔥 Vulcana Rises!",
-    description: "While clearing a path by destroying 10 forest tiles, you awaken the ultimate fire creature Vulcana and 100 gold for your treasure pile!"
+    description: "Vulcana erupts from the ashes! 'DESTRUCTION! I LOVE IT!' The ultimate fire spirit is impressed by your chaos and awards you 100 gold."
   },
   '004': {
     title: "💧 Dolpio Emerges!",
-    description: "While clearing a path by destroying 1 water tile, you discover the playful water creature Dolpio and 25 gold for your treasure pile!"
+    description: "Splish splash! You found Dolpio playing in a puddle. 'Wanna play tag?' he chirps, handing you a wet pouch of 25 gold."
   },
   '005': {
     title: "💧 Divero Awakens!",
-    description: "While clearing a path by destroying 5 water tiles, you find the experienced water dweller Divero and 50 gold for your treasure pile!"
+    description: "Divero surfaces with a cool nod. 'Nice flow you got there, kid.' He slides 50 gold your way before diving back into the deep."
   },
   '006': {
     title: "💧 Flippur Rises!",
-    description: "While clearing a path by destroying 10 water tiles, you awaken the supreme water creature Flippur and 100 gold for your treasure pile!"
+    description: "The supreme Flippur rises on a wave. 'You have mastered the tides,' he bubbles. He bestows upon you 100 gold and a splash of respect."
   },
   '007': {
     title: "🌿 Leaf Discovered!",
-    description: "While planting your first forest, you discover the small grass creature Leaf and 25 gold for your treasure pile!"
+    description: "A tiny sprout pops up—it's Leaf! 'Yay! A new friend!' He giggles and gives you 25 gold he found in the dirt."
   },
   '008': {
     title: "🌿 Oaky Awakens!",
-    description: "While creating a lush forest, you find the wise tree spirit Oaky and 50 gold for your treasure pile!"
+    description: "Oaky stretches his wooden limbs. 'Growth... takes... time...' he rumbles slowly. 'Here... is... 50 gold... for... your... patience.'"
   },
   '009': {
     title: "🌿 Seqoio Rises!",
-    description: "While creating a magnificent forest realm, you awaken the supreme forest guardian Seqoio and 100 gold for your treasure pile!"
+    description: "The ancient Seqoio towers over you. 'You build a legacy for the ages.' The guardian blesses your realm with 100 gold and eternal shade."
   },
   '010': {
     title: "⛰️ Rockie Emerges!",
-    description: "While clearing a path by destroying 1 mountain tile, you discover the mountain spirit Rockie and 25 gold for your treasure pile!"
+    description: "You chip away a rock and find... Rockie. He stares at you. 'I was napping,' he grumbles, handing over 25 gold so you'll stop making noise."
   },
   '011': {
     title: "⛰️ Buldour Awakens!",
-    description: "While clearing a path by destroying 5 mountain tiles, you find the stronger mountain spirit Buldour and 50 gold for your treasure pile!"
+    description: "Buldour rumbles into view. 'Hmph. Good smash.' The strong spirit respects your strength and leaves a heavy sack of 50 gold."
   },
   '012': {
     title: "⛰️ Montano Rises!",
-    description: "While clearing a path by destroying 10 mountain tiles, you awaken the ultimate mountain creature Montano and 100 gold for your treasure pile!"
+    description: "The ground shakes as Montano stands tall. 'YOU MOVE MOUNTAINS LIKE PEBBLES.' The ancient giant honors your power with 100 gold."
   },
   '013': {
     title: "❄️ Icey Emerges!",
-    description: "While clearing a path by destroying 1 ice tile, you discover the small ice creature Icey and 25 gold for your treasure pile!"
+    description: "Brrr! Icey shivers into existence. 'Close the door, you're letting the heat in!' He tosses 25 gold at you with a cold shoulder."
   },
   '014': {
     title: "❄️ Hailey Awakens!",
-    description: "While clearing a path by destroying 5 ice tiles, you find the powerful ice spirit Hailey and 50 gold for your treasure pile!"
+    description: "Hailey glides forward, elegant and sharp. 'A precise strike,' she observes coolly. She awards you 50 gold, frosted with approval."
   },
   '015': {
     title: "❄️ Blizzey Rises!",
-    description: "While clearing a path by destroying 10 ice tiles, you awaken the supreme ice creature Blizzey and 100 gold for your treasure pile!"
+    description: "A blizzard swirls, revealing Blizzey. 'The cold never bothered you anyway,' he intones. The supreme ice spirit grants you 100 gold for your frozen heart."
   },
 
   // Monster Battle Achievements (201-206)
