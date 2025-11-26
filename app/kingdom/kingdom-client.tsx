@@ -849,10 +849,10 @@ export function KingdomClient() {
     const zoomTimeout = setTimeout(() => setZoomed(true), 1500);
     // Start move up at 1.5s (3s duration)
     const moveUpTimeout = setTimeout(() => setMoveUp(true), 1500);
-    // Start fade out at 6.5s
-    const fadeTimeout = setTimeout(() => setFadeOut(true), 6500);
-    // Hide overlay after fade completes (7.5s total)
-    const hideTimeout = setTimeout(() => setShowEntrance(false), 7500);
+    // Start fade out at 6s (1s fade duration)
+    const fadeTimeout = setTimeout(() => setFadeOut(true), 6000);
+    // Hide overlay at exactly 7s when fade completes
+    const hideTimeout = setTimeout(() => setShowEntrance(false), 7000);
     return () => {
       clearTimeout(zoomTimeout);
       clearTimeout(moveUpTimeout);

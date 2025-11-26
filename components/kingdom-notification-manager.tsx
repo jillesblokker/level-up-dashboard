@@ -17,22 +17,28 @@ export function KingdomNotificationManager() {
 
         const checkTimers = async () => {
             try {
+                console.log('[KingdomNotifications] Checking timers...')
                 // Fetch timers from API
                 const res = await fetchWithAuth('/api/property-timers', { method: 'GET' })
                 if (res && res.ok) {
                     const json = await res.json()
                     const timers = json?.data || []
 
+                    console.log('[KingdomNotifications] Fetched timers:', timers.length)
+
                     const now = Date.now()
                     let currentReadyCount = 0
 
                     timers.forEach((t: any) => {
                         const endTime = typeof t.end_time === 'string' ? new Date(t.end_time).getTime() : t.end_time
-                        if (now >= endTime) {
+                        const isReady = now >= endTime
+                        console.log(`[KingdomNotifications] Timer at (${t.x}, ${t.y}): endTime=${new Date(endTime).toISOString()}, isReady=${isReady}`)
+                        if (isReady) {
                             currentReadyCount++
                         }
                     })
 
+                    console.log('[KingdomNotifications] Ready count:', currentReadyCount)
                     setReadyCount(currentReadyCount)
 
                     // Dispatch event for other components (like Navbar)
@@ -52,7 +58,7 @@ export function KingdomNotificationManager() {
                     lastReadyCountRef.current = currentReadyCount
                 }
             } catch (error) {
-                console.error("Error checking kingdom timers:", error)
+                console.error("[KingdomNotifications] Error checking kingdom timers:", error)
             }
         }
 
@@ -64,6 +70,7 @@ export function KingdomNotificationManager() {
 
         // Listen for collection events to update immediately
         const handleCollection = () => {
+            console.log('[KingdomNotifications] Collection event received, checking timers...')
             // Wait a moment for the API to update, then check
             setTimeout(checkTimers, 500)
         }

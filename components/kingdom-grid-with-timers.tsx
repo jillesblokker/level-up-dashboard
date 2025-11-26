@@ -1232,6 +1232,7 @@ export function KingdomGridWithTimers({
             })
 
             // Dispatch event to notify other components (like notification manager)
+            console.log('[Kingdom] Dispatching kingdom-building-collected event for tile at', x, y)
             window.dispatchEvent(new CustomEvent('kingdom-building-collected'))
           } catch (e) {
             console.warn('[Kingdom] Failed to update timer', e)
@@ -1321,6 +1322,7 @@ export function KingdomGridWithTimers({
           })
 
           // Dispatch event to notify other components (like notification manager)
+          console.log('[Kingdom] Dispatching kingdom-building-collected event for tile at', x, y)
           window.dispatchEvent(new CustomEvent('kingdom-building-collected'))
         } catch (e) {
           console.warn('[Kingdom] Failed to update timer', e)
