@@ -7,8 +7,20 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu"
 
+import { useState, useEffect } from "react"
+
 export function MainNav() {
   const pathname = usePathname()
+  const [readyCount, setReadyCount] = useState(0)
+
+  useEffect(() => {
+    const handleReadyUpdate = (event: CustomEvent) => {
+      setReadyCount(event.detail.count)
+    }
+
+    window.addEventListener('kingdom-buildings-ready', handleReadyUpdate as EventListener)
+    return () => window.removeEventListener('kingdom-buildings-ready', handleReadyUpdate as EventListener)
+  }, [])
 
   return (
     <div className="mr-4 hidden md:flex pl-6">
@@ -18,15 +30,20 @@ export function MainNav() {
             <Link
               href="/kingdom"
               className={cn(
-                "text-base font-semibold transition-all duration-200 hover:text-amber-400 hover:bg-amber-500/10 px-3 py-2 rounded-md",
-                pathname === "/kingdom" 
-                  ? "text-amber-500 bg-amber-500/15 border border-amber-500/30" 
+                "text-base font-semibold transition-all duration-200 hover:text-amber-400 hover:bg-amber-500/10 px-3 py-2 rounded-md relative flex items-center gap-2",
+                pathname === "/kingdom"
+                  ? "text-amber-500 bg-amber-500/15 border border-amber-500/30"
                   : "text-white"
               )}
               aria-label="Navigate to Kingdom"
               aria-current={pathname === "/kingdom" ? "page" : undefined}
             >
               Kingdom
+              {readyCount > 0 && (
+                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white animate-pulse">
+                  {readyCount}
+                </span>
+              )}
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
@@ -34,8 +51,8 @@ export function MainNav() {
               href="/quests"
               className={cn(
                 "text-base font-semibold transition-all duration-200 hover:text-amber-400 hover:bg-amber-500/10 px-3 py-2 rounded-md",
-                pathname?.startsWith("/quests") 
-                  ? "text-amber-500 bg-amber-500/15 border border-amber-500/30" 
+                pathname?.startsWith("/quests")
+                  ? "text-amber-500 bg-amber-500/15 border border-amber-500/30"
                   : "text-white"
               )}
               aria-label="Navigate to Tasks"
@@ -49,8 +66,8 @@ export function MainNav() {
               href="/realm"
               className={cn(
                 "text-base font-semibold transition-all duration-200 hover:text-amber-400 hover:bg-amber-500/10 px-3 py-2 rounded-md",
-                pathname?.startsWith("/realm") 
-                  ? "text-amber-500 bg-amber-500/15 border border-amber-500/30" 
+                pathname?.startsWith("/realm")
+                  ? "text-amber-500 bg-amber-500/15 border border-amber-500/30"
                   : "text-white"
               )}
               aria-label="Navigate to Realm"
@@ -64,8 +81,8 @@ export function MainNav() {
               href="/achievements"
               className={cn(
                 "text-base font-semibold transition-all duration-200 hover:text-amber-400 hover:bg-amber-500/10 px-3 py-2 rounded-md",
-                pathname?.startsWith("/game-center") || pathname?.startsWith("/achievements") 
-                  ? "text-amber-500 bg-amber-500/15 border border-amber-500/30" 
+                pathname?.startsWith("/game-center") || pathname?.startsWith("/achievements")
+                  ? "text-amber-500 bg-amber-500/15 border border-amber-500/30"
                   : "text-white"
               )}
               aria-label="Navigate to Achievements"
@@ -79,8 +96,8 @@ export function MainNav() {
               href="/character"
               className={cn(
                 "text-base font-semibold transition-all duration-200 hover:text-amber-400 hover:bg-amber-500/10 px-3 py-2 rounded-md",
-                pathname?.startsWith("/character") 
-                  ? "text-amber-500 bg-amber-500/15 border border-amber-500/30" 
+                pathname?.startsWith("/character")
+                  ? "text-amber-500 bg-amber-500/15 border border-amber-500/30"
                   : "text-white"
               )}
               aria-label="Navigate to Character"

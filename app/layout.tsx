@@ -21,6 +21,7 @@ import { SeasonalHuntWrapper } from '@/components/seasonal-hunt-wrapper'
 import { OnboardingProvider } from '@/components/onboarding-provider'
 import LocalStorageMigrator from '@/components/local-storage-migrator'
 import { AudioProvider } from '@/components/audio-provider'
+import { KingdomNotificationManager } from '@/components/kingdom-notification-manager'
 
 
 const fontSans = FontSans({
@@ -160,6 +161,7 @@ export default function RootLayout({
                         </div>
                       </OnboardingProvider>
                       <LocalStorageMigrator />
+                      <KingdomNotificationManager />
                       <Toaster />
                     </Providers>
                   </AudioProvider>
