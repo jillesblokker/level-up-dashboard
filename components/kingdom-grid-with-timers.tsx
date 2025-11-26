@@ -49,11 +49,11 @@ interface TileTimer {
   isReady: boolean
 }
 
-export function KingdomGridWithTimers({ 
-  grid, 
-  onTilePlace, 
-  selectedTile, 
-  setSelectedTile, 
+export function KingdomGridWithTimers({
+  grid,
+  onTilePlace,
+  selectedTile,
+  setSelectedTile,
   onGridExpand,
   onGridUpdate,
   onGoldEarned,
@@ -73,7 +73,7 @@ export function KingdomGridWithTimers({
     isLucky: boolean
     message: string
   } | null>(null)
-  
+
   // Add missing state for expand functionality
   const [propertiesOpen, setPropertiesOpen] = useState(false)
   const [propertyTab, setPropertyTab] = useState<'place' | 'buy'>('place')
@@ -97,7 +97,7 @@ export function KingdomGridWithTimers({
     'bakery',
     'brewery'
   ])
-  
+
   // Small retry helper to mitigate early auth token races
   const fetchAuthRetry = async (input: RequestInfo | URL, init?: RequestInit, attempts: number = 2): Promise<Response> => {
     let lastError: any = null
@@ -228,7 +228,7 @@ export function KingdomGridWithTimers({
 
     // Fetch current values and set up event listeners
     fetchCurrentEventFlags();
-    
+
     window.addEventListener('winter-festival-toggled', handleWinterFestivalToggle as EventListener);
     window.addEventListener('harvest-festival-toggled', handleHarvestFestivalToggle as EventListener);
 
@@ -245,7 +245,7 @@ export function KingdomGridWithTimers({
   // Expand kingdom grid function
   const expandKingdomGrid = () => {
     // Removed debugging logs
-    
+
     if (!canExpand) {
       toast({
         title: 'Expansion Locked',
@@ -258,10 +258,10 @@ export function KingdomGridWithTimers({
     const currentRows = grid.length;
     const currentCols = grid[0]?.length || 6;
     const newRows = currentRows + 3;
-    
+
     // Create new grid with 3 additional rows
     const newGrid: Tile[][] = [];
-    
+
     // Add existing rows
     for (let y = 0; y < currentRows; y++) {
       const currentRow = grid[y];
@@ -269,7 +269,7 @@ export function KingdomGridWithTimers({
         newGrid[y] = [...currentRow];
       }
     }
-    
+
     // Add 3 new rows with vacant tiles
     for (let y = currentRows; y < newRows; y++) {
       newGrid[y] = new Array(currentCols);
@@ -292,7 +292,7 @@ export function KingdomGridWithTimers({
         };
       }
     }
-    
+
     // Update expansion count
     setKingdomExpansions((prev: number) => {
       const newVal = prev + 1;
@@ -320,7 +320,7 @@ export function KingdomGridWithTimers({
         // First try to get from localStorage
         const stats = getCharacterStats();
         setBuildTokens(stats.build_tokens || 0);
-        
+
         // Then try to fetch fresh data from API (with smart rate limiting)
         const { fetchFreshCharacterStats } = await import('@/lib/character-stats-manager');
         const freshStats = await fetchFreshCharacterStats('kingdom-action');
@@ -348,7 +348,7 @@ export function KingdomGridWithTimers({
     };
 
     window.addEventListener('character-stats-update', handleStatsUpdate);
-    
+
     return () => {
       window.removeEventListener('character-stats-update', handleStatsUpdate);
     };
@@ -401,7 +401,7 @@ export function KingdomGridWithTimers({
       isSeasonal: false,
       category: 'basic'
     },
-    
+
     // Commerce & Services (Level 1-2) - Business and trade buildings
     {
       id: 'market-stalls',
@@ -449,7 +449,7 @@ export function KingdomGridWithTimers({
       eventType: 'harvest',
       category: 'commerce'
     },
-    
+
     // Production & Crafting (Level 1-2) - Manufacturing and resource buildings
     {
       id: 'blacksmith',
@@ -484,7 +484,7 @@ export function KingdomGridWithTimers({
       isSeasonal: false,
       category: 'production'
     },
-    
+
     // Entertainment & Hospitality (Level 1-2) - Leisure and accommodation
     {
       id: 'inn',
@@ -519,7 +519,7 @@ export function KingdomGridWithTimers({
       isSeasonal: false,
       category: 'entertainment'
     },
-    
+
     // Combat & Training (Level 2) - Military and skill development
     {
       id: 'archery',
@@ -554,7 +554,7 @@ export function KingdomGridWithTimers({
       isSeasonal: false,
       category: 'combat'
     },
-    
+
     // Infrastructure & Defense (Level 2-3) - Security and essential services
     {
       id: 'watchtower',
@@ -589,7 +589,7 @@ export function KingdomGridWithTimers({
       isSeasonal: false,
       category: 'infrastructure'
     },
-    
+
     // Seasonal & Event Buildings (Level 1-2) - Special event structures
     {
       id: 'winter-fountain',
@@ -663,7 +663,7 @@ export function KingdomGridWithTimers({
       eventType: 'harvest',
       category: 'seasonal'
     },
-    
+
     // Premium & Luxury (Level 3-6) - High-end and prestigious buildings
     {
       id: 'mansion',
@@ -709,7 +709,7 @@ export function KingdomGridWithTimers({
       isSeasonal: false,
       category: 'premium'
     },
-    
+
     // Special Buildings (Level 1) - Unique and starting buildings
     {
       id: 'castle',
@@ -745,30 +745,30 @@ export function KingdomGridWithTimers({
       if (!property.isSeasonal) {
         return true; // Always show non-seasonal properties
       }
-      
+
       if (property.eventType === 'winter') {
         return winterFestivalActive;
       }
-      
+
       if (property.eventType === 'harvest') {
         return harvestFestivalActive;
       }
-      
+
       return false; // Hide seasonal properties when their event is inactive
     });
-    
+
     return available;
   };
 
 
-    // Check if player can place a property
-    const canPlaceProperty = (property: typeof propertyInventory[0]) => {
+  // Check if player can place a property
+  const canPlaceProperty = (property: typeof propertyInventory[0]) => {
     if (property.costType === 'build-token') {
       return (property.quantity || 0) > 0 && playerLevel >= property.levelRequired
     }
-    
+
     return false
-    }
+  }
 
   // Handle property selection for placement
   const handlePropertySelect = (property: typeof propertyInventory[0]) => {
@@ -781,7 +781,7 @@ export function KingdomGridWithTimers({
           errorMessage = `You need level ${property.levelRequired} to place ${property.name}.`
         }
       }
-      
+
       toast({
         title: 'Cannot Place Property',
         description: errorMessage,
@@ -793,7 +793,7 @@ export function KingdomGridWithTimers({
     setSelectedProperty(property)
     setPlacementMode(true)
     setPropertiesOpen(false)
-    
+
     toast({
       title: 'Property Selected',
       description: `Click on a vacant tile to place ${property.name}. Press ESC to cancel.`,
@@ -803,7 +803,7 @@ export function KingdomGridWithTimers({
   // Handle buying properties with build tokens
   const handleBuyProperty = async (property: typeof propertyInventory[0]) => {
     console.log('[Kingdom] handleBuyProperty called for:', property.name, 'Cost:', property.cost, 'Cost type:', property.costType);
-    
+
     // Properties should cost build tokens, not gold
     if (property.costType !== 'build-token') {
       console.log('[Kingdom] Property cost type is not build-token:', property.costType);
@@ -818,9 +818,9 @@ export function KingdomGridWithTimers({
     try {
       // Use the component's buildTokens state for consistency
       const currentBuildTokens = buildTokens;
-      
+
       console.log('[Kingdom] Current build tokens:', currentBuildTokens, 'Required:', property.cost);
-      
+
       if (currentBuildTokens < property.cost) {
         toast({
           title: 'Insufficient Build Tokens',
@@ -831,27 +831,27 @@ export function KingdomGridWithTimers({
       }
 
       console.log('[Kingdom] Attempting to spend build token(s):', property.cost);
-      
+
       // Spend build tokens by updating character stats
-      const success = await saveCharacterStats({ 
-        build_tokens: currentBuildTokens - property.cost 
+      const success = await saveCharacterStats({
+        build_tokens: currentBuildTokens - property.cost
       });
-      
+
       console.log('[Kingdom] Build tokens spent result:', success);
-      
+
       if (success) {
         console.log('[Kingdom] Build tokens spent successfully, updating inventory...');
-        
+
         // Update build tokens state to reflect the spent tokens
         setBuildTokens(prev => prev - property.cost);
-        
+
         // Update property quantity
-        const updatedInventory = propertyInventory.map(p => 
+        const updatedInventory = propertyInventory.map(p =>
           p.id === property.id ? { ...p, quantity: (p.quantity || 0) + 1 } : p
         );
-        
+
         console.log('[Kingdom] Updated inventory:', updatedInventory.find(p => p.id === property.id));
-        
+
         // Update the property inventory state
         setPropertyInventory(updatedInventory);
 
@@ -863,7 +863,7 @@ export function KingdomGridWithTimers({
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ tile: { id: property.id, type: property.id, name: property.name, quantity: 1, cost: property.cost } })
           });
-          
+
           if (response.ok) {
             const result = await response.json();
             console.log('[Kingdom] Tile inventory API response:', result);
@@ -899,7 +899,7 @@ export function KingdomGridWithTimers({
   // Handle property placement on grid
   const handlePropertyPlacement = (x: number, y: number) => {
     // Removed debugging log
-    
+
     if (!selectedProperty || !placementMode) {
       // Removed debugging log
       return
@@ -907,7 +907,7 @@ export function KingdomGridWithTimers({
 
     const targetTile = grid[y]?.[x]
     // Removed debugging log
-    
+
     if (!targetTile || (targetTile.type !== 'vacant' && targetTile.type !== 'empty')) {
       toast({
         title: 'Invalid Placement',
@@ -953,25 +953,25 @@ export function KingdomGridWithTimers({
 
     // Decrease property quantity for build-token-based properties
     if (selectedProperty.costType === 'build-token') {
-      const updatedInventory = propertyInventory.map(p => 
+      const updatedInventory = propertyInventory.map(p =>
         p.id === selectedProperty.id ? { ...p, quantity: Math.max(0, (p.quantity || 0) - 1) } : p
       )
       setPropertyInventory(updatedInventory)
-      // Persist inventory decrement
-      ;(async () => {
-        try {
-          const url = `/api/tile-inventory?tileId=${encodeURIComponent(selectedProperty.id)}&quantity=1`
-          await fetchAuthRetry(url, { method: 'DELETE' })
-        } catch (e) {
-          console.warn('[Kingdom] Failed to decrement inventory', e)
-        }
-      })()
+        // Persist inventory decrement
+        ; (async () => {
+          try {
+            const url = `/api/tile-inventory?tileId=${encodeURIComponent(selectedProperty.id)}&quantity=1`
+            await fetchAuthRetry(url, { method: 'DELETE' })
+          } catch (e) {
+            console.warn('[Kingdom] Failed to decrement inventory', e)
+          }
+        })()
     }
 
     // Start timer for the new property based on reward value
     const kingdomTile = KINGDOM_TILES.find(kt => kt.id === selectedProperty.id.toLowerCase())
     const timerDuration = kingdomTile ? kingdomTile.timerMinutes * 60 * 1000 : 5 * 60 * 1000 // Use property-specific timer or default to 5 minutes
-    
+
     const newTimer: TileTimer = {
       x,
       y,
@@ -981,19 +981,19 @@ export function KingdomGridWithTimers({
     }
 
     setTileTimers(prev => [...prev, newTimer])
-    // Persist timer to API
-    ;(async () => {
-      try {
-        const endIso = new Date(newTimer.endTime).toISOString()
-        await fetchAuthRetry('/api/property-timers', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tileId: newTile.id, x, y, tileType: newTile.type, endTime: endIso, isReady: false })
-        })
-      } catch (e) {
-        console.warn('[Kingdom] Failed to persist timer', e)
-      }
-    })()
+      // Persist timer to API
+      ; (async () => {
+        try {
+          const endIso = new Date(newTimer.endTime).toISOString()
+          await fetchAuthRetry('/api/property-timers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tileId: newTile.id, x, y, tileType: newTile.type, endTime: endIso, isReady: false })
+          })
+        } catch (e) {
+          console.warn('[Kingdom] Failed to persist timer', e)
+        }
+      })()
 
     // Reset placement mode
     setSelectedProperty(null)
@@ -1022,7 +1022,7 @@ export function KingdomGridWithTimers({
       document.addEventListener('keydown', handleKeyDown)
       return () => document.removeEventListener('keydown', handleKeyDown)
     }
-    
+
     // Return undefined when not in placement mode
     return undefined
   }, [placementMode])
@@ -1044,12 +1044,12 @@ export function KingdomGridWithTimers({
           setTileTimers(timers)
           return
         }
-      } catch {}
+      } catch { }
       // Fallback to localStorage
       try {
         const savedTimers = localStorage.getItem('kingdom-tile-timers')
         if (savedTimers) setTileTimers(JSON.parse(savedTimers))
-      } catch {}
+      } catch { }
     })()
   }, [])
 
@@ -1061,7 +1061,7 @@ export function KingdomGridWithTimers({
   // Update timers every second
   useEffect(() => {
     const interval = setInterval(() => {
-      setTileTimers(prev => 
+      setTileTimers(prev =>
         prev.map(timer => {
           const now = Date.now()
           const isReady = now >= timer.endTime
@@ -1078,7 +1078,7 @@ export function KingdomGridWithTimers({
     // Only run this once on mount when tileTimers is empty
     if (tileTimers.length === 0) {
       const newTimers: TileTimer[] = []
-      
+
       grid.forEach((row, y) => {
         row.forEach((tile, x) => {
           if (tile && tile.type !== 'empty' && tile.type !== 'vacant') {
@@ -1101,30 +1101,30 @@ export function KingdomGridWithTimers({
       if (newTimers.length > 0) {
         console.log('[Kingdom] Initializing timers for', newTimers.length, 'existing tiles')
         setTileTimers(newTimers)
-        
-        // Persist these initial timers to the database
-        ;(async () => {
-          try {
-            for (const timer of newTimers) {
-              const endIso = new Date(timer.endTime).toISOString()
-              await fetchAuthRetry('/api/property-timers', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                  tileId: timer.tileId, 
-                  x: timer.x, 
-                  y: timer.y, 
-                  tileType: timer.tileId, 
-                  endTime: endIso, 
-                  isReady: false 
+
+          // Persist these initial timers to the database
+          ; (async () => {
+            try {
+              for (const timer of newTimers) {
+                const endIso = new Date(timer.endTime).toISOString()
+                await fetchAuthRetry('/api/property-timers', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    tileId: timer.tileId,
+                    x: timer.x,
+                    y: timer.y,
+                    tileType: timer.tileId,
+                    endTime: endIso,
+                    isReady: false
+                  })
                 })
-              })
+              }
+              console.log('[Kingdom] Successfully persisted initial timers to database')
+            } catch (e) {
+              console.warn('[Kingdom] Failed to persist initial timers:', e)
             }
-            console.log('[Kingdom] Successfully persisted initial timers to database')
-          } catch (e) {
-            console.warn('[Kingdom] Failed to persist initial timers:', e)
-          }
-        })()
+          })()
       }
     }
   }, []) // Empty dependency array - only run on mount
@@ -1132,7 +1132,7 @@ export function KingdomGridWithTimers({
   // Update tile click handler to support property placement
   const handleTileClick = (x: number, y: number, tile: Tile) => {
     // Removed debugging log
-    
+
     // If in placement mode, handle property placement
     if (placementMode && selectedProperty) {
       handlePropertyPlacement(x, y)
@@ -1140,12 +1140,12 @@ export function KingdomGridWithTimers({
     }
 
     // Handle property tiles (archery, blacksmith, etc.)
-    if (tile.type && (tile.type === 'archery' || tile.type === 'blacksmith' || tile.type === 'sawmill' || 
-        tile.type === 'fisherman' || tile.type === 'grocery' || tile.type === 'foodcourt' ||
-        tile.type === 'well' || tile.type === 'windmill' || tile.type === 'castle' ||
-        tile.type === 'fountain' || tile.type === 'house' || tile.type === 'inn' ||
-        tile.type === 'jousting' || tile.type === 'mansion' || tile.type === 'mayor')) {
-      
+    if (tile.type && (tile.type === 'archery' || tile.type === 'blacksmith' || tile.type === 'sawmill' ||
+      tile.type === 'fisherman' || tile.type === 'grocery' || tile.type === 'foodcourt' ||
+      tile.type === 'well' || tile.type === 'windmill' || tile.type === 'castle' ||
+      tile.type === 'fountain' || tile.type === 'house' || tile.type === 'inn' ||
+      tile.type === 'jousting' || tile.type === 'mansion' || tile.type === 'mayor')) {
+
       // Check if tile is ready
       const timer = tileTimers.find(t => t.x === x && t.y === y)
       if (!timer) {
@@ -1156,11 +1156,11 @@ export function KingdomGridWithTimers({
         });
         return
       }
-      
+
       // Calculate if timer is actually ready (real-time check)
       const now = Date.now()
       const isReady = now >= timer.endTime
-      
+
       if (!isReady) {
         toast({
           title: 'Property Not Ready',
@@ -1192,48 +1192,51 @@ export function KingdomGridWithTimers({
         : (harvestFestivalActive && HARVEST_EVENT_TILE_IDS.has(kingdomTile.id))
           ? Math.ceil(baseExperience * 1.1)
           : baseExperience
-      ;(async () => {
-        try {
-          const { gainExperience } = await import('@/lib/experience-manager')
-          // Fire and forget
-          gainExperience(experienceAwarded, `tile-collect:${kingdomTile.id}`, 'general')
-        } catch {}
-      })()
-      // Basic telemetry: log collect
-      ;(async () => {
-        try {
-          await fetchAuthRetry('/api/kingdom-events', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tileId: kingdomTile.id, wasLucky, goldEarned, experienceAwarded })
-          })
-        } catch {}
-      })()
+        ; (async () => {
+          try {
+            const { gainExperience } = await import('@/lib/experience-manager')
+            // Fire and forget
+            gainExperience(experienceAwarded, `tile-collect:${kingdomTile.id}`, 'general')
+          } catch { }
+        })()
+        // Basic telemetry: log collect
+        ; (async () => {
+          try {
+            await fetchAuthRetry('/api/kingdom-events', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ tileId: kingdomTile.id, wasLucky, goldEarned, experienceAwarded })
+            })
+          } catch { }
+        })()
       const itemFound = kingdomTile.possibleItems.length > 0 ? getRandomItem(kingdomTile.possibleItems) : null
 
       // Update timer to restart production
       const newEndTime = Date.now() + (kingdomTile.timerMinutes * 60 * 1000)
-      setTileTimers(prev => 
-        prev.map(t => 
-          t.x === x && t.y === y 
+      setTileTimers(prev =>
+        prev.map(t =>
+          t.x === x && t.y === y
             ? { ...t, endTime: newEndTime, isReady: false }
             : t
         )
       )
 
-      // Persist timer restart
-      ;(async () => {
-        try {
-          const endIso = new Date(newEndTime).toISOString()
-          await fetchAuthRetry('/api/property-timers', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ x, y, isReady: false, endTime: endIso })
-          })
-        } catch (e) {
-          console.warn('[Kingdom] Failed to update timer', e)
-        }
-      })()
+        // Persist timer restart
+        ; (async () => {
+          try {
+            const endIso = new Date(newEndTime).toISOString()
+            await fetchAuthRetry('/api/property-timers', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ x, y, isReady: false, endTime: endIso })
+            })
+
+            // Dispatch event to notify other components (like notification manager)
+            window.dispatchEvent(new CustomEvent('kingdom-building-collected'))
+          } catch (e) {
+            console.warn('[Kingdom] Failed to update timer', e)
+          }
+        })()
 
       // Show modal with rewards
       setModalData({
@@ -1258,7 +1261,7 @@ export function KingdomGridWithTimers({
           type: kingdomTile.itemType
         })
       }
-      
+
       return
     }
 
@@ -1280,46 +1283,46 @@ export function KingdomGridWithTimers({
     const experienceAwarded = (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id))
       ? Math.ceil(baseExperience * 1.1)
       : baseExperience
-    ;(async () => {
-      try {
-        const { gainExperience } = await import('@/lib/experience-manager')
-        gainExperience(experienceAwarded, `tile-collect:${kingdomTile.id}`, 'general')
-      } catch {}
-    })()
-    ;(async () => {
-      try {
-        await fetchAuthRetry('/api/kingdom-events', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tileId: kingdomTile.id, wasLucky, goldEarned, experienceAwarded })
-        })
-      } catch {}
-    })()
+      ; (async () => {
+        try {
+          const { gainExperience } = await import('@/lib/experience-manager')
+          gainExperience(experienceAwarded, `tile-collect:${kingdomTile.id}`, 'general')
+        } catch { }
+      })()
+      ; (async () => {
+        try {
+          await fetchAuthRetry('/api/kingdom-events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tileId: kingdomTile.id, wasLucky, goldEarned, experienceAwarded })
+          })
+        } catch { }
+      })()
     const itemFound = kingdomTile.possibleItems.length > 0 ? getRandomItem(kingdomTile.possibleItems) : null
 
     // Update timer
     const newEndTime = Date.now() + (kingdomTile.timerMinutes * 60 * 1000)
-    setTileTimers(prev => 
-      prev.map(t => 
-        t.x === x && t.y === y 
+    setTileTimers(prev =>
+      prev.map(t =>
+        t.x === x && t.y === y
           ? { ...t, endTime: newEndTime, isReady: false }
           : t
       )
     )
 
-    // Persist timer restart
-    ;(async () => {
-      try {
-        const endIso = new Date(newEndTime).toISOString()
-        await fetchAuthRetry('/api/property-timers', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ x, y, isReady: false, endTime: endIso })
-        })
-      } catch (e) {
-        console.warn('[Kingdom] Failed to update timer', e)
-      }
-    })()
+      // Persist timer restart
+      ; (async () => {
+        try {
+          const endIso = new Date(newEndTime).toISOString()
+          await fetchAuthRetry('/api/property-timers', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ x, y, isReady: false, endTime: endIso })
+          })
+        } catch (e) {
+          console.warn('[Kingdom] Failed to update timer', e)
+        }
+      })()
 
     // Show modal with rewards
     setModalData({
@@ -1349,12 +1352,12 @@ export function KingdomGridWithTimers({
   const formatTimeRemaining = (endTime: number) => {
     const now = Date.now()
     const timeLeft = endTime - now
-    
+
     if (timeLeft <= 0) return 'Ready!'
-    
+
     const minutes = Math.floor(timeLeft / 60000)
     const seconds = Math.floor((timeLeft % 60000) / 1000)
-    
+
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
 
@@ -1380,12 +1383,12 @@ export function KingdomGridWithTimers({
           Array.from({ length: cols }).map((_, x) => {
             const tile = grid[y]?.[x]
             const timer = tileTimers.find(t => t.x === x && t.y === y)
-            const kingdomTile = tile && tile.type !== 'vacant' ? KINGDOM_TILES.find(kt => 
-              kt.id === tile.type.toLowerCase() || 
+            const kingdomTile = tile && tile.type !== 'vacant' ? KINGDOM_TILES.find(kt =>
+              kt.id === tile.type.toLowerCase() ||
               kt.name.toLowerCase() === tile.name.toLowerCase() ||
               kt.image === tile.image
             ) : null
-            
+
             if (!tile) {
               return <div key={`empty-${x}-${y}`} className="w-full h-full aspect-square bg-black/40" />
             }
@@ -1406,7 +1409,7 @@ export function KingdomGridWithTimers({
                 aria-label={tile.ariaLabel || tile.name || `Tile ${x},${y}`}
                 onClick={() => {
                   // Removed debugging log
-                  
+
                   if (placementMode && selectedProperty) {
                     // Removed debugging log
                     handlePropertyPlacement(x, y)
@@ -1429,7 +1432,7 @@ export function KingdomGridWithTimers({
                   unoptimized
                   onError={(e) => { e.currentTarget.src = '/images/placeholders/empty-tile.svg' }}
                 />
-                
+
                 {/* Placement mode indicator for vacant tiles */}
                 {placementMode && tile.type === 'vacant' && (
                   <div className="absolute inset-0 bg-amber-500/20 flex items-center justify-center">
@@ -1438,14 +1441,14 @@ export function KingdomGridWithTimers({
                     </div>
                   </div>
                 )}
-                
+
                 {/* Timer overlay for kingdom tiles - hover only to reduce clutter */}
                 {isKingdomTile && timer && (
                   <div className="group-hover:opacity-100 opacity-0 transition-opacity duration-200 absolute bottom-1 left-1 right-1">
                     <div className={cn(
                       "text-xs px-2 py-1 rounded text-center font-mono",
-                      isReady 
-                        ? "bg-green-500 text-white" 
+                      isReady
+                        ? "bg-green-500 text-white"
                         : "bg-black/80 text-white",
                       // Mobile-specific improvements
                       "sm:text-xs md:text-sm",
@@ -1483,7 +1486,7 @@ export function KingdomGridWithTimers({
             <span className="text-xs">Click vacant tile or press ESC to cancel</span>
           </div>
         )}
-        
+
         {/* Floating + button in top right corner of grid */}
         <button
           className="absolute top-4 right-4 z-20 w-14 h-14 sm:w-12 sm:h-12 bg-amber-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl sm:text-3xl font-bold hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 touch-manipulation min-h-[44px]"
@@ -1504,20 +1507,20 @@ export function KingdomGridWithTimers({
               🏗️
             </button>
           </TooltipTrigger>
-          <TooltipContent 
-            side="left" 
+          <TooltipContent
+            side="left"
             className="bg-gray-900 text-white border-amber-800/30 max-w-xs break-words"
           >
-            {canExpand 
+            {canExpand
               ? `Expand kingdom (Level ${playerLevel} required: ${nextExpansionLevel})`
               : `Requires Level ${nextExpansionLevel} to expand (Current: ${playerLevel})`
             }
           </TooltipContent>
         </Tooltip>
-        
+
         {renderGridWithBorder()}
       </div>
-      
+
       {/* Side panel for properties */}
       {propertiesOpen && (
         <div className="fixed inset-y-0 right-0 w-full max-w-md bg-gray-900 z-50 shadow-lg border-l border-amber-800/40 flex flex-col" role="dialog" aria-modal="true" aria-label="Properties side panel">
@@ -1533,13 +1536,13 @@ export function KingdomGridWithTimers({
                   try {
                     const success = await spendGold(1000, 'build-token-purchase');
                     if (success) {
-                    setBuildTokens(prev => {
-                      const newVal = (prev || 0) + 1;
-                      import('@/lib/character-stats-manager').then(({ saveCharacterStats }) => {
-                        saveCharacterStats({ build_tokens: newVal });
+                      setBuildTokens(prev => {
+                        const newVal = (prev || 0) + 1;
+                        import('@/lib/character-stats-manager').then(({ saveCharacterStats }) => {
+                          saveCharacterStats({ build_tokens: newVal });
+                        });
+                        return newVal;
                       });
-                      return newVal;
-                    });
                     }
                   } catch (error) {
                     console.error('Error purchasing build token:', error);
@@ -1575,70 +1578,69 @@ export function KingdomGridWithTimers({
           <div className="flex-1 overflow-y-auto p-4">
             {propertyTab === 'place' ? (
               // Place tab - show properties you own
-            <div className="grid grid-cols-2 gap-6">
-              {getAvailableProperties().map(tile => {
-                const canPlace = canPlaceProperty(tile)
-                
-                return (
-                  <button
-                    key={tile.id}
-                    className={`relative flex flex-col items-center border border-amber-800/30 bg-black/60 rounded-xl p-3 shadow-lg transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-500 ${
-                      canPlace 
-                        ? 'hover:border-amber-500/50 hover:shadow-amber-500/20 cursor-pointer' 
-                        : 'opacity-50 cursor-not-allowed'
-                    }`}
-                    onClick={() => canPlace && handlePropertySelect(tile)}
-                    disabled={!canPlace}
-                    aria-label={`Select ${tile.name} for placement`}
-                  >
-                    <div className="relative w-full aspect-square mb-3">
-                      <Image
-                        src={tile.image.startsWith('/') ? tile.image : `/images/kingdom-tiles/${tile.image}`}
-                        alt={tile.name}
-                        fill
-                        className="object-contain rounded-xl"
-                        draggable={false}
-                        unoptimized
-                      />
-                      {/* Level requirement badge */}
-                      {tile.levelRequired > 1 && (
-                        <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
-                          Lv.{tile.levelRequired}
-                        </div>
-                      )}
+              <div className="grid grid-cols-2 gap-6">
+                {getAvailableProperties().map(tile => {
+                  const canPlace = canPlaceProperty(tile)
+
+                  return (
+                    <button
+                      key={tile.id}
+                      className={`relative flex flex-col items-center border border-amber-800/30 bg-black/60 rounded-xl p-3 shadow-lg transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-500 ${canPlace
+                          ? 'hover:border-amber-500/50 hover:shadow-amber-500/20 cursor-pointer'
+                          : 'opacity-50 cursor-not-allowed'
+                        }`}
+                      onClick={() => canPlace && handlePropertySelect(tile)}
+                      disabled={!canPlace}
+                      aria-label={`Select ${tile.name} for placement`}
+                    >
+                      <div className="relative w-full aspect-square mb-3">
+                        <Image
+                          src={tile.image.startsWith('/') ? tile.image : `/images/kingdom-tiles/${tile.image}`}
+                          alt={tile.name}
+                          fill
+                          className="object-contain rounded-xl"
+                          draggable={false}
+                          unoptimized
+                        />
+                        {/* Level requirement badge */}
+                        {tile.levelRequired > 1 && (
+                          <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                            Lv.{tile.levelRequired}
+                          </div>
+                        )}
                         {/* Quantity badge */}
                         <div className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full">
                           {tile.quantity || 0}
+                        </div>
                       </div>
-                    </div>
-                    <div className="text-base font-bold text-amber-300 text-center truncate w-full mb-1">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="truncate">{tile.name}</span>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <div className="text-center">
-                            <div className="font-bold">{tile.name}</div>
+                      <div className="text-base font-bold text-amber-300 text-center truncate w-full mb-1">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="truncate">{tile.name}</span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <div className="text-center">
+                              <div className="font-bold">{tile.name}</div>
                               <div className="text-sm text-gray-300">
                                 Owned: {tile.quantity || 0}
                               </div>
-                            {tile.levelRequired > 1 && (
-                              <div className="text-sm text-blue-300">
-                                Requires Level {tile.levelRequired}
-                              </div>
-                            )}
-                            {!canPlace && (
-                              <div className="text-sm text-red-300 mt-1">
+                              {tile.levelRequired > 1 && (
+                                <div className="text-sm text-blue-300">
+                                  Requires Level {tile.levelRequired}
+                                </div>
+                              )}
+                              {!canPlace && (
+                                <div className="text-sm text-red-300 mt-1">
                                   {tile.quantity <= 0 ? 'Buy this property first!' : `Need Level ${tile.levelRequired}`}
-                              </div>
-                            )}
-                          </div>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                    <div className="text-sm text-amber-400 text-center">
-                      Click to place
-                    </div>
+                                </div>
+                              )}
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <div className="text-sm text-amber-400 text-center">
+                        Click to place
+                      </div>
                     </button>
                   )
                 })}
@@ -1671,7 +1673,7 @@ export function KingdomGridWithTimers({
                       {/* Cost badge */}
                       <div className="absolute top-2 left-2 bg-amber-600 text-white text-xs px-2 py-1 rounded-full">
                         {tile.cost}g
-                        </div>
+                      </div>
                       {/* Quantity badge */}
                       <div className="absolute bottom-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full">
                         Owned: {tile.quantity || 0}
@@ -1710,12 +1712,12 @@ export function KingdomGridWithTimers({
                     )}
                   </button>
                 ))}
-            </div>
+              </div>
             )}
           </div>
         </div>
       )}
-      
+
       {showModal && modalData && (
         <KingdomTileModal
           isOpen={showModal}

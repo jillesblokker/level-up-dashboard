@@ -59,10 +59,21 @@ export function KingdomNotificationManager() {
         // Check immediately
         checkTimers()
 
-        // Check every 60 seconds
-        const interval = setInterval(checkTimers, 60000)
+        // Check every 10 seconds for more responsive updates
+        const interval = setInterval(checkTimers, 10000)
 
-        return () => clearInterval(interval)
+        // Listen for collection events to update immediately
+        const handleCollection = () => {
+            // Wait a moment for the API to update, then check
+            setTimeout(checkTimers, 500)
+        }
+
+        window.addEventListener('kingdom-building-collected', handleCollection)
+
+        return () => {
+            clearInterval(interval)
+            window.removeEventListener('kingdom-building-collected', handleCollection)
+        }
     }, [isLoaded, isSignedIn, toast])
 
     return null // This component doesn't render anything visible itself

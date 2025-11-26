@@ -848,7 +848,7 @@ export function KingdomClient() {
     // Start move up at 1.5s (3s duration) - 0.5s shorter
     const moveUpTimeout = setTimeout(() => setMoveUp(true), 1500);
     // Hide overlay and show main content after animation completes (5s total)
-    const hideTimeout = setTimeout(() => setShowEntrance(false), 5000);
+    const hideTimeout = setTimeout(() => setShowEntrance(false), 6000);
     return () => {
       clearTimeout(zoomTimeout);
       clearTimeout(moveUpTimeout);
