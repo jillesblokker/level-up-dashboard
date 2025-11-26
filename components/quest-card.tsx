@@ -8,6 +8,7 @@ import { CheckCircle, Clock, Star, Target, Trophy, Zap, Heart, Shield, BookOpen,
 import { cn } from "@/lib/utils"
 import { useState } from "react"
 import { RewardAnimation } from "@/components/reward-animation"
+import { triggerConfetti } from "@/lib/confetti"
 
 interface QuestCardProps {
   title: string
@@ -79,6 +80,7 @@ export default function QuestCard({
     if (status !== 'completed') {
       setClickPos({ x: e.clientX, y: e.clientY })
       setShowRewardAnim(true)
+      triggerConfetti(e.clientX, e.clientY)
     }
 
     onComplete?.()

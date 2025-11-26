@@ -50,12 +50,14 @@
 [data-radix-popper-content-wrapper] {
   max-height: 80vh !important;
   overflow-y: auto !important;
-} 
+}
 
 /* Mobile-First Responsive Design */
 @media (max-width: 768px) {
+
   /* Mobile-specific overrides */
-  html, body {
+  html,
+  body {
     height: 100%;
     width: 100%;
     overflow-x: hidden;
@@ -64,13 +66,16 @@
   }
 
   /* Safe area handling */
-  main, .main-content, [role="main"] {
+  main,
+  .main-content,
+  [role="main"] {
     padding-top: env(safe-area-inset-top, 0);
     padding-bottom: env(safe-area-inset-bottom, 0);
     padding-left: env(safe-area-inset-left, 0);
     padding-right: env(safe-area-inset-right, 0);
     min-height: 100vh;
-    min-height: 100dvh; /* Dynamic viewport height */
+    min-height: 100dvh;
+    /* Dynamic viewport height */
   }
 
   /* Touch-friendly sizing */
@@ -80,7 +85,8 @@
   }
 
   .btn-primary {
-    min-height: 44px; /* iOS touch target minimum */
+    min-height: 44px;
+    /* iOS touch target minimum */
     padding: 12px 16px;
   }
 
@@ -97,7 +103,9 @@
   }
 
   /* Prevent zoom on input focus */
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     font-size: 16px;
   }
 
@@ -118,7 +126,7 @@
     gap: 0.5rem;
   }
 
-  .button-group > * {
+  .button-group>* {
     width: 100%;
   }
 
@@ -127,7 +135,7 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   .mobile-scroll-hide::-webkit-scrollbar {
     display: none;
   }
@@ -199,6 +207,7 @@
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+
   100% {
     opacity: 0;
     transform: translateY(-40px) scale(1.1);
@@ -207,4 +216,44 @@
 
 .animate-float-up {
   animation: float-up 1.5s ease-out forwards;
-} 
+}
+
+/* Medieval Night Mode */
+.medieval-night body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(15, 23, 42, 0.6), rgba(88, 28, 135, 0.4));
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: multiply;
+  transition: opacity 2s ease-in-out;
+}
+
+.medieval-night body {
+  background-color: #0f172a !important;
+  /* Slate 900 */
+}
+
+/* Make text glow slightly at night */
+.medieval-night h1,
+.medieval-night h2,
+.medieval-night h3 {
+  text-shadow: 0 0 10px rgba(147, 197, 253, 0.3);
+  /* Blue glow */
+}
+
+/* Torches/Lights at night */
+.medieval-night .torch-light {
+  box-shadow: 0 0 20px 5px rgba(251, 146, 60, 0.6);
+  /* Orange glow */
+}
+
+/* Confetti Particles */
+.confetti-particle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  border-radius: 2px;
+  box-shadow: 0 0 4px rgba(251, 191, 36, 0.5);
+}

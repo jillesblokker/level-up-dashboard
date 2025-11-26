@@ -24,6 +24,8 @@ import { AudioProvider } from '@/components/audio-provider'
 import { KingdomNotificationManager } from '@/components/kingdom-notification-manager'
 
 
+import { DayNightCycle } from '@/components/day-night-cycle'
+
 const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -162,6 +164,7 @@ export default function RootLayout({
                       </OnboardingProvider>
                       <LocalStorageMigrator />
                       <KingdomNotificationManager />
+                      <DayNightCycle />
                       <Toaster />
                     </Providers>
                   </AudioProvider>
