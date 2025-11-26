@@ -1215,9 +1215,9 @@ export function KingdomClient() {
           />
           {/* Black overlay that fades in as we zoom */}
           <div
-            className="absolute inset-0 bg-black transition-opacity duration-[3500ms]"
+            className="absolute inset-0 bg-black transition-opacity duration-[2000ms]"
             style={{
-              opacity: zoomed ? 0.9 : 0,
+              opacity: zoomed ? 1 : 0,
               transitionDelay: '2s'
             }}
           />
