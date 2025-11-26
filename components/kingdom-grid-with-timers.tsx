@@ -1319,6 +1319,9 @@ export function KingdomGridWithTimers({
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ x, y, isReady: false, endTime: endIso })
           })
+
+          // Dispatch event to notify other components (like notification manager)
+          window.dispatchEvent(new CustomEvent('kingdom-building-collected'))
         } catch (e) {
           console.warn('[Kingdom] Failed to update timer', e)
         }
@@ -1586,8 +1589,8 @@ export function KingdomGridWithTimers({
                     <button
                       key={tile.id}
                       className={`relative flex flex-col items-center border border-amber-800/30 bg-black/60 rounded-xl p-3 shadow-lg transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-500 ${canPlace
-                          ? 'hover:border-amber-500/50 hover:shadow-amber-500/20 cursor-pointer'
-                          : 'opacity-50 cursor-not-allowed'
+                        ? 'hover:border-amber-500/50 hover:shadow-amber-500/20 cursor-pointer'
+                        : 'opacity-50 cursor-not-allowed'
                         }`}
                       onClick={() => canPlace && handlePropertySelect(tile)}
                       disabled={!canPlace}

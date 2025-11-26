@@ -322,6 +322,7 @@ export function KingdomClient() {
   const [showEntrance, setShowEntrance] = useState(true);
   const [zoomed, setZoomed] = useState(false);
   const [moveUp, setMoveUp] = useState(false);
+  const [fadeOut, setFadeOut] = useState(false);
 
   const [kingdomContent, setKingdomContent] = useState<JSX.Element | null>(null);
   const [inventoryLoading, setInventoryLoading] = useState(true);
@@ -843,15 +844,19 @@ export function KingdomClient() {
     setShowEntrance(true);
     setZoomed(false);
     setMoveUp(false);
-    // Linger for 1.5s, then start zoom (3.5s duration) - 0.5s shorter
+    setFadeOut(false);
+    // Linger for 1.5s, then start zoom (3.5s duration)
     const zoomTimeout = setTimeout(() => setZoomed(true), 1500);
-    // Start move up at 1.5s (3s duration) - 0.5s shorter
+    // Start move up at 1.5s (3s duration)
     const moveUpTimeout = setTimeout(() => setMoveUp(true), 1500);
-    // Hide overlay and show main content after animation completes (5s total)
-    const hideTimeout = setTimeout(() => setShowEntrance(false), 6000);
+    // Start fade out at 6.5s
+    const fadeTimeout = setTimeout(() => setFadeOut(true), 6500);
+    // Hide overlay after fade completes (7.5s total)
+    const hideTimeout = setTimeout(() => setShowEntrance(false), 7500);
     return () => {
       clearTimeout(zoomTimeout);
       clearTimeout(moveUpTimeout);
+      clearTimeout(fadeTimeout);
       clearTimeout(hideTimeout);
     };
   }, []);
@@ -1189,7 +1194,16 @@ export function KingdomClient() {
 
   if (showEntrance) {
     return (
-      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black" style={{ width: '100vw', height: '100vh', padding: 0, margin: 0 }}>
+      <div
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-black transition-opacity duration-1000"
+        style={{
+          width: '100vw',
+          height: '100vh',
+          padding: 0,
+          margin: 0,
+          opacity: fadeOut ? 0 : 1
+        }}
+      >
         <div className="relative w-full h-full" style={{ overflow: 'hidden', padding: 0, margin: 0 }}>
           <Image
             src="/images/kingdom-tiles/Entrance.png"
