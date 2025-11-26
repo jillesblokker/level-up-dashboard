@@ -60,8 +60,13 @@ export const metadata: Metadata = {
   description: "A medieval-themed habit tracking app with quests, kingdom building, and character progression",
   manifest: "/manifest.json",
   icons: {
-    icon: "/icons/icon-192x192.png",
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
     apple: "/icons/icon-152x152.png",
+    other: {
+      rel: "apple-touch-icon-precomposed",
+      url: "/icons/icon-152x152.png",
+    },
   },
   appleWebApp: {
     capable: true,
@@ -144,19 +149,19 @@ export default function RootLayout({
                     <Providers>
                       {/* OnboardingProvider restored with disabled functionality */}
                       <OnboardingProvider>
-                      <div className="flex flex-col h-full">
-                        <AuthGate>
-                          <NavBar session={null} />
-                          <main className="flex-1 relative">
-                            {children}
-                          </main>
-                          <SeasonalHuntWrapper />
-                        </AuthGate>
-                      </div>
-                    </OnboardingProvider>
-                    <LocalStorageMigrator />
-                    <Toaster />
-                  </Providers>
+                        <div className="flex flex-col h-full">
+                          <AuthGate>
+                            <NavBar session={null} />
+                            <main className="flex-1 relative">
+                              {children}
+                            </main>
+                            <SeasonalHuntWrapper />
+                          </AuthGate>
+                        </div>
+                      </OnboardingProvider>
+                      <LocalStorageMigrator />
+                      <Toaster />
+                    </Providers>
                   </AudioProvider>
                 </TitleEvolutionProvider>
               </GradientProvider>

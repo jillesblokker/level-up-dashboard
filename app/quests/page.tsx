@@ -89,7 +89,7 @@ const categoryColorMap: Record<string, string> = {
   castle: 'text-stone-400 border-stone-700/30 bg-stone-900/10',
   craft: 'text-orange-500 border-orange-800/30 bg-orange-900/10',
   vitality: 'text-green-500 border-green-800/30 bg-green-900/10',
-  wellness: 'text-cyan-500 border-cyan-800/30 bg-cyan-900/10',
+  wellness: 'text-teal-500 border-teal-800/30 bg-teal-900/10',
   exploration: 'text-emerald-500 border-emerald-800/30 bg-emerald-900/10'
 };
 
