@@ -40,6 +40,7 @@ import { OfflineQueueIndicator } from '@/components/offline-queue-indicator'
 import { ToastContainer, useQuestToasts } from '@/components/enhanced-toast-system'
 import { EnhancedErrorBoundary } from '@/components/enhanced-error-boundary'
 import { DailyProgressCard } from '@/components/daily-progress-card'
+import { ChroniclesCard } from '@/components/chronicles-card'
 import { StreakIndicator } from "@/components/streak-indicator"
 
 interface Quest {
@@ -1892,6 +1893,11 @@ export default function QuestsPage() {
                 goldEarned={quests.reduce((sum, q) => sum + (q.completed ? (q.gold || 0) : 0), 0)}
                 kingdomTiles={0} // TODO: Get from kingdom state
               />
+            </div>
+
+            {/* Chronicles Card */}
+            <div className="mb-6">
+              <ChroniclesCard currentStreak={questStreak} />
             </div>
 
             {/* Daily Progress Card */}
