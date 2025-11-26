@@ -1164,6 +1164,23 @@ export default function QuestsPage() {
 
         // Save to database using smart completion API
         try {
+          // Apply tarot buffs to rewards
+          const { applyTarotBuffs } = await import('@/lib/tarot-buffs');
+          const baseXp = quest.xp || 50;
+          const baseGold = quest.gold || 25;
+          const buffedRewards = applyTarotBuffs(baseXp, baseGold, quest.category);
+
+          // Log if buff was applied
+          if (buffedRewards.buffApplied) {
+            console.log(`[Bulk Complete] Tarot buff applied to ${quest.name}:`, {
+              baseXp,
+              baseGold,
+              buffedXp: buffedRewards.xp,
+              buffedGold: buffedRewards.gold,
+              message: buffedRewards.buffMessage
+            });
+          }
+
           const response = await fetch('/api/quests/smart-completion', {
             method: 'POST',
             headers: {
@@ -1172,8 +1189,8 @@ export default function QuestsPage() {
             body: JSON.stringify({
               questId: quest.id,
               completed: true,
-              xpReward: quest.xp || 50,
-              goldReward: quest.gold || 25,
+              xpReward: buffedRewards.xp,
+              goldReward: buffedRewards.gold,
             }),
           });
 
