@@ -39,6 +39,7 @@ import { SyncStatusIndicator } from '@/components/sync-status-indicator'
 import { OfflineQueueIndicator } from '@/components/offline-queue-indicator'
 import { ToastContainer, useQuestToasts } from '@/components/enhanced-toast-system'
 import { EnhancedErrorBoundary } from '@/components/enhanced-error-boundary'
+import { DailyProgressCard } from '@/components/daily-progress-card'
 
 interface Quest {
   id: string;
@@ -237,6 +238,12 @@ export default function QuestsPage() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const dailyResetInitiated = useRef(false);
   const [manualResetLoading, setManualResetLoading] = useState(false);
+  const [characterStats, setCharacterStats] = useState({
+    level: 1,
+    experience: 0,
+    gold: 0,
+    xpToNextLevel: 100
+  });
 
   // --- Realtime Sync ---
   const [syncError, setSyncError] = useState<string | null>(null);
@@ -378,6 +385,29 @@ export default function QuestsPage() {
     getClerkToken();
     return () => { cancelled = true; };
   }, [isClerkLoaded, isUserLoaded, getToken]);
+
+  // Fetch character stats for progress card
+  useEffect(() => {
+    if (!userId) return;
+
+    const fetchStats = async () => {
+      try {
+        const stats = await getCharacterStats(); // No userId needed, uses localStorage
+        if (stats) {
+          setCharacterStats({
+            level: stats.level || 1,
+            experience: stats.experience || 0,
+            gold: stats.gold || 0,
+            xpToNextLevel: ((stats.level || 1) * 100) // Simple formula: level * 100
+          });
+        }
+      } catch (error) {
+        console.error('[Character Stats] Error fetching stats:', error);
+      }
+    };
+
+    fetchStats();
+  }, [userId]);
 
   // Fetch quests when token is present and user is authenticated
   useEffect(() => {
@@ -1037,15 +1067,19 @@ export default function QuestsPage() {
       const challenge = challenges.find(c => c.id === challengeId);
       if (challenge) {
         if (newCompleted) {
+          // Calculate rewards based on challenge difficulty
+          const goldReward = challenge.gold || 50;
+          const xpReward = challenge.xp || 25;
+
           toast({
-            title: "Challenge Completed!",
-            description: `${challenge.name} has been completed!`,
-            duration: 3000,
+            title: "⚔️ Quest Complete!",
+            description: `${challenge.name}\n+${goldReward} Gold  •  +${xpReward} XP`,
+            duration: 4000,
           });
         } else {
           toast({
-            title: "Challenge Uncompleted",
-            description: `${challenge.name} has been marked as incomplete.`,
+            title: "Quest Uncompleted",
+            description: `${challenge.name} marked as incomplete.`,
             duration: 2000,
           });
         }
@@ -1849,6 +1883,18 @@ export default function QuestsPage() {
                 questsCompleted={quests.filter(q => q.completed).length}
                 goldEarned={quests.reduce((sum, q) => sum + (q.completed ? (q.gold || 0) : 0), 0)}
                 kingdomTiles={0} // TODO: Get from kingdom state
+              />
+            </div>
+
+            {/* Daily Progress Card */}
+            <div className="mb-6">
+              <DailyProgressCard
+                completedCount={challenges.filter(c => c.completed).length}
+                totalCount={challenges.length}
+                currentLevel={characterStats.level}
+                currentXP={characterStats.experience}
+                xpToNextLevel={characterStats.xpToNextLevel}
+                currentGold={characterStats.gold}
               />
             </div>
 
