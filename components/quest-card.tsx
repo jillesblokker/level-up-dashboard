@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { CheckCircle, Clock, Star, Target, Trophy, Zap, Heart, Shield, BookOpen, Sword, Play, Pencil, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
+import { RewardAnimation } from "@/components/reward-animation"
 
 interface QuestCardProps {
   title: string
@@ -68,6 +69,20 @@ export default function QuestCard({
 }: QuestCardProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [isPressed, setIsPressed] = useState(false)
+  const [showRewardAnim, setShowRewardAnim] = useState(false)
+  const [clickPos, setClickPos] = useState({ x: 0, y: 0 })
+
+  const handleComplete = (e: React.MouseEvent) => {
+    e.stopPropagation()
+
+    // Only show animation if we're completing the quest (not uncompleting)
+    if (status !== 'completed') {
+      setClickPos({ x: e.clientX, y: e.clientY })
+      setShowRewardAnim(true)
+    }
+
+    onComplete?.()
+  }
 
   const difficultyInfo = difficultyConfig[difficulty]
   const categoryInfo = categoryConfig[category as keyof typeof categoryConfig] || { icon: Target, color: 'text-gray-400' }
@@ -77,231 +92,241 @@ export default function QuestCard({
   const progressPercentage = (progress / maxProgress) * 100
 
   return (
-    <Card 
-      className={cn(
-        "relative overflow-hidden transition-all duration-300 cursor-pointer group",
-        "bg-black border border-amber-800/20",
-        "hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/20",
-        "transform hover:-translate-y-1 hover:scale-[1.02]",
-        isFeatured && "ring-2 ring-amber-500/50",
-        isNew && "ring-2 ring-green-500/50",
-        status === 'completed' && "opacity-75"
+    <>
+      {showRewardAnim && (
+        <RewardAnimation
+          x={clickPos.x}
+          y={clickPos.y}
+          rewards={[
+            { type: 'gold', amount: reward.gold },
+            { type: 'xp', amount: reward.experience }
+          ]}
+          onComplete={() => setShowRewardAnim(false)}
+        />
       )}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onMouseDown={() => setIsPressed(true)}
-      onMouseUp={() => setIsPressed(false)}
-      onClick={onClick}
-      aria-label={`Quest card: ${title}`}
-    >
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      
-      {/* Interactive Checkbox */}
-      <div 
-        className="absolute top-3 right-3 z-10 cursor-pointer"
-        onClick={(e) => {
-          e.stopPropagation();
-          onComplete?.();
-        }}
-        aria-label={`Toggle quest completion: ${title}`}
+      <Card
+        className={cn(
+          "relative overflow-hidden transition-all duration-300 cursor-pointer group",
+          "bg-black border border-amber-800/20",
+          "hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/20",
+          "transform hover:-translate-y-1 hover:scale-[1.02]",
+          isFeatured && "ring-2 ring-amber-500/50",
+          isNew && "ring-2 ring-green-500/50",
+          status === 'completed' && "opacity-75"
+        )}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onMouseDown={() => setIsPressed(true)}
+        onMouseUp={() => setIsPressed(false)}
+        onClick={onClick}
+        aria-label={`Quest card: ${title}`}
       >
-        <div className={cn(
-          "w-6 h-6 rounded border-2 flex items-center justify-center transition-all duration-200",
-          "hover:scale-110 hover:shadow-lg",
-          status === 'completed' 
-            ? "bg-green-500 border-green-500 text-white" 
-            : "bg-transparent border-gray-400 text-transparent hover:border-amber-400"
-        )}>
-          {status === 'completed' ? (
-            <CheckCircle className="h-4 w-4" />
-          ) : (
-            <div className="w-3 h-3 rounded border border-gray-400" />
-          )}
-        </div>
-      </div>
+        {/* Background Effects */}
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-      {/* Edit and Delete Buttons */}
-      {showEditDelete && (
-        <div className="absolute top-3 right-12 z-10 flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 text-gray-500 hover:text-amber-500 bg-black/50 hover:bg-black/70 rounded-full"
-            aria-label={`Edit quest: ${title}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit?.();
-            }}
-            tabIndex={-1}
-          >
-            <Pencil className="w-3 h-3" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 text-red-500 hover:text-red-400 bg-black/50 hover:bg-black/70 rounded-full"
-            aria-label={`Delete quest: ${title}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete?.();
-            }}
-            tabIndex={-1}
-          >
-            <Trash2 className="w-3 h-3" />
-          </Button>
-        </div>
-      )}
-
-      {/* Featured/New Badge */}
-      {(isFeatured || isNew) && (
-        <div className="absolute top-3 left-3 z-10">
-          <Badge 
-            className={cn(
-              "text-xs font-bold px-2 py-1",
-              isFeatured ? "bg-amber-500 text-white" : "bg-amber-500 text-white"
-            )}
-          >
-            {isFeatured ? "Featured" : "New"}
-          </Badge>
-        </div>
-      )}
-
-      {/* Card Header */}
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex-1 min-w-0">
-            <CardTitle className="text-lg font-bold text-white line-clamp-2 leading-tight">
-              {title}
-            </CardTitle>
-            <CardDescription className="text-gray-400 mt-1 line-clamp-2 text-sm leading-relaxed">
-              {description}
-            </CardDescription>
-          </div>
-          <div className="flex flex-col items-end gap-2 flex-shrink-0">
-            {/* Status Badge - Only show for completed and in-progress */}
-            {(status === 'completed' || status === 'in-progress') && (
-              <Badge 
-                className={cn(
-                  "text-xs font-semibold",
-                  status === 'completed' && "bg-green-600 text-white",
-                  status === 'in-progress' && "bg-amber-600 text-white"
-                )}
-              >
-                {status === 'completed' && 'Completed'}
-                {status === 'in-progress' && 'In Progress'}
-              </Badge>
+        {/* Interactive Checkbox */}
+        <div
+          className="absolute top-3 right-3 z-10 cursor-pointer"
+          onClick={handleComplete}
+          aria-label={`Toggle quest completion: ${title}`}
+        >
+          <div className={cn(
+            "w-6 h-6 rounded border-2 flex items-center justify-center transition-all duration-200",
+            "hover:scale-110 hover:shadow-lg",
+            status === 'completed'
+              ? "bg-green-500 border-green-500 text-white"
+              : "bg-transparent border-gray-400 text-transparent hover:border-amber-400"
+          )}>
+            {status === 'completed' ? (
+              <CheckCircle className="h-4 w-4" />
+            ) : (
+              <div className="w-3 h-3 rounded border border-gray-400" />
             )}
           </div>
         </div>
-      </CardHeader>
 
-      <CardContent className="space-y-4">
-        {/* Difficulty Tag - Moved to content area */}
-        <div className="flex items-center gap-2">
-          <Badge className={cn("text-xs", difficultyInfo.color, "text-white")}>
-            <DifficultyIcon className="w-3 h-3 mr-1" />
-            {difficultyInfo.label}
-          </Badge>
-        </div>
-
-        {/* Progress Section */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Progress</span>
-            <span className="text-amber-400 font-semibold">
-              {progress} / {maxProgress}
-            </span>
-          </div>
-          <Progress 
-            value={progressPercentage} 
-            className="h-2 bg-gray-700"
-          />
-        </div>
-
-        {/* Time Remaining */}
-        {timeRemaining && (
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1 text-xs text-gray-400">
-              <Clock className="h-3 w-3" />
-              <span>{timeRemaining}</span>
-            </div>
+        {/* Edit and Delete Buttons */}
+        {showEditDelete && (
+          <div className="absolute top-3 right-12 z-10 flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-gray-500 hover:text-amber-500 bg-black/50 hover:bg-black/70 rounded-full"
+              aria-label={`Edit quest: ${title}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit?.();
+              }}
+              tabIndex={-1}
+            >
+              <Pencil className="w-3 h-3" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-red-500 hover:text-red-400 bg-black/50 hover:bg-black/70 rounded-full"
+              aria-label={`Delete quest: ${title}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete?.();
+              }}
+              tabIndex={-1}
+            >
+              <Trash2 className="w-3 h-3" />
+            </Button>
           </div>
         )}
 
-        {/* Rewards */}
-        <div className="space-y-2">
-          <div className="text-sm text-gray-400">Rewards</div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 text-amber-400">
-              <Star className="h-4 w-4" />
-              <span className="text-sm font-semibold">{reward.experience} XP</span>
-            </div>
-            <div className="flex items-center gap-1 text-yellow-400">
-              <Trophy className="h-4 w-4" />
-              <span className="text-sm font-semibold">{reward.gold} Gold</span>
-            </div>
-            {reward.items && reward.items.length > 0 && (
-              <div className="flex items-center gap-1 text-purple-400">
-                <Zap className="h-4 w-4" />
-                <span className="text-sm font-semibold">{reward.items.length} Items</span>
-              </div>
-            )}
+        {/* Featured/New Badge */}
+        {(isFeatured || isNew) && (
+          <div className="absolute top-3 left-3 z-10">
+            <Badge
+              className={cn(
+                "text-xs font-bold px-2 py-1",
+                isFeatured ? "bg-amber-500 text-white" : "bg-amber-500 text-white"
+              )}
+            >
+              {isFeatured ? "Featured" : "New"}
+            </Badge>
           </div>
-          
-          {/* Enhanced Reward Display */}
-          <div className="mt-2 p-2 bg-amber-900/20 border border-amber-800/30 rounded-lg">
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2 text-amber-300">
-                <Trophy className="h-3 w-3" />
-                <span>Complete → Earn {reward.gold} Gold → Buy Kingdom Tiles</span>
+        )}
+
+        {/* Card Header */}
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-lg font-bold text-white line-clamp-2 leading-tight">
+                {title}
+              </CardTitle>
+              <CardDescription className="text-gray-400 mt-1 line-clamp-2 text-sm leading-relaxed">
+                {description}
+              </CardDescription>
+            </div>
+            <div className="flex flex-col items-end gap-2 flex-shrink-0">
+              {/* Status Badge - Only show for completed and in-progress */}
+              {(status === 'completed' || status === 'in-progress') && (
+                <Badge
+                  className={cn(
+                    "text-xs font-semibold",
+                    status === 'completed' && "bg-green-600 text-white",
+                    status === 'in-progress' && "bg-amber-600 text-white"
+                  )}
+                >
+                  {status === 'completed' && 'Completed'}
+                  {status === 'in-progress' && 'In Progress'}
+                </Badge>
+              )}
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-4">
+          {/* Difficulty Tag - Moved to content area */}
+          <div className="flex items-center gap-2">
+            <Badge className={cn("text-xs", difficultyInfo.color, "text-white")}>
+              <DifficultyIcon className="w-3 h-3 mr-1" />
+              {difficultyInfo.label}
+            </Badge>
+          </div>
+
+          {/* Progress Section */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-400">Progress</span>
+              <span className="text-amber-400 font-semibold">
+                {progress} / {maxProgress}
+              </span>
+            </div>
+            <Progress
+              value={progressPercentage}
+              className="h-2 bg-gray-700"
+            />
+          </div>
+
+          {/* Time Remaining */}
+          {timeRemaining && (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1 text-xs text-gray-400">
+                <Clock className="h-3 w-3" />
+                <span>{timeRemaining}</span>
               </div>
-              <div className="flex items-center gap-1">
-                {reward.gold > 0 && (
-                  <Badge variant="outline" className="text-amber-400 border-amber-400 text-xs">
-                    {reward.gold} Gold
-                  </Badge>
-                )}
-                {reward.experience > 0 && (
-                  <Badge variant="outline" className="text-blue-400 border-blue-400 text-xs">
-                    {reward.experience} XP
-                  </Badge>
-                )}
+            </div>
+          )}
+
+          {/* Rewards */}
+          <div className="space-y-2">
+            <div className="text-sm text-gray-400">Rewards</div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1 text-amber-400">
+                <Star className="h-4 w-4" />
+                <span className="text-sm font-semibold">{reward.experience} XP</span>
+              </div>
+              <div className="flex items-center gap-1 text-yellow-400">
+                <Trophy className="h-4 w-4" />
+                <span className="text-sm font-semibold">{reward.gold} Gold</span>
+              </div>
+              {reward.items && reward.items.length > 0 && (
+                <div className="flex items-center gap-1 text-purple-400">
+                  <Zap className="h-4 w-4" />
+                  <span className="text-sm font-semibold">{reward.items.length} Items</span>
+                </div>
+              )}
+            </div>
+
+            {/* Enhanced Reward Display */}
+            <div className="mt-2 p-2 bg-amber-900/20 border border-amber-800/30 rounded-lg">
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 text-amber-300">
+                  <Trophy className="h-3 w-3" />
+                  <span>Complete → Earn {reward.gold} Gold → Buy Kingdom Tiles</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  {reward.gold > 0 && (
+                    <Badge variant="outline" className="text-amber-400 border-amber-400 text-xs">
+                      {reward.gold} Gold
+                    </Badge>
+                  )}
+                  {reward.experience > 0 && (
+                    <Badge variant="outline" className="text-blue-400 border-blue-400 text-xs">
+                      {reward.experience} XP
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Action Button */}
-        <div className="pt-2">
-          <Button
-            className={cn(
-              "w-full transition-all duration-300",
-              status === 'completed' 
-                ? "bg-green-600 hover:bg-green-700 text-white"
-                : status === 'in-progress'
-                ? "bg-amber-600 hover:bg-amber-700 text-white"
-                : "bg-gray-700 hover:bg-gray-600 text-white"
-            )}
-            onClick={(e) => {
-              e.stopPropagation()
-              onComplete?.()
-            }}
-            disabled={status === 'completed'}
-            aria-label={status === 'completed' ? 'Quest completed' : status === 'in-progress' ? 'Continue quest' : 'Start quest'}
-          >
-            {status === 'completed' && <CheckCircle className="h-4 w-4 mr-2" />}
-            {status === 'in-progress' && <Target className="h-4 w-4 mr-2" />}
-            {status === 'not-started' && <Play className="h-4 w-4 mr-2" />}
-            {status === 'completed' ? 'Completed' : status === 'in-progress' ? 'Continue' : 'Start Quest'}
-          </Button>
-        </div>
-      </CardContent>
+          {/* Action Button */}
+          <div className="pt-2">
+            <Button
+              className={cn(
+                "w-full transition-all duration-300",
+                status === 'completed'
+                  ? "bg-green-600 hover:bg-green-700 text-white"
+                  : status === 'in-progress'
+                    ? "bg-amber-600 hover:bg-amber-700 text-white"
+                    : "bg-gray-700 hover:bg-gray-600 text-white"
+              )}
+              onClick={(e) => {
+                e.stopPropagation()
+                onComplete?.()
+              }}
+              disabled={status === 'completed'}
+              aria-label={status === 'completed' ? 'Quest completed' : status === 'in-progress' ? 'Continue quest' : 'Start quest'}
+            >
+              {status === 'completed' && <CheckCircle className="h-4 w-4 mr-2" />}
+              {status === 'in-progress' && <Target className="h-4 w-4 mr-2" />}
+              {status === 'not-started' && <Play className="h-4 w-4 mr-2" />}
+              {status === 'completed' ? 'Completed' : status === 'in-progress' ? 'Continue' : 'Start Quest'}
+            </Button>
+          </div>
+        </CardContent>
 
-      {/* Hover Effects */}
-      {isHovered && (
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent pointer-events-none" />
-      )}
-    </Card>
+        {/* Hover Effects */}
+        {isHovered && (
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent pointer-events-none" />
+        )}
+      </Card>
+    </>
   )
 }
