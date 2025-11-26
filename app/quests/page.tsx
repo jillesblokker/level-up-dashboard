@@ -40,6 +40,7 @@ import { OfflineQueueIndicator } from '@/components/offline-queue-indicator'
 import { ToastContainer, useQuestToasts } from '@/components/enhanced-toast-system'
 import { EnhancedErrorBoundary } from '@/components/enhanced-error-boundary'
 import { DailyProgressCard } from '@/components/daily-progress-card'
+import { StreakIndicator } from "@/components/streak-indicator"
 
 interface Quest {
   id: string;
@@ -1879,6 +1880,13 @@ export default function QuestsPage() {
 
             {/* Gameplay Loop Indicator */}
             <div className="mb-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-amber-500 font-medieval">Your Journey</h2>
+                <StreakIndicator
+                  currentStreak={questStreak}
+                  isCompletedToday={quests.some(q => q.completed)}
+                />
+              </div>
               <GameplayLoopIndicator
                 questsCompleted={quests.filter(q => q.completed).length}
                 goldEarned={quests.reduce((sum, q) => sum + (q.completed ? (q.gold || 0) : 0), 0)}
