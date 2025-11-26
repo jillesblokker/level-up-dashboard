@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 import { useState } from "react"
 import { RewardAnimation } from "@/components/reward-animation"
 import { triggerConfetti } from "@/lib/confetti"
+import { useQuestAudio } from "@/components/audio-provider"
 
 interface QuestCardProps {
   title: string
@@ -72,6 +73,7 @@ export default function QuestCard({
   const [isPressed, setIsPressed] = useState(false)
   const [showRewardAnim, setShowRewardAnim] = useState(false)
   const [clickPos, setClickPos] = useState({ x: 0, y: 0 })
+  const { onQuestComplete } = useQuestAudio()
 
   const handleComplete = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -81,6 +83,7 @@ export default function QuestCard({
       setClickPos({ x: e.clientX, y: e.clientY })
       setShowRewardAnim(true)
       triggerConfetti(e.clientX, e.clientY)
+      onQuestComplete()
     }
 
     onComplete?.()
