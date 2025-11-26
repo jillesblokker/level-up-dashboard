@@ -321,7 +321,6 @@ export function KingdomClient() {
   const [propertiesOpen, setPropertiesOpen] = useState(false);
   const [showEntrance, setShowEntrance] = useState(true);
   const [zoomed, setZoomed] = useState(false);
-  const [moveUp, setMoveUp] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
 
   const [kingdomContent, setKingdomContent] = useState<JSX.Element | null>(null);
@@ -840,22 +839,19 @@ export function KingdomClient() {
   };
 
   // All useEffect hooks at the top
+  // All useEffect hooks at the top
   useEffect(() => {
     setShowEntrance(true);
     setZoomed(false);
-    setMoveUp(false);
     setFadeOut(false);
     // Linger for 1.5s, then start zoom (3.5s duration)
     const zoomTimeout = setTimeout(() => setZoomed(true), 1500);
-    // Start move up at 1.5s (3s duration)
-    const moveUpTimeout = setTimeout(() => setMoveUp(true), 1500);
     // Start fade out at 6s (1s fade duration)
     const fadeTimeout = setTimeout(() => setFadeOut(true), 6000);
     // Hide overlay at exactly 7s when fade completes
     const hideTimeout = setTimeout(() => setShowEntrance(false), 7000);
     return () => {
       clearTimeout(zoomTimeout);
-      clearTimeout(moveUpTimeout);
       clearTimeout(fadeTimeout);
       clearTimeout(hideTimeout);
     };
@@ -1211,23 +1207,19 @@ export function KingdomClient() {
             fill
             className={`object-cover transition-transform ease-in-out kingdom-entrance-img`}
             style={{
-              objectPosition: 'top center',
-              transform:
-                zoomed
-                  ? `scale(16) translateY(-50%)`
-                  : moveUp
-                    ? 'scale(1) translateY(-50%)'
-                    : 'scale(1) translateY(0%)',
-              transition:
-                zoomed && moveUp
-                  ? 'transform 3s cubic-bezier(0.4,0,0.2,1) 2s, transform 3.5s cubic-bezier(0.4,0,0.2,1) 2s'
-                  : zoomed
-                    ? 'transform 3.5s cubic-bezier(0.4,0,0.2,1) 2s'
-                    : moveUp
-                      ? 'transform 3s cubic-bezier(0.4,0,0.2,1) 2s'
-                      : 'none',
+              objectPosition: 'center center',
+              transform: zoomed ? 'scale(3)' : 'scale(1)',
+              transition: zoomed ? 'transform 3.5s cubic-bezier(0.4,0,0.2,1) 2s' : 'none',
             }}
             unoptimized
+          />
+          {/* Black overlay that fades in as we zoom */}
+          <div
+            className="absolute inset-0 bg-black transition-opacity duration-[3500ms]"
+            style={{
+              opacity: zoomed ? 0.9 : 0,
+              transitionDelay: '2s'
+            }}
           />
         </div>
       </div>

@@ -27,18 +27,23 @@ export function KingdomNotificationManager() {
                     console.log('[KingdomNotifications] Fetched timers:', timers.length)
 
                     const now = Date.now()
+                    const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000) // 30 days in milliseconds
                     let currentReadyCount = 0
 
                     timers.forEach((t: any) => {
                         const endTime = typeof t.end_time === 'string' ? new Date(t.end_time).getTime() : t.end_time
                         const isReady = now >= endTime
-                        console.log(`[KingdomNotifications] Timer at (${t.x}, ${t.y}): endTime=${new Date(endTime).toISOString()}, isReady=${isReady}`)
-                        if (isReady) {
+                        const isStale = endTime < thirtyDaysAgo // Timer is older than 30 days
+
+                        console.log(`[KingdomNotifications] Timer at (${t.x}, ${t.y}): endTime=${new Date(endTime).toISOString()}, isReady=${isReady}, isStale=${isStale}`)
+
+                        // Only count as ready if it's ready AND not stale
+                        if (isReady && !isStale) {
                             currentReadyCount++
                         }
                     })
 
-                    console.log('[KingdomNotifications] Ready count:', currentReadyCount)
+                    console.log('[KingdomNotifications] Ready count (excluding stale):', currentReadyCount)
                     setReadyCount(currentReadyCount)
 
                     // Dispatch event for other components (like Navbar)
