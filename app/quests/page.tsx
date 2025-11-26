@@ -1014,11 +1014,10 @@ export default function QuestsPage() {
       );
 
       // Update in Supabase
-      const response = await fetch('/api/challenges', {
+      const response = await fetch('/api/challenges-ultra-simple', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           challengeId,

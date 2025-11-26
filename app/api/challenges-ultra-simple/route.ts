@@ -85,3 +85,73 @@ export async function GET() {
         );
     }
 }
+
+export async function PUT(request: Request) {
+    try {
+        console.log('[Challenges-Ultra-Simple PUT] Starting...');
+
+        // Simple Clerk authentication
+        const { userId } = await auth();
+        console.log('[Challenges-Ultra-Simple PUT] Auth result:', { userId: !!userId });
+
+        if (!userId) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        const body = await request.json();
+        const { challengeId, completed } = body;
+
+        if (!challengeId || completed === undefined) {
+            return NextResponse.json({ error: 'Missing challengeId or completed status' }, { status: 400 });
+        }
+
+        // Get today's date in Netherlands timezone
+        const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Amsterdam' });
+        console.log('[Challenges-Ultra-Simple PUT] Today:', today, 'challengeId:', challengeId, 'completed:', completed);
+
+        if (completed) {
+            // Mark challenge as completed for TODAY
+            const { data, error } = await supabaseServer
+                .from('challenge_completion')
+                .upsert({
+                    user_id: userId,
+                    challenge_id: challengeId,
+                    completed: true,
+                    date: today,
+                }, { onConflict: 'user_id,challenge_id,date' })
+                .select()
+                .single();
+
+            if (error) {
+                console.error('[Challenges-Ultra-Simple PUT] Error upserting completion:', error);
+                return NextResponse.json({ error: error.message }, { status: 500 });
+            }
+
+            console.log('[Challenges-Ultra-Simple PUT] Successfully saved completion:', data);
+            return NextResponse.json(data);
+        } else {
+            // Mark challenge as not completed for TODAY (delete today's completion record)
+            const { error } = await supabaseServer
+                .from('challenge_completion')
+                .delete()
+                .eq('user_id', userId)
+                .eq('challenge_id', challengeId)
+                .eq('date', today);
+
+            if (error) {
+                console.error('[Challenges-Ultra-Simple PUT] Error deleting completion:', error);
+                return NextResponse.json({ error: error.message }, { status: 500 });
+            }
+
+            console.log('[Challenges-Ultra-Simple PUT] Successfully deleted completion');
+            return NextResponse.json({ success: true });
+        }
+
+    } catch (error) {
+        console.error('[Challenges-Ultra-Simple PUT] Error:', error);
+        return NextResponse.json(
+            { error: error instanceof Error ? error.message : 'Unknown error' },
+            { status: 500 }
+        );
+    }
+}
