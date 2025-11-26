@@ -1,0 +1,216 @@
+export interface TarotCard {
+    id: string;
+    name: string;
+    symbol: string; // Emoji or unicode symbol
+    description: string;
+    effect: {
+        type: 'xp_boost' | 'gold_boost' | 'category_boost' | 'mixed';
+        category?: string; // For category-specific boosts
+        xpMultiplier?: number; // e.g., 1.5 = +50% XP
+        goldMultiplier?: number; // e.g., 0.5 = -50% gold
+        message: string; // Effect description for UI
+    };
+    rarity: 'common' | 'rare' | 'epic';
+}
+
+export const TAROT_DECK: TarotCard[] = [
+    {
+        id: 'the-warrior',
+        name: 'The Warrior',
+        symbol: '⚔️',
+        description: 'Strength flows through your veins.',
+        effect: {
+            type: 'category_boost',
+            category: 'might',
+            xpMultiplier: 2.0,
+            goldMultiplier: 1.0,
+            message: 'Double XP for Might quests'
+        },
+        rarity: 'rare'
+    },
+    {
+        id: 'the-scholar',
+        name: 'The Scholar',
+        symbol: '📚',
+        description: 'Knowledge is power.',
+        effect: {
+            type: 'category_boost',
+            category: 'knowledge',
+            xpMultiplier: 2.0,
+            goldMultiplier: 1.0,
+            message: 'Double XP for Knowledge quests'
+        },
+        rarity: 'rare'
+    },
+    {
+        id: 'the-merchant',
+        name: 'The Merchant',
+        symbol: '💰',
+        description: 'Gold flows like water.',
+        effect: {
+            type: 'gold_boost',
+            xpMultiplier: 1.0,
+            goldMultiplier: 1.5,
+            message: '+50% Gold from all quests'
+        },
+        rarity: 'common'
+    },
+    {
+        id: 'the-sage',
+        name: 'The Sage',
+        symbol: '🔮',
+        description: 'Experience comes swiftly.',
+        effect: {
+            type: 'xp_boost',
+            xpMultiplier: 1.5,
+            goldMultiplier: 1.0,
+            message: '+50% XP from all quests'
+        },
+        rarity: 'common'
+    },
+    {
+        id: 'the-gambler',
+        name: 'The Gambler',
+        symbol: '🎲',
+        description: 'Risk and reward dance together.',
+        effect: {
+            type: 'mixed',
+            xpMultiplier: 2.0,
+            goldMultiplier: 0.5,
+            message: 'Double XP, Half Gold'
+        },
+        rarity: 'epic'
+    },
+    {
+        id: 'the-noble',
+        name: 'The Noble',
+        symbol: '👑',
+        description: 'Honor brings prosperity.',
+        effect: {
+            type: 'category_boost',
+            category: 'honor',
+            xpMultiplier: 1.5,
+            goldMultiplier: 1.5,
+            message: '+50% XP and Gold for Honor quests'
+        },
+        rarity: 'epic'
+    },
+    {
+        id: 'the-builder',
+        name: 'The Builder',
+        symbol: '🏰',
+        description: 'Your kingdom grows strong.',
+        effect: {
+            type: 'category_boost',
+            category: 'castle',
+            xpMultiplier: 1.5,
+            goldMultiplier: 2.0,
+            message: '+50% XP, Double Gold for Castle quests'
+        },
+        rarity: 'rare'
+    },
+    {
+        id: 'the-artisan',
+        name: 'The Artisan',
+        symbol: '🔨',
+        description: 'Craftsmanship is rewarded.',
+        effect: {
+            type: 'category_boost',
+            category: 'craft',
+            xpMultiplier: 1.5,
+            goldMultiplier: 1.5,
+            message: '+50% XP and Gold for Craft quests'
+        },
+        rarity: 'rare'
+    },
+    {
+        id: 'the-healer',
+        name: 'The Healer',
+        symbol: '💚',
+        description: 'Vitality restores the spirit.',
+        effect: {
+            type: 'category_boost',
+            category: 'vitality',
+            xpMultiplier: 1.5,
+            goldMultiplier: 1.0,
+            message: '+50% XP for Vitality quests'
+        },
+        rarity: 'common'
+    },
+    {
+        id: 'the-wanderer',
+        name: 'The Wanderer',
+        symbol: '🗺️',
+        description: 'Adventure calls to you.',
+        effect: {
+            type: 'category_boost',
+            category: 'exploration',
+            xpMultiplier: 2.0,
+            goldMultiplier: 1.0,
+            message: 'Double XP for Exploration quests'
+        },
+        rarity: 'rare'
+    }
+];
+
+// Get a random card from the deck
+export function drawRandomCard(): TarotCard {
+    // Weighted random based on rarity
+    const weights = {
+        common: 50,
+        rare: 30,
+        epic: 20
+    };
+
+    const totalWeight = weights.common + weights.rare + weights.epic;
+    const random = Math.random() * totalWeight;
+
+    let rarity: 'common' | 'rare' | 'epic';
+    if (random < weights.common) {
+        rarity = 'common';
+    } else if (random < weights.common + weights.rare) {
+        rarity = 'rare';
+    } else {
+        rarity = 'epic';
+    }
+
+    const cardsOfRarity = TAROT_DECK.filter(card => card.rarity === rarity);
+    const randomIndex = Math.floor(Math.random() * cardsOfRarity.length);
+    return cardsOfRarity[randomIndex] || TAROT_DECK[0] as TarotCard;
+}
+
+// Get today's date string for tracking
+export function getTodayDateString(): string {
+    const dateString = new Date().toISOString().split('T')[0];
+    return dateString || new Date().toISOString().substring(0, 10);
+}
+
+// Check if a card was drawn today
+export function hasDrawnCardToday(): boolean {
+    if (typeof window === 'undefined') return false;
+    const lastDrawDate = localStorage.getItem('tarot-last-draw-date');
+    return lastDrawDate === getTodayDateString();
+}
+
+// Get today's active card
+export function getTodaysCard(): TarotCard | null {
+    if (typeof window === 'undefined') return null;
+    const lastDrawDate = localStorage.getItem('tarot-last-draw-date');
+    const cardData = localStorage.getItem('tarot-active-card');
+
+    if (lastDrawDate === getTodayDateString() && cardData) {
+        try {
+            return JSON.parse(cardData);
+        } catch {
+            return null;
+        }
+    }
+    return null;
+}
+
+// Save today's drawn card
+export function saveTodaysCard(card: TarotCard): void {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('tarot-last-draw-date', getTodayDateString());
+    localStorage.setItem('tarot-active-card', JSON.stringify(card));
+}

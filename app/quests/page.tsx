@@ -41,6 +41,7 @@ import { ToastContainer, useQuestToasts } from '@/components/enhanced-toast-syst
 import { EnhancedErrorBoundary } from '@/components/enhanced-error-boundary'
 import { DailyProgressCard } from '@/components/daily-progress-card'
 import { ChroniclesCard } from '@/components/chronicles-card'
+import { TarotCardDisplay } from '@/components/tarot-card'
 import { StreakIndicator } from "@/components/streak-indicator"
 
 interface Quest {
@@ -1895,9 +1896,10 @@ export default function QuestsPage() {
               />
             </div>
 
-            {/* Chronicles Card */}
-            <div className="mb-6">
+            {/* Chronicles & Tarot Cards */}
+            <div className="mb-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
               <ChroniclesCard currentStreak={questStreak} />
+              <TarotCardDisplay />
             </div>
 
             {/* Daily Progress Card */}
