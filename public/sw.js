@@ -10,8 +10,6 @@ const STATIC_FILES = [
   '/kingdom',
   '/character',
   '/manifest.json',
-  '/icons/icon-192x192.svg',
-  '/icons/icon-512x512.svg',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png'
 ]
@@ -24,9 +22,9 @@ self.addEventListener('install', (event) => {
       .then((cache) => {
         console.log('[SW] Caching static files')
         return Promise.allSettled(
-          STATIC_FILES.map(url => 
+          STATIC_FILES.map(url =>
             cache.add(url).catch(err => {
-              console.warn(`[SW] Failed to cache ${url}:`, err)
+              // Silently handle cache failures to keep console clean
               return null
             })
           )
@@ -126,12 +124,12 @@ self.addEventListener('fetch', (event) => {
           })
           .catch((error) => {
             console.error('[SW] Network fetch failed:', error)
-            
+
             // Return offline page for navigation requests
             if (request.destination === 'document') {
               return caches.match('/offline.html')
             }
-            
+
             throw error
           })
       })
@@ -149,7 +147,7 @@ self.addEventListener('sync', (event) => {
 // Push notifications for quest reminders
 self.addEventListener('push', (event) => {
   console.log('[SW] Push notification received')
-  
+
   const options = {
     body: event.data ? event.data.text() : 'Time to complete your quests!',
     icon: '/icons/icon-192x192.png',
@@ -181,7 +179,7 @@ self.addEventListener('push', (event) => {
 // Handle notification clicks
 self.addEventListener('notificationclick', (event) => {
   console.log('[SW] Notification clicked:', event.action)
-  
+
   event.notification.close()
 
   if (event.action === 'open') {
@@ -196,7 +194,7 @@ async function syncQuestCompletions() {
   try {
     // Get pending quest completions from IndexedDB
     const pendingCompletions = await getPendingCompletions()
-    
+
     for (const completion of pendingCompletions) {
       try {
         const response = await fetch('/api/quests/smart-completion', {
