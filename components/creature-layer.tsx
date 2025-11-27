@@ -187,26 +187,44 @@ export function CreatureLayer({ grid, mapType, playerPosition }: Omit<CreatureLa
         }
     }, [grid, activeCreatures.length, mapType]);
 
-    // 3. Track Player Position (for Realm - use character position from MapGrid)
-    // For Kingdom, we'll need to get it from the kingdom grid component
-    const handleMouseMove = useCallback((e: React.MouseEvent) => {
-        // This is only used as fallback - ideally we get actual player position from parent
-        if (!containerRef.current) return;
-        const rect = containerRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+    // 3. Track Player Position
+    // For Realm: use character position passed via props
+    // For Kingdom: track mouse position relative to container
+    useEffect(() => {
+        if (mapType === 'realm') return; // Realm uses playerPosition prop
 
-        if (!grid || grid.length === 0 || !grid[0]) return;
-        const cols = grid[0].length;
-        const rows = grid.length;
-        const tileWidth = rect.width / cols;
-        const tileHeight = rect.height / rows;
+        const handleGlobalMouseMove = (e: MouseEvent) => {
+            if (!containerRef.current) return;
+            const rect = containerRef.current.getBoundingClientRect();
 
-        const col = Math.floor(x / tileWidth);
-        const row = Math.floor(y / tileHeight);
+            // Check if mouse is inside the grid
+            if (
+                e.clientX >= rect.left &&
+                e.clientX <= rect.right &&
+                e.clientY >= rect.top &&
+                e.clientY <= rect.bottom
+            ) {
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
 
-        setPlayerTile({ row, col });
-    }, [grid]);
+                if (!grid || grid.length === 0 || !grid[0]) return;
+                const cols = grid[0].length;
+                const rows = grid.length;
+                const tileWidth = rect.width / cols;
+                const tileHeight = rect.height / rows;
+
+                const col = Math.floor(x / tileWidth);
+                const row = Math.floor(y / tileHeight);
+
+                setPlayerTile({ row, col });
+            } else {
+                setPlayerTile(null);
+            }
+        };
+
+        window.addEventListener('mousemove', handleGlobalMouseMove);
+        return () => window.removeEventListener('mousemove', handleGlobalMouseMove);
+    }, [grid, mapType]);
 
     if (!grid || grid.length === 0 || !grid[0]) return null;
 
@@ -218,9 +236,7 @@ export function CreatureLayer({ grid, mapType, playerPosition }: Omit<CreatureLa
     return (
         <div
             ref={containerRef}
-            className="absolute inset-0 pointer-events-auto z-10"
-            onMouseMove={handleMouseMove}
-            onMouseLeave={() => setPlayerTile(null)}
+            className="absolute inset-0 pointer-events-none z-10"
         >
             {activeCreatures.map(creature => {
                 const def = CREATURE_DEFINITIONS[creature.definitionId];
