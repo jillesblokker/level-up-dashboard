@@ -43,7 +43,6 @@ import { useUser } from "@clerk/nextjs";
 import { getCharacterStats, fetchFreshCharacterStats } from "@/lib/character-stats-manager"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
 import { MobileErrorFallback } from "@/components/MobileErrorFallback"
-import { UserNav } from "@/components/user-nav"
 
 interface MobileNavProps {
   tabs?: { value: string; label: string }[]
@@ -87,7 +86,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     { href: "/realm", label: "Realm", icon: MapIcon, description: "Explore the world" },
     { href: "/achievements", label: "Achievements", icon: Trophy, description: "Track progress" },
     { href: "/character", label: "Character", icon: User, description: "View stats" },
-    { href: "/account", label: "Account Settings", icon: Settings, description: "Manage your profile" },
+    { href: "/profile", label: "Profile", icon: User, description: "Manage your account" },
   ], [])
 
   const isActive = useCallback((path: string) => pathname === path, [pathname])
@@ -241,10 +240,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
           >
             {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-amber-800/20 bg-gradient-to-r from-amber-900/10 to-transparent">
-              <div className="flex items-center gap-3">
-                <Logo />
-                <UserNav />
-              </div>
+              <Logo />
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
