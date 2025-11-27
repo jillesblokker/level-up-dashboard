@@ -4,9 +4,31 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Crown, Compass, MapIcon, Trophy, User } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { notificationService } from "@/lib/notification-service"
+import { useState, useEffect } from "react"
 
 export function BottomNav() {
     const pathname = usePathname()
+    const [unreadCount, setUnreadCount] = useState(0)
+
+    useEffect(() => {
+        // Initial count
+        setUnreadCount(notificationService.getUnreadCount())
+
+        // Listen for new notifications
+        const handleNewNotification = () => {
+            setUnreadCount(notificationService.getUnreadCount())
+        }
+
+        window.addEventListener('newNotification', handleNewNotification)
+        // Also listen for storage events in case notifications change in another tab
+        window.addEventListener('storage', handleNewNotification)
+
+        return () => {
+            window.removeEventListener('newNotification', handleNewNotification)
+            window.removeEventListener('storage', handleNewNotification)
+        }
+    }, [])
 
     const navItems = [
         { href: "/kingdom", label: "Kingdom", icon: Crown },
@@ -50,6 +72,9 @@ export function BottomNav() {
                             )}>
                                 {item.label}
                             </span>
+                            {item.label === "Profile" && unreadCount > 0 && (
+                                <span className="absolute top-2 right-4 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-gray-900 animate-pulse" />
+                            )}
                         </Link>
                     )
                 })}

@@ -13,20 +13,24 @@ import {
 import { cn } from "@/lib/utils"
 import { notificationService, NotificationData } from "@/lib/notification-service"
 
-export function NotificationCenter() {
+interface NotificationCenterProps {
+  children?: React.ReactNode
+}
+
+export function NotificationCenter({ children }: NotificationCenterProps) {
   const [notifications, setNotifications] = useState<NotificationData[]>([])
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
     setNotifications(notificationService.getNotifications())
-    
+
     // Listen for new notifications
     const handleNewNotification = () => {
       setNotifications(notificationService.getNotifications())
     }
-    
+
     window.addEventListener('newNotification', handleNewNotification)
-    
+
     return () => {
       window.removeEventListener('newNotification', handleNewNotification)
     }
@@ -95,8 +99,8 @@ export function NotificationCenter() {
   const EmptyState = () => (
     <div className="flex flex-col items-center justify-center h-full p-6 relative overflow-hidden">
       {/* Background with medieval theme */}
-              <div className="absolute inset-0 bg-black" />
-      
+      <div className="absolute inset-0 bg-black" />
+
       {/* Main content */}
       <div className="relative z-10 text-center w-full max-w-sm mx-auto">
         {/* Original image */}
@@ -110,7 +114,7 @@ export function NotificationCenter() {
             onError={(e) => { e.currentTarget.src = '/images/placeholders/item-placeholder.svg'; e.currentTarget.alt = 'Image not found'; }}
           />
         </div>
-        
+
         {/* Text content */}
         <div className="space-y-4">
           <div className="space-y-2">
@@ -119,7 +123,7 @@ export function NotificationCenter() {
             </h3>
             <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto"></div>
           </div>
-          
+
           <div className="space-y-2">
             <p className="text-gray-200 leading-relaxed font-medium">
               The courier has not yet arrived with news from your kingdom.
@@ -136,15 +140,17 @@ export function NotificationCenter() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Open notification center" className="relative">
-          <Bell className="h-5 w-5" />
-          {notificationService.getUnreadCount() > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-              {notificationService.getUnreadCount() > 99 ? '99+' : notificationService.getUnreadCount()}
-            </span>
-          )}
-          <span className="sr-only">Notifications</span>
-        </Button>
+        {children || (
+          <Button variant="ghost" size="icon" aria-label="Open notification center" className="relative">
+            <Bell className="h-5 w-5" />
+            {notificationService.getUnreadCount() > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {notificationService.getUnreadCount() > 99 ? '99+' : notificationService.getUnreadCount()}
+              </span>
+            )}
+            <span className="sr-only">Notifications</span>
+          </Button>
+        )}
       </SheetTrigger>
       <SheetContent side="right" aria-label="notification-center-sidepanel" className="w-[95vw] md:w-96 bg-black border-l border-amber-800/20 p-0" aria-modal="true">
         {/* Enhanced Header */}
@@ -166,7 +172,7 @@ export function NotificationCenter() {
             )}
           </div>
         </div>
-        
+
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto max-h-[calc(100vh-120px)]">
           {notifications.length === 0 ? (

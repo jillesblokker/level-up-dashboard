@@ -10,7 +10,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { eventBus } from "@/app/lib/event-bus";
 import Cropper from 'react-easy-crop';
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogTrigger, DialogHeader } from '@/components/ui/dialog';
 import { getCroppedImg } from '../../app/lib/cropImage';
 import type { Area } from 'react-easy-crop';
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,13 @@ import { Crown, Shield, Sword, User, Palette, Camera, Save, Settings, Volume2, V
 import { useAudioContext } from "@/components/audio-provider";
 import Link from "next/link";
 import { logout } from "@/app/actions/auth";
+import { NotificationCenter } from "@/components/notification-center";
+import { notificationService } from "@/lib/notification-service";
+import { getCharacterStats, loadCharacterStats } from "@/lib/character-stats-manager";
+import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character";
+import { Bell } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+
 const placeholderSvg = "/images/placeholders/item-placeholder.svg";
 
 export default function ProfilePage() {
@@ -35,6 +42,51 @@ export default function ProfilePage() {
   const [showCropper, setShowCropper] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [avatarType, setAvatarType] = useState<'initial' | 'default' | 'uploaded'>((user?.unsafeMetadata?.['avatar_type'] as 'initial' | 'default' | 'uploaded') || (user?.imageUrl ? 'uploaded' : 'initial'));
+
+  // New state for Quick Access
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [characterStats, setCharacterStats] = useState<any>({
+    level: 1,
+    experience: 0,
+    experienceToNextLevel: 100,
+    gold: 0
+  });
+  const [showStats, setShowStats] = useState(false);
+
+  useEffect(() => {
+    // Load notifications count
+    setUnreadCount(notificationService.getUnreadCount());
+    const handleNewNotification = () => setUnreadCount(notificationService.getUnreadCount());
+    window.addEventListener('newNotification', handleNewNotification);
+
+    // Load character stats
+    const loadStats = async () => {
+      const localStats = getCharacterStats();
+      if (localStats) {
+        const currentLevel = calculateLevelFromExperience(localStats.experience);
+        setCharacterStats({
+          ...localStats,
+          level: currentLevel,
+          experienceToNextLevel: calculateExperienceForLevel(currentLevel)
+        });
+      }
+
+      const freshStats = await loadCharacterStats();
+      if (freshStats) {
+        const currentLevel = calculateLevelFromExperience(freshStats.experience);
+        setCharacterStats({
+          ...freshStats,
+          level: currentLevel,
+          experienceToNextLevel: calculateExperienceForLevel(currentLevel)
+        });
+      }
+    };
+    loadStats();
+
+    return () => {
+      window.removeEventListener('newNotification', handleNewNotification);
+    };
+  }, []);
 
   // Guide button click handler
   const handleGuideClick = () => {
@@ -227,8 +279,81 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Main Content */}
-      <Tabs defaultValue="avatar" className="space-y-6">
+      {/* Main Content        </div>
+
+        {/* Quick Access Cards - Mobile/Tablet Optimization */}
+      <div className="grid grid-cols-2 gap-4 mb-8">
+        <NotificationCenter>
+          <Card className="bg-gray-900/50 border-amber-800/30 hover:bg-gray-800/80 hover:border-amber-500/50 transition-all cursor-pointer h-full group">
+            <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
+              <div className="relative">
+                <Bell className="w-8 h-8 text-amber-400 mb-2 group-hover:scale-110 transition-transform" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                )}
+              </div>
+              <div className="text-sm font-bold text-white">Inbox</div>
+              {unreadCount > 0 ? (
+                <Badge className="mt-2 bg-red-500 hover:bg-red-600 border-none">{unreadCount} New</Badge>
+              ) : (
+                <span className="text-xs text-gray-500 mt-1">No new messages</span>
+              )}
+            </CardContent>
+          </Card>
+        </NotificationCenter>
+
+        <Dialog open={showStats} onOpenChange={setShowStats}>
+          <DialogTrigger asChild>
+            <Card className="bg-gray-900/50 border-amber-800/30 hover:bg-gray-800/80 hover:border-amber-500/50 transition-all cursor-pointer h-full group">
+              <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
+                <User className="w-8 h-8 text-amber-400 mb-2 group-hover:scale-110 transition-transform" />
+                <div className="text-sm font-bold text-white">Character</div>
+                <div className="text-xs text-amber-400/80 mt-1 font-mono">Lvl {characterStats.level}</div>
+              </CardContent>
+            </Card>
+          </DialogTrigger>
+          <DialogContent className="bg-black/95 border-amber-800 text-white max-w-sm">
+            <DialogHeader>
+              <DialogTitle className="text-amber-400 font-medieval text-xl text-center">Character Statistics</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-6 py-4">
+              <div className="flex flex-col items-center">
+                <div className="w-20 h-20 rounded-full border-2 border-amber-500 mb-3 overflow-hidden">
+                  <Avatar className="w-full h-full">
+                    <AvatarImage src={user?.imageUrl} />
+                    <AvatarFallback>{user?.firstName?.charAt(0) || "U"}</AvatarFallback>
+                  </Avatar>
+                </div>
+                <h3 className="text-lg font-bold text-white">{displayName}</h3>
+                <p className="text-amber-400/80 text-sm">Level {characterStats.level} Adventurer</p>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-400">Experience</span>
+                    <span className="text-amber-400">{characterStats.experience} / {characterStats.experienceToNextLevel} XP</span>
+                  </div>
+                  <Progress value={calculateLevelProgress(characterStats.experience)} className="h-2 bg-gray-800" />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-900/50 p-3 rounded-lg border border-amber-800/20 text-center">
+                    <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Gold</div>
+                    <div className="text-xl font-bold text-amber-400">{characterStats.gold}</div>
+                  </div>
+                  <div className="bg-gray-900/50 p-3 rounded-lg border border-amber-800/20 text-center">
+                    <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Streak</div>
+                    <div className="text-xl font-bold text-green-400">Active</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <Tabs defaultValue="avatar" className="w-full space-y-6">
         <TabsList className="grid w-full grid-cols-4 bg-gray-900 border-amber-800/20">
           <TabsTrigger value="avatar" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400">
             <Camera className="w-4 h-4 mr-2" />
