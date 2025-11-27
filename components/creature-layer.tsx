@@ -259,7 +259,9 @@ export function CreatureLayer({ grid, mapType, playerPosition }: Omit<CreatureLa
 
 function findRandomSpawnPoint(grid: Tile[][], habitatType: string): { row: number; col: number } | null {
     if (!grid) return null;
-    const validTiles: { row: number; col: number }[] = [];
+    let validTiles: { row: number; col: number }[] = [];
+
+    // First pass: Try strict habitat match
     grid.forEach((row, r) => {
         if (!row) return;
         row.forEach((tile, c) => {
@@ -268,6 +270,21 @@ function findRandomSpawnPoint(grid: Tile[][], habitatType: string): { row: numbe
             }
         });
     });
+
+    // Second pass: If no tiles found, try 'vacant' or 'grass' as fallback for ANY creature
+    // This ensures creatures appear even if their specific habitat isn't built yet
+    if (validTiles.length === 0) {
+        console.log(`[CreatureLayer] No specific habitat found for ${habitatType}, trying fallback to grass/vacant`);
+        grid.forEach((row, r) => {
+            if (!row) return;
+            row.forEach((tile, c) => {
+                const type = tile?.type?.toLowerCase() || 'vacant';
+                if (type === 'vacant' || type.includes('grass') || type.includes('dirt') || type.includes('plain')) {
+                    validTiles.push({ row: r, col: c });
+                }
+            });
+        });
+    }
 
     if (validTiles.length === 0) return null;
     return validTiles[Math.floor(Math.random() * validTiles.length)] || null;
@@ -321,7 +338,7 @@ function isHabitatMatch(tile: Tile, habitatType: string): boolean {
 
     const tileType = tile.type?.toLowerCase() || 'vacant';
 
-    console.log('[isHabitatMatch] Checking tile type:', tileType, 'against habitat:', habitatType);
+    // console.log('[isHabitatMatch] Checking tile type:', tileType, 'against habitat:', habitatType);
 
     switch (habitatType) {
         case 'water':
@@ -336,20 +353,24 @@ function isHabitatMatch(tile: Tile, habitatType: string): boolean {
                 tileType.includes('river');
         case 'fire':
             // Fire creatures: blacksmith, tavern, inn, kitchen areas, lava
+            // Also allow grass/vacant so they aren't stuck if spawned there
             return tileType.includes('blacksmith') ||
                 tileType.includes('tavern') ||
                 tileType.includes('inn') ||
                 tileType.includes('foodcourt') ||
                 tileType.includes('lava') ||
                 tileType.includes('volcano') ||
+                tileType.includes('grass') ||
                 tileType === 'vacant';
         case 'earth':
             // Earth creatures: mountains, mines, walls, roads, quarries
+            // Also allow grass/vacant
             return tileType.includes('mountain') ||
                 tileType.includes('mine') ||
                 tileType.includes('wall') ||
                 tileType.includes('watchtower') ||
                 tileType.includes('road') ||
+                tileType.includes('grass') ||
                 tileType === 'vacant';
         case 'nature':
             // Nature creatures: forests, farms, gardens, sawmills, windmills
@@ -374,12 +395,13 @@ function isHabitatMatch(tile: Tile, habitatType: string): boolean {
                 tileType.includes('cave') ||
                 tileType.includes('castle') ||
                 tileType.includes('forest') ||
+                tileType.includes('grass') ||
                 tileType === 'vacant';
         case 'special':
             // Special creatures: can appear anywhere
             return true;
         default:
             // Default: only vacant tiles
-            return tileType === 'vacant';
+            return tileType === 'vacant' || tileType.includes('grass');
     }
 }

@@ -50,6 +50,7 @@ export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className }
                 )}
                 style={{ bottom: '100%' }}
             >
+                <span className="text-amber-600 font-extrabold mr-1">{creature.name}:</span>
                 {greetingText}
                 <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-white rotate-45 border-b-2 border-r-2 border-amber-500/50" />
             </div>
