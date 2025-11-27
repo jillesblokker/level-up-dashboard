@@ -1214,8 +1214,8 @@ export function KingdomClient() {
             style={{
               objectFit: 'cover',
               objectPosition: 'center center',
-              // Zoom in to 4x scale
-              transform: zoomed ? 'scale(4)' : 'scale(1)',
+              // Zoom in to 4.5x scale
+              transform: zoomed ? 'scale(4.5)' : 'scale(1)',
               // Set origin to 50% horizontal, 75% vertical (where the door is)
               transformOrigin: '50% 75%',
               // Smooth 3s transition
