@@ -72,7 +72,7 @@ export function NavBar({ session }: NavBarProps) {
           titles: { equipped: '', unlocked: 0, total: 0 },
           perks: { active: 0, total: 0 }
         })
-        
+
         // Then fetch fresh data from Supabase
         const freshStats = await loadCharacterStats()
         if (freshStats) {
@@ -90,17 +90,17 @@ export function NavBar({ session }: NavBarProps) {
         console.error("Error loading character stats:", error)
       }
     }
-    
+
     // Load stats immediately
     loadStats()
-    
+
     // Set up periodic refresh every 30 seconds
     const refreshInterval = setInterval(loadStats, 30000)
-    
+
     // Listen for character stats updates
     const handleStatsUpdate = () => loadStats()
     window.addEventListener("character-stats-update", handleStatsUpdate)
-    
+
     return () => {
       clearInterval(refreshInterval)
       window.removeEventListener("character-stats-update", handleStatsUpdate)
@@ -141,13 +141,9 @@ export function NavBar({ session }: NavBarProps) {
         <div className="hidden md:flex">
           <MainNav />
         </div>
-        {/* Mobile Navigation: logo on left, hamburger menu on right */}
-        <div className="flex md:hidden flex-1 items-center justify-between px-4">
-          <Logo size="sm" />
-          <div className="flex items-center space-x-2">
-            <UserNav />
-            <MobileNav />
-          </div>
+        {/* Mobile Navigation: hamburger menu floating on top right */}
+        <div className="flex md:hidden flex-1 items-center justify-end px-4 absolute top-4 right-4 z-50">
+          <MobileNav />
         </div>
         {/* Desktop right-side stats, notification, user nav */}
         <div className="ml-auto flex items-center space-x-4 hidden md:flex pr-6">

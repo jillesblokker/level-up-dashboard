@@ -3,8 +3,8 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useState, useEffect, useCallback, useMemo } from "react"
-import { 
-  Crown, 
+import {
+  Crown,
   MapIcon,
   Trophy,
   ClipboardCheck,
@@ -43,6 +43,7 @@ import { useUser } from "@clerk/nextjs";
 import { getCharacterStats, fetchFreshCharacterStats } from "@/lib/character-stats-manager"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
 import { MobileErrorFallback } from "@/components/MobileErrorFallback"
+import { UserNav } from "@/components/user-nav"
 
 interface MobileNavProps {
   tabs?: { value: string; label: string }[]
@@ -74,8 +75,8 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
   })
 
   // Memoized calculations
-  const levelProgress = useMemo(() => 
-    calculateLevelProgress(characterStats.experience), 
+  const levelProgress = useMemo(() =>
+    calculateLevelProgress(characterStats.experience),
     [characterStats.experience]
   )
 
@@ -127,10 +128,10 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
   // Simple click handler
   const handleRefreshClick = useCallback(async () => {
     if (isRefreshing) return;
-    
+
     // Removed debugging log
     setIsRefreshing(true);
-    
+
     try {
       // Use the new real-time data fetching system
       const freshStats = await fetchFreshCharacterStats('navigation');
@@ -144,7 +145,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
           titles: { equipped: '', unlocked: 0, total: 0 },
           perks: { active: 0, total: 0 }
         };
-        
+
         setCharacterStats(newStats);
         setDataSource('supabase');
         // Removed debugging log
@@ -166,12 +167,12 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
   // Simple effect for data loading
   useEffect(() => {
     // Removed debugging log
-    
+
     if (!user || !isLoaded) return;
-    
+
     // Load initial data from localStorage for immediate display
     loadCharacterStats();
-    
+
     // Then fetch fresh data from API
     const fetchInitialData = async () => {
       try {
@@ -186,7 +187,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
             titles: { equipped: '', unlocked: 0, total: 0 },
             perks: { active: 0, total: 0 }
           };
-          
+
           setCharacterStats(newStats);
           setDataSource('supabase');
           // Removed debugging log
@@ -195,7 +196,7 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
         console.error('[Mobile Nav] Error fetching initial fresh stats:', error);
       }
     };
-    
+
     fetchInitialData();
   }, [user, isLoaded, loadCharacterStats])
 
@@ -234,13 +235,16 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
               <Menu className="h-6 w-6 text-amber-500" />
             </Button>
           </SheetTrigger>
-          <SheetContentWithoutClose 
-            side="right" 
+          <SheetContentWithoutClose
+            side="right"
             className="w-full bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl border-l border-amber-800/20 pt-safe-top pb-5 h-screen max-h-screen overflow-hidden flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-amber-800/20 bg-gradient-to-r from-amber-900/10 to-transparent">
-              <Logo />
+              <div className="flex items-center gap-3">
+                <Logo />
+                <UserNav />
+              </div>
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
@@ -249,8 +253,8 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
                   disabled={isRefreshing}
                   className={cn(
                     "h-8 w-8 p-0 touch-manipulation min-h-[32px] transition-all duration-200",
-                    isRefreshing 
-                      ? "text-green-500 bg-green-500/10" 
+                    isRefreshing
+                      ? "text-green-500 bg-green-500/10"
                       : "text-amber-500 hover:text-amber-400 hover:bg-amber-500/10"
                   )}
                   aria-label={isRefreshing ? "Refreshing..." : "Refresh character stats from server"}
@@ -360,5 +364,3 @@ export function MobileNav({ tabs, activeTab, onTabChange }: MobileNavProps) {
     </div>
   )
 }
-
- 
