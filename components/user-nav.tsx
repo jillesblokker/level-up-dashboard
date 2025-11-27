@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { logout } from '@/app/actions/auth'
 import Link from "next/link"
-import { ClipboardCheck, Palette, User, Settings, Monitor, BookOpen, Database, Volume2, VolumeX } from "lucide-react"
+import { ClipboardCheck, Palette, User, Settings, Monitor, BookOpen, Database, Volume2, VolumeX, ChevronRight } from "lucide-react"
 import type { Session } from '@supabase/supabase-js'
 import { useClerk, useUser } from "@clerk/nextjs";
 import { useAudioContext } from "@/components/audio-provider";
@@ -61,14 +61,14 @@ export function UserNav() {
           <Button className="relative h-10 w-10 md:h-8 md:w-8 rounded-full touch-manipulation min-h-[44px] bg-transparent hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0">
             <Avatar className="h-10 w-10 md:h-8 md:w-8">
               {user?.imageUrl ? (
-                <AvatarImage 
-                  src={user.imageUrl} 
-                  alt={String(user?.unsafeMetadata?.['user_name'] || user?.username || user?.emailAddresses?.[0]?.emailAddress || 'User')} 
+                <AvatarImage
+                  src={user.imageUrl}
+                  alt={String(user?.unsafeMetadata?.['user_name'] || user?.username || user?.emailAddresses?.[0]?.emailAddress || 'User')}
                   style={{ objectFit: 'cover', objectPosition: 'center' }}
                 />
               ) : (
-                <AvatarFallback 
-                  style={{ 
+                <AvatarFallback
+                  style={{
                     backgroundColor: user?.unsafeMetadata?.['avatar_bg_color'] as string || "#1f2937",
                     color: user?.unsafeMetadata?.['avatar_text_color'] as string || "#ffffff"
                   }}
@@ -79,17 +79,17 @@ export function UserNav() {
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent 
-          className="w-72 md:w-64 max-h-[80vh] overflow-y-auto bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 backdrop-blur-xl scrollbar-thin scrollbar-thumb-amber-500/20 scrollbar-track-transparent dropdown-menu-scrollable" 
-          align="end" 
+        <DropdownMenuContent
+          className="w-screen h-screen md:w-64 md:h-auto md:max-h-[80vh] fixed top-0 left-0 md:top-auto md:left-auto md:absolute z-[100] bg-gray-900/95 md:bg-gradient-to-br md:from-gray-900/95 md:to-gray-800/95 border-none md:border md:border-amber-800/20 backdrop-blur-xl overflow-y-auto"
+          align="end"
           forceMount
           sideOffset={8}
-          style={{
-            maxHeight: '80vh',
-            overflowY: 'auto',
-            WebkitOverflowScrolling: 'touch'
-          }}
         >
+          <div className="flex md:hidden items-center justify-end p-4 border-b border-amber-800/20">
+            <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="text-amber-500 hover:text-amber-400">
+              <ChevronRight className="h-6 w-6" />
+            </Button>
+          </div>
           <DropdownMenuLabel className="font-normal p-4 border-b border-amber-800/20 bg-gradient-to-r from-amber-900/10 to-transparent">
             <div className="flex flex-col space-y-2">
               <p className="text-base font-semibold text-white leading-none">
@@ -129,7 +129,7 @@ export function UserNav() {
                 </div>
               </DropdownMenuItem>
             </Link>
-                            <Link href="/admin/stored-data">
+            <Link href="/admin/stored-data">
               <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation" aria-label="Stored Data">
                 <Database className="h-5 w-5 text-amber-400" />
                 <div className="flex-1 text-left">
@@ -157,10 +157,10 @@ export function UserNav() {
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator className="bg-amber-800/20" />
-          
+
           {/* Audio Controls Section */}
           <DropdownMenuGroup className="p-2 space-y-1">
-            <DropdownMenuItem 
+            <DropdownMenuItem
               className="cursor-pointer rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation"
               onClick={() => {
                 toggleMusic();
@@ -180,9 +180,9 @@ export function UserNav() {
                 </p>
               </div>
             </DropdownMenuItem>
-            
+
             {/* Disable All Audio Button */}
-            <DropdownMenuItem 
+            <DropdownMenuItem
               className="cursor-pointer rounded-lg hover:bg-red-500/10 focus:bg-red-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation"
               onClick={() => {
                 // Disable both music and SFX
@@ -206,7 +206,7 @@ export function UserNav() {
               </div>
             </DropdownMenuItem>
           </DropdownMenuGroup>
-          
+
           <DropdownMenuSeparator className="bg-amber-800/20" />
           <form action={logout}>
             <DropdownMenuItem asChild className="rounded-lg hover:bg-red-500/10 focus:bg-red-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation">

@@ -136,7 +136,7 @@ export function NavBar({ session }: NavBarProps) {
 
   return (
     <div className="md:border-b bg-black md:border-gray-800 z-10 relative">
-      <div className="flex h-16 items-center pt-20 md:pt-0 safe-area-inset-top">
+      <div className="flex h-16 items-center pt-0 md:pt-0 safe-area-inset-top">
         {/* Desktop Navigation */}
         <div className="hidden md:flex">
           <MainNav />
