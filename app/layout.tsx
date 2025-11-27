@@ -156,7 +156,7 @@ export default function RootLayout({
                         <div className="flex flex-col h-full">
                           <AuthGate>
                             <NavBar session={null} />
-                            <main className="flex-1 relative pb-24 lg:pb-0">
+                            <main className="flex-1 relative pb-24 lg:landscape:pb-0">
                               {children}
                             </main>
                             <BottomNav />
